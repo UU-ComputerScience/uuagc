@@ -1,0 +1,1373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.DData.IntSet</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.DData.IntSet</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Set type
+</A
+></DT
+><DT
+><A HREF="#2"
+>Operators
+</A
+></DT
+><DT
+><A HREF="#3"
+>Query
+</A
+></DT
+><DT
+><A HREF="#4"
+>Construction
+</A
+></DT
+><DT
+><A HREF="#5"
+>Combine
+</A
+></DT
+><DT
+><A HREF="#6"
+>Filter
+</A
+></DT
+><DT
+><A HREF="#7"
+>Fold
+</A
+></DT
+><DT
+><A HREF="#8"
+>Conversion
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#9"
+>List
+</A
+></DT
+><DT
+><A HREF="#10"
+>Ordered list
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#11"
+>Debugging
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A HREF="#t%3AIntSet"
+>IntSet</A
+> </TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A%5C%5C"
+>(\\)</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisEmpty"
+>isEmpty</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asize"
+>size</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amember"
+>member</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asubset"
+>subset</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AproperSubset"
+>properSubset</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aempty"
+>empty</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asingle"
+>single</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Ainsert"
+>insert</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adelete"
+>delete</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunion"
+>union</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunions"
+>unions</A
+> :: [<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adifference"
+>difference</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aintersection"
+>intersection</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afilter"
+>filter</A
+> :: (Int -&gt; Bool) -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Apartition"
+>partition</A
+> :: (Int -&gt; Bool) -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asplit"
+>split</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsplitMember"
+>splitMember</A
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (Bool, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afold"
+>fold</A
+> :: (Int -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aelems"
+>elems</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoList"
+>toList</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromList"
+>fromList</A
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoAscList"
+>toAscList</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAscList"
+>fromAscList</A
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromDistinctAscList"
+>fromDistinctAscList</A
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTree"
+>showTree</A
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTreeWith"
+>showTreeWith</A
+> :: Bool -&gt; Bool -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; String</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+>Set type
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AIntSet"
+></A
+><B
+>IntSet</B
+> </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>A set of integers.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:IntSet')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:IntSet" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Eq <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>Show <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+>Operators
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%5C%5C"
+></A
+><B
+>(\\)</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. See <TT
+><A HREF="UU-DData-IntSet.html#v%3Adifference"
+>difference</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+>Query
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AisEmpty"
+></A
+><B
+>isEmpty</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. Is the set empty?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asize"
+></A
+><B
+>size</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Cardinality of the set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Amember"
+></A
+><B
+>member</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Is the value a member of the set?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asubset"
+></A
+><B
+>subset</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a subset?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AproperSubset"
+></A
+><B
+>properSubset</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a proper subset? (ie. a subset but not equal).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+>Construction
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aempty"
+></A
+><B
+>empty</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. The empty set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asingle"
+></A
+><B
+>single</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. A set of one element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Ainsert"
+></A
+><B
+>insert</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Add a value to the set. When the value is already
+ an element of the set, it is replaced by the new one, ie. <TT
+><A HREF="UU-DData-IntSet.html#v%3Ainsert"
+>insert</A
+></TT
+>
+ is left-biased.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adelete"
+></A
+><B
+>delete</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Delete a value in the set. Returns the
+ original set when the value was not present.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+>Combine
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunion"
+></A
+><B
+>union</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The union of two sets. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunions"
+></A
+><B
+>unions</B
+> :: [<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The union of a list of sets.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adifference"
+></A
+><B
+>difference</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Difference between two sets. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aintersection"
+></A
+><B
+>intersection</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The intersection of two sets. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="6"
+>Filter
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afilter"
+></A
+><B
+>filter</B
+> :: (Int -&gt; Bool) -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Filter all elements that satisfy some predicate.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Apartition"
+></A
+><B
+>partition</B
+> :: (Int -&gt; Bool) -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. partition the set according to some predicate.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asplit"
+></A
+><B
+>split</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (<A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. The expression (<TT
+>split x set</TT
+>) is a pair <TT
+>(set1,set2)</TT
+>
+ where all elements in <TT
+>set1</TT
+> are lower than <TT
+>x</TT
+> and all elements in
+ <TT
+>set2</TT
+> larger than <TT
+>x</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsplitMember"
+></A
+><B
+>splitMember</B
+> :: Int -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; (Bool, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>, <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+>)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Performs a <TT
+><A HREF="UU-DData-IntSet.html#v%3Asplit"
+>split</A
+></TT
+> but also returns whether the pivot
+ element was found in the original set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="7"
+>Fold
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afold"
+></A
+><B
+>fold</B
+> :: (Int -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n)</EM
+>. Fold over the elements of a set in an unspecified order.
+</P
+><PRE
+> sum set   = fold (+) 0 set
+ elems set = fold (:) [] set
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="8"
+>Conversion
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="9"
+>List
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aelems"
+></A
+><B
+>elems</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The elements of a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoList"
+></A
+><B
+>toList</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the set to a list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromList"
+></A
+><B
+>fromList</B
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Create a set from a list of integers.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="10"
+>Ordered list
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoAscList"
+></A
+><B
+>toAscList</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; [Int]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the set to an ascending list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromAscList"
+></A
+><B
+>fromAscList</B
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a set from an ascending list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromDistinctAscList"
+></A
+><B
+>fromDistinctAscList</B
+> :: [Int] -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a set from an ascending list of distinct elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="11"
+>Debugging
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTree"
+></A
+><B
+>showTree</B
+> :: <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Show the tree that implements the set. The tree is shown
+ in a compressed, hanging format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTreeWith"
+></A
+><B
+>showTreeWith</B
+> :: Bool -&gt; Bool -&gt; <A HREF="UU-DData-IntSet.html#t%3AIntSet"
+>IntSet</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The expression (<TT
+>showTreeWith hang wide map</TT
+>) shows
+ the tree that implements the set. If <TT
+>hang</TT
+> is
+ <TT
+>True</TT
+>, a <EM
+>hanging</EM
+> tree is shown otherwise a rotated tree is shown. If
+ <TT
+>wide</TT
+> is true, an extra wide version is shown.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

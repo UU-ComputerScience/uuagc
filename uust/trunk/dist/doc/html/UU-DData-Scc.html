@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.DData.Scc</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.DData.Scc</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Ascc"
+>scc</A
+> :: Ord v =&gt; [(v, [v])] -&gt; [[v]]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Ascc"
+></A
+><B
+>scc</B
+> :: Ord v =&gt; [(v, [v])] -&gt; [[v]]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Compute the strongly connected components of a graph. The algorithm
+ is tailored toward the needs of compiler writers that need to compute
+ recursive binding groups (for example, the original order is preserved
+ as much as possible). 
+</P
+><P
+>The expression (<TT
+>scc xs</TT
+>) computes the strongly connectected components
+ of graph <TT
+>xs</TT
+>. A graph is a list of nodes <TT
+>(v,ws)</TT
+> where <TT
+>v</TT
+> is the node 
+ label and <TT
+>ws</TT
+> a list of nodes where <TT
+>v</TT
+> points to, ie. there is an 
+ arrow/dependency from <TT
+>v</TT
+> to each node in <TT
+>ws</TT
+>. Here is an example
+ of <TT
+>scc</TT
+>:
+</P
+><PRE
+>  Scc\&gt; scc [(0,[1]),(1,[1,2,3]),(2,[1]),(3,[]),(4,[])]
+  [[3],[1,2],[0],[4]]
+</PRE
+><P
+>In an expression <TT
+>(scc xs)</TT
+>, the graph <TT
+>xs</TT
+> should contain an entry for 
+ every node in the graph, ie:
+</P
+><PRE
+>  all (`elem` nodes) targets
+  where nodes   = map fst xs
+        targets = concat (map snd xs)
+</PRE
+><P
+>Furthermore, the returned components consist exactly of the original nodes:
+</P
+><PRE
+>  sort (concat (scc xs)) == sort (map fst xs)
+</PRE
+><P
+>The connected components are sorted by dependency, ie. there are
+ no arrows/dependencies from left-to-right. Furthermore, the original order
+ is preserved as much as possible. 
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>
