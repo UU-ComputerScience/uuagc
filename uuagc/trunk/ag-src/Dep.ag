@@ -1,0 +1,181 @@
+imports
+{
+import Options
+import Streaming
+import qualified UU.DData.Map as Map
+import List(partition,transpose)
+import CommonTypes(_LHS)
+import DepTypes
+}
+
+ATTR Pattern Patterns [ nt:{Identifier} | | ]
+ATTR Pattern Patterns [ con:{Identifier} | | ]
+
+
+-------------------------------------------------------------------------------
+--  Mutually recursive use stream definitions
+-------------------------------------------------------------------------------
+
+ATTR Production Child Alternative Rule  [ down : {[UseStream]} | | up : {[UseStream]} ]
+ATTR Productions Alternatives Children Rules  [ down : {[UseStream]} | | up USE {++} {[]} : {[UseStream]} ]
+
+{
+{- de definitieve versie -}
+getResult :: [[(Vertex,Result)]] -> Seq Error
+getResult (res:rest) = if and (map (\(v,(set,upd)) -> null upd) res)
+                       then checkCircular res
+                       else getResult rest
+getResult [] = Seq.empty
+
+
+-- volgorde van belang: eerst de inh aflopen, dat zijn er minder!!
+checkCircular :: [(Vertex,Result)] -> Seq Error
+checkCircular res = Seq.fromList $  
+                     concat [ [ CircGrammar
+                                nt1
+                                attr1
+                                (fromJust (lookup attr2 (map toPair set1)))
+                                attr2
+                                (fromJust (lookup attr1 (map toPair set2)))
+                             | (NTSyn  nt2 attr2,(set2,upd2))<-res
+                             , nt1==nt2
+                             , attr1 `elem` (map getAttr set2)
+                             , attr2 `elem` (map getAttr set1)]
+                           | (NTInh nt1 attr1,(set1,upd1))<-res
+                           ]
+
+
+}
+
+SEM Grammar
+  | Grammar prods.down = @prods.up
+            loc.errors           = if withCycle @lhs.options 
+                                    then getResult
+                                       . transpose
+                                       . map (\(vertex,stream) -> zip (repeat vertex) stream)
+                                       $ @prods.up
+                                    else Seq.empty
+            lhs.errors           = @errors Seq.<> @prods.errors
+
+{
+-- de vertex is die die aangemaakt wordt door de productie
+-- 1 allereerst worden de useStreams geselecteerd die met deze knoop verbonden dienen te worden
+-- 2 daarna worden hier alle resultaten gefilterd die met de lhs nonterminal verbonden zijn
+--   want we zijn alleen geïnteresseerd in hoe de inh (syn) attributen van de syn (inh) attributen van een nonterminal afhangen
+-- 3 de field informatie is nu niet meer nodig en wordt eruit gegooid door van een lokaal resultaat een globaal resultaat te maken
+prod2stream :: Vertex -> [UseStream] -> Stream
+prod2stream (NTSyn nt at) streams = foldr stUnion stEmpty (map (stLocal2global . stFilterInclSide) . filter p $ streams) where
+ p ((LHSSyn nont con attr),_) = nont==nt && attr==at
+ p _                           = False
+prod2stream (NTInh nt at) streams = foldr stUnion stEmpty (map (stLocal2global . stFilterInclSide) . filter p $ streams) where
+ p ((RHSInh  rhs lhs con fld attr),_) = rhs==nt && attr==at
+ p _                                  = False
+prod2stream _ _ = stEmpty
+}
+
+-- voor de usestreams gebruik ik hier niet lhs.useStreams maar alts.useStreams, want een productie gebruikt alleen haar alternatives
+SEM Production
+  | Production loc.is = [let v = NTSyn @nt syn in (v, prod2stream v @lhs.down) | syn<-(Map.keys @syn)]
+                  .si = [let v = NTInh @nt inh in (v, prod2stream v @lhs.down) | inh<-(Map.keys @inh)]
+               lhs.up = @alts.up ++ @is ++ @si
+
+{
+ports2stream :: Vertex -> [Vertex] -> [UseStream] -> Stream
+ports2stream vport vertices useStreams = foldr stUnion stEmpty stPorts where
+ stPorts = [ stPort
+              (getAttr vertex)
+              (getStream vport useStreams)
+              (getStream vertex useStreams)
+           | vertex<-vertices
+           ]
+}
+
+SEM Alternative
+  | Alternative loc.up = [ ( LHSInh @lhs.nt @con inh, stStart _LHS inh)
+                         | inh <- @inhnames
+                         ]
+                lhs.up = @up ++ @rules.up ++ @children.up
+
+
+{
+getNonterminalName (NT nt) = nt
+getNonterminalName _       = nullIdent
+
+child_syn2stream :: Vertex -> [Vertex] -> [UseStream] -> Stream
+child_syn2stream vport vins useStreams = foldr stUnion stEmpty stPorts where
+ stPorts = [ stPort
+              (getAttr vin)
+              (getStream vport useStreams)
+              (getStream vin useStreams)
+           | vin<-vins
+           ]
+}
+
+-- wanneer er geen attributen zijn betreft het een terminal, voor de berekening wordt dit een lokaal attribuut
+SEM Child
+  | Child lhs.up = if null ((Map.keys @syn) ++ (Map.keys @inh))
+                    then [(Local @lhs.nt @lhs.con @name,stEmpty)]
+                    else [ let stInit = stStart @name syn
+                               stCopy = ports2stream
+                                        (NTSyn (getNonterminalName @tp) syn)
+                                        [RHSInh (getNonterminalName @tp) @lhs.nt @lhs.con @name inh | inh<-(Map.keys @inh)]
+                                        (@lhs.down)
+                               stream = stUnion stInit stCopy
+                           in (RHSSyn (getNonterminalName @tp) @lhs.nt @lhs.con @name syn,stream)
+                         | syn<-(Map.keys @syn)
+                         ]
+
+-- ShRHSSyn wordt gebruikt omdat het hier attributes betreft van een ander kind, waarvan het ingewikkeld edoch onnodig
+-- is de nt te achterhalen. Ingewikkeld omdat er daartoe een omgeving dient te worden opgebouwd met alle kind nonterminals
+-- en hun field namen. Onnodig omdat binnen de LHS nt en constructor de field naam volstaat om een stream te selecteren.
+-- Bij het aanmaken van de gewenste stream wordt de RHS nt wel gebruikt omdat deze nodig is om uiteindelijk alle RHS
+-- voorkomens van een nt op een hoop te vegen, hetwelk gebeurt in prod2stream op productie nivo.
+SEM Rule
+  | Rule loc.(locAttrs, (inAttrs,outAttrs)) = let (locs,rest) = partition (\(fld,attr) -> fld==_LOC) @rhs.usedAttrs
+                                              in (map snd locs, partition (\(fld,attr) -> fld==_LHS) rest)
+               .usedLocals         = map (\attr       -> Local    @lhs.nt @lhs.con     attr) (@locAttrs ++ @rhs.usedLocals)
+               .usedOutAttrs       = map (\(fld,attr) -> ShRHSSyn @lhs.nt @lhs.con fld attr) @outAttrs
+               .usedInAttrs        = map (\(fld,attr) -> LHSInh   @lhs.nt @lhs.con     attr) @inAttrs
+               .up                 = [ let (nt2,field)= case vertex of
+                                                         Local _ _ _       -> (nullIdent,nullIdent)
+                                                         LHSSyn nt _ _     -> (nt       ,_LHS)
+                                                         RHSInh nt _ _ f _ -> (nt       ,f)
+                                           rhsstreams = [ addTraceElem
+                                                           (TE { lineNr  = line @rhs.pos
+                                                               , nt      = @lhs.nt
+                                                               , prod    = @lhs.con
+                                                               , lhsNt   = nt2
+                                                               , lhsFld  = field
+                                                               , lhsAttr = getAttr vertex
+                                                               , rhsFld  = getField usedVertex
+                                                               , rhsAttr = getAttr usedVertex
+                                                               }
+                                                           )
+                                                           (getStream usedVertex @lhs.down)
+                                                        | usedVertex <- (@usedLocals ++ @usedOutAttrs ++ @usedInAttrs)
+                                                        ]
+                                       in (vertex,([],[]) : (foldr stUnion stEmpty rhsstreams))
+                                     | vertex <- (@pattern.vertices)
+                                     ]
+
+-------------------------------------------------------------------------------
+--  Collecting pattern variables
+-------------------------------------------------------------------------------
+
+ATTR Pattern Patterns [ | | vertices USE {++} {[]} : {[Vertex]} ]
+
+SEM Pattern 
+  | Alias  lhs.vertices = let vertex | @field==_LHS = LHSSyn @lhs.nt @lhs.con @attr
+                                     | @field==_LOC || @field == nullIdent = Local @lhs.nt  @lhs.con @attr
+                                     | otherwise    = RHSInh fieldType @lhs.nt @lhs.con @field @attr
+                              fieldType = maybe nullIdent getNonterminalName (lookup @field @lhs.fields)       
+                          in [vertex]
+
+ATTR Rules Rule Pattern Patterns [ fields:{[(Name,Type)]} | | ]
+
+-------------------------------------------------------------------------------
+--  Ehhhmmm....
+-------------------------------------------------------------------------------
+
+SEM Expression [ | | pos : {Pos} ]
+  | Expression lhs.pos = @pos

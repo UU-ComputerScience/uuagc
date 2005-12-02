@@ -1,0 +1,108 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/PrintCode.ag,v 1.5 2003/11/03 15:43:15 uust Exp $
+--  $Name:  $ (version name)
+
+INCLUDE "Code.ag"
+
+imports
+{
+import UU.Pretty
+import Code
+}
+
+types
+{
+type PP_Docs = [PP_Doc]
+}
+
+
+
+ATTR Program                            [ width:{Int} nest:{Bool} | | output:{String} ]
+ATTR Expr Decl DataAlt Type Lhs         [ nest:{Bool} | | pp:{PP_Doc} ]
+
+ATTR Exprs DataAlts Types  Decls        [ nest:{Bool} | | pps: {[PP_Doc]} ]
+
+SEM Exprs
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM DataAlts
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Types
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Decls
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Program
+  | Program    lhs.output  = foldr (\x y -> x . ('\n':) . y) id
+                             (map (\d -> disp d @lhs.width)  @decls.pps)
+                             ""
+
+SEM Decl
+  | Decl       lhs.pp      = @left.pp >#< "="
+                             >-< indent 4 @rhs.pp
+  | Data       lhs.pp      = "data" >#< @name 
+                             >#<  ( case @alts.pps of
+                                          [] -> empty
+                                          (x:xs) ->              "=" >#<  x
+                                                 >-< vlist (map ("|" >#<) xs)
+                                     >-< if null @derivings
+                                            then empty
+                                            else "deriving" >#< ppTuple False (map text @derivings)  
+                                  )                                            
+
+
+  | NewType    lhs.pp      = "newtype" >#< @name >#< "=" >#< @con >#< pp_parens @tp.pp
+  | Type       lhs.pp      = "type" >#< @name >#< "=" >#<  @tp.pp
+  | TSig       lhs.pp      = @name >#< "::" >#< @tp.pp
+  | Comment    lhs.pp      = if '\n' `elem` @txt
+                               then "{-" >-< vlist (lines @txt) >-< "-}"
+                               else "--" >#< @txt
+
+SEM Expr
+  | Let        lhs.pp      = (    "let" >#< (vlist @decls.pps)
+                              >-< "in " >#< @body.pp
+                             )
+  | Lambda     lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
+                                  >-< indent 4 @body.pp
+                             )
+  | TupleExpr  lhs.pp      = ppTuple @lhs.nest @exprs.pps
+  | App        lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
+  | SimpleExpr lhs.pp      = text @txt
+  | PP lhs . pp = @pp
+
+SEM DataAlt
+  | DataAlt    lhs.pp      = @name >#< hv_sp (map (pp_parens.text) @args)
+  | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
+                                                [ f >#< "::" >#< t | (f,t) <- @args ]
+
+SEM Lhs
+  | Pattern    lhs.pp      = pp_parens @pat
+  | TupleLhs   lhs.pp      = ppTuple @lhs.nest (map text @comps)
+  | Fun        lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
+
+SEM Type  [ | | prec:Int ]
+  | Arr        lhs.prec    = 2
+                  .pp      = @loc.l >#< "->" >-< @loc.r
+               loc.l       = if @left.prec  <= 2 then pp_parens @left.pp  else @left.pp
+                  .r       = if @right.prec <  2 then pp_parens @right.pp else @right.pp
+
+  | TupleType  lhs.prec    = 5
+                  .pp      = ppTuple @lhs.nest @tps.pps
+
+  | List       lhs.prec    = 5
+                  .pp      = "[" >|< @tp.pp >|< "]"
+
+  | SimpleType lhs.prec    = 5
+                  .pp      = pp_parens $ text @txt
+
+{
+
+ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
+ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+
+}

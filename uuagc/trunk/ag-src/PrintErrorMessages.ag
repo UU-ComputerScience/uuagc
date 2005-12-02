@@ -1,0 +1,359 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/PrintErrorMessages.ag,v 1.10 2004/01/08 12:12:35 uust Exp $
+--  $Name:  $ (version name)
+
+INCLUDE "ErrorMessages.ag"
+
+imports
+{
+import ErrorMessages
+import UU.Pretty
+import CommonTypes
+import UU.Scanner.Position(Pos(..), noPos)
+import DepTypes
+}
+
+ATTR Error  [               | | pp  :{PP_Doc} isWarning:{Bool} ]
+ATTR Error  [ verbose:{Bool}| |              ]
+
+SEM Error
+  | DupAlt          loc.isWarning = True 
+                    lhs.pp = let mesg  = wfill ["Repeated definition for alternative", getName @con
+                                               ,"of nonterminal", getName @nt, "."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Other definition:", (showPos @con),"."]
+                                 pat =     "DATA" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "...")
+                                       >-< indent 2 ("|" >#< getName @con >#< "...")
+
+                                 help =  wfill ["The nonterminal",getName @nt,"has more than one alternative that"
+                                               ,"is labelled with the constructor name",getName @con,"."
+                                               ,"You should either rename or remove enough of them to make all"
+                                               ,"constructors of",getName @nt,"uniquely named."
+                                               ] 
+
+                                 act  = wfill [ "The first alternative of name",getName @con
+                                              ,"you have given for nonterminal",getName @nt
+                                              ,"is considered valid. All other alternatives have been discarded."
+                                              ]
+
+                             in ppError @isWarning (getPos @con) mesg pat help act @lhs.verbose
+
+  | DupSynonym      loc.isWarning = True 
+                    lhs.pp = let mesg  = wfill ["Definition of type synonym", getName @nt, "clashes with another"
+                                               ,"type synonym or a data definition."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Type synonym :"   , (showPos @nt),"."]
+                                 pat =     "DATA" >#< getName @nt
+                                       >-< indent 2 ("|" >#< "...")
+                                       >-< "TYPE" >#< getName @nt >#< "=" >#<  "..."
+                                 help =  wfill ["A type synonym with name", getName  @nt
+                                               ,"has been given while there already is a DATA or TYPE"
+                                               ,"definition with the same name."
+                                               ,"You should either rename or remove the type synonym."
+                                               ]
+                                 act  = wfill [ "The clashing type synonym will be ignored."
+                                              ]
+                             in ppError @isWarning  (getPos @nt) mesg pat help act @lhs.verbose
+
+  | DupSet          loc.isWarning = True 
+                    lhs.pp = let mesg  = wfill ["Definition of nonterminal set", getName @name, "clashes with another"
+                                               ,"set, a type synonym or a data definition."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Set definition:"   , (showPos @name),"."]
+                                 pat =     "SET" >#< getName @name >#< "=" >#<  "..."
+                                       >-< "SET" >#< getName @name >#< "=" >#<  "..."
+                                 help =  wfill ["A nonterminal set with name", getName  @name
+                                               ,"has been given while there already is a SET, DATA, or TYPE"
+                                               ,"definition with the same name."
+                                               ,"You should either rename or remove the nonterminal set."
+                                               ]
+                                 act  = wfill [ "The clashing nonterminal set will be ignored."
+                                              ]
+                             in ppError @isWarning  (getPos @name) mesg pat help act @lhs.verbose
+  | DupInhAttr      loc.isWarning = False
+                    lhs.pp = let mesg  = wfill ["Repeated declaration of inherited attribute", getName @attr
+                                               , "of nonterminal", getName @nt, "."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Other definition:", (showPos @attr),"."]
+                                 pat  = "ATTR" >#< getName @nt >#< "[" >#< getName @attr >|< ":...,"
+                                                               >#< getName @attr >|< ":... | | ]"
+
+                                 help =  wfill ["The identifier" , getName @attr ,"has been declared"
+                                               ,"as an inherited (or chained) attribute for nonterminal"
+                                               ,getName @nt , "more than once, with possibly different types."
+                                               ,"Delete all but one or rename them to make them unique."
+                                               ]
+                                 act  = wfill ["One declaration with its corresponding type is considered valid."
+                                              ,"All others have been discarded. The generated program will probably not run."
+                                              ]
+
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+  | DupSynAttr      loc.isWarning = False
+                    lhs.pp = let mesg  = wfill ["Repeated declaration of synthesized attribute", getName @attr
+                                               , "of nonterminal", getName @nt, "."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Other definition:", (showPos @attr),"."]
+                                 pat  = "ATTR" >#< getName @nt >#< "[ | |" >#< getName @attr >|< ":...,"
+                                                                   >#< getName @attr >|< ":... ]"
+
+                                 help =  wfill ["The identifier" , getName @attr ,"has been declared"
+                                               ,"as a synthesized (or chained) attribute for nonterminal"
+                                               ,getName @nt , "more than once, with possibly different types."
+                                               ,"Delete all but one or rename them to make them unique."
+                                               ]
+                                 act  = wfill ["One declaration with its corresponding type is considered valid."
+                                              ,"All others have been discarded. The generated program will probably not run."
+                                              ]
+
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+  | DupChild        loc.isWarning = True
+                    lhs.pp = let mesg  = wfill ["Repeated declaration for field", getName @name, "of alternative"
+                                               ,getName @con, "of nonterminal", getName @nt, "."
+                                               ] >-<
+                                         wfill ["First definition:", (showPos @occ1),"."] >-<
+                                         wfill ["Other definition:", (showPos @name),"."]
+                                 pat   =   "DATA" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< (getName @name >|< ":..." >-< getName @name >|< ":..."))
+
+
+                                 help =  wfill ["The alternative" ,getName @con , "of nonterminal" ,getName @nt
+                                               ,"has more than one field that is named"
+                                               , getName @name ++ ". Possibly they have different types."
+                                               ,"You should either rename or remove enough of them to make all fields of"
+                                               ,getName @con , "for nonterminal " , getName @nt , "uniquely named."
+                                               ]
+                                 act  = wfill ["The last declaration with its corresponding type is considered valid."
+                                              ,"All others have been discarded."
+                                              ]
+                             in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose
+
+  | DupRule         loc.isWarning = False
+                    lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more rules for"
+                                               ,showAttrDef @field @attr,"."
+                                               ]  >-<
+                                         wfill ["First rule:", (showPos @occ1),"."] >-<
+                                         wfill ["Other rule:", (showPos @attr),"."]
+
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
+
+                                 help =  wfill ["In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", there is more than one rule for the" , showAttrDef @field @attr
+                                                       ,". You should either rename or remove enough of them to make all rules for alternative"
+                                                       ,getName @con , "of nonterminal " ,getName  @nt , "uniquely named."
+                                                       ]
+                                 act  = wfill ["The last rule given is considered valid. All others have been discarded."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
+  | UndefNont       loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "is not defined."
+                                               ]  >-<
+                                         wfill ["Location:", showPos @nt,"."]
+                                 pat   = "DATA" >#< getName @nt >#< "..."
+
+                                 help =  wfill ["There are attributes and/or rules for nonterminal" , getName @nt  ,", but there is no definition"
+                                                       , "for" ,getName  @nt, ". Maybe you misspelled it? Otherwise insert a definition."
+                                                       ]
+                                 act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
+                             in ppError @isWarning (getPos @nt) mesg pat help act @lhs.verbose
+
+  | UndefAlt        loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt, "is  not defined."
+                                               ]  >-<
+                                         wfill ["Location:", (showPos @con),"."]
+                                 pat   =   "DATA" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "...")
+
+                                 help =  wfill ["There are rules for alternative", getName @con , "of nonterminal" ,getName @nt
+                                                       ,", but there is no definition for this alternative in the definitions of the"
+                                                       ,"nonterminal" , getName @nt, ". Maybe you misspelled it? Otherwise insert a definition."
+                                                       ]
+                                 act  = wfill ["All rules for the unknown alternative have been ignored."]
+                             in ppError @isWarning (getPos @con) mesg pat help act @lhs.verbose
+
+  | UndefChild      loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt
+                                               , "does not have a field named", getName @name , "."
+                                               ]  >-<
+                                         wfill ["Location:", showPos @name,"."]
+                                 pat   =   "SEM" >#< @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr @name (identifier "<attr>") >#< "= ...")
+
+                                 help =  wfill ["There are rules that define or use attributes of field" , getName @name
+                                                       ,"in alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", but this field does not exist in the definition of the alternative."
+                                                       ,"Maybe you misspelled it? Otherwise insert the field into the definition."
+                                                       ]
+                                 act  = wfill ["All rules for the unknown field have been ignored."]
+                             in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose
+
+  | MissingRule     loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Missing rule for", showAttrDef @field @attr , "in alternative"
+                                               , getName @con , "of nonterminal",getName @nt ,"."
+                                               ]>-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   =   "SEM" >#< @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
+
+                                 help  = wfill ["The", showAttrDef @field @attr, "in alternative", getName @con
+                                               , "of nonterminal", getName @nt, "is missing and cannot be inferred"
+                                               ,"by a copy rule, so you should add an appropriate rule."
+                                               ]
+                                 act  = wfill ["The value of the attribute has been set to undefined."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
+  | SuperfluousRule loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Rule for non-existing", showAttrDef @field @attr , "at alternative"
+                                               , getName @con , "of nonterminal",getName @nt, "."
+                                               ]  >-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
+
+
+                                 help =  wfill ["There is a rule for" , showAttrDef @field @attr , "in the definitions for alternative" , getName @con
+                                               ,"of nonterminal" , getName @nt,  ", but this attribute does not exist. Maybe you misspelled it?"
+                                               ,"Otherwise either remove the rule or add an appropriate attribute definition."
+                                               ]
+                                 act  = wfill ["The rule has been ignored."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
+  | UndefLocal      loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Undefined local variable or field",getName @var, "at constructor"
+                                               , getName @con , "of nonterminal",getName @nt, "."
+                                               ]  >-<
+                                         wfill ["Location:", (showPos @var),"."]
+                                 pat   = "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "<field>.<attr> = "
+                                                         >#< "..." >#< "@" >|< getName @var >#< "..." )
+
+                                 help =  wfill ["A rule in the definitions for alternative" , getName @con ,"of nonterminal"
+                                               , getName @nt , "contains a local variable or field name that is not defined"
+                                               ,"Maybe you misspelled it?"
+                                               ,"Otherwise either remove the rule or add an appropriate definition."
+                                               ]
+                                 act  = wfill ["The generated program will not run."]
+                             in ppError @isWarning (getPos @var) mesg pat help act @lhs.verbose
+
+  | UndefAttr       loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Undefined", showAttrUse @field @attr, "at constructor"
+                                               , getName @con , "of nonterminal",getName @nt, "."
+                                               ]  >-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   = "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "<field>.<attr> = "
+                                                         >#< "..." >#< ppAttrUse @field @attr >#< "...")
+
+                                 help =  wfill ["A rule in the definitions for alternative" , getName @con ,"of nonterminal"
+                                               ,getName  @nt , "contains an attribute that is not defined"
+                                               ,"Maybe you misspelled it?"
+                                               ,"Otherwise either remove the rule or add an appropriate attribute definition."
+                                               ]
+                                 act  = wfill ["The generated program will not run."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
+  | CyclicSet       loc.isWarning      = False
+                    lhs.pp = let mesg  = wfill ["Cyclic definition for nonterminal set", getName @name]  >-<
+                                         wfill ["Location:", (showPos @name),"."]
+                                 pat   = "SET" >#< getName @name >#< "=" >#< "..." >#< getName @name >#< "..." 
+                                 help =  wfill ["The defintion for a nonterminal set named" , getName @name 
+                                               ,"directly or indirectly refers to itself."
+                                               ,"Adapt the definition of the nonterminal set, to remove the cyclic dependency."
+                                               ]
+                                 act  = wfill ["The nonterminal set", getName @name, "is considered to be empty."]
+                             in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose
+  | CustomError     lhs.pp = let pat   =  text "unknown"
+                                 help = wfill ["not available."]
+                                 act  = wfill ["unknown"]
+                             in ppError @isWarning @pos @mesg pat help act False
+
+                    lhs . isWarning = @isWarning
+ | CircGrammar      loc.isWarning      = True
+                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
+                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
+                                         in wfill ["Circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
+                                 pat   = text "see help"
+                                 help  = wfill [@nt +.+ @syn, "<", @nt +.+ @inh, ":"]
+                                         >-< ppTrace @isTrace
+                                         >-< wfill [@nt +.+ @inh, "<", @nt +.+ @syn, ":"]
+                                         >-< ppTrace @siTrace
+                                 act   = text "The generated program might not run."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
+{
+ppTrace :: Trace -> PP_Doc
+ppTrace (tr:rest) = wfill [showLineNr (lineNr tr) ++ ":", "SEM", getName (nt tr), "|", getName (prod tr)
+                         , lhsFld tr +.+ lhsAttr tr, "=", "..." +#+ showRhs tr +#+ "..."]
+                    >-< ppTrace rest
+ppTrace [] = empty
+
+showRhs :: TraceElem -> String
+showRhs tr = if null (getName field)
+             then "@" ++ getName attr
+             else "@" ++ (field +.+ attr)
+ where field = rhsFld tr
+       attr  = rhsAttr tr
+ 
+showLineNr :: Int -> String
+showLineNr i | i==(-1) = "CR"
+             | otherwise = show i
+
+showAttrDef f a | f == _LHS = "synthesized attribute " ++ getName a
+                | f == _LOC = "local attribute " ++ getName a 
+                | otherwise = "inherited attribute " ++ getName a ++ " of field " ++ getName f
+
+showAttrUse f a | f == _LHS = "inherited attribute " ++ getName a
+                | f == _LOC = "local attribute " ++ getName a 
+                | otherwise = "synthesized attribute " ++ getName a ++ " of field " ++ getName f
+
+ppAttr f a = text (getName f++"."++getName a)
+ppAttrUse f a = "@" >|< ppAttr f a
+}
+-- Printing of error messages
+
+{
+infixr 5 +#+
+(+#+) :: String -> String -> String
+(+#+) s t = s ++ " " ++ t
+
+infixr 5 +.+
+(+.+) :: Identifier -> Identifier -> String
+(+.+) s t = getName s ++ "." ++ getName t
+
+wfill = fill . addSpaces. concat . map words
+  where addSpaces (x:xs) = x:map addSpace xs
+        addSpaces []     = []
+        addSpace  [x]    | x `elem` ".,;:!?" = [x]
+        addSpace  xs     = ' ':xs
+
+ppError :: Bool           -- class of the error, True:warning False:error
+        -> Pos      -- source position
+        -> PP_Doc         -- error message
+        -> PP_Doc         -- pattern
+        -> PP_Doc         -- help, more info
+        -> PP_Doc         -- action taken by AG
+        -> Bool           -- verbose? show help and action?
+        -> PP_Doc
+ppError isWarning pos mesg pat hlp act verbose
+  = let 
+      cl = if isWarning then "warning" else "error"
+      position   = case pos of
+                         (Pos l c f) | l >= 0    -> f >|< ":" >|< show l >|< "," >|< show c
+                                     | otherwise -> empty
+      errorClass = "*** UU.AG" >#< cl >#< "***"
+      message    = "ERROR    :" >#< mesg
+      pattern    = "pattern  :" >#< pat
+      help       = "help     :" >#< hlp
+      action     = "action   :" >#< act
+    in
+      if verbose
+         then vlist [position,errorClass,message,pattern,help,action]
+         else vlist [position, errorClass,message]
+
+showPos = show . getPos
+}

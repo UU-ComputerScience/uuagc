@@ -1,0 +1,81 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/ConcreteSyntax.ag,v 1.8 2005/03/11 15:40:58 uust Exp $
+--  $Name:  $ (version name)
+
+
+imports
+{
+import CommonTypes
+import Patterns
+import Rules
+import UU.Pretty
+import UU.Scanner.Position(Pos)
+import Expression
+}
+
+TYPE Elems     = [Elem]
+
+TYPE Alts      = [Alt]
+
+TYPE SemAlts   = [SemAlt]
+
+
+DATA AG        | AG     elems  : Elems
+
+
+DATA Elem      | Data   pos    : {Pos}
+                        name   : {Nonterminal}
+                        attrs  : Attrs
+                        alts   : Alts
+                        ext    : {Bool}
+
+               | Type   pos     : {Pos}
+                        name    : {Nonterminal}
+                        type    : {ComplexType}
+
+               | Attr   pos    : {Pos}
+                        names  : NontSet
+                        attrs  : Attrs
+
+               | Sem    pos    : {Pos}
+                        name   : {Nonterminal}
+                        attrs  : Attrs
+                        alts   : SemAlts
+
+               | Txt    pos    : {Pos}
+                        name   : {Name}
+                        lines  : {[String]}
+               | Set    pos    : {Pos}
+                        name   : {Name}
+                        set    : NontSet
+               | Deriving pos    : {Pos}
+                          set    : NontSet         
+                          classes : {[Name]}
+               | Wrapper  pos    : {Pos}
+                          set    : NontSet         
+
+DATA Attrs     | Attrs  pos    : {Pos}
+                        inh,chn,syn : {AttrNames}
+
+
+DATA Alt       | Alt    pos    : {Pos}
+                        name   : {Constructor}
+                        fields : {Fields}
+
+
+DATA SemAlt    | SemAlt pos    : {Pos} 
+                        constructorSet   : ConstructorSet
+                        rules  : {SemDefs}
+
+
+DATA ConstructorSet
+   | CName name:{Constructor}
+   | CUnion set1,set2 : ConstructorSet
+   | CDifference set1,set2 : ConstructorSet
+   | CAll  
+
+DATA NontSet   | NamedSet name:{Nonterminal}
+               | All  
+               | Union set1,set2 : NontSet
+               | Intersect set1,set2 : NontSet
+               | Difference set1,set2 : NontSet
+               | Path from,to:{Nonterminal}

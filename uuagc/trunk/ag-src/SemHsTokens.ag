@@ -1,0 +1,136 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/SemHsTokens.ag,v 1.5 2003/10/31 11:56:39 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import HsToken
+import ErrorMessages
+import CommonTypes
+import UU.Pretty
+import UU.Scanner.Position
+import List
+import Char
+import UU.DData.Seq as Seq
+}
+
+INCLUDE "HsToken.ag"
+
+ATTR HsTokensRoot
+     [ nt,con    :{Identifier}
+       fieldnames    :{[Identifier]}
+       attrs     :{[(Identifier,Identifier)]}
+     | | 
+       errors    USE {Seq.<>} {Seq.empty}:{Seq Error}
+       usedLocals:{[Identifier]}
+       usedAttrs :{[(Identifier,Identifier)]}
+       pp        :{PP_Doc}
+     ]
+
+-------------------------------------------------------------------------------
+--  Errors
+-------------------------------------------------------------------------------
+ATTR HsTokens HsToken [ | |  errors USE {Seq.<>} {Seq.empty}:{Seq Error}  ]
+ATTR HsTokens HsToken [ nt,con   :{Identifier}
+                        fieldnames   :{[Identifier]}
+                        attrs    :{[(Identifier,Identifier)]}
+                      ||
+                      ]
+
+-------------------------------------------------------------------------------
+-- Syntax errors
+-------------------------------------------------------------------------------
+
+SEM HsToken
+  | Err lhs.errors = let m = text @mesg
+                     in Seq.single (CustomError False @pos m)
+                     
+-------------------------------------------------------------------------------
+--  Undefined variables
+-------------------------------------------------------------------------------
+
+SEM HsToken
+  | AGLocal   loc.(errors,tok,usedLocals) = 
+                     let result | @var `elem` @lhs.fieldnames   = (Seq.empty, (@pos,fieldname @var), [])
+                                | (_LOC,@var) `elem` @lhs.attrs = (Seq.empty, (@pos,locname @var), [@var])
+                                | otherwise                     = (Seq.single(UndefLocal @lhs.nt @lhs.con @var)
+                                                                  ,(@pos,locname @var), [])
+                     in result
+SEM HsToken
+  | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
+                                 then Seq.empty
+                                 else if not(@field `elem` (_LHS : _LOC: @lhs.fieldnames))
+                                         then Seq.single (UndefChild @lhs.nt @lhs.con @field)
+                                         else Seq.single (UndefAttr @lhs.nt @lhs.con @field @attr)
+                                         
+-------------------------------------------------------------------------------
+--         Used variables
+-------------------------------------------------------------------------------
+
+ATTR HsTokens HsToken [ | | usedLocals USE {++} {[]} : {[Identifier]}
+                            usedAttrs  USE {++} {[]} : {[(Identifier,Identifier)]} ]
+
+SEM HsToken
+  | AGField lhs.usedAttrs  = [(@field,@attr)]
+-------------------------------------------------------------------------------
+--  Pretty printing
+-------------------------------------------------------------------------------
+
+SEM HsTokensRoot
+  | HsTokensRoot lhs.pp = let lns = showTokens @tokens.tks
+                          in  vlist (map text lns)
+
+SEM HsTokens [ || tks : {[(Pos,String)]} ]
+  | Cons lhs.tks = @hd.tok : @tl.tks
+  | Nil  lhs.tks = []
+
+SEM HsToken [ || tok:{(Pos,String)}]
+   | AGField lhs.tok = (@pos, attrname True @field @attr)
+
+   | HsToken lhs.tok = (@pos, @value)
+
+   | CharToken lhs.tok = (@pos, if null @value
+                                   then ""
+                                   else showCharShort (head @value)
+                         )
+
+   | StrToken  lhs.tok = (@pos, showStrShort @value)
+   | Err       lhs.tok = (@pos, "")
+{
+showTokens :: [(Pos,String)] -> [String]
+showTokens [] = []
+showTokens xs = map showLine . shiftLeft . getLines $ xs
+getLines []         = []
+getLines ((p,t):xs) =       let (txs,rest)     = span sameLine xs
+                                sameLine (q,_) = line p == line q
+                            in ((p,t):txs) : getLines rest
+shiftLeft lns =        let sh = let m = minimum . checkEmpty . filter (>=1) . map (column.fst.head) $ lns
+                                    checkEmpty [] = [1]
+                                    checkEmpty x  = x
+                                in if m >= 1 then m-1 else 0
+                           shift (p,t) = (if column p >= 1 then case p of (Pos l c f) -> Pos l (c - sh) f else p, t)
+                       in map (map shift) lns
+showLine ts =        let f (p,t) r = let ct = column p
+                                     in \c -> spaces (ct-c) ++ t ++ r (length t+ct)
+                         spaces x | x < 0 = ""
+                                  | otherwise = replicate x ' '
+                     in foldr f (const "") ts 1
+
+
+showStrShort xs = "\"" ++ concatMap f xs ++ "\""
+  where f '"' = "\\\""
+        f x   = showCharShort' x
+
+showCharShort '\'' = "'" ++ "\\'" ++ "'"
+showCharShort c    = "'" ++ showCharShort' c ++ "'"
+
+showCharShort' '\a'  = "\\a"
+showCharShort' '\b'  = "\\b"
+showCharShort' '\t'  = "\\t"
+showCharShort' '\n'  = "\\n"
+showCharShort' '\r'  = "\\r"
+showCharShort' '\f'  = "\\f"
+showCharShort' '\v'  = "\\v"
+showCharShort' '\\'  = "\\\\"
+showCharShort' x | isPrint x = [x]
+                 | otherwise = '\\' : show (ord x)
+}

@@ -1,0 +1,45 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/AbstractSyntax.ag,v 1.6 2003/11/10 11:37:08 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import CommonTypes
+import UU.Pretty
+import Patterns
+import Expression
+import UU.DData.Set(Set)
+}
+
+DATA Grammar      | Grammar typeSyns : {TypeSyns}
+                            useMap   : {UseMap}
+                            derivings: {Derivings}
+                            wrappers : {Set Nonterminal}
+                            prods    : Productions
+
+TYPE Productions  = [Production]
+
+TYPE Alternatives = [Alternative]
+
+TYPE Children     = [Child]
+
+TYPE Rules        = [Rule]
+
+DATA Production   | Production nt   : {Nonterminal}
+                               inh  : {Attributes}
+                               syn  : {Attributes}
+                               alts : Alternatives
+
+DATA Alternative  | Alternative con      : {Constructor}
+                                children : Children
+                                rules    : Rules
+
+
+DATA Child        | Child   name  : {Name}
+                            tp    : {Type}
+                            inh   : {Attributes}
+                            syn   : {Attributes}
+
+DATA Rule         | Rule    pattern : Pattern 
+                            rhs     : Expression
+                            owrt    : {Bool}
+                            origin  : String  -- just for documentation (and maybe errors)
