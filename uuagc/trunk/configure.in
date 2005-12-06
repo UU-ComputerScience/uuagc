@@ -1,4 +1,8 @@
-AC_INIT([HUT AG compiler], [1.0], [alexey@cs.uu.nl], [UUAG])
+dnl
+dnl UUAG configure script
+dnl
+
+AC_INIT(VERSION)
 # Parts borrowed from Generic Haskell's configure script
 
 # Safety check: Ensure that we are in the correct source directory.
@@ -28,9 +32,9 @@ AC_ARG_WITH(ag,
 [WithAG="$UUAGC"]
 )
 
-UUAG="$WithAG"
+UUAGC="$WithAG"
 
-if test "$UUAG" = ""; then
+if test "$UUAGC" = ""; then
   AC_MSG_ERROR([Cannot continue without an AG compiler.])
 fi
 
@@ -44,6 +48,7 @@ AC_ARG_WITH(bdir,
 )
 
 BUILD_DIR="$BDir"
+AC_SUBST(BUILD_DIR)
 
 # specify which runhaskell to use
 AC_ARG_WITH(rh,
@@ -55,10 +60,27 @@ AC_ARG_WITH(rh,
 )
 
 RUN_HASKELL="$WithRH"
+AC_SUBST(RUN_HASKELL)
 
-if test "$UUAG" = ""; then
-  AC_MSG_ERROR([Cannot continue without a Haskell interpreter.])
+if test "$RUN_HASKELL" = ""; then
+  AC_MSG_ERROR([Cannot continue without a Haskell interpreter (runghc).])
 fi
 
-AC_CONFIG_FILES([Makefile.in])
-AC_OUTPUT
+AC_PATH_PROG(CHMOD,chmod)
+
+# cheap relative_dir, see GH for proper use
+relative_dir=.
+
+# checking for VERSION file
+if test -r "${relative_dir}/VERSION"; then
+   FULLVERSION=`cat ${relative_dir}/VERSION`
+   VERSION=`echo ${FULLVERSION} | ${CUT} -f1 -d' '`;
+else
+   AC_MSG_ERROR([Cannot find VERSION file.]);
+fi
+AC_SUBST(FULLVERSION)
+AC_SUBST(VERSION)
+
+
+AC_OUTPUT(Makefile uuagc.cabal script/mkAGdepend.sh)
+${CHMOD} ugo+x script/mkAGdepend.sh

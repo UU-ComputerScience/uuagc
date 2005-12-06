@@ -1,0 +1,34 @@
+name: uuagc
+version: @VERSION@
+license: BSD3
+maintainer: Arthur Baars <arthurb@cs.uu.nl>
+Build-Depends: base, haskell98, uust
+
+Executable:     uuagc
+Main-Is:        Ag.hs
+Other-Modules: AbstractSyntax,
+      Code,
+      CommonTypes,
+      ConcreteSyntax,
+      DefaultRules,
+      DepTypes,
+      ErrorMessages,
+      Expr,
+      Expression,
+      GenerateCode,
+      HsToken,
+      HsTokenScanner,
+      Options,
+      Parser,
+      Patterns,
+      PrintCode,
+      PrintErrorMessages,
+      Rules,
+      Scanner,
+      SemHsTokens,
+      SemRules,
+      Streaming,
+      TokenDef,
+      Transform
+Extensions: TypeSynonymInstances       
+Hs-Source-Dir: src

@@ -9,11 +9,13 @@ help:
 SRC_DIR = src
 SRC_AG_DIR = src-ag
 
-# The following variables should be read from a configuration file
+# The following variables are set in configure
 AG = @UUAGC@
 BUILD_DIR = @BUILD_DIR@
-AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/uuagc
 RUN_HASKELL = @RUN_HASKELL@
+
+# Some hardcoded settings
+AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/uuagc
 CABAL_BUILD = $(RUN_HASKELL) Setup.hs build
 CABAL_CONFIG = .setup-config
 
