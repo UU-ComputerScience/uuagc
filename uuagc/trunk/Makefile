@@ -10,7 +10,7 @@ SRC_DIR = src
 SRC_AG_DIR = src-ag
 
 # The following variables should be read from a configuration file
-AG = uuagc
+AG = /home/alexey/build/ag/trunk/dist/build/src/uuagc
 BUILD_DIR = dist/build
 AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/$(AG)
 RUN_HASKELL = runghc
@@ -54,14 +54,14 @@ $(DEPEND_AG): Makefile $(SRC_AG)
 # ugly: change directory per file
 #       and the "cd .." precludes using a depth of more than one
 #       and too directory specific
-$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
+$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag Makefile
 	cd $(SRC_AG_DIR); \
-	$(AG) -dp $*.ag -o ../$(SRC_DIR)/$*.hs; \
+	$(AG) -mdp $*.ag -o ../$(SRC_DIR)/$*.hs; \
 	cd ..
 
-$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
+$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag Makefile
 	cd $(SRC_AG_DIR); \
-	$(AG) -csfp --newtypes --wrappers $*.ag -o ../$(SRC_DIR)/$*.hs; \
+	$(AG) -mcsfp --newtypes --wrappers $*.ag -o ../$(SRC_DIR)/$*.hs; \
 	cd ..
 
 # HS source files for uuag

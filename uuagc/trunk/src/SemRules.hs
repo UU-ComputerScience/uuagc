@@ -142,22 +142,22 @@ sem_Pattern_Alias (field_) (attr_) ((T_Pattern (pat_))) =
                         _patOowrt :: (Bool)
                         ( _patIcopy,_patIdefAttrs,_patIerrors,_patIstpos) =
                             (pat_ (_patOattributes) (_patOcon) (_patOdefAttrs) (_patOfieldMap) (_patOnt) (_patOowrt))
-                        -- "SemRules.ag"(line 68, column 16)
+                        -- "SemRules.ag"(line 67, column 16)
                         (_lhsOstpos@_) =
                             getPos field_
-                        -- "SemRules.ag"(line 76, column 11)
+                        -- "SemRules.ag"(line 75, column 11)
                         (_lhsOerrors@_) =
                             _errs <> _patIerrors
-                        -- "SemRules.ag"(line 75, column 11)
+                        -- "SemRules.ag"(line 74, column 11)
                         (_lhsOcopy@_) =
                             if _underscore then Underscore noPos else _copy
-                        -- "SemRules.ag"(line 74, column 11)
+                        -- "SemRules.ag"(line 73, column 11)
                         (_patOdefAttrs@_) =
                             _lhsIdefAttrs
-                        -- "SemRules.ag"(line 73, column 11)
+                        -- "SemRules.ag"(line 72, column 11)
                         (_lhsOdefAttrs@_) =
                             _defAttrs
-                        -- "SemRules.ag"(line 72, column 15)
+                        -- "SemRules.ag"(line 71, column 15)
                         ((_underscore@_,_defAttrs@_,_errs@_)) =
                             checkDef _lhsInt _lhsIcon _lhsIowrt field_ attr_ _lhsIfieldMap _lhsIattributes _patIdefAttrs
                         -- self rule
@@ -204,7 +204,7 @@ sem_Pattern_Constr (name_) ((T_Patterns (pats_))) =
                         _patsOowrt :: (Bool)
                         ( _patsIcopy,_patsIdefAttrs,_patsIerrors) =
                             (pats_ (_patsOattributes) (_patsOcon) (_patsOdefAttrs) (_patsOfieldMap) (_patsOnt) (_patsOowrt))
-                        -- "SemRules.ag"(line 66, column 16)
+                        -- "SemRules.ag"(line 65, column 16)
                         (_lhsOstpos@_) =
                             getPos name_
                         -- use rule
@@ -263,7 +263,7 @@ sem_Pattern_Product (pos_) ((T_Patterns (pats_))) =
                         _patsOowrt :: (Bool)
                         ( _patsIcopy,_patsIdefAttrs,_patsIerrors) =
                             (pats_ (_patsOattributes) (_patsOcon) (_patsOdefAttrs) (_patsOfieldMap) (_patsOnt) (_patsOowrt))
-                        -- "SemRules.ag"(line 67, column 16)
+                        -- "SemRules.ag"(line 66, column 16)
                         (_lhsOstpos@_) =
                             pos_
                         -- use rule
@@ -310,7 +310,7 @@ sem_Pattern_Underscore (pos_) =
                         _lhsOdefAttrs :: (DefinedAttrs)
                         _lhsOerrors :: (Seq Error)
                         _lhsOstpos :: (Pos)
-                        -- "SemRules.ag"(line 69, column 16)
+                        -- "SemRules.ag"(line 68, column 16)
                         (_lhsOstpos@_) =
                             pos_
                         -- use rule
@@ -411,13 +411,13 @@ sem_Patterns_Cons ((T_Pattern (hd_))) ((T_Patterns (tl_))) =
                              (hd_ (_hdOattributes) (_hdOcon) (_hdOdefAttrs) (_hdOfieldMap) (_hdOnt) (_hdOowrt))
                          ( _tlIcopy,_tlIdefAttrs,_tlIerrors) =
                              (tl_ (_tlOattributes) (_tlOcon) (_tlOdefAttrs) (_tlOfieldMap) (_tlOnt) (_tlOowrt))
-                         -- "SemRules.ag"(line 81, column 10)
+                         -- "SemRules.ag"(line 80, column 10)
                          (_tlOdefAttrs@_) =
                              _lhsIdefAttrs
-                         -- "SemRules.ag"(line 80, column 10)
+                         -- "SemRules.ag"(line 79, column 10)
                          (_hdOdefAttrs@_) =
                              _tlIdefAttrs
-                         -- "SemRules.ag"(line 79, column 10)
+                         -- "SemRules.ag"(line 78, column 10)
                          (_lhsOdefAttrs@_) =
                              _hdIdefAttrs
                          -- use rule
@@ -550,13 +550,13 @@ sem_SemDef_Def ((T_Pattern (pattern_))) (rhs_) (owrt_) =
                        _patternOowrt :: (Bool)
                        ( _patternIcopy,_patternIdefAttrs,_patternIerrors,_patternIstpos) =
                            (pattern_ (_patternOattributes) (_patternOcon) (_patternOdefAttrs) (_patternOfieldMap) (_patternOnt) (_patternOowrt))
-                       -- "SemRules.ag"(line 61, column 9)
+                       -- "SemRules.ag"(line 60, column 9)
                        (_patternOowrt@_) =
                            owrt_
-                       -- "SemRules.ag"(line 60, column 9)
+                       -- "SemRules.ag"(line 59, column 9)
                        (_lhsOrules@_) =
                            (Rule _patternIcopy rhs_ owrt_ (show _patternIstpos): _rules1, _patternIdefAttrs)
-                       -- "SemRules.ag"(line 59, column 13)
+                       -- "SemRules.ag"(line 58, column 13)
                        ((_rules1@_,_defAttrs@_)) =
                            _lhsIrules
                        -- use rule

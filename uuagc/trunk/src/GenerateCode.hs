@@ -440,10 +440,10 @@ sem_Alternative_Alternative (con_) ((T_Children (children_))) ((T_Rules (rules_)
                             -- "GenerateCode.ag"(line 56, column 17)
                             (_rulesOcon@_) =
                                 con_
-                            -- "GenerateCode.ag"(line 227, column 17)
+                            -- "GenerateCode.ag"(line 230, column 17)
                             (_lhsOdataAlt@_) =
                                 DataAlt (conname _lhsIo_rename _lhsInt con_) (map (typeToString _lhsInt .snd) _childrenIfields)
-                            -- "GenerateCode.ag"(line 250, column 17)
+                            -- "GenerateCode.ag"(line 253, column 17)
                             (_lhsOcataAlt@_) =
                                 let lhs = Fun (cataname _lhsIprefix _lhsInt) [lhs_pat]
                                     lhs_pat = App (conname _lhsIo_rename _lhsInt con_)
@@ -454,7 +454,7 @@ sem_Alternative_Alternative (con_) ((T_Children (children_))) ((T_Rules (rules_)
                                                               [SimpleExpr (locname nm)]
                                     argument (nm, _)    = SimpleExpr (locname nm)
                                 in Decl lhs rhs
-                            -- "GenerateCode.ag"(line 312, column 17)
+                            -- "GenerateCode.ag"(line 315, column 17)
                             (_lhsOsemFun@_) =
                                 let tsig = TSig (semname _lhsIprefix _lhsInt con_) semType
                                     semType = foldr argType
@@ -465,7 +465,7 @@ sem_Alternative_Alternative (con_) ((T_Children (children_))) ((T_Rules (rules_)
                                 in if _lhsIo_sig
                                       then [tsig,_sFun    ]
                                       else [_sFun    ]
-                            -- "GenerateCode.ag"(line 272, column 17)
+                            -- "GenerateCode.ag"(line 275, column 17)
                             (_sFun@_) =
                                 let lhs = Fun (semname _lhsIprefix _lhsInt con_) lhs_args
                                     lhs_args =  map field _childrenIfields
@@ -504,18 +504,18 @@ sem_Alternative_Alternative (con_) ((T_Children (children_))) ((T_Rules (rules_)
                                                  in lhs++children
                                              | otherwise = []
                                  in Decl lhs rhs
-                            -- "GenerateCode.ag"(line 351, column 17)
+                            -- "GenerateCode.ag"(line 354, column 17)
                             (_synnames@_) =
                                 Map.keys _lhsIsyn
-                            -- "GenerateCode.ag"(line 351, column 17)
+                            -- "GenerateCode.ag"(line 354, column 17)
                             (_inhnames@_) =
                                 Map.keys _lhsIinh
-                            -- "GenerateCode.ag"(line 351, column 17)
+                            -- "GenerateCode.ag"(line 354, column 17)
                             (_attrs@_) =
                                 map ((,) _LOC) _rulesIlocVars ++
                                 map ((,) _LHS) _inhnames ++
                                 concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
-                            -- "GenerateCode.ag"(line 351, column 17)
+                            -- "GenerateCode.ag"(line 354, column 17)
                             (_fieldnames@_) =
                                 map fst _childrenIfields
                             -- "./Comments.ag"(line 44, column 17)
@@ -957,13 +957,13 @@ sem_Alternatives_Cons ((T_Alternative (hd_))) ((T_Alternatives (tl_))) =
                                  (hd_ (_hdOdown) (_hdOinh) (_hdOnt) (_hdOnts') (_hdOo_cata) (_hdOo_newtypes) (_hdOo_pretty) (_hdOo_rename) (_hdOo_sem) (_hdOo_sig) (_hdOprefix) (_hdOsyn))
                              ( _tlIcataAlts,_tlIcomments,_tlIdataAlts,_tlIerrors,_tlInrChildren,_tlIsemFuns,_tlIsmCataAlts,_tlIsmCompDyns,_tlIsmConstructors,_tlIsmDynSels,_tlIsmDynSemFuns,_tlIsmInputDyns,_tlIsmInsDyns,_tlIsmPrimTypes,_tlIsmSelFuns,_tlIsmSemFuns,_tlIsmTypeCons,_tlIup) =
                                  (tl_ (_tlOdown) (_tlOinh) (_tlOnt) (_tlOnts') (_tlOo_cata) (_tlOo_newtypes) (_tlOo_pretty) (_tlOo_rename) (_tlOo_sem) (_tlOo_sig) (_tlOprefix) (_tlOsyn))
-                             -- "GenerateCode.ag"(line 223, column 17)
+                             -- "GenerateCode.ag"(line 226, column 17)
                              (_lhsOdataAlts@_) =
                                  _hdIdataAlt : _tlIdataAlts
-                             -- "GenerateCode.ag"(line 246, column 10)
+                             -- "GenerateCode.ag"(line 249, column 10)
                              (_lhsOcataAlts@_) =
                                  _hdIcataAlt : _tlIcataAlts
-                             -- "GenerateCode.ag"(line 268, column 10)
+                             -- "GenerateCode.ag"(line 271, column 10)
                              (_lhsOsemFuns@_) =
                                  _hdIsemFun ++ _tlIsemFuns
                              -- "./Comments.ag"(line 40, column 10)
@@ -1116,13 +1116,13 @@ sem_Alternatives_Nil  =
                              _lhsOsmSemFuns :: (Decls)
                              _lhsOsmTypeCons :: ([String])
                              _lhsOup :: ([UseStream])
-                             -- "GenerateCode.ag"(line 224, column 17)
+                             -- "GenerateCode.ag"(line 227, column 17)
                              (_lhsOdataAlts@_) =
                                  []
-                             -- "GenerateCode.ag"(line 247, column 10)
+                             -- "GenerateCode.ag"(line 250, column 10)
                              (_lhsOcataAlts@_) =
                                  []
-                             -- "GenerateCode.ag"(line 269, column 10)
+                             -- "GenerateCode.ag"(line 272, column 10)
                              (_lhsOsemFuns@_) =
                                  []
                              -- "./Comments.ag"(line 41, column 10)
@@ -1254,10 +1254,10 @@ sem_Child_Child (name_) (tp_) (inh_) (syn_) =
                       _lhsOsmInhInserters :: (Decls)
                       _lhsOsmSynAttrNames :: ([String])
                       _lhsOup :: ([UseStream])
-                      -- "GenerateCode.ag"(line 231, column 11)
+                      -- "GenerateCode.ag"(line 234, column 11)
                       (_lhsOfield@_) =
                           (name_, tp_)
-                      -- "GenerateCode.ag"(line 333, column 11)
+                      -- "GenerateCode.ag"(line 336, column 11)
                       (_lhsOdecls@_) =
                           let syn = Map.keys syn_
                               inh = Map.keys inh_
@@ -1267,7 +1267,7 @@ sem_Child_Child (name_) (tp_) (inh_) (syn_) =
                                          NT nt | not(null syn) -> [decl]
                                          _                     -> []
                           in decls
-                      -- "GenerateCode.ag"(line 360, column 11)
+                      -- "GenerateCode.ag"(line 363, column 11)
                       (_lhsOattributes@_) =
                           [(name_, inh_, syn_)]
                       -- "./Dep.ag"(line 116, column 11)
@@ -1453,7 +1453,7 @@ sem_Children_Cons ((T_Child (hd_))) ((T_Children (tl_))) =
                              (hd_ (_hdOattrs) (_hdOcon) (_hdOdef_namespace) (_hdOdown) (_hdOfieldnames) (_hdOnt) (_hdOnts') (_hdOo_rename) (_hdOprefix))
                          ( _tlIattributes,_tlIdecls,_tlIerrors,_tlIfields,_tlIsmInhAttrNames,_tlIsmInhFnames,_tlIsmInhInsDyns,_tlIsmInhInserters,_tlIsmSynAttrNames,_tlIup) =
                              (tl_ (_tlOattrs) (_tlOcon) (_tlOdef_namespace) (_tlOdown) (_tlOfieldnames) (_tlOinh) (_tlOnt) (_tlOnts') (_tlOo_rename) (_tlOprefix))
-                         -- "GenerateCode.ag"(line 234, column 11)
+                         -- "GenerateCode.ag"(line 237, column 11)
                          (_lhsOfields@_) =
                              _hdIfield : _tlIfields
                          -- "./GenerateCodeSM.ag"(line 519, column 10)
@@ -1563,7 +1563,7 @@ sem_Children_Nil  =
                          _lhsOsmInhInserters :: (Decls)
                          _lhsOsmSynAttrNames :: ([[String]])
                          _lhsOup :: ([UseStream])
-                         -- "GenerateCode.ag"(line 235, column 11)
+                         -- "GenerateCode.ag"(line 238, column 11)
                          (_lhsOfields@_) =
                              []
                          -- "./GenerateCodeSM.ag"(line 521, column 10)
@@ -1818,7 +1818,7 @@ sem_Grammar_Grammar (typeSyns_) (useMap_) (derivings_) (wrappers_) ((T_Productio
                         -- "GenerateCode.ag"(line 143, column 13)
                         (_prodsOtypeSyns@_) =
                             typeSyns_
-                        -- "GenerateCode.ag"(line 373, column 17)
+                        -- "GenerateCode.ag"(line 376, column 17)
                         (_prodsOnts'@_) =
                             _prodsInts
                         -- "./Comments.ag"(line 18, column 17)
@@ -2012,7 +2012,7 @@ sem_Pattern_Alias (field_) (attr_) ((T_Pattern (pat_))) =
                         _patOnt :: (Identifier)
                         ( _patIerrors,_patIlocVars,_patIpp,_patIpp',_patIvertices) =
                             (pat_ (_patOcon) (_patOfields) (_patOnt))
-                        -- "GenerateCode.ag"(line 386, column 13)
+                        -- "GenerateCode.ag"(line 389, column 13)
                         (_lhsOpp@_) =
                             attrname False field_ attr_ >|< "@" >|< _patIpp
                         -- "./Comments.ag"(line 54, column 14)
@@ -2067,7 +2067,7 @@ sem_Pattern_Constr (name_) ((T_Patterns (pats_))) =
                         _patsOnt :: (Identifier)
                         ( _patsIerrors,_patsIlocVars,_patsIpps,_patsIpps',_patsIvertices) =
                             (pats_ (_patsOcon) (_patsOfields) (_patsOnt))
-                        -- "GenerateCode.ag"(line 384, column 13)
+                        -- "GenerateCode.ag"(line 387, column 13)
                         (_lhsOpp@_) =
                             pp_parens $ name_ >#< hv (map pp_parens _patsIpps)
                         -- "./GenerateCodeSM.ag"(line 408, column 13)
@@ -2114,7 +2114,7 @@ sem_Pattern_Product (pos_) ((T_Patterns (pats_))) =
                         _patsOnt :: (Identifier)
                         ( _patsIerrors,_patsIlocVars,_patsIpps,_patsIpps',_patsIvertices) =
                             (pats_ (_patsOcon) (_patsOfields) (_patsOnt))
-                        -- "GenerateCode.ag"(line 385, column 13)
+                        -- "GenerateCode.ag"(line 388, column 13)
                         (_lhsOpp@_) =
                             pp_block "(" ")" "," _patsIpps
                         -- "./GenerateCodeSM.ag"(line 409, column 13)
@@ -2150,7 +2150,7 @@ sem_Pattern_Underscore (pos_) =
                         _lhsOpp :: (PP_Doc)
                         _lhsOpp' :: (PP_Doc)
                         _lhsOvertices :: ([Vertex])
-                        -- "GenerateCode.ag"(line 387, column 16)
+                        -- "GenerateCode.ag"(line 390, column 16)
                         (_lhsOpp@_) =
                             text "_"
                         -- "./GenerateCodeSM.ag"(line 413, column 16)
@@ -2242,7 +2242,7 @@ sem_Patterns_Cons ((T_Pattern (hd_))) ((T_Patterns (tl_))) =
                              (hd_ (_hdOcon) (_hdOfields) (_hdOnt))
                          ( _tlIerrors,_tlIlocVars,_tlIpps,_tlIpps',_tlIvertices) =
                              (tl_ (_tlOcon) (_tlOfields) (_tlOnt))
-                         -- "GenerateCode.ag"(line 380, column 10)
+                         -- "GenerateCode.ag"(line 383, column 10)
                          (_lhsOpps@_) =
                              _hdIpp : _tlIpps
                          -- "./GenerateCodeSM.ag"(line 404, column 10)
@@ -2286,7 +2286,7 @@ sem_Patterns_Nil  =
                          _lhsOpps :: ([PP_Doc])
                          _lhsOpps' :: ([PP_Doc])
                          _lhsOvertices :: ([Vertex])
-                         -- "GenerateCode.ag"(line 381, column 10)
+                         -- "GenerateCode.ag"(line 384, column 10)
                          (_lhsOpps@_) =
                              []
                          -- "./GenerateCodeSM.ag"(line 405, column 10)
@@ -2552,12 +2552,15 @@ sem_Production_Production (nt_) (inh_) (syn_) ((T_Alternatives (alts_))) =
                                let tp = foldr Arr synTps inhTps
                                    synTps = TupleType [SimpleType (typeToString nt_ tp) |  tp <- Map.elems syn_]
                                    inhTps = [SimpleType (typeToString nt_ tp) |  tp <- Map.elems inh_]
-                               in [ Comment "semantic domain"
-                                  , if _lhsIo_newtypes
+                               in if _lhsIo_sig || _lhsIo_newtypes
+                                   then
+                                   [ Comment "semantic domain"
+                                   , if _lhsIo_newtypes
                                        then NewType (sdtype nt_) (sdtype nt_) tp
                                        else Code.Type (sdtype nt_) tp
-                                  ]
-                           -- "GenerateCode.ag"(line 177, column 16)
+                                   ]
+                                   else []
+                           -- "GenerateCode.ag"(line 180, column 16)
                            (_cataFun@_) =
                                let tSig = TSig (cataname _lhsIprefix nt_)
                                                (SimpleType (getName nt_) `Arr` SimpleType (sdtype nt_))
@@ -2567,10 +2570,10 @@ sem_Production_Production (nt_) (inh_) (syn_) ((T_Alternatives (alts_))) =
                                                          nil  = SimpleExpr (semname _lhsIprefix nt_ (identifier "Nil" ))
                                                          arg  = SimpleExpr "list"
                                                          rarg = case tp of
-                                                                  NT t  -> SimpleExpr ("(map " ++ (cataname _lhsIprefix t) ++ " list)")
+                                                                  NT t  -> SimpleExpr ("(Prelude.map " ++ (cataname _lhsIprefix t) ++ " list)")
                                                                   _     -> arg
                                                          lhs = Fun (cataname _lhsIprefix nt_) [arg]
-                                                         rhs = (App "foldr" [cons,nil,rarg])
+                                                         rhs = (App "Prelude.foldr" [cons,nil,rarg])
                                                      in  [Decl lhs rhs]
                                                  CommonTypes.Maybe tp ->
                                                      let just    = semname _lhsIprefix nt_ (identifier "Just")
@@ -2580,8 +2583,8 @@ sem_Production_Production (nt_) (inh_) (syn_) ((T_Alternatives (alts_))) =
                                                                   NT t  -> App (cataname _lhsIprefix t) [arg]
                                                                   _     -> arg
                                                          lhs a = Fun (cataname _lhsIprefix nt_) [a]
-                                                     in  [Decl (lhs (App "Just" [arg]))     (App just [rarg])
-                                                         ,Decl (lhs (SimpleExpr "Nothing")) (SimpleExpr nothing)
+                                                     in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])
+                                                         ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing)
                                                          ]
                                                  CommonTypes.Tuple tps ->
                                                      let con  = semname _lhsIprefix nt_ (identifier "Tuple")
@@ -2596,7 +2599,7 @@ sem_Production_Production (nt_) (inh_) (syn_) ((T_Alternatives (alts_))) =
                                in  Comment "cata" :
                                    (if _lhsIo_sig then [tSig] else []) ++
                                    maybe _altsIcataAlts special (lookup nt_ _lhsItypeSyns)
-                           -- "GenerateCode.ag"(line 370, column 17)
+                           -- "GenerateCode.ag"(line 373, column 17)
                            (_lhsOnts@_) =
                                [nt_]
                            -- "./Comments.ag"(line 21, column 17)
@@ -3414,7 +3417,7 @@ sem_Rule_Rule ((T_Pattern (pattern_))) ((T_Expression (rhs_))) (owrt_) (origin_)
                          (pattern_ (_patternOcon) (_patternOfields) (_patternOnt))
                      ( _rhsIerrors,_rhsIpos,_rhsIpp,_rhsIusedAttrs,_rhsIusedLocals) =
                          (rhs_ (_rhsOattrs) (_rhsOcon) (_rhsOfieldnames) (_rhsOnt))
-                     -- "GenerateCode.ag"(line 327, column 10)
+                     -- "GenerateCode.ag"(line 330, column 10)
                      (_lhsOdecl@_) =
                          (if _lhsIo_pretty then (Comment origin_:) else id)
                             [Decl (Pattern _patternIpp) (PP _rhsIpp)]
@@ -3585,7 +3588,7 @@ sem_Rules_Cons ((T_Rule (hd_))) ((T_Rules (tl_))) =
                           (hd_ (_hdOattrs) (_hdOcon) (_hdOdown) (_hdOfieldnames) (_hdOfields) (_hdOnt) (_hdOo_pretty))
                       ( _tlIdecls,_tlIdecls',_tlIerrors,_tlIlocVars,_tlIup) =
                           (tl_ (_tlOattrs) (_tlOcon) (_tlOdown) (_tlOfieldnames) (_tlOfields) (_tlOnt) (_tlOo_pretty))
-                      -- "GenerateCode.ag"(line 323, column 10)
+                      -- "GenerateCode.ag"(line 326, column 10)
                       (_lhsOdecls@_) =
                           _hdIdecl ++ _tlIdecls
                       -- use rule
@@ -3657,7 +3660,7 @@ sem_Rules_Nil  =
                       _lhsOerrors :: (Seq Error)
                       _lhsOlocVars :: ([Name])
                       _lhsOup :: ([UseStream])
-                      -- "GenerateCode.ag"(line 324, column 10)
+                      -- "GenerateCode.ag"(line 327, column 10)
                       (_lhsOdecls@_) =
                           []
                       -- use rule
