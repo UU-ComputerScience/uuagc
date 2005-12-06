@@ -1,6 +1,6 @@
 name: uust
 version: 1.0
-license: BSD3
+license: OtherLicense
 maintainer: Atze Dijkstra <atze@cs.uu.nl>
 Build-Depends: base, haskell98
 exposed-modules: UU.Parsing.CharParser UU.Parsing.Derived
