@@ -20,6 +20,12 @@ if test "$GREP" = ""; then
   AC_MSG_ERROR([Cannot continue without grep.])
 fi
 
+AC_PATH_PROG(CUT,cut)
+
+if test "$CUT" = ""; then
+  AC_MSG_ERROR([Cannot continue without cut.])
+fi
+
 # check for AG system
 AC_PATH_PROG(UUAGC,uuagc)
 
@@ -82,5 +88,5 @@ AC_SUBST(FULLVERSION)
 AC_SUBST(VERSION)
 
 
-AC_OUTPUT(Makefile uuagc.cabal script/mkAGdepend.sh)
-${CHMOD} ugo+x script/mkAGdepend.sh
+AC_OUTPUT(Makefile uuagc.cabal scripts/mkAGdepend.sh)
+${CHMOD} ugo+x scripts/mkAGdepend.sh
