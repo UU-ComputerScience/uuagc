@@ -68,6 +68,8 @@ $(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 SRC_HS_NAMES = Ag.hs CommonTypes.hs DepTypes.hs Expr.hs HsTokenScanner.hs Options.hs Parser.hs Scanner.hs Streaming.hs TokenDef.hs Transform.hs
 SRC_HS = $(addprefix $(SRC_DIR)/,$(SRC_HS_NAMES))
 
+build: $(AG_BINARY)
+
 # Building the uuagc system invokes cabal build
 $(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SYN) $(CABAL_CONFIG)
 	@$(CABAL_BUILD)
