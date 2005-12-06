@@ -6,7 +6,7 @@ AC_INIT(VERSION)
 # Parts borrowed from Generic Haskell's configure script
 
 # Safety check: Ensure that we are in the correct source directory.
-AC_CONFIG_SRCDIR([uuagc.cabal])
+AC_CONFIG_SRCDIR([uuagc.cabal.in])
 
 AC_PATH_PROG(SED,sed)
 
