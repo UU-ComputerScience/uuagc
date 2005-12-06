@@ -26,6 +26,22 @@ if test "$CUT" = ""; then
   AC_MSG_ERROR([Cannot continue without cut.])
 fi
 
+# other programs
+AC_PATH_PROG(MV,mv)
+AC_PATH_PROG(CP,cp)
+AC_PATH_PROG(RM,rm)
+AC_PATH_PROG(MKDIR,mkdir)
+AC_PATH_PROG(TOUCH,touch)
+AC_PATH_PROG(DIFF,diff)
+AC_PATH_PROG(FIND,find)
+AC_PATH_PROG(SORT,sort)
+AC_PATH_PROG(UNIQ,uniq)
+AC_PATH_PROG(AR,ar)
+AC_PATH_PROG(RANLIB,ranlib)
+AC_PATH_PROG(LD,ld)
+AC_PATH_PROG(GREP,grep)
+AC_PATH_PROG(CHMOD,chmod)
+
 # check for AG system
 AC_PATH_PROG(UUAGC,uuagc)
 

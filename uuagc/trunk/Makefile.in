@@ -13,6 +13,16 @@ SRC_AG_DIR = src-ag
 AG = @UUAGC@
 BUILD_DIR = @BUILD_DIR@
 RUN_HASKELL = @RUN_HASKELL@
+MV        = @MV@
+RM        = @RM@
+RM_F      = $(RM) -f
+CP        = @CP@
+FIND      = @FIND@
+MKDIR     = @MKDIR@
+GREP      = @GREP@
+CHMOD     = @CHMOD@
+VERSION   = @VERSION@
+
 
 # Some hardcoded settings
 AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/uuagc
@@ -78,3 +88,62 @@ $(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SYN) $(CABAL_CONFIG)
 
 $(CABAL_CONFIG):
 	@echo "Must run: 'runhaskell Setup.hs configure' first"
+
+
+#
+# distribution (for the time being source only and unix)
+#
+
+DISTTYPE=src
+
+ifeq ($(DISTTYPE),win32)
+        TARCZVF    := zip -r
+        TAREXT     := .zip
+else
+        TARCZVF    := tar cvzf
+        TAREXT     := .tar.gz
+endif
+
+# the name is hard-coded
+
+TODAY  := $(shell date '+%Y-%m-%d')
+DLABEL := uuagc-$(TODAY)
+VLABEL := uuagc-$(VERSION)
+DTLABEL:= uuagc-$(TODAY)-$(DISTTYPE)
+VTLABEL:= uuagc-$(VERSION)-$(DISTTYPE)
+
+dist_makedirs:
+	$(RM_F) -r $(DLABEL)
+	$(RM_F) -r $(VLABEL)
+	$(MKDIR) -p $(DLABEL)
+	for dir in `$(FIND) $(SRC_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+	for dir in `$(FIND) $(SRC_AG_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+	for dir in `$(FIND) scripts -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+
+dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SYN)
+	$(CP) -p LICENSE \
+		 VERSION \
+		 README \
+		 Makefile.in \
+		 configure.in \
+		 uuagc.cabal.in \
+		 uuagc.cabal \
+		 Setup.hs \
+		 $(DLABEL)
+# populate source and scripts
+	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
+	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
+	$(CP) -p scripts/*.sh $(DLABEL)/scripts
+
+dist_pack: dist_copy
+	$(TARCZVF) $(DTLABEL)$(TAREXT) $(DLABEL)
+	$(MV) $(DLABEL) $(VLABEL)
+	$(TARCZVF) $(VTLABEL)$(TAREXT) $(VLABEL)
+
+dist: dist_pack
+
+#
+# Clean (only stuff built using uuagc)
+#
+clean:
+	$(RM_F) $(SRC_HS_SEM) $(SRC_HS_SYN)

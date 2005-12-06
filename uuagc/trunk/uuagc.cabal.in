@@ -1,7 +1,7 @@
 name: uuagc
 version: @VERSION@
 license: GPL
-license-file: COPYING
+license-file: LICENSE
 maintainer: Arthur Baars <arthurb@cs.uu.nl>
 Build-Depends: base, haskell98, uust
 
