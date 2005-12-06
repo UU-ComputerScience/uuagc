@@ -10,10 +10,10 @@ SRC_DIR = src
 SRC_AG_DIR = src-ag
 
 # The following variables should be read from a configuration file
-AG = /home/alexey/build/ag/trunk/dist/build/src/uuagc
-BUILD_DIR = dist/build
-AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/$(AG)
-RUN_HASKELL = runghc
+AG = @UUAGC@
+BUILD_DIR = @BUILD_DIR@
+AG_BINARY = $(BUILD_DIR)/$(SRC_DIR)/uuagc
+RUN_HASKELL = @RUN_HASKELL@
 CABAL_BUILD = $(RUN_HASKELL) Setup.hs build
 CABAL_CONFIG = .setup-config
 

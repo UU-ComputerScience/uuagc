@@ -1,0 +1,64 @@
+AC_INIT([HUT AG compiler], [1.0], [alexey@cs.uu.nl], [UUAG])
+# Parts borrowed from Generic Haskell's configure script
+
+# Safety check: Ensure that we are in the correct source directory.
+AC_CONFIG_SRCDIR([uuagc.cabal])
+
+AC_PATH_PROG(SED,sed)
+
+if test "$SED" = ""; then
+  AC_MSG_ERROR([Cannot continue without sed.])
+fi
+
+AC_PATH_PROG(GREP,grep)
+
+if test "$GREP" = ""; then
+  AC_MSG_ERROR([Cannot continue without grep.])
+fi
+
+# check for AG system
+AC_PATH_PROG(UUAGC,uuagc)
+
+# allow a different AG compiler to be specified
+AC_ARG_WITH(ag,
+[  -with-ag=<AG compiler>
+       Use a command different from 'ag' to compile attribute grammar code.
+],
+[WithAG="$withval"],
+[WithAG="$UUAGC"]
+)
+
+UUAG="$WithAG"
+
+if test "$UUAG" = ""; then
+  AC_MSG_ERROR([Cannot continue without an AG compiler.])
+fi
+
+# allow a different Cabal build directory to be specified
+AC_ARG_WITH(bdir,
+[  -with-bdir=<Cabal build dir>
+       Use a custom Cabal cuild directory (default: dist/build).
+],
+[BDir="$withval"],
+[BDir=dist/build]
+)
+
+BUILD_DIR="$BDir"
+
+# specify which runhaskell to use
+AC_ARG_WITH(rh,
+[  -with-rh=<run haskell>
+       Haskell interpreter to invoke Cabal.
+],
+[WithRH="$withval"],
+[WithRH=""]
+)
+
+RUN_HASKELL="$WithRH"
+
+if test "$UUAG" = ""; then
+  AC_MSG_ERROR([Cannot continue without a Haskell interpreter.])
+fi
+
+AC_CONFIG_FILES([Makefile.in])
+AC_OUTPUT
