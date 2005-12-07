@@ -3,7 +3,13 @@
 #   --Alexey
 
 help:
-	echo "This will be the help message"
+	@echo Build system for the AG compiler
+	@echo Targets:
+	@echo
+	@echo build - Build the AG compiler
+	@echo clean - Clean the generated HS sources
+	@echo install - Install the AG compiler
+	@echo dist - Create source distributions
 
 # Directories
 SRC_DIR = src
