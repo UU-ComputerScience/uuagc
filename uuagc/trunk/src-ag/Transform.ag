@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/dev/Transform.ag,v 1.18 2005/03/11 16:33:44 uust Exp $
---  $Name:  $ (version name)
 
 INCLUDE "ConcreteSyntax.ag"
 

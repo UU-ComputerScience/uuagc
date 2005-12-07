@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/Options.hs,v 1.15 2005/03/09 19:22:12 uust Exp $
---  $Name:  $ (version name)
 
 module Options where
 

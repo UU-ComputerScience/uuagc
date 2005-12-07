@@ -1,5 +1,4 @@
---  $Header: /data/cvs-rep/uust/tools/ag/Ag.hs,v 1.22 2005/03/09 19:22:12 uust Exp $
---  $Name:  $ (version name)
+
 module Main where
 
 import System.Console.GetOpt
@@ -20,8 +19,7 @@ import UU.DData.Seq as Seq((<>),toList)
 import CommonTypes
 version = strip txt
   where strip = takeWhile (/= '$') . drop 1 . dropWhile (/= ':')
-        txt   = "$Header: /data/cvs-rep/uust/tools/ag/Ag.hs,v 1.22 2005/03/09 19:22:12 uust Exp $"
-        --txt   = "$Name:  $"
+        txt   = "Attribute Grammar compiler / HUT project. Version @FULLVERSION@."
 
 {- MAIN -}
 main        :: IO ()

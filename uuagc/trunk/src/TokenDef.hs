@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/TokenDef.hs,v 1.8 2004/01/08 12:14:18 uust Exp $
---  $Name:  $ (version name)
 
 module TokenDef where
 

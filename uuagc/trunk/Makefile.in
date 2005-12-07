@@ -82,12 +82,12 @@ ifeq ($(AG),)
 $(SRC_HS_SYN) $(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	@echo "* No AG compiler configured" && exit 1
 else
-$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag Makefile $(AG)
+$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag $(AG)
 	cd $(SRC_AG_DIR) && \
 	$(AG) -mdp $*.ag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
 
-$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag Makefile $(AG)
+$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag $(AG)
 	cd $(SRC_AG_DIR) && \
 	$(AG) -mcsfp --newtypes --wrappers $*.ag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
@@ -151,14 +151,18 @@ dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SYN)
 		 VERSION \
 		 README \
 		 Makefile.in \
+		 configure \
 		 configure.in \
+		 uuagc.cabal \
 		 uuagc.cabal.in \
 		 Setup.hs \
+		 install-sh \
+		 mkinstalldirs \
 		 $(DLABEL)
 # populate source and scripts
 	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
-	$(CP) -p scripts/*.sh $(DLABEL)/scripts
+	$(CP) -p scripts/*.sh.in $(DLABEL)/scripts
 
 dist_pack: dist_copy
 	$(TARCZVF) $(DTLABEL)$(TAREXT) $(DLABEL)

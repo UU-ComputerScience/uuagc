@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/Parser.hs,v 1.16 2005/03/11 16:33:44 uust Exp $
---  $Name:  $ (version name)
 
 module Parser --(parseAG)
 where

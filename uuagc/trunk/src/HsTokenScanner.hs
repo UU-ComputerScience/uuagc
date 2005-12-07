@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/HsTokenScanner.hs,v 1.8 2004/01/08 12:14:18 uust Exp $
---  $Name:  $ (version name)
 
 module HsTokenScanner where
 import HsToken

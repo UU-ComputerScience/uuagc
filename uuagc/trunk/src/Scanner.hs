@@ -1,5 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/Scanner.hs,v 1.10 2005/03/11 16:33:44 uust Exp $
---  $Name:  $ (version name)
 
 module Scanner where
 import TokenDef

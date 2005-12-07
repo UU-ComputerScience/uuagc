@@ -1,6 +1,3 @@
---  $Header: /data/cvs-rep/uust/tools/ag/dev/Comments.ag,v 1.4 2004/01/08 12:12:35 uust Exp $
---  $Name:  $ (version name)
-
 
 -- code for generating a list of attributes and a list of
 -- local variables as comments in the generated file
