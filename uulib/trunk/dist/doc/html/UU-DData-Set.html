@@ -1,0 +1,1672 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.DData.Set</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.DData.Set</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Set type
+</A
+></DT
+><DT
+><A HREF="#2"
+>Operators
+</A
+></DT
+><DT
+><A HREF="#3"
+>Query
+</A
+></DT
+><DT
+><A HREF="#4"
+>Construction
+</A
+></DT
+><DT
+><A HREF="#5"
+>Combine
+</A
+></DT
+><DT
+><A HREF="#6"
+>Filter
+</A
+></DT
+><DT
+><A HREF="#7"
+>Fold
+</A
+></DT
+><DT
+><A HREF="#8"
+>Min/Max
+</A
+></DT
+><DT
+><A HREF="#9"
+>Conversion
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#10"
+>List
+</A
+></DT
+><DT
+><A HREF="#11"
+>Ordered list
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#12"
+>Debugging
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A HREF="#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A%5C%5C"
+>(\\)</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisEmpty"
+>isEmpty</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asize"
+>size</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amember"
+>member</A
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asubset"
+>subset</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AproperSubset"
+>properSubset</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aempty"
+>empty</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asingle"
+>single</A
+> :: a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Ainsert"
+>insert</A
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adelete"
+>delete</A
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunion"
+>union</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunions"
+>unions</A
+> :: Ord a =&gt; [<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adifference"
+>difference</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aintersection"
+>intersection</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afilter"
+>filter</A
+> :: Ord a =&gt; (a -&gt; Bool) -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Apartition"
+>partition</A
+> :: Ord a =&gt; (a -&gt; Bool) -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asplit"
+>split</A
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsplitMember"
+>splitMember</A
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (Bool, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afold"
+>fold</A
+> :: (a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfindMin"
+>findMin</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfindMax"
+>findMax</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeleteMin"
+>deleteMin</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeleteMax"
+>deleteMax</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeleteFindMin"
+>deleteFindMin</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeleteFindMax"
+>deleteFindMax</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aelems"
+>elems</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoList"
+>toList</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromList"
+>fromList</A
+> :: Ord a =&gt; [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoAscList"
+>toAscList</A
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAscList"
+>fromAscList</A
+> :: Eq a =&gt; [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromDistinctAscList"
+>fromDistinctAscList</A
+> :: [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTree"
+>showTree</A
+> :: Show a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTreeWith"
+>showTreeWith</A
+> :: Show a =&gt; Bool -&gt; Bool -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Avalid"
+>valid</A
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+>Set type
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3ASet"
+></A
+><B
+>Set</B
+> a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>A set of values <TT
+>a</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Set')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Set" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Eq a =&gt; Eq (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>Show a =&gt; Show (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+>Operators
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%5C%5C"
+></A
+><B
+>(\\)</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. See <TT
+><A HREF="UU-DData-Set.html#v%3Adifference"
+>difference</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+>Query
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AisEmpty"
+></A
+><B
+>isEmpty</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. Is this the empty set?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asize"
+></A
+><B
+>size</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. The number of elements in the set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Amember"
+></A
+><B
+>member</B
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Is the element in the set?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asubset"
+></A
+><B
+>subset</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a subset?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AproperSubset"
+></A
+><B
+>properSubset</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a proper subset? (ie. a subset but not equal).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+>Construction
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aempty"
+></A
+><B
+>empty</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. The empty set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asingle"
+></A
+><B
+>single</B
+> :: a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. Create a singleton set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Ainsert"
+></A
+><B
+>insert</B
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Insert an element in a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adelete"
+></A
+><B
+>delete</B
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Delete an element from a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+>Combine
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunion"
+></A
+><B
+>union</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The union of two sets. Uses the efficient <EM
+>hedge-union</EM
+> algorithm.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunions"
+></A
+><B
+>unions</B
+> :: Ord a =&gt; [<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>The union of a list of sets: (<TT
+>unions == foldl union empty</TT
+>).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adifference"
+></A
+><B
+>difference</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Difference of two sets. 
+ The implementation uses an efficient <EM
+>hedge</EM
+> algorithm comparable with <EM
+>hedge-union</EM
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aintersection"
+></A
+><B
+>intersection</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The intersection of two sets.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="6"
+>Filter
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afilter"
+></A
+><B
+>filter</B
+> :: Ord a =&gt; (a -&gt; Bool) -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Filter all elements that satisfy the predicate.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Apartition"
+></A
+><B
+>partition</B
+> :: Ord a =&gt; (a -&gt; Bool) -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Partition the set into two sets, one with all elements that satisfy
+ the predicate and one with all elements that don't satisfy the predicate.
+ See also <TT
+><A HREF="UU-DData-Set.html#v%3Asplit"
+>split</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asplit"
+></A
+><B
+>split</B
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (<A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. The expression (<TT
+>split x set</TT
+>) is a pair <TT
+>(set1,set2)</TT
+>
+ where all elements in <TT
+>set1</TT
+> are lower than <TT
+>x</TT
+> and all elements in
+ <TT
+>set2</TT
+> larger than <TT
+>x</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsplitMember"
+></A
+><B
+>splitMember</B
+> :: Ord a =&gt; a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (Bool, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Performs a <TT
+><A HREF="UU-DData-Set.html#v%3Asplit"
+>split</A
+></TT
+> but also returns whether the pivot
+ element was found in the original set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="7"
+>Fold
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afold"
+></A
+><B
+>fold</B
+> :: (a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Fold the elements of a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="8"
+>Min/Max
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfindMin"
+></A
+><B
+>findMin</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. The minimal element of a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfindMax"
+></A
+><B
+>findMax</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. The maximal element of a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdeleteMin"
+></A
+><B
+>deleteMin</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Delete the minimal element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdeleteMax"
+></A
+><B
+>deleteMax</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Delete the maximal element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdeleteFindMin"
+></A
+><B
+>deleteFindMin</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Delete and find the minimal element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdeleteFindMax"
+></A
+><B
+>deleteFindMax</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; (a, <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Delete and find the maximal element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="9"
+>Conversion
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="10"
+>List
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aelems"
+></A
+><B
+>elems</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The elements of a set.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoList"
+></A
+><B
+>toList</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the set to a list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromList"
+></A
+><B
+>fromList</B
+> :: Ord a =&gt; [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*log n)</EM
+>. Create a set from a list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="11"
+>Ordered list
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoAscList"
+></A
+><B
+>toAscList</B
+> :: <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the set to an ascending list of elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromAscList"
+></A
+><B
+>fromAscList</B
+> :: Eq a =&gt; [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Build a map from an ascending list in linear time.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromDistinctAscList"
+></A
+><B
+>fromDistinctAscList</B
+> :: [a] -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Build a set from an ascending list of distinct elements in linear time.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="12"
+>Debugging
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTree"
+></A
+><B
+>showTree</B
+> :: Show a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Show the tree that implements the set. The tree is shown
+ in a compressed, hanging format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTreeWith"
+></A
+><B
+>showTreeWith</B
+> :: Show a =&gt; Bool -&gt; Bool -&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n)</EM
+>. The expression (<TT
+>showTreeWith hang wide map</TT
+>) shows
+ the tree that implements the set. If <TT
+>hang</TT
+> is
+ <TT
+>True</TT
+>, a <EM
+>hanging</EM
+> tree is shown otherwise a rotated tree is shown. If
+ <TT
+>wide</TT
+> is true, an extra wide version is shown.
+</P
+><PRE
+> Set&gt; putStrLn $ showTreeWith True False $ fromDistinctAscList [1..5]
+ 4
+ +--2
+ |  +--1
+ |  +--3
+ +--5
+ 
+ Set&gt; putStrLn $ showTreeWith True True $ fromDistinctAscList [1..5]
+ 4
+ |
+ +--2
+ |  |
+ |  +--1
+ |  |
+ |  +--3
+ |
+ +--5
+ 
+ Set&gt; putStrLn $ showTreeWith False True $ fromDistinctAscList [1..5]
+ +--5
+ |
+ 4
+ |
+ |  +--3
+ |  |
+ +--2
+    |
+    +--1
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Avalid"
+></A
+><B
+>valid</B
+> :: Ord a =&gt; <A HREF="UU-DData-Set.html#t%3ASet"
+>Set</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Test if the internal set structure is valid.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

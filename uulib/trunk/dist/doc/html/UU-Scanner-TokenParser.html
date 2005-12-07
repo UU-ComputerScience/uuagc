@@ -1,0 +1,996 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.Scanner.TokenParser</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.Scanner.TokenParser</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApKeyPos"
+></A
+><B
+>pKeyPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; String -&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApSpecPos"
+></A
+><B
+>pSpecPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; Char -&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApKey"
+></A
+><B
+>pKey</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; String -&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApSpec"
+></A
+><B
+>pSpec</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; Char -&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApStringPos"
+></A
+><B
+>pStringPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCharPos"
+></A
+><B
+>pCharPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger8Pos"
+></A
+><B
+>pInteger8Pos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger10Pos"
+></A
+><B
+>pInteger10Pos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger16Pos"
+></A
+><B
+>pInteger16Pos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFractionPos"
+></A
+><B
+>pFractionPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApVaridPos"
+></A
+><B
+>pVaridPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApConidPos"
+></A
+><B
+>pConidPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApTextnmPos"
+></A
+><B
+>pTextnmPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApTextlnPos"
+></A
+><B
+>pTextlnPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApIntegerPos"
+></A
+><B
+>pIntegerPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApVarsymPos"
+></A
+><B
+>pVarsymPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApConsymPos"
+></A
+><B
+>pConsymPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p (String, <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApString"
+></A
+><B
+>pString</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChar"
+></A
+><B
+>pChar</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger8"
+></A
+><B
+>pInteger8</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger10"
+></A
+><B
+>pInteger10</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger16"
+></A
+><B
+>pInteger16</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFraction"
+></A
+><B
+>pFraction</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApVarid"
+></A
+><B
+>pVarid</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApConid"
+></A
+><B
+>pConid</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApTextnm"
+></A
+><B
+>pTextnm</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApTextln"
+></A
+><B
+>pTextln</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApInteger"
+></A
+><B
+>pInteger</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApVarsym"
+></A
+><B
+>pVarsym</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApConsym"
+></A
+><B
+>pConsym</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApComma"
+></A
+><B
+>pComma</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApSemi"
+></A
+><B
+>pSemi</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOParen"
+></A
+><B
+>pOParen</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCParen"
+></A
+><B
+>pCParen</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOBrack"
+></A
+><B
+>pOBrack</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCBrack"
+></A
+><B
+>pCBrack</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOCurly"
+></A
+><B
+>pOCurly</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCCurly"
+></A
+><B
+>pCCurly</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p String</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCommaPos"
+></A
+><B
+>pCommaPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApSemiPos"
+></A
+><B
+>pSemiPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOParenPos"
+></A
+><B
+>pOParenPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCParenPos"
+></A
+><B
+>pCParenPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOBrackPos"
+></A
+><B
+>pOBrackPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCBrackPos"
+></A
+><B
+>pCBrackPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApOCurlyPos"
+></A
+><B
+>pOCurlyPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCCurlyPos"
+></A
+><B
+>pCCurlyPos</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCommas"
+></A
+><B
+>pCommas</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApSemics"
+></A
+><B
+>pSemics</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApParens"
+></A
+><B
+>pParens</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApBracks"
+></A
+><B
+>pBracks</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCurly"
+></A
+><B
+>pCurly</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApParens_pCommas"
+></A
+><B
+>pParens_pCommas</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApBracks_pCommas"
+></A
+><B
+>pBracks_pCommas</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApCurly_pSemics"
+></A
+><B
+>pCurly_pSemics</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p <A HREF="UU-Scanner-Token.html#t%3AToken"
+>Token</A
+> =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

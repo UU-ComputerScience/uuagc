@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.Parsing.MachineInterface</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.Parsing.MachineInterface</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>class</SPAN
+> <A NAME="t%3AInputState"
+></A
+><B
+>InputState</B
+> state s pos | state -&gt; s, state -&gt; pos <SPAN CLASS="keyword"
+>where</SPAN
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Methods</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsplitStateE"
+></A
+><B
+>splitStateE</B
+> :: state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AEither%27"
+>Either'</A
+> state s</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsplitState"
+></A
+><B
+>splitState</B
+> :: state -&gt; (s, state)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AgetPosition"
+></A
+><B
+>getPosition</B
+> :: state -&gt; pos</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AreportError"
+></A
+><B
+>reportError</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AMessage"
+>Message</A
+> s pos -&gt; state -&gt; state</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:InputState')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:InputState" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> <A HREF="UU-Parsing-CharParser.html#t%3AInput"
+>Input</A
+> Char <A HREF="UU-Scanner-Position.html#t%3APos"
+>Pos</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> inp s p =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> (inp, state) s p</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> [s] s (Maybe s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> inp s p =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> (<A HREF="UU-Parsing-Offside.html#t%3AOffsideInput"
+>OffsideInput</A
+> inp s p) (<A HREF="UU-Parsing-Offside.html#t%3AOffsideSymbol"
+>OffsideSymbol</A
+> s) p</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>class</SPAN
+> <A NAME="t%3AOutputState"
+></A
+><B
+>OutputState</B
+> r  <SPAN CLASS="keyword"
+>where</SPAN
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Methods</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AacceptR"
+></A
+><B
+>acceptR</B
+> :: v -&gt; rest -&gt; r v rest</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AnextR"
+></A
+><B
+>nextR</B
+> :: (a -&gt; rest -&gt; rest') -&gt; (b -&gt; a) -&gt; r b rest -&gt; rest'</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:OutputState')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:OutputState" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> <A HREF="UU-Parsing-Interface.html#t%3APair"
+>Pair</A
+></TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>class</SPAN
+> <A NAME="t%3ASymbol"
+></A
+><B
+>Symbol</B
+> s  <SPAN CLASS="keyword"
+>where</SPAN
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Methods</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdeleteCost"
+></A
+><B
+>deleteCost</B
+> :: s -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsymBefore"
+></A
+><B
+>symBefore</B
+> :: s -&gt; s</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsymAfter"
+></A
+><B
+>symAfter</B
+> :: s -&gt; s</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Symbol')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Symbol" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> Char</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> (<A HREF="UU-Parsing-Offside.html#t%3AOffsideSymbol"
+>OffsideSymbol</A
+> s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> (<A HREF="UU-Scanner-GenToken.html#t%3AGenToken"
+>GenToken</A
+> key tp val)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AEither%27"
+></A
+><B
+>Either'</B
+> state s</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ALeft%27"
+></A
+><B
+>Left'</B
+> !s state</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ARight%27"
+></A
+><B
+>Right'</B
+> state</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3ASteps"
+></A
+><B
+>Steps</B
+> val s p</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><SPAN CLASS="keyword"
+>forall</SPAN
+> a . <A NAME="v%3AOkVal"
+></A
+><B
+>OkVal</B
+> (a -&gt; val) (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AOk"
+></A
+><B
+>Ok</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Arest"
+></A
+><B
+>rest</B
+> :: (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ACost"
+></A
+><B
+>Cost</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Acosting"
+></A
+><B
+>costing</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Arest"
+></A
+><B
+>rest</B
+> :: (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AStRepair"
+></A
+><B
+>StRepair</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Acosting"
+></A
+><B
+>costing</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Am"
+></A
+><B
+>m</B
+> :: !(<A HREF="UU-Parsing-MachineInterface.html#t%3AMessage"
+>Message</A
+> s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Arest"
+></A
+><B
+>rest</B
+> :: (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ABest"
+></A
+><B
+>Best</B
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p) (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p) (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> val s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ANoMoreSteps"
+></A
+><B
+>NoMoreSteps</B
+> val</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AAction"
+></A
+><B
+>Action</B
+> s</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AInsert"
+></A
+><B
+>Insert</B
+> s</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ADelete"
+></A
+><B
+>Delete</B
+> s</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AOther"
+></A
+><B
+>Other</B
+> String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Action')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Action" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Show s =&gt; Show (<A HREF="UU-Parsing-MachineInterface.html#t%3AAction"
+>Action</A
+> s)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aval"
+></A
+><B
+>val</B
+> :: (a -&gt; b) -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> b s p</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AevalSteps"
+></A
+><B
+>evalSteps</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AgetMsgs"
+></A
+><B
+>getMsgs</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; [<A HREF="UU-Parsing-MachineInterface.html#t%3AMessage"
+>Message</A
+> s p]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AMessage"
+></A
+><B
+>Message</B
+> sym pos</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AMsg"
+></A
+><B
+>Msg</B
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> sym) !pos (<A HREF="UU-Parsing-MachineInterface.html#t%3AAction"
+>Action</A
+> sym)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Message')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Message" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>(Eq s, Show s, Show p) =&gt; Show (<A HREF="UU-Parsing-MachineInterface.html#t%3AMessage"
+>Message</A
+> s p)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AExpecting"
+></A
+><B
+>Expecting</B
+> s</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AESym"
+></A
+><B
+>ESym</B
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AEStr"
+></A
+><B
+>EStr</B
+> String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AEOr"
+></A
+><B
+>EOr</B
+> [<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AESeq"
+></A
+><B
+>ESeq</B
+> [<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Expecting')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Expecting" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>??? s =&gt; Eq (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>??? s =&gt; Ord (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>(Eq s, Show s) =&gt; Show (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3ASymbolR"
+></A
+><B
+>SymbolR</B
+> s</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ARange"
+></A
+><B
+>Range</B
+> !s !s</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AEmptyR"
+></A
+><B
+>EmptyR</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:SymbolR')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:SymbolR" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Eq s =&gt; Eq (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>Ord s =&gt; Ord (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>(Eq s, Show s) =&gt; Show (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

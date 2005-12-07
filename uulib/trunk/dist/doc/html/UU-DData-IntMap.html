@@ -1,0 +1,3101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.DData.IntMap</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.DData.IntMap</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Map type
+</A
+></DT
+><DT
+><A HREF="#2"
+>Operators
+</A
+></DT
+><DT
+><A HREF="#3"
+>Query
+</A
+></DT
+><DT
+><A HREF="#4"
+>Construction
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#5"
+>Insertion
+</A
+></DT
+><DT
+><A HREF="#6"
+>Delete/Update
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#7"
+>Combine
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#8"
+>Union
+</A
+></DT
+><DT
+><A HREF="#9"
+>Difference
+</A
+></DT
+><DT
+><A HREF="#10"
+>Intersection
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#11"
+>Traversal
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#12"
+>Map
+</A
+></DT
+><DT
+><A HREF="#13"
+>Fold
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#14"
+>Conversion
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#15"
+>Lists
+</A
+></DT
+><DT
+><A HREF="#16"
+>Ordered lists
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#17"
+>Filter 
+</A
+></DT
+><DT
+><A HREF="#18"
+>Subset
+</A
+></DT
+><DT
+><A HREF="#19"
+>Debugging
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A HREF="#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AKey"
+>Key</A
+> = Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A%21"
+>(!)</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A%5C%5C"
+>(\\)</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisEmpty"
+>isEmpty</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asize"
+>size</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amember"
+>member</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Alookup"
+>lookup</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Maybe a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afind"
+>find</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfindWithDefault"
+>findWithDefault</A
+> :: a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aempty"
+>empty</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asingle"
+>single</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Ainsert"
+>insert</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinsertWith"
+>insertWith</A
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinsertWithKey"
+>insertWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinsertLookupWithKey"
+>insertLookupWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adelete"
+>delete</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aadjust"
+>adjust</A
+> :: (a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AadjustWithKey"
+>adjustWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aupdate"
+>update</A
+> :: (a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AupdateWithKey"
+>updateWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AupdateLookupWithKey"
+>updateLookupWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunion"
+>union</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AunionWith"
+>unionWith</A
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AunionWithKey"
+>unionWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aunions"
+>unions</A
+> :: [<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adifference"
+>difference</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdifferenceWith"
+>differenceWith</A
+> :: (a -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdifferenceWithKey"
+>differenceWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aintersection"
+>intersection</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AintersectionWith"
+>intersectionWith</A
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AintersectionWithKey"
+>intersectionWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amap"
+>map</A
+> :: (a -&gt; b) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmapWithKey"
+>mapWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; b) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmapAccum"
+>mapAccum</A
+> :: (a -&gt; b -&gt; (a, c)) -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b -&gt; (a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> c)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmapAccumWithKey"
+>mapAccumWithKey</A
+> :: (a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; b -&gt; (a, c)) -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b -&gt; (a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> c)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afold"
+>fold</A
+> :: (a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfoldWithKey"
+>foldWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aelems"
+>elems</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Akeys"
+>keys</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aassocs"
+>assocs</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoList"
+>toList</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromList"
+>fromList</A
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromListWith"
+>fromListWith</A
+> :: (a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromListWithKey"
+>fromListWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoAscList"
+>toAscList</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAscList"
+>fromAscList</A
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAscListWith"
+>fromAscListWith</A
+> :: (a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAscListWithKey"
+>fromAscListWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromDistinctAscList"
+>fromDistinctAscList</A
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afilter"
+>filter</A
+> :: (a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfilterWithKey"
+>filterWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Apartition"
+>partition</A
+> :: (a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ApartitionWithKey"
+>partitionWithKey</A
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asplit"
+>split</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsplitLookup"
+>splitLookup</A
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asubset"
+>subset</A
+> :: Eq a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsubsetBy"
+>subsetBy</A
+> :: (a -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AproperSubset"
+>properSubset</A
+> :: Eq a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AproperSubsetBy"
+>properSubsetBy</A
+> :: (a -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTree"
+>showTree</A
+> :: Show a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowTreeWith"
+>showTreeWith</A
+> :: Show a =&gt; Bool -&gt; Bool -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; String</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+>Map type
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AIntMap"
+></A
+><B
+>IntMap</B
+> a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>A map of integers to values <TT
+>a</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:IntMap')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:IntMap" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Eq a =&gt; Eq (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="decl"
+>Show a =&gt; Show (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t%3AKey"
+></A
+><B
+>Key</B
+> = Int</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+>Operators
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%21"
+></A
+><B
+>(!)</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. See <TT
+><A HREF="UU-DData-IntMap.html#v%3Afind"
+>find</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%5C%5C"
+></A
+><B
+>(\\)</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. See <TT
+><A HREF="UU-DData-IntMap.html#v%3Adifference"
+>difference</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+>Query
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AisEmpty"
+></A
+><B
+>isEmpty</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. Is the map empty?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asize"
+></A
+><B
+>size</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Number of elements in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Amember"
+></A
+><B
+>member</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Is the key a member of the map?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Alookup"
+></A
+><B
+>lookup</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Maybe a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Lookup the value of a key in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afind"
+></A
+><B
+>find</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Find the value of a key. Calls <TT
+>error</TT
+> when the element can not be found.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfindWithDefault"
+></A
+><B
+>findWithDefault</B
+> :: a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. The expression <TT
+>(findWithDefault def k map)</TT
+> returns the value of key <TT
+>k</TT
+> or returns <TT
+>def</TT
+> when
+ the key is not an element of the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+>Construction
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aempty"
+></A
+><B
+>empty</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. The empty map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asingle"
+></A
+><B
+>single</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(1)</EM
+>. A map of one element.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="5"
+>Insertion
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Ainsert"
+></A
+><B
+>insert</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Insert a new key/value pair in the map. When the key 
+ is already an element of the set, it's value is replaced by the new value, 
+ ie. <TT
+><A HREF="UU-DData-IntMap.html#v%3Ainsert"
+>insert</A
+></TT
+> is left-biased.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AinsertWith"
+></A
+><B
+>insertWith</B
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Insert with a combining function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AinsertWithKey"
+></A
+><B
+>insertWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Insert with a combining function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AinsertLookupWithKey"
+></A
+><B
+>insertLookupWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. The expression (<TT
+>insertLookupWithKey f k x map</TT
+>) is a pair where
+ the first element is equal to (<TT
+>lookup k map</TT
+>) and the second element
+ equal to (<TT
+>insertWithKey f k x map</TT
+>).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="6"
+>Delete/Update
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adelete"
+></A
+><B
+>delete</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Delete a key and its value from the map. When the key is not
+ a member of the map, the original map is returned.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aadjust"
+></A
+><B
+>adjust</B
+> :: (a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Adjust a value at a specific key. When the key is not
+ a member of the map, the original map is returned.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AadjustWithKey"
+></A
+><B
+>adjustWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Adjust a value at a specific key. When the key is not
+ a member of the map, the original map is returned.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aupdate"
+></A
+><B
+>update</B
+> :: (a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. The expression (<TT
+>update f k map</TT
+>) updates the value <TT
+>x</TT
+>
+ at <TT
+>k</TT
+> (if it is in the map). If (<TT
+>f x</TT
+>) is <TT
+>Nothing</TT
+>, the element is
+ deleted. If it is (<TT
+>Just y</TT
+>), the key <TT
+>k</TT
+> is bound to the new value <TT
+>y</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AupdateWithKey"
+></A
+><B
+>updateWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. The expression (<TT
+>update f k map</TT
+>) updates the value <TT
+>x</TT
+>
+ at <TT
+>k</TT
+> (if it is in the map). If (<TT
+>f k x</TT
+>) is <TT
+>Nothing</TT
+>, the element is
+ deleted. If it is (<TT
+>Just y</TT
+>), the key <TT
+>k</TT
+> is bound to the new value <TT
+>y</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AupdateLookupWithKey"
+></A
+><B
+>updateLookupWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(min(n,W))</EM
+>. Lookup and update.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="7"
+>Combine
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="8"
+>Union
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunion"
+></A
+><B
+>union</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The (left-biased) union of two sets. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AunionWith"
+></A
+><B
+>unionWith</B
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The union with a combining function. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AunionWithKey"
+></A
+><B
+>unionWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The union with a combining function. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aunions"
+></A
+><B
+>unions</B
+> :: [<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+>The union of a list of maps.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="9"
+>Difference
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Adifference"
+></A
+><B
+>difference</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Difference between two maps (based on keys). 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdifferenceWith"
+></A
+><B
+>differenceWith</B
+> :: (a -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Difference with a combining function. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AdifferenceWithKey"
+></A
+><B
+>differenceWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; Maybe a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Difference with a combining function. When two equal keys are
+ encountered, the combining function is applied to the key and both values.
+ If it returns <TT
+>Nothing</TT
+>, the element is discarded (proper set difference). If
+ it returns (<TT
+>Just y</TT
+>), the element is updated with a new value <TT
+>y</TT
+>. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="10"
+>Intersection
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aintersection"
+></A
+><B
+>intersection</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The (left-biased) intersection of two maps (based on keys). 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AintersectionWith"
+></A
+><B
+>intersectionWith</B
+> :: (a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The intersection with a combining function. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AintersectionWithKey"
+></A
+><B
+>intersectionWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. The intersection with a combining function. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="11"
+>Traversal
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="12"
+>Map
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Amap"
+></A
+><B
+>map</B
+> :: (a -&gt; b) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Map a function over all values in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AmapWithKey"
+></A
+><B
+>mapWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; b) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Map a function over all values in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AmapAccum"
+></A
+><B
+>mapAccum</B
+> :: (a -&gt; b -&gt; (a, c)) -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b -&gt; (a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> c)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The function <TT
+>mapAccum</TT
+> threads an accumulating
+ argument through the map in an unspecified order.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AmapAccumWithKey"
+></A
+><B
+>mapAccumWithKey</B
+> :: (a -&gt; <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; b -&gt; (a, c)) -&gt; a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> b -&gt; (a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> c)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The function <TT
+>mapAccumWithKey</TT
+> threads an accumulating
+ argument through the map in an unspecified order.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="13"
+>Fold
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afold"
+></A
+><B
+>fold</B
+> :: (a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n)</EM
+>. Fold over the elements of a map in an unspecified order.
+</P
+><PRE
+> sum map   = fold (+) 0 map
+ elems map = fold (:) [] map
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfoldWithKey"
+></A
+><B
+>foldWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; b -&gt; b) -&gt; b -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; b</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n)</EM
+>. Fold over the elements of a map in an unspecified order.
+</P
+><PRE
+> keys map = foldWithKey (\k x ks -&gt; k:ks) [] map
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="14"
+>Conversion
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aelems"
+></A
+><B
+>elems</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Return all elements of the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Akeys"
+></A
+><B
+>keys</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Return all keys of the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aassocs"
+></A
+><B
+>assocs</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Return all key/value pairs in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="15"
+>Lists
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoList"
+></A
+><B
+>toList</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the map to a list of key/value pairs.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromList"
+></A
+><B
+>fromList</B
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Create a map from a list of key/value pairs.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromListWith"
+></A
+><B
+>fromListWith</B
+> :: (a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>.  Create a map from a list of key/value pairs with a combining function. See also <TT
+><A HREF="UU-DData-IntMap.html#v%3AfromAscListWith"
+>fromAscListWith</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromListWithKey"
+></A
+><B
+>fromListWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>.  Build a map from a list of key/value pairs with a combining function. See also fromAscListWithKey'.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="16"
+>Ordered lists
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AtoAscList"
+></A
+><B
+>toAscList</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)]</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Convert the map to a list of key/value pairs where the
+ keys are in ascending order.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromAscList"
+></A
+><B
+>fromAscList</B
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a map from a list of key/value pairs where
+ the keys are in ascending order.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromAscListWith"
+></A
+><B
+>fromAscListWith</B
+> :: (a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a map from a list of key/value pairs where
+ the keys are in ascending order, with a combining function on equal keys.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromAscListWithKey"
+></A
+><B
+>fromAscListWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; a -&gt; a) -&gt; [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a map from a list of key/value pairs where
+ the keys are in ascending order, with a combining function on equal keys.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfromDistinctAscList"
+></A
+><B
+>fromDistinctAscList</B
+> :: [(<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n*min(n,W))</EM
+>. Build a map from a list of key/value pairs where
+ the keys are in ascending order and all distinct.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="17"
+>Filter 
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Afilter"
+></A
+><B
+>filter</B
+> :: (a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Filter all values that satisfy some predicate.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AfilterWithKey"
+></A
+><B
+>filterWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Filter all keys/values that satisfy some predicate.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Apartition"
+></A
+><B
+>partition</B
+> :: (a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. partition the map according to some predicate. The first
+ map contains all elements that satisfy the predicate, the second all
+ elements that fail the predicate. See also <TT
+><A HREF="UU-DData-IntMap.html#v%3Asplit"
+>split</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApartitionWithKey"
+></A
+><B
+>partitionWithKey</B
+> :: (<A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. partition the map according to some predicate. The first
+ map contains all elements that satisfy the predicate, the second all
+ elements that fail the predicate. See also <TT
+><A HREF="UU-DData-IntMap.html#v%3Asplit"
+>split</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asplit"
+></A
+><B
+>split</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (<A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. The expression (<TT
+>split k map</TT
+>) is a pair <TT
+>(map1,map2)</TT
+>
+ where all keys in <TT
+>map1</TT
+> are lower than <TT
+>k</TT
+> and all keys in
+ <TT
+>map2</TT
+> larger than <TT
+>k</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsplitLookup"
+></A
+><B
+>splitLookup</B
+> :: <A HREF="UU-DData-IntMap.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; (Maybe a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a, <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(log n)</EM
+>. Performs a <TT
+><A HREF="UU-DData-IntMap.html#v%3Asplit"
+>split</A
+></TT
+> but also returns whether the pivot
+ key was found in the original map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="18"
+>Subset
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Asubset"
+></A
+><B
+>subset</B
+> :: Eq a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a subset? Defined as (<TT
+>subset = subsetBy (==)</TT
+>).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AsubsetBy"
+></A
+><B
+>subsetBy</B
+> :: (a -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n+m)</EM
+>. 
+ The expression (<TT
+>subsetBy f m1 m2</TT
+>) returns <TT
+>True</TT
+> if
+ all keys in <TT
+>m1</TT
+> are in <TT
+>m2</TT
+>, and when <TT
+>f</TT
+> returns <TT
+>True</TT
+> when
+ applied to their respective values. For example, the following 
+ expressions are all <TT
+>True</TT
+>.
+</P
+><PRE
+> subsetBy (==) (fromList [(1,1)]) (fromList [(1,1),(2,2)])
+ subsetBy (&lt;=) (fromList [(1,1)]) (fromList [(1,1),(2,2)])
+ subsetBy (==) (fromList [(1,1),(2,2)]) (fromList [(1,1),(2,2)])
+</PRE
+><P
+>But the following are all <TT
+>False</TT
+>:
+</P
+><PRE
+> subsetBy (==) (fromList [(1,2)]) (fromList [(1,1),(2,2)])
+ subsetBy (&lt;) (fromList [(1,1)]) (fromList [(1,1),(2,2)])
+ subsetBy (==) (fromList [(1,1),(2,2)]) (fromList [(1,1)])
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AproperSubset"
+></A
+><B
+>properSubset</B
+> :: Eq a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n+m)</EM
+>. Is this a proper subset? (ie. a subset but not equal). 
+ Defined as (<TT
+>properSubset = properSubsetBy (==)</TT
+>).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AproperSubsetBy"
+></A
+><B
+>properSubsetBy</B
+> :: (a -&gt; a -&gt; Bool) -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+><EM
+>O(n+m)</EM
+>. Is this a proper subset? (ie. a subset but not equal).
+ The expression (<TT
+>properSubsetBy f m1 m2</TT
+>) returns <TT
+>True</TT
+> when
+ <TT
+>m1</TT
+> and <TT
+>m2</TT
+> are not equal,
+ all keys in <TT
+>m1</TT
+> are in <TT
+>m2</TT
+>, and when <TT
+>f</TT
+> returns <TT
+>True</TT
+> when
+ applied to their respective values. For example, the following 
+ expressions are all <TT
+>True</TT
+>.
+</P
+><PRE
+> properSubsetBy (==) (fromList [(1,1)]) (fromList [(1,1),(2,2)])
+ properSubsetBy (&lt;=) (fromList [(1,1)]) (fromList [(1,1),(2,2)])
+</PRE
+><P
+>But the following are all <TT
+>False</TT
+>:
+</P
+><PRE
+> properSubsetBy (==) (fromList [(1,1),(2,2)]) (fromList [(1,1),(2,2)])
+ properSubsetBy (==) (fromList [(1,1),(2,2)]) (fromList [(1,1)])
+ properSubsetBy (&lt;)  (fromList [(1,1)])       (fromList [(1,1),(2,2)])
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="19"
+>Debugging
+</A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTree"
+></A
+><B
+>showTree</B
+> :: Show a =&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. Show the tree that implements the map. The tree is shown
+ in a compressed, hanging format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AshowTreeWith"
+></A
+><B
+>showTreeWith</B
+> :: Show a =&gt; Bool -&gt; Bool -&gt; <A HREF="UU-DData-IntMap.html#t%3AIntMap"
+>IntMap</A
+> a -&gt; String</TD
+></TR
+><TR
+><TD CLASS="doc"
+><EM
+>O(n)</EM
+>. The expression (<TT
+>showTreeWith hang wide map</TT
+>) shows
+ the tree that implements the map. If <TT
+>hang</TT
+> is
+ <TT
+>True</TT
+>, a <EM
+>hanging</EM
+> tree is shown otherwise a rotated tree is shown. If
+ <TT
+>wide</TT
+> is true, an extra wide version is shown.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,1032 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.Parsing.Machine</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.Parsing.Machine</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+> <A NAME="t%3ARealParser"
+></A
+><B
+>RealParser</B
+> state s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AP"
+></A
+><B
+>P</B
+> (<SPAN CLASS="keyword"
+>forall</SPAN
+> r' r'' . (a -&gt; r'' -&gt; r') -&gt; (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r'' s p) -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r' s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+> <A NAME="t%3ARealRecogn"
+></A
+><B
+>RealRecogn</B
+> state s p</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AR"
+></A
+><B
+>R</B
+> (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+> <A NAME="t%3ARealAccept"
+></A
+><B
+>RealAccept</B
+> state result s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AA"
+></A
+><B
+>A</B
+> (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (result a r) s p)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+> <A NAME="t%3AParsRec"
+></A
+><B
+>ParsRec</B
+> state result s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3APR"
+></A
+><B
+>PR</B
+> (<A HREF="UU-Parsing-Machine.html#t%3ARealParser"
+>RealParser</A
+> state s p a, <A HREF="UU-Parsing-Machine.html#t%3ARealRecogn"
+>RealRecogn</A
+> state s p, <A HREF="UU-Parsing-Machine.html#t%3ARealAccept"
+>RealAccept</A
+> state result s p a)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AparseRecbasic"
+></A
+><B
+>parseRecbasic</B
+> :: (inp -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (out c d) sym pos) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> inp out sym pos a -&gt; inp -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (out a (out c d)) sym pos</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aparsebasic"
+></A
+><B
+>parsebasic</B
+> :: (inp -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (out c d) sym pos) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> inp out sym pos a -&gt; inp -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (out a (out c d)) sym pos</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibAccept"
+></A
+><B
+>libAccept</B
+> :: (<A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> a, <A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> b s p) =&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> b a s p s</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibFail"
+></A
+><B
+>libFail</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> a =&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> b a c p d</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Astarting"
+></A
+><B
+>starting</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AhasSuccess"
+></A
+><B
+>hasSuccess</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aeor"
+></A
+><B
+>eor</B
+> :: Ord a =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> a -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> a -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibBest"
+></A
+><B
+>libBest</B
+> :: Ord s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> b s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> b s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> b s p</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibBest%27"
+></A
+><B
+>libBest'</B
+> :: Ord s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> b s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> c s p -&gt; (b -&gt; d) -&gt; (c -&gt; d) -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> d s p</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Alib_correct"
+></A
+><B
+>lib_correct</B
+> :: Ord s =&gt; (b -&gt; c -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> d s p) -&gt; (b -&gt; c -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> d s p) -&gt; b -&gt; c -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> d s p</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibCorrect"
+></A
+><B
+>libCorrect</B
+> :: Ord s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> c s p -&gt; (a -&gt; d) -&gt; (c -&gt; d) -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> d s p</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AToBeat"
+></A
+><B
+>ToBeat</B
+> a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AToBeat"
+></A
+><B
+>ToBeat</B
+> Int a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Atraverse"
+></A
+><B
+>traverse</B
+> :: <A HREF="UU-Parsing-Machine.html#t%3AToBeat"
+>ToBeat</A
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p) -&gt; (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> v s p -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> v s p, Int) -&gt; Int -&gt; <A HREF="UU-Parsing-Machine.html#t%3AToBeat"
+>ToBeat</A
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> a s p)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AAnaParser"
+></A
+><B
+>AnaParser</B
+> state result s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AAnaParser"
+></A
+><B
+>AnaParser</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Apars"
+></A
+><B
+>pars</B
+> :: (<A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Aleng"
+></A
+><B
+>leng</B
+> :: <A HREF="UU-Parsing-Machine.html#t%3ANat"
+>Nat</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Azerop"
+></A
+><B
+>zerop</B
+> :: (Maybe (Bool, Either a (<A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a)))</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Aonep"
+></A
+><B
+>onep</B
+> :: (<A HREF="UU-Parsing-Machine.html#t%3AOneDescr"
+>OneDescr</A
+> state result s p a)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:AnaParser')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:AnaParser" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>(Ord s, <A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> s, <A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> state s p, <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> result) =&gt; <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> (<A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> state result s p) s</TD
+></TR
+><TR
+><TD CLASS="decl"
+>(<A HREF="UU-Parsing-MachineInterface.html#t%3AInputState"
+>InputState</A
+> inp s p, <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> out) =&gt; <A HREF="UU-Parsing-StateParser.html#t%3AStateParser"
+>StateParser</A
+> (<A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> (inp, st) out s p) st</TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3AOneDescr"
+></A
+><B
+>OneDescr</B
+> state result s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AOneDescr"
+></A
+><B
+>OneDescr</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Afirsts"
+></A
+><B
+>firsts</B
+> :: (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3Atable"
+></A
+><B
+>table</B
+> :: [(<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s, <A HREF="UU-Parsing-Machine.html#t%3ATableEntry"
+>TableEntry</A
+> state result s p a)]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3ATableEntry"
+></A
+><B
+>TableEntry</B
+> state result s p a</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ATableEntry"
+></A
+><B
+>TableEntry</B
+> (<A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a) (<A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AanaFail"
+></A
+><B
+>anaFail</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> a =&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> b a c p d</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+> <A NAME="t%3ANat"
+></A
+><B
+>Nat</B
+> </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AZero"
+></A
+><B
+>Zero</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3ASucc"
+></A
+><B
+>Succ</B
+> <A HREF="UU-Parsing-Machine.html#t%3ANat"
+>Nat</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v%3AInfinite"
+></A
+><B
+>Infinite</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+><IMG SRC="minus.gif" CLASS="coll" ONCLICK="toggle(this,'i:Nat')" ALT="show/hide"
+> Instances</TD
+></TR
+><TR
+><TD CLASS="body"
+><DIV ID="i:Nat" STYLE="display:block;"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>Eq <A HREF="UU-Parsing-Machine.html#t%3ANat"
+>Nat</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>Show <A HREF="UU-Parsing-Machine.html#t%3ANat"
+>Nat</A
+></TD
+></TR
+></TABLE
+></DIV
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibMap"
+></A
+><B
+>libMap</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> result =&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r r'' . (b -&gt; r -&gt; r'') -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (a, r) s p -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r'' s p)) -&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApMap"
+></A
+><B
+>pMap</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> result =&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r r'' . (b -&gt; r -&gt; r'') -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (a, r) s p -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r'' s p)) -&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> state result s p a -&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> state result s p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlibWrap"
+></A
+><B
+>libWrap</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> result =&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r r'' . (b -&gt; r -&gt; r'') -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (a, r) s p -&gt; (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r'' s p, state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p -&gt; (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p, state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p a -&gt; <A HREF="UU-Parsing-Machine.html#t%3AParsRec"
+>ParsRec</A
+> state result s p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApWrap"
+></A
+><B
+>pWrap</B
+> :: <A HREF="UU-Parsing-MachineInterface.html#t%3AOutputState"
+>OutputState</A
+> result =&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r r'' . (b -&gt; r -&gt; r'') -&gt; state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> (a, r) s p -&gt; (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r'' s p, state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; (<SPAN CLASS="keyword"
+>forall</SPAN
+> r . state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p -&gt; (state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p) -&gt; (state, <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p, state -&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3ASteps"
+>Steps</A
+> r s p)) -&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> state result s p a -&gt; <A HREF="UU-Parsing-Machine.html#t%3AAnaParser"
+>AnaParser</A
+> state result s p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AlookupSym"
+></A
+><B
+>lookupSym</B
+> :: Ord a =&gt; <A HREF="UU-Util-BinaryTrees.html#t%3ABinSearchTree"
+>BinSearchTree</A
+> (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> a, b) -&gt; a -&gt; Maybe b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

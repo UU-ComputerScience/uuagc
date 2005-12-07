@@ -1,0 +1,780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>UU.Parsing.Derived</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock.js" TYPE="text/javascript"
+></SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>uust-1.0</TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>UU.Parsing.Derived</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aacceptsepsilon"
+></A
+><B
+>acceptsepsilon</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p v -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Amnz"
+></A
+><B
+>mnz</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p v -&gt; t -&gt; String -&gt; t</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C..%3E"
+></A
+><B
+>(&lt;..&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; s -&gt; s -&gt; p s</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApExcept"
+></A
+><B
+>pExcept</B
+> :: (<A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s, <A HREF="UU-Parsing-MachineInterface.html#t%3ASymbol"
+>Symbol</A
+> s, Ord s, Eq (<A HREF="UU-Parsing-MachineInterface.html#t%3ASymbolR"
+>SymbolR</A
+> s)) =&gt; (s, s, s) -&gt; [s] -&gt; p s</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Aopt"
+></A
+><B
+>opt</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; a -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AasList"
+></A
+><B
+>asList</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s -&gt; p v -&gt; p v</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AasList1"
+></A
+><B
+>asList1</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s -&gt; p v -&gt; p v</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3AasOpt"
+></A
+><B
+>asOpt</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; <A HREF="UU-Parsing-MachineInterface.html#t%3AExpecting"
+>Expecting</A
+> s -&gt; p v -&gt; p v</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C%2B%3E"
+></A
+><B
+>(&lt;+&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p b -&gt; p (a, b)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C%2A%2A%3E"
+></A
+><B
+>(&lt;**&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p (a -&gt; b) -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C%24%24%3E"
+></A
+><B
+>(&lt;$$&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; c) -&gt; p b -&gt; p (a -&gt; c)</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C%3F%3F%3E"
+></A
+><B
+>(&lt;??&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p (a -&gt; a) -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3A%3C%3F%3E"
+></A
+><B
+>(&lt;?&gt;)</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p v -&gt; String -&gt; p v</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApPacked"
+></A
+><B
+>pPacked</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p b1 -&gt; p b -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr_ng"
+></A
+><B
+>pFoldr_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; a1 -&gt; a1, a1) -&gt; p a -&gt; p a1</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr_gr"
+></A
+><B
+>pFoldr_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; b, b) -&gt; p a -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr"
+></A
+><B
+>pFoldr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; b, b) -&gt; p a -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1_gr"
+></A
+><B
+>pFoldr1_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1_ng"
+></A
+><B
+>pFoldr1_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1"
+></A
+><B
+>pFoldr1</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldrSep_gr"
+></A
+><B
+>pFoldrSep_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p a -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldrSep_ng"
+></A
+><B
+>pFoldrSep_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p a -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldrSep"
+></A
+><B
+>pFoldrSep</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (v -&gt; b -&gt; b, b) -&gt; p a -&gt; p v -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1Sep_gr"
+></A
+><B
+>pFoldr1Sep_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; b, b) -&gt; p a1 -&gt; p a -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1Sep_ng"
+></A
+><B
+>pFoldr1Sep_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; b, b) -&gt; p a1 -&gt; p a -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApFoldr1Sep"
+></A
+><B
+>pFoldr1Sep</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; b -&gt; b, b) -&gt; p a1 -&gt; p a -&gt; p b</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3Alist_alg"
+></A
+><B
+>list_alg</B
+> :: (a -&gt; [a] -&gt; [a], [a1])</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList_gr"
+></A
+><B
+>pList_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList_ng"
+></A
+><B
+>pList_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList"
+></A
+><B
+>pList</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1_gr"
+></A
+><B
+>pList1_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1_ng"
+></A
+><B
+>pList1_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1"
+></A
+><B
+>pList1</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApListSep_gr"
+></A
+><B
+>pListSep_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a1 -&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApListSep_ng"
+></A
+><B
+>pListSep_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a1 -&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApListSep"
+></A
+><B
+>pListSep</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p a1 -&gt; p [a1]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1Sep_gr"
+></A
+><B
+>pList1Sep_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a1 -&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1Sep_ng"
+></A
+><B
+>pList1Sep_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a1 -&gt; p a -&gt; p [a]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApList1Sep"
+></A
+><B
+>pList1Sep</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p a -&gt; p a1 -&gt; p [a1]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainr_gr"
+></A
+><B
+>pChainr_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (c -&gt; c -&gt; c) -&gt; p c -&gt; p c</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainr_ng"
+></A
+><B
+>pChainr_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (a -&gt; a -&gt; a) -&gt; p a -&gt; p a</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainr"
+></A
+><B
+>pChainr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (c -&gt; c -&gt; c) -&gt; p c -&gt; p c</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainl_gr"
+></A
+><B
+>pChainl_gr</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (c -&gt; c -&gt; c) -&gt; p c -&gt; p c</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainl_ng"
+></A
+><B
+>pChainl_ng</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (c -&gt; c -&gt; c) -&gt; p c -&gt; p c</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApChainl"
+></A
+><B
+>pChainl</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; p (c -&gt; c -&gt; c) -&gt; p c -&gt; p c</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApAny"
+></A
+><B
+>pAny</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; (a -&gt; p a1) -&gt; [a] -&gt; p a1</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApAnySym"
+></A
+><B
+>pAnySym</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; [s] -&gt; p s</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApToks"
+></A
+><B
+>pToks</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; [s] -&gt; p [s]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A NAME="v%3ApLocate"
+></A
+><B
+>pLocate</B
+> :: <A HREF="UU-Parsing-Interface.html#t%3AIsParser"
+>IsParser</A
+> p s =&gt; [[s]] -&gt; p [s]</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 0.7</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>
