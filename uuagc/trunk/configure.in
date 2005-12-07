@@ -1,9 +1,11 @@
 dnl
 dnl UUAG configure script
 dnl
+dnl Parts borrowed from Generic Haskell's configure script
 
 AC_INIT(VERSION)
-# Parts borrowed from Generic Haskell's configure script
+
+AC_PREFIX_DEFAULT(/usr/local)
 
 # Safety check: Ensure that we are in the correct source directory.
 AC_CONFIG_SRCDIR([uuagc.cabal.in])
@@ -42,6 +44,9 @@ AC_PATH_PROG(LD,ld)
 AC_PATH_PROG(GREP,grep)
 AC_PATH_PROG(CHMOD,chmod)
 
+# Install program
+AC_PROG_INSTALL
+
 # check for AG system
 AC_PATH_PROG(UUAGC,uuagc)
 
@@ -55,9 +60,10 @@ AC_ARG_WITH(ag,
 )
 
 UUAGC="$WithAG"
+AC_SUBST(UUAGC)
 
 if test "$UUAGC" = ""; then
-  AC_MSG_ERROR([Cannot continue without an AG compiler.])
+  AC_MSG_WARN([AG compiler not found, building from ag sources may fail.])
 fi
 
 # allow a different Cabal build directory to be specified
@@ -72,20 +78,21 @@ AC_ARG_WITH(bdir,
 BUILD_DIR="$BDir"
 AC_SUBST(BUILD_DIR)
 
-# specify which runhaskell to use
-AC_ARG_WITH(rh,
-[  -with-rh=<run haskell>
-       Haskell interpreter to invoke Cabal.
+# specify which haskell compiler to use
+AC_PATH_PROG(HC,ghc)
+
+AC_ARG_WITH(hc,
+[  -with-hc=<Haskell compiler>
+       Haskell compiler to use (default: ghc).
 ],
 [WithRH="$withval"],
-[WithRH=""]
+[WithRH="$HC"]
 )
 
-RUN_HASKELL="$WithRH"
-AC_SUBST(RUN_HASKELL)
+HC="$WithRH"
 
-if test "$RUN_HASKELL" = ""; then
-  AC_MSG_ERROR([Cannot continue without a Haskell interpreter (runghc).])
+if test "$HC" = ""; then
+  AC_MSG_ERROR([Cannot continue without a Haskell compiler.])
 fi
 
 AC_PATH_PROG(CHMOD,chmod)
