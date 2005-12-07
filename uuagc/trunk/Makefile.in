@@ -161,6 +161,7 @@ dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SYN)
 		 $(DLABEL)
 # populate source and scripts
 	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
+	$(CP) -p $(SRC_DIR)/*.hs.in $(DLABEL)/$(SRC_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
 	$(CP) -p scripts/*.sh.in $(DLABEL)/scripts
 

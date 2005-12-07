@@ -17,9 +17,8 @@ import Options
 import qualified GenerateCode as Gen(sem_Grammar, wrap_Grammar, Syn_Grammar(..),Inh_Grammar(..))
 import UU.DData.Seq as Seq((<>),toList)
 import CommonTypes
-version = strip txt
-  where strip = takeWhile (/= '$') . drop 1 . dropWhile (/= ':')
-        txt   = "Attribute Grammar compiler / HUT project. Version @FULLVERSION@."
+
+banner = "Attribute Grammar compiler / HUT project. Version @FULLVERSION@"
 
 {- MAIN -}
 main        :: IO ()
@@ -28,7 +27,7 @@ main        =  do
                  progName <- getProgName
                  let usageheader = "Usage info:\n " ++ progName ++ " options file ...\n\nList of options:"
                      (flags,files,errs) = getOptions args
-                     doit | showVersion flags = putStrLn ("version: " ++ version)
+                     doit | showVersion flags = putStrLn banner
                           | null files || showHelp flags || (not.null) errs
                                               = putStr $ usageInfo usageheader options
                           | otherwise         = let fnames = zip files (outputFiles flags++repeat "")

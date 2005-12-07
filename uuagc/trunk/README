@@ -1,8 +1,27 @@
--- Build and Install:
-ghc --make Setup.hs -o setup -package Cabal
+* Build and Install from source distribution
 
+---
+ghc --make Setup.hs -o setup -package Cabal
 ./setup configure
 ./setup build
 ./setup install
+---
 
+It is also possible to use make:
+
+---
+./configure
+make
+make install
+---
+
+
+* Build and Install from repository source
+
+---
+autoconf
+./configure
+make
+make install
+---
 

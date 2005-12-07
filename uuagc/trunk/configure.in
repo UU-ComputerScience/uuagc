@@ -111,5 +111,5 @@ AC_SUBST(FULLVERSION)
 AC_SUBST(VERSION)
 
 
-AC_OUTPUT(Makefile uuagc.cabal scripts/mkAGdepend.sh)
+AC_OUTPUT(Makefile uuagc.cabal scripts/mkAGdepend.sh src/Ag.hs)
 ${CHMOD} ugo+x scripts/mkAGdepend.sh
