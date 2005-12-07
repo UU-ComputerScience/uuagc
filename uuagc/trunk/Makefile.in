@@ -82,12 +82,12 @@ ifeq ($(AG),)
 $(SRC_HS_SYN) $(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	@echo "* No AG compiler configured" && exit 1
 else
-$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag $(AG)
+$(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
 	$(AG) -mdp $*.ag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
 
-$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag $(AG)
+$(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
 	$(AG) -mcsfp --newtypes --wrappers $*.ag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
@@ -105,9 +105,7 @@ $(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SYN) $(CABAL_CONFIG)
 	@echo "* Compiling hs sources..."
 	$(CABAL_BUILD)
 
-$(CABAL_CONFIG): cabal-conf
-
-cabal-conf: $(CABAL_SCRIPT)
+$(CABAL_CONFIG): $(CABAL_SCRIPT)
 	@echo "* Configuring Cabal"
 	$(CABAL_CONFIGURE) --prefix=$(prefix)
 
