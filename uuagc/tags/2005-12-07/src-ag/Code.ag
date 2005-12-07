@@ -1,0 +1,59 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/Code.ag,v 1.4 2003/11/03 15:43:15 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import UU.Pretty
+}
+TYPE Exprs    = [Expr]
+             
+
+TYPE Decls    = [Decl]
+TYPE DataAlts = [DataAlt]
+            
+TYPE Types    = [Type]
+             
+
+
+DATA Program  | Program     decls : Decls
+
+DATA Expr     | Let         decls : Decls   
+                            body  : Expr
+              | Lambda      args :  {[String]}
+                            body : Expr
+              | TupleExpr   exprs : Exprs
+              | App         name  : {String} 
+                            args  : Exprs
+              | SimpleExpr  txt   : {String}
+              | PP          pp    : {PP_Doc}
+
+
+DATA Decl     | Decl        left  : Lhs 
+                            rhs   : Expr
+              | Data        name  : {String} 
+                            alts  : DataAlts
+                            derivings : {[String]}
+              | NewType     name  : {String} 
+                            con   : {String} 
+                            tp    : Type
+              | Type        name  : {String} 
+                            tp    : Type
+              | TSig        name  : {String} 
+                            tp    : Type
+              | Comment     txt   : {String}
+
+
+DATA DataAlt  | DataAlt     name  : {String} 
+                            args  : {[String]}
+              | Record      name  : {String} 
+                            args  : {[(String,String)]}
+DATA Type     | Arr         left  : Type 
+                            right : Type
+              | TupleType   tps   : Types
+              | List        tp    : Type
+              | SimpleType  txt   : {String}
+	       
+DATA Lhs      | Pattern     pat   : {PP_Doc}
+              | TupleLhs    comps : {[String]}
+              | Fun         name  : {String} 
+                            args  : Exprs

@@ -1,0 +1,390 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/GenerateCode.ag,v 1.20 2005/08/04 13:05:51 uust Exp $
+--  $Name:  $ (version name)
+
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Comments.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "ExpressionAttr.ag"
+INCLUDE "Dep.ag"
+INCLUDE "GenerateCodeSM.ag"
+
+imports
+{
+import CommonTypes
+import Patterns
+import ErrorMessages
+import AbstractSyntax
+import Code hiding (Type)
+import qualified Code
+import qualified UU.DData.Map as Map
+import qualified UU.DData.Seq as Seq
+import qualified UU.DData.Set as Set
+import UU.DData.Map(Map) 
+import UU.DData.Set(Set) 
+import UU.DData.Seq(Seq, (<>)) 
+import Maybe
+import UU.Pretty
+import UU.Util.Utils
+import Expression
+import Options
+}
+
+
+-------------------------------------------------------------------------------
+--         Errors
+-------------------------------------------------------------------------------
+
+
+
+-- Everyone that wants to report an error can do this by adding an error message to the
+-- stream of errors
+
+ATTR Productions Production Alternatives Alternative
+     Child Children Rule Rules Pattern Patterns  Grammar [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
+
+-------------------------------------------------------------------------------
+--         Distributing name of nonterminal and names of attributes
+-------------------------------------------------------------------------------
+ATTR Alternatives Alternative Child Children Rules Rule [ nt:{Identifier} | | ]
+ATTR Child Children Rules Rule  [ con:{Identifier} | | ]
+ATTR Alternatives Alternative Children [ inh:{Attributes} | | ]
+ATTR Alternatives Alternative [ syn:{Attributes} | | ]
+
+SEM Alternative
+  | Alternative children . con = @con
+SEM Alternative
+  | Alternative rules . con = @con
+SEM Production
+  | Production alts . nt = @nt
+
+
+SEM Production
+  | Production alts.inh  = @inh
+               alts.syn  = @syn
+
+
+-------------------------------------------------------------------------------
+--         Distributing options
+-------------------------------------------------------------------------------
+
+ATTR Grammar          [ options:{Options} | | ]
+ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename:{Bool}  prefix : {String} | | ]
+ATTR Productions Production [ o_data:{Bool} | | ]
+
+SEM Grammar
+  | Grammar     prods.o_cata    = folds     @lhs.options
+                     .o_data    = dataTypes @lhs.options
+                     .o_sig     = typeSigs  @lhs.options
+                     .o_sem     = semfuns   @lhs.options
+                     .o_rename  = rename    @lhs.options
+                     .o_newtypes= newtypes  @lhs.options
+                     .prefix    = prefix    @lhs.options
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+ATTR Grammar     [ | | prog : {Program} ]
+ATTR Productions [ | | decls USE {++} {[]} : {Decls} ]
+ATTR Production  [ | | decls : {Decls} ]
+
+SEM Grammar
+  | Grammar    lhs.prog = if smacro @lhs.options
+                           then Program (@prods.decls ++ @loc.smUnitDecl ++ @prods.smdecls ++ @loc.defnmdecls)
+                           else Program @prods.decls
+
+
+SEM Production
+  | Production  lhs.decls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
+                            (if @lhs.o_pretty then @loc.comment : @alts.comments else []) ++
+                            (if @lhs.o_data then [@loc.dataDef] else []) ++
+                            (if @lhs.o_sig || @lhs.o_sem then @loc.semDom  else []) ++
+                            (if @lhs.o_cata then @loc.cataFun else []) ++
+                            (if Set.member @nt @lhs.wrappers then @loc.semWrapper else []) ++
+                            (if @lhs.o_sem  then @alts.semFuns else [])
+
+-------------------------------------------------------------------------------
+-- Wrappers for semantic functions
+-------------------------------------------------------------------------------
+{-
+generate record datatypes Syn<nt> and Inh<nt>, 
+and function wrap<nt> :: T_<nt> -> (Inh<nt> -> Syn<nt>)
+-}
+
+SEM Production
+  | Production loc.semWrapper = 
+                     let inhAttrs = Map.toList @inh
+                         synAttrs = Map.toList @syn
+                         inhNT = "Inh" ++ "_" ++ getName @nt
+                         synNT = "Syn" ++ "_" ++ getName @nt
+                         wrapNT = "wrap" ++ "_" ++ getName @nt
+                           
+                         mkdata n attrs = Data n [Record n [(getName f++"_"++n,typeToString @nt t) | (f,t) <- attrs]] []
+                         datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
+                         typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
+                         function = let var = "sem"
+                                        varPat = if @lhs.o_newtypes
+                                                    then App (sdtype @nt) [SimpleExpr var]
+                                                    else SimpleExpr var
+                                        inhVars = [ SimpleExpr ("i" ++ show x) | x <- take (length inhAttrs) [1..]]
+                                        synVarsN = [ ("s" ++ show x) | x <- take (length synAttrs) [1..]]
+                                        synVarsE = map SimpleExpr synVarsN                                       
+                                    in Decl (Fun wrapNT [varPat, App inhNT inhVars])
+                                            (Let [Decl (TupleLhs synVarsN) (App var inhVars) | not(null synVarsN)]
+                                             (App synNT synVarsE))
+                     in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ [function]
+                     
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+
+ATTR Productions Production [ wrappers:{Set Nonterminal} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
+SEM Grammar
+  | Grammar prods . typeSyns  = @typeSyns
+                  . derivings = @derivings 
+                  . wrappers  = @wrappers
+
+SEM Production
+  | Production loc.dataDef = let typeSyn tp = let theType = 
+                                                   case tp of
+                                                     CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToString @nt t ++")")
+                                                     CommonTypes.List t   -> Code.List $ SimpleType (typeToString @nt t)
+                                                     CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToString @nt t) 
+                                                                                            | (_,t) <- ts
+                                                                                            ]                                                                
+                                              in Code.Type (getName @nt) theType
+                                 derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
+                                 dataDef    = Data (getName @nt) @alts.dataAlts derivings
+                             in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+
+SEM Production
+  | Production  loc.semDom = let tp = foldr Arr synTps inhTps
+                                 synTps = TupleType [SimpleType (typeToString @nt tp) |  tp <- Map.elems @syn]
+                                 inhTps = [SimpleType (typeToString @nt tp) |  tp <- Map.elems @inh]
+                             in if @lhs.o_sig || @lhs.o_newtypes 
+                                 then
+                                 [ Comment "semantic domain"
+                                 , if @lhs.o_newtypes 
+                                     then NewType (sdtype @nt) (sdtype @nt) tp
+                                     else Code.Type (sdtype @nt) tp
+                                 ]
+                                 else []
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+SEM Production
+  | Production loc.cataFun  = let tSig = TSig (cataname @lhs.prefix @nt)
+                                              (SimpleType (getName @nt) `Arr` SimpleType (sdtype @nt))
+                                  special typ = case typ of
+                                                CommonTypes.List tp ->                                  
+                                                    let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))
+                                                        nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
+                                                        arg  = SimpleExpr "list"
+                                                        rarg = case tp of
+                                                                 NT t  -> SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t) ++ " list)")
+                                                                 _     -> arg
+                                                        lhs = Fun (cataname @lhs.prefix @nt) [arg]
+                                                        rhs = (App "Prelude.foldr" [cons,nil,rarg])
+                                                    in  [Decl lhs rhs]
+                                                CommonTypes.Maybe tp ->                                  
+                                                    let just    = semname @lhs.prefix @nt (identifier "Just")
+                                                        nothing = semname @lhs.prefix @nt (identifier "Nothing" )
+                                                        arg  = SimpleExpr "x"
+                                                        rarg = case tp of
+                                                                 NT t  -> App (cataname @lhs.prefix t) [arg]
+                                                                 _     -> arg
+                                                        lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
+                                                    in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])
+                                                        ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing)
+                                                        ]
+                                                CommonTypes.Tuple tps ->   
+                                                    let con  = semname @lhs.prefix @nt (identifier "Tuple")
+                                                        tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
+                                                        rargs = map rarg tps'                                                        
+                                                        rarg (n, tp) = case tp of
+                                                                 NT t  -> App (cataname @lhs.prefix t) [n]
+                                                                 _     -> n
+                                                                 
+                                                        lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
+                                                        rhs = App con rargs
+                                                    in  [Decl lhs rhs]                                                    
+                              in  Comment "cata" :
+                                  (if @lhs.o_sig then [tSig] else []) ++
+                                  maybe @alts.cataAlts special (lookup @nt @lhs.typeSyns)
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+
+ATTR Alternatives     [ | | dataAlts : {DataAlts} ]
+ATTR Alternative      [ | | dataAlt  : {DataAlt}  ]
+
+SEM Alternatives
+  | Cons        lhs.dataAlts  = @hd.dataAlt : @tl.dataAlts
+  | Nil         lhs.dataAlts  = []
+
+SEM Alternative
+  | Alternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (typeToString @lhs.nt .snd) @children.fields)
+
+
+SEM Child [ | | field : {(Name,Type)} ]
+  | Child lhs.field = (@name, @tp)
+
+SEM Children [ | | fields : {[(Name,Type)]} ]
+  | Cons  lhs.fields = @hd.field : @tl.fields
+  | Nil   lhs.fields = []
+
+
+-------------------------------------------------------------------------------
+--         cataAlts
+-------------------------------------------------------------------------------
+ATTR Alternatives     [ | | cataAlts : {Decls} ]
+ATTR Alternative      [ | | cataAlt  : {Decl}  ]
+
+
+SEM Alternatives
+  | Cons lhs.cataAlts = @hd.cataAlt : @tl.cataAlts
+  | Nil  lhs.cataAlts = []
+
+SEM Alternative
+  | Alternative lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
+                                  lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
+                                                (map (SimpleExpr . locname . fst) @children.fields)
+                                  rhs = App (semname @lhs.prefix @lhs.nt @con)
+                                            (map argument @children.fields)
+                                  argument (nm,NT tp) = App (cataname @lhs.prefix tp)
+                                                            [SimpleExpr (locname nm)]
+                                  argument (nm, _)    = SimpleExpr (locname nm)
+                              in Decl lhs rhs
+
+-------------------------------------------------------------------------------
+--         semFuns
+-------------------------------------------------------------------------------
+ATTR Alternatives     [ | | semFuns : {Decls} ]
+ATTR Alternative      [ | | semFun  : {Decls}  ]
+
+
+SEM Alternatives
+  | Cons lhs.semFuns = @hd.semFun ++ @tl.semFuns
+  | Nil  lhs.semFuns = []
+  
+SEM Alternative
+  | Alternative loc.sFun = let lhs = Fun (semname @lhs.prefix @lhs.nt @con) lhs_args
+                               lhs_args =  map field @children.fields
+                                       
+                               field (name,NT tp) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                                                               | otherwise       = id
+                                                    in unwrap (SimpleExpr (fieldname name))
+                               field (name,_)     =  SimpleExpr (fieldname name)
+                               
+                               mkLambda [] e = e
+                               mkLambda xs e = Lambda xs e
+                               wrap = if @lhs.o_newtypes then \x -> App (sdtype @lhs.nt) [x] else id
+                               rhs = wrap
+                                     (mkLambda [lhsname True x | x <- Map.keys @lhs.inh]
+                                       ( Let (typeSigs ++ @children.decls ++ @rules.decls)
+                                           (TupleExpr $ map (SimpleExpr . lhsname False )  @synnames)
+                                       )
+                                     )   
+                               typeSigs | @lhs.o_sig =
+                                            let findType nm   = Map.findWithDefault @lhs.nt nm 
+                                                                  (Map.fromList ((_LHS,@lhs.nt) 
+                                                                                : [(nm,nt) 
+                                                                                  | (nm, NT nt) <- @children.fields 
+                                                                                  ]
+                                                                                )
+                                                                   )
+                                                lhs           = attribute False (_LHS,@lhs.syn) 
+                                                children      = concatMap (\(nm,inh,syn) -> attribute True  (nm,syn) 
+                                                                                         ++ attribute False (nm,inh)
+                                                                          )
+                                                                          @children.attributes     
+                                                attribute isIn (nm,as) = 
+                                                           let nont = (findType nm)
+                                                           in [TSig (attrname isIn nm a) 
+                                                                    (SimpleType (typeToString nont tp))  
+                                                              |(a,tp) <- Map.toList as
+                                                              ]                                                                      
+                                            in lhs++children
+                                        | otherwise = []    
+                            in Decl lhs rhs
+
+                lhs.semFun = let tsig = TSig (semname @lhs.prefix @lhs.nt @con) semType
+                                 semType = foldr argType
+                                                 (SimpleType (sdtype @lhs.nt))
+                                                 (map snd @children.fields)
+                                 argType (NT tp) rec = SimpleType (sdtype tp) `Arr` rec
+                                 argType  tp     rec = SimpleType (typeToString @lhs.nt tp) `Arr` rec
+                             in if @lhs.o_sig
+                                   then [tsig,@loc.sFun]
+                                   else [@loc.sFun]
+
+SEM Rules [ | | decls : {Decls}]
+  | Cons lhs.decls = @hd.decl ++ @tl.decls
+  | Nil  lhs.decls = []
+  
+SEM Rule  [ | | decl : {Decls}]
+  | Rule lhs.decl  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+                        [Decl (Pattern @pattern.pp) (PP @rhs.pp)]
+  
+ATTR Child Children [ | | decls USE{++}{[]}: {Decls}]
+  
+SEM Child 
+  | Child lhs.decls  = let syn = Map.keys @syn
+                           inh = Map.keys @inh
+                           decl = Decl (TupleLhs              [           (attrname True  @name a) | a <- syn ]) 
+                                       (App (fieldname @name) [SimpleExpr (attrname False @name a) | a <- inh ])
+                           decls = case @tp of
+                                      NT nt | not(null syn) -> [decl]
+                                      _                     -> []                                      
+                       in decls 
+
+
+-------------------------------------------------------------------------------
+--         Expressions
+-------------------------------------------------------------------------------
+
+ATTR Rule Rules 
+     Child Children [fieldnames:{[Name]} attrs:{[(Name,Name)]} | | ]
+
+SEM Alternative
+  | Alternative loc.fieldnames = map fst @children.fields
+                   .attrs      = map ((,) _LOC) @rules.locVars ++
+                                 map ((,) _LHS) @inhnames ++ 
+                                 concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
+                   .inhnames   = Map.keys @lhs.inh
+                   .synnames   = Map.keys @lhs.syn
+
+ATTR Children [ | | attributes USE {++} {[]} : {[(Name,Attributes,Attributes)]} ]
+SEM Child [ | | attributes:{[(Name,Attributes,Attributes)]} ]
+  | Child lhs.attributes = [(@name, @inh, @syn)]
+
+-------------------------------------------------------------------------------
+--  Collect names of types that are considered AG-nonterminals
+-------------------------------------------------------------------------------
+
+ATTR Productions Production [ | | nts USE {++} {[]} :{[Name]} ]
+ATTR Productions Production Alternatives Alternative Children Child [ nts':{[Name]} | | ]
+ 
+SEM Production
+  | Production  lhs.nts    = [@nt]
+
+SEM Grammar
+  | Grammar     prods.nts' = @prods.nts
+
+-------------------------------------------------------------------------------
+--         Pretty printing patterns
+-------------------------------------------------------------------------------
+
+SEM Patterns [ | | pps : {[PP_Doc]} ]
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Pattern [ | | pp:PP_Doc ]
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv (map pp_parens @pats.pps)
+  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
+  | Alias   lhs.pp     = attrname False @field @attr >|< "@" >|< @pat.pp
+  | Underscore lhs.pp  = text "_"

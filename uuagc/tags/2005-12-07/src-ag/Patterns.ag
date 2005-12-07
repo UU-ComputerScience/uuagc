@@ -1,0 +1,18 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/Patterns.ag,v 1.2 2003/10/29 16:26:39 uust Exp $
+--  $Name:  $ (version name)imports
+
+imports
+{
+import UU.Scanner.Position(Pos)
+import CommonTypes
+}
+TYPE Patterns   = [Pattern]
+
+DATA Pattern    | Constr     name  : {Constructor}
+                             pats  : Patterns
+                | Product    pos   : {Pos}
+                             pats  : Patterns
+                | Alias      field : {Name}
+                             attr  : {Name}
+                             pat   : Pattern
+                | Underscore pos   : {Pos}

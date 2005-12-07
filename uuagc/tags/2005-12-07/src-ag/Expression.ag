@@ -1,0 +1,11 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/Expression.ag,v 1.1 2002/11/22 11:52:49 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import UU.Scanner.Position(Pos)
+}
+
+DATA Expression
+   | Expression pos:{Pos}
+                txt:{String}

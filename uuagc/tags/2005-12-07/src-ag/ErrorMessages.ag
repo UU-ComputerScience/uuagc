@@ -1,0 +1,75 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/ErrorMessages.ag,v 1.6 2003/11/03 15:43:15 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import UU.Pretty
+import CommonTypes
+import UU.Scanner.Position(Pos)
+import DepTypes(Trace)
+}
+
+DATA Error  | DupAlt          nt    : {Nonterminal}
+                              con,occ1 : {Constructor}                              
+
+            | DupSynonym      nt,occ1 : {Nonterminal}
+            | DupSet          name,occ1 : {Nonterminal}
+                             
+            | DupInhAttr      nt    : {Nonterminal}
+                              attr,occ1 :{Name}
+
+            | DupSynAttr      nt    : {Nonterminal}
+                              attr,occ1 : {Name}
+                           
+
+            | DupChild        
+                              nt    : {Nonterminal}
+                              con   : {Constructor}
+                              name,occ1 : {Name}
+
+            | DupRule         nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr,occ1 : {Name}
+
+            | UndefNont       nt    : {Nonterminal}
+
+            | UndefAlt        nt    : {Nonterminal}
+                              con   : {Constructor}
+
+            | UndefChild      nt    : {Nonterminal}
+                              con   : {Constructor}
+                              name  : {Name}
+
+            | MissingRule     --pos : {Pos}
+                              nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+            | SuperfluousRule nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+            | UndefLocal      nt    : {Nonterminal}
+                              con   : {Constructor}
+                              var   : {Name}
+
+            | UndefAttr       nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+            | CyclicSet       name:{Name}
+            | CustomError     isWarning : {Bool}
+                              pos   : {Pos}
+                              mesg  : {PP_Doc}
+
+            | CircGrammar     nt      : {Nonterminal}
+                              inh     : {Name}
+                              siTrace : {Trace}
+                              syn     : {Name}
+                              isTrace : {Trace}
+            
+                                

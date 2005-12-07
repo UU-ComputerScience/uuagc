@@ -1,0 +1,280 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/DefaultRules.ag,v 1.13 2005/05/22 20:26:19 uust Exp $
+--  $Name:  $ (version name)
+
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+imports
+{
+import List
+import AbstractSyntax
+import CommonTypes
+import Patterns
+import qualified UU.DData.Map as Map
+import qualified UU.DData.Seq as Seq
+import qualified UU.DData.Set as Set
+import UU.DData.Map(Map) 
+import UU.DData.Set(Set) 
+import UU.DData.Seq(Seq, (<>)) 
+import UU.Util.Utils
+import List (deleteBy,partition)
+import qualified List (delete)
+import UU.Pretty
+import Maybe
+import ErrorMessages
+import Expression
+import UU.Scanner.Position(Pos,noPos)
+import Options
+}
+{
+attrName fld attr | fld == _LOC = locName attr 
+                  | otherwise   = '@':getName fld ++ "." ++ getName attr
+locName n         = '@': getName n
+
+_ACHILD = Ident "(" noPos -- hack
+}
+
+-------------------------------------------------------------------------------
+--         Passing down corresponding nonterminal and constructor names
+----------------------------------------------------------------
+ATTR Rule Rules Child Children Alternative Alternatives  Pattern Patterns [ nt:Nonterminal | | ]
+ATTR Rule Rules Child Children Pattern Patterns [ con:Constructor | | ]
+
+
+-------------------------------------------------------------------------------
+--         Distributing options
+-------------------------------------------------------------------------------
+
+ATTR Grammar          [ options:{Options} | | ]
+ATTR Productions Production Alternatives Alternative [ o_rename:{Bool} 
+                                                       cr:Bool {- copy rule -}  
+                                                     | | ]
+
+ATTR Children Child [ cr:Bool {- copy rule -}  | | ]
+SEM Grammar
+  | Grammar     prods.o_rename  = rename    @lhs.options
+                prods.cr        = modcopy   @lhs.options
+                    
+-------------------------------------------------------------------------------
+-- Type synonyms environment
+-------------------------------------------------------------------------------
+ATTR Productions Production Alternatives Alternative [ typeSyns : {TypeSyns} | | ]
+
+
+-------------------------------------------------------------------------------
+-- Get constructor name
+-------------------------------------------------------------------------------
+{
+getConName typeSyns rename nt con1 | nt `elem` map fst typeSyns = synonym
+                                   | otherwise =  normalName
+
+ where con = getName con1
+       normalName | rename    = getName nt++"_"++ con
+                  | otherwise =  con
+       synonym | con == "Cons"     = "(:)"
+               | con == "Nil"      = "[]"
+               | con == "Just"     = "Just"
+               | con == "Nothing"  = "Nothing"
+               | otherwise         = normalName
+}
+
+-------------------------------------------------------------------------------
+--         Errors
+-------------------------------------------------------------------------------
+
+ATTR Grammar Productions Production Alternatives Alternative
+     Child Children Rule Rules Pattern Patterns 
+     [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
+
+-------------------------------------------------------------------------------
+-- Set of all defined nonterminals
+-------------------------------------------------------------------------------
+
+ATTR Productions Production  [ || collect_nts USE {`Set.union`} {Set.empty} : {Set Nonterminal}  ]
+SEM Production 
+  | Production lhs.collect_nts = Set.single @nt
+
+ATTR Productions Production Alternatives Alternative [ nonterminals  : {Set Nonterminal} || ]
+SEM Grammar
+  | Grammar prods.nonterminals = @prods.collect_nts
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+
+-- Pass down the lhs-attributes and the USE's to each alternative of a production
+--
+ATTR Productions Production [ useMap : {UseMap} || ]
+ATTR Alternatives Alternative [ inh, syn:{Attributes} useMap : {Map Name (String,String)}|| ]
+
+SEM Production
+  | Production  alts.inh  = @inh
+                alts.syn  = @syn
+                alts.useMap = Map.findWithDefault Map.empty @nt @lhs.useMap
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+SEM Alternative
+  | Alternative rules.con    = @con
+                children.con = @con
+SEM Child
+  | Child lhs . name = @name
+SEM Grammar
+  | Grammar prods . useMap = @useMap
+SEM Grammar
+  | Grammar prods . typeSyns = @typeSyns
+SEM Production
+  | Production alts . nt = @nt
+
+SEM Child [ | | name:{Name} inherited,synthesized:{Attributes} ]
+  | Child lhs.inherited = @inh
+          lhs.synthesized = @syn
+          
+SEM Children [ | | inputs,outputs:{[(Name, Attributes)]} ]
+  | Cons lhs.inputs  = (@hd.name, @hd.inherited) : @tl.inputs
+            .outputs = (@hd.name, @hd.synthesized) : @tl.outputs
+  | Nil  lhs.inputs  = []
+            .outputs = []
+ 
+{
+concatSeq = foldr Seq.append Seq.empty
+
+
+copy_rule nt con modcopy locals (env,(fld,as)) = foldr copy_rl ([],Seq.empty) as
+ where copy_rl a ~(rs,es) 
+        | not modcopy && Set.member a locals     = (makeRule (fld,a) (fst (mkExpr _LOC)) "copy rule (from local)":rs, es)
+        | otherwise             = let sel        = Map.lookup a env
+                                      ((expr,err),origin) = 
+                                                   case sel of
+                                                    Nothing -> (undef,cruletxt sel)
+                                                    Just f | f == _ACHILD -> (child_copy,"deprecated child copy") -- HACK!!
+                                                           | otherwise    -> (mkExpr f,cruletxt sel)
+                                                    
+                                  in (makeRule (fld,a) expr origin:rs, es<>err)
+        where mkExpr t = (Expression noPos $ attrName t a, Seq.empty)
+              undef = (Expression noPos $ "error \"missing rule: " ++ show nt ++ "." ++ show con ++ "." 
+                                                                     ++  show fld ++ "." ++ show a ++ "\""
+                      , Seq.single (MissingRule nt con fld a))
+              child_copy = (Expression noPos $ fieldname a
+                           ,let mesg = "In the definitions for alternative" >#< getName con >#< "of nonterminal" >#< getName nt >|< "," 
+                                       >-< "the value of field" >#< getName a  >#< "is copied by a copy-rule."                                    
+                                       >-< "Copying the value of a field using a copy-rule is deprecated"
+                                       >-< "Please add the following lines to your code:"
+                                       >-< ("SEM" >#< getName nt
+                                             >-< indent 2 ("|" >#< getName con >#< getName fld >#< "." >#< a >#< "=" >#< "@" >|< a)
+                                           )  
+                            in Seq.single (CustomError True (getPos a) mesg )
+                           )                           
+              -- inform the user if the modified copy rule is in use
+              cruletxt sel | Set.member a locals && nonlocal                    = "modified copy rule"
+                           | incoming && outgoing                               = "copy rule (chain)"
+                           | incoming                                           = "copy rule (down)"
+                           | outgoing                                           = "copy rule (up)"
+                           | otherwise                                          = "copy rule (chain)"
+                where outgoing = fld == _LHS
+                      incoming = maybe False (== _LHS) sel
+                      nonlocal = maybe False (/= _LOC) sel
+
+makeRule (f1,a1) expr origin = Rule (Alias f1 a1 (Underscore noPos)) expr False origin
+}       
+
+
+{
+splitAttrs _      []           = ([],[])
+splitAttrs useMap (n:rest) = 
+     let (uses,normals) = splitAttrs useMap rest
+     in case Map.lookup n useMap of
+          Just x  -> ((n,x):uses,normals)       
+          Nothing -> (uses      ,n:normals)
+
+useRule locals ch_outs (n,(op,e)) = 
+                             let elems = [ fld |  (fld,as) <- ch_outs, Map.member n as]
+                                 expr | Set.member n locals = attrName _LOC n
+                                      | null elems = e
+                                      | otherwise  = foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) (map (flip attrName n) elems)
+                             in makeRule (_LHS,n) (Expression noPos expr) "use rule"
+
+removeDefined defined (fld,as) = (fld, [ a | a <- Map.keys as, not (Set.member (fld,a) defined) ])
+}
+SEM Alternative
+ | Alternative loc.(newRls,errs) =
+                let locals       = @rules.locals  
+                    initenv      = Map.fromList ([(a,_ACHILD) | (a,_) <- @children.fields] ++ attrs(_LHS, @lhs.inh) ++ [(a,_LOC) |  a <- Set.toList locals]) 
+                    attrs (n,as) = [ (a,n) | a <- Map.keys as ]  
+                    envs    = scanl (flip Map.union) initenv (map (Map.fromList . attrs ) @children.outputs)
+                    child_envs = init envs
+                    lhs_env    = last envs
+                    (rss,ess)  = unzip $ map (copy_rule @lhs.nt @con @lhs.cr locals)
+                                                    (zip envs (map (removeDefined @rules.definedAttrs) @children.inputs))  
+                                                    
+                    errors     = concatSeq ess
+                    rules      = concat rss
+                    (rules_lhs, errors2) = let (selfAttrs, normalAttrs) = Map.partition (==NT _SELF) @lhs.syn
+                                               (_,undefAttrs)    = removeDefined @rules.definedAttrs (_LHS, normalAttrs)
+                                               (useAttrs,others) = splitAttrs @lhs.useMap undefAttrs
+                                               uRules            = map (useRule locals @children.outputs) useAttrs
+                                               selfLocRules  = let childSelf self nm tp = case tp of 
+                                                                     NT nt  -> attrName nm self
+                                                                     _      -> fieldname nm
+                                                               in [ makeRule (_LOC,attr) 
+                                                                          (Expression noPos 
+                                                                            (constructor [childSelf attr nm tp | (nm,tp) <- @children.fields]
+                                                                            )
+                                                                          )  "self rule"
+                                                                  | let constructor | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns 
+                                                                                           = \fs -> "(" ++ concat (intersperse "," fs) ++ ")"
+                                                                                    | otherwise = \fs ->  getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs   
+                                                                  , attr <- Map.keys selfAttrs
+                                                                  , not (Set.member attr locals)
+                                                                  ]
+                                    
+                                               selfRules     = [ makeRule (_LHS,attr) (Expression noPos (locName attr)) "self rule"
+                                                               | attr <- Map.keys selfAttrs
+                                                               , not (Set.member (_LHS,attr) @rules.definedAttrs) ]                                               
+                                                               
+                                               (rules,errs) = copy_rule @lhs.nt @con @lhs.cr locals 
+                                                                    (lhs_env,  (_LHS, others))
+                                           in (uRules++selfLocRules++selfRules++rules,errs)                         
+                in (rules_lhs++rules,errors<>errors2)   
+               lhs.errors = @children.errors <> @errs <> @rules.errors
+ATTR Rule Rules Pattern Patterns
+  [ | | locals USE {`Set.union`} {Set.empty}       : {Set Name} 
+        definedAttrs  USE {`Set.union`} {Set.empty}: {Set (Name,Name)}]
+
+
+SEM Pattern
+  | Alias lhs.definedAttrs = Set.insert (@field,@attr) @pat.definedAttrs
+             .locals       = if @field == _LOC
+                                then Set.insert @attr @pat.locals
+                                else @pat.locals
+
+SEM Children [ | | fields : {[(Name,Type)]} ]
+  | Cons lhs.fields = @hd.field : @tl.fields
+  | Nil  lhs.fields = []
+  
+SEM Child    [ | | field  : { (Name,Type) } ]
+  | Child lhs.field = (@name,@tp)
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+ATTR Rule Pattern Patterns [ || containsVars USE {||} {False} : Bool ]
+
+SEM Pattern
+  | Alias      lhs.containsVars = True
+
+
+
+-------------------------------------------------------------------------------
+--         Reconstructing the tree
+-------------------------------------------------------------------------------
+
+ATTR Grammar Productions  Production   Alternatives
+    Alternative Children Child Rules Rule Pattern  Patterns
+    [ | | out:SELF ] 
+
+SEM Alternative
+  | Alternative lhs.out = Alternative @con @children.out (@rules.out ++ @newRls)
+
+SEM Rules 
+  | Cons lhs.out = if @hd.containsVars then @out else @tl.out
+    -- remove rules that define nothing

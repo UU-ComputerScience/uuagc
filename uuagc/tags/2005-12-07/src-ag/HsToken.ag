@@ -1,0 +1,30 @@
+--  $Header: /data/cvs-rep/uust/tools/ag/dev/HsToken.ag,v 1.2 2003/10/29 16:26:39 uust Exp $
+--  $Name:  $ (version name)
+
+imports
+{
+import CommonTypes
+import UU.Scanner.Position(Pos)
+}
+
+DATA HsTokensRoot
+   | HsTokensRoot tokens : HsTokens
+
+TYPE HsTokens = [HsToken]
+
+DATA HsToken
+   | AGLocal   var   : {Name}
+               pos   : {Pos}
+
+   | AGField   field : {Name}
+               attr  : {Name}
+               pos   : {Pos}
+
+   | HsToken   value : {String}
+               pos   : {Pos}
+   | CharToken value : {String}
+               pos   : {Pos}
+   | StrToken  value : {String}
+               pos   : {Pos}
+   | Err       mesg  : {String}
+               pos   : {Pos}

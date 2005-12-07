@@ -1,0 +1,8 @@
+-- Build and Install:
+ghc --make Setup.hs -o setup -package Cabal
+
+./setup configure
+./setup build
+./setup install
+
+

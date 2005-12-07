@@ -1,0 +1,787 @@
+--generate code for syntax macros
+--use option sm
+imports
+{
+import List(nub)
+import Char
+}
+{
+smsdtype :: Nonterminal -> String -> String
+smsdtype tp post = "T_sm_" ++ getName tp ++ "_" ++ post
+
+smsdtype2 :: Nonterminal -> Constructor -> String -> String
+smsdtype2 tp con post = "T_sm_" ++ getName tp ++ getName con ++ "_" ++ post
+
+smcataname ::  String -> Nonterminal -> String
+smcataname pre name = cataname ("sm" ++ pre) name
+
+smpcataname ::  String -> Nonterminal -> Constructor -> String
+smpcataname pre nt con = smsemname ('p':pre) nt con
+
+smsemname  ::  String -> Nonterminal -> Constructor -> String
+smsemname pre nt con = semname ("sm"++pre) nt con
+
+smcompname :: String -> Nonterminal -> Constructor -> String
+smcompname pre nt con = pre ++ "_" ++ getName nt ++ "_" ++ getName con ++ "f"
+
+mktuppat :: [String] -> String
+mktuppat args = '(' : (foldl1 (\l r -> l ++ ", " ++ r) args) ++ ")"
+
+tupnest       = foldr (\l r -> TupleExpr [l,r]) (SimpleExpr unit)
+tupnest'  es  = if null es then TupleExpr [SimpleExpr unit]
+                           else foldr1 (\l r -> TupleExpr [l,r]) es
+tupnestTp     = foldr (\l r -> TupleType [l,r]) (SimpleType unit)
+tupnestTp' es = if null es then TupleType [SimpleType unit]
+                           else foldr1 (\l r -> TupleType [l,r]) es
+
+smattrcompnamein :: String -> Nonterminal -> Constructor -> Name -> Name ->String
+smattrcompnamein pre nt con attr name = (smcompname pre nt con) ++ "_" ++ getName attr ++ getName name ++ "in"
+
+smattrcompnameout :: String -> Nonterminal -> Constructor -> Name -> String
+smattrcompnameout pre nt con attr = (smcompname pre nt con) ++ "_" ++ getName attr ++ "out"
+
+smattrcompnameloc :: String -> Nonterminal -> Constructor -> Name ->String
+smattrcompnameloc pre nt con attr = (smcompname pre nt con) ++ "_" ++ getName attr ++ "loc"
+
+fknit :: String
+fknit = "knit"
+
+unit :: String
+unit = "()"
+
+unittp :: String
+unittp = "UnitSMTP"
+
+underscore :: String
+underscore = "_"
+
+tup :: String
+tup = "(,)"
+
+lazytilde :: String
+lazytilde = "~"
+
+mk_def_name n i = "def_" ++ (show n) ++ "_" ++ (show i)
+
+mk_def_nm_decls n = map (mk_def_nm_decl n) [1..n]
+mk_def_nm_decl n i = let lhs = Fun (mk_def_name n i) [f, inppat]
+                         f   = SimpleExpr "f"
+                         l   = SimpleExpr "l"
+                         p   = SimpleExpr "p"
+                         chpatelems = (map ((++) "ch" . show) [1..n])
+                         chpat = tupnest' (map SimpleExpr chpatelems)
+                         inppat = TupleExpr [ chpat
+                                            , l
+                                            , p ]
+                         rhs = TupleExpr [ tupnest' chpat'
+                                         , l
+                                         , p ]
+                         chpat' = map (\e -> if e == ("ch" ++ show i)
+                                             then App "f" [SimpleExpr e]
+                                             else SimpleExpr e)
+                                      chpatelems
+                     in  Decl lhs rhs
+
+syn_def :: String
+syn_def = "syndef"
+
+loc_def :: String
+loc_def = "locdef"
+
+extname :: String
+extname = "ext"
+
+selectnm :: Nonterminal -> Constructor -> Name -> String
+selectnm nt con s = "select_" ++ getName nt ++ "_" ++ getName con ++ "_" ++ getName s
+
+insertnm :: Nonterminal -> Constructor -> Name -> String
+insertnm nt con s = "insert_" ++ getName nt ++ "_" ++ getName con ++ "_" ++ getName s
+
+insertinhnm :: Nonterminal -> Constructor -> Name -> Name -> String
+insertinhnm nt con nm s = "insert_" ++ getName nt ++ "_" ++ getName con ++ "_" ++ getName nm ++ "_" ++  getName s
+
+mkExtendExpr fnnm defnm insertnm = let extend = "_extend_"
+                                       origcomp = "_origcomp_"
+                                       newcomp = "_newcomp_"
+                                       compinp = "_compinput_"
+                                       extendExpr = Lambda [compinp] (App defnm [insertExpr])
+                                       insertExpr = App insertnm [App newcomp [SimpleExpr compinp]]
+                                       lhs = Fun fnnm [SimpleExpr newcomp, SimpleExpr origcomp]
+                                       rhs = Lambda [unit] (App extname [extendExpr, App origcomp [SimpleExpr unit]])
+                                   in Decl lhs rhs
+makesemnm :: Nonterminal -> Constructor -> String
+makesemnm nt con = "make_sem_" ++ getName nt ++ "_" ++ getName con
+
+showAsList = printList "[]" "[" "]" ", "
+
+printList e o c s xs = case xs of
+  []     -> [e]
+  (x:xs) -> (o ++ x) : map (s ++) xs  ++ [c]
+
+spindent n = map (sp++) where
+ sp = replicate n ' '
+
+mkDynValList nm vals = (nm ++ " =")
+                       : spindent 4 (showAsList (map datatype vals)) where
+ datatype (fident,(fnm,args)) = let args' = map (\v -> "tp_" ++ v) args
+                                    arr a b = a ++ " .->. " ++ b
+                                in  "(" ++ show fident ++ ", Id " ++ fnm ++ " ::: " ++ foldr1 arr args' ++ ")"
+
+mkDynValList' nm vals = (nm ++ " =")
+                       : spindent 4 (showAsList (map datatype vals)) where
+ datatype (fident,(fnm,tp)) = "(" ++ show fident ++ ", Id " ++ fnm ++ " ::: " ++ (tpToDyn tp) ++ ")"
+
+tpToDyn (SimpleType tp) = "tp_" ++ tp
+tpToDyn (Arr tp1 tp2)   = "(" ++ (tpToDyn tp1) ++ " .->. " ++ (tpToDyn tp2) ++ ")"
+tpToDyn _ = error "There may only be simple and arr types when converting to dyn."
+
+mkDynValListExt nm vals = (nm ++ " =")
+                       : spindent 4 (showAsList (map datatype vals)) where
+ datatype (fident,(ftp,fnm,args)) = let args' = map (\v -> "tp_" ++ v) args
+                                        arr a b = a ++ " .->. " ++ b
+                                    in  "(" ++ show fident ++ ",( " ++ show ftp ++ ", Id " ++ fnm ++ " ::: " ++ foldr1 arr args' ++ "))"
+mkExistList nm vals = (nm ++ " =")
+                       : spindent 4 (showAsList (map datatype vals)) where
+ datatype (fident,(fnm,ftp)) = "(" ++ show fident 
+                                ++ ", (" ++ show fnm
+                                ++ ", E " ++ "tp_" ++ ftp ++ "))" 
+}
+-------------------------------------------------------------------------------
+-- TypeCon instances and syntax macro lists
+-------------------------------------------------------------------------------
+ATTR Children Child [o_rename:{Bool}||]
+
+ATTR Grammar [|| smdynlists : {([String], [String])}]
+SEM Grammar
+  | Grammar    loc.smPrimTypes = nub (unittp : @prods.smPrimTypes)
+                  .smUnitDecl  = [Code.Type unittp (SimpleType unit)]
+                  .allTypesTop = nub (@loc.smPrimTypes ++ @prods.smTypeConsTop)
+                  .allTypes    = nub (@loc.smPrimTypes ++ @prods.smTypeCons)
+                  .imports     = ["import DynamicTyping (Equal(..), TypeDescr(..), ShowF(..), Dynamic((:::))"
+                                 ,"                     , (.->.), equal, Type(..),transInv)"
+                                 ,"import SimpleStuff(Id (Id), Exists(E))"
+                                 ,"import UU.Pretty"
+                                 ,"import KnitCartNested"
+                                 ]
+                  .constructors = mkDynValList "constructors" ((unit, (unit, [unittp])) : @prods.smConstructors)
+                  .compDyns     = mkDynValList "attr_computations" @prods.smCompDyns
+                  .inputDyns    = mkExistList "comp_inputs" @prods.smInputDyns
+                  .selDyns      = mkDynValListExt "input_selectors" @prods.smDynSels
+                  .selDynVals   = mkDynValList "attr_selectors" @prods.smSelDynVals
+                  .dynSemFuns   = mkDynValList "sem_constructors" @prods.smDynSemFuns
+                  .dynInsFuns   = mkDynValList' "attr_inserters" @prods.smInsDynsFuns
+                  .types       = let datatype tp  = "(" ++ show tp ++ ", " ++ "E tp_" ++ argument tp ++ ")"
+                                     argument tp | identifier tp `elem` @prods.nts = smsdtype (identifier tp) ""
+                                                 | otherwise            = tp
+                                 in  "types ="  
+                                     : spindent 4 (showAsList (map datatype @loc.allTypesTop))
+                  .dataTypeCon    = let datatype tp     = tp++"_tp" ++ " (Equal a " ++  tpName tp ++ ")"
+                                        toText   alts   = let sp = map (const ' ') dataTp
+                                                              dataTp = "data TypeCon a "
+                                                          in printList dataTp (dataTp ++ "= ") "" (sp ++ "| ") alts
+                                        tpName tp = tp
+                                    in  toText (map datatype @loc.allTypes)
+                  .instanceTypeDescr = let datatype tp     = "  match (" ++ tp ++ "_tp  x) (" ++ tp ++ "_tp  y) = Just (transInv x y)"
+                                           inst            = "instance TypeDescr TypeCon where"
+                                           noMatch         = "  match _        _        = Nothing"
+                                       in  inst : (map datatype @loc.allTypes ++ [noMatch])
+                  .instanceShowF    = let datatype  tp    = "  showF (" ++ tp ++ "_tp  _) = " ++ show tp
+                                          inst            = "instance ShowF TypeCon where"
+                                      in  inst : map datatype @loc.allTypes
+                  .tpConstants      = let datatype  tp    = "tp_" ++ tp ++ " = " ++ "TpCon (" ++ tp ++ "_tp  equal)"
+                                      in  map datatype @loc.allTypes
+                  .defnmdecls      = let n = @prods.nrChildren
+                                     in concat (map mk_def_nm_decls [1..n])
+
+               loc.smTypeReps =  @loc.types ++ @loc.dataTypeCon ++ @loc.instanceTypeDescr
+                                             ++ @loc.instanceShowF ++ @loc.tpConstants
+               loc.smDefinitions = @loc.constructors ++ @loc.compDyns ++ @loc.inputDyns
+                                             ++ @loc.selDyns ++ @loc.selDynVals ++ @loc.dynSemFuns
+                                             ++ @loc.dynInsFuns
+               lhs.smdynlists = if   smacro @lhs.options
+                                then (@loc.imports, @loc.smTypeReps ++ @loc.smDefinitions)
+                                else ([],[])
+
+ATTR Productions [ | | smdecls USE {++} {[]} : {Decls} smPrimTypes USE {++} {[]} : {[String]}
+                                                       smTypeCons USE {++} {[]} : {[String]}
+                                                       smTypeConsTop USE {++} {[]} : {[String]}
+                                                       smConstructors USE {++} {[]} : {[(String,(String,[String]))]}
+                                                       smCompDyns USE {++} {[]} : {[(String,(String,[String]))]}
+                                                       smInputDyns USE {++} {[]} : {[(String,(String,String))]}
+                                                       smDynSels USE {++} {[]}: {[(String,(String,String,[String]))]}
+                                                       smSelDynVals USE {++} {[]} : {[(String,(String,[String]))]}
+                                                       smDynSemFuns USE {++} {[]} : {[(String,(String,[String]))]}
+                                                       smInsDynsFuns USE {++} {[]} : {[(String, (String,Code.Type))]}
+                                                       nrChildren : {Int}
+                                                       ]
+ATTR Production  [ | | smdecls : {Decls} smPrimTypes : {[String]}
+                                         smTypeCons : {[String]}
+                                         smTypeConsTop :{[String]}
+                                         smConstructors : {[(String,(String,[String]))]}
+                                         smCompDyns : {[(String,(String,[String]))]}
+                                         smInputDyns : {[(String,(String,String))]}
+                                         smDynSels : {[(String,(String,String,[String]))]}
+                                         smSelDynVals : {[(String,(String,[String]))]}
+                                         smDynSemFuns : {[(String,(String,[String]))]}
+                                         smInsDynsFuns : {[(String, (String,Code.Type))]}
+                                         nrChildren : {Int}
+                                         ]
+
+SEM Productions
+  | Cons lhs.nrChildren = @hd.nrChildren `max` @tl.nrChildren
+  | Nil  lhs.nrChildren = 0
+
+
+SEM Production
+  | Production  lhs.smdecls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
+                              (@loc.smCataFun) ++ --knit
+                              (@alts.smSemFuns) ++  --ext,attrcomps
+                              (@loc.smSemDom) ++
+                              [Comment (getName @nt ++ " SM Functions" ++ replicate (60 - length (getName @nt)) '-')] ++
+                              (@loc.smSelInsFuns) --sel,ins functions
+
+-------------------------------------------------------------------------------
+--typesynonyms for inh, syn, loc and sem types
+-------------------------------------------------------------------------------
+SEM Production
+  | Production  loc.smSemDom = let tp = Arr inhTps synTps
+                                   synTps = tupnestTp [SimpleType (typeToString @nt tp) |  tp <- Map.elems @syn]
+                                   inhTps = tupnestTp [SimpleType (typeToString @nt tp) |  tp <- Map.elems @inh]
+                                   inputTp = TupleType [inhTps, synTps]
+                                   mkTp tp post = Code.Type (smsdtype @nt post) tp
+                               in [ Comment "sm semantic domain"
+                                  , mkTp tp ""
+                                  , mkTp synTps "syn"
+                                  , mkTp inhTps "inh"
+                                  , mkTp inputTp "input"
+                                  , mkTp (SimpleType unit) "loc"
+                                  ]
+                loc.smTpCons = let mkTpNm post = smsdtype @nt post
+                               in  [mkTpNm "syn", mkTpNm "inh", mkTpNm "input", mkTpNm "", getName @nt]
+                lhs.smTypeCons = @loc.smTpCons ++ @alts.smTypeCons ++ map (typeToString @nt)(Map.elems @syn ++ Map.elems @inh)
+                lhs.smTypeConsTop = getName @nt : map (typeToString @nt)  (Map.elems @syn ++ Map.elems @inh)
+                lhs.smPrimTypes = @alts.smPrimTypes
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+SEM Production
+  | Production loc.smCataFun  = let tSig = TSig (smcataname @lhs.prefix @nt)
+                                              (SimpleType (getName @nt) `Arr` SimpleType (smsdtype @nt ""))
+                                    special typ = case typ of
+                                                CommonTypes.List tp ->                                  
+                                                    let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))
+                                                        nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
+                                                        arg  = SimpleExpr "list"
+                                                        rarg = case tp of
+                                                                 NT t  -> SimpleExpr ("(map " ++ (smcataname @lhs.prefix t) ++ " list)")
+                                                                 _     -> arg
+                                                        lhs = Fun (smcataname @lhs.prefix @nt) [arg]
+                                                        rhs = (App "foldr" [cons,nil,rarg])
+                                                    in  [Decl lhs rhs]
+                                                CommonTypes.Maybe tp ->                                  
+                                                    let just    = semname @lhs.prefix @nt (identifier "Just")
+                                                        nothing = semname @lhs.prefix @nt (identifier "Nothing" )
+                                                        arg  = SimpleExpr "x"
+                                                        rarg = case tp of
+                                                                 NT t  -> App (smcataname @lhs.prefix t) [arg]
+                                                                 _     -> arg
+                                                        lhs a = Fun (smcataname @lhs.prefix @nt) [a]                                                        
+                                                    in  [Decl (lhs (App "Just" [arg]))     (App just [rarg])
+                                                        ,Decl (lhs (SimpleExpr "Nothing")) (SimpleExpr nothing)
+                                                        ]
+
+                                                CommonTypes.Tuple tps ->   
+                                                    let con  = semname @lhs.prefix @nt (identifier "Tuple")
+                                                        tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
+                                                        rargs = map rarg tps'                                                        
+                                                        rarg (n, tp) = case tp of
+                                                                 NT t  -> App (smcataname @lhs.prefix t) [n]
+                                                                 _     -> n
+                                                                 
+                                                        lhs = Fun (smcataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
+                                                        rhs = App con rargs
+                                                    in  [Decl lhs rhs]                                                                                        
+                                in  Comment "sm cata" :
+                                    (if @lhs.o_sig then [tSig] else []) ++
+                                     maybe @alts.smCataAlts special (lookup @nt @lhs.typeSyns)
+-------------------------------------------------------------------------------
+--         smCataAlts: the knit semantic functions eval .. = knit () (, ,)
+-------------------------------------------------------------------------------
+ATTR Alternatives     [ | | smCataAlts : {Decls} smConstructors : {[(String,(String,[String]))]}]
+ATTR Alternative      [ | | smCataAlt  : {Decl}  smConstructor : {(String,(String,[String]))} ]
+
+
+SEM Alternatives
+  | Cons lhs.smCataAlts = @hd.smCataAlt : @tl.smCataAlts
+         lhs.smConstructors = @hd.smConstructor : @tl.smConstructors
+  | Nil  lhs.smCataAlts = []
+         lhs.smConstructors = []
+
+SEM Alternative
+  | Alternative lhs.smCataAlt = let lhs = Fun (smcataname @lhs.prefix @lhs.nt) [lhs_pat]
+                                    lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
+                                                  (map (SimpleExpr . locname . fst) @children.fields)
+                                    rhs = App fknit ([smsem, children_cata])
+                                    smsem = App (smcompname @lhs.prefix @lhs.nt @con) [(SimpleExpr unit)]
+                                    children_cata = if (not . null) @children.fields
+                                                    then foldr1 (\l r -> TupleExpr [l,r]) (map argument @children.fields)
+                                                    else Lambda [unit] (SimpleExpr unit)
+                                    argument (nm,NT tp) = App (smcataname @lhs.prefix tp)
+                                                              [SimpleExpr (locname nm)]
+                                    argument (nm,_)     = Lambda [unit] (TupleExpr [SimpleExpr (locname nm), SimpleExpr unit])
+                                in  Decl lhs rhs
+                lhs.smConstructor = let constr = conname @lhs.o_rename @lhs.nt @con
+                                        chs = map snd @children.fields
+                                        fargs =  (map (typeToString @lhs.nt) chs ++ [getName @lhs.nt])
+                                    in  (constr, (constr, fargs))
+-------------------------------------------------------------------------------
+--         smSemFuns
+-------------------------------------------------------------------------------
+ATTR Alternatives     [ | | smSemFuns : {Decls} smTypeCons USE {++} {[]} : {[String]}
+                                                smPrimTypes USE {++} {[]} : {[String]}
+                                                smCompDyns : {[(String,(String,[String]))]}
+                                                smInputDyns : {[(String,(String,String))]}
+                                                nrChildren : {Int} ]
+ATTR Alternative      [ | | smSemFun : {Decls} 
+                            smTypeCons, smPrimTypes: {[String]}
+                            smCompDyn : {(String,(String,[String]))}
+                            smInputDyn : {(String,(String,String))}
+                            nrChildren : {Int}]
+
+SEM Alternatives
+  | Cons lhs.smSemFuns = @hd.smSemFun ++ @tl.smSemFuns
+         lhs.smCompDyns= @hd.smCompDyn : @tl.smCompDyns
+         lhs.smInputDyns= @hd.smInputDyn : @tl.smInputDyns
+         lhs.nrChildren = @hd.nrChildren `max` @tl.nrChildren
+  | Nil  lhs.smSemFuns = []
+         lhs.smCompDyns= []
+         lhs.smInputDyns = []
+         lhs.nrChildren = 0
+
+SEM Alternative
+  | Alternative lhs.smTypeCons = let mkTpNm post = smsdtype2 @lhs.nt @con post
+                                 in  [mkTpNm "input", mkTpNm "f"]
+                lhs.smCompDyn = let nm = smcompname @lhs.prefix @lhs.nt @con
+                                in  (conname @lhs.o_rename @lhs.nt @con,(nm,[smsdtype2 @lhs.nt @con "f"]))
+                lhs.smInputDyn= let nm = conname @lhs.o_rename @lhs.nt @con
+                                    varnm = "_gen_var" ++ map toLower nm 
+                                    tpnm = smsdtype2 @lhs.nt  @con "input"
+                                in  (nm, (varnm,tpnm))
+                lhs.smPrimTypes = if null @children.fields
+                                  then [unittp]
+                                  else [t | Haskell t <- map snd @children.fields]
+                  children.def_namespace = let n = length @children.fields
+                                               chnames = map fst @children.fields
+                                               f name i = (name, (n, i))
+                                           in  zipWith f chnames [1..n]                  
+                lhs.nrChildren = length @children.fields
+
+{-
+Child   lhs.smInhDecls = let inhAttrs = Map.keys @inh
+                               mklhs inh = Fun (smattrcompnamein @lhs.prefix @lhs.nt @lhs.con inh @name)
+                                               [@lhs.comp_input]
+                               mkrhs inh = App @loc.defname [App tup [getExpr inh]]
+                               getExpr attr = let impossible =  error $ "This should not happen: attribute not found "
+                                                                ++ attrname @name attr
+                                              in fromMaybe impossible $ Map.lookup attr @rules.rMap
+                         in if @tp `elem` @lhs.nts' then map (\attr -> Decl (mklhs attr) (mkrhs attr)) inhAttrs else []
+-}          
+
+-------------------------------------------------------------------------------
+--         Copied from GenerateCode.ag, only difference is printing of local attributes on lhs of a rule 
+-------------------------------------------------------------------------------
+ATTR Rules [ | | decls' USE {++}{[]}: {Decls}]
+  
+SEM Rule  [ | | decls' : {Decls}]
+  | Rule lhs.decls'  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+                        [Decl (Pattern @pattern.pp') (PP @rhs.pp)]
+-------------------------------------------------------------------------------
+--         Pretty printing patterns
+-------------------------------------------------------------------------------
+
+SEM Patterns [ | | pps' : {[PP_Doc]} ]
+  | Cons lhs.pps' = @hd.pp' : @tl.pps'
+  | Nil  lhs.pps' = []
+
+SEM Pattern [ | | pp':PP_Doc ]
+  | Constr  lhs.pp'     = pp_parens $ @name >#< hv (map pp_parens @pats.pps')
+  | Product lhs.pp'     = pp_block "(" ")" "," @pats.pps'
+  | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
+                                        | otherwise                             = attrname False @field @attr
+                          in attribute >|< "@" >|< @pat.pp'
+  | Underscore lhs.pp'  = text "_"
+  
+
+{
+locname' n = "_loc_" ++ getName n
+}
+  
+SEM Alternative
+  | Alternative lhs.smSemFun = @smTpSigs++[@loc.smCompTpSig, @smComputation]
+                loc.smComputation = let comp_input = let ch  = tupnest' (map (tupnest . (map SimpleExpr)) @children.smSynAttrNames)
+                                                         loc = tupnest [] --(map (SimpleExpr . locname) @rules.locVars)
+                                                         pi  = tupnest (map (SimpleExpr . lhsname True) @inhnames)
+                                                     in  App lazytilde [TupleExpr [ch,loc,pi]]
+                                        comp_output = let ch  = tupnest' (map (tupnest . (map SimpleExpr)) @children.smInhAttrNames)
+                                                          loc = tupnest [] -- (map (SimpleExpr . locname) @rules.locVars)
+                                                          pi  = tupnest (map (SimpleExpr . lhsname False) @synnames)
+                                                      in App "const" [TupleExpr [ch,loc,pi]]
+                                        lhs = Fun (smcompname @lhs.prefix @lhs.nt @con) ([SimpleExpr underscore, comp_input])
+                                        rhs = Let @rules.decls comp_output
+                                    in Decl lhs rhs
+                loc.smCompTpSig = TSig (smcompname @lhs.prefix @lhs.nt @con)
+                                       (SimpleType (smsdtype2 @lhs.nt @con "f"))
+                loc.smTpSigs = let unitTp = SimpleType unit
+                                   inputTp = TupleType [ch_synTp, locTp, inhTp]
+                                   outputTp = TupleType [ch_inhTp, locTp, synTp]
+                                   emptyTp = TupleType [ ch_emptyTp, unitTp, unitTp]
+                                   ch_emptyTp = tupnestTp' (map (const unitTp) @children.fields)
+                                   ch_synTp = tupnestTp' ((map (\tup -> argTypeSyn (snd tup) "syn")) @children.fields)
+                                   ch_inhTp = tupnestTp' ((map (\tup -> argTypeInh (snd tup) "inh")) @children.fields)
+                                   argTypeSyn tp post = case tp of
+                                                          NT nt -> SimpleType (smsdtype nt post)
+                                                          _     -> TupleType [SimpleType (typeToString @lhs.nt tp), SimpleType unit]
+                                   argTypeInh tp post = case tp of
+                                                          NT nt -> SimpleType (smsdtype nt post)
+                                                          _     -> SimpleType unit
+                                   locTp = SimpleType (smsdtype @lhs.nt "loc")
+                                   inhTp = SimpleType (smsdtype @lhs.nt "inh")
+                                   synTp = SimpleType (smsdtype @lhs.nt "syn")
+                                   semType = foldr1 Arr [unitTp, inputTp, emptyTp, outputTp]
+                               in  [ Code.Type (smsdtype2 @lhs.nt @con "input") inputTp
+                                   , Code.Type (smsdtype2 @lhs.nt @con "output") outputTp
+                                   , Code.Type (smsdtype2 @lhs.nt @con "f") semType
+                                   ]
+{-                                          locAttrs = Map.keys @locrules.rMap
+                                          synAttrs = @lhs.syn
+                                          inhFnames = map (SimpleExpr) @children.smInhFnames
+                                          locFnames = map (SimpleExpr .(smattrcompnameloc @lhs.prefix @lhs.nt @con )) locAttrs
+                                          synFnames = map (SimpleExpr .(smattrcompnameout @lhs.prefix @lhs.nt @con)) synAttrs
+                                          allFnames = (inhFnames ++ synFnames ++ locFnames)
+                                      in  if (not . null) allFnames
+                                          then let rhs = foldr1 (\l r -> App extname [l,r]) allFnames
+                                               in  [Decl lhs rhs]
+                                          else error "TODO: the Apollo 13 would call Houston (TYPE not supported)"
+                lhs.smSemFun = @loc.smCompTpSig :  (@loc.smComputation ++ @loc.smSynDecls ++ @loc.smLocDecls ++ @children.smInhDecls ++ @loc.smTpSigs)
+                                          
+                loc.smLocDecls = let locAttrs = Map.keys @locrules.rMap
+                                     mklhs loc = Fun (smattrcompnameloc @lhs.prefix @lhs.nt @con loc)
+                                                     [@loc.comp_input]
+                                     mkrhs loc = App loc_def [App tup [getExpr loc]]
+                                     locattrspat = mktuppat locAttrs
+                                     locres loc = map (\attr -> if attr == loc then getExpr attr else SimpleExpr attr) locAttrs
+                                     getExpr attr = let impossible =  error $ "This should not happen: loc attribute not found "
+                                                                        ++ attrname @con attr
+                                                    in fromMaybe impossible $ Map.lookup attr @locrules.rMap
+                                 in map (\attr -> Decl (mklhs attr) (mkrhs attr)) locAttrs
+                loc.smSynDecls = let synAttrs = @lhs.syn
+                                     mklhs syn = Fun (smattrcompnameout @lhs.prefix @lhs.nt @con syn)
+                                                     [@loc.comp_input]
+                                     mkrhs syn = App syn_def [App tup [getExpr syn]]
+                                     synattrspat = mktuppat synAttrs
+                                     synres syn = map (\attr -> if attr == syn then getExpr attr else SimpleExpr attr) synAttrs
+                                     getExpr attr = let impossible =  error $ "This should not happen: syn attribute not found "
+                                                                        ++ attrname @con attr
+                                                    in fromMaybe impossible $ Map.lookup attr @rules.rMap
+                                 in map (\attr -> Decl (mklhs attr) (mkrhs attr)) synAttrs
+ 
+                loc.smTpSigs = let unitTp = SimpleType unit
+                                   inputTp = TupleType [ch_synTp, locTp, inhTp]
+                                   outputTp = TupleType [ch_inhTp, locTp, synTp]
+                                   emptyTp = TupleType [ ch_emptyTp, unitTp, unitTp]
+                                   ch_emptyTp = tupnestTp' (map (const unitTp) @children.fields)
+                                   ch_synTp = tupnestTp' ((map (\tup -> argTypeSyn (snd tup) "syn")) @children.fields)
+                                   ch_inhTp = tupnestTp' ((map (\tup -> argTypeInh (snd tup) "inh")) @children.fields)
+                                   argTypeSyn tp post = case tp of
+                                                          NT nt  -> SimpleType (smsdtype nt post)
+                                                          _      -> TupleType [SimpleType (typeToString @lhs.nt tp), SimpleType unit]
+                                   argTypeInh tp post ase tp of
+                                                          NT nt -> SimpleType (smsdtype nt post)
+                                                          _     -> SimpleType unit
+                                   locTp = SimpleType (smsdtype @lhs.nt "loc")
+                                   inhTp = SimpleType (smsdtype @lhs.nt "inh")
+                                   synTp = SimpleType (smsdtype @lhs.nt "syn")
+                                   semType = foldr1 Arr [unitTp, inputTp, emptyTp, outputTp]
+                               in  [ Code.Type (smsdtype2 @lhs.nt @con "input") inputTp
+                                   , Code.Type (smsdtype2 @lhs.nt @con "output") outputTp
+                                   , Code.Type (smsdtype2 @lhs.nt @con "f") semType
+                                   ]
+
+                loc.comp_input      = let ch  = tupnest' (map (tupnest . (map SimpleExpr)) @children.smSynAttrNames)
+                                          loc = tupnest (map (SimpleExpr . locname) @loc.locAttrNames)
+                                          pi  = tupnest (map (SimpleExpr . lhsname True) @lhs.inh)
+                                      in  App lazytilde [TupleExpr [ch,loc,pi]]
+-}                                  
+ATTR Children [|| smSynAttrNames,smInhAttrNames:{[[String]]}]
+SEM Children
+  | Cons lhs.smSynAttrNames = @hd.smSynAttrNames : @tl.smSynAttrNames
+         lhs.smInhAttrNames = @hd.smInhAttrNames : @tl.smInhAttrNames
+  | Nil  lhs.smSynAttrNames = []
+         lhs.smInhAttrNames = []
+SEM Child [ || smSynAttrNames,smInhAttrNames: {[String]}]
+  | Child lhs.smSynAttrNames = case @tp of
+                                 NT nt -> map (attrname True @name) (Map.keys @syn)
+                                 _     -> [fieldname @name]
+
+  | Child lhs.smInhAttrNames = case @tp of
+                                 NT nt -> map (attrname False @name) (Map.keys @inh)
+                                 _     -> []
+
+
+
+
+ATTR Children [  def_namespace : {[(Name,(Int, Int))]}| | smInhFnames USE {++} {[]} : {[String]}
+                                                                               smInhInserters USE {++} {[]} : {Decls}
+                                                                               smInhInsDyns USE {++} {[]} : {[(String,(String,Code.Type))]}]
+
+-- rootf_imin_ci ~((smin, sres), loc, pi) = def_1_1 (\(inh) -> smin)
+--TODO make use of select and insertion functions instead of replicating functions in codegen?
+SEM Child [ def_namespace : {[(Name,(Int,Int))]}| | smInhFnames : {[String]}
+                                                                          smInhInserters : {Decls}
+                                                                          smInhInsDyns : {[(String,(String,Code.Type))]}
+                                                                          ]
+  | Child loc.defname = let impossible =  error $ "This should not happen: child not found "
+                                                        ++ getName @name 
+                         in maybe impossible (uncurry mk_def_name) $ lookup @name @lhs.def_namespace
+          lhs.smInhFnames = let inhAttrs = Map.keys @inh
+                            in  map (\inh -> smattrcompnamein @lhs.prefix @lhs.nt @lhs.con inh @name) inhAttrs
+          lhs.smInhInserters = let inhAttrs = Map.keys @inh
+                                   insm inh = insertinhnm @lhs.nt @lhs.con @name inh
+                                   insm' inh = insertnm (case @tp of NT t -> t ; Haskell t -> identifier t) nullIdent inh -- ERROR
+                               in  map (\inh -> mkExtendExpr (insm inh) @loc.defname (insm' inh)) inhAttrs
+          lhs.smInhInsDyns =   let inhAttrs = Map.toList @inh
+                                   ident a = (conname @lhs.o_rename @lhs.nt @lhs.con) ++ "_" ++ getName @name ++ "_" ++ getName a
+                                   fname a = insertinhnm @lhs.nt @lhs.con @name a
+                                   inpArg t = let tp = typeToString @lhs.nt t
+                                              in Arr (SimpleType (smsdtype2 @lhs.nt @lhs.con "input"))
+                                                   (SimpleType tp)
+                                   arg tp = let btp = SimpleType (smsdtype2 @lhs.nt  @lhs.con "f")
+                                            in  Arr (inpArg tp) (Arr btp btp)
+                               in  map (\(s,tp) -> (ident s, (fname s, arg tp))) inhAttrs
+
+ATTR Children Child [prefix:{String} ||]
+
+-------------------------------------------------------------------------------
+--         sm functions
+-------------------------------------------------------------------------------
+ATTR Alternatives     [ | | smSelFuns : {Decls}
+                            smDynSels USE {++} {[]}: {[(String,(String,String,[String]))]}
+                            smDynSemFuns USE {++} {[]}: {[(String,(String,[String]))]}
+                            smInsDyns USE {++} {[]}: {[(String,(String,Code.Type))]}
+                            ]
+ATTR Alternative      [ | | smSelFun : {Decls}
+                            smDynSels : {[(String,(String,String,[String]))]}
+                            smDynSemFuns : {[(String,(String,[String]))]}
+                            smInsDyns : {[(String,(String,Code.Type))]}
+                            ]
+
+SEM Alternatives
+  | Cons lhs.smSelFuns = @hd.smSelFun ++ @tl.smSelFuns
+  | Nil  lhs.smSelFuns = []
+
+SEM Alternative
+  | Alternative loc.childSelectors = let chnames = map fst @children.fields
+                                         inputPat = TupleExpr [tupnest' (map (SimpleExpr . getName) chnames), SimpleExpr "_loc_", SimpleExpr "_inh_"]
+                                         mklhs ch = Fun (selectnm @lhs.nt @con ch)
+                                                        [inputPat]
+                                         mkrhs ch = SimpleExpr (getName ch)
+                                     in  map (\ch -> Decl (mklhs ch) (mkrhs ch)) chnames
+                loc.smChSelDyns    = let fident (ch,tp) = (conname @lhs.o_rename @lhs.nt @con) ++ "_" ++ getName ch
+                                         fnm (ch,tp) = selectnm @lhs.nt @con ch
+                                         fargs (ch,tp) = [(smsdtype2 @lhs.nt  @con "input"),
+                                                          (smsdtype tp "syn")]
+                                         fchSelDyn tup@(ch,tp) = (fident tup, (getName tp, fnm tup, fargs tup))
+                                     in  map fchSelDyn [ (ch, tp) | (ch,NT tp)<- @children.fields]
+                loc.inhSelectors =   let inputPat = TupleExpr [SimpleExpr "_chsyn_", SimpleExpr "_loc_", SimpleExpr "_inh_"]
+                                         lhs = Fun (selectnm @lhs.nt @con (identifier "inh" ))
+                                                   [inputPat]
+                                         rhs = SimpleExpr "_inh_"
+                                     in  [Decl lhs rhs]
+                loc.smInhSelDyns =   let ident = (conname @lhs.o_rename @lhs.nt @con) ++ "_lhs"
+                                         nm = selectnm @lhs.nt @con (identifier "inh")
+                                         args = [(smsdtype2 @lhs.nt @con "input"),
+                                                          (smsdtype @lhs.nt "inh")]
+                                     in  [(ident,(getName @lhs.nt,nm,args))]
+                loc.synInserters =   let insm syn = insertnm @lhs.nt @con syn
+                                         insm' syn = insertnm @lhs.nt nullIdent syn 
+                                     in  map (\syn -> mkExtendExpr (insm syn) syn_def (insm' syn)) @synnames
+                loc.synInsDyns =     let synAttrs = Map.toList @lhs.syn
+                                         ident a = (conname @lhs.o_rename @lhs.nt @con) ++ "_lhs_" ++ getName a
+                                         fname a = insertnm @lhs.nt @con a
+                                         inpArg t = let tp = typeToString @lhs.nt t
+                                                    in Arr (SimpleType (smsdtype2 @lhs.nt  @con "input"))
+                                                         (SimpleType tp)
+                                         arg tp = let btp = SimpleType (smsdtype2 @lhs.nt @con "f")
+                                                  in  Arr (inpArg tp) (Arr btp btp)
+                                     in  map (\(s,tp) -> (ident s, (fname s, arg tp))) synAttrs
+                loc.smpCataAlt =let lhs = Fun (smpcataname @lhs.prefix @lhs.nt @con) lhs_pat
+                                    lhs_pat = (map (SimpleExpr . locname . fst) @children.fields)
+                                    rhs = App fknit ([smsem, children_args])
+                                    smsem = App (smcompname @lhs.prefix @lhs.nt @con) [(SimpleExpr unit)]
+                                    children_args = if (not . null) @children.fields
+                                                    then foldr1 (\l r -> TupleExpr [l,r]) (map argument @children.fields)
+                                                    else Lambda [unit] (SimpleExpr unit)
+                                    argument (nm,NT tp) = SimpleExpr (locname nm)
+                                    argument (nm,_)     = Lambda [unit] (TupleExpr [SimpleExpr (locname nm), SimpleExpr unit])
+                                in  Decl lhs rhs
+                loc.mkSemFun     =   let newcomp = SimpleExpr "_newcomp_"
+                                         lhs = Fun (makesemnm @lhs.nt @con) [newcomp]
+                                         ch_names = if null @children.fields then [unit]
+                                                    else map (locname . fst) @children.fields
+                                         newcompapp = App "_newcomp_" [SimpleExpr unit]
+                                         knitapp = App fknit [newcompapp, children_args]
+                                         children_args = if (not . null) @children.fields
+                                                         then foldr1 (\l r -> TupleExpr [l,r]) (map argument @children.fields)
+                                                         else Lambda [unit] (SimpleExpr unit)
+                                         argument (nm,NT tp) = SimpleExpr (locname nm)
+                                         argument (nm,_)     = Lambda [unit] (TupleExpr [SimpleExpr (locname nm), SimpleExpr unit])
+                                         rhs = Lambda ch_names knitapp
+                                     in  Decl lhs rhs
+                loc.dynSemFun     =  let nm = (makesemnm @lhs.nt @con)
+                                         ident = conname @lhs.o_rename @lhs.nt @con
+                                         compnm = smsdtype2 @lhs.nt @con "f"
+                                         chargs = if null @children.fields then [unittp]
+                                                                           else map argument @children.fields
+                                         argument (_,NT tp)     = smsdtype tp ""
+                                         argument (_,Haskell t) = t                     
+                                         args = compnm : (chargs ++ [smsdtype @lhs.nt ""])
+                                     in  (ident,(nm,args))
+                lhs.smSelFun = @loc.smpCataAlt : @loc.mkSemFun : @loc.childSelectors ++ @loc.inhSelectors ++ 
+                               @loc.synInserters ++ @children.smInhInserters
+                lhs.smDynSels = @loc.smChSelDyns ++ @loc.smInhSelDyns
+                lhs.smDynSemFuns = [@loc.dynSemFun]
+                lhs.smInsDyns = @children.smInhInsDyns ++ @loc.synInsDyns
+
+SEM Production
+  | Production loc.synIns = let mklhs syn = Fun (insertnm @nt nullIdent syn) funargs
+                                synAttrs = Map.keys @syn
+                                nestedProd = tupnest (map (SimpleExpr . getName) synAttrs)
+                                funargs = [ SimpleExpr "_syn_", nestedProd ]
+                                mkrhs syn = tupnest (map (\syn' -> if syn == syn' 
+                                                                   then SimpleExpr "_syn_"
+                                                                   else SimpleExpr (getName syn'))
+                                                         synAttrs)
+                            in  map (\s -> Decl (mklhs s) (mkrhs s)) synAttrs
+               loc.inhIns = let mklhs inh = Fun (insertnm @nt nullIdent inh) funargs
+                                inhAttrs = Map.keys @inh
+                                nestedProd = tupnest (map (SimpleExpr . getName) inhAttrs)
+                                funargs = [ SimpleExpr "_inh_", nestedProd ]
+                                mkrhs inh = tupnest (map (\inh' -> if inh == inh' 
+                                                                   then SimpleExpr "_inh_"
+                                                                   else SimpleExpr (getName inh'))
+                                                         inhAttrs)
+                            in  map (\s -> Decl (mklhs s) (mkrhs s)) inhAttrs
+               loc.synSel = let mklhs syn = Fun (selectnm @nt nullIdent syn) funargs
+                                synAttrs = Map.keys @syn
+                                nestedProd = tupnest (map (SimpleExpr . getName) synAttrs)
+                                funargs = [ nestedProd ]
+                                mkrhs syn = SimpleExpr (getName syn)
+                            in  map (\s -> Decl (mklhs s) (mkrhs s)) synAttrs
+               loc.inhSel = let mklhs inh = Fun (selectnm @nt nullIdent inh) funargs
+                                inhAttrs = Map.keys @inh
+                                nestedProd = tupnest (map (SimpleExpr . getName) inhAttrs)
+                                funargs = [ nestedProd ]
+                                mkrhs inh = SimpleExpr (getName inh)
+                            in  map (\s -> Decl (mklhs s) (mkrhs s)) inhAttrs
+               loc.synSelDynVals = let fident a = getName @nt ++ "_" ++ getName a
+                                       fnm a = selectnm @nt nullIdent a
+                                       fargs atp = [smsdtype @nt "syn",
+                                                    (typeToString @nt atp)]
+                                       fdyn (a,atp) = (fident a, (fnm a, fargs atp))
+                                       synAttrs = zip (Map.keys @syn) (Map.elems @syn)
+								   in  map fdyn synAttrs
+               loc.inhSelDynVals = let fident a = getName @nt ++ "_" ++ getName a
+                                       fnm a = selectnm @nt nullIdent a
+                                       fargs atp = [smsdtype @nt "inh",
+                                                    (typeToString @nt atp)]
+                                       fdyn (a,atp) = (fident a, (fnm a, fargs atp))
+                                       inhAttrs = zip (Map.keys @inh) (Map.elems @inh)
+								   in  map fdyn inhAttrs
+               loc.inhTupSel = let lhs = Fun (selectnm @nt nullIdent (identifier "inhAttrTuple")) []
+                                   rhs = SimpleExpr "fst"
+                               in  [Decl lhs rhs]
+               loc.synTupSel = let lhs = Fun (selectnm @nt nullIdent (identifier "synAttrTuple")) []
+                                   rhs = SimpleExpr "snd"
+                               in  [Decl lhs rhs]
+               loc.smSynSelDyn =   let ident = (smsdtype @nt "") ++ "_syn"
+                                       nm = selectnm @nt nullIdent (identifier "synAttrTuple")
+                                       args = [(smsdtype @nt "input"),
+                                                         (smsdtype @nt "syn")]
+                                   in  (ident,(getName @nt,nm,args))
+               loc.smInhSelDyn =   let ident = (smsdtype @nt "") ++ "_inh"
+                                       nm = selectnm @nt nullIdent (identifier "inhAttrTuple")
+                                       args = [(smsdtype @nt "input"),
+                                                         (smsdtype @nt "inh")]
+                                   in  (ident,(getName @nt,nm,args))
+               loc.inhInsComp = let mklhs inh = Fun (insertnm @nt (identifier "comp") inh) funargs
+                                    inhAttrs = Map.keys @inh
+                                    inhsyn = "_inh2syn_"
+                                    funargs = [ SimpleExpr "_inh_", SimpleExpr inhsyn ]
+                                    mkrhs inh = let rhsbody = Let [decl, decl'] letbody
+                                                    decl = Decl (Fun inh' [])
+                                                                (App (insertnm @nt nullIdent inh)
+                                                                     [ App "_inh_" 
+                                                                       [TupleExpr [ SimpleExpr pi
+                                                                                  , SimpleExpr syn'
+                                                                                  ]
+                                                                       ]
+                                                                     , SimpleExpr pi]
+                                                                )
+                                                    decl' = Decl (Fun syn' [])
+                                                                 (App inhsyn [SimpleExpr pi])
+                                                    letbody = App inhsyn [SimpleExpr inh']
+                                                    inh' = "_inh_new" 
+                                                    syn' = "_syn_old"
+                                                    pi = "_parent_in"
+                                                in  Lambda [pi] rhsbody
+                                in  map (\s -> Decl (mklhs s) (mkrhs s)) inhAttrs
+               loc.synInsComp = let mklhs syn = Fun (insertnm @nt (identifier "comp") syn) funargs
+                                    synAttrs = Map.keys @syn
+                                    inhsyn = "_inh2syn_"
+                                    funargs = [ SimpleExpr "_syn_", SimpleExpr inhsyn ]
+                                    mkrhs syn = let rhsbody = Let [decl] letbody
+                                                    decl = Decl (Fun syn' [])
+                                                                (App inhsyn [SimpleExpr pi])
+                                                    letbody = App (insertnm @nt nullIdent syn)
+                                                                  [ App "_syn_" 
+                                                                     [TupleExpr [ SimpleExpr pi
+                                                                                , SimpleExpr syn'
+                                                                                ]
+                                                                     ]
+                                                                   , SimpleExpr syn'                                                                   
+                                                                  ]
+                                                    syn' = "_syn_new" 
+                                                    pi = "_parent_in"
+                                                in  Lambda [pi] rhsbody
+                                in  map (\s -> Decl (mklhs s) (mkrhs s)) synAttrs
+                loc.synInsDyns =     let synAttrs = zip (Map.keys @syn) (Map.elems @syn)
+                                         ident a = (smsdtype @nt "") ++ "_lhs_" ++ getName a
+                                         fname a = insertnm @nt (identifier "comp") a
+                                         inpArg t = let tp = typeToString @nt t
+                                                    in Arr (SimpleType (smsdtype @nt "input"))
+                                                         (SimpleType tp)
+                                         arg tp = let btp = SimpleType (smsdtype @nt "")
+                                                  in  Arr (inpArg tp) (Arr btp btp)
+                                     in  map (\(s,tp) -> (ident s, (fname s, arg tp))) synAttrs
+                loc.inhInsDyns =     let inhAttrs = zip (Map.keys @inh) (Map.elems @inh)
+                                         ident a = (smsdtype @nt "") ++ "_inh_" ++ getName a
+                                         fname a = insertnm @nt (identifier "comp") a
+                                         inpArg t  = let tp = typeToString @nt t
+                                                     in Arr (SimpleType (smsdtype @nt "input"))
+                                                         (SimpleType tp)
+                                         arg tp = let btp = SimpleType (smsdtype @nt "")
+                                                  in  Arr (inpArg tp) (Arr btp btp)
+                                     in  map (\(s,tp) -> (ident s, (fname s, arg tp))) inhAttrs
+               
+               loc.smInputDyn= let nm = smsdtype @nt ""
+                                   varnm = "_gen_var_prod_" ++ map toLower nm 
+                                   tpnm = smsdtype @nt "input"
+                                in (nm, (varnm,tpnm))
+               lhs.smInputDyns = @loc.smInputDyn : @alts.smInputDyns
+               loc.smSelInsFuns = @loc.inhTupSel ++ @loc.synTupSel ++ @loc.synInsComp ++ 
+                                  @loc.inhInsComp ++ @loc.synIns ++ @loc.inhIns ++ @loc.synSel
+                                   ++ @loc.inhSel ++ @alts.smSelFuns
+			   lhs.smDynSels = @loc.smSynSelDyn : @loc.smInhSelDyn : @alts.smDynSels
+               lhs.smSelDynVals = @loc.inhSelDynVals ++ @loc.synSelDynVals
+			   lhs.smInsDynsFuns = @alts.smInsDyns ++ @loc.inhInsDyns ++ @loc.synInsDyns
