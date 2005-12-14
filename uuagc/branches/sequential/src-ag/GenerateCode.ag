@@ -5,6 +5,7 @@ INCLUDE "Patterns.ag"
 INCLUDE "ExpressionAttr.ag"
 INCLUDE "Dep.ag"
 INCLUDE "GenerateCodeSM.ag"
+INCLUDE "Sequential.ag"
 
 imports
 {
@@ -66,7 +67,7 @@ SEM Production
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename:{Bool}  prefix : {String} | | ]
+ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit:{Bool}  prefix : {String} | | ]
 ATTR Productions Production [ o_data:{Bool} | | ]
 
 SEM Grammar
@@ -76,6 +77,7 @@ SEM Grammar
                      .o_sem     = semfuns   @lhs.options
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
+                     .o_visit   = if visit  @lhs.options && null @cyclesErrors then True else False
                      .prefix    = prefix    @lhs.options
 
 -------------------------------------------------------------------------------
@@ -92,7 +94,8 @@ SEM Grammar
 
 
 SEM Production
-  | Production  lhs.decls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
+  | Production  lhs.decls = if @lhs.o_visit then @seqDecls else
+                            Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
                             (if @lhs.o_pretty then @loc.comment : @alts.comments else []) ++
                             (if @lhs.o_data then [@loc.dataDef] else []) ++
                             (if @lhs.o_sig || @lhs.o_sem then @loc.semDom  else []) ++
@@ -129,7 +132,7 @@ SEM Production
                                     in Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                             (Let [Decl (TupleLhs synVarsN) (App var inhVars) | not(null synVarsN)]
                                              (App synNT synVarsE))
-                     in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ [function]
+                     in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ if @lhs.o_visit then @seqWrapperFun else [function]
                      
 
 -------------------------------------------------------------------------------

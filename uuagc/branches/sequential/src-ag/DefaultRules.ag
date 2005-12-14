@@ -267,11 +267,11 @@ SEM Pattern
 -------------------------------------------------------------------------------
 
 ATTR Grammar Productions  Production   Alternatives
-    Alternative Children Child Rules Rule Pattern  Patterns
+    Alternative Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
     [ | | out:SELF ] 
 
 SEM Alternative
-  | Alternative lhs.out = Alternative @con @children.out (@rules.out ++ @newRls)
+  | Alternative lhs.out = Alternative @con @children.out (@rules.out ++ @newRls) @typeSigs.out
 
 SEM Rules 
   | Cons lhs.out = if @hd.containsVars then @out else @tl.out

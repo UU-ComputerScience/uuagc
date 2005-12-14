@@ -26,6 +26,8 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option []        ["self"]       (NoArg selfOpt)             "generate self attribute"
                , Option []        ["cycle"]       (NoArg cycleOpt)           "check for cyclic definitions"
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
+               , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
+               , Option []        ["cycle2"]     (NoArg cycle2Opt)           "fast check for cyclic definitions"
                ]
 
 allc = "dcfsprm"
@@ -52,6 +54,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , withCycle :: Bool
                       , showHelp :: Bool
                       , showVersion :: Bool
+                      , visit :: Bool
+                      , withCycle2 :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -73,6 +77,8 @@ noOptions = Options { moduleName   = NoName
                     , prefix       = "sem_"
                     , withSelf     = False
                     , withCycle     = False
+                    , visit        = False
+                    , withCycle2    = False
                     }
 
 
@@ -94,6 +100,8 @@ versionOpt    opts = opts{showVersion  = True}
 prefixOpt pre opts = opts{prefix       = pre }            
 selfOpt       opts = opts{withSelf     = True }            
 cycleOpt      opts = opts{withCycle    = True }            
+visitOpt      opts = opts{visit        = True}
+cycle2Opt     opts = opts{withCycle2   = True }     
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

@@ -59,6 +59,7 @@ SEM SemDef
   | Def loc.(rules1,defAttrs) = @lhs.rules
         lhs.rules             = (Rule @pattern.copy @rhs @owrt (show @pattern.stpos): @rules1, @pattern.defAttrs)
         pattern.owrt          = @owrt
+  | TypeDef lhs.rules         = @lhs.rules
 
 ATTR Pattern [ | | stpos : Pos ]
 
@@ -80,3 +81,7 @@ SEM Patterns
          hd.defAttrs  = @tl.defAttrs
          tl.defAttrs  = @lhs.defAttrs
 
+-- Pass type signatures up
+ATTR SemDef SemDefs [ | | typeSigs USE {Seq.<>} {Seq.empty} : {Seq TypeSig} ]
+SEM SemDef
+  | TypeDef lhs.typeSigs = Seq.single (TypeSig @ident @tp)

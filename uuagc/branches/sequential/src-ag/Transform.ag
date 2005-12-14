@@ -435,7 +435,7 @@ SEM AG [ | | trans : Grammar ]
                                then @loc.nonterminals
                                else  @elems.wrappers
                    in constructGrammar @loc.nonterminals @elems.datas @elems.attrDecls @elems.useMap 
-                                    @elems.derivings ws @elems.ruleMap @elems.typeSyns
+                                    @elems.derivings ws @elems.ruleMap @elems.typeSigMap @elems.typeSyns 
 
 {
 makeType :: Set Nonterminal -> Type -> Type
@@ -445,19 +445,51 @@ makeType nts tp@(NT x) | x == _SELF       = tp
 makeType _   tp                           = tp                       
 }
 {
-constructGrammar nts gram attrs uses derivings wrappers rules tsyns = 
+constructGrammar nts gram attrs uses derivings wrappers rules tsigs tsyns = 
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram] 
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
                              rmap      = Map.findWithDefault Map.empty             nt rules
+                             tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              alt (con,flds) =
-                                   let rules = maybe [] fst (Map.lookup con rmap)                                       
+                                   let rules = maybe [] fst (Map.lookup con rmap)          
+                                       tsigs = maybe [] id (Map.lookup con tsmap)
                                        child (nm, tp) =
                                           let (inh,syn) = case tp of 
                                                  NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
                                                  _     -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn 
-                                   in Alternative con (map child flds) rules 
+                                   in Alternative con (map child flds) rules tsigs
                             in Production nt inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers prods
  }
+
+-------------------------------------------------------------------------------
+--         Type Signatures
+-------------------------------------------------------------------------------
+{
+type TypeSigMap    = Map Nonterminal TypeSigMapAlt
+type TypeSigMapAlt = Map Constructor TypeSigs
+}
+
+ATTR Elem Elems [ | typeSigMap:{TypeSigMap} | ]
+ATTR SemAlt SemAlts [ | typeSigMapAlt:{TypeSigMapAlt} | ]
+
+SEM AG
+  | AG elems.typeSigMap = Map.empty
+
+SEM Elem
+  | Sem alts.typeSigMapAlt = Map.findWithDefault Map.empty @name @lhs.typeSigMap
+        lhs.typeSigMap = Map.insert @name @alts.typeSigMapAlt @lhs.typeSigMap     
+
+SEM SemAlt
+  | SemAlt lhs.typeSigMapAlt = let find con map = Map.findWithDefault [] con map
+                                   inherited = SemRules.Inh_SemDefs   
+                                               { SemRules.attributes_Inh_SemDefs = undefined
+                                               , SemRules.con_Inh_SemDefs        = undefined
+                                               , SemRules.fieldMap_Inh_SemDefs   = undefined
+                                               , SemRules.nt_Inh_SemDefs         = undefined
+                                               , SemRules.rules_Inh_SemDefs      = undefined
+                                               }
+                                   typeSigs = Seq.toList $ SemRules.typeSigs_Syn_SemDefs $ SemRules.wrap_SemDefs (SemRules.sem_SemDefs @rules) inherited
+                               in foldr (\con map -> Map.insert con (typeSigs ++ find con map) map) @lhs.typeSigMapAlt (Set.toList @constructorSet.constructors)

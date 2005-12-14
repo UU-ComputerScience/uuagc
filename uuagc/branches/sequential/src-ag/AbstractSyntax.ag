@@ -22,6 +22,8 @@ TYPE Children     = [Child]
 
 TYPE Rules        = [Rule]
 
+TYPE TypeSigs     = [TypeSig]
+
 DATA Production   | Production nt   : {Nonterminal}
                                inh  : {Attributes}
                                syn  : {Attributes}
@@ -30,7 +32,7 @@ DATA Production   | Production nt   : {Nonterminal}
 DATA Alternative  | Alternative con      : {Constructor}
                                 children : Children
                                 rules    : Rules
-
+                                typeSigs : TypeSigs
 
 DATA Child        | Child   name  : {Name}
                             tp    : {Type}
@@ -41,3 +43,6 @@ DATA Rule         | Rule    pattern : Pattern
                             rhs     : Expression
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)
+
+DATA TypeSig      | TypeSig name : {Name}
+                            tp   : {Type}

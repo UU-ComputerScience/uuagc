@@ -11,4 +11,6 @@ TYPE SemDefs   = [SemDef]
 DATA SemDef    | Def    pattern: Pattern
                         rhs    : {Expression}                     
                         owrt   : {Bool}
+               | TypeDef ident : {Identifier}
+                         tp    : Type
 

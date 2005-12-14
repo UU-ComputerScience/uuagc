@@ -246,6 +246,7 @@ pFieldIdentifier =  pIdentifier
 
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
+      <|> (\ident tp -> [TypeDef ident tp]) <$ pLOC <* pDot <*> pIdentifier <* pColon <*> pType 
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
