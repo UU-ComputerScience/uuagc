@@ -1,27 +1,44 @@
-* Build and Install from source distribution
+Installing uuagc from a source distribution
+-------------------------------------------
 
----
-ghc --make Setup.hs -o setup -package Cabal
-./setup configure
-./setup build
-./setup install
----
+    ghc --make Setup.hs -o setup -package Cabal
+    ./setup configure
+    ./setup build
+    ./setup install
 
-It is also possible to use make:
+  The 1.0 release of Cabal has a bug that prevents
+  the installation step from succeeding.
+  You may prefer to use the following alternative:
 
----
-./configure
-make
-make install
----
+    ./configure
+    make build
+    make install
 
+Using the user package database
+-------------------------------
 
-* Build and Install from repository source
+  In the case that you registered uulib in your
+  user package database you may install uuagc
+  thusly:
 
----
-autoconf
-./configure
-make
-make install
----
+    ghc --make Setup.hs -o setup -package Cabal
+    ./setup configure --user
+    ./setup build
+    ./setup install
+
+  Following the second alternative, you should
+  re-run the configure script:
+
+    ./configure --with-user-pckg
+    make build
+    make install
+
+Installing uuagc from repository sources
+----------------------------------------
+
+    autoconf
+    ./configure
+    make build
+    make install
+
 
