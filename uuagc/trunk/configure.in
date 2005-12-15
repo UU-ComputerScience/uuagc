@@ -52,7 +52,7 @@ AC_PATH_PROG(UUAGC,uuagc)
 
 # allow a different AG compiler to be specified
 AC_ARG_WITH(ag,
-[  -with-ag=<AG compiler>
+[  --with-ag=<AG compiler>
        Use a command different from 'ag' to compile attribute grammar code.
 ],
 [WithAG="$withval"],
@@ -66,10 +66,21 @@ if test "$UUAGC" = ""; then
   AC_MSG_WARN([AG compiler not found, building from ag sources may fail.])
 fi
 
+# allow registration in user package database
+AC_ARG_WITH(user-pckg,
+[  --with-user-pckg
+       Use user's package database (default system wide)
+],
+[USER_PCKG=--user],
+[USER_PCKG=]
+)
+
+AC_SUBST(USER_PCKG)
+
 # allow a different Cabal build directory to be specified
 AC_ARG_WITH(bdir,
-[  -with-bdir=<Cabal build dir>
-       Use a custom Cabal cuild directory (default: dist/build).
+[  --with-bdir=<Cabal build dir>
+       Use a custom Cabal build directory (default: dist/build).
 ],
 [BDir="$withval"],
 [BDir=dist/build]
@@ -82,7 +93,7 @@ AC_SUBST(BUILD_DIR)
 AC_PATH_PROG(HC,ghc)
 
 AC_ARG_WITH(hc,
-[  -with-hc=<Haskell compiler>
+[  --with-hc=<Haskell compiler>
        Haskell compiler to use (default: ghc).
 ],
 [WithRH="$withval"],

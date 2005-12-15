@@ -31,11 +31,14 @@ prefix    = @prefix@
 MKINSTDIR = ./mkinstalldirs
 INSTALL   = @INSTALL@
 HC        = @HC@
+# whether to use user package database
+USER_PCKG = @USER_PCKG@
 
 # Some hardcoded settings
 AG_BINARY = ./$(BUILD_DIR)/$(SRC_DIR)/uuagc
 CABAL_BUILD = $(CABAL_SCRIPT) build
-CABAL_CONFIGURE = $(CABAL_SCRIPT) configure
+CABAL_CONFIGURE = $(CABAL_SCRIPT) configure $(USER_PCKG)
+# Generated after running ./Setup . May change!
 CABAL_CONFIG = .setup-config
 CABAL_SOURCE = Setup.hs
 CABAL_SCRIPT = ./Setup
