@@ -283,6 +283,30 @@ SEM Error
                                          >-< ppTrace @siTrace
                                  act   = text "The generated program might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
+ | InducedCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
+                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
+                                         in wfill ["Induced circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
+                                 pat   = text "see help"
+                                 help  = wfill [@nt +.+ @syn, "<", @nt +.+ @inh, ":"]
+                                         >-< wfill [@nt +.+ @inh, "<", @nt +.+ @syn, ":"]
+                                 act   = text "The generated program might not run."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
+ | MissingTypeSig   loc.isWarning      = True
+                    lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC @attr , "in alternative"
+                                               , getName @con , "of nonterminal",getName @nt ,"."
+                                               ]>-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   =   "SEM" >#< @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< ": ...")
+                                 help  = wfill ["The", showAttrDef _LOC @attr, "in alternative", getName @con
+                                               ,"of nonterminal", getName @nt, "is needed in two seperate visits to", getName @nt
+                                               ,"and you want to generate type signatures."
+                                               ,"Please supply its type."
+                                               ]
+                                 act  = wfill ["The type signatures of semantic functions are not generated."]
+                             in ppError @isWarning @pos mesg pat help act @lhs.verbose
+
 {
 ppTrace :: Trace -> PP_Doc
 ppTrace (tr:rest) = wfill [showLineNr (lineNr tr) ++ ":", "SEM", getName (nt tr), "|", getName (prod tr)

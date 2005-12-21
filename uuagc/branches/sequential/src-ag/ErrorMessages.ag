@@ -70,4 +70,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               syn     : {Name}
                               isTrace : {Trace}
             
-                                
+            | InducedCirc     nt      : {Nonterminal}
+                              inh     : {Name}
+                              syn     : {Name}                
+            | MissingTypeSig  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}
+                              pos     : {Pos}

@@ -5,6 +5,8 @@ module SequentialComputation (
     tdpToTds, tdsToTdp, tdpNt, lmh
 ) where
 
+import Debug.Trace
+
 import SequentialTypes
 import CommonTypes
 
@@ -14,7 +16,7 @@ import Data.Array
 import Data.Array.MArray
 import Data.Array.ST
 import Control.Monad
-import List(partition,(\\),sort,transpose)
+import List(partition,sort,transpose,nub,(\\),intersect)
 
 -- The updatable graph of attribute occurrences
 type STGraph s = STArray s Vertex [Vertex]
@@ -25,40 +27,73 @@ type Comp s = (Tds s, Tdp s)
 type Interfaces = [Interface]
 type Interface = [([Vertex],[Vertex])]
 
+type VisitSS = [Vertex]
+type LMH = (Vertex,Vertex,Vertex)
+
 -- Information about the vertices
 data Info = Info { tdpToTds :: Table Vertex   -- Mapping attribute occurrences to attributes
                  , tdsToTdp :: Table [Vertex] -- Mapping attributes to all attribute occurrences
                  , tdpNt    :: Table (Name,Name,Name,Name) -- Mapping attribute occurrences to their rhs nt, lhs nt, constructor, and fieldnames
-                 , lmh      :: [(Int,Int,Int)] -- Division of tds. l<=inherited<m, m<=synthesized<=h
+                 , lmh      :: [LMH] -- Division of tds. l<=inherited<m, m<=synthesized<=h
                  }
 
 -- Result of sequential computation
-data SequentialResult = SequentialResult [[[[Vertex]]]] [(Vertex,ChildVisit)] [Interface] -- Succeeded, with visit sub-sequences, a table of childvisits, and interfaces
+data SequentialResult = SequentialResult [[[VisitSS]]] [(Vertex,ChildVisit)] [Interface] -- Succeeded, with visit sub-sequences, a table of childvisits, and interfaces
                       | DirectCycle [Edge]  -- Failed because of a cycle in the direct dependencies (type-2)
                       | InducedCycle [Edge] -- No direct cycle, but the computed interface generated a cycle (type-3)
 
 
 -- Compute the Tds and Tdp graphs, given Info and the direct dependencies between attribute occurrences
-computeSequential :: Info -> [Edge] -> SequentialResult
-computeSequential info dpr
-  = runST (do (tds,tdp) <- tdsTdp info dpr
-              cycles2 <- cycles tds dpr info
+computeSequential :: Info -> [Edge] -> [Edge] -> [Edge] -> SequentialResult
+computeSequential info dpr s2i loc
+  = runST (do comp@(tds,tdp) <- tdsTdp info (dpr ++ s2i ++ loc)
+              --s2i' <- removeS2I info comp
+              --let alls2i = s2i ++ s2i'
+              -- mapM_ (insertTdp info comp) dpr
+              cycles2 <- cycles3 info tds
+              --cycles2 <- trace (show cycles) $ cycles2 tds (nub $  map (\(x,y) -> (tdpToTds info ! x, tdpToTds info ! y)) alls2i)
               if (not (null cycles2))
                then return (DirectCycle cycles2)
-               else do tds' <- freeze tds
+               else do -- mapM_ (insertTdp info comp) alls2i
+                       tds' <- freeze tds
                        tdsT <- thaw (transposeG tds') 
                        inters <- makeInterfaces tdsT (lmh info)
                        let idp = concatMap (concatMap (uncurry carthesian)) inters
-                       mapM_ (insertTds info (tds,tdp)) idp
-                       cycles3 <- cycles tds dpr info
+                       mapM_ (insertTds info comp) idp
+                       cycles3 <- cycles3 info tds
                        if (not (null cycles3))
                         then return (InducedCycle cycles3)
                         else do let dprgraph = buildG (Data.Array.bounds (tdpToTds info)) dpr
                                     newindex = snd (Data.Array.bounds (tdpToTds info)) + 1
                                     (vsgraph,table)  = visitssGraph info dprgraph newindex inters
-                                    vs = visitss info vsgraph inters
+                                    vs = visitss info table vsgraph inters
                                 return (SequentialResult vs table inters)
           )
+
+-- Gives all edges from synthesize to inherited from Tds
+-- Removes these and occurred edges from the graphs
+removeS2I :: Info -> Comp s -> ST s [Edge]
+removeS2I info comp = concatMapM (removeAll info comp) (lmh info)
+  where removeAll :: Info -> Comp s -> LMH -> ST s [Edge]
+        removeAll info comp (l,m,h) = concatMapM (removeOne info m comp) [m..h]
+        removeOne :: Info -> Int -> Comp s -> Int -> ST s [Edge]
+        removeOne info m (tds,tdp) i = do e <- readArray tds i
+                                          let (inh,syn) = partition (<m) e
+                                          writeArray tds i syn
+                                          let s2i = [(i,x) | x <- inh]
+                                          concatMapM (removeOccurAll info tdp) s2i
+        removeOccurAll :: Info -> Tdp s -> Edge -> ST s [Edge]
+        removeOccurAll info tdp (v1,v2) = let v1s = tdsToTdp info ! v1
+                                              v2s = tdsToTdp info ! v2
+                                          in concatMapM (removeOccurOne info tdp) (carthesian v1s v2s)
+        removeOccurOne :: Info -> Tdp s -> Edge -> ST s [Edge]
+        removeOccurOne info (tdpN,tdpT) (v1,v2) | tdpNt info ! v1 /= tdpNt info ! v2 = return []
+                                                | otherwise = do e <- readArray tdpN v1
+                                                                 writeArray tdpN v1 (filter (/= v2) e)
+                                                                 e <- readArray tdpT v2
+                                                                 writeArray tdpT v1 (filter (/= v1) e)
+                                                                 return [(v1,v2)]
+        
 
 -- Initialise computation, and add all direct dependencies. This will trigger the whole of the computation
 tdsTdp :: Info -> [Edge] -> ST s (Comp s)
@@ -116,17 +151,17 @@ addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
 -------------------------------------------------------------------------------
 -- Interfaces
 -------------------------------------------------------------------------------
-makeInterfaces :: Tds s -> [(Int,Int,Int)] -> ST s Interfaces
+makeInterfaces :: Tds s -> [LMH] -> ST s Interfaces
 makeInterfaces tds = mapM (makeInterface tds)
 
-makeInterface :: Tds s -> (Int,Int,Int) -> ST s Interface
+makeInterface :: Tds s -> LMH -> ST s Interface
 makeInterface tds lmh
   = do (iwork,swork) <- sinks tds lmh []
        if null iwork && null swork 
          then return [([],[])]
          else makeInter tds lmh iwork swork
 
-makeInter :: Tds s -> (Int,Int,Int) -> [Vertex] -> [Vertex] -> ST s Interface
+makeInter :: Tds s -> LMH -> [Vertex] -> [Vertex] -> ST s Interface
 makeInter tds lmh []    [] = return []
 makeInter tds lmh iwork swork
   = do (ipart,swork') <- predsI tds lmh iwork
@@ -135,7 +170,7 @@ makeInter tds lmh iwork swork
        return ((ipart,spart):rest)
 
 -- Finds the sinks-components, given initial sinks
-predsI,predsS :: Tds s -> (Int,Int,Int) -> [Vertex] -> ST s ([Vertex],[Vertex])
+predsI,predsS :: Tds s -> LMH -> [Vertex] -> ST s ([Vertex],[Vertex])
 -- The inherited sinks-component and the resulting synthesized sinks
 predsI tds lmh []   = return ([],[])
 predsI tds lmh work = do (inh,syn) <- sinks tds lmh work
@@ -148,7 +183,7 @@ predsS tds lmh work = do (inh,syn) <- sinks tds lmh work
                          return (work ++ spart,inh ++ iwork)
 
 -- Removes edges from vs, and returns resulting sinks, partitioned into inherited and synthesized
-sinks :: Tds s -> (Int,Int,Int) -> [Vertex] -> ST s ([Vertex],[Vertex])
+sinks :: Tds s -> LMH -> [Vertex] -> ST s ([Vertex],[Vertex])
 sinks tds (l,m,h) vs
   = liftM (partition (<m) . concat) $ mapM f' [l..h]
      where f' i = do e <- readArray tds i
@@ -161,13 +196,18 @@ sinks tds (l,m,h) vs
 -------------------------------------------------------------------------------
 -- Cycles
 -------------------------------------------------------------------------------
-cycles :: Tds s -> [Edge] -> Info -> ST s [Edge]
-cycles tds dpr info = liftM (filter directOnly) $ concatMapM (cycles' tds) (lmh info)
-                        where -- We only want cycles for which there exists a direct dependency
-                              directOnly (v1,v2) = not . null $ [(v1',v2') | v1' <- tdsToTdp info ! v1, v2' <- tdsToTdp info ! v2] \\ dpr 
+cycles2 :: Tds s -> [Edge] -> ST s [Edge]
+cycles2 tds s2i = concatMapM (cycles2' tds) s2i
 
-cycles' :: Tds s -> (Int,Int,Int) -> ST s [Edge]
-cycles' tds (l,m,h) 
+cycles2' :: Tds s -> Edge -> ST s [Edge]
+cycles2' tds (v1,v2) = do e <- readArray tds v2
+                          return (if v1 `elem` e then [(v1,v2)] else [])
+
+cycles3 :: Info -> Tds s -> ST s [Edge]
+cycles3 info tds = concatMapM (cycles3' tds) (lmh info)
+
+cycles3' :: Tds s -> LMH -> ST s [Edge]
+cycles3' tds (l,m,h) 
   = concatMapM (cyc tds) [m..h]
       where cyc :: Tds s -> Vertex -> ST s [Edge]
             cyc tds i = do e <- readArray tds i
@@ -206,7 +246,7 @@ rhsEdge info n v ((inh,syn):inter)
         lhs ((_,_,_,field),_,_) | field == _LHS = False
                                 | otherwise = True
         islast = null inter
-        childvisits = zip [v..] $ map ((\((_,_,_,field),_,_) -> ChildVisit field n islast) . head) classes
+        childvisits = zip [v..] $ map ((\((_,_,_,field),_,_) -> ChildVisit field n islast) . head' "childvisits") classes
         edges = makeEdges v classes
         l = length classes
         (rest,fs,v') = rhsEdge info (n+1) (v+l) inter
@@ -214,19 +254,16 @@ rhsEdge info n v ((inh,syn):inter)
         
 makeEdges :: Int -> [[(a,Vertex,Bool)]] -> [Edge]
 makeEdges n [] = []
-makeEdges n (x:xs) = makeEdges' n x ++ makeEdges (n+1) xs
-
-makeEdges' :: Int -> [(a,Vertex,Bool)] -> [Edge]
-makeEdges' n xs = map (makeEdge n) xs
-
-makeEdge :: Int -> (a,Vertex,Bool) -> Edge
-makeEdge n (_,v,True) = (v,n)
-makeEdge n (_,v,False) = (n,v)
+makeEdges n (x:xs) 
+  = map (makeEdge n) x ++ makeEdges (n+1) xs
+      where makeEdge :: Int -> (a,Vertex,Bool) -> Edge
+            makeEdge n (_,v,True) = (v,n)
+            makeEdge n (_,v,False) = (n,v)
 
 -- The edges between visits: Visit n+1 depends on visit n
 visitEdges :: Info -> Graph -> Int -> Int -> [Edge]
 visitEdges info tdp l h 
-  = concatMap list2edges $ eqClasses comp $ sort $ map (\x -> (x, tdpNt info ! head (tdp ! x))) [l..h]
+  = concatMap list2edges $ eqClasses comp $ sort $ map (\x -> (x, tdpNt info ! head' (show x) (tdp ! x))) [l..h]
       where comp (_,a) (_,a') = a == a'
             list2edges []        = []
             list2edges [a]       = []
@@ -236,15 +273,27 @@ visitEdges info tdp l h
 -- Visit sub-sequences
 -------------------------------------------------------------------------------
 -- For each Nt, for each prod, for each visit, a subsequence
-visitss :: Info -> Graph -> [Interface] -> [[[[Vertex]]]]
-visitss info vsgraph inters = map (transpose . map (visitss' info vsgraph)) inters
+visitss :: Info -> [(Vertex,ChildVisit)] -> Graph -> [Interface] -> [[[VisitSS]]]
+visitss info table vsgraph inters = map (transpose . visitss' info vsgraph []) inters
 
-visitss' :: Info -> Graph -> ([Vertex],[Vertex]) -> [[Vertex]]
-visitss' info vsgraph (inh,syn) 
-  = let sortFrom = map (map snd) $ eqClasses comp $ sort $ filter lhs $ map (\x -> (tdpNt info ! x,x)) $ concatMap (tdsToTdp info !) syn
-        lhs ((_,_,_,x),_) = x == _LHS
+visitss' :: Info -> Graph -> [Vertex] -> Interface -> [[VisitSS]]
+visitss' info vsgraph prev [] = []
+visitss' info vsgraph prev (inter:inters) 
+  = let (ss,prev') = visitss'' info vsgraph prev inter
+    in ss:visitss' info vsgraph prev' inters
+
+-- prev: Attributes computed in previous visits
+-- (inh,syn): Attributes in this visit
+visitss'' :: Info -> Graph -> [Vertex] -> ([Vertex],[Vertex]) -> ([VisitSS],[Vertex])
+visitss'' info vsgraph prev (inh,syn) 
+  = let sortFrom = map (map snd) $ eqClasses comp $ sort $ filter (lhs . fst) $ map (\x -> (tdpNt info ! x,x)) $ concatMap (tdsToTdp info !) syn
+        inh' = filter (\x -> lhs  (tdpNt info ! x)) $ concatMap (tdsToTdp info !) inh
+        lhs (_,_,_,x) = x == _LHS
         comp (a,_) (a',_) = a == a'
-    in map (topSort' vsgraph) sortFrom
+        prev' = inh' ++ prev
+        trans vs = vs \\ prev'
+        vss = map (trans . topSort' vsgraph) sortFrom
+    in (vss, concat vss ++ prev')
 
 -------------------------------------------------------------------------------
 -- Graph-like functions
@@ -263,8 +312,13 @@ eqClasses p [] = []
 eqClasses p (a:as) 
   = eqC [a] as
      where eqC as [] = [as]
-           eqC as (a:as') | p a (head as) = eqC (a:as) as'
+           eqC as (a:as') | p a (head' "eqClasses" as) = eqC (a:as) as'
                           | otherwise     = reverse as : eqC [a] as'
 
 concatMapM f xs = liftM concat $ mapM f xs
 carthesian xs ys = [(x,y) | x <- xs, y <- ys]
+
+--DEBUG
+head' a []  = error a
+head' _ (x:xs) = x
+
