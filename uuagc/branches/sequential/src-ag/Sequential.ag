@@ -3,7 +3,7 @@ imports
 import Debug.Trace -- DEBUG
 import qualified Data.Array as Array
 import Data.Array((!))
-import Data.List(sort)
+import Data.List(sort,mapAccumL)
 import qualified Data.Graph as Graph
 import qualified Data.Tree  as Tree
 import SequentialComputation
@@ -213,11 +213,11 @@ mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
 -------------------------------------------
 -- Code to be generated
 -------------------------------------------
-ATTR Productions Production Alternatives Alternative Rules Rule [ | | codeTable USE {++} {[]} : {[(Graph.Vertex,[Decl])]} ]
+ATTR Productions Production Alternatives Alternative Rules Rule [ | | codeTable USE {++} {[]} : {[(Graph.Vertex,(Exprs,Decls))]} ]
 SEM Rule
-  | Rule lhs.codeTable = let code = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+  | Rule lhs.codeTable = let decls = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
                                            [Decl (Pattern @pattern.pp) (PP @rhs.pp)]
-                         in [(@lhs.vcount,code)]
+                         in [(@lhs.vcount,(@pattern.exprs,decls))]
 
 -- Distribute interfaces downward
 ATTR Productions Production Alternatives Alternative [ allinterfaces : {[[([NTAttr],[NTAttr])]]} | | ]
@@ -283,10 +283,11 @@ SEM Alternative
                                               funcname = seqSemname @lhs.prefix @lhs.nt @con n
                                               lhs_args = @findArgs n ((vs,trans):vss)
 
+                                              (allCode,prefix) = @seqCode (map code vs ++ [nextVisitDecl])
                                               rhs = wrap
                                                     (mkLambda (map show inh)
-                                                      ( Let (typeSigs ++ concatMap code vs ++ nextVisitDecl)
-                                                            (TupleExpr $ map (SimpleExpr . show) syn ++ map SimpleExpr nextVisitName)
+                                                      ( Let (typeSigs ++ allCode)
+                                                            (prefix $ TupleExpr $ map (SimpleExpr . show) syn ++ map SimpleExpr nextVisitName)
                                                       )
                                                     )
                                               mkLambda [] e = e
@@ -295,23 +296,27 @@ SEM Alternative
                                               typeSigs | @lhs.with_sig = (map makeTSig $ concatMap @typeSig $ filter hasRule $ map (@lhs.codeAttrTable !) vs)
                                                                           ++ if vss == [] 
                                                                               then [] 
-                                                                              else [TSig (head' "nextvisitname"  nextVisitName) (SimpleType $ typeName @lhs.nt (n+1))]
+                                                                              else [TSig (head' "nextvisitname" nextVisitName) (SimpleType $ typeName @lhs.nt (n+1))]
                                                        | otherwise = []
                                               makeTSig (ao,tp) = TSig ao (SimpleType tp)
 
                                               wrap = if @lhs.o_newtypes then \x -> App (sdtype @lhs.nt) [x] else id
+                                              code :: Graph.Vertex -> (Exprs,Decls)
                                               code n = case @lhs.codeAttrTable ! n of
-                                                         (CAChildVisit (ChildVisit child nr lastVisit)) -> [Decl lhs rhs]
-                                                             where lhs = TupleLhs $ [ rhsshow child attr | attr <- syn' ] 
+                                                         (CAChildVisit (ChildVisit child nr lastVisit)) -> (lhsExprs, [Decl lhsLhs rhs])
+                                                             where lhs = [ rhsshow child attr | attr <- syn' ] 
                                                                            ++ if lastVisit then [] else [funname child (nr+1)]
+                                                                   lhsExprs = [TupleExpr (map SimpleExpr lhs)]
+                                                                   lhsLhs = TupleLhs lhs
                                                                    rhs = App (funname child nr) [SimpleExpr (rhsshow child attr) | attr <- inh']
                                                                    (inh',syn') = @childVisit child nr
-                                                         otherwise -> maybe [] id $ lookup n @rules.codeTable
+                                                         otherwise -> maybe ([],[]) id $ lookup n @rules.codeTable
 
                                               nextVisitName | vss == [] = []
                                                             | otherwise = [visitname @lhs.prefix @lhs.nt (n+1)]
-                                              nextVisitDecl | vss == [] = []
-                                                            | otherwise = [Decl lhs rhs]
+                                              nextVisitDecl :: (Exprs,Decls)
+                                              nextVisitDecl | vss == [] = ([],[])
+                                                            | otherwise = ([SimpleExpr (head nextVisitName)], [Decl lhs rhs])
                                                   where lhs = TupleLhs nextVisitName
                                                         rhs = App fun args
                                                         fun = seqSemname @lhs.prefix @lhs.nt @con (n+1)
@@ -455,6 +460,55 @@ SEM Production
                                    in [Decl (Fun wrapNT [varPat, App inhNT inhvars])
                                             (Let decls (App synNT synvars))]
 
+-------------------------------------------------------------------------------
+-- Force evaluation to whnf using seq
+-------------------------------------------------------------------------------
+ATTR Productions Production
+     Alternatives Alternative [ with_seq : Bool | | ]
+SEM Grammar
+  | Grammar prods.with_seq = withSeq @lhs.options
+SEM Alternative
+  | Alternative loc.seqCode = \decls -> if @lhs.with_seq
+                                         then addSeq decls
+                                         else (concatMap snd decls,id)
+
+ATTR Pattern Patterns [ | | exprs USE {++} {[]}: Exprs ]
+SEM Pattern
+  | Alias      lhs.exprs = SimpleExpr (attrname False @field @attr) : @pat.exprs
+
+{
+addSeq :: [(Exprs,Decls)] -> (Decls,Expr -> Expr)
+addSeq [] = ([],id)
+addSeq ((es,ds):eds) = (ds ++ concat declss,prefix)
+   where (declss,rest) = mapPass add es eds
+         prefix e = toSeq rest e
+         add :: Exprs -> (Exprs,Decls) -> (Decls,Exprs)
+         add prev (es,[])              = ([],prev++es) -- TODO: Why does this happen?
+         add prev (es,Decl lhs rhs:ds) = let rhs' = toSeq prev rhs
+                                         in (Decl lhs rhs':ds, es)
+         add prev (es,Comment txt:ds) = let (ds',es') = add prev (es,ds)
+                                        in (Comment txt:ds',es')
+         toSeq :: Exprs -> Expr -> Expr
+         toSeq [] nil = nil
+         toSeq (e:es) nil = case e of 
+                              TupleExpr tup -> toSeq tup (toSeq es nil)
+                              otherwise -> App "seq" [e,toSeq es nil]
+                              
+{-
+addSeq ((_,[]):eds) = addSeq eds
+addSeq ((es,d@(Comment _):ds):eds) = d : (ds ++ addSeq eds)
+-}
+
+mapPass :: (a -> b -> (c,a)) -> a -> [b] -> ([c],a)
+mapPass f nil [] = ([],nil)
+mapPass f nil (x:xs) = let (y,z) = f nil x
+                           (rest,a) = mapPass f z xs
+                       in (y : rest,a)
+}
+
+-------------------------------------------------------------------------------
+-- Some usefull functions
+-------------------------------------------------------------------------------
 {
 -- Gives the name of a semantic function
 seqSemname :: String -> Nonterminal -> Constructor -> Int -> String

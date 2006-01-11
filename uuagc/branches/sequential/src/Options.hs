@@ -12,7 +12,7 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option ['s']     ["signatures"] (NoArg signaturesOpt)       "generate signatures for semantic functions"
                , Option []        ["newtypes"]   (NoArg newtypesOpt)         "use newtypes instead of type synonyms"
                , Option ['p']     ["pretty"]     (NoArg prettyOpt)           "generate pretty printed list of attributes"
-               , Option ['w']     ["wrappers"]   (NoArg wrappersOpt)          "generate wappers for semantic domains"
+               , Option ['w']     ["wrappers"]   (NoArg wrappersOpt)         "generate wappers for semantic domains"
                , Option ['r']     ["rename"]     (NoArg renameOpt)           "rename data constructors"
                , Option []        ["modcopy"]    (NoArg modcopyOpt)          "use modified copy rule"
                , Option []        ["nest"]       (NoArg nestOpt)             "use nested tuples"
@@ -24,10 +24,11 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option ['P']     [""]           (ReqArg searchPathOpt "search path") ("specify seach path")
                , Option []        ["prefix"]     (ReqArg prefixOpt "prefix") "set prefix for semantic functions"
                , Option []        ["self"]       (NoArg selfOpt)             "generate self attribute"
-               , Option []        ["cycle"]       (NoArg cycleOpt)           "check for cyclic definitions"
+               , Option []        ["cycle"]      (NoArg cycleOpt)            "check for cyclic definitions"
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
                , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
                , Option []        ["cycle2"]     (NoArg cycle2Opt)           "fast check for cyclic definitions"
+               , Option []        ["seq"]        (NoArg seqOpt)              "Force evaluation using function seq"
                ]
 
 allc = "dcfsprm"
@@ -56,6 +57,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , showVersion :: Bool
                       , visit :: Bool
                       , withCycle2 :: Bool
+                      , withSeq :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -76,9 +78,10 @@ noOptions = Options { moduleName   = NoName
                     , showVersion  = False
                     , prefix       = "sem_"
                     , withSelf     = False
-                    , withCycle     = False
+                    , withCycle    = False
                     , visit        = False
-                    , withCycle2    = False
+                    , withCycle2   = False
+                    , withSeq      = False
                     }
 
 
@@ -89,7 +92,7 @@ semfunsOpt    opts = opts{semfuns      = True}
 signaturesOpt opts = opts{typeSigs     = True}            
 prettyOpt     opts = opts{attrInfo     = True}            
 renameOpt     opts = opts{rename       = True}
-wrappersOpt   opts = opts{wrappers    = True}
+wrappersOpt   opts = opts{wrappers     = True}
 modcopyOpt    opts = opts{modcopy      = True}
 newtypesOpt   opts = opts{newtypes     = True}
 nestOpt       opts = opts{nest         = True}
@@ -98,10 +101,11 @@ verboseOpt    opts = opts{verbose      = True}
 helpOpt       opts = opts{showHelp     = True}            
 versionOpt    opts = opts{showVersion  = True}            
 prefixOpt pre opts = opts{prefix       = pre }            
-selfOpt       opts = opts{withSelf     = True }            
-cycleOpt      opts = opts{withCycle    = True }            
+selfOpt       opts = opts{withSelf     = True}            
+cycleOpt      opts = opts{withCycle    = True}            
 visitOpt      opts = opts{visit        = True}
-cycle2Opt     opts = opts{withCycle2   = True }     
+cycle2Opt     opts = opts{withCycle2   = True}     
+seqOpt        opts = opts{withSeq      = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
