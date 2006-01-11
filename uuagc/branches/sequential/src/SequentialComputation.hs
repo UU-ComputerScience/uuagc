@@ -263,11 +263,11 @@ makeEdges n (x:xs)
 -- The edges between visits: Visit n+1 depends on visit n
 visitEdges :: Info -> Graph -> Int -> Int -> [Edge]
 visitEdges info tdp l h 
-  = concatMap list2edges $ eqClasses comp $ sort $ map (\x -> (x, tdpNt info ! head' (show x) (tdp ! x))) [l..h]
-      where comp (_,a) (_,a') = a == a'
+  = concatMap list2edges $ map (sort . map snd) $ eqClasses comp $ sort $ map (\x -> (tdpNt info ! head' (show x) (tdp ! x),x)) [l..h]
+      where comp (a,_) (a',_) = a == a'
             list2edges []        = []
             list2edges [a]       = []
-            list2edges ((a,_):(b,x):abs) = (a,b):list2edges ((b,x):abs)
+            list2edges (a:b:abs) = (a,b):list2edges (b:abs)
 
 -------------------------------------------------------------------------------
 -- Visit sub-sequences
