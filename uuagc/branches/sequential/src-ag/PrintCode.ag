@@ -14,10 +14,10 @@ type PP_Docs = [PP_Doc]
 
 
 
-ATTR Program                            [ width:{Int} nest:{Bool} | | output:{String} ]
-ATTR Expr Decl DataAlt Type Lhs         [ nest:{Bool} | | pp:{PP_Doc} ]
+ATTR Program                            [ width:{Int} nest,unbox:{Bool} | | output:{String} ]
+ATTR Expr Decl DataAlt Type Lhs         [ nest,unbox:{Bool} | | pp:{PP_Doc} ]
 
-ATTR Exprs DataAlts Types  Decls        [ nest:{Bool} | | pps: {[PP_Doc]} ]
+ATTR Exprs DataAlts Types  Decls        [ nest,unbox:{Bool} | | pps: {[PP_Doc]} ]
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
@@ -50,7 +50,7 @@ SEM Decl
                                                  >-< vlist (map ("|" >#<) xs)
                                      >-< if null @derivings
                                             then empty
-                                            else "deriving" >#< ppTuple False (map text @derivings)  
+                                            else "deriving" >#< ppTuple False False (map text @derivings)  
                                   )                                            
 
 
@@ -68,7 +68,7 @@ SEM Expr
   | Lambda     lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
                                   >-< indent 4 @body.pp
                              )
-  | TupleExpr  lhs.pp      = ppTuple @lhs.nest @exprs.pps
+  | TupleExpr  lhs.pp      = ppTuple @lhs.nest @lhs.unbox @exprs.pps
   | App        lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
   | SimpleExpr lhs.pp      = text @txt
   | PP lhs . pp = @pp
@@ -80,7 +80,7 @@ SEM DataAlt
 
 SEM Lhs
   | Pattern    lhs.pp      = pp_parens @pat
-  | TupleLhs   lhs.pp      = ppTuple @lhs.nest (map text @comps)
+  | TupleLhs   lhs.pp      = ppTuple @lhs.nest @lhs.unbox (map text @comps)
   | Fun        lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
 
 SEM Type  [ | | prec:Int ]
@@ -90,7 +90,7 @@ SEM Type  [ | | prec:Int ]
                   .r       = if @right.prec <  2 then pp_parens @right.pp else @right.pp
 
   | TupleType  lhs.prec    = 5
-                  .pp      = ppTuple @lhs.nest @tps.pps
+                  .pp      = ppTuple @lhs.nest @lhs.unbox @tps.pps
 
   | List       lhs.prec    = 5
                   .pp      = "[" >|< @tp.pp >|< "]"
@@ -100,7 +100,11 @@ SEM Type  [ | | prec:Int ]
 
 {
 
-ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
-ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppTuple True  False pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
+ppTuple False False pps = "(" >|< pp_block " " ")" "," pps
 
+ppTuple True  True pps | length pps == 1 = ppTuple True False pps
+                       | otherwise       =  "(#" >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(#" pps
+ppTuple False True pps | length pps == 1 = ppTuple False False pps
+                       | otherwise       = "(#" >|< pp_block " " " #)" "," pps
 }

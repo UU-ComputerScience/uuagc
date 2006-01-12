@@ -28,7 +28,8 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
                , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
                , Option []        ["cycle2"]     (NoArg cycle2Opt)           "fast check for cyclic definitions"
-               , Option []        ["seq"]        (NoArg seqOpt)              "Force evaluation using function seq"
+               , Option []        ["seq"]        (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
+               , Option []        ["unbox"]      (NoArg unboxOpt)            "use unboxed tuples"
                ]
 
 allc = "dcfsprm"
@@ -58,6 +59,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , visit :: Bool
                       , withCycle2 :: Bool
                       , withSeq :: Bool
+                      , unbox :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -82,6 +84,7 @@ noOptions = Options { moduleName   = NoName
                     , visit        = False
                     , withCycle2   = False
                     , withSeq      = False
+                    , unbox        = False
                     }
 
 
@@ -106,6 +109,7 @@ cycleOpt      opts = opts{withCycle    = True}
 visitOpt      opts = opts{visit        = True}
 cycle2Opt     opts = opts{withCycle2   = True}     
 seqOpt        opts = opts{withSeq      = True}
+unboxOpt      opts = opts{unbox        = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
