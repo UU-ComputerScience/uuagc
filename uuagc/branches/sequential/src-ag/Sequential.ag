@@ -207,13 +207,6 @@ funname field nr = show field ++ "_" ++ show nr
 mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
 mapSnd f [] = []
 mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
-
-makeTupleExpr unbox inh | not unbox || null inh = TupleExpr
-                        | otherwise = UnboxedTupleExpr
-makeTupleType unbox inh | not unbox || null inh = TupleType
-                        | otherwise = UnboxedTupleType
-makeTupleLhs  unbox inh | not unbox || null inh = TupleLhs
-                        | otherwise = UnboxedTupleLhs
 }
 
 -------------------------------------------

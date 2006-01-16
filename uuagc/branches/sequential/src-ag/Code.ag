@@ -49,7 +49,7 @@ DATA DataAlt  | DataAlt          name  : {String}
 DATA Type     | Arr              left  : Type 
                                  right : Type
               | TupleType        tps   : Types
-	      | UnboxedTupleType tps : Types
+	      | UnboxedTupleType tps   : Types
               | List             tp    : Type
               | SimpleType       txt   : {String}
 	       
@@ -58,3 +58,20 @@ DATA Lhs      | Pattern          pat   : {PP_Doc}
               | UnboxedTupleLhs  comps : {[String]}
               | Fun              name  : {String} 
                                  args  : Exprs
+
+{
+-- Unboxed tuples
+--   unbox  Whether unboxed tuples are wanted or not
+--   inh    The inherited attributes. 
+--          If there are none, no unboxing can take place, 
+--          because in that case the semantic funtion would have a unboxed type.
+makeTupleExpr :: Bool -> [a] -> (Exprs -> Expr)
+makeTupleExpr unbox inh | not unbox || null inh = TupleExpr
+                        | otherwise             = UnboxedTupleExpr
+makeTupleType :: Bool -> [a] -> (Types -> Type)
+makeTupleType unbox inh | not unbox || null inh = TupleType
+                        | otherwise             = UnboxedTupleType
+makeTupleLhs :: Bool -> [a] -> ([String] -> Lhs)
+makeTupleLhs  unbox inh | not unbox || null inh = TupleLhs
+                        | otherwise             = UnboxedTupleLhs
+}

@@ -67,7 +67,8 @@ SEM Production
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit,o_unbox:{Bool}  prefix : {String} | | ]
+ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit:{Bool}  prefix : {String} | | ]
+ATTR Productions Production Alternatives Alternative Children Child [ o_unbox:{Bool} | | ]
 ATTR Productions Production [ o_data:{Bool} | | ]
 
 SEM Grammar
@@ -131,7 +132,7 @@ SEM Production
                                         synVarsN = [ ("s" ++ show x) | x <- take (length synAttrs) [1..]]
                                         synVarsE = map SimpleExpr synVarsN                                       
                                     in Decl (Fun wrapNT [varPat, App inhNT inhVars])
-                                            (Let [Decl (TupleLhs synVarsN) (App var inhVars) | not(null synVarsN)]
+                                            (Let [Decl (makeTupleLhs @lhs.o_unbox inhVars synVarsN) (App var inhVars) | not(null synVarsN)]
                                              (App synNT synVarsE))
                      in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ if @lhs.o_visit then @seqWrapperFun else [function]
                      
@@ -165,7 +166,7 @@ SEM Production
 
 SEM Production
   | Production  loc.semDom = let tp = foldr Arr synTps inhTps
-                                 synTps = TupleType [SimpleType (typeToString @nt tp) |  tp <- Map.elems @syn]
+                                 synTps = makeTupleType @lhs.o_unbox inhTps [SimpleType (typeToString @nt tp) |  tp <- Map.elems @syn]
                                  inhTps = [SimpleType (typeToString @nt tp) |  tp <- Map.elems @inh]
                              in if @lhs.o_sig || @lhs.o_newtypes 
                                  then
@@ -288,7 +289,7 @@ SEM Alternative
                                rhs = wrap
                                      (mkLambda [lhsname True x | x <- Map.keys @lhs.inh]
                                        ( Let (typeSigs ++ @children.decls ++ @rules.decls)
-                                           (TupleExpr $ map (SimpleExpr . lhsname False )  @synnames)
+                                           (makeTupleExpr @lhs.o_unbox (Map.keys @lhs.inh) $ map (SimpleExpr . lhsname False )  @synnames)
                                        )
                                      )   
                                typeSigs | @lhs.o_sig =
@@ -337,8 +338,8 @@ ATTR Child Children [ | | decls USE{++}{[]}: {Decls}]
 SEM Child 
   | Child lhs.decls  = let syn = Map.keys @syn
                            inh = Map.keys @inh
-                           decl = Decl (TupleLhs              [           (attrname True  @name a) | a <- syn ]) 
-                                       (App (fieldname @name) [SimpleExpr (attrname False @name a) | a <- inh ])
+                           decl = Decl (makeTupleLhs @lhs.o_unbox inh    [           (attrname True  @name a) | a <- syn ]) 
+                                       (App (fieldname @name)            [SimpleExpr (attrname False @name a) | a <- inh ])
                            decls = case @tp of
                                       NT nt | not(null syn) -> [decl]
                                       _                     -> []                                      
