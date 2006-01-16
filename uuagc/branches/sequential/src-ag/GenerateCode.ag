@@ -67,7 +67,7 @@ SEM Production
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit:{Bool}  prefix : {String} | | ]
+ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit,o_unbox:{Bool}  prefix : {String} | | ]
 ATTR Productions Production [ o_data:{Bool} | | ]
 
 SEM Grammar
@@ -78,6 +78,7 @@ SEM Grammar
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
                      .o_visit   = if visit  @lhs.options && null @cyclesErrors then True else False
+                     .o_unbox   = unbox     @lhs.options
                      .prefix    = prefix    @lhs.options
 
 -------------------------------------------------------------------------------

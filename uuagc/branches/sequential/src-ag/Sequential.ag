@@ -208,6 +208,12 @@ mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
 mapSnd f [] = []
 mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
 
+makeTupleExpr unbox inh | not unbox || null inh = TupleExpr
+                        | otherwise = UnboxedTupleExpr
+makeTupleType unbox inh | not unbox || null inh = TupleType
+                        | otherwise = UnboxedTupleType
+makeTupleLhs  unbox inh | not unbox || null inh = TupleLhs
+                        | otherwise = UnboxedTupleLhs
 }
 
 -------------------------------------------
@@ -287,7 +293,7 @@ SEM Alternative
                                               rhs = wrap
                                                     (mkLambda (map show inh)
                                                       ( Let (typeSigs ++ allCode)
-                                                            (prefix $ TupleExpr $ map (SimpleExpr . show) syn ++ map SimpleExpr nextVisitName)
+                                                            (prefix $ makeTupleExpr @lhs.o_unbox inh $ map (SimpleExpr . show) syn ++ map SimpleExpr nextVisitName)
                                                       )
                                                     )
                                               mkLambda [] e = e
@@ -306,8 +312,8 @@ SEM Alternative
                                                          (CAChildVisit (ChildVisit child nr lastVisit)) -> (lhsExprs, [Decl lhsLhs rhs])
                                                              where lhs = [ rhsshow child attr | attr <- syn' ] 
                                                                            ++ if lastVisit then [] else [funname child (nr+1)]
-                                                                   lhsExprs = [TupleExpr (map SimpleExpr lhs)]
-                                                                   lhsLhs = TupleLhs lhs
+                                                                   lhsExprs = [makeTupleExpr @lhs.o_unbox inh (map SimpleExpr lhs)]
+                                                                   lhsLhs = makeTupleLhs @lhs.o_unbox inh lhs
                                                                    rhs = App (funname child nr) [SimpleExpr (rhsshow child attr) | attr <- inh']
                                                                    (inh',syn') = @childVisit child nr
                                                          otherwise -> maybe ([],[]) id $ lookup n @rules.codeTable
@@ -372,7 +378,7 @@ SEM Production
                                             synTypes = map (\(NTASyn _ k) -> attrTypeName (Map.lookup k @syn)) syn ++ continuation
                                             continuation | length inter == 0 = []
                                                          | otherwise         = [SimpleType $ typeName @nt (nr + 1)]
-                                            tp = foldr Arr (TupleType (synTypes)) inhTypes
+                                            tp = foldr Arr (makeTupleType @lhs.o_unbox inh synTypes) inhTypes
                                             name = typeName @nt nr
                                         in [ Code.Type name tp 
                                            ] ++ makeSemDom (nr+1) inter
@@ -443,7 +449,7 @@ and function wrap<nt> :: T_<nt> -> (Inh<nt> -> Syn<nt>)
 SEM Production
   | Production loc.seqWrapperFun = let decls = decl 0 @lhs.interface
                                        decl _ [] = []
-                                       decl n ((inh,syn):inter) = Decl (TupleLhs lhs) (App (sem n) rhs) : decl (n+1) inter
+                                       decl n ((inh,syn):inter) = Decl (makeTupleLhs @lhs.o_unbox inh lhs) (App (sem n) rhs) : decl (n+1) inter
                                          where rhs = map (SimpleExpr . show) inh
                                                lhs = map show syn ++ if null inter then [] else [sem (n+1)]
                                                sem 0 = var
@@ -492,6 +498,7 @@ addSeq ((es,ds):eds) = (ds ++ concat declss,prefix)
          toSeq [] nil = nil
          toSeq (e:es) nil = case e of 
                               TupleExpr tup -> toSeq tup (toSeq es nil)
+                              UnboxedTupleExpr tup -> toSeq tup (toSeq es nil)
                               otherwise -> App "seq" [e,toSeq es nil]
                               
 {-

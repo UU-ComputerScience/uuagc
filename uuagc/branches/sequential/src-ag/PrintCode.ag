@@ -62,15 +62,16 @@ SEM Decl
                                else "--" >#< @txt
 
 SEM Expr
-  | Let        lhs.pp      = (    "let" >#< (vlist @decls.pps)
-                              >-< "in " >#< @body.pp
-                             )
-  | Lambda     lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
-                                  >-< indent 4 @body.pp
-                             )
-  | TupleExpr  lhs.pp      = ppTuple @lhs.nest @lhs.unbox @exprs.pps
-  | App        lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
-  | SimpleExpr lhs.pp      = text @txt
+  | Let               lhs.pp      = (    "let" >#< (vlist @decls.pps)
+                                     >-< "in " >#< @body.pp
+                                    )
+  | Lambda            lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
+                                         >-< indent 4 @body.pp
+                                    )
+  | TupleExpr         lhs.pp      = ppTuple @lhs.nest @exprs.pps
+  | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nest @exprs.pps
+  | App               lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
+  | SimpleExpr        lhs.pp      = text @txt
   | PP lhs . pp = @pp
 
 SEM DataAlt
@@ -79,9 +80,10 @@ SEM DataAlt
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 
 SEM Lhs
-  | Pattern    lhs.pp      = pp_parens @pat
-  | TupleLhs   lhs.pp      = ppTuple @lhs.nest @lhs.unbox (map text @comps)
-  | Fun        lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
+  | Pattern           lhs.pp      = pp_parens @pat
+  | TupleLhs          lhs.pp      = ppTuple @lhs.nest (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nest (map text @comps)
+  | Fun               lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2
@@ -91,6 +93,9 @@ SEM Type  [ | | prec:Int ]
 
   | TupleType  lhs.prec    = 5
                   .pp      = ppTuple @lhs.nest @lhs.unbox @tps.pps
+
+  | UnboxedTupleType  lhs.prec    = 5
+                         .pp      = ppUnboxedTuple @lhs.nest @tps.pps
 
   | List       lhs.prec    = 5
                   .pp      = "[" >|< @tp.pp >|< "]"
@@ -102,6 +107,8 @@ SEM Type  [ | | prec:Int ]
 
 ppTuple True  False pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
+ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
 ppTuple True  True pps | length pps == 1 = ppTuple True False pps
                        | otherwise       =  "(#" >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(#" pps
