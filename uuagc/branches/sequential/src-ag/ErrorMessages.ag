@@ -69,7 +69,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               siTrace : {Trace}
                               syn     : {Name}
                               isTrace : {Trace}
-            
+            | DirectCirc      nt      : {Nonterminal}
+                              inh     : {Name}
+                              syn     : {Name}
+                              path    : {[String]}
             | InducedCirc     nt      : {Nonterminal}
                               inh     : {Name}
                               syn     : {Name}                

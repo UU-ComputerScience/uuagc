@@ -106,7 +106,7 @@ versionOpt    opts = opts{showVersion  = True}
 prefixOpt pre opts = opts{prefix       = pre }            
 selfOpt       opts = opts{withSelf     = True}            
 cycleOpt      opts = opts{withCycle    = True}            
-visitOpt      opts = opts{visit        = True}
+visitOpt      opts = opts{visit        = True, withCycle2 = True}
 cycle2Opt     opts = opts{withCycle2   = True}     
 seqOpt        opts = opts{withSeq      = True}
 unboxOpt      opts = opts{unbox        = True}

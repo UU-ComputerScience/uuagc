@@ -283,6 +283,14 @@ SEM Error
                                          >-< ppTrace @siTrace
                                  act   = text "The generated program might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
+ | DirectCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
+                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
+                                         in wfill ["Circular dependency pattern for ", attrtext, "of nonterminal",getName  @nt]
+                                 pat   = text "see help"
+                                 help  = wfill @path
+                                 act   = text "The generated program might not run."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | InducedCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
@@ -290,7 +298,7 @@ SEM Error
                                  pat   = text "see help"
                                  help  = wfill [@nt +.+ @syn, "<", @nt +.+ @inh, ":"]
                                          >-< wfill [@nt +.+ @inh, "<", @nt +.+ @syn, ":"]
-                                 act   = text "The generated program might not run."
+                                 act   = text "Generation of visit functions failed"
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | MissingTypeSig   loc.isWarning      = True
                     lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC @attr , "in alternative"
@@ -378,4 +386,5 @@ ppError isWarning pos mesg pat hlp act verbose
          else vlist [position, errorClass,message]
 
 showPos = show . getPos
+
 }

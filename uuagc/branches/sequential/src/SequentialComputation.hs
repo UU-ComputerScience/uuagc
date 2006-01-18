@@ -2,7 +2,7 @@ module SequentialComputation (
     computeSequential, 
     Info(Info), 
     SequentialResult(SequentialResult,DirectCycle,InducedCycle), 
-    tdpToTds, tdsToTdp, tdpNt, lmh
+    tdpToTds, tdsToTdp, tdpNt, lmh, cyclesOnly
 ) where
 
 import Debug.Trace
@@ -10,13 +10,15 @@ import Debug.Trace
 import SequentialTypes
 import CommonTypes
 
-import Data.Graph
+import Data.Graph hiding (path)
+import qualified Data.Graph (path)
 import Control.Monad.ST
 import Data.Array
 import Data.Array.MArray
 import Data.Array.ST
+import Data.Maybe(fromJust)
 import Control.Monad
-import List(partition,sort,transpose,nub,(\\),intersect)
+import List(partition,sort,transpose,nub,(\\),intersect,minimumBy)
 
 -- The updatable graph of attribute occurrences
 type STGraph s = STArray s Vertex [Vertex]
@@ -35,26 +37,25 @@ data Info = Info { tdpToTds :: Table Vertex   -- Mapping attribute occurrences t
                  , tdsToTdp :: Table [Vertex] -- Mapping attributes to all attribute occurrences
                  , tdpNt    :: Table (Name,Name,Name,Name) -- Mapping attribute occurrences to their rhs nt, lhs nt, constructor, and fieldnames
                  , lmh      :: [LMH] -- Division of tds. l<=inherited<m, m<=synthesized<=h
+                 , cyclesOnly :: Bool -- Check for cycles only
                  }
 
 -- Result of sequential computation
 data SequentialResult = SequentialResult [[[VisitSS]]] [(Vertex,ChildVisit)] [Interface] -- Succeeded, with visit sub-sequences, a table of childvisits, and interfaces
-                      | DirectCycle [Edge]  -- Failed because of a cycle in the direct dependencies (type-2)
+                      | DirectCycle [(Edge,[Vertex])]  -- Failed because of a cycle in the direct dependencies (type-2)
                       | InducedCycle [Edge] -- No direct cycle, but the computed interface generated a cycle (type-3)
 
 
 -- Compute the Tds and Tdp graphs, given Info and the direct dependencies between attribute occurrences
-computeSequential :: Info -> [Edge] -> [Edge] -> [Edge] -> SequentialResult
-computeSequential info dpr s2i loc
-  = runST (do comp@(tds,tdp) <- tdsTdp info (dpr ++ s2i ++ loc)
-              --s2i' <- removeS2I info comp
-              --let alls2i = s2i ++ s2i'
-              -- mapM_ (insertTdp info comp) dpr
-              cycles2 <- cycles3 info tds
-              --cycles2 <- trace (show cycles) $ cycles2 tds (nub $  map (\(x,y) -> (tdpToTds info ! x, tdpToTds info ! y)) alls2i)
+computeSequential :: Info -> [Edge] -> SequentialResult
+computeSequential info dpr
+  = runST (do (comp@(tds,tdp),s2i) <- tdsTdp (info{cyclesOnly = True}) dpr
+              cycles2 <- cycles2 tds s2i
               if (not (null cycles2))
-               then return (DirectCycle cycles2)
-               else do -- mapM_ (insertTdp info comp) alls2i
+               then let ddp = directGraph info dpr
+                        cyclePaths = map (fromJust . cyclePath info ddp) cycles2
+                    in return (DirectCycle (zip cycles2 cyclePaths))
+               else do mapM_ (insertTds (info{cyclesOnly = False}) comp) s2i
                        tds' <- freeze tds
                        tdsT <- thaw (transposeG tds') 
                        inters <- makeInterfaces tdsT (lmh info)
@@ -70,83 +71,66 @@ computeSequential info dpr s2i loc
                                 return (SequentialResult vs table inters)
           )
 
--- Gives all edges from synthesize to inherited from Tds
--- Removes these and occurred edges from the graphs
-removeS2I :: Info -> Comp s -> ST s [Edge]
-removeS2I info comp = concatMapM (removeAll info comp) (lmh info)
-  where removeAll :: Info -> Comp s -> LMH -> ST s [Edge]
-        removeAll info comp (l,m,h) = concatMapM (removeOne info m comp) [m..h]
-        removeOne :: Info -> Int -> Comp s -> Int -> ST s [Edge]
-        removeOne info m (tds,tdp) i = do e <- readArray tds i
-                                          let (inh,syn) = partition (<m) e
-                                          writeArray tds i syn
-                                          let s2i = [(i,x) | x <- inh]
-                                          concatMapM (removeOccurAll info tdp) s2i
-        removeOccurAll :: Info -> Tdp s -> Edge -> ST s [Edge]
-        removeOccurAll info tdp (v1,v2) = let v1s = tdsToTdp info ! v1
-                                              v2s = tdsToTdp info ! v2
-                                          in concatMapM (removeOccurOne info tdp) (carthesian v1s v2s)
-        removeOccurOne :: Info -> Tdp s -> Edge -> ST s [Edge]
-        removeOccurOne info (tdpN,tdpT) (v1,v2) | tdpNt info ! v1 /= tdpNt info ! v2 = return []
-                                                | otherwise = do e <- readArray tdpN v1
-                                                                 writeArray tdpN v1 (filter (/= v2) e)
-                                                                 e <- readArray tdpT v2
-                                                                 writeArray tdpT v1 (filter (/= v1) e)
-                                                                 return [(v1,v2)]
-        
-
 -- Initialise computation, and add all direct dependencies. This will trigger the whole of the computation
-tdsTdp :: Info -> [Edge] -> ST s (Comp s)
+tdsTdp :: Info -> [Edge] -> ST s (Comp s,[Edge])
 tdsTdp info dpr = do tds  <- newArray (Data.Array.bounds (tdsToTdp info)) []
                      tdpN <- newArray (Data.Array.bounds (tdpToTds info)) []
                      tdpT <- newArray (Data.Array.bounds (tdpToTds info)) []
                      let comp = (tds,(tdpN,tdpT))
-                     mapM_ (insertTdp info comp) dpr
-                     return comp
+                     es <- concatMapM (insertTdp info comp) dpr
+                     return (comp,es)
 
 -- Induces dependencies: Given a Tdp edge, add the corresponding Tds edge when applicable
 -- Applicable for non-local attributes with equal field names
-induce :: Info -> Comp s -> Edge -> ST s ()
+induce :: Info -> Comp s -> Edge -> ST s [Edge]
 induce info comp (v1,v2)
   = let v1' = tdpToTds info ! v1
         v2' = tdpToTds info ! v2
-    in when (v1' /= -1 && v2' /= -1 && tdpNt info ! v1 == tdpNt info ! v2)
-            (insertTds info comp (v1',v2'))
+        nonlocal = v1' /= -1 && v2' /= -1
+        equalfield = tdpNt info ! v1 == tdpNt info ! v2
+    in if nonlocal && equalfield
+        then insertTds info comp (v1',v2')
+        else return []
 
--- Inserts an edge to Tds. This induces dependencies on Tdp.
-insertTds :: Info -> Comp s -> Edge -> ST s ()
+-- Add an egde to Tds. This induces dependencies on Tdp.
+insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
 insertTds info (tds,tdp) (v1,v2)
-  = do e1 <- readArray tds v1
-       when (not (v2 `elem` e1))
-            (do writeArray tds v1 (v2:e1)
-                occur info (tds,tdp) (v1,v2))
+  = if cyclesOnly info && v1 > v2
+     then return [(v1,v2)]
+     else do e1 <- readArray tds v1
+             if v2 `elem` e1
+              then return []
+              else do writeArray tds v1 (v2:e1)
+                      occur info (tds,tdp) (v1,v2)
 
--- Addes all induced dependencies of an Tds-edge to the corresponding Tdp-graphs
-occur :: Info -> Comp s -> Edge -> ST s ()
+-- Adds all induced dependencies of an Tds-edge to the corresponding Tdp-graphs
+occur :: Info -> Comp s -> Edge -> ST s [Edge]
 occur info comp (v1,v2)
   = let v1s = tdsToTdp info ! v1
         v2s = tdsToTdp info ! v2
-    in sequence_ [ insertTdp info comp (v1,v2) | v1 <- v1s, v2 <-  v2s, tdpNt info ! v1 == tdpNt info ! v2 ]
+    in liftM concat $ sequence [ insertTdp info comp (v1,v2) | v1 <- v1s, v2 <-  v2s, tdpNt info ! v1 == tdpNt info ! v2 ]
 
 -- Add an edge to Tdp and transitively re-close it.
-insertTdp :: Info -> Comp s -> Edge -> ST s ()
+insertTdp :: Info -> Comp s -> Edge -> ST s [Edge]
 insertTdp info comp@(_,(tdpN,tdpT)) (v1,v2)
   = do e1 <- readArray tdpN v1
-       when (not (v2 `elem` e1))
-            (do inc <- readArray tdpT v1
+       if v2 `elem` e1
+        then return []
+        else do inc <- readArray tdpT v1
                 out <- readArray tdpN v2
                 let edges = carthesian (v1:inc) (v2:out)
-                mapM_ (addTdpEdge info comp) edges)
+                concatMapM (addTdpEdge info comp) edges
 
 -- Add an edge to Tdp. This induces dependencies on Tds
-addTdpEdge :: Info -> Comp s -> Edge -> ST s ()
+addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]
 addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
   = do e <- readArray tdpN v1
-       when (not (v2 `elem` e))
-            (do writeArray tdpN v1 (v2:e)
+       if v2 `elem` e
+        then return []
+        else do writeArray tdpN v1 (v2:e)
                 e' <- readArray tdpT v2
                 writeArray tdpT v2 (v1:e')
-                induce info comp (v1,v2))
+                induce info comp (v1,v2)
 
 -------------------------------------------------------------------------------
 -- Interfaces
@@ -216,7 +200,45 @@ cycles3' tds (l,m,h)
             toSelf tds i j | j < m     = do e' <- readArray tds j
                                             if i `elem` e' then return [(i,j)] else return []
                            | otherwise = return []
+
+-- The graph of direct depencencies,
+--     (Having edges between Rhs attribute occurrences and their corresponding Lhs counterparts)
+directGraph :: Info -> [Edge] -> Graph
+directGraph info dpr 
+  = buildG (l,h) (dpr ++ edges)
+      where (l,h) = Data.Array.bounds (tdpToTds info)
+            edges = [if isInh s then (s,t) else (t,s) | s <- [l..h], isRhs s, t <- tdsToTdp info ! (tdpToTds info ! s), isLhs t]
+            isRhs s = let (rnt,_,_,_) = tdpNt info ! s
+                      in rnt /= nullIdent
+            isLhs s = let (_,_,_,f) = tdpNt info ! s
+                      in f == _LHS
+            isInh s = lmhInhFind (lmh info) (tdpToTds info ! s)
+            lmhInhFind [] s = False
+            lmhInhFind ((l,m,h):lmh) s = (l <= s && s < m) || lmhInhFind lmh s
+
+-- The path in the direct graph that gave the cycle.
+cyclePath :: Info -> Graph -> Edge -> Maybe [Vertex]        
+cyclePath info graph (v1,v2)
+  = shortestMaybe $ paths
+      where paths = [(liftM reverse) (path graph t s) | s <- tdsToTdp info ! v1, t <- tdsToTdp info ! v2, isSameLhs s t]
+            isSameLhs s t = let (_,rnt,c,f) = tdpNt info ! s
+                                (_,rnt',c',f') = tdpNt info ! t
+                            in rnt == rnt' && c == c' && f == _LHS && f' == _LHS
+
+shortestMaybe :: [Maybe [a]] -> Maybe [a]
+shortestMaybe [] = Nothing
+shortestMaybe lst = minimumBy shortest lst
+                    where shortest Nothing ml2 = GT
+                          shortest ml1 Nothing = LT
+                          shortest (Just l1) (Just l2) = length l1 `compare` length l2
                       
+path :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
+path graph from to 
+  = path' [] from to
+      where path' prev from to 
+              | from == to       = Just [from]
+              | from `elem` prev = Nothing
+              | otherwise        = liftM (from:) $ shortestMaybe $ map (\x -> path' (from:prev) x to) (graph ! from)
 
 -------------------------------------------------------------------------------
 -- Visit sub-sequences - Graph
