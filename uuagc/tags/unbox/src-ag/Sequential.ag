@@ -1,0 +1,547 @@
+imports
+{
+import Debug.Trace -- DEBUG
+import qualified Data.Array as Array
+import Data.Array((!))
+import Data.List(sort,mapAccumL)
+import qualified Data.Graph as Graph
+import qualified Data.Tree  as Tree
+import SequentialComputation
+import SequentialTypes
+}
+
+------------------------------------------------------------------
+-- Sequential Declarations
+------------------------------------------------------------------
+ATTR Productions Production [ | | seqDecls USE {++} {[]} : {Decls} ]
+SEM Production
+  | Production loc.seqDecls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
+                              (if @lhs.o_pretty then @loc.comment : @loc.interfaceComment : @alts.comments else []) ++
+                              (if @lhs.o_data then [@loc.dataDef] else []) ++
+                              (if @lhs.with_sig || @lhs.o_sem then @loc.seqSemDom else []) ++ 
+                              (if @lhs.o_cata then @loc.cataFun else []) ++
+                              (if Set.member @nt @lhs.wrappers then @loc.semWrapper else []) ++
+                              (if @lhs.o_sem  then @alts.seqSemFuns else [])
+
+------------------------------------------------------------------
+-- Add the interfaces as comments
+------------------------------------------------------------------
+SEM Production
+  | Production loc.interfaceComment = let numberedInterfaces = zip [0..] @lhs.interface
+                                          showCommas [] = ""
+                                          showCommas [x] = attrName x
+                                          showCommas (x:xs) = attrName x ++ (',':showCommas xs)
+                                          attrName (NTAInh _ attr) = show attr
+                                          attrName (NTASyn _ attr) = show attr
+                                          comm (n,(inh,syn)) = [ "visit " ++ show n ++ ":"
+                                                               , indent $ "inherited   : " ++ showCommas inh
+                                                               , indent $ "synthesized : " ++ showCommas syn
+                                                               ]
+                                          indent s = replicate 3 ' ' ++ s
+                                      in Comment . unlines . map indent $
+                                           "interface:" : (map indent . concatMap comm $ numberedInterfaces)
+                                         
+
+------------------------------------------------------------------
+-- Invoking sequential computation
+------------------------------------------------------------------
+SEM Grammar
+  | Grammar loc.codeAttrTable = Array.array (0,@prods.vcount - 1 + length @visitTable) (mapSnd CAAttrOcc @prods.vertices' ++ mapSnd CAChildVisit @visitTable)
+            loc.attrTable     = Array.array (0,@prods.acount-1) @prods.ntattrs
+            prods.allvertices' = @prods.vertices'
+            prods.vcount  = 0
+            loc.info      = Info { tdsToTdp = Array.array (0,@prods.acount-1) @prods.tdsToTdp
+                                 , tdpToTds = Array.array (0,@prods.vcount-1) [ (ix, def (lookupWith' (ix `elem`) @prods.tdsToTdp)) | ix <- [0 .. @prods.vcount-1] ]
+                                 , tdpNt    = Array.array (0,@prods.vcount-1) (mapSnd getTdpNt @prods.vertices') 
+                                 , lmh      = @prods.aranges
+                                 , cyclesOnly = not (visit @lhs.options)
+                                 }
+                             where def [] = -1
+                                   def (v:vs) = v
+                                   getTdpNt (AOLocal nt c _)         = (nullIdent,nt,c,nullIdent)
+                                   getTdpNt (AOLHSInh nt c _)        = (nullIdent,nt,c,_LHS)
+                                   getTdpNt (AOLHSSyn nt c _)        = (nullIdent,nt,c,_LHS)
+                                   getTdpNt (AORHSInh rnt lnt c f _) = (rnt,lnt,c,f)
+                                   getTdpNt (AORHSSyn rnt lnt c f _) = (rnt,lnt,c,f)
+				   getTdpNt (AOTuple aos) = getTdpNt (head' "aos" aos)
+            loc.(visitss,visitTable,interfaces,cyclesErrors) = 
+                                         case computeSequential @info @prods.directDep of
+                                           SequentialResult a b c -> (a,b,c,[])
+                                           DirectCycle errs       -> ([],[],[],map (errPath @attrTable @codeAttrTable) errs)
+                                           InducedCycle errs      -> ([],[],[],map (errDescr @attrTable) errs)
+            lhs.errors           := @errors Seq.<> (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
+
+------------------------------------------------------------------
+-- Building a mapping from Vertices to Ints
+------------------------------------------------------------------
+ATTR Productions Production Alternatives Alternative Rules Rule 
+   [ codeAttrTable : {Array.Array Graph.Vertex CodeAttr} 
+     allvertices'  : {[(Graph.Vertex,AttrOcc)] } | | ]
+
+ATTR Production  Alternative  Child    Rule
+     Productions Alternatives Children Rules 
+     [ | vcount : Int | vertices' USE {++} {[]} : {[(Graph.Vertex,AttrOcc)]} ]
+ATTR Pattern Patterns
+     [ | | vertices' USE {++} {[]} : {[AttrOcc]} ]
+
+SEM Alternative
+  | Alternative lhs.vertices' = zip [@lhs.vcount..] ([ AOLHSInh @lhs.nt @con inh | inh <- @inhnames ])
+                                ++ @children.vertices' 
+                                ++ @rules.vertices'
+                children.vcount = @lhs.vcount + length @inhnames
+
+SEM Child
+  | Child loc.maptolocal = Map.isEmpty @syn && Map.isEmpty @inh
+          lhs.vertices' = if @maptolocal
+                           then [(@lhs.vcount, AOLocal @lhs.nt @lhs.con @name)]
+                           else zip [@lhs.vcount..] ([AORHSSyn (getNonterminalName @tp) @lhs.nt @lhs.con @name syn | syn <- (Map.keys @syn)])
+          lhs.vcount    = @lhs.vcount + (if @maptolocal then 1 else Map.size @syn)
+
+SEM Rule
+  | Rule lhs.vcount = @lhs.vcount + 1
+         lhs.vertices' = case @pattern.vertices' of 
+                           [a] -> [(@lhs.vcount,a)]
+                           as  -> [(@lhs.vcount,AOTuple as)]
+
+SEM Pattern 
+  | Alias  lhs.vertices' = let vertex | @field==_LHS = AOLHSSyn @lhs.nt @lhs.con @attr
+                                      | @field==_LOC || @field == nullIdent = AOLocal @lhs.nt  @lhs.con @attr
+                                      | otherwise    = AORHSInh fieldType @lhs.nt @lhs.con @field @attr
+                               fieldType = maybe nullIdent getNonterminalName (lookup @field @lhs.fields)       
+                           in vertex : @pat.vertices'
+
+ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
+SEM Child
+  | Child lhs.terminals = if null ((Map.keys @syn) ++ (Map.keys @inh))
+                            then [@name]
+                            else []
+
+-------------------------------------
+-- NT-Attributes
+-------------------------------------
+ATTR Productions Production [ | acount : Int | tdsToTdp USE {++} {[]} : {[(Graph.Vertex,[Graph.Vertex])]}
+                                               ntattrs  USE {++} {[]} : {[(Graph.Vertex,NTAttr)]} 
+                                               aranges  USE {++} {[]} : {[(Int,Int,Int)]}]
+
+SEM Grammar
+  | Grammar prods.acount = 0
+
+SEM Production
+  | Production lhs.tdsToTdp = zip [@lhs.acount ..]    ((map (\a -> lookupAttrOccWith (lookInh a) @lhs.allvertices') (Map.keys @inh))
+                                                    ++ (map (\a -> lookupAttrOccWith (lookSyn a) @lhs.allvertices') (Map.keys @syn)))
+                               where lookSyn a (AOLHSSyn nt _ a')     = nt == @nt && a == a'
+                                     lookSyn a (AORHSSyn nt _ _ _ a') = nt == @nt && a == a'
+                                     lookSyn _ _ = False
+                                     lookInh a (AOLHSInh nt _ a')     = nt == @nt && a == a'
+                                     lookInh a (AORHSInh nt _ _ _ a') = nt == @nt && a == a'
+                                     lookInh _ _ = False
+               lhs.ntattrs  = zip [@lhs.acount ..] ((map (\a -> NTAInh @nt a) (Map.keys @inh)) ++ (map (\a -> NTASyn @nt a) (Map.keys @syn)))
+               lhs.acount = @lhs.acount + Map.size @inh + Map.size @syn
+               lhs.aranges = [(@lhs.acount,@lhs.acount + Map.size @inh,@lhs.acount + Map.size @syn + Map.size @inh - 1)]
+
+-----------------------------------------
+-- Direct dependencies
+-----------------------------------------
+ATTR Productions Production 
+     Alternatives Alternative 
+     Rules Rule [ | | directDep USE {++} {[]} : {[Graph.Edge]} ]
+
+SEM Rule
+  | Rule lhs.directDep
+             = let rhsSyn t (AORHSSyn _ nt' con' fld' attr') = (nt',con',fld',attr') == t
+                   rhsSyn _ _ = False
+                   translateOut (fld,attr) = lookupAttrOccWith (rhsSyn (@lhs.nt,@lhs.con,fld,attr)) @lhs.allvertices'
+                   translateLoc attr       = lookupAttrOcc (AOLocal @lhs.nt @lhs.con attr) @lhs.allvertices'
+                   translateIn  (fld,attr) = lookupAttrOcc (AOLHSInh @lhs.nt @lhs.con attr) @lhs.allvertices'
+                   myUsedOut fld  = (\(x,y) -> (concatMap translateOut x,concatMap translateOut y)) $ partition (\(fld',_) -> fld' == fld) @outAttrs
+                   usedOut  = concatMap translateOut @outAttrs
+                   usedLoc  = concatMap translateLoc (@locAttrs ++ @rhs.usedLocals)
+                   usedRest = concatMap translateIn @inAttrs
+               in [ (x,@lhs.vcount) | x <- usedOut ++ usedLoc ++ usedRest ]
+
+{
+lookupAttrOcc :: AttrOcc -> [(b,AttrOcc)] -> [b]
+lookupAttrOcc a bas = lookupAttrOccWith (a==) bas
+
+lookupAttrOccWith :: (AttrOcc -> Bool) -> [(b,AttrOcc)] -> [b]
+lookupAttrOccWith f [] = []
+lookupAttrOccWith f ((b,AOTuple as):abs)
+    | any f as  = b:lookupAttrOccWith f abs
+    | otherwise = lookupAttrOccWith f abs
+lookupAttrOccWith f ((b,a):abs)
+    | f a       = b:lookupAttrOccWith f abs
+    | otherwise = lookupAttrOccWith f abs
+
+lookupWith' :: (a -> Bool) -> [(b,a)] -> [b]
+lookupWith' f []       = []
+lookupWith' f ((b,a):abs) 
+    | f a       = b:lookupWith' f abs
+    | otherwise = lookupWith' f abs
+
+lookupWith :: (a -> b -> Bool) -> a -> [b] -> [b]
+lookupWith p a = filter (p a)
+
+errDescr :: Graph.Table NTAttr -> Graph.Edge -> Error
+errDescr attrTable (v1,v2)
+  = let (NTASyn nt a1) = attrTable ! v1
+        (NTAInh _  a2) = attrTable ! v2
+    in CircGrammar nt a2 [] a1 []
+
+errPath :: Graph.Table NTAttr -> Graph.Table CodeAttr -> (Graph.Edge,[Graph.Vertex]) -> Error
+errPath attrTable codeTable ((v1,v2), path)
+  = let (NTASyn nt a1) = attrTable ! v1
+        (NTAInh _  a2) = attrTable ! v2
+    in DirectCirc nt a2 a1 (showPath $ map (codeTable !) path)
+
+
+funname field 0  = show field ++ "_"
+funname field nr = show field ++ "_" ++ show nr
+
+mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
+mapSnd f [] = []
+mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
+}
+
+-------------------------------------------
+-- Code to be generated
+-------------------------------------------
+ATTR Productions Production Alternatives Alternative Rules Rule [ | | codeTable USE {++} {[]} : {[(Graph.Vertex,(Exprs,Decls))]} ]
+SEM Rule
+  | Rule lhs.codeTable = let decls = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+                                           [Decl (Pattern @pattern.pp) (PP @rhs.pp)]
+                         in [(@lhs.vcount,(@pattern.exprs,decls))]
+
+-- Distribute interfaces downward
+ATTR Productions Production Alternatives Alternative [ allinterfaces : {[[([NTAttr],[NTAttr])]]} | | ]
+SEM Grammar
+  | Grammar loc.allinterfaces = let look n = @attrTable ! n
+                                in map (map (\(x,y) -> (map look x,map look y))) @interfaces 
+            prods.interfaces  = @allinterfaces
+
+ATTR Productions [ interfaces : {[[([NTAttr],[NTAttr])]]} | | ]
+SEM Productions
+  | Cons hd.interface = head' "interfaces" @lhs.interfaces
+         tl.interfaces = tail @lhs.interfaces
+ATTR Production Alternatives Alternative [ interface  : {[([NTAttr],[NTAttr])]} | | ]
+
+-- Distribute visitss downward
+ATTR Productions [ visitss : {[[[[Graph.Vertex]]]]} | | ]
+SEM Productions
+  | Cons hd.visitss = head' "visitss" @lhs.visitss
+         tl.visitss = tail @lhs.visitss
+ATTR Production Alternatives [ visitss : {[[[Graph.Vertex]]]} | | ]
+SEM Alternatives
+  | Cons hd.visitss = case @lhs.visitss of 
+                        [] -> [[]]
+                        (a:as) -> a
+         tl.visitss = case @lhs.visitss of 
+                        [] -> []
+                        (a:as) -> as
+ATTR Alternative [ visitss : {[[Graph.Vertex]]} | | ]
+
+-- Generate code
+ATTR Alternatives Alternative [ | | seqSemFuns USE {++} {[]} : {[Decl]} ]
+SEM Alternative
+  | Alternative loc.findArgs = \n ((vs,trans):vss) ->
+                                     let codeAttrs = map (@lhs.codeAttrTable !) vs
+                                         codeVss = map (@lhs.codeAttrTable !) (concatMap fst vss)
+
+                                         usedattrs  = map (\x -> (SimpleExpr (showuse x)
+                                                                 ,SimpleType $ snd $ head' "typesig" $ @typeSig $ CAAttrOcc x) )
+                                                          trans
+
+                                         childnodes = concatMap child @children.fields
+                                         child (name,tp) = maybe [] (\nr -> [field (name,tp) nr]) $ findVisit name (codeAttrs ++ codeVss)
+
+                                         field (name,NT tp) nr = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                                                                            | otherwise       = id
+                                                                 in (unwrap (SimpleExpr (funname name nr)), SimpleType $ typeName tp nr)
+                                         field (name,tp)    nr = (SimpleExpr (funname name nr),SimpleType (typeToString @lhs.nt tp))
+
+                                         findVisit :: Name -> [CodeAttr] -> Maybe Int
+                                         findVisit childname cas | n == 0 || childname `elem` @children.terminals = Just 0
+                                                                 | otherwise = findVisit' childname cas
+                                         findVisit' childname [] = Nothing
+                                         findVisit' childname ((CAAttrOcc _):cas) = findVisit childname cas
+                                         findVisit' childname ((CAChildVisit (ChildVisit name nr _)):cas) 
+                                              | name == childname = Just nr
+                                              | otherwise         = findVisit childname cas
+
+                                     in usedattrs ++ childnodes
+                lhs.seqSemFuns = let seqSemFuns :: Int -> [([NTAttr],[NTAttr])] -> [([Graph.Vertex],[AttrOcc])] -> [Decl]
+                                     seqSemFuns n [] [] = []
+                                     seqSemFuns n ((inh,syn):inter) ((vs,trans):vss)
+                                        = let lhs = Fun funcname (map fst lhs_args)
+                                              funcname = seqSemname @lhs.prefix @lhs.nt @con n
+                                              lhs_args = @findArgs n ((vs,trans):vss)
+
+                                              (allCode,prefix) = @seqCode (map code vs ++ [nextVisitDecl])
+                                              rhs = wrap
+                                                    (mkLambda (map lhsshow inh)
+                                                      ( Let (typeSigs ++ allCode)
+                                                            (prefix $ makeTupleExpr @lhs.o_unbox inh $ map (SimpleExpr . lhsshow) syn ++ map SimpleExpr nextVisitName)
+                                                      )
+                                                    )
+                                              mkLambda [] e = e
+                                              mkLambda xs e = Lambda xs e
+
+                                              typeSigs | @lhs.with_sig = (map makeTSig $ concatMap @typeSig $ filter hasRule $ map (@lhs.codeAttrTable !) vs)
+                                                                          ++ if vss == [] 
+                                                                              then [] 
+                                                                              else [TSig (head' "nextvisitname" nextVisitName) (SimpleType $ typeName @lhs.nt (n+1))]
+                                                       | otherwise = []
+                                              makeTSig (ao,tp) = TSig ao (SimpleType tp)
+
+                                              wrap = if @lhs.o_newtypes then \x -> App (sdtype @lhs.nt) [x] else id
+                                              code :: Graph.Vertex -> (Exprs,Decls)
+                                              code n = case @lhs.codeAttrTable ! n of
+                                                         (CAChildVisit (ChildVisit child nr lastVisit)) -> (lhsExprs, [Decl lhsLhs rhs])
+                                                             where lhs = [ rhsshow child attr | attr <- syn' ] 
+                                                                           ++ if lastVisit then [] else [funname child (nr+1)]
+                                                                   lhsExprs = [makeTupleExpr @lhs.o_unbox inh (map SimpleExpr lhs)]
+                                                                   lhsLhs = makeTupleLhs @lhs.o_unbox inh lhs
+                                                                   rhs = App (funname child nr) [SimpleExpr (rhsshow child attr) | attr <- inh']
+                                                                   (inh',syn') = @childVisit child nr
+                                                         otherwise -> maybe ([],[]) id $ lookup n @rules.codeTable
+
+                                              nextVisitName | vss == [] = []
+                                                            | otherwise = [visitname @lhs.prefix @lhs.nt (n+1)]
+                                              nextVisitDecl :: (Exprs,Decls)
+                                              nextVisitDecl | vss == [] = ([],[])
+                                                            | otherwise = ([SimpleExpr (head nextVisitName)], [Decl lhs rhs])
+                                                  where lhs = TupleLhs nextVisitName
+                                                        rhs = App fun args
+                                                        fun = seqSemname @lhs.prefix @lhs.nt @con (n+1)
+                                                        args = map fst (@findArgs (n+1) vss)
+
+                                              tsig = TSig funcname semType
+                                              semType = foldr (Arr .snd) (SimpleType $ typeName @lhs.nt n) lhs_args
+
+                                          in (if @lhs.with_sig 
+                                              then [tsig, Decl lhs rhs]
+                                              else [Decl lhs rhs]) ++ (seqSemFuns (n+1) inter vss)
+                                 in seqSemFuns 0 @lhs.interface @visitss
+                loc.visitss = let intravisit :: [AttrOcc] -> [([Graph.Vertex],([NTAttr],[NTAttr]))] -> [([Graph.Vertex],[AttrOcc])]
+                                  intravisit prev [] = []
+                                  intravisit prev ((vs,(inh,syn)):rest) 
+                                      = (vs,mytrans):intravisit mytrans rest
+                                          where (defined,needed) = unzip . map (\x-> maybe (childDN x) id (lookup x @rules.ssdep)) $ vs
+                                                childDN x = case @lhs.codeAttrTable ! x of
+                                                              (CAChildVisit (ChildVisit child nr _))
+                                                                -> let (inh,syn) = @childVisit child nr
+                                                                       needed = map (\(NTAInh nt attr) -> AORHSInh nt @lhs.nt @con child attr) inh
+                                                                       defined = map (\(NTASyn nt attr) -> AORHSSyn nt @lhs.nt @con child attr) syn
+                                                                   in (defined,needed)
+                                                              otherwise -> ([],[])
+                                                inh' = map (\(NTAInh nt attr) -> AOLHSInh nt @con attr) inh
+                                                defined' = inh' ++ concat defined
+                                                needed' = concat needed
+                                                mytrans = nub (needed' ++ prev) \\ defined'
+                              in reverse . intravisit [] . reverse $ zip @lhs.visitss @lhs.interface
+
+                loc.childVisit = \child nr -> @lhs.allinterfaces !! listindex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts' !! nr
+
+-------------------------------------------
+-- Sub-sequence dependencies
+-------------------------------------------
+ATTR Rule Rules [ | | ssdep USE {++} {[]} : {[(Graph.Vertex,([AttrOcc],[AttrOcc]))]} ]
+SEM Rule
+  | Rule lhs.ssdep = let used = map (AOLocal @lhs.nt @lhs.con) (@locAttrs ++ @rhs.usedLocals)
+                                ++ map (\(field,attr) -> AOLHSInh @lhs.nt @lhs.con attr) @inAttrs
+                                ++ map (\(field,attr) -> AORHSSyn (childNt field) @lhs.nt @lhs.con field attr) @outAttrs
+                         childNt field = fromNT . fromJust $ lookup field @lhs.fields
+                     in [(@lhs.vcount,(@pattern.vertices',used))]
+
+-------------------------------------------
+-- Type signatures
+-------------------------------------------
+SEM Production
+  | Production  loc.seqSemDom  = let makeSemDom :: Int -> [([NTAttr],[NTAttr])] -> [Decl]
+                                     makeSemDom _  []                = []
+                                     makeSemDom nr ((inh,syn):inter) =
+                                        let attrTypeName = SimpleType . typeToString @nt . fromJust
+                                            inhTypes = map (\(NTAInh _ k) -> attrTypeName (Map.lookup k @inh)) inh
+                                            synTypes = map (\(NTASyn _ k) -> attrTypeName (Map.lookup k @syn)) syn ++ continuation
+                                            continuation | length inter == 0 = []
+                                                         | otherwise         = [SimpleType $ typeName @nt (nr + 1)]
+                                            tp = foldr Arr (makeTupleType @lhs.o_unbox inh synTypes) inhTypes
+                                            name = typeName @nt nr
+                                        in [ Code.Type name tp 
+                                           ] ++ makeSemDom (nr+1) inter
+                                 in Comment "semantic domain" : makeSemDom 0 @lhs.interface
+
+SEM Alternative
+  | Alternative loc.typeSig = \ca
+                                 -> let childType child nr = case lookup child @children.fields of
+                                                               Just (NT tp) -> typeName tp nr
+                                    in case ca of
+                                         CAAttrOcc ao@(AOLocal nt con attr) 
+                                           -> case Map.lookup attr @typeSigs.typeSigs of
+                                                Nothing -> []
+                                                Just tp -> [(showuse ao,typeToString nt tp)]
+                                         CAAttrOcc ao@(AOLHSInh nt con attr)
+                                           -> [(showuse ao,typeToString nt (Map.find attr @lhs.inh))]
+                                         CAAttrOcc ao@(AOLHSSyn nt con attr) 
+                                           -> [(showuse ao,typeToString nt (Map.find attr @lhs.syn))]
+                                         CAAttrOcc ao@(AORHSInh rnt nt con fld attr) 
+                                           -> let (_,inh,_) = head' "rhsinh" $ filter (\(b,_,_) -> b == fld) @children.attributes
+                                              in [(showuse ao,typeToString rnt (Map.find attr inh))]
+                                         CAAttrOcc ao@(AORHSSyn rnt nt con fld attr) 
+                                           -> let (_,_,syn) = head' "rhssyn" $ filter (\(b,_,_) -> b == fld) @children.attributes
+                                              in [(showuse ao,typeToString rnt (Map.find attr syn))]
+                                         CAAttrOcc (AOTuple cas)
+                                           -> concatMap (@typeSig . CAAttrOcc) cas
+                                         CAChildVisit (ChildVisit child nr lastVisit)
+                                           -> let (_,syn') = @childVisit child nr
+                                              in concatMap (\(NTASyn nt attr) -> @typeSig (CAAttrOcc (AORHSSyn nt @lhs.nt @con child attr))) syn'
+                                                 ++ if lastVisit then [] else [(funname child (nr+1), childType child (nr+1))]
+
+-- Collect type signatures
+ATTR TypeSigs TypeSig [ | typeSigs : {Map Name Type} | ]
+SEM Alternative
+  | Alternative typeSigs.typeSigs = Map.empty
+
+SEM TypeSig
+  | TypeSig lhs.typeSigs = Map.insert @name @tp @lhs.typeSigs
+
+
+-------------------------------------------------------------------------------
+-- Generate errors for missing type signatures
+-------------------------------------------------------------------------------
+SEM Alternative
+  | Alternative loc.errors = if @lhs.o_visit && @lhs.o_sig 
+                             then let hasType (AOLocal _ _ attr) = Map.member attr @typeSigs.typeSigs
+                                      hasType _ = True
+                                      makeError (AOLocal nt con attr) = MissingTypeSig nt con attr (getPos attr)
+                                  in concatMap (map makeError . filter (not . hasType) . snd) @visitss
+                             else []
+                lhs.errors = Seq.fromList @errors Seq.<> @children.errors Seq.<> @rules.errors
+                
+ATTR Productions Production
+     Alternatives Alternative [ with_sig : Bool | | can_sig USE {&&} {True} : Bool ]
+SEM Alternative
+  | Alternative lhs.can_sig = null @errors
+SEM Grammar
+  | Grammar prods.with_sig = typeSigs @lhs.options && @prods.can_sig
+
+-------------------------------------------------------------------------------
+-- Wrappers for semantic functions
+-------------------------------------------------------------------------------
+{-
+generate record datatypes Syn<nt> and Inh<nt>, 
+and function wrap<nt> :: T_<nt> -> (Inh<nt> -> Syn<nt>)
+-}
+
+SEM Production
+  | Production loc.seqWrapperFun = let decls = decl 0 @lhs.interface
+                                       decl _ [] = []
+                                       decl n ((inh,syn):inter) = Decl (makeTupleLhs @lhs.o_unbox inh lhs) (App (sem n) rhs) : decl (n+1) inter
+                                         where rhs = map (SimpleExpr . lhsshow) inh
+                                               lhs = map lhsshow syn ++ if null inter then [] else [sem (n+1)]
+                                               sem 0 = var
+                                               sem n = var ++ "_" ++ show n
+                                       var = "sem"
+                                       wrapNT = "wrap" ++ "_" ++ getName @nt
+                                       inhNT = "Inh" ++ "_" ++ getName @nt
+                                       synNT = "Syn" ++ "_" ++ getName @nt
+                                       inhvars = map (SimpleExpr . attrname True _LHS) $ Map.keys @inh
+                                       synvars = map (SimpleExpr . attrname False _LHS) $ Map.keys @syn
+                                       varPat = if @lhs.o_newtypes
+                                                   then App (sdtype @nt) [SimpleExpr var]
+                                                   else SimpleExpr var
+                                   in [Decl (Fun wrapNT [varPat, App inhNT inhvars])
+                                            (Let decls (App synNT synvars))]
+
+-------------------------------------------------------------------------------
+-- Force evaluation to whnf using seq
+-------------------------------------------------------------------------------
+ATTR Productions Production
+     Alternatives Alternative [ with_seq : Bool | | ]
+SEM Grammar
+  | Grammar prods.with_seq = withSeq @lhs.options
+SEM Alternative
+  | Alternative loc.seqCode = \decls -> if @lhs.with_seq
+                                         then addSeq decls
+                                         else (concatMap snd decls,id)
+
+ATTR Pattern Patterns [ | | exprs USE {++} {[]}: Exprs ]
+SEM Pattern
+  | Alias      lhs.exprs = SimpleExpr (attrname False @field @attr) : @pat.exprs
+
+{
+addSeq :: [(Exprs,Decls)] -> (Decls,Expr -> Expr)
+addSeq [] = ([],id)
+addSeq ((es,ds):eds) = (ds ++ concat declss,prefix)
+   where (declss,rest) = mapPass add es eds
+         prefix e = toSeq rest e
+         add :: Exprs -> (Exprs,Decls) -> (Decls,Exprs)
+         add prev (es,[])              = ([],prev++es) -- TODO: Why does this happen?
+         add prev (es,Decl lhs rhs:ds) = let rhs' = toSeq prev rhs
+                                         in (Decl lhs rhs':ds, es)
+         add prev (es,Comment txt:ds) = let (ds',es') = add prev (es,ds)
+                                        in (Comment txt:ds',es')
+         toSeq :: Exprs -> Expr -> Expr
+         toSeq [] nil = nil
+         toSeq (e:es) nil = case e of 
+                              TupleExpr tup -> toSeq tup (toSeq es nil)
+                              UnboxedTupleExpr tup -> toSeq tup (toSeq es nil)
+                              otherwise -> App "seq" [e,toSeq es nil]
+                              
+}
+
+-------------------------------------------------------------------------------
+-- Some usefull functions
+-------------------------------------------------------------------------------
+{
+-- Gives the name of a semantic function
+seqSemname :: String -> Nonterminal -> Constructor -> Int -> String
+seqSemname pre nt con  0 = semname pre nt con
+seqSemname pre nt con nr = semname pre nt con ++ "_" ++ show nr
+
+-- Gives the name of a visit function
+visitname  ::  String -> Nonterminal -> Int -> String
+visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
+
+-- Gives the name of a type
+typeName :: Nonterminal -> Int -> String
+typeName nt 0 = "T_" ++ show nt
+typeName nt n = "T_" ++ show nt ++ "_" ++ show n
+
+listindex :: Eq a => a -> [a] -> Int
+listindex _ [] = error "listindex - Not in list"
+listindex a (a':as) | a == a' = 0
+                    | otherwise = 1 + listindex a as
+
+fromNT (NT a) = a
+
+-- DEBUG
+head' a []  = error a
+head' _ (x:xs) = x
+showlist xs = "[\n" ++ showlist' xs ++ "]\n"
+showlist' [] = ""
+showlist' [x] = show x
+showlist' (x:xs) = show x ++ "\n" ++ showlist' xs
+}
+
+-------------------------------------------------------------------------------
+-- Needed from DEP.AG
+-------------------------------------------------------------------------------
+{-
+ATTR Pattern Patterns [ nt:{Identifier} | | ]
+ATTR Pattern Patterns [ con:{Identifier} | | ]
+ATTR Rules Rule Pattern Patterns [ fields:{[(Name,Type)]} | | ]
+SEM Rule
+  | Rule loc.(locAttrs, (inAttrs,outAttrs)) = let (locs,rest) = partition (\(fld,attr) -> fld==_LOC) @rhs.usedAttrs
+                                              in (map snd locs, partition (\(fld,attr) -> fld==_LHS) rest)
+
+{
+getNonterminalName (NT nt) = nt
+getNonterminalName _       = nullIdent
+}
+
+imports
+{
+import List(partition)
+}
+
+-}
