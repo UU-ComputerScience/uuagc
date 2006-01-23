@@ -2,7 +2,8 @@ module SequentialComputation (
     computeSequential, 
     Info(Info), 
     SequentialResult(SequentialResult,DirectCycle,InducedCycle), 
-    tdpToTds, tdsToTdp, tdpNt, lmh, cyclesOnly
+    tdpToTds, tdsToTdp, tdpNt, lmh, cyclesOnly,
+    Interface
 ) where
 
 import Debug.Trace
@@ -43,7 +44,7 @@ data Info = Info { tdpToTds :: Table Vertex   -- Mapping attribute occurrences t
 -- Result of sequential computation
 data SequentialResult = SequentialResult [[[VisitSS]]] [(Vertex,ChildVisit)] [Interface] -- Succeeded, with visit sub-sequences, a table of childvisits, and interfaces
                       | DirectCycle [(Edge,[Vertex])]  -- Failed because of a cycle in the direct dependencies (type-2)
-                      | InducedCycle [Edge] -- No direct cycle, but the computed interface generated a cycle (type-3)
+                      | InducedCycle [(Edge,Interface)] -- No direct cycle, but the computed interface generated a cycle (type-3)
 
 
 -- Compute the Tds and Tdp graphs, given Info and the direct dependencies between attribute occurrences
@@ -61,7 +62,7 @@ computeSequential info dpr
                        inters <- makeInterfaces tdsT (lmh info)
                        let idp = concatMap (concatMap (uncurry carthesian)) inters
                        mapM_ (insertTds info comp) idp
-                       cycles3 <- cycles3 info tds
+                       cycles3 <- cycles3 info tds inters
                        if (not (null cycles3))
                         then return (InducedCycle cycles3)
                         else do let dprgraph = buildG (Data.Array.bounds (tdpToTds info)) dpr
@@ -187,18 +188,18 @@ cycles2' :: Tds s -> Edge -> ST s [Edge]
 cycles2' tds (v1,v2) = do e <- readArray tds v2
                           return (if v1 `elem` e then [(v1,v2)] else [])
 
-cycles3 :: Info -> Tds s -> ST s [Edge]
-cycles3 info tds = concatMapM (cycles3' tds) (lmh info)
+cycles3 :: Info -> Tds s -> [Interface] -> ST s [(Edge,Interface)]
+cycles3 info tds inters = concatMapM (cycles3' tds) (zip (lmh info) inters)
 
-cycles3' :: Tds s -> LMH -> ST s [Edge]
-cycles3' tds (l,m,h) 
+cycles3' :: Tds s -> (LMH,Interface) -> ST s [(Edge,Interface)]
+cycles3' tds ((l,m,h),inter)
   = concatMapM (cyc tds) [m..h]
-      where cyc :: Tds s -> Vertex -> ST s [Edge]
+      where cyc :: Tds s -> Vertex -> ST s [(Edge,Interface)]
             cyc tds i = do e <- readArray tds i
                            concatMapM (toSelf tds i) e
-            toSelf :: Tds s -> Vertex -> Vertex -> ST s [Edge]
+            toSelf :: Tds s -> Vertex -> Vertex -> ST s [(Edge,Interface)]
             toSelf tds i j | j < m     = do e' <- readArray tds j
-                                            if i `elem` e' then return [(i,j)] else return []
+                                            if i `elem` e' then return [((i,j),inter)] else return []
                            | otherwise = return []
 
 -- The graph of direct depencencies,

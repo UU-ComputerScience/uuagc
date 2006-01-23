@@ -3,7 +3,7 @@ INCLUDE "AbstractSyntax.ag"
 INCLUDE "Comments.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "ExpressionAttr.ag"
-INCLUDE "Dep.ag"
+{- INCLUDE "Dep.ag" -}
 INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Sequential.ag"
 

@@ -41,7 +41,6 @@ SEM Production
                                       in Comment . unlines . map indent $
                                            "interface:" : (map indent . concatMap comm $ numberedInterfaces)
                                          
-
 ------------------------------------------------------------------
 -- Invoking sequential computation
 ------------------------------------------------------------------
@@ -67,9 +66,9 @@ SEM Grammar
             loc.(visitss,visitTable,interfaces,cyclesErrors) = 
                                          case computeSequential @info @prods.directDep of
                                            SequentialResult a b c -> (a,b,c,[])
-                                           DirectCycle errs       -> ([],[],[],map (errPath @attrTable @codeAttrTable) errs)
-                                           InducedCycle errs      -> ([],[],[],map (errDescr @attrTable) errs)
-            lhs.errors           := @errors Seq.<> (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
+                                           DirectCycle errs       -> ([],[],[],map (directCycleErr @attrTable @codeAttrTable) errs)
+                                           InducedCycle errs      -> ([],[],[],map (inducedCycleErr @attrTable) errs)
+            lhs.errors           := {- @errors Seq.<> -} (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
 
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
@@ -181,17 +180,21 @@ lookupWith' f ((b,a):abs)
 lookupWith :: (a -> b -> Bool) -> a -> [b] -> [b]
 lookupWith p a = filter (p a)
 
-errDescr :: Graph.Table NTAttr -> Graph.Edge -> Error
-errDescr attrTable (v1,v2)
-  = let (NTASyn nt a1) = attrTable ! v1
-        (NTAInh _  a2) = attrTable ! v2
-    in CircGrammar nt a2 [] a1 []
-
-errPath :: Graph.Table NTAttr -> Graph.Table CodeAttr -> (Graph.Edge,[Graph.Vertex]) -> Error
-errPath attrTable codeTable ((v1,v2), path)
+directCycleErr :: Graph.Table NTAttr -> Graph.Table CodeAttr -> (Graph.Edge,[Graph.Vertex]) -> Error
+directCycleErr attrTable codeTable ((v1,v2), path)
   = let (NTASyn nt a1) = attrTable ! v1
         (NTAInh _  a2) = attrTable ! v2
     in DirectCirc nt a2 a1 (showPath $ map (codeTable !) path)
+
+inducedCycleErr :: Graph.Table NTAttr -> (Graph.Edge,Interface) -> Error
+inducedCycleErr attrTable ((v1,v2),inter)
+  = let (NTASyn nt a1) = attrTable ! v1
+        (NTAInh _  a2) = attrTable ! v2
+        getName x = case attrTable ! x of 
+	              (NTASyn _ a) -> a
+                      (NTAInh _ a) -> a
+        inter' = map (\(xs,ys) -> (map getName xs, map getName ys)) inter
+    in InducedCirc nt a2 a1 inter'
 
 
 funname field 0  = show field ++ "_"
@@ -526,7 +529,7 @@ showlist' (x:xs) = show x ++ "\n" ++ showlist' xs
 -------------------------------------------------------------------------------
 -- Needed from DEP.AG
 -------------------------------------------------------------------------------
-{-
+
 ATTR Pattern Patterns [ nt:{Identifier} | | ]
 ATTR Pattern Patterns [ con:{Identifier} | | ]
 ATTR Rules Rule Pattern Patterns [ fields:{[(Name,Type)]} | | ]
@@ -544,4 +547,4 @@ imports
 import List(partition)
 }
 
--}
+

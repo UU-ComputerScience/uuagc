@@ -76,6 +76,7 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
             | InducedCirc     nt      : {Nonterminal}
                               inh     : {Name}
                               syn     : {Name}                
+                              inter   : {[([Name],[Name])]}
             | MissingTypeSig  nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
