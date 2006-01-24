@@ -51,18 +51,12 @@ SEM Grammar
             prods.vcount  = 0
             loc.info      = Info { tdsToTdp = Array.array (0,@prods.acount-1) @prods.tdsToTdp
                                  , tdpToTds = Array.array (0,@prods.vcount-1) [ (ix, def (lookupWith' (ix `elem`) @prods.tdsToTdp)) | ix <- [0 .. @prods.vcount-1] ]
-                                 , tdpNt    = Array.array (0,@prods.vcount-1) (mapSnd getTdpNt @prods.vertices') 
+                                 , aoTable  = Array.array (0,@prods.vcount-1) @prods.vertices'
                                  , lmh      = @prods.aranges
                                  , cyclesOnly = not (visit @lhs.options)
                                  }
                              where def [] = -1
                                    def (v:vs) = v
-                                   getTdpNt (AOLocal nt c _)         = (nullIdent,nt,c,nullIdent)
-                                   getTdpNt (AOLHSInh nt c _)        = (nullIdent,nt,c,_LHS)
-                                   getTdpNt (AOLHSSyn nt c _)        = (nullIdent,nt,c,_LHS)
-                                   getTdpNt (AORHSInh rnt lnt c f _) = (rnt,lnt,c,f)
-                                   getTdpNt (AORHSSyn rnt lnt c f _) = (rnt,lnt,c,f)
-				   getTdpNt (AOTuple aos) = getTdpNt (head' "aos" aos)
             loc.(visitss,visitTable,interfaces,cyclesErrors) = 
                                          case computeSequential @info @prods.directDep of
                                            SequentialResult a b c -> (a,b,c,[])
@@ -475,7 +469,7 @@ SEM Pattern
 addSeq :: [(Exprs,Decls)] -> (Decls,Expr -> Expr)
 addSeq [] = ([],id)
 addSeq ((es,ds):eds) = (ds ++ concat declss,prefix)
-   where (declss,rest) = mapPass add es eds
+   where (declss,rest) = mapAccum add es eds
          prefix e = toSeq rest e
          add :: Exprs -> (Exprs,Decls) -> (Decls,Exprs)
          add prev (es,[])              = ([],prev++es) -- TODO: Why does this happen?

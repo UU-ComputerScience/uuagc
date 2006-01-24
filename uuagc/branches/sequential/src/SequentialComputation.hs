@@ -2,7 +2,7 @@ module SequentialComputation (
     computeSequential, 
     Info(Info), 
     SequentialResult(SequentialResult,DirectCycle,InducedCycle), 
-    tdpToTds, tdsToTdp, tdpNt, lmh, cyclesOnly,
+    tdpToTds, tdsToTdp, aoTable, lmh, cyclesOnly,
     Interface
 ) where
 
@@ -12,12 +12,11 @@ import SequentialTypes
 import CommonTypes
 
 import Data.Graph hiding (path)
-import qualified Data.Graph (path)
 import Control.Monad.ST
 import Data.Array
 import Data.Array.MArray
 import Data.Array.ST
-import Data.Maybe(fromJust)
+import Data.Maybe(fromJust,mapMaybe)
 import Control.Monad
 import List(partition,sort,transpose,nub,(\\),intersect,minimumBy)
 
@@ -36,7 +35,7 @@ type LMH = (Vertex,Vertex,Vertex)
 -- Information about the vertices
 data Info = Info { tdpToTds :: Table Vertex   -- Mapping attribute occurrences to attributes
                  , tdsToTdp :: Table [Vertex] -- Mapping attributes to all attribute occurrences
-                 , tdpNt    :: Table (Name,Name,Name,Name) -- Mapping attribute occurrences to their rhs nt, lhs nt, constructor, and fieldnames
+                 , aoTable  :: Table AttrOcc
                  , lmh      :: [LMH] -- Division of tds. l<=inherited<m, m<=synthesized<=h
                  , cyclesOnly :: Bool -- Check for cycles only
                  }
@@ -88,7 +87,7 @@ induce info comp (v1,v2)
   = let v1' = tdpToTds info ! v1
         v2' = tdpToTds info ! v2
         nonlocal = v1' /= -1 && v2' /= -1
-        equalfield = tdpNt info ! v1 == tdpNt info ! v2
+        equalfield = isEqualField (aoTable info ! v1) (aoTable info ! v2)
     in if nonlocal && equalfield
         then insertTds info comp (v1',v2')
         else return []
@@ -109,7 +108,7 @@ occur :: Info -> Comp s -> Edge -> ST s [Edge]
 occur info comp (v1,v2)
   = let v1s = tdsToTdp info ! v1
         v2s = tdsToTdp info ! v2
-    in liftM concat $ sequence [ insertTdp info comp (v1,v2) | v1 <- v1s, v2 <-  v2s, tdpNt info ! v1 == tdpNt info ! v2 ]
+    in liftM concat $ sequence [ insertTdp info comp (v1,v2) | v1 <- v1s, v2 <-  v2s, isEqualField (aoTable info ! v1) (aoTable info ! v2) ]
 
 -- Add an edge to Tdp and transitively re-close it.
 insertTdp :: Info -> Comp s -> Edge -> ST s [Edge]
@@ -170,23 +169,23 @@ predsS tds lmh work = do (inh,syn) <- sinks tds lmh work
 -- Removes edges from vs, and returns resulting sinks, partitioned into inherited and synthesized
 sinks :: Tds s -> LMH -> [Vertex] -> ST s ([Vertex],[Vertex])
 sinks tds (l,m,h) vs
-  = liftM (partition (<m) . concat) $ mapM f' [l..h]
+  = liftM (partition (<m)) $ mapMaybeM f' [l..h]
      where f' i = do e <- readArray tds i
                      if null e
-                      then if null vs then return [i] else return []
+                      then return $ if null vs then Just i else Nothing
                       else do let e' = e \\ vs
                               writeArray tds i e'
-                              if null e' && not (i `elem` vs) then return [i] else return []
+                              return $ if null e' && not (i `elem` vs) then Just i else Nothing
 
 -------------------------------------------------------------------------------
 -- Cycles
 -------------------------------------------------------------------------------
 cycles2 :: Tds s -> [Edge] -> ST s [Edge]
-cycles2 tds s2i = concatMapM (cycles2' tds) s2i
+cycles2 tds s2i = mapMaybeM (cycles2' tds) s2i
 
-cycles2' :: Tds s -> Edge -> ST s [Edge]
+cycles2' :: Tds s -> Edge -> ST s (Maybe Edge)
 cycles2' tds (v1,v2) = do e <- readArray tds v2
-                          return (if v1 `elem` e then [(v1,v2)] else [])
+                          return (if v1 `elem` e then Just (v1,v2) else Nothing)
 
 cycles3 :: Info -> Tds s -> [Interface] -> ST s [(Edge,Interface)]
 cycles3 info tds inters = concatMapM (cycles3' tds) (zip (lmh info) inters)
@@ -196,11 +195,11 @@ cycles3' tds ((l,m,h),inter)
   = concatMapM (cyc tds) [m..h]
       where cyc :: Tds s -> Vertex -> ST s [(Edge,Interface)]
             cyc tds i = do e <- readArray tds i
-                           concatMapM (toSelf tds i) e
-            toSelf :: Tds s -> Vertex -> Vertex -> ST s [(Edge,Interface)]
+                           mapMaybeM (toSelf tds i) e
+            toSelf :: Tds s -> Vertex -> Vertex -> ST s (Maybe (Edge,Interface))
             toSelf tds i j | j < m     = do e' <- readArray tds j
-                                            if i `elem` e' then return [((i,j),inter)] else return []
-                           | otherwise = return []
+                                            return $ if i `elem` e' then Just ((i,j),inter) else Nothing
+                           | otherwise = return Nothing
 
 -- The graph of direct depencencies,
 --     (Having edges between Rhs attribute occurrences and their corresponding Lhs counterparts)
@@ -208,23 +207,21 @@ directGraph :: Info -> [Edge] -> Graph
 directGraph info dpr 
   = buildG (l,h) (dpr ++ edges)
       where (l,h) = Data.Array.bounds (tdpToTds info)
-            edges = [if isInh s then (s,t) else (t,s) | s <- [l..h], isRhs s, t <- tdsToTdp info ! (tdpToTds info ! s), isLhs t]
-            isRhs s = let (rnt,_,_,_) = tdpNt info ! s
-                      in rnt /= nullIdent
-            isLhs s = let (_,_,_,f) = tdpNt info ! s
-                      in f == _LHS
-            isInh s = lmhInhFind (lmh info) (tdpToTds info ! s)
-            lmhInhFind [] s = False
-            lmhInhFind ((l,m,h):lmh) s = (l <= s && s < m) || lmhInhFind lmh s
+            edge s t | isInh (aoTable info ! s) = (s,t)
+                     | otherwise                = (t,s)
+            edges = [edge s t | s <- [l..h]
+                              , isRhs (aoTable info ! s)
+                              , t <- tdsToTdp info ! (tdpToTds info ! s)
+                              , isLhs (aoTable info ! t)]
 
 -- The path in the direct graph that gave the cycle.
 cyclePath :: Info -> Graph -> Edge -> Maybe [Vertex]        
 cyclePath info graph (v1,v2)
   = shortestMaybe $ paths
       where paths = [(liftM reverse) (path graph t s) | s <- tdsToTdp info ! v1, t <- tdsToTdp info ! v2, isSameLhs s t]
-            isSameLhs s t = let (_,rnt,c,f) = tdpNt info ! s
-                                (_,rnt',c',f') = tdpNt info ! t
-                            in rnt == rnt' && c == c' && f == _LHS && f' == _LHS
+            isSameLhs s t = let ao1 = aoTable info ! s
+                                ao2 = aoTable info ! t
+                            in isEqualField ao1 ao2 && isLhs ao1 
 
 shortestMaybe :: [Maybe [a]] -> Maybe [a]
 shortestMaybe [] = Nothing
@@ -243,6 +240,12 @@ path graph from to
 
 -------------------------------------------------------------------------------
 -- Visit sub-sequences - Graph
+--   This is the origional graph, together with
+--       A node for each visit
+--       Edges A: From the inherited attributes of this visit, to the visit
+--             B: From the visit to its synthesized attributes
+--             C: From visit n to visit n+1
+--   visitssGraph returns the graph, and a description of the new nodes
 -------------------------------------------------------------------------------
 visitssGraph :: Info -> Graph -> Vertex -> [Interface] -> (Graph,[(Vertex,ChildVisit)])
 visitssGraph info tdp v inters
@@ -262,33 +265,25 @@ rhsEdges info v (inter:inters)
 rhsEdge :: Info -> Int -> Vertex -> Interface -> ([Edge],[(Vertex,ChildVisit)],Vertex)
 rhsEdge info n v [] = ([],[],v)
 rhsEdge info n v ((inh,syn):inter)
-  = let rhsinh = map (\x -> (x,True))  $ concatMap (tdsToTdp info !) inh
-        rhssyn = map (\x -> (x,False)) $ concatMap (tdsToTdp info !) syn
-        classes = eqClasses comp $ sort $ filter lhs $ map (\(v,b) -> (tdpNt info ! v,v,b)) $ rhsinh ++ rhssyn
-        comp (a,_,_) (a',_,_) = a == a'
-        lhs ((_,_,_,field),_,_) | field == _LHS = False
-                                | otherwise = True
+  = let classes = gather info $ sort $ [ a | u <- inh ++ syn, a <- tdsToTdp info ! u, isRhs (aoTable info ! a)]
         islast = null inter
-        childvisits = zip [v..] $ map ((\((_,_,_,field),_,_) -> ChildVisit field n islast) . head' "childvisits") classes
-        edges = makeEdges v classes
+        childvisits = zip [v..] $ map ((\a -> ChildVisit (fromJust' (show (aoTable info ! a)) $ getField $ aoTable info ! a) n islast) . head' "childvisits") classes
+        edges = makeEdges info v classes
         l = length classes
         (rest,fs,v') = rhsEdge info (n+1) (v+l) inter
     in (edges ++ rest,childvisits ++ fs,v')
         
-makeEdges :: Int -> [[(a,Vertex,Bool)]] -> [Edge]
-makeEdges n [] = []
-makeEdges n (x:xs) 
-  = map (makeEdge n) x ++ makeEdges (n+1) xs
-      where makeEdge :: Int -> (a,Vertex,Bool) -> Edge
-            makeEdge n (_,v,True) = (v,n)
-            makeEdge n (_,v,False) = (n,v)
+makeEdges :: Info -> Int -> [[Vertex]] -> [Edge]
+makeEdges info n [] = []
+makeEdges info n (x:xs) = map (makeEdge n) x ++ makeEdges info (n+1) xs
+      where makeEdge n v | isInh (aoTable info ! v) = (v,n)
+                         | otherwise = (n,v)
 
 -- The edges between visits: Visit n+1 depends on visit n
 visitEdges :: Info -> Graph -> Int -> Int -> [Edge]
 visitEdges info tdp l h 
-  = concatMap list2edges $ map (sort . map snd) $ eqClasses comp $ sort $ map (\x -> (tdpNt info ! head' (show x) (tdp ! x),x)) [l..h]
-      where comp (a,_) (a',_) = a == a'
-            list2edges []        = []
+  = concatMap list2edges $ sort $ gather info $ sort $ map (\x -> head' (show x) (tdp ! x)) [l..h]
+      where list2edges []        = []
             list2edges [a]       = []
             list2edges (a:b:abs) = (a,b):list2edges (b:abs)
 
@@ -300,23 +295,23 @@ visitss :: Info -> [(Vertex,ChildVisit)] -> Graph -> [Interface] -> [[[VisitSS]]
 visitss info table vsgraph inters = map (transpose . visitss' info vsgraph []) inters
 
 visitss' :: Info -> Graph -> [Vertex] -> Interface -> [[VisitSS]]
-visitss' info vsgraph prev [] = []
-visitss' info vsgraph prev (inter:inters) 
-  = let (ss,prev') = visitss'' info vsgraph prev inter
-    in ss:visitss' info vsgraph prev' inters
+visitss' info vsgraph prev inter = fst $ mapAccum (visitss'' info vsgraph) prev inter
 
--- prev: Attributes computed in previous visits
+-- prev: Attributes Occurences computed in previous visits
 -- (inh,syn): Attributes in this visit
 visitss'' :: Info -> Graph -> [Vertex] -> ([Vertex],[Vertex]) -> ([VisitSS],[Vertex])
 visitss'' info vsgraph prev (inh,syn) 
-  = let sortFrom = map (map snd) $ eqClasses comp $ sort $ filter (lhs . fst) $ map (\x -> (tdpNt info ! x,x)) $ concatMap (tdsToTdp info !) syn
-        inh' = filter (\x -> lhs  (tdpNt info ! x)) $ concatMap (tdsToTdp info !) inh
-        lhs (_,_,_,x) = x == _LHS
-        comp (a,_) (a',_) = a == a'
+  = let sortFrom = gather info $ sort $ filter lhs $ concatMap (tdsToTdp info !) syn
+        inh' = [a | u <- inh, a <- tdsToTdp info ! u, lhs a]
+        lhs a = isLhs (aoTable info ! a)
         prev' = inh' ++ prev
         trans vs = vs \\ prev'
         vss = map (trans . topSort' vsgraph) sortFrom
     in (vss, concat vss ++ prev')
+
+gather :: Info -> [Vertex] -> [[Vertex]]
+gather info = eqClasses comp
+                 where comp a b = isEqualField (aoTable info ! a) (aoTable info ! b)
 
 -------------------------------------------------------------------------------
 -- Graph-like functions
@@ -339,9 +334,20 @@ eqClasses p (a:as)
                           | otherwise     = reverse as : eqC [a] as'
 
 concatMapM f xs = liftM concat $ mapM f xs
+mapMaybeM :: Monad m => (a -> m (Maybe b)) -> [a] -> m [b]
+mapMaybeM f [] = return []
+mapMaybeM f (a:as) = do mb <- f a
+                        rest <- mapMaybeM f as
+                        return $ maybe id (:) mb rest
 carthesian xs ys = [(x,y) | x <- xs, y <- ys]
+
+mapIndex :: (Int -> a -> b) -> [a] -> [b]
+mapIndex f as = mapI 0 f as
+  where mapI n f [] = []
+        mapI n f (a:as) = f n a : mapI (n+1) f as
 
 --DEBUG
 head' a []  = error a
 head' _ (x:xs) = x
-
+fromJust' s (Just a) = a
+fromJust' s (Nothing) = error ("fromJust' Nothing: " ++ s)
