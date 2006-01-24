@@ -65,13 +65,14 @@ DATA Lhs      | Pattern          pat   : {PP_Doc}
 --   inh    The inherited attributes. 
 --          If there are none, no unboxing can take place, 
 --          because in that case the semantic funtion would have a unboxed type.
-makeTupleExpr :: Bool -> [a] -> (Exprs -> Expr)
-makeTupleExpr unbox inh | not unbox || null inh = TupleExpr
-                        | otherwise             = UnboxedTupleExpr
-makeTupleType :: Bool -> [a] -> (Types -> Type)
-makeTupleType unbox inh | not unbox || null inh = TupleType
-                        | otherwise             = UnboxedTupleType
-makeTupleLhs :: Bool -> [a] -> ([String] -> Lhs)
-makeTupleLhs  unbox inh | not unbox || null inh = TupleLhs
-                        | otherwise             = UnboxedTupleLhs
+-- Of course we can't have an unboxed 1-tuple
+makeTupleExpr :: Bool -> [a] -> Exprs -> Expr
+makeTupleExpr unbox inh exprs | not unbox || null inh || length exprs == 1 = TupleExpr exprs
+                              | otherwise                                  = UnboxedTupleExpr exprs
+makeTupleType :: Bool -> [a] -> Types -> Type
+makeTupleType unbox inh tps | not unbox || null inh || length tps == 1 = TupleType tps
+                            | otherwise                                = UnboxedTupleType tps
+makeTupleLhs :: Bool -> [a] -> [String] -> Lhs
+makeTupleLhs  unbox inh comps | not unbox || null inh || length comps == 1 = TupleLhs comps
+                              | otherwise                                  = UnboxedTupleLhs comps
 }

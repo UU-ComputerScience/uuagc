@@ -295,8 +295,8 @@ SEM Alternative
                                                          (CAChildVisit (ChildVisit child nr lastVisit)) -> (lhsExprs, [Decl lhsLhs rhs])
                                                              where lhs = [ rhsshow child attr | attr <- syn' ] 
                                                                            ++ if lastVisit then [] else [funname child (nr+1)]
-                                                                   lhsExprs = [makeTupleExpr @lhs.o_unbox inh (map SimpleExpr lhs)]
-                                                                   lhsLhs = makeTupleLhs @lhs.o_unbox inh lhs
+                                                                   lhsExprs = [makeTupleExpr @lhs.o_unbox inh' (map SimpleExpr lhs)]
+                                                                   lhsLhs = makeTupleLhs @lhs.o_unbox inh' lhs
                                                                    rhs = App (funname child nr) [SimpleExpr (rhsshow child attr) | attr <- inh']
                                                                    (inh',syn') = @childVisit child nr
                                                          otherwise -> maybe ([],[]) id $ lookup n @rules.codeTable
