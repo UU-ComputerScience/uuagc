@@ -230,6 +230,8 @@ shortestMaybe lst = minimumBy shortest lst
                           shortest ml1 Nothing = LT
                           shortest (Just l1) (Just l2) = length l1 `compare` length l2
                       
+-- TODO: This gives problems with DATA Tree = | Leaf | Branch left:Tree right:Tree
+--       It can give a path from left:inh1 to right:syn1, which isn't a proper path...
 path :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
 path graph from to 
   = path' [] from to

@@ -1,6 +1,8 @@
 imports
 {
 import Debug.Trace -- DEBUG
+import Data.List(elemIndex,find)
+import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!))
 import Data.List(sort,mapAccumL)
@@ -152,53 +154,6 @@ SEM Rule
                    usedRest = concatMap translateIn @inAttrs
                in [ (x,@lhs.vcount) | x <- usedOut ++ usedLoc ++ usedRest ]
 
-{
-lookupAttrOcc :: AttrOcc -> [(b,AttrOcc)] -> [b]
-lookupAttrOcc a bas = lookupAttrOccWith (a==) bas
-
-lookupAttrOccWith :: (AttrOcc -> Bool) -> [(b,AttrOcc)] -> [b]
-lookupAttrOccWith f [] = []
-lookupAttrOccWith f ((b,AOTuple as):abs)
-    | any f as  = b:lookupAttrOccWith f abs
-    | otherwise = lookupAttrOccWith f abs
-lookupAttrOccWith f ((b,a):abs)
-    | f a       = b:lookupAttrOccWith f abs
-    | otherwise = lookupAttrOccWith f abs
-
-lookupWith' :: (a -> Bool) -> [(b,a)] -> [b]
-lookupWith' f []       = []
-lookupWith' f ((b,a):abs) 
-    | f a       = b:lookupWith' f abs
-    | otherwise = lookupWith' f abs
-
-lookupWith :: (a -> b -> Bool) -> a -> [b] -> [b]
-lookupWith p a = filter (p a)
-
-directCycleErr :: Graph.Table NTAttr -> Graph.Table CodeAttr -> (Graph.Edge,[Graph.Vertex]) -> Error
-directCycleErr attrTable codeTable ((v1,v2), path)
-  = let (NTASyn nt a1) = attrTable ! v1
-        (NTAInh _  a2) = attrTable ! v2
-    in DirectCirc nt a2 a1 (showPath $ map (codeTable !) path)
-
-inducedCycleErr :: Graph.Table NTAttr -> (Graph.Edge,Interface) -> Error
-inducedCycleErr attrTable ((v1,v2),inter)
-  = let (NTASyn nt a1) = attrTable ! v1
-        (NTAInh _  a2) = attrTable ! v2
-        getName x = case attrTable ! x of 
-	              (NTASyn _ a) -> a
-                      (NTAInh _ a) -> a
-        inter' = map (\(xs,ys) -> (map getName xs, map getName ys)) inter
-    in InducedCirc nt a2 a1 inter'
-
-
-funname field 0  = show field ++ "_"
-funname field nr = show field ++ "_" ++ show nr
-
-mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
-mapSnd f [] = []
-mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
-}
-
 -------------------------------------------
 -- Code to be generated
 -------------------------------------------
@@ -257,13 +212,9 @@ SEM Alternative
 
                                          findVisit :: Name -> [CodeAttr] -> Maybe Int
                                          findVisit childname cas | n == 0 || childname `elem` @children.terminals = Just 0
-                                                                 | otherwise = findVisit' childname cas
-                                         findVisit' childname [] = Nothing
-                                         findVisit' childname ((CAAttrOcc _):cas) = findVisit childname cas
-                                         findVisit' childname ((CAChildVisit (ChildVisit name nr _)):cas) 
-                                              | name == childname = Just nr
-                                              | otherwise         = findVisit childname cas
-
+                                                                 | otherwise = liftM (\(CAChildVisit (ChildVisit name nr _)) -> nr) $ find (isThisChild childname) cas
+                                         isThisChild childname (CAChildVisit (ChildVisit name _ _)) = name == childname
+                                         isThisChild _ _ = False
                                      in usedattrs ++ childnodes
                 lhs.seqSemFuns = let seqSemFuns :: Int -> [([NTAttr],[NTAttr])] -> [([Graph.Vertex],[AttrOcc])] -> [Decl]
                                      seqSemFuns n [] [] = []
@@ -336,7 +287,7 @@ SEM Alternative
                                                 mytrans = nub (needed' ++ prev) \\ defined'
                               in reverse . intravisit [] . reverse $ zip @lhs.visitss @lhs.interface
 
-                loc.childVisit = \child nr -> @lhs.allinterfaces !! listindex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts' !! nr
+                loc.childVisit = \child nr -> @lhs.allinterfaces !! fromJust (elemIndex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts') !! nr
 
 -------------------------------------------
 -- Sub-sequence dependencies
@@ -490,6 +441,45 @@ addSeq ((es,ds):eds) = (ds ++ concat declss,prefix)
 -- Some usefull functions
 -------------------------------------------------------------------------------
 {
+lookupAttrOcc :: AttrOcc -> [(b,AttrOcc)] -> [b]
+lookupAttrOcc a bas = lookupAttrOccWith (a==) bas
+
+lookupAttrOccWith :: (AttrOcc -> Bool) -> [(b,AttrOcc)] -> [b]
+lookupAttrOccWith f [] = []
+lookupAttrOccWith f ((b,AOTuple as):abs)
+    | any f as  = b:lookupAttrOccWith f abs
+    | otherwise = lookupAttrOccWith f abs
+lookupAttrOccWith f ((b,a):abs)
+    | f a       = b:lookupAttrOccWith f abs
+    | otherwise = lookupAttrOccWith f abs
+
+lookupWith' :: (a -> Bool) -> [(b,a)] -> [b]
+lookupWith' f []       = []
+lookupWith' f ((b,a):abs) 
+    | f a       = b:lookupWith' f abs
+    | otherwise = lookupWith' f abs
+
+directCycleErr :: Graph.Table NTAttr -> Graph.Table CodeAttr -> (Graph.Edge,[Graph.Vertex]) -> Error
+directCycleErr attrTable codeTable ((v1,v2), path)
+  = let (NTASyn nt a1) = attrTable ! v1
+        (NTAInh _  a2) = attrTable ! v2
+    in DirectCirc nt a2 a1 (showPath $ map (codeTable !) path)
+
+inducedCycleErr :: Graph.Table NTAttr -> (Graph.Edge,Interface) -> Error
+inducedCycleErr attrTable ((v1,v2),inter)
+  = let (NTASyn nt a1) = attrTable ! v1
+        (NTAInh _  a2) = attrTable ! v2
+        getName x = case attrTable ! x of 
+	              (NTASyn _ a) -> a
+                      (NTAInh _ a) -> a
+        inter' = map (\(xs,ys) -> (map getName xs, map getName ys)) inter
+    in InducedCirc nt a2 a1 inter'
+
+
+-- Gives the name of the visit function
+funname field 0  = show field ++ "_"
+funname field nr = show field ++ "_" ++ show nr
+
 -- Gives the name of a semantic function
 seqSemname :: String -> Nonterminal -> Constructor -> Int -> String
 seqSemname pre nt con  0 = semname pre nt con
@@ -504,10 +494,9 @@ typeName :: Nonterminal -> Int -> String
 typeName nt 0 = "T_" ++ show nt
 typeName nt n = "T_" ++ show nt ++ "_" ++ show n
 
-listindex :: Eq a => a -> [a] -> Int
-listindex _ [] = error "listindex - Not in list"
-listindex a (a':as) | a == a' = 0
-                    | otherwise = 1 + listindex a as
+mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
+mapSnd f [] = []
+mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
 
 fromNT (NT a) = a
 
