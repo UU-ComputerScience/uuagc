@@ -13,6 +13,7 @@ data AttrOcc = AOLocal  Name Name Name -- lhs nt, constructor, attribute
 data ChildVisit = ChildVisit Name Int Bool deriving (Eq,Show) -- field, visit nr., isLastVisit
 data NTAttr = NTAInh Name Name -- nt, attribute
             | NTASyn Name Name -- nt, attribute
+               deriving Show
 
 
 isLocal :: AttrOcc -> Bool

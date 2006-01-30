@@ -1,7 +1,7 @@
 module SequentialComputation (
     computeSequential, 
     Info(Info), 
-    SequentialResult(SequentialResult,DirectCycle,InducedCycle), 
+    SequentialResult(SequentialResult,InducedCycle), 
     tdpToTds, tdsToTdp, aoTable, lmh, cyclesOnly,
     Interface
 ) where
@@ -18,7 +18,8 @@ import Data.Array.MArray
 import Data.Array.ST
 import Data.Maybe(fromJust,mapMaybe)
 import Control.Monad
-import List(partition,sort,transpose,nub,(\\),intersect,minimumBy)
+import Data.List(partition,sort,transpose,nub,(\\),intersect,minimumBy,delete,find)
+import Data.Tree(rootLabel,subForest,flatten)
 
 -- The updatable graph of attribute occurrences
 type STGraph s = STArray s Vertex [Vertex]
@@ -41,9 +42,11 @@ data Info = Info { tdpToTds :: Table Vertex   -- Mapping attribute occurrences t
                  }
 
 -- Result of sequential computation
-data SequentialResult = SequentialResult [[[VisitSS]]] [(Vertex,ChildVisit)] [Interface] -- Succeeded, with visit sub-sequences, a table of childvisits, and interfaces
-                      | DirectCycle [(Edge,[Vertex])]  -- Failed because of a cycle in the direct dependencies (type-2)
-                      | InducedCycle [(Edge,Interface)] -- No direct cycle, but the computed interface generated a cycle (type-3)
+data SequentialResult = SequentialResult [(Edge,[Vertex])]     -- Direct cycles
+                                         [[[VisitSS]]]         -- Visit sub-sequences
+                                         [(Vertex,ChildVisit)] -- Table of childvisits
+                                         [Interface]           -- Interfaces
+                      | InducedCycle     [(Edge,Interface)]    -- No direct cycle, but the computed interfaces generated a cycle (type-3)
 
 
 -- Compute the Tds and Tdp graphs, given Info and the direct dependencies between attribute occurrences
@@ -51,24 +54,21 @@ computeSequential :: Info -> [Edge] -> SequentialResult
 computeSequential info dpr
   = runST (do (comp@(tds,tdp),s2i) <- tdsTdp (info{cyclesOnly = True}) dpr
               cycles2 <- cycles2 tds s2i
-              if (not (null cycles2))
-               then let ddp = directGraph info dpr
-                        cyclePaths = map (fromJust . cyclePath info ddp) cycles2
-                    in return (DirectCycle (zip cycles2 cyclePaths))
-               else do mapM_ (insertTds (info{cyclesOnly = False}) comp) s2i
-                       tds' <- freeze tds
-                       tdsT <- thaw (transposeG tds') 
-                       inters <- makeInterfaces tdsT (lmh info)
-                       let idp = concatMap (concatMap (uncurry carthesian)) inters
-                       mapM_ (insertTds info comp) idp
-                       cycles3 <- cycles3 info tds inters
-                       if (not (null cycles3))
-                        then return (InducedCycle cycles3)
-                        else do let dprgraph = buildG (Data.Array.bounds (tdpToTds info)) dpr
-                                    newindex = snd (Data.Array.bounds (tdpToTds info)) + 1
-                                    (vsgraph,table)  = visitssGraph info dprgraph newindex inters
-                                    vs = visitss info table vsgraph inters
-                                return (SequentialResult vs table inters)
+              let ddp = directGraph info dpr
+                  cyclePaths = map (fromJust . cyclePath info ddp) cycles2
+                  directCycles = zip cycles2 cyclePaths
+              inters <- makeInterfaces tds s2i (lmh info)
+              let idp = concatMap (concatMap (uncurry carthesian)) inters
+              mapM_ (insertTds info comp) idp
+              {- cycles3 <- cycles3 info tds inters
+              if (not (null cycles3))
+               then return (InducedCycle cycles3)
+               else -}
+              let dprgraph = buildG (Data.Array.bounds (tdpToTds info)) dpr
+                  newindex = snd (Data.Array.bounds (tdpToTds info)) + 1
+                  (vsgraph,table)  = visitssGraph info dprgraph newindex inters
+                  vs = visitss info table vsgraph inters
+              return (SequentialResult directCycles vs table inters)
           )
 
 -- Initialise computation, and add all direct dependencies. This will trigger the whole of the computation
@@ -97,11 +97,22 @@ insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
 insertTds info (tds,tdp) (v1,v2)
   = if cyclesOnly info && v1 > v2
      then return [(v1,v2)]
+     else do b <- addEdge tds (v1,v2)
+             if b then occur info (tds,tdp) (v1,v2)
+                  else return []
+
+{-
+-- Add an egde to Tds. This induces dependencies on Tdp.
+insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
+insertTds info (tds,tdp) (v1,v2)
+  = if cyclesOnly info && v1 > v2
+     then return [(v1,v2)]
      else do e1 <- readArray tds v1
              if v2 `elem` e1
               then return []
               else do writeArray tds v1 (v2:e1)
                       occur info (tds,tdp) (v1,v2)
+-}
 
 -- Adds all induced dependencies of an Tds-edge to the corresponding Tdp-graphs
 occur :: Info -> Comp s -> Edge -> ST s [Edge]
@@ -109,6 +120,7 @@ occur info comp (v1,v2)
   = let v1s = tdsToTdp info ! v1
         v2s = tdsToTdp info ! v2
     in liftM concat $ sequence [ insertTdp info comp (v1,v2) | v1 <- v1s, v2 <-  v2s, isEqualField (aoTable info ! v1) (aoTable info ! v2) ]
+
 
 -- Add an edge to Tdp and transitively re-close it.
 insertTdp :: Info -> Comp s -> Edge -> ST s [Edge]
@@ -124,6 +136,15 @@ insertTdp info comp@(_,(tdpN,tdpT)) (v1,v2)
 -- Add an edge to Tdp. This induces dependencies on Tds
 addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]
 addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
+  = do b <- addEdge tdpN (v1,v2)
+       if b then do addEdge tdpT (v2,v1)
+                    induce info comp (v1,v2)
+            else return []
+
+{-
+-- Add an edge to Tdp. This induces dependencies on Tds
+addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]
+addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
   = do e <- readArray tdpN v1
        if v2 `elem` e
         then return []
@@ -131,12 +152,61 @@ addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
                 e' <- readArray tdpT v2
                 writeArray tdpT v2 (v1:e')
                 induce info comp (v1,v2)
+-}
+
+-- Adds an edge to a graph. 
+--  Returns  True  if the edge was added, 
+--           False if the edge already existed
+addEdge :: STGraph s -> Edge -> ST s Bool
+addEdge graph (u,v) = do e <- readArray graph u
+                         if v `elem` e
+                          then return False
+                          else do writeArray graph u (v:e)
+                                  return True
+
+-- Removes an edge from a graph
+removeEdge :: STGraph s -> Edge -> ST s ()
+removeEdge graph (u,v) = do e <- readArray graph u
+                            when (v `elem` e)
+                                 (writeArray graph u (delete v e))
 
 -------------------------------------------------------------------------------
 -- Interfaces
 -------------------------------------------------------------------------------
-makeInterfaces :: Tds s -> [LMH] -> ST s Interfaces
-makeInterfaces tds = mapM (makeInterface tds)
+makeInterfaces :: Tds s -> [Edge] -> [LMH] -> ST s Interfaces
+makeInterfaces tds s2i lmhs
+  = do mapM_ (addEdge tds) s2i
+       tds' <- freeze tds
+       let tdsT' = transposeG tds'
+           comps = scc tdsT'
+       tdsT <- thaw tdsT'
+       condense tdsT tds' comps
+       interfaces <- mapM (makeInterface tdsT) lmhs   
+       return (map (expand comps) $ zip lmhs interfaces)
+
+-- Turns the components of a graph into nodes
+condense :: Tds s -> Array Vertex [Vertex] -> Forest Vertex -> ST s ()
+condense tds org comps = mapM_ (condense' tds) comps
+  where condense' tds tree 
+          | subForest tree == [] = return ()
+          | otherwise      = do let u = rootLabel tree
+                                    xs = org ! u
+                                    vs = concatMap flatten (subForest tree)
+                                mapM_ (removeEdge tds) (carthesian xs (u:vs))
+                                ys <- readArray tds u
+                                let ins  = [(x,u) | x <- delete u xs ]
+                                    outs = [(u,y) | y <- ys ]
+                                mapM_ (addEdge tds) ins
+                                mapM_ (addEdge tds) outs
+                                mapM_ (\v -> writeArray tds v [v]) vs
+
+-- Expands an interface with the components
+expand :: Forest Vertex -> (LMH,Interface) -> Interface
+expand comps ((_,m,_),inter) 
+  = map expand' inter
+      where expand' (inh,syn) = let exp = concat . map (concatMap flatten . subForest) . mapMaybe (\x -> find (\tree -> rootLabel tree == x) comps)
+                                    (inh',syn') = partition (<m) $ exp (inh ++ syn)
+                                in (inh'++inh,syn'++syn)
 
 makeInterface :: Tds s -> LMH -> ST s Interface
 makeInterface tds lmh
@@ -353,3 +423,7 @@ head' a []  = error a
 head' _ (x:xs) = x
 fromJust' s (Just a) = a
 fromJust' s (Nothing) = error ("fromJust' Nothing: " ++ s)
+showlist xs = "[\n" ++ showlist' xs ++ "]\n"
+showlist' [] = ""
+showlist' [x] = show x
+showlist' (x:xs) = show x ++ "\n" ++ showlist' xs

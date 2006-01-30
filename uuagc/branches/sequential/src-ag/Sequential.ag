@@ -60,10 +60,9 @@ SEM Grammar
                              where def [] = -1
                                    def (v:vs) = v
             loc.(visitss,visitTable,interfaces,cyclesErrors) = 
-                                         case computeSequential @info @prods.directDep of
-                                           SequentialResult a b c -> (a,b,c,[])
-                                           DirectCycle errs       -> ([],[],[],map (directCycleErr @attrTable @codeAttrTable) errs)
-                                           InducedCycle errs      -> ([],[],[],map (inducedCycleErr @attrTable) errs)
+                                         case trace (showlist @prods.ntattrs) $ computeSequential @info @prods.directDep of
+                                           SequentialResult errs a b c -> ( a, b, c,map (directCycleErr @attrTable @codeAttrTable) errs)
+                                           InducedCycle     errs       -> ([],[],[],map (inducedCycleErr @attrTable) errs)
             lhs.errors           := {- @errors Seq.<> -} (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
 
 ------------------------------------------------------------------

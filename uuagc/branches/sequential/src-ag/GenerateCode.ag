@@ -78,7 +78,7 @@ SEM Grammar
                      .o_sem     = semfuns   @lhs.options
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
-                     .o_visit   = if visit  @lhs.options && null @cyclesErrors then True else False
+                     .o_visit   = visit     @lhs.options
                      .o_unbox   = unbox     @lhs.options
                      .prefix    = prefix    @lhs.options
 
