@@ -78,7 +78,7 @@ tdsTdp info dpr = do tds  <- newArray (Data.Array.bounds (tdsToTdp info)) []
                      tdpT <- newArray (Data.Array.bounds (tdpToTds info)) []
                      let comp = (tds,(tdpN,tdpT))
                      es <- concatMapM (insertTdp info comp) dpr
-                     return (comp,es)
+                     return (comp,nub es)
 
 -- Induces dependencies: Given a Tdp edge, add the corresponding Tds edge when applicable
 -- Applicable for non-local attributes with equal field names
@@ -95,11 +95,11 @@ induce info comp (v1,v2)
 -- Add an egde to Tds. This induces dependencies on Tdp.
 insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
 insertTds info (tds,tdp) (v1,v2)
-  = if cyclesOnly info && v1 > v2
-     then return [(v1,v2)]
-     else do b <- addEdge tds (v1,v2)
-             if b then occur info (tds,tdp) (v1,v2)
-                  else return []
+  = do b <- addEdge tds (v1,v2)
+       vs <- if b then (occur info (tds,tdp) (v1,v2)) else return []
+       if cyclesOnly info && v1 > v2
+        then return ((v1,v2):vs)
+        else return vs 
 
 {-
 -- Add an egde to Tds. This induces dependencies on Tdp.
@@ -175,14 +175,13 @@ removeEdge graph (u,v) = do e <- readArray graph u
 -------------------------------------------------------------------------------
 makeInterfaces :: Tds s -> [Edge] -> [LMH] -> ST s Interfaces
 makeInterfaces tds s2i lmhs
-  = do mapM_ (addEdge tds) s2i
-       tds' <- freeze tds
+  = do tds' <- freeze tds
        let tdsT' = transposeG tds'
            comps = scc tdsT'
        tdsT <- thaw tdsT'
        condense tdsT tds' comps
        interfaces <- mapM (makeInterface tdsT) lmhs   
-       return (map (expand comps) $ zip lmhs interfaces)
+       return zip lmhs interfaces)
 
 -- Turns the components of a graph into nodes
 condense :: Tds s -> Array Vertex [Vertex] -> Forest Vertex -> ST s ()
@@ -337,7 +336,7 @@ rhsEdges info v (inter:inters)
 rhsEdge :: Info -> Int -> Vertex -> Interface -> ([Edge],[(Vertex,ChildVisit)],Vertex)
 rhsEdge info n v [] = ([],[],v)
 rhsEdge info n v ((inh,syn):inter)
-  = let classes = gather info $ sort $ [ a | u <- inh ++ syn, a <- tdsToTdp info ! u, isRhs (aoTable info ! a)]
+  = let classes = gather info $ [ a | u <- inh ++ syn, a <- tdsToTdp info ! u, isRhs (aoTable info ! a)]
         islast = null inter
         childvisits = zip [v..] $ map ((\a -> ChildVisit (fromJust' (show (aoTable info ! a)) $ getField $ aoTable info ! a) n islast) . head' "childvisits") classes
         edges = makeEdges info v classes
@@ -354,7 +353,7 @@ makeEdges info n (x:xs) = map (makeEdge n) x ++ makeEdges info (n+1) xs
 -- The edges between visits: Visit n+1 depends on visit n
 visitEdges :: Info -> Graph -> Int -> Int -> [Edge]
 visitEdges info tdp l h 
-  = concatMap list2edges $ sort $ gather info $ sort $ map (\x -> head' (show x) (tdp ! x)) [l..h]
+  = concatMap list2edges $ gather info $ map (\x -> head' ("visitEdges: " ++ show x) (tdp ! x)) [l..h]
       where list2edges []        = []
             list2edges [a]       = []
             list2edges (a:b:abs) = (a,b):list2edges (b:abs)
@@ -373,7 +372,7 @@ visitss' info vsgraph prev inter = fst $ mapAccum (visitss'' info vsgraph) prev 
 -- (inh,syn): Attributes in this visit
 visitss'' :: Info -> Graph -> [Vertex] -> ([Vertex],[Vertex]) -> ([VisitSS],[Vertex])
 visitss'' info vsgraph prev (inh,syn) 
-  = let sortFrom = gather info $ sort $ filter lhs $ concatMap (tdsToTdp info !) syn
+  = let sortFrom = gather info $ filter lhs $ concatMap (tdsToTdp info !) syn
         inh' = [a | u <- inh, a <- tdsToTdp info ! u, lhs a]
         lhs a = isLhs (aoTable info ! a)
         prev' = inh' ++ prev
@@ -396,14 +395,11 @@ topSort' g = postOrd g
 -------------------------------------------------------------------------------
 -- Prelude-like functions
 -------------------------------------------------------------------------------
--- Gives equivalence classes, given an ORDERED list
+-- Gives equivalence classes
 eqClasses :: (a -> a -> Bool) -> [a] -> [[a]]
 eqClasses p [] = []
-eqClasses p (a:as) 
-  = eqC [a] as
-     where eqC as [] = [as]
-           eqC as (a:as') | p a (head' "eqClasses" as) = eqC (a:as) as'
-                          | otherwise     = reverse as : eqC [a] as'
+eqClasses p (a:as) = let (isA,rest) = partition (p a) as
+                     in (a:isA):eqClasses p rest
 
 concatMapM f xs = liftM concat $ mapM f xs
 mapMaybeM :: Monad m => (a -> m (Maybe b)) -> [a] -> m [b]
