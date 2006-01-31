@@ -1,0 +1,70 @@
+DATA Its
+  | NilIts
+  | ConsIts hd:It tl:Its
+
+DATA It
+  | Use name:Name
+  | Decl name:Name
+  | Block its:Its
+
+DATA Root
+  | Root its:Its
+
+ATTR It Its [ dcli:Env || dclo:Env ]
+SEM Its
+  | NilIts  lhs.dclo = @lhs.dcli
+  | ConsIts hd.dcli  = @lhs.dcli
+            tl.dcli  = @hd.dclo
+            lhs.dclo = @tl.dclo
+SEM It
+  | Use     lhs.dclo = @lhs.dcli
+  | Decl    lhs.dclo = (@name, @lhs.lev): @lhs.dcli
+  | Block   lhs.dclo = @lhs.dcli
+  
+ATTR Its It [ env:Env || ]
+SEM Its
+  | ConsIts hd.env   = @lhs.env
+            tl.env   = @lhs.env
+SEM It
+  | Block   its.dcli = @lhs.env
+            its.env  = @its.dclo
+
+ATTR Its It [ lev:Int || ]
+SEM Its
+  | ConsIts hd.lev   = @lhs.lev
+            tl.lev   = @lhs.lev            
+SEM It
+  | Block   its.lev  = @lhs.lev + 1
+
+ATTR Its It [ || errs:Err ]
+SEM Its
+  | NilIts  lhs.errs = []
+  | ConsIts lhs.errs = @hd.errs ++ @tl.errs
+SEM It
+  | Use     lhs.errs = @name `mBIn` @lhs.env
+  | Decl    lhs.errs = (@name, @lhs.lev) `mNBIn` @lhs.dcli
+  | Block   lhs.errs = @its.errs
+
+ATTR Root [ || errs:Err ]
+SEM Root
+  | Root    its.dcli = []
+            its.lev  = 0
+            its.env  = @its.dclo
+            lhs.errs = @its.errs
+  
+  
+{
+type Name = String
+type Env  = [(Name,Int)]
+type Err  = [Name]
+
+mBIn :: Name -> Env -> Err
+mBIn id [] = [id]
+mBIn id ((n,l):es) | n == id   = []
+                   | otherwise = id `mBIn` es
+
+mNBIn :: (Name,Int) -> Env -> Err
+mNBIn t [] = []
+mNBIn t@(n,l) (e:es) | t == e    = [n]
+                     | otherwise = t `mNBIn` es                   
+}  
