@@ -181,7 +181,7 @@ makeInterfaces tds s2i lmhs
        tdsT <- thaw tdsT'
        condense tdsT tds' comps
        interfaces <- mapM (makeInterface tdsT) lmhs   
-       return zip lmhs interfaces)
+       return (map (expand comps) $ zip lmhs interfaces)
 
 -- Turns the components of a graph into nodes
 condense :: Tds s -> Array Vertex [Vertex] -> Forest Vertex -> ST s ()
