@@ -14,13 +14,18 @@ type PP_Docs = [PP_Doc]
 
 
 
-ATTR Program                            [ width:{Int} nest:{Bool} | | output:{String} ]
-ATTR Expr Decl DataAlt Type Lhs         [ nest:{Bool} | | pp:{PP_Doc} ]
+ATTR Program                              [ width:{Int} nest:{Bool} | | output:{String} ]
+ATTR Expr Decl DataAlt Type Lhs           [ nest:{Bool} | | pp:{PP_Doc} ]
+ATTR CaseAlt                              [ nest:{Bool} | | pps: {[PP_Doc]} ]
 
-ATTR Exprs DataAlts Types  Decls        [ nest:{Bool} | | pps: {[PP_Doc]} ]
+ATTR Exprs DataAlts CaseAlts Types  Decls [ nest:{Bool} | | pps: {[PP_Doc]} ]
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM CaseAlts
+  | Cons lhs.pps = @hd.pps ++ @tl.pps
   | Nil  lhs.pps = []
 
 SEM DataAlts
@@ -63,6 +68,9 @@ SEM Expr
   | Let               lhs.pp      = (    "let" >#< (vlist @decls.pps)
                                      >-< "in " >#< @body.pp
                                     )
+  | Case              lhs.pp      = (    "case" >#< @expr.pp >#< "of"
+                                     >-< (vlist @alts.pps)
+                                    )
   | Lambda            lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
                                          >-< indent 4 @body.pp
                                     )
@@ -71,6 +79,9 @@ SEM Expr
   | App               lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
   | SimpleExpr        lhs.pp      = text @txt
   | PP lhs . pp = @pp
+
+SEM CaseAlt
+  | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
 
 SEM DataAlt
   | DataAlt    lhs.pp      = @name >#< hv_sp (map (pp_parens.text) @args)

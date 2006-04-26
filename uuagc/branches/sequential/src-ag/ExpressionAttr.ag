@@ -22,11 +22,12 @@ ATTR Expression [ nt,con   :{Name}
                   errors   :{Seq Error}
                   usedLocals:{[Name]}
                   usedAttrs :{[(Name,Name)]}
+                  usedFields:{[Name]}
                   pp       :{PP_Doc}
                 ]
 
 SEM Expression
-  | Expression  loc.(errors,pp,usedAttrs,usedLocals)
+  | Expression  loc.(errors,pp,usedAttrs,usedLocals,usedFields)
                             = let inherited = Inh_HsTokensRoot
                                               { attrs_Inh_HsTokensRoot   = @lhs.attrs
                                               , con_Inh_HsTokensRoot     = @lhs.con
@@ -40,4 +41,6 @@ SEM Expression
                                     , pp_Syn_HsTokensRoot         = pp
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
-                                    }  -> (errors,pp,usedAttrs,usedLocals)                                 
+                                    , usedFields_Syn_HsTokensRoot = usedFields
+                                    }  -> (errors,pp,usedAttrs,usedLocals,usedFields)                                 
+

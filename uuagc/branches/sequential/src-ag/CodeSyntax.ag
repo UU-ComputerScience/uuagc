@@ -1,0 +1,66 @@
+
+imports
+{
+import CommonTypes
+import UU.Pretty
+import Patterns
+import Expression
+import UU.DData.Set(Set)
+}
+
+DATA CodeGrammar      | CodeGrammar typeSyns : {TypeSyns}
+                                    useMap   : {UseMap}
+                                    derivings: {Derivings}
+                                    wrappers : {Set Nonterminal}
+                                    prods    : CodeProductions
+
+TYPE CodeProductions  = [CodeProduction]
+
+TYPE CodeAlternatives = [CodeAlternative]
+
+TYPE CodeChildren     = [CodeChild]
+
+TYPE CodeRules        = [CodeRule]
+
+TYPE CodeTypeSigs     = [CodeTypeSig]
+
+TYPE CodeInterface    = [CodeVisit]
+                                       
+DATA CodeProduction   | CodeProduction nt         : {Nonterminal}
+                                       interface  : CodeInterface
+                                       alts       : CodeAlternatives
+                                       visits     : Int -- The number of visits to this production
+                                       dataDef    : Decl
+                                       cataFun    : {[Decl]}
+
+DATA CodeAlternative  | CodeAlternative con      : {Constructor}
+                                        children : CodeChildren
+                                        sequence : CodeSequence
+
+DATA CodeSequence     | CodeSequence hd    : CodeRules
+                                     cycle : Bool -- indicates whether this visit is part of a cycle
+                                     tl    : CodeSequence
+
+DATA CodeChild        | CodeChild   name      : {Name}
+                                    tp        : {Type}
+                                    interface : {CodeInterface}
+                                    visits    : Int -- The number of visits to this child
+
+DATA CodeRule         | CodeRule       pattern : Pattern 
+                                       rhs     : Expression
+                                       owrt    : {Bool}
+                                       origin  : String  -- just for documentation (and maybe errors)
+                      | CodeChildVisit name    : {Name}  -- corresponding to the name of the child
+                                       nr      : {Int}   -- visit number
+                                       inh     : {Attributes}
+                                       syn     : {Attributes}
+                                       last    : {Bool}  -- indicates whether this is the last visit to this child
+
+DATA CodeTypeSig      | CodeTypeSig name : {Name}
+                                    tp   : {Type}
+
+
+DATA CodeVisit        | CodeVisit inh   : {Attributes}
+                                  syn   : {Attributes}
+                                  cycle : {Bool} -- indicates whether this visit is part of a cycle
+                                  last  : {Bool}  -- indicates whether this is the last visit
