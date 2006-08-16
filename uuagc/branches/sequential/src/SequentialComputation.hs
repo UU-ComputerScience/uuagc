@@ -141,19 +141,6 @@ addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
                     induce info comp (v1,v2)
             else return []
 
-{-
--- Add an edge to Tdp. This induces dependencies on Tds
-addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]
-addTdpEdge info comp@(_,(tdpN,tdpT)) (v1,v2)
-  = do e <- readArray tdpN v1
-       if v2 `elem` e
-        then return []
-        else do writeArray tdpN v1 (v2:e)
-                e' <- readArray tdpT v2
-                writeArray tdpT v2 (v1:e')
-                induce info comp (v1,v2)
--}
-
 -- Adds an edge to a graph. 
 --  Returns  True  if the edge was added, 
 --           False if the edge already existed

@@ -13,28 +13,6 @@ import SequentialTypes
 }
 
 ------------------------------------------------------------------
--- Invoking sequential computation
-------------------------------------------------------------------
-SEM Grammar
-  | Grammar loc.codeAttrTable = Array.array (0,@prods.vcount - 1 + length @visitTable) (mapSnd CAAttrOcc @prods.vertices' ++ mapSnd CAChildVisit @visitTable)
-            loc.attrTable     = Array.array (0,@prods.acount-1) @prods.ntattrs
-            prods.allvertices' = @prods.vertices'
-            prods.vcount  = 0
-            loc.info      = Info { tdsToTdp = Array.array (0,@prods.acount-1) @prods.tdsToTdp
-                                 , tdpToTds = Array.array (0,@prods.vcount-1) [ (ix, def (lookupWith' (ix `elem`) @prods.tdsToTdp)) | ix <- [0 .. @prods.vcount-1] ]
-                                 , aoTable  = Array.array (0,@prods.vcount-1) @prods.vertices'
-                                 , lmh      = @prods.aranges
-                                 , cyclesOnly = not (visit @lhs.options)
-                                 }
-                             where def [] = -1
-                                   def (v:vs) = v
-            loc.(visitss,visitTable,interfaces,cyclesErrors) = 
-                                         case computeSequential @info @prods.directDep of
-                                           SequentialResult errs a b c -> ( a, b, c,map (directCycleErr @attrTable @codeAttrTable) errs)
-                                           InducedCycle     errs       -> ([],[],[],map (inducedCycleErr @attrTable) errs)
-            lhs.errors := {- @errors Seq.<> -} (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
-
-------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
 ATTR Productions Production Alternatives Alternative Rules Rule 
@@ -122,6 +100,29 @@ SEM Rule
                    usedRest = concatMap translateIn @inAttrs
                in [ (x,@lhs.vcount) | x <- usedOut ++ usedLoc ++ usedRest ]
 
+------------------------------------------------------------------
+-- Invoking sequential computation
+------------------------------------------------------------------
+SEM Grammar
+  | Grammar loc.codeAttrTable = Array.array (0,@prods.vcount - 1 + length @visitTable) (mapSnd CAAttrOcc @prods.vertices' ++ mapSnd CAChildVisit @visitTable)
+            loc.attrTable     = Array.array (0,@prods.acount-1) @prods.ntattrs
+            prods.allvertices' = @prods.vertices'
+            prods.vcount  = 0
+            loc.info      = Info { tdsToTdp = Array.array (0,@prods.acount-1) @prods.tdsToTdp
+                                 , tdpToTds = Array.array (0,@prods.vcount-1) [ (ix, def (lookupWith' (ix `elem`) @prods.tdsToTdp)) | ix <- [0 .. @prods.vcount-1] ]
+                                 , aoTable  = Array.array (0,@prods.vcount-1) @prods.vertices'
+                                 , lmh      = @prods.aranges
+                                 , cyclesOnly = not (visit @lhs.options)
+                                 }
+                             where def [] = -1
+                                   def (v:vs) = v
+            loc.(interfaces,tds,cyclesErrors) = 
+                                         case computeSequential @info @prods.directDep of
+                                           SequentialResult inters tds errs -> (inters,tdp,map (directCycleErr @attrTable @codeAttrTable) errs)
+                                           InducedCycle     errs            -> (undefined,undefined,map (inducedCycleErr @attrTable) errs)
+            lhs.errors := {- @errors Seq.<> -} (if withCycle2 @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) Seq.<> @prods.errors
+
+
 -------------------------------------------
 -- Code to be generated
 -------------------------------------------
@@ -131,11 +132,16 @@ SEM Rule
                                            [Decl (Pattern @pattern.pp) (PP @rhs.pp)]
                          in [(@lhs.vcount,(@pattern.exprs,decls))]
 
+-- Collect all nonterminals
+ATTR Productions Production [ | | nts USE {++} {[]}: {[Nonterminal]} ]
+SEM Production
+  | Production lhs.nonterminals = [nt]
+
 -- Distribute interfaces downward
-ATTR Productions Production Alternatives Alternative [ allinterfaces : {[[([NTAttr],[NTAttr])]]} | | ]
+ATTR Productions Production Alternatives Alternative [ allinterfaces : {[(Nonterminal, [([NTAttr],[NTAttr])])]} | | ]
 SEM Grammar
   | Grammar loc.allinterfaces = let look n = @attrTable ! n
-                                in map (map (\(x,y) -> (map look x,map look y))) @interfaces 
+                                in zip @prods.nts (map (map (\(x,y) -> (map look x,map look y))) @interfaces)
             prods.interfaces  = @allinterfaces
 
 ATTR Productions [ interfaces : {[[([NTAttr],[NTAttr])]]} | | ]
@@ -143,22 +149,6 @@ SEM Productions
   | Cons hd.interface = head' "interfaces" @lhs.interfaces
          tl.interfaces = tail @lhs.interfaces
 ATTR Production Alternatives Alternative [ interface  : {[([NTAttr],[NTAttr])]} | | ]
-
--- Distribute visitss downward
-ATTR Productions [ visitss : {[[[[Graph.Vertex]]]]} | | ]
-SEM Productions
-  | Cons hd.visitss = head' "visitss" @lhs.visitss
-         tl.visitss = tail @lhs.visitss
-ATTR Production Alternatives [ visitss : {[[[Graph.Vertex]]]} | | ]
-SEM Alternatives
-  | Cons hd.visitss = case @lhs.visitss of 
-                        [] -> [[]]
-                        (a:as) -> a
-         tl.visitss = case @lhs.visitss of 
-                        [] -> []
-                        (a:as) -> as
-ATTR Alternative [ visitss : {[[Graph.Vertex]]} | | ]
-
 
 -------------------------------------------
 -- Sub-sequence dependencies
@@ -170,6 +160,59 @@ SEM Rule
                                 ++ map (\(field,attr) -> AORHSSyn (childNt field) @lhs.nt @lhs.con field attr) @outAttrs
                          childNt field = fromNT . fromJust $ lookup field @lhs.fields
                      in [(@lhs.vcount,(@pattern.vertices',used))]
+
+-------------------------------------------
+-- Visit sub-sequences
+-------------------------------------------
+SEM Alternative
+  | Alternative loc.visitss = let sequences = snd $ mapAccumL topSort @lhs.interface
+                                  -- Given what's been computed in previous visits and inherited and synthesized attributes for this visit
+                                  -- Computed what has been computed so far, what needs to be passed from previous visits, and the subsequence
+                                  subs :: [CodeAttr] -> ([NTAttr],[NTAttr]) -> ([CodeAttr],([CodeAttr],[CodeAttr]))
+                                  subs prev (inh,syn) = (computed,(needed,vss))
+                                    where computed = prev ++ vss
+                                          (needed,vss) = subseq inh syn
+                                          -- A worklist algorithm, taking the sequence sofar and a worklist
+                                          subseq :: [CodeAttr] -> [AttrOcc] -> ([AttrOcc],[AttrOcc])
+                                          subseq sofar [] = ([],[])
+                                          subseq sofar (a:wl)
+                                           | a `elem` sofar = subseq sofar wl
+                                           | a `elem` prev  = apFst (a:) (subseq sofar wl)
+                                           | otherwise
+                                               = case a of
+                                                   CAChildVisit cv = apSnd (a:) (subseq (a:sofar) (TODO inh of this cv)++wl)
+                                                   CAAttrOcc (AOLocal _ _ _) = apSnd (a:) (subseq (a:sofar) wl) 
+                                                   CAAttrOcc (AORHSSyn _ rnt _ fld attr) = let (n,isLast) = visitInfo rnd attr
+                                                                                               visit = CAChildVisit (ChildVisit fld n isLast)
+                                                                                           in subseq sofar (visit:wl)
+                                                   CAAttrOcc (AORHSInh _ _ _ _ _) = apSnd (a:) (subseq (a:sofar) wl)
+                                                   -- LHS can never occur 
+
+                 loc.visitInfo = \nt attr -> (Int,Bool) TODO
+
+{
+apFst :: (a -> b) -> (a,c) -> (b,c)
+TODO
+apSnd :: (a -> b) -> (c,a) -> (c,b)
+TODO
+}
+
+AOLocal  Name Name Name -- lhs nt, constructor, attribute
+             | AOLHSInh Name Name Name -- lhs nt, constructor, attribute
+             | AOLHSSyn Name Name Name -- lhs nt, constructor, attribute
+             | AORHSInh Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
+             | AORHSSyn Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
+             | AOTuple                                                       
+                                           
+
+
+
+
+
+
+
+
+
 
 -------------------------------------------------------------------------------
 -- Some useful functions
@@ -377,7 +420,7 @@ SEM Alternative
                                                 mytrans = nub (needed' ++ prev) \\ defined'
                               in reverse . intravisit [] . reverse $ zip @lhs.visitss @lhs.interface
 
-                loc.childVisit = \child nr -> @lhs.allinterfaces !! fromJust (elemIndex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts') !! nr
+               loc.childVisit = \child nr -> @lhs.allinterfaces !! fromJust (elemIndex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts') !! nr
 -}
 
 

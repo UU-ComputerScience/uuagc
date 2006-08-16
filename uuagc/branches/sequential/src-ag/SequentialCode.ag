@@ -20,7 +20,7 @@ SEM CodeProduction
                                (if @lhs.o_sem  then @alts.semFuns else [])
 
 ------------------------------------------------------------------
--- Number the interfaces, pass nt and con downward
+-- Number the interfaces, pass nt and con downward, pass children information to sequence
 ------------------------------------------------------------------
 ATTR CodeInterface CodeVisit 
      CodeSequence [ nr : Int | | ]
@@ -31,7 +31,7 @@ SEM CodeInterface
 SEM CodeAlternative 
   | CodeAlternative sequence.nr = 0
 SEM CodeSequence
-  | CodeSequence tl.nr = @lhs.nr + 1
+  | CodeSequenceCons tl.nr = @lhs.nr + 1
 
 ATTR CodeAlternatives CodeAlternative CodeSequence
      CodeInterface CodeVisit [ nt : Nonterminal | | ]
@@ -43,6 +43,12 @@ ATTR CodeSequence [  con : Constructor nr : Int ]
 SEM CodeAlternative
   | CodeAlternative sequence.con = @con
   
+ATTR CodeSequence [ childfields : [(Name,Type)] | | ]
+ATTR CodeChildren CodeChild [ | | fields USE {++} {[]} : {[(Name,Type))} ]
+SEM CodeAlternative
+  | CodeAlternative sequence.childfields = children.fields
+SEM CodeChild 
+  | CodeChild lhs.fields = [(@name, @tp)]
   
 
 ------------------------------------------------------------------
@@ -122,29 +128,83 @@ SEM CodeRule [ | | semDecl : {Decl} ]
 
 -- A CodeRules corresponds to a visit function
 SEM CodeSequence [ | | semDecl : {Decl} ]
-  | CodeSequence loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
-                 loc.semDecls = let name = visitname @lhs.prefix @lhs.nt (@lhs.nr+1)
-                                    call = seqSemname @lhs.prefix @lhs.nt @con (n+1)
-                                    decl = Decl (TupleLhs [name]) (App call @nextTrans)
-                                in @hd.semDecls ++ if @last then [] else [decl]
-                 lhs.semDecl = let args = @trans ++ map (\(name,nr) -> funname @name @nr) (Map.toList @lhs.childState)
-                                   rhs | @lhs.o_case = mkCases @semDecls 
-                                       | otherwise   = @semDecls
-                                   wrap = if @lhs.o_newtypes then \x -> App (sdtype @lhs.nt) [x] else id
-                               in Decl (Fun @funcname args) 
-                                       (wrap 
-                                          (mkLambda (map lhsshow (Map.keys @inh)) 
-                                                    rhs))
+  | CodeSequenceCons loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
+                     loc.semDecls = let name = visitname @lhs.prefix @lhs.nt (@lhs.nr+1)
+                                        call = seqSemname @lhs.prefix @lhs.nt @con (n+1)
+                                        decl = Decl (TupleLhs [name]) (App call @nextTrans)
+                                    in @hd.semDecls ++ if @last then [] else [decl]
+                     lhs.semDecl = let args = @trans ++ map (\(name,nr) -> funname @name @nr) (Map.toList @lhs.childState)
+                                       rhs | @lhs.o_case = mkCases @semDecls 
+                                           | otherwise   = @semDecls
+                                       wrap = if @lhs.o_newtypes then \x -> App (sdtype @lhs.nt) [x] else id
+                                   in Decl (Fun @funcname args) 
+                                           (wrap 
+                                              (mkLambda (map lhsshow (Map.keys @inh)) 
+                                                        rhs))
 
+-------------------------------------------------------------------------------
+-- Inter-visit dependencies
+-------------------------------------------------------------------------------
+ATTR CodeSequence [ nextTrans : {Exprs} childState : {Map Name Int} childType : {Map Name Type} | | trans : {Exprs} ]
+SEM CodeSequence 
+  | CodeSequenceCons loc.trans = unzip $ nub (@nextTrans ++ @hd.needed) \\ @defined
+                        .defined = @hd.defined 
+                                   ++ mapFst (AOLHSInh @lhs.nt @lhs.con ) (Map.assoc @inh)
+                                   ++ if @lhs.first then mapFst (AOLocal @lhs.nt @lhs.con) @lhs.childfields
+                     hd.nextTrans = tl.trans
+  | CodeSequenceNil  lhs.trans = []
+
+ATTR CodeRules CodeRule [ | | needed USE {++} {[]} : {[(AttrOcc,Type)]} defined USE {++} {[]} : {[(AttrOcc,Type)]} ]
+SEM CodeRule
+  | CodeRule       lhs.defined = let findType = 
+                                 in zip (@pattern.vertices) (map findType @pattern.vertices) 
+                   lhs.needed  = map (AOLocal @lhs.nt @lhs.con) (@locAttrs ++ @rhs.usedLocals ++ @rhs.usedFields)
+                                 ++ map (\(field,attr) -> AOLHSInh @lhs.nt @lhs.con attr) @inAttrs
+                                 ++ map (\(field,attr) -> AORHSSyn (childNt field) @lhs.nt @lhs.con field attr) @outAttrs
+                                  where childNt field = fromNT . fromJust $ lookup field @lhs.fields
+  | CodeChildVisit lhs.defined = mapFst (AORHSSyn @nt @lhs.nt @lhs.con @child) (Map.assoc @syn)
+                   lhs.needed  = mapFst (AORHSInh @nt @lhs.nt @lhs.con @child) (Map.assoc @inh)
+
+
+------------------------------------------------------------------
+-- Types
+------------------------------------------------------------------
 -- The type of a visit function
 SEM CodeSequence [ | | semType : {Decl} ]
-  | CodeSequence lhs.semType = TSig @funcname 
-                                    (foldr Arr (SimpleType (typeName @lhs.nt @lhs.nr)) (@transTypes ++ @lhs.childType))
+  | CodeSequenceCons lhs.semType = TSig @funcname 
+                                        (foldr Arr (SimpleType (typeName @lhs.nt @lhs.nr)) (@transTypes ++ @lhs.childType))
+                     loc.transTypes = map (@findType True) @trans
+                     loc.findType = \req ca
+                                 -> let childType child nr = case lookup child @children.fields of
+                                                               Just (NT tp) -> typeName tp nr
+                                    in case ca of
+                                         AOLocal nt con attr
+                                           -> case Map.lookup attr @typeSigs.typeSigs of
+                                                Nothing -> case lookup attr @children.fields of
+                                                             Nothing -> []
+                                                             Just tp -> if req then typeToString nt tp else []
+                                                Just tp -> typeToString nt tp
+                                         AOLHSInh nt con attr
+                                           -> typeToString nt (Map.find attr @lhs.inh)
+                                         AOLHSSyn nt con attr)
+                                           -> typeToString nt (Map.find attr @lhs.syn)
+                                         AORHSInh rnt nt con fld attr
+                                           -> let (_,inh,_) = head' "rhsinh" $ filter (\(b,_,_) -> b == fld) @children.attributes
+                                              in typeToString rnt (Map.find attr inh)
+                                         AORHSSyn rnt nt con fld attr 
+                                           -> let (_,_,syn) = head' "rhssyn" $ filter (\(b,_,_) -> b == fld) @children.attributes
+                                              in typeToString rnt (Map.find attr syn)
+                                         AOTuple cas
+                                           -> concatMap (@findType req) cas
+                                         CAChildVisit (ChildVisit child nr lastVisit)
+                                           -> let (_,syn') = @childVisit child nr
+                                              in concatMap (\(NTASyn nt attr) -> @typeSig req (CAAttrOcc (AORHSSyn nt @lhs.nt @con child attr))) syn'
+                                                 ++ if lastVisit then [] else [(funname child (nr+1), childType child (nr+1))]
 
-ATTR CodeSequence [ nextTrans : {Exprs} childState : {Map Name Int} childType : {Map Name Type} | | ]
-SEM CodeSequence loc.trans : {Exprs}
+-- The types of 
 
-             loc.transTypes
+
+
 
 
 
@@ -221,39 +281,6 @@ SEM Alternative
                                               then [tsig, Decl lhs rhs]
                                               else [Decl lhs rhs]) ++ (seqSemFuns (n+1) inter vss)
                                  in seqSemFuns 0 @lhs.interface @visitss
-                loc.visitss = let intravisit :: [AttrOcc] -> [([Graph.Vertex],([NTAttr],[NTAttr]))] -> [([Graph.Vertex],[AttrOcc])]
-                                  intravisit prev [] = []
-                                  intravisit prev ((vs,(inh,syn)):rest) 
-                                      = (vs,mytrans):intravisit mytrans rest
-                                          where (defined,needed) = unzip . map (\x-> maybe (childDN x) id (lookup x @rules.ssdep)) $ vs
-                                                childDN x = case @lhs.codeAttrTable ! x of
-                                                              (CAChildVisit (ChildVisit child nr _))
-                                                                -> let (inh,syn) = @childVisit child nr
-                                                                       needed = map (\(NTAInh nt attr) -> AORHSInh nt @lhs.nt @con child attr) inh
-                                                                       defined = map (\(NTASyn nt attr) -> AORHSSyn nt @lhs.nt @con child attr) syn
-                                                                   in (defined,needed)
-                                                              otherwise -> ([],[])
-                                                inh' = map (\(NTAInh nt attr) -> AOLHSInh nt @con attr) inh
-                                                terminals | null rest = map (AOLocal @lhs.nt @con) @children.terminals
-                                                          | otherwise = []
-                                                defined' = terminals ++ inh' ++ concat defined
-                                                needed' = concat needed
-                                                mytrans = nub (needed' ++ prev) \\ defined'
-                              in reverse . intravisit [] . reverse $ zip @lhs.visitss @lhs.interface
-
-                loc.childVisit = \child nr -> @lhs.allinterfaces !! fromJust (elemIndex (fromNT $ fromJust $ lookup child @children.fields) @lhs.nts') !! nr
-
--------------------------------------------
--- Sub-sequence dependencies
--------------------------------------------
-ATTR Rule Rules [ | | ssdep USE {++} {[]} : {[(Graph.Vertex,([AttrOcc],[AttrOcc]))]} ]
-SEM Rule
-  | Rule lhs.ssdep = let used = map (AOLocal @lhs.nt @lhs.con) (@locAttrs ++ @rhs.usedLocals ++ @rhs.usedFields)
-                                ++ map (\(field,attr) -> AOLHSInh @lhs.nt @lhs.con attr) @inAttrs
-                                ++ map (\(field,attr) -> AORHSSyn (childNt field) @lhs.nt @lhs.con field attr) @outAttrs
-                         childNt field = fromNT . fromJust $ lookup field @lhs.fields
-                     in [(@lhs.vcount,(@pattern.vertices',used))]
-
 
 -------------------------------------------
 -- Type signatures

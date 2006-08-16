@@ -37,9 +37,10 @@ DATA CodeAlternative  | CodeAlternative con      : {Constructor}
                                         children : CodeChildren
                                         sequence : CodeSequence
 
-DATA CodeSequence     | CodeSequence hd    : CodeRules
-                                     cycle : Bool -- indicates whether this visit is part of a cycle
-                                     tl    : CodeSequence
+DATA CodeSequence     | CodeSequenceCons hd    : CodeRules
+                                         cycle : Bool -- indicates whether this visit is part of a cycle
+                                         tl    : CodeSequence
+                      | CodeSequenceNil
 
 DATA CodeChild        | CodeChild   name      : {Name}
                                     tp        : {Type}
@@ -51,6 +52,7 @@ DATA CodeRule         | CodeRule       pattern : Pattern
                                        owrt    : {Bool}
                                        origin  : String  -- just for documentation (and maybe errors)
                       | CodeChildVisit name    : {Name}  -- corresponding to the name of the child
+                                       nt      : Nonterminal
                                        nr      : {Int}   -- visit number
                                        inh     : {Attributes}
                                        syn     : {Attributes}
