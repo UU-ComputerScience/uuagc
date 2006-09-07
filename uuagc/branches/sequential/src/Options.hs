@@ -26,10 +26,10 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option []        ["self"]       (NoArg selfOpt)             "generate self attribute"
                , Option []        ["cycle"]      (NoArg cycleOpt)            "check for cyclic definitions"
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
-               , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
-               , Option []        ["cycle2"]     (NoArg cycle2Opt)           "fast check for cyclic definitions"
+               , Option ['O']     ["optimize"]   (NoArg visitOpt)            "try generating visit functions"
                , Option []        ["seq"]        (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
                , Option []        ["unbox"]      (NoArg unboxOpt)            "use unboxed tuples"
+               , Option []        ["case"]       (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
                ]
 
 allc = "dcfsprm"
@@ -57,9 +57,9 @@ data Options = Options{ moduleName :: ModuleHeader
                       , showHelp :: Bool
                       , showVersion :: Bool
                       , visit :: Bool
-                      , withCycle2 :: Bool
                       , withSeq :: Bool
                       , unbox :: Bool
+                      , cases :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -82,9 +82,9 @@ noOptions = Options { moduleName   = NoName
                     , withSelf     = False
                     , withCycle    = False
                     , visit        = False
-                    , withCycle2   = False
                     , withSeq      = False
                     , unbox        = False
+                    , cases        = False
                     }
 
 
@@ -106,10 +106,10 @@ versionOpt    opts = opts{showVersion  = True}
 prefixOpt pre opts = opts{prefix       = pre }            
 selfOpt       opts = opts{withSelf     = True}            
 cycleOpt      opts = opts{withCycle    = True}            
-visitOpt      opts = opts{visit        = True, withCycle2 = True}
-cycle2Opt     opts = opts{withCycle2   = True}     
+visitOpt      opts = opts{visit        = True, withCycle = True}
 seqOpt        opts = opts{withSeq      = True}
 unboxOpt      opts = opts{unbox        = True}
+casesOpt      opts = opts{cases        = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

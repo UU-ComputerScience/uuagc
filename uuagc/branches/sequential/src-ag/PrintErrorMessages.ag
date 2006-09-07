@@ -272,31 +272,20 @@ SEM Error
                              in ppError @isWarning @pos @mesg pat help act False
 
                     lhs . isWarning = @isWarning
- | CircGrammar      loc.isWarning      = True
-                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
-                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
-                                         in wfill ["Circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
-                                 pat   = text "see help"
-                                 help  = wfill [@nt +.+ @syn, "<", @nt +.+ @inh, ":"]
-                                         >-< ppTrace @isTrace
-                                         >-< wfill [@nt +.+ @inh, "<", @nt +.+ @syn, ":"]
-                                         >-< ppTrace @siTrace
-                                 act   = text "The generated program might not run."
-                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | DirectCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
-                                         in wfill ["Direct circular dependency pattern for ", attrtext, "of nonterminal",getName  @nt]
+                                         in wfill ["Direct circular dependency pattern for", attrtext, "of nonterminal", getName @nt]
                                  pat   = text "see help"
-                                 help  = wfill @path
-                                 act   = text "The generated program might not run."
+                                 help  = vlist ("The following attributes formed the cycle:": @path)
+                                 act   = text "An unoptimized version was generated. It might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | InducedCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
                                          in wfill ["Induced circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
                                  pat   = text "see help"
-                                 help  = ppInterface @inter
+                                 help  = wfill ["not available."]
                                  act   = text "Generation of visit functions failed."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | MissingTypeSig   loc.isWarning      = True
@@ -308,11 +297,11 @@ SEM Error
                                        >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< ": ...")
                                  help  = wfill ["The", showAttrDef _LOC @attr, "in alternative", getName @con
                                                ,"of nonterminal", getName @nt, "is needed in two seperate visits to", getName @nt
-                                               ,"and you want to generate type signatures."
+                                               ,"so its type is needed to generate type signatures."
                                                ,"Please supply its type."
                                                ]
                                  act  = wfill ["The type signatures of semantic functions are not generated."]
-                             in ppError @isWarning @pos mesg pat help act @lhs.verbose
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
 {
 ppTrace :: Trace -> PP_Doc

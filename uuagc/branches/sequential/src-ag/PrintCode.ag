@@ -110,7 +110,7 @@ SEM Type  [ | | prec:Int ]
                   .pp      = "[" >|< @tp.pp >|< "]"
 
   | SimpleType lhs.prec    = 5
-                  .pp      = pp_parens $ text @txt
+                  .pp      = pp_parens . vlist . lines $ @txt
 
 {
 

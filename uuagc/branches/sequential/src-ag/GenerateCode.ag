@@ -1,10 +1,8 @@
-
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "Comments.ag"
+INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "ExpressionAttr.ag"
-{- INCLUDE "Dep.ag" -}
-INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Sequential.ag"
 
 imports
@@ -78,7 +76,7 @@ SEM Grammar
                      .o_sem     = semfuns   @lhs.options
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
-                     .o_visit   = visit     @lhs.options
+                     .o_visit   = visit     @lhs.options && null @cyclesErrors
                      .o_unbox   = unbox     @lhs.options
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
@@ -97,12 +95,12 @@ SEM Grammar
 
 
 SEM Production
-  | Production  lhs.decls = if @lhs.o_visit then @seqDecls else
-                            Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
-                            (if @lhs.o_pretty then @loc.comment : @alts.comments else []) ++
+  | Production  lhs.decls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
                             (if @lhs.o_data then [@loc.dataDef] else []) ++
-                            (if @lhs.o_sig || @lhs.o_sem then @loc.semDom  else []) ++
                             (if @lhs.o_cata then @loc.cataFun else []) ++
+                            (if @lhs.o_visit then @seqDecls else @decls)
+                loc.decls = (if @lhs.o_pretty then @loc.comment : @alts.comments else []) ++
+                            (if @lhs.o_sig || @lhs.o_sem then @loc.semDom  else []) ++
                             (if Set.member @nt @lhs.wrappers then @loc.semWrapper else []) ++
                             (if @lhs.o_sem  then @alts.semFuns else [])
 
@@ -135,7 +133,7 @@ SEM Production
                                     in Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                             (Let [Decl (mkTupleLhs @lhs.o_unbox inhVars synVarsN) (App var inhVars) | not(null synVarsN)]
                                              (App synNT synVarsE))
-                     in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ if @lhs.o_visit then @seqWrapperFun else [function]
+                     in datas ++ (if @lhs.o_sig then [typeSig] else []) ++ [function]
                      
 
 -------------------------------------------------------------------------------

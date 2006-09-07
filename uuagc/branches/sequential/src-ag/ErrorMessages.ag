@@ -4,7 +4,6 @@ imports
 import UU.Pretty
 import CommonTypes
 import UU.Scanner.Position(Pos)
-import DepTypes(Trace)
 }
 
 DATA Error  | DupAlt          nt    : {Nonterminal}
@@ -64,11 +63,6 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
 
-            | CircGrammar     nt      : {Nonterminal}
-                              inh     : {Name}
-                              siTrace : {Trace}
-                              syn     : {Name}
-                              isTrace : {Trace}
             | DirectCirc      nt      : {Nonterminal}
                               inh     : {Name}
                               syn     : {Name}
@@ -76,8 +70,7 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
             | InducedCirc     nt      : {Nonterminal}
                               inh     : {Name}
                               syn     : {Name}                
-                              inter   : {[([Name],[Name])]}
             | MissingTypeSig  nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
-                              pos     : {Pos}
+
