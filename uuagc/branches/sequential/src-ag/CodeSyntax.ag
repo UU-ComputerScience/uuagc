@@ -1,0 +1,65 @@
+imports
+{
+import CommonTypes
+import UU.Pretty(PP_Doc)
+import UU.DData.Map(Map)
+import SequentialTypes
+import Data.Graph(Vertex)
+}
+
+DATA  CGrammar 
+   |  CGrammar prods:CProductions
+
+TYPE CProductions = [CProduction]
+
+DATA  CProduction 
+   |  CProduction  nt:Nonterminal
+                   inh:{Attributes}
+                   syn:{Attributes}
+                   alts:CAlternatives
+                   inter:CInterface
+
+DATA  CInterface
+   |  CInterface seg:CSegments
+
+TYPE CSegments = [CSegment]
+
+DATA  CSegment
+   |  CSegment  inh:{Attributes}
+                syn:{Attributes}
+
+TYPE CAlternatives = [CAlternative]
+
+DATA  CAlternative
+   |  CAlternative  con:Constructor
+                    visits:CVisits
+                    children:{[(Name,Type)]}
+                    terminals:{[Name]}
+
+TYPE CVisits = [CVisit]
+
+DATA  CVisit 
+   |  CVisit  inh:{Attributes}
+              syn:{Attributes}
+              vss:Sequence
+              intra:Sequence
+
+TYPE Sequence = [CRule]
+
+DATA  CRule
+   |  CRule        ao      : AttrOcc
+                   tp      : {Maybe Type}
+                   hasCode : Bool -- Does this rule have code associated with it?
+                   pattern : PP_Doc 
+                   rhs     : PP_Doc
+                   defines : {Map Vertex (AttrOcc,Maybe Type)}
+                   owrt    : {Bool}
+                   origin  : String  -- just for documentation (and maybe errors)
+   |  CChildVisit  name    : {Name}  -- corresponding to the name of the child
+                   nt      : {Nonterminal}
+                   nr      : {Int}   -- visit number
+                   inh     : {Attributes}
+                   syn     : {Attributes}
+                   last    : {Bool}  -- indicates whether this is the last visit to this child
+
+DERIVING * : Show -- DEBUG
