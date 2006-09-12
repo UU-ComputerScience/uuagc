@@ -1,11 +1,9 @@
 imports
 {
-import Debug.Trace -- DEBUG
-import Data.List(sortBy) --DEBUG
 import Data.List(elemIndex)
 import Control.Monad(liftM)
 import qualified Data.Array as Array
-import Data.Array({-DEBUG(!)-},bounds,inRange)
+import Data.Array((!),bounds,inRange)
 import Data.List(sort,mapAccumL,find)
 import qualified Data.Graph as Graph
 import qualified Data.Tree  as Tree
@@ -15,19 +13,6 @@ import CodeSyntax
 import GenerateSeqCode
 import GrammarInfo
 }
-
-{ {-DEBUG-}
-(!) :: Show a => Array.Array Graph.Vertex a -> Graph.Vertex -> a
-arr ! e | Array.inRange (bounds arr) e = arr Array.! e
-        | otherwise = error ("(!) error " ++ show e ++ " in " ++ show arr)
-
-sort' = sortBy (\(a,_) (b,_) -> a `compare` b)
-showlist xs = "[\n" ++ showlist' xs ++ "]\n"
-showlist' [] = ""
-showlist' [x] = show x
-showlist' (x:xs) = show x ++ "\n" ++ showlist' xs
-}
-
 
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
@@ -218,16 +203,23 @@ SEM Grammar
                                  , ruleTable  = @ruleTable
                                  , lmh        = @prods.aranges
                                  , prods      = @prods.prods
+                                 , wraps      = @wrappers
                                  , cyclesOnly = not (visit @lhs.options)
                                  }
                              where def [] = -1
                                    def (v:vs) = v
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              trace ("=== Numbering attributes ==="  ++ showlist (Array.assocs @attrTable) ++ "\n\n== Numbering attribute occurrences  ==" ++ showlist (Array.assocs @aoTable) ++ "\n\naTable ==" ++ show ( sort' @prods.aTable) ++ "\n\nruleTable ==" ++ show (sort' @prods.ruleTable) ++ "\n\ndirectdeps==" ++ show @prods.directDep {-DEBUG-}) $
-                                         case computeSequential @info @prods.directDep of
-                                           SeqResult    cim cvm -> trace ("ResultingVisitmap == " ++ concatMap (\k -> show k ++ ":=" ++ show (Map.keys (cvm Map.! k)) ++ "\n") (Map.keys cvm)) (cim,cvm,[])
-                                           DirectCycle  errs -> (error "No interfaces for cyclic AG",error "No visit sub-sequences for cyclic AG",map (directCycleErr @attrTable @ruleTable) errs)
-                                           InducedCycle cim errs -> (cim,error "No visit sub-sequences",  map (inducedCycleErr @attrTable) errs)
+                              case computeSequential @info @prods.directDep of
+                                           SeqResult    cim cvm -> (cim,cvm,[])
+                                           LocLocCycle  errs ->  (error "No interfaces for cyclic AG"
+                                                                 ,error "No visit sub-sequences for cyclic AG"
+                                                                 ,map (loclocCycleErr @ruleTable @aoTable) errs)
+                                           DirectCycle  errs ->  (error "No interfaces for cyclic AG"
+                                                                 ,error "No visit sub-sequences for cyclic AG"
+                                                                 ,map (directCycleErr @attrTable @ruleTable) errs)
+                                           InducedCycle cim errs ->  (cim
+                                                                     ,error "No visit sub-sequences"
+                                                                     ,map (inducedCycleErr @attrTable cim) errs)
             lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
                           Seq.<> (if visit @lhs.options && null @cyclesErrors then @missingTypeSigs else Seq.empty)
                           Seq.<> @prods.errors
@@ -238,18 +230,12 @@ SEM Grammar
 -- Pass InterfaceMap down and select the Interface in the Production
 ATTR Productions Production [ cInterfaceMap : CInterfaceMap | | ]
 SEM  Production
-  |  Production  loc.cInters = sem_CInterface (find' @nt @lhs.cInterfaceMap)
-
-{ {-DEBUG-}
-find' a map = case Map.lookup a map of
-                Nothing -> error ("Map.find failed to find " ++ show a ++ " in " ++ show (Map.keys map))
-                Just b -> b
-}
+  |  Production  loc.cInters = sem_CInterface (Map.find @nt @lhs.cInterfaceMap)
 
 -- Pass VisitMap down and select the CVisits in the Alternative
 ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
 SEM  Alternative
-  |  Alternative loc.cVisits = sem_CVisits (find' @con (find' @lhs.nt @lhs.cVisitsMap))
+  |  Alternative loc.cVisits = sem_CVisits (Map.find @con (Map.find @lhs.nt @lhs.cVisitsMap))
 
 -- Now just build the CGrammar
 SEM  Grammar
@@ -282,22 +268,34 @@ SEM  Production [ seqDecls : {Decls} | | ]
   |  Production  loc.seqDecls = @lhs.seqDecls
 
 {
+showPath :: Graph.Table CRule -> [Graph.Vertex] -> [String]
+showPath ruleTable path
+  =  let  look a | inRange (bounds ruleTable) a = [ruleTable ! a]
+                 | otherwise = []
+          showOrigin (CRule ao _ hasCode _ _ _ _ origin) | hasCode && getName (getAttr ao) /= "self" = prettyAO ao ++ " (" ++ show (getPos (getAttr ao)) ++ ")"
+                                                         | otherwise = prettyAO ao
+     in map showOrigin (concatMap look path)
+
+loclocCycleErr :: Graph.Table CRule -> Graph.Table AttrOcc -> (Graph.Vertex,[Graph.Vertex]) -> Error
+loclocCycleErr ruleTable aoTable (s,path)
+  =  let ao = aoTable ! s
+         attr = getAttr ao
+         nt = getLhsNt ao
+         con = getCon ao
+     in LocLocCirc nt con attr (showPath ruleTable path)
+
 directCycleErr :: Graph.Table NTAttr -> Graph.Table CRule -> (Graph.Edge,[Graph.Vertex]) -> Error
 directCycleErr attrTable ruleTable ((v1,v2), path)
   = let (NTASyn nt a1) = attrTable ! v1
         (NTAInh _  a2) = attrTable ! v2
-        look a | inRange (bounds ruleTable) a = [ruleTable ! a]
-               | otherwise = []
-        showPath = map showOrigin (concatMap look path)
-        showOrigin (CRule ao _ hasCode _ _ _ _ origin) | hasCode && getName (getAttr ao) /= "self" = prettyAO ao ++ " (" ++ show (getPos (getAttr ao)) ++ ")"
-                                                       | otherwise = prettyAO ao
-    in DirectCirc nt a2 a1 showPath
+    in DirectCirc nt a2 a1 (showPath ruleTable path)
 
-inducedCycleErr :: Graph.Table NTAttr -> Graph.Edge -> Error
-inducedCycleErr attrTable (v1,v2)
+inducedCycleErr :: Graph.Table NTAttr -> CInterfaceMap -> Graph.Edge -> Error
+inducedCycleErr attrTable cim (v1,v2)
   = let (NTASyn nt a1) = attrTable ! v1
         (NTAInh _  a2) = attrTable ! v2
-    in trace ("Induced cycle between " ++ show v1 {- ++ "(" ++ show a1 -} ++ ") and " ++ show v2 {- ++ "(" ++ show a2 -} ++ ") of " ++ show nt) $ InducedCirc nt a2 a1 -- DEBUG
+        cinter = Map.find nt cim
+    in InducedCirc nt a2 a1 cinter
 
 -------------------------------------------------------------------------------
 -- Some useful functions

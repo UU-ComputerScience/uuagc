@@ -9,7 +9,6 @@ import SequentialTypes
 import CodeSyntax
 import GrammarInfo
 
-import Debug.Trace {-DEBUG-}
 import UU.DData.Seq as Seq
 import qualified UU.DData.Map as Map
 import UU.DData.Map(Map)
@@ -18,19 +17,7 @@ import UU.DData.Set(Set)
 import Data.Graph
 import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,intersect)
-import Data.Array ({-DEBUG(!)-},inRange,bounds,assocs)
-import qualified Data.Array as Array {-DEBUG-}
-import Data.List(sort){-DEBUG-}
-}
-
-{ {-DEBUG-}
-(!) :: Show a => Array.Array Vertex a -> Vertex -> a
-arr ! e | Array.inRange (bounds arr) e = arr Array.! e
-        | otherwise = error ("(!) error " ++ show e ++ " in " ++ show arr)
-showlist xs = "[\n" ++ showlist' xs ++ "]\n"
-showlist' [] = ""
-showlist' [x] = show x
-showlist' (x:xs) = show x ++ "\n" ++ showlist' xs
+import Data.Array ((!),inRange,bounds,assocs)
 }
 \end{code}
 %endif
@@ -74,7 +61,7 @@ use |topSort'|.
 ATTR IRoot [ tdp : Graph | | ]
 SEM  IRoot 
   |  IRoot loc.newedges = Seq.toList @inters.newedges
-           loc.visitssGraph =  trace ("\n\ntdp==" ++ show @lhs.tdp ++ "\n\nnewedges==" ++ show @newedges {-DEBUG-}) (transposeG graph)
+           loc.visitssGraph =  transposeG graph
                                where  graph = buildG (0,@inters.v-1) es
                                       es = @newedges ++ edges @lhs.tdp
 \end{code}
@@ -116,9 +103,7 @@ SEM  Segment
                                           ,  a <- tdsToTdp @lhs.info ! u
                                           ,  p (@look a)]
               loc.groups =  let group as = gather @lhs.info (@occurAs isRhs as)
-                                inhgroup = if null @inh then repeat [] else group @inh
-                                syngroup = group @syn
-                            in zip inhgroup syngroup
+                            in map (partition (isInh . @look)) (group (@inh ++ @syn))
               loc.v = @lhs.v + length @groups
               loc.newvertices = [@lhs.v .. @loc.v-1]
 \end{code}
@@ -130,12 +115,12 @@ of an attribute occurrence
 ATTR  Interfaces Interface Segments Segment 
       [ visitDescr : {Map Vertex ChildVisit} | | ]
 SEM  IRoot
-  |  IRoot  inters.visitDescr = trace ("\n=== Visit Descriptions == " ++ showlist @descr {-DEBUG-}) (Map.fromList @descr)
+  |  IRoot  inters.visitDescr = Map.fromList @descr
 ATTR  Interfaces Interface Segments Segment
       [ | |  newedges USE {Seq.<>} {Seq.empty} : {Seq Edge } 
              descr USE {Seq.<>} {Seq.empty} : {Seq (Vertex,ChildVisit)} ]
 SEM  Segment
-  |  Segment lhs.descr =  trace ("groups: " ++ show @groups {-DEBUG-}) (Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {- $ -})
+  |  Segment lhs.descr =  Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {-$-}
 
 {
 -- Groups always have at least one synthesized attribute
@@ -144,7 +129,7 @@ cv :: (Vertex -> AttrOcc) -> Int -> Vertex -> ([Vertex],[Vertex]) -> (Vertex,Chi
 cv look n v (inh,syn) =  let  fld = fromJust (getField (look (head syn)))
                               rnt = fromJust (getRhsNt (look (head syn)))
                               d = ChildVisit fld rnt n inh syn
-                         in trace ("cv " ++ show (v,d) {-DEBUG-}) (v,d)
+                         in (v,d)
 }
 \end{code}
 
@@ -200,7 +185,7 @@ SEM  Interface
                 lhs.newedges = @seg.newedges Seq.<> Seq.fromList @newedges
                 loc.look = \a -> aoTable @lhs.info ! a
                 loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
-                lhs.descr = trace ("\nInterface, descr==" ++ show @descr ++ "\nsegnewv==" ++ show @seg.newvertices{-DEBUG-}) (@seg.descr Seq.<> Seq.fromList @descr)
+                lhs.descr = @seg.descr Seq.<> Seq.fromList @descr
 \end{code}
 
 The visit number can simply be counted
@@ -221,7 +206,7 @@ To compute the visit subsequences, we pass the visit-subsequence graph down
 \begin{code}
 ATTR Interfaces Interface Segments Segment [ vssGraph : Graph | | ]
 SEM  IRoot
-  |  IRoot inters.vssGraph = trace ("visitssGraph == "  ++ show @visitssGraph {-DEBUG-}) @visitssGraph
+  |  IRoot inters.vssGraph = @visitssGraph
 \end{code}
 
 Each segment computes subsequences for each production of the
@@ -338,7 +323,7 @@ that are compted in this visit.
 ATTR IRoot [ dpr : {[Edge]} | | ]
 ATTR Interfaces Interface Segments Segment [ ddp : Graph | | ]
 SEM  IRoot
-  |  IRoot inters.ddp = trace ("\n\nddp==" ++ show (sort (@lhs.dpr ++ @newedges))) (buildG (0,@inters.v-1) (map swap (@lhs.dpr ++ @newedges)))
+  |  IRoot inters.ddp = buildG (0,@inters.v-1) (map swap (@lhs.dpr ++ @newedges))
 
 {
 swap (a,b) = (b,a)
@@ -357,12 +342,10 @@ SEM  Segment
                                                               CRule _ _ _ _ _ def _ _ -> Map.keys def
                                                  Just (ChildVisit _ _ _ _ syn) -> v:syn
                               in concatMap (concatMap computes) @visitss
-              loc.intravisits = trace ("\n\nvisit " ++ show @lhs.n ++ "\nvisitss==" ++ show @visitss ++ "\nintravisits==" ++ show (zipWith @iv @visitss @lhs.nextIntravisits) {-DEBUG-}) (zipWith @iv @visitss @lhs.nextIntravisits)
+              loc.intravisits = zipWith @iv @visitss @lhs.nextIntravisits
               loc.iv =  \vs next -> 
                           let needed = concatMap (@lhs.ddp !) vs
                           in nub (needed ++ next) \\ (@fromLhs ++ @computed)
-
--- (nub computed `intersect` (needed ++ next))
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -378,9 +361,7 @@ accomplished by |transpose|. The same is done for intravisits.
 \begin{code}
 ATTR Interfaces Interface Segments Segment [ allInters : {CInterfaceMap} | | ]
 SEM  IRoot
-  |  IRoot  inters.allInters = trace ("inters == " ++ show @inters.inters {-DEBUG-}) @inters.inters
-
-            lhs.visits = trace ("\n\nvisits== " ++ show @inters.visits) @inters.visits {-DEBUG whole line-} 
+  |  IRoot  inters.allInters = @inters.inters
 
 ATTR  IRoot Interfaces [ | | inters : {CInterfaceMap} 
                              visits : {CVisitsMap} ]
@@ -396,7 +377,7 @@ SEM  Interface [ | | nt : Nonterminal ]
 SEM  Interface [ | | inter : CInterface 
                      visits : {Map Constructor CVisits} ]
   |  Interface  lhs.inter = CInterface @seg.segs
-                lhs.visits = trace ("\n\nVisits Map : zipping list length " ++ show @cons ++ " and " ++ show (length (transpose @seg.cvisits)) {-DEBUG-}) (Map.fromList (zip @cons (transpose @seg.cvisits)))
+                lhs.visits = Map.fromList (zip @cons (transpose @seg.cvisits))
 
 SEM  Segments [ | | segs : CSegments
                     cvisits USE {:} {[]} : {[[CVisit]]} ] -- For each visit, for each constructor the CVisit
@@ -420,7 +401,7 @@ SEM  Segment [ | | seg : CSegment
 ccv :: Name -> Nonterminal -> Int -> CInterfaceMap -> CRule
 ccv name nt n table
   =  CChildVisit name nt n inh syn last
-     where  CInterface segs = trace ("\n\n ccv " ++ show name ++ " " ++ show nt ++ " " ++ show n {-DEBUG-}) (Map.find nt table)
+     where  CInterface segs = Map.find nt table
             (seg:remain) = drop n segs
             CSegment inh syn = seg           
             last = null remain

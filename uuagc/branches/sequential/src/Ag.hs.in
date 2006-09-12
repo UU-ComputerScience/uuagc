@@ -83,9 +83,11 @@ compile searchPath input output flags
                                        do let ms = takeErrors (text "..., and more errors" ) 5 semErrors
                                           mapM (\m -> do render m 75  ; putStrLn "") ms
                                           return False
-                                  | otherwise =      
+                                  | (not.null) semWarnings =      
                                        do let ms = takeErrors (text "..., and more warnings" ) 5 semWarnings
                                           mapM (\m -> do render m 75  ; putStrLn "") ms
+                                          return (not (werrors flags))
+                                  | otherwise =
                                           return True
                  success <- handleErrors 
                  if success then

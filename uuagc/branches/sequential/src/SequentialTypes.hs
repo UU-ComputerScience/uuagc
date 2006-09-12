@@ -6,17 +6,16 @@ import UU.DData.Map (Map)
 
 data CodeAttr = CAAttrOcc AttrOcc 
               | CAChildVisit ChildVisit deriving (Eq)
-data AttrOcc = AOLocal  Name Name Name -- lhs nt, constructor, attribute
-             | AOLHSInh Name Name Name -- lhs nt, constructor, attribute
-             | AOLHSSyn Name Name Name -- lhs nt, constructor, attribute
-             | AORHSInh Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
-             | AORHSSyn Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
+data AttrOcc = AOLocal  Nonterminal Constructor Name
+             | AOLHSInh Nonterminal Constructor Name
+             | AOLHSSyn Nonterminal Constructor Name
+             | AORHSInh Nonterminal Nonterminal Constructor Name Name -- rhs nt, lhs nt, constructor, field, attribute
+             | AORHSSyn Nonterminal Nonterminal Constructor Name Name -- rhs nt, lhs nt, constructor, field, attribute
                 deriving (Eq,Show)
 data ChildVisit = ChildVisit Name Name Int [Vertex] [Vertex] deriving (Eq,Show) -- field, rhs nt, visit nr., inh, syn
 data NTAttr = NTAInh Name Name -- nt, attribute
             | NTASyn Name Name -- nt, attribute
                deriving Show
-
 
 isLocal :: AttrOcc -> Bool
 isLocal (AOLocal _ _ _) = True

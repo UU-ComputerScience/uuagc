@@ -26,10 +26,12 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option []        ["self"]       (NoArg selfOpt)             "generate self attribute"
                , Option []        ["cycle"]      (NoArg cycleOpt)            "check for cyclic definitions"
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
-               , Option ['O']     ["optimize"]   (NoArg visitOpt)            "try generating visit functions"
+               , Option ['O']     ["optimize"]   (NoArg optimizeOpt)         "optimize generated code (--visit --case)"
+               , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
                , Option []        ["seq"]        (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
                , Option []        ["unbox"]      (NoArg unboxOpt)            "use unboxed tuples"
                , Option []        ["case"]       (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
+               , Option []        ["Werrors"]    (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                ]
 
 allc = "dcfsprm"
@@ -60,6 +62,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , withSeq :: Bool
                       , unbox :: Bool
                       , cases :: Bool
+                      , werrors :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -85,6 +88,7 @@ noOptions = Options { moduleName   = NoName
                     , withSeq      = False
                     , unbox        = False
                     , cases        = False
+                    , werrors      = False
                     }
 
 
@@ -106,10 +110,12 @@ versionOpt    opts = opts{showVersion  = True}
 prefixOpt pre opts = opts{prefix       = pre }            
 selfOpt       opts = opts{withSelf     = True}            
 cycleOpt      opts = opts{withCycle    = True}            
+optimizeOpt   visitOpt . casesOpt
 visitOpt      opts = opts{visit        = True, withCycle = True}
 seqOpt        opts = opts{withSeq      = True}
 unboxOpt      opts = opts{unbox        = True}
 casesOpt      opts = opts{cases        = True}
+werrorsOpt    opts = opts{werrors      = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

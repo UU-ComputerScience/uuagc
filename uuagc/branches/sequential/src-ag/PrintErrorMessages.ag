@@ -8,6 +8,8 @@ import UU.Pretty
 import CommonTypes
 import UU.Scanner.Position(Pos(..), noPos)
 import DepTypes
+import Data.List(mapAccumL,intersect,(\\))
+import GrammarInfo
 }
 
 ATTR Error  [               | | pp  :{PP_Doc} isWarning:{Bool} ]
@@ -272,6 +274,13 @@ SEM Error
                              in ppError @isWarning @pos @mesg pat help act False
 
                     lhs . isWarning = @isWarning
+ | LocLocCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Circular dependency pattern for local attribute", getName @attr
+                                               , "of alternative", getName @con, "of nonterminal", getName @nt]
+                                 pat   = text "see help"
+                                 help  = vlist ("The following attributes formed the cycle:": @path)
+                                 act   = text "An unoptimized version was generated. It might not run."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | DirectCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
@@ -285,7 +294,8 @@ SEM Error
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
                                          in wfill ["Induced circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
                                  pat   = text "see help"
-                                 help  = wfill ["not available."]
+                                 showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (i+1,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
+                                 help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
                                  act   = text "Generation of visit functions failed."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | MissingTypeSig   loc.isWarning      = True

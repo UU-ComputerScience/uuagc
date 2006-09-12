@@ -13,15 +13,13 @@ import GrammarInfo
 
 import Data.Graph hiding (path)
 import Control.Monad.ST
-import Data.Array {-DEBUG-} hiding ((!))
 import Data.Array.MArray hiding (bounds)
 import Data.Array.ST hiding (bounds)
+import Data.Array((!),bounds)
 import Data.Maybe(fromJust,isJust)
 import Control.Monad
 import Data.List(partition,transpose,nub,(\\),delete,minimumBy)
-
-import Debug.Trace {-DEBUG-}
-import Data.Tree
+import qualified UU.DData.Set as Set
 \end{code}
 %endif
 
@@ -207,13 +205,40 @@ If we add the direct dependencies to the Tdp graph in this way, the
 Tds graph is filled with IDS.
 
 \begin{code}
-tdsTdp :: Info -> [Edge] -> ST s (Comp s,[Edge])
-tdsTdp info dpr = do  tds  <- newArray (bounds (tdsToTdp info)) []
-                      tdpN <- newArray (bounds (tdpToTds info)) []
-                      tdpT <- newArray (bounds (tdpToTds info)) []
-                      let comp = (tds,(tdpN,tdpT))
-                      es <- concatMapM (insertTdp info comp) dpr
-                      return (comp,nub es)
+simpleInsert :: Info -> Comp s -> Edge -> ST s [Vertex]
+simpleInsert info comp@(_,(tdpN,tdpT)) (s,t)
+  = ifM  (hasEdge tdpN (s,t))
+         (return [])
+         (do  rs <- readArray tdpT s
+              us <- readArray tdpN t
+              let edges = carthesian (s:rs) (t:us)
+              concatMapM (addSimpleEdge info comp) edges)
+
+addSimpleEdge :: Info -> Comp s -> Edge -> ST s [Vertex]
+addSimpleEdge info comp@(_,(tdpN,tdpT)) (s,t)
+  = ifM  (hasEdge tdpN (t,s)) 
+         (return [s])
+         (do addEdge tdpN (s,t)
+             addEdge tdpT (t,s)
+             return [])
+
+data IDP s =  IDP (Comp s) [Edge]
+           |  LLCycle [Vertex]
+
+tdsTdp :: Info -> [Edge] -> ST s (IDP s)
+tdsTdp info dpr 
+   = let  (ll,es) = partition isLocLoc dpr
+          isLocLoc (s,t) = isLoc s && isLoc t
+          isLoc s = isLocal (aoTable info ! s)
+     in do  tds  <- newArray (bounds (tdsToTdp info)) []
+            tdpN <- newArray (bounds (tdpToTds info)) []
+            tdpT <- newArray (bounds (tdpToTds info)) []
+            let comp = (tds,(tdpN,tdpT))
+            llcycles <- concatMapM (simpleInsert info comp) ll
+            if  null llcycles
+                then do  es <- concatMapM (insertTdp info comp) es
+                         return (IDP comp (nub es))
+                else return (LLCycle llcycles)
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -278,22 +303,6 @@ spath graph from to
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Removing unused inherited attributes}
-
-An inherited attribute can be removed if all of its lhs-occurrences a
-are unused, that means: there are no edges (a,c) in the tdp graph.
-
-\begin{code}
-isUsed :: Info -> Graph -> Vertex -> Bool
-isUsed info ddp v
-  = let lhsoccur v = filter (isLhs . (aoTable info !)) (tdsToTdp info ! v)
-        unused s = null (ddp ! s)
-    in case attrTable info ! v of
-              NTAInh _  _ -> not (all unused (lhsoccur v))
-              NTASyn nt _ -> True
-\end{code}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Interfaces}
 
 In absence of cycles we can find the interfaces.
@@ -320,9 +329,9 @@ interfaces.
 
 \begin{code}
 makeInterfaces :: Info -> Graph -> (Vertex -> Bool) -> T_IRoot
-makeInterfaces info tds used
-  =  let tdsT = trace ("\n\ntdsT==" ++ show (transposeG tds) {-DEBUG-}) (transposeG tds)
-         mkInter ((nt,cons),(l,m,h)) = sem_Interface_Interface nt cons (makeInterface tdsT used [] (l,m,h))
+makeInterfaces info tds usedinh
+  =  let tdsT = transposeG tds
+         mkInter ((nt,cons),(l,m,h)) = sem_Interface_Interface nt cons (makeInterface tdsT usedinh [] (l,m,h))
          inters = foldr (sem_Interfaces_Cons . mkInter) sem_Interfaces_Nil (zip (prods info) (lmh info))
      in sem_IRoot_IRoot inters
 \end{code}
@@ -344,13 +353,13 @@ generate an interface with one visit computing nothing.
 
 \begin{code}
 makeInterface :: Graph -> (Vertex -> Bool) -> [Vertex] -> LMH -> T_Segments
-makeInterface tdsT used del (l,m,h)
+makeInterface tdsT usedinh del (l,m,h)
   | m > h = sem_Segment_Segment [] [] `sem_Segments_Cons` sem_Segments_Nil
-  | otherwise = let  inh = filter (\i -> used i && isSink tdsT del i) ([l..(m-1)] \\ del)
-                     del' = trace ("\n\nUnunsed inh attrs==" ++  show (filter (\i -> not (used i) && isSink tdsT del i) ([l..(m-1)] \\ del)) {-DEBUG-}) (del ++ inh)
+  | otherwise = let  inh = filter (\i -> usedinh i && isSink tdsT del i) ([l..(m-1)] \\ del)
+                     del' = del ++ inh
                      syn = filter (isSink tdsT del') ([m..h] \\ del)
                      del'' = del' ++ syn
-                     rest = makeInterface tdsT used del'' (l,m,h)
+                     rest = makeInterface tdsT usedinh del'' (l,m,h)
                 in if  null inh && null syn
                        then sem_Segments_Nil
                        else sem_Segment_Segment inh syn `sem_Segments_Cons` rest
@@ -364,14 +373,15 @@ makeInterface tdsT used del (l,m,h)
 \subsection{Detecting type-3 cycles}
 
 After the generation of interfaces we need to check Tds for induced
-(type-3) cycles. We only want to return s2i edges.
+(type-3) cycles. We only want to return s2i edges. There is no need to
+take into account removed vertices, as they can never form a cycle.
 
 \begin{code}
 cycles3 :: Info -> Graph -> [Edge]
-cycles3 info tds = [ (u,v)  | (_,m,h) <- lmh info
+cycles3 info tds = [ (v,u)  | (l,m,h) <- lmh info
                             , v <- [m..h]
                             , u <- tds ! v
-                            , v < m
+                            , l <= u, u < m
                             , v `elem` tds ! u ]
 \end{code}
 
@@ -381,33 +391,41 @@ cycles3 info tds = [ (u,v)  | (_,m,h) <- lmh info
 \begin{code}
 getResult :: Info -> Graph -> Graph -> [Edge] -> (CInterfaceMap, CVisitsMap, [Edge])
 getResult info tds tdp dpr
-  = let  ddp = trace ("\n\ndpr==" ++ show dpr {-DEBUG-}) (buildG (bounds (tdpToTds info)) dpr)
-         used = isUsed info ddp
-         inters = makeInterfaces info tds used
+  = let  usedinh v = any (\s -> isRhs s && isSyn s) . map (aoTable info !) . concatMap (tdp !) $ tdsToTdp info ! v {-$-}
+         inters = makeInterfaces info tds usedinh
          inhs = Inh_IRoot  {  info_Inh_IRoot = info
                            ,  tdp_Inh_IRoot = tdp
                            ,  dpr_Inh_IRoot = dpr}
          iroot = wrap_IRoot inters inhs
     in (inters_Syn_IRoot iroot, visits_Syn_IRoot iroot, edp_Syn_IRoot iroot)
 
+reportCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
+reportCycle dp ss
+  = let  ds = [(s,fromJust mes)  | s <- ss
+                                 , let mes = spath dp s s
+                                 , isJust mes]
+    in if  null ds 
+           then error "'Local to Local'-cycle found, but no paths" 
+           else ds
 
 computeSequential :: Info -> [Edge] -> SeqResult
 computeSequential info dpr
-  = runST  (do  (comp@(tds,(tdp,_)),s2i) <- tdsTdp (info{cyclesOnly = True}) dpr
-                tds' <- freeze tds
-                let cyc2 = trace ("\n\ntds==" ++ show tds' {-DEBUG-}) (cycles2 tds' s2i)
-                if  not (null cyc2)
-                    then  let  dp = directGraph info dpr
-                               ds = [(e,fromJust mes) | e <- cyc2, let mes = cyclePath info dp e, isJust mes]
-                          in return (if null ds then error "Cycle found, but no paths" else DirectCycle ds)
-                    else do  tdp' <- freeze tdp
-                             let  (cim,cvm,edp) = getResult info tds' tdp' dpr
-                             trace ("\n cim == " ++ show cim ++ "\n\n cvm == " ++ show cvm {-DEBUG-}) (mapM_ (insertTds (info{cyclesOnly = False}) comp) edp)
-                             tds' <- freeze tds
-                             let cyc3 = cycles3 info tds'
-                             if  (not (null cyc3))
-                                 then return (InducedCycle cim cyc3)
-                                 else trace ("\n\nResult" {-DEBUG-}) (return (SeqResult cim cvm))
+  = runST  (do  let dp = directGraph info dpr
+                init <- tdsTdp (info{cyclesOnly = True}) dpr
+                case init of
+                  LLCycle ss -> return (LocLocCycle (reportCycle dp ss))
+                  IDP (comp@(tds,(tdp,_))) s2i  ->  do  tds' <- freeze tds
+                                                        let cyc2 = cycles2 tds' s2i
+                                                        if  not (null cyc2) 
+                                                            then  return (DirectCycle [(e,fromJust mes) | e <- cyc2, let mes = cyclePath info dp e, isJust mes])
+                                                            else do  tdp' <- freeze tdp
+                                                                     let  (cim,cvm,edp) = getResult info tds' tdp' dpr
+                                                                     mapM_ (insertTds (info{cyclesOnly = False}) comp) edp
+                                                                     tds' <- freeze tds
+                                                                     let cyc3 = (cycles3 info tds')
+                                                                     if  (not (null cyc3))
+                                                                         then return (InducedCycle cim cyc3)
+                                                                         else return (SeqResult cim cvm)
            )
 \end{code}
 
