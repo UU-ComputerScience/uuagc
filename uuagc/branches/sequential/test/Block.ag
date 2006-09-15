@@ -1,21 +1,17 @@
-DATA Its
-  | NilIts
-  | ConsIts hd:It tl:Its
-
+TYPE Its = [It]
 DATA It
   | Use name:Name
   | Decl name:Name
   | Block its:Its
-
 DATA Root
   | Root its:Its
 
 ATTR It Its [ dcli:Env || dclo:Env ]
 SEM Its
-  | NilIts  lhs.dclo = @lhs.dcli
-  | ConsIts hd.dcli  = @lhs.dcli
-            tl.dcli  = @hd.dclo
-            lhs.dclo = @tl.dclo
+  | Nil   lhs.dclo = @lhs.dcli
+  | Cons  hd.dcli  = @lhs.dcli
+          tl.dcli  = @hd.dclo
+          lhs.dclo = @tl.dclo
 SEM It
   | Use     lhs.dclo = @lhs.dcli
   | Decl    lhs.dclo = (@name, @lhs.lev): @lhs.dcli
@@ -23,23 +19,23 @@ SEM It
   
 ATTR Its It [ env:Env || ]
 SEM Its
-  | ConsIts hd.env   = @lhs.env
-            tl.env   = @lhs.env
+  | Cons  hd.env   = @lhs.env
+          tl.env   = @lhs.env
 SEM It
   | Block   its.dcli = @lhs.env
             its.env  = @its.dclo
 
 ATTR Its It [ lev:Int || ]
 SEM Its
-  | ConsIts hd.lev   = @lhs.lev
-            tl.lev   = @lhs.lev            
+  | Cons  hd.lev   = @lhs.lev
+          tl.lev   = @lhs.lev            
 SEM It
   | Block   its.lev  = @lhs.lev + 1
 
 ATTR Its It [ || errs:Err ]
 SEM Its
-  | NilIts  lhs.errs = []
-  | ConsIts lhs.errs = @hd.errs ++ @tl.errs
+  | Nil   lhs.errs = []
+  | Cons  lhs.errs = @hd.errs ++ @tl.errs
 SEM It
   | Use     lhs.errs = @name `mBIn` @lhs.env
   | Decl    lhs.errs = (@name, @lhs.lev) `mNBIn` @lhs.dcli
@@ -67,4 +63,11 @@ mNBIn :: (Name,Int) -> Env -> Err
 mNBIn t [] = []
 mNBIn t@(n,l) (e:es) | t == e    = [n]
                      | otherwise = t `mNBIn` es                   
+
+main :: IO ()
+main = putStrLn . show . sem_Root . Root_Root $ sentence
+       where sentence = [ It_Use "x", It_Use "y", It_Decl "x",
+                          It_Block [ It_Decl "y", It_Use "y", It_Use "w" ],
+                          It_Decl "y", It_Decl "x"
+                        ]
 }  

@@ -126,12 +126,9 @@ Intra-visit dependencies are expressions that need to be passed
 \begin{code}
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
-  |  CRule lhs.exprs = let showused x@(AOLocal _ _ attr) | attr `elem` @lhs.terminals = funname attr 0
-                                                         | otherwise = showuse x
-                           showused x = showuse x
-                       in if  @hasCode
-                              then map (SimpleExpr . showused . fst) (Map.elems @defines)
-                              else [SimpleExpr (showused @ao)] -- Terminal
+  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals 
+                           then [SimpleExpr (funname @name 0)]
+                           else [SimpleExpr (attrname @isIn @field @name)]
   |  CChildVisit lhs.exprs = [SimpleExpr (funname @name (@nr+1))]
 \end{code}
 
@@ -141,7 +138,7 @@ Type signatures are added to the declarations.
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
   |  CRule        loc.mkTp = SimpleType . typeToString @lhs.nt
-                  lhs.tSigs = [ TSig (showuse ao) (@mkTp (fromJust tp)) |  (ao,tp) <- Map.elems @defines, isJust tp ]
+                  lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
   |  CChildVisit  loc.mkTp = SimpleType . typeToString @nt
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
@@ -279,7 +276,7 @@ ATTR * [ | | missingTypeSigs USE {Seq.<>} {Seq.empty} : {Seq Error} ]
 SEM  CVisit
   |  CVisit lhs.missingTypeSigs = @intra.missingTypeSigs
 SEM  CRule
-  |  CRule lhs.missingTypeSigs = maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con (getAttr @ao))) (const Seq.empty) @tp
+  |  CRule lhs.missingTypeSigs = maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con @name)) (const Seq.empty) @tp
 \end{code}
 
 Provide a description of the interfaces as comments
@@ -305,8 +302,8 @@ SEM  CAlternative
 
 ATTR CVisits CVisit Sequence CRule [ | | comments USE {++} {[]} : {[String]} ] 
 SEM  CRule
-  |  CRule lhs.comments =  if  isLocal @ao 
-                               then let  x = getName (getAttr @ao)
+  |  CRule lhs.comments =  if  @field == _LOC
+                               then let  x = getName @name
                                          y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> t) @tp
                                     in [x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y]
                                else []

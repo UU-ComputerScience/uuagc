@@ -1,108 +1,99 @@
 module SequentialTypes where
 
+import CodeSyntax
 import CommonTypes
 import Data.Graph (Table,Vertex)
 import UU.DData.Map (Map)
+import qualified UU.DData.Map as Map
+import Data.Maybe(fromJust)
+import Data.List(partition)
+import UU.Pretty
 
-data CodeAttr = CAAttrOcc AttrOcc 
-              | CAChildVisit ChildVisit deriving (Eq)
-data AttrOcc = AOLocal  Nonterminal Constructor Name
-             | AOLHSInh Nonterminal Constructor Name
-             | AOLHSSyn Nonterminal Constructor Name
-             | AORHSInh Nonterminal Nonterminal Constructor Name Name -- rhs nt, lhs nt, constructor, field, attribute
-             | AORHSSyn Nonterminal Nonterminal Constructor Name Name -- rhs nt, lhs nt, constructor, field, attribute
-                deriving (Eq,Show)
 data ChildVisit = ChildVisit Name Name Int [Vertex] [Vertex] deriving (Eq,Show) -- field, rhs nt, visit nr., inh, syn
-data NTAttr = NTAInh Name Name -- nt, attribute
-            | NTASyn Name Name -- nt, attribute
+data NTAttr = NTAInh Nonterminal Name Type -- nt, attribute, type
+            | NTASyn Nonterminal Name Type -- nt, attribute, type
                deriving Show
 
-isLocal :: AttrOcc -> Bool
-isLocal (AOLocal _ _ _) = True
-isLocal _ = False
+getNtaNameType (NTAInh nt name tp) = (name,tp)
+getNtaNameType (NTASyn nt name tp) = (name,tp)
 
-isInh :: AttrOcc -> Bool
-isInh (AOLHSInh _ _ _) = True
-isInh (AORHSInh _ _ _ _ _) = True
-isInh _ = False
+getAttr     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = name
+getIsIn     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = ii
+getHasCode  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = hc
+getLhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = nt
+getCon      (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = con
+getField    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = field
+getRhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = childnt
+getType     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = tp
+getDefines  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = defines
 
-isSyn :: AttrOcc -> Bool
-isSyn ao = not (isLocal ao || isInh ao)
-
-isRhs :: AttrOcc -> Bool
-isRhs (AORHSInh _ _ _ _ _) = True
-isRhs (AORHSSyn _ _ _ _ _) = True
-isRhs _ = False
-
-isLhs :: AttrOcc -> Bool
-isLhs ao = not (isLocal ao || isRhs ao)
-
-isEqualField :: AttrOcc -> AttrOcc -> Bool
+isLocal = (_LOC==) . getField
+isLhs = (_LHS==) . getField
+isRhs cr = not (isLhs cr || isLocal cr)
+isSyn cr | isLocal cr  = False
+         | getIsIn cr  = isRhs cr
+         | otherwise   = isLhs cr
+isInh = not . isSyn
 isEqualField a b = getLhsNt a == getLhsNt b && getRhsNt a == getRhsNt b && getCon a == getCon b && getField a == getField b
 
-getLhsNt :: AttrOcc -> Name
-getLhsNt (AOLocal  nt c a)       = nt
-getLhsNt (AOLHSInh nt c a)       = nt
-getLhsNt (AOLHSSyn nt c a)       = nt
-getLhsNt (AORHSInh rnt nt c f a) = nt
-getLhsNt (AORHSSyn rnt nt c f a) = nt
+ntattr :: CRule -> Maybe NTAttr
+ntattr cr  | isLocal cr =  Nothing
+           | otherwise  =  let  at = if isSyn cr then NTASyn else NTAInh
+                                getNt cr = if isRhs cr then fromJust (getRhsNt cr) else getLhsNt cr
+                           in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))
 
-getCon (AOLocal  nt c a)       = c
-getCon (AOLHSInh nt c a)       = c
-getCon (AOLHSSyn nt c a)       = c
-getCon (AORHSInh rnt nt c f a) = c
-getCon (AORHSSyn rnt nt c f a) = c
- 
-getRhsNt :: AttrOcc -> Maybe Name
-getRhsNt (AORHSInh rnt nt c f a) = Just rnt
-getRhsNt (AORHSSyn rnt nt c f a) = Just rnt
-getRhsNt _ = Nothing
+cRuleLhsInh :: Name -> Nonterminal -> Constructor -> Type -> CRule
+cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) empty empty Map.empty False ""
+cRuleTerminal :: Name -> Nonterminal -> Constructor -> Type -> CRule
+cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) empty empty Map.empty False ""
+cRuleRhsSyn :: Name -> Nonterminal -> Constructor -> Type -> Name -> Nonterminal -> CRule
+cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) empty empty Map.empty False ""
 
-getField :: AttrOcc -> Maybe Name
-getField (AORHSInh rnt nt c f a) = Just f
-getField (AORHSSyn rnt nt c f a) = Just f
-getField  _ = Nothing
+defaultRule :: Name -> Nonterminal -> Constructor -> Name -> CRule
+defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9)
+                                 where er i = error ("Default rule has no code " ++ show i)
 
-getAttr :: AttrOcc -> Name
-getAttr (AOLocal  nt c a)       = a
-getAttr (AOLHSInh nt c a)       = a
-getAttr (AOLHSSyn nt c a)       = a
-getAttr (AORHSInh rnt nt c f a) = a
-getAttr (AORHSSyn rnt nt c f a) = a
+instance Eq CRule where
+  a == b = getAttr a == getAttr b && isEqualField a b
+instance Ord CRule where
+  compare a b =  compare (getLhsNt a) (getLhsNt b) 
+                 >/< compare (getCon a) (getCon b)
+                 >/< compare (getField a) (getField b)
+                 >/< compare (getAttr a) (getAttr b)
+instance Eq NTAttr where
+  (NTAInh nt name _) == (NTASyn nt' name' _) = False
+  (NTASyn nt name _) == (NTAInh nt' name' _) = False
+  (NTAInh nt name _) == (NTAInh nt' name' _) = nt == nt' && name == name'
+  (NTASyn nt name _) == (NTASyn nt' name' _) = nt == nt' && name == name'
+instance Ord NTAttr where
+  compare (NTAInh _ _ _) (NTASyn _ _ _) = LT
+  compare (NTASyn _ _ _) (NTAInh _ _ _) = GT
+  compare (NTAInh nt name _) (NTAInh nt' name' _) = compare nt nt' >/< compare name name'
+  compare (NTASyn nt name _) (NTASyn nt' name' _) = compare nt nt' >/< compare name name'
 
-showuse (AOLocal _ _ attr) = locname attr
-showuse (AOLHSInh _ _ attr) = attrname True _LHS attr
-showuse (AOLHSSyn _ _ attr) = attrname False _LHS attr
-showuse (AORHSInh _ _ _ field attr) = attrname False field attr
-showuse (AORHSSyn _ _ _ field attr) = attrname True field attr
+(>/<) :: Ordering -> Ordering -> Ordering
+EQ >/< b = b
+a >/< _ = a
 
-instance Show CodeAttr where
-  show (CAAttrOcc ao) = show ao
-  show (CAChildVisit cv) = show cv
 
-lhsshow (NTAInh field attr) = lhsname True attr
-lhsshow (NTASyn field attr) = lhsname False attr 
+eqClasses :: (a -> a -> Bool) -> [a] -> [[a]]
+eqClasses p [] = []
+eqClasses p (a:as) = let (isA,rest) = partition (p a) as
+                     in (a:isA):eqClasses p rest
 
--- Is this code attribute an attribute occurrance (True) or a child visit (False)?
-isAttrOcc :: CodeAttr -> Bool
-isAttrOcc (CAAttrOcc _) = True
-isAttrOcc _ = False
+lhsshow (NTAInh field attr _) = lhsname True attr
+lhsshow (NTASyn field attr _) = lhsname False attr 
 
--- Name of a NTAttr when used inside a function
 rhsshow :: Name -> NTAttr -> String
-rhsshow field (NTAInh _ attr) = attrname False field attr
-rhsshow field (NTASyn _ attr) = attrname True field attr 
+rhsshow field (NTAInh _ attr _) = attrname False field attr
+rhsshow field (NTASyn _ attr _) = attrname True field attr 
 
-fromCA (CAAttrOcc ao) = ao
-
-prettyAO (AOLocal  nt c a)       = show nt ++ "." ++ show c ++ ", local attribute " ++ show a
-prettyAO (AOLHSInh nt c a)       = show nt ++ "." ++ show c ++ ", lhs inherited attribute " ++ show a
-prettyAO (AOLHSSyn nt c a)       = show nt ++ "." ++ show c ++ ", lhs synthesized attribute " ++ show a
-prettyAO (AORHSInh rnt nt c f a) = show nt ++ "." ++ show c ++ ", inherited attribute " ++ show a ++ " of " ++ show f
-prettyAO (AORHSSyn rnt nt c f a) = show nt ++ "." ++ show c ++ ", synthesized attribute " ++ show a ++ " of " ++ show f
-
-mapAccum :: (a -> b -> (c,a)) -> a -> [b] -> ([c],a)
-mapAccum f nil [] = ([],nil)
-mapAccum f nil (x:xs) = let (y,z) = f nil x
-                            (rest,a) = mapAccum f z xs
-                        in (y : rest,a)
+prettyCRule :: CRule -> String
+prettyCRule cr 
+   =  let descr | isLocal cr = "local attribute "
+                | otherwise =  (if isLhs cr then "lhs " else "")
+                               ++ (if isSyn cr then "synthesized " else "inherited ")
+                               ++ "attribute "
+                               ++ (show (getAttr cr))
+                               ++ (if isRhs cr then "of child " ++ show (getField cr) else "")
+      in show (getLhsNt cr) ++ "." ++ show (getCon cr) ++ ", " ++ descr 

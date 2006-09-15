@@ -2,6 +2,8 @@
 # Nothing fancy, just as simple as possible to get things done quickly.
 #   --Alexey
 
+.PHONY : help test
+
 help:
 	@echo Build system for the AG compiler
 	@echo Targets:
@@ -14,9 +16,10 @@ help:
 # Directories
 SRC_DIR = src
 SRC_AG_DIR = src-ag
+TEST_DIR = test
 
 # The following variables are set in configure
-AG = @UUAGC@
+AG        = @UUAGC@
 LHS2TEX   = @LHS2TEX@
 BUILD_DIR = @BUILD_DIR@
 MV        = @MV@
@@ -208,3 +211,19 @@ GEN_AG = $(patsubst %.lag,%.ag,$(wildcard $(SRC_AG_DIR)/*.lag))
 %.hs : %.lhs
 	$(LHS2TEX) --code $< > $@
 GEN_HS = $(patsubst %.lhs,%.hs,$(wildcard $(SRC_DIR)/*.lhs))
+
+#
+# Testing AG files in $(TEST_DIR)
+#
+TEST_SRC = $(wildcard $(TEST_DIR)/*.ag)
+TEST_HS = $(patsubst %.ag,%.hs,$(TEST_SRC))
+TEST_O = $(patsubst %.ag,%.o,$(TEST_SRC))
+TEST_HI = $(patsubst %.ag,%.hi,$(TEST_SRC))
+TEST_EXE = $(patsubst %.ag,%.exe,$(TEST_SRC))
+$(TEST_HS)	:	%.hs	:	%.ag
+	$(AG_BINARY) -a -O --unbox $< -o $@ --module=Main
+$(TEST_EXE)	:	%.exe	:	%.hs
+	$(HC) $< -o $@
+test : $(TEST_EXE)
+cleantest : 
+	$(RM_F) $(TEST_HS) $(TEST_O) $(TEST_EXE)

@@ -69,7 +69,7 @@ hasEdge graph (u,v) = do  e <- readArray graph u
 The first step is to assign a number to all attributes, and a
 different one to all attribute occurrences. We create an array mapping
 the numbers to the information about the attribute occurrences
-(|aoTable|), so we can look up this information in $O(1)$ time. We
+(|ruleTable|), so we can look up this information in $O(1)$ time. We
 also build mappings from attributes to their occurrences (|tdsToTdp|)
 and vice versa (|tdpToTds|). |LMH| indicates the division of the
 attributes - an element |(l,m,h) `elem` LMH| means that vertices |i, l
@@ -82,8 +82,11 @@ attributes.
 \begin{code}
 data Info = Info  {  tdpToTds    ::  Table Vertex
                   ,  tdsToTdp    ::  Table [Vertex]
-                  ,  aoTable     ::  Table AttrOcc
+                  ,  attrTable   ::  Table NTAttr
+                  ,  ruleTable   ::  Table CRule
                   ,  lmh         ::  [LMH]
+                  ,  prods       ::  [(Nonterminal,[Constructor])]
+                  ,  wraps       ::  Set Nonterminal
                   ,  cyclesOnly  ::  Bool
                   }
 
@@ -164,7 +167,7 @@ induce info comp (s,t)
   =  let  u = tdpToTds info ! s
           v = tdpToTds info ! t
           nonlocal = u /= -1 && v /= -1
-          equalfield = isEqualField (aoTable info ! s) (aoTable info ! t)
+          equalfield = isEqualField (ruleTable info ! s) (ruleTable info ! t)
      in if  nonlocal && equalfield
             then insertTds info comp (u,v)
             else return []
@@ -196,7 +199,7 @@ occur :: Info -> Comp s -> Edge -> ST s [Edge]
 occur info comp (u,v)
   =  let  ss = tdsToTdp info ! u
           ts = tdsToTdp info ! v
-          eqField (s,t) = isEqualField (aoTable info ! s) (aoTable info ! t)
+          eqField (s,t) = isEqualField (ruleTable info ! s) (ruleTable info ! t)
           es = filter eqField (carthesian ss ts)
      in concatMapM (insertTdp info comp) es
 \end{code}
@@ -229,7 +232,7 @@ tdsTdp :: Info -> [Edge] -> ST s (IDP s)
 tdsTdp info dpr 
    = let  (ll,es) = partition isLocLoc dpr
           isLocLoc (s,t) = isLoc s && isLoc t
-          isLoc s = isLocal (aoTable info ! s)
+          isLoc s = isLocal (ruleTable info ! s)
      in do  tds  <- newArray (bounds (tdsToTdp info)) []
             tdpN <- newArray (bounds (tdpToTds info)) []
             tdpT <- newArray (bounds (tdpToTds info)) []
@@ -263,12 +266,12 @@ directGraph :: Info -> [Edge] -> Graph
 directGraph info dpr 
   = buildG (l,h) (dpr ++ edges)
       where (l,h) = bounds (tdpToTds info)
-            edge s t  | isInh (aoTable info ! s) = (s,t)
-                      | otherwise                = (t,s)
+            edge s t  | isInh (ruleTable info ! s)  = (s,t)
+                      | otherwise                   = (t,s)
             edges = [edge s t | s <- [l..h]
-                              , isRhs (aoTable info ! s)
+                              , isRhs (ruleTable info ! s)
                               , t <- tdsToTdp info ! (tdpToTds info ! s)
-                              , isLhs (aoTable info ! t)]
+                              , isLhs (ruleTable info ! t)]
 \end{code}
 
 Now we look up the path that gave the cycle. Given the s2i-edge, we
@@ -287,7 +290,7 @@ cyclePath info graph (u,v)
                           , let mes2 = spath graph s t, isJust mes2
                           , let es1 = fromJust mes1 
                                 es2 = fromJust mes2
-                          , all (\a -> a == s || a == t || isLocal (aoTable info ! a)) es2
+                          , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es2
                           , let es = es1 ++ es2  ]
             comparelength :: [a] -> [b] -> Ordering
             as `comparelength` bs = length as `compare` length bs
@@ -391,7 +394,7 @@ cycles3 info tds = [ (v,u)  | (l,m,h) <- lmh info
 \begin{code}
 getResult :: Info -> Graph -> Graph -> [Edge] -> (CInterfaceMap, CVisitsMap, [Edge])
 getResult info tds tdp dpr
-  = let  usedinh v = any (\s -> isRhs s && isSyn s) . map (aoTable info !) . concatMap (tdp !) $ tdsToTdp info ! v {-$-}
+  = let  usedinh v = any (\s -> isRhs s && isSyn s) . map (ruleTable info !) . concatMap (tdp !) $ tdsToTdp info ! v {-$-}
          inters = makeInterfaces info tds usedinh
          inhs = Inh_IRoot  {  info_Inh_IRoot = info
                            ,  tdp_Inh_IRoot = tdp

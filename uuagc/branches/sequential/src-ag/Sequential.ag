@@ -1,11 +1,11 @@
 imports
 {
-import Data.List(elemIndex)
+import Data.List(elemIndex,partition)
 import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!),bounds,inRange)
 import Data.List(sort,mapAccumL,find)
-import qualified Data.Graph as Graph
+import Data.Graph
 import qualified Data.Tree  as Tree
 import SequentialComputation
 import SequentialTypes
@@ -17,152 +17,110 @@ import GrammarInfo
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
-ATTR Productions Production Alternatives Alternative Rules Rule 
-   [ allvertices'  : {[(Graph.Vertex,AttrOcc)] } | | ]
-
-ATTR Production  Alternative  Child    Rule
-     Productions Alternatives Children Rules 
-     [ | vcount : Int | vertices' USE {++} {[]} : {[(Graph.Vertex,AttrOcc)]} ]
-ATTR Pattern Patterns
-     [ | | vertices' USE {++} {[]} : {[AttrOcc]} ]
-
-SEM Alternative
-  | Alternative loc.vertices' = zip [@lhs.vcount..] ([ AOLHSInh @lhs.nt @con inh | inh <- @inhnames ])
-                lhs.vertices' = @vertices' ++ @children.vertices' ++ @rules.vertices'
-                children.vcount = @lhs.vcount + length @inhnames
-
-SEM Child
-  | Child loc.maptolocal = Map.isEmpty @syn && Map.isEmpty @inh
-          loc.vertices' = if  @maptolocal
-                              then [(@lhs.vcount, AOLocal @lhs.nt @lhs.con @name)]
-                              else zip [@lhs.vcount..] ([AORHSSyn (getNonterminalName @tp) @lhs.nt @lhs.con @name syn | syn <- (Map.keys @syn)])
-          lhs.vcount    = @lhs.vcount + (if @maptolocal then 1 else Map.size @syn)
-
-SEM Rule
-  | Rule lhs.vcount = @lhs.vcount + length @pattern.vertices'
-         loc.vertices' = zip [@lhs.vcount ..] @pattern.vertices'
-
-SEM Pattern 
-  | Alias  lhs.vertices' = let vertex | @field==_LHS = AOLHSSyn @lhs.nt @lhs.con @attr
-                                      | @field==_LOC || @field == nullIdent = AOLocal @lhs.nt  @lhs.con @attr
-                                      | otherwise    = AORHSInh fieldType @lhs.nt @lhs.con @field @attr
-                               fieldType = maybe nullIdent getNonterminalName (lookup @field @lhs.fields)       
-                           in vertex : @pat.vertices'
-
-ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
-SEM Child
-  | Child lhs.terminals = if null ((Map.keys @syn) ++ (Map.keys @inh))
-                            then [@name]
-                            else []
-
--------------------------------------------------------------------------------
--- Needed from DEP.AG
--------------------------------------------------------------------------------
-
-ATTR Pattern Patterns [ nt:{Identifier} | | ]
-ATTR Pattern Patterns [ con:{Identifier} | | ]
-ATTR Rules Rule Pattern Patterns [ fields:{[(Name,Type)]} | | ]
-SEM Rule
-  | Rule loc.(locAttrs, (inAttrs,outAttrs)) = let (locs,rest) = partition (\(fld,attr) -> fld==_LOC) @rhs.usedAttrs
-                                              in (map snd locs, partition (\(fld,attr) -> fld==_LHS) rest)
 {
-getNonterminalName (NT nt) = nt
-getNonterminalName _       = nullIdent
+getNtName :: Type -> Nonterminal
+getNtName (NT nt) = nt
+getNtName _       = nullIdent
 }
 
-imports
+-- Collect attribute occurrences
 {
-import List(partition)
+data AltAttr = AltAttr Name Name Bool 
+               deriving (Eq, Ord)
 }
+ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
+SEM  Alternative
+  |  Alternative  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]
+                                      ++ @children.gathAltAttrs ++ @rules.gathAltAttrs
+
+SEM  Child
+  |  Child  loc.maptolocal = Map.isEmpty @inh && Map.isEmpty @syn
+            lhs.gathAltAttrs = if  @maptolocal
+                                   then [ AltAttr _LOC @name True ]
+                                   else [ AltAttr @name syn True | syn <- Map.keys @syn ]
+SEM  Pattern
+  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC)]
+
+ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
+SEM  Alternative
+  |  Alternative rules.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
+
+-- Information passed to Pattern
+ATTR  Children Child 
+      [  | |  nts USE {Seq.<>} {Seq.empty} : {Seq (Name,Nonterminal)} 
+              inhs USE {Seq.<>} {Seq.empty} : {Seq (Name,Attributes)} ]
+SEM  Child
+  |  Child  lhs.nts = Seq.single (@name,getNtName @tp)
+            lhs.inhs = Seq.single (@name,@inh)
+ATTR  Rules Rule
+      [  childNts : {Map Name Nonterminal} 
+         childInhs : {Map Name Attributes} | | ]
+SEM  Alternative
+  |  Alternative  rules.childNts = Map.fromList (Seq.toList @children.nts)
+                  rules.childInhs = Map.fromList (Seq.toList @children.inhs)
+
+-- Collect CRules
+ATTR  Children Child Rules Rule
+      [ | | gathRules USE {Seq.<>} {Seq.empty} : {Seq CRule} ]
+SEM  Alternative
+  |  Alternative  loc.inhRules = [ cRuleLhsInh inh @lhs.nt @con tp | (inh,tp) <- Map.assocs @lhs.inh ]
+                  loc.gathRules = @inhRules ++ Seq.toList (@children.gathRules Seq.<> @rules.gathRules)
+
+SEM  Child
+  |  Child  loc.gathRules = if  @maptolocal
+                                then Seq.single (cRuleTerminal @name @lhs.nt @lhs.con @tp)
+                                else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
+
+SEM  Rule
+  |  Rule  loc.defines = let  tp field attr  | field == _LOC = Map.lookup attr @lhs.allTypeSigs
+                                             | field == _LHS = Map.lookup attr @lhs.syn
+                                             | otherwise = Map.lookup attr (Map.find field @lhs.childInhs)
+                         in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr)))
+                                          | aa <- @pattern.gathAltAttrs, let AltAttr field attr _ = aa ]
+           loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.pp @rhs.pp @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
+
+-- Giving them a number
+ATTR  Productions Production Alternatives Alternative
+      [  | vcount : Int 
+         | rules USE {Seq.<>} {Seq.empty} : {Seq (Vertex,CRule)}]
+SEM  Grammar
+  |  Grammar  prods.vcount = 0
+SEM  Alternative
+  |  Alternative  lhs.rules = Seq.fromList (zip [@lhs.vcount..] @gathRules)
+                  lhs.vcount = @lhs.vcount + length @gathRules
+
+-- Direct dependencies
+ATTR Productions Production 
+     Alternatives Alternative 
+     Rules Rule [ | | directDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+SEM  Rule
+  |  Rule  lhs.directDep
+             = let  defined = Map.keys @defines
+                    used =  [ Map.find (AltAttr field attr True) @lhs.altAttrs | (field,attr) <- @rhs.usedAttrs]
+                            ++ [ Map.find (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
+               in Seq.fromList [ (x,y) | x <- used, y <- defined ]
 
 -------------------------------------
 -- NT-Attributes
 -------------------------------------
-ATTR Productions Production [ | acount : Int | tdsToTdp USE {++} {[]} : {[(Graph.Vertex,[Graph.Vertex])]}
-                                               ntattrs  USE {++} {[]} : {[(Graph.Vertex,NTAttr)]} 
-                                               aranges  USE {++} {[]} : {[(Int,Int,Int)]}]
+ATTR  Productions Production 
+      [ | acount : Int |  ntattrs USE {Seq.<>} {Seq.empty} : {Seq (Vertex,NTAttr)} 
+                          aranges  USE {Seq.<>} {Seq.empty} : {Seq (Int,Int,Int)}]
 
 SEM Grammar
   | Grammar prods.acount = 0
 
 SEM Production
-  | Production lhs.tdsToTdp = zip [@lhs.acount ..]    ((map (\a -> lookupAttrOccWith (lookInh a) @lhs.allvertices') (Map.keys @inh))
-                                                    ++ (map (\a -> lookupAttrOccWith (lookSyn a) @lhs.allvertices') (Map.keys @syn)))
-                               where lookSyn a (AOLHSSyn nt _ a')     = nt == @nt && a == a'
-                                     lookSyn a (AORHSSyn nt _ _ _ a') = nt == @nt && a == a'
-                                     lookSyn _ _ = False
-                                     lookInh a (AOLHSInh nt _ a')     = nt == @nt && a == a'
-                                     lookInh a (AORHSInh nt _ _ _ a') = nt == @nt && a == a'
-                                     lookInh _ _ = False
-               lhs.ntattrs  = zip [@lhs.acount ..] ((map (NTAInh @nt) (Map.keys @inh)) ++ (map (NTASyn @nt) (Map.keys @syn)))
+  | Production loc.ntattrs =  [NTAInh @nt inh tp | (inh,tp) <- Map.assocs @inh ]
+                              ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
+               lhs.ntattrs = Seq.fromList $ zip [@lhs.acount ..] @ntattrs
                lhs.acount = @lhs.acount + Map.size @inh + Map.size @syn
-               lhs.aranges = [(@lhs.acount
-                              ,@lhs.acount + Map.size @inh
-                              ,@lhs.acount + Map.size @syn + Map.size @inh - 1)]
+               lhs.aranges =  Seq.single
+                                (@lhs.acount
+                                ,@lhs.acount + Map.size @inh
+                                ,@lhs.acount + Map.size @syn + Map.size @inh - 1)
 
------------------------------------------
--- Direct dependencies
------------------------------------------
-ATTR Productions Production 
-     Alternatives Alternative 
-     Rules Rule [ | | directDep USE {++} {[]} : {[Graph.Edge]} ]
-
-SEM Rule
-  | Rule lhs.directDep
-             = let rhsSyn t (AORHSSyn _ nt' con' fld' attr') = (nt',con',fld',attr') == t
-                   rhsSyn _ _ = False
-                   translateOut (fld,attr) = lookupAttrOccWith (rhsSyn (@lhs.nt,@lhs.con,fld,attr)) @lhs.allvertices'
-                   translateLoc attr       = lookupAttrOcc (AOLocal @lhs.nt @lhs.con attr) @lhs.allvertices'
-                   translateIn  (fld,attr) = lookupAttrOcc (AOLHSInh @lhs.nt @lhs.con attr) @lhs.allvertices'
-                   myUsedOut fld  = (\(x,y) -> (concatMap translateOut x,concatMap translateOut y)) $ partition (\(fld',_) -> fld' == fld) @outAttrs
-                   usedOut  = concatMap translateOut @outAttrs
-                   usedLoc  = concatMap translateLoc (@locAttrs ++ @rhs.usedLocals ++ @rhs.usedFields)
-                   usedRest = concatMap translateIn @inAttrs
-               in [ (x,y) | x <- usedOut ++ usedLoc ++ usedRest, (y,_) <- @vertices' ]
-
-------------------------------------------------------------------
--- aTable for names and types of NTAttrs
-------------------------------------------------------------------
-ATTR  Productions Production 
-      [ | | aTable USE {++} {[]} : {[(Graph.Vertex,(Name,Type))]} ]
-SEM  Production
-  |  Production  lhs.aTable = zip [@lhs.acount ..] (Map.toList @inh ++ Map.toList @syn)
-
-------------------------------------------------------------------
--- ruleTable for CRules of attributes
-------------------------------------------------------------------
-ATTR Rules Rule [ childrenAttributes : {[(Name,Attributes,Attributes)]} inh,syn : Attributes | | ]
-SEM  Alternative
-  |  Alternative rules.childrenAttributes = @children.attributes
-
-ATTR Productions Production 
-     Alternatives Alternative 
-     Rules Rule 
-     Children Child [ | | ruleTable USE {++} {[]} : {[(Graph.Vertex,CRule)]} ]
-
-SEM  Alternative
-  |  Alternative lhs.ruleTable =  mapSnd (\ao -> CRule ao (Map.lookup (getAttr ao) @lhs.inh) False empty empty Map.empty False "") @vertices'
-                                  ++ @children.ruleTable
-                                  ++ @rules.ruleTable
-
-SEM  Child
-  |  Child  loc.ruleTable = if  @maptolocal
-                                then [(@lhs.vcount, CRule (AOLocal @lhs.nt @lhs.con @name) (Just @tp) False empty empty Map.empty False "")]
-                                else zip [@lhs.vcount..] [ (CRule (AORHSSyn (getNonterminalName @tp) @lhs.nt @lhs.con @name syn) (Just tp) False empty empty Map.empty False "")  | (syn,tp) <- Map.assocs @syn]
-
-SEM  Rule 
-  |  Rule  lhs.ruleTable = let  cr ao = CRule ao (getType ao) True @pattern.pp @rhs.pp defines @owrt @origin
-                                defines = Map.fromList (map (\(v,ao) -> (v,(ao,getType ao))) @vertices')
-                                findChildAttrs fld = find (\(f,_,_) -> f == fld) @lhs.childrenAttributes
-                                getType (AOLocal _ _ a) = Map.lookup a @lhs.allTypeSigs
-                                getType (AOLHSInh nt _ a) = Map.lookup a @lhs.inh
-                                getType (AOLHSSyn nt _ a) = Map.lookup a @lhs.syn
-                                getType (AORHSInh _ _ _ fld a) = let Just (_,inh,_) = findChildAttrs fld
-                                                                 in Map.lookup a inh
-                                getType (AORHSSyn _ _ _ fld a) = let Just (_,_,syn) = findChildAttrs fld
-                                                                 in Map.lookup a syn
-                                mkTp nt a = Just (SimpleType (typeToString nt a))
-                           in mapSnd cr @vertices'
 ------------------------------------------------------------------
 -- Pass structure up
 ------------------------------------------------------------------
@@ -182,26 +140,28 @@ SEM Alternative
 SEM TypeSig
   | TypeSig lhs.typeSigs = Map.insert @name @tp @lhs.typeSigs
 
-ATTR Rules Rule [ allTypeSigs : {Map Name Type} | | ]
+ATTR Rules Rule Patterns Pattern [ allTypeSigs : {Map Name Type} | | ]
 SEM  Alternative
   |  Alternative rules.allTypeSigs = @typeSigs.typeSigs
+
 ------------------------------------------------------------------
 -- Invoking sequential computation
 ------------------------------------------------------------------
 SEM Grammar
-  | Grammar loc.attrTable = Array.array (0,@prods.acount-1) @prods.ntattrs
-            loc.aoTable = Array.array (0,@prods.vcount-1) @prods.vertices'
-            loc.aTable = Array.array (0,@prods.acount-1) @prods.aTable
-            loc.ruleTable = Array.array (0,@prods.vcount-1) @prods.ruleTable
-            prods.allvertices' = @prods.vertices'
-            prods.vcount  = 0
-            loc.info      = Info { tdsToTdp   = Array.array (0,@prods.acount-1) @prods.tdsToTdp
-                                 , tdpToTds   = Array.array (0,@prods.vcount-1) [ (ix, def (lookupWith' (ix `elem`) @prods.tdsToTdp)) | ix <- [0 .. @prods.vcount-1] ]
-                                 , aoTable    = @aoTable
+  | Grammar loc.ruleTable = Array.array (0,@prods.vcount-1) (Seq.toList @prods.rules)
+            loc.attrTable = Array.array (0,@prods.acount-1) (Seq.toList @prods.ntattrs)
+            loc.attrVertex = Map.fromList (map swap (Seq.toList @prods.ntattrs))
+            loc.tdpToTds  = [ (s, maybe (-1) (\v -> Map.find v @attrVertex) (ntattr cr)) | (s,cr) <- Seq.toList @prods.rules]
+            loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
+                                  conv ((s,v):svs)  | v == -1 = Nothing
+                                                    | otherwise = Just (v,s:map fst svs)
+                             in mapMaybe conv (eqClasses eq @tdpToTds)
+            loc.directDep = Seq.toList @prods.directDep
+            loc.info      = Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
+                                 , tdpToTds   = Array.array (0,@prods.vcount-1) @tdpToTds
                                  , attrTable  = @attrTable
-                                 , aTable     = @aTable
                                  , ruleTable  = @ruleTable
-                                 , lmh        = @prods.aranges
+                                 , lmh        = Seq.toList @prods.aranges
                                  , prods      = @prods.prods
                                  , wraps      = @wrappers
                                  , cyclesOnly = not (visit @lhs.options)
@@ -209,14 +169,14 @@ SEM Grammar
                              where def [] = -1
                                    def (v:vs) = v
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential @info @prods.directDep of
+                              case computeSequential @info @directDep of
                                            SeqResult    cim cvm -> (cim,cvm,[])
                                            LocLocCycle  errs ->  (error "No interfaces for cyclic AG"
                                                                  ,error "No visit sub-sequences for cyclic AG"
-                                                                 ,map (loclocCycleErr @ruleTable @aoTable) errs)
+                                                                 ,map (loclocCycleErr @ruleTable (visit @lhs.options)) errs)
                                            DirectCycle  errs ->  (error "No interfaces for cyclic AG"
                                                                  ,error "No visit sub-sequences for cyclic AG"
-                                                                 ,map (directCycleErr @attrTable @ruleTable) errs)
+                                                                 ,map (directCycleErr @attrTable @ruleTable (visit @lhs.options)) errs)
                                            InducedCycle cim errs ->  (cim
                                                                      ,error "No visit sub-sequences"
                                                                      ,map (inducedCycleErr @attrTable cim) errs)
@@ -251,6 +211,11 @@ SEM  Alternatives [ | | cAlternatives : T_CAlternatives ]
 SEM  Alternative [ | | cAlternative : T_CAlternative ]
   |  Alternative  lhs.cAlternative = sem_CAlternative_CAlternative @con @cVisits @children.fields @children.terminals
 
+-- Collect terminals
+ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
+SEM Child
+  | Child lhs.terminals = if @maptolocal then [@name] else []
+
 ------------------------------------------------------------------
 -- Call CGrammar
 ------------------------------------------------------------------
@@ -268,55 +233,34 @@ SEM  Production [ seqDecls : {Decls} | | ]
   |  Production  loc.seqDecls = @lhs.seqDecls
 
 {
-showPath :: Graph.Table CRule -> [Graph.Vertex] -> [String]
+swap (a,b) = (b,a)
+
+showPath :: Table CRule -> [Vertex] -> [String]
 showPath ruleTable path
   =  let  look a | inRange (bounds ruleTable) a = [ruleTable ! a]
                  | otherwise = []
-          showOrigin (CRule ao _ hasCode _ _ _ _ origin) | hasCode && getName (getAttr ao) /= "self" = prettyAO ao ++ " (" ++ show (getPos (getAttr ao)) ++ ")"
-                                                         | otherwise = prettyAO ao
+          showOrigin cr  | getHasCode cr && getName (getAttr cr) /= "self" = prettyCRule cr ++ " (" ++ show (getPos (getAttr cr)) ++ ")"
+                         | otherwise = prettyCRule cr
      in map showOrigin (concatMap look path)
 
-loclocCycleErr :: Graph.Table CRule -> Graph.Table AttrOcc -> (Graph.Vertex,[Graph.Vertex]) -> Error
-loclocCycleErr ruleTable aoTable (s,path)
-  =  let ao = aoTable ! s
-         attr = getAttr ao
-         nt = getLhsNt ao
-         con = getCon ao
-     in LocLocCirc nt con attr (showPath ruleTable path)
+loclocCycleErr :: Table CRule -> Bool -> (Vertex,[Vertex]) -> Error
+loclocCycleErr ruleTable o_visit (s,path)
+  =  let cr = ruleTable ! s
+         attr = getAttr cr
+         nt = getLhsNt cr
+         con = getCon cr
+     in LocLocCirc nt con attr o_visit (showPath ruleTable path)
 
-directCycleErr :: Graph.Table NTAttr -> Graph.Table CRule -> (Graph.Edge,[Graph.Vertex]) -> Error
-directCycleErr attrTable ruleTable ((v1,v2), path)
-  = let (NTASyn nt a1) = attrTable ! v1
-        (NTAInh _  a2) = attrTable ! v2
-    in DirectCirc nt a2 a1 (showPath ruleTable path)
+directCycleErr :: Table NTAttr -> Table CRule -> Bool -> (Edge,[Vertex]) -> Error
+directCycleErr attrTable ruleTable o_visit ((v1,v2), path)
+  = let (NTASyn nt a1 _) = attrTable ! v1
+        (NTAInh _  a2 _) = attrTable ! v2
+    in DirectCirc nt a2 a1 o_visit (showPath ruleTable path)
 
-inducedCycleErr :: Graph.Table NTAttr -> CInterfaceMap -> Graph.Edge -> Error
+inducedCycleErr :: Table NTAttr -> CInterfaceMap -> Edge -> Error
 inducedCycleErr attrTable cim (v1,v2)
-  = let (NTASyn nt a1) = attrTable ! v1
-        (NTAInh _  a2) = attrTable ! v2
+  = let (NTASyn nt a1 _) = attrTable ! v1
+        (NTAInh _  a2 _) = attrTable ! v2
         cinter = Map.find nt cim
     in InducedCirc nt a2 a1 cinter
-
--------------------------------------------------------------------------------
--- Some useful functions
--------------------------------------------------------------------------------
-lookupAttrOcc :: AttrOcc -> [(b,AttrOcc)] -> [b]
-lookupAttrOcc a bas = lookupAttrOccWith (a==) bas
-
-lookupAttrOccWith :: (AttrOcc -> Bool) -> [(b,AttrOcc)] -> [b]
-lookupAttrOccWith f [] = []
-lookupAttrOccWith f ((b,a):abs)
-    | f a       = b:lookupAttrOccWith f abs
-    | otherwise = lookupAttrOccWith f abs
-
-lookupWith' :: (a -> Bool) -> [(b,a)] -> [b]
-lookupWith' f []       = []
-lookupWith' f ((b,a):abs) 
-    | f a       = b:lookupWith' f abs
-    | otherwise = lookupWith' f abs
-
-
-mapSnd :: (a -> b) -> [(c, a)] -> [(c,b)]
-mapSnd f [] = []
-mapSnd f ((c,a):cas) = (c,f a):mapSnd f cas
 }

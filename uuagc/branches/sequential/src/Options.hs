@@ -110,7 +110,6 @@ versionOpt    opts = opts{showVersion  = True}
 prefixOpt pre opts = opts{prefix       = pre }            
 selfOpt       opts = opts{withSelf     = True}            
 cycleOpt      opts = opts{withCycle    = True}            
-optimizeOpt   visitOpt . casesOpt
 visitOpt      opts = opts{visit        = True, withCycle = True}
 seqOpt        opts = opts{withSeq      = True}
 unboxOpt      opts = opts{unbox        = True}
@@ -122,6 +121,7 @@ searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
+optimizeOpt   = visitOpt . casesOpt
 
 getOptions args = let (flags,files,errors) = getOpt Permute options args
                   in (foldl (flip ($)) noOptions flags,files,errors)

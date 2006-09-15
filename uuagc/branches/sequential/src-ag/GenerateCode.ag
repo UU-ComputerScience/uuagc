@@ -42,10 +42,8 @@ ATTR Productions Production Alternatives Alternative
 -------------------------------------------------------------------------------
 --         Distributing name of nonterminal and names of attributes
 -------------------------------------------------------------------------------
-ATTR Alternatives Alternative Child Children Rules Rule [ nt:{Identifier} | | ]
-ATTR Child Children Rules Rule  [ con:{Identifier} | | ]
-ATTR Alternatives Alternative Children [ inh:{Attributes} | | ]
-ATTR Alternatives Alternative [ syn:{Attributes} | | ]
+ATTR Alternatives Alternative Child Children Rules Rule Patterns Pattern [ nt : {Identifier} inh,syn : {Attributes} | | ]
+ATTR Child Children Rules Rule Patterns Pattern [ con : {Identifier} | | ]
 
 SEM Alternative
   | Alternative children . con = @con
@@ -53,7 +51,6 @@ SEM Alternative
   | Alternative rules . con = @con
 SEM Production
   | Production alts . nt = @nt
-
 
 SEM Production
   | Production alts.inh  = @inh

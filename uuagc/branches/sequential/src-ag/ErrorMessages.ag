@@ -67,10 +67,12 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
             | LocLocCirc      nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
+                              o_visit : {Bool}
                               path    : {[String]}
             | DirectCirc      nt      : {Nonterminal}
                               inh     : {Name}
                               syn     : {Name}
+                              o_visit : {Bool}
                               path    : {[String]}
             | InducedCirc     nt      : {Nonterminal}
                               inh     : {Name}

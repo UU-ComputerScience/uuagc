@@ -279,7 +279,8 @@ SEM Error
                                                , "of alternative", getName @con, "of nonterminal", getName @nt]
                                  pat   = text "see help"
                                  help  = vlist ("The following attributes formed the cycle:": @path)
-                                 act   = text "An unoptimized version was generated. It might not run."
+                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
+                                       | otherwise = text "The generated program might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | DirectCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
@@ -287,7 +288,8 @@ SEM Error
                                          in wfill ["Direct circular dependency pattern for", attrtext, "of nonterminal", getName @nt]
                                  pat   = text "see help"
                                  help  = vlist ("The following attributes formed the cycle:": @path)
-                                 act   = text "An unoptimized version was generated. It might not run."
+                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
+                                       | otherwise = text "The generated program might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
  | InducedCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
@@ -306,7 +308,7 @@ SEM Error
                                  pat   =   "SEM" >#< @nt
                                        >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< ": ...")
                                  help  = wfill ["The", showAttrDef _LOC @attr, "in alternative", getName @con
-                                               ,"of nonterminal", getName @nt, "is needed in two seperate visits to", getName @nt
+                                               ,"of nonterminal", getName @nt, "is needed in two separate visits to", getName @nt
                                                ,"so its type is needed to generate type signatures."
                                                ,"Please supply its type."
                                                ]
