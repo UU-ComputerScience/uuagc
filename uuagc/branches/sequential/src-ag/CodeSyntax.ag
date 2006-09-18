@@ -3,11 +3,15 @@ imports
 import CommonTypes
 import UU.Pretty(PP_Doc)
 import UU.DData.Map(Map)
+import UU.DData.Set(Set)
 import Data.Graph(Vertex)
 }
 
 DATA  CGrammar 
-   |  CGrammar prods:CProductions
+   |  CGrammar  typeSyns : {TypeSyns}
+                derivings: {Derivings} 
+                wrappers:{Set Nonterminal} 
+                prods:CProductions
 
 TYPE CProductions = [CProduction]
 
@@ -38,10 +42,11 @@ DATA  CAlternative
 TYPE CVisits = [CVisit]
 
 DATA  CVisit 
-   |  CVisit  inh    :  Attributes
-              syn    :  Attributes
-              vss    :  Sequence
-              intra  :  Sequence
+   |  CVisit  inh     :  Attributes
+              syn     :  Attributes
+              vss     :  Sequence
+              intra   :  Sequence
+              ordered :  Bool -- indicates that vss is ordered
 
 TYPE Sequence = [CRule]
 

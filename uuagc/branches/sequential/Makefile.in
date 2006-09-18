@@ -52,7 +52,7 @@ SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
 # And semantic functions from these AG files.
 SRC_AG_SEM_NAMES = DefaultRules.ag GenerateCode.ag PrintCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag SemRules.ag \
-	 Transform.ag InterfacesRules.ag GenerateSeqCode.ag
+	 Transform.ag InterfacesRules.ag Order.ag
 
 # Default flags for AG
 FLAGS_AG_SEM = -mcsfp --newtypes --wrappers
