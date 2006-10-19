@@ -52,6 +52,7 @@ DATA Type     | Arr         left  : Type
               | SimpleType  txt   : {String}
 	       
 DATA Lhs      | Pattern     pat   : {PP_Doc}
+              | SinglePat   pat   : {PP_Doc}
               | TupleLhs    comps : {[String]}
               | Fun         name  : {String} 
                             args  : Exprs
