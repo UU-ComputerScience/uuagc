@@ -80,6 +80,7 @@ SEM DataAlt
 
 SEM Lhs
   | Pattern    lhs.pp      = pp_parens @pat
+  | SinglePat  lhs.pp      = @pat
   | TupleLhs   lhs.pp      = ppTuple @lhs.nest (map text @comps)
   | Fun        lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
 

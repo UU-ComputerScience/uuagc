@@ -325,8 +325,9 @@ SEM Rules [ | | decls : {Decls}]
   | Nil  lhs.decls = []
   
 SEM Rule  [ | | decl : {Decls}]
-  | Rule lhs.decl  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
-                        [Decl (Pattern @pattern.pp) (PP @rhs.pp)]
+  | Rule loc.patC  = if @pattern.nPats == 1 then SinglePat else Pattern
+         lhs.decl  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+                        [Decl (@loc.patC @pattern.pp) (PP @rhs.pp)]
   
 ATTR Child Children [ | | decls USE{++}{[]}: {Decls}]
   
@@ -383,6 +384,17 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
 
 SEM Pattern [ | | pp:PP_Doc ]
   | Constr  lhs.pp     = pp_parens $ @name >#< hv (map pp_parens @pats.pps)
-  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
-  | Alias   lhs.pp     = attrname False @field @attr >|< "@" >|< @pat.pp
+  | Product lhs.pp     = if @pats.nPats == 1
+                         then head @pats.pps
+                         else pp_block "(" ")" "," @pats.pps
+  | Alias   lhs.pp     = if @pat.isUnderscore
+                         then text (attrname False @field @attr)
+                         else attrname False @field @attr >|< "@" >|< @pat.pp
   | Underscore lhs.pp  = text "_"
+
+ATTR Patterns Pattern [|| nPats USE {+} {0} : Int isUnderscore USE {&&} {False} : Bool ]
+SEM Pattern
+  | *           lhs.nPats = 1
+  | * - Underscore Alias
+                lhs.isUnderscore = False
+  | Underscore  lhs.isUnderscore = True
