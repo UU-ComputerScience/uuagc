@@ -6,7 +6,7 @@ maintainer: Arthur Baars <arthurb@cs.uu.nl>
 Build-Depends: base, haskell98, uulib
 
 Executable:     uuagc
-Main-Is:        Ag-Jeroen.hs
+Main-Is:        Ag.hs
 Other-Modules: AbstractSyntax,
       Code,
       CommonTypes,
@@ -23,10 +23,8 @@ Other-Modules: AbstractSyntax,
       Patterns,
       PrintCode,
       PrintErrorMessages,
-      Rules,
       Scanner,
       SemHsTokens,
-      SemRules,
       Streaming,
       TokenDef,
       Transform,
