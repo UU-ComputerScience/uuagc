@@ -1,0 +1,56 @@
+imports
+{
+import UU.Pretty(PP_Doc)
+import Patterns
+}
+
+TYPE Exprs    = [Expr]
+TYPE Decls    = [Decl]
+TYPE DataAlts = [DataAlt]
+TYPE Types    = [Type]
+
+DATA Program  | Program     decls : Decls
+
+DATA Expr     | Let         decls : Decls   
+                            body  : Expr
+              | Lambda      args :  {[String]}
+                            body : Expr
+              | TupleExpr   exprs : Exprs
+              | App         name  : {String} 
+                            args  : Exprs
+              | SimpleExpr  txt   : {String}
+              | TextExpr    lns   : {[String]}
+
+DATA Decl     | Decl        left  : Lhs 
+                            rhs   : Expr
+              | Data        name  : {String} 
+                            alts  : DataAlts
+                            derivings : {[String]}
+              | NewType     name  : {String} 
+                            con   : {String} 
+                            tp    : Type
+              | Type        name  : {String} 
+                            tp    : Type
+              | TSig        name  : {String} 
+                            tp    : Type
+              | Comment     txt   : {String}
+
+DATA DataAlt  | DataAlt     name  : {String} 
+                            args  : {[String]}
+              | Record      name  : {String} 
+                            args  : {[(String,String)]}
+                            
+DATA Type     | Arr         left  : Type 
+                            right : Type
+              | TupleType   tps   : Types
+              | List        tp    : Type
+              | SimpleType  txt   : {String}
+
+	       
+DATA Lhs      
+              | Pattern3    pat3  : Pattern
+              | Pattern3SM  pat3  : Pattern
+              | TupleLhs    comps : {[String]}
+              | Fun         name  : {String} 
+                            args  : Exprs
+                            

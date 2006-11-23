@@ -1,0 +1,6 @@
+
+
+TYPE Apen = [Aap]
+
+DATA Aap   |  Een  a : {Int}
+
