@@ -1,0 +1,211 @@
+\documentclass[twoside]{article}
+\usepackage{a4wide}
+%\usepackage[dutch]{babel}
+\usepackage{graphicx}
+
+%\topmargin=-15mm
+%\textheight=240mm
+%\textwidth=150mm
+%\oddsidemargin=6mm
+%\evensidemargin=6mm
+%\marginparwidth=12mm
+%\marginparsep=6mm
+\raggedbottom
+\parindent=0pt
+\parskip=3pt
+
+\newenvironment{itize}{\begin{list}{$\bullet$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newenvironment{subitize}{\begin{list}{$-$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newcommand{\simplepicture}[2]{\centerline{\includegraphics[scale=#1]{figs/#2}}}
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12 }\dospecials}
+\def\setupverbatimp{\parskip=0pt\par\small\tt\obeylines\uncatcodespecials\catcode`\@=0\parskip=0pt\obeyspaces}
+{\obeyspaces\global\let =~}
+\def\prog{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimp\doverbatimp}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimp^^M#1\gorp{#1|end{list}|vspace{-3pt}|endgroup}}
+
+
+\begin{document}
+
+
+\title{UUAGC v.0.9.3\\Release notes and Implementation notes}
+\author{Jeroen Fokker}
+\date{November 24th, 2006}
+\maketitle
+
+This report describes the differences of UUAGC version 0.9.3,
+as compared to version 0.9.1 of December 2005.
+
+In short, this version has:
+\begin{itemize}
+\item {\bf Better input}\\
+	\begin{subitize}
+	\item It was already possible to later add new alternatives to exisiting datatypes.
+	      But now you can also later add new children to existing alternatives.
+	\item You can also add children generically to multiple datatypes.
+	\item It was already possible to declare an attribute for multiple datatypes.
+	      But now you can also generically {\em define} these attributes in a single definition.
+	\end{subitize}	      
+\item {\bf Better output}
+	\begin{subitize}
+	\item The output is now ghc-6.6 compliant, because the lhs of a definition is no longer put in parentheses.
+	\item There are generally less superfluous parentheses in the output,
+	      which makes the generated code easier to read.
+	\item Comments can be generated not only listing the children, but also the attributes and local variables.
+	\item Error messages have a better layout.
+	\end{subitize}
+\item {\bf Better source}
+	\begin{subitize}
+	\item The five stages of processing that together form the main dataflow are made more uniform,
+	      treating their input (tree and options) and output (next tree, errors, and additional strings)
+	      in a more consistent way. This makes the source easier to understand and modify in the future.
+	\item In imported Haskell ibraries, all needed functions are explicitly enumerated.
+	      This makes it more transparent why a module is actually needed.
+	\item Some code (especially the gathering of alle distributed information, and the generation of default rules)
+	      has been rewritten in order to make it easier to understand.
+    \end{subitize}
+\end{itemize}
+
+In section~1 we will introduce the new features of the input language.
+In section~2 we describe the overall architecture of the program.
+In section~3 we list the modifications that were made for this version.
+
+\newpage
+
+\section{New features}
+
+\subsection{Add children to existing datatypes}
+
+When defining a datatype in Haskell, you have to specify all alternatives in one declaration.
+In contrast, in UUAGC it is possible to add new alternatives to existing datatypes.
+This was already possible in earlier versions. For example:
+\prog
+-- initial definition
+DATA Foo
+   | One  a1 : {Int}
+          a2 : {Int}
+   | Two  b1 : {Int}
+--other definitions
+DATA Bar
+   | First d : {Int}
+-- add-on to first definition
+DATA Foo
+   | Three c1 : {Int}
+\gorp
+In the new version, it is also possible to add new children to existing alternatives.
+For example, to add a second child to alternative \verb"Two" of datatype \verb"Foo",
+you can extend the example above by:
+\prog
+-- add new child to existing alternative
+data Foo
+   | Two  b2 : {Int}
+\gorp
+In earlier versions, this would result in a `duplicate alternative' error,
+but now it is allowed. Of course, the name of the added child \verb"b2" should differ
+from the names of the existing child \verb"b1".
+
+
+\subsection{Generically add children to multiple datatypes}
+
+If two datatypes share a common part, it is now possible to write it only once,
+and later extend it in different ways. For example:
+\prog
+-- common part
+DATA Foo Bar
+   | One a : {Int}
+   | Two b : {Int}
+-- two extensions
+DATA Foo
+   | Three c : {Int}
+DATA Bar
+   | Four  d : {Char}
+\gorp
+In earlier versions, it was a syntax error to enumerate more than one type name in a DATA header.
+Even an attempt to capture both names in a set would fail in earlier versions:
+\prog
+SET Common = Foo Bar
+DATA Common
+   | One a : {Int}
+   | Two b : {Int}
+\gorp
+It would throw a `duplicate synonym' error in earlier versions, but it is possible in the new version.
+
+
+\subsection{Generically define attribute values}
+
+In earlier versions, it was already possible to declare an attribute for multiple datatypes:
+\prog
+ATTR Foo Bar [ | | s : {Int} ]
+\gorp
+But it was not possible to {\em define} the {\em value} of the attribute generically.
+In the new version, it is possible to have a single definition for two datatypes,
+provided that they have a common alternative.
+Of course, this situation will occur more often if the construction in the previous subsection
+is used frequently.
+We are now able to define in a single definition:
+\prog
+SEM Foo Bar
+  | One  lhs.s = 3
+\gorp
+In earlier versions, it was a syntax error to enumerate more than one type name in a SEM definition,
+and an apporach using SETs would also fail.
+
+
+\subsection{Using wildcards}
+
+In earlier versions, it was already possible to use a wildchard name \verb"*", and a name set difference operator \verb"-",
+to generically define an attribute for more than one alternative. For example:
+\prog
+SEM Foo
+  | * - One  lhs.s = 4
+ \gorp
+would define the attirbute for alternatives \verb"Two" and \verb"Three".
+
+It should be noted that in the new version, this notation has an even more generic meaning:
+\prog
+SEM Foo Bar
+  | * - One  lhs.s = 4
+\gorp
+will define the attribute for alternatives \verb"Two" and \verb"Three" of datatype \verb"Foo",
+{\em and} for alternatives \verb"Two" and \verb"Four" of datatype \verb"Bar".
+
+It is even allowed to use wildcards in the header of a SEM-definition, as in:
+\prog
+SEM *
+  | * - One  lhs.s = 4
+\gorp
+Also, it is now allowed to use wildcards in the header of DATA and ATTR definitions.
+Thus, we can add an uniform alternative to all existing datatypes, for example to provide 
+a placeholder for error situations:
+\prog
+DATA *
+  | Error
+\gorp
+And it is possoble to uniformly add a child to all alternatives of a (set of) datatype(s),
+for example to store the location in the source file in all alternatives of both 
+the \verb"Expr" and the "Stat" datatype:
+\prog
+DATA Expr Stat
+  | *  pos : {Int}
+\gorp
+
+
+
+
+
+\section{Program architecture}
+
+
+
+
+
+\section{Modifications}
+
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,6 @@
+-- the set Noot is cyclic
+
+DATA Aap 
+	| Een a : {Int}
+
+SET Noot = Aap Noot
