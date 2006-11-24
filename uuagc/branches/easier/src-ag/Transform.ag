@@ -228,7 +228,10 @@ SEM AG
                            in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
                              -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs4
+         loc.errs3       = let f = checkForDuplicates (DupSynonym)
+                           in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
+
+         lhs.errors      = @elems.errors <> @errs3 <> @errs1 <> @errs2 <> @errs4 
 
 
 {
@@ -261,7 +264,7 @@ checkRules attributes fields nt con rs
                                                             else (Seq.cons (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
                                            Nothing ->            (                                             e, Map.insert fa owrt m,    u, fa:bs)
                                  else                            (Seq.cons (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
-                Nothing      ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
+                _            ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
 }
