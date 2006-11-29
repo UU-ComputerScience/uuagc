@@ -18,6 +18,7 @@ ATTR Expression [ nt,con   :{Name}
                   errors   :{Seq Error}
                   usedLocals:{[Name]}
                   usedAttrs :{[(Name,Name)]}
+                  usedFields:{[Name]}
                   textLines :{[String]}
                 ]
 
@@ -36,4 +37,5 @@ SEM Expression
                                     , textLines_Syn_HsTokensRoot  = textLines
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
-                                    }  -> (errors,textLines,usedAttrs,usedLocals)                                 
+                                    , usedFields_Syn_HsTokensRoot = usedFields
+                                    }  -> (errors,textLines,usedAttrs,usedLocals,usedFields)                                 

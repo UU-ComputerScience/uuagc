@@ -3,6 +3,7 @@ imports
 import UU.Scanner.Position(Pos)
 import UU.Pretty(PP_Doc)
 import DepTypes(Trace)
+import CodeSyntax
 import CommonTypes
 }
 
@@ -66,12 +67,23 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
 
-            | CircGrammar     nt      : {Nonterminal}
+            | LocLocCirc      nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}
+                              o_visit : {Bool}
+                              path    : {[String]}
+            | DirectCirc      nt      : {Nonterminal}
                               inh     : {Name}
-                              siTrace : {Trace}
                               syn     : {Name}
-                              isTrace : {Trace}
-            
+                              o_visit : {Bool}
+                              path    : {[String]}
             | ParserError     pos     : {Pos}
                               problem : {String}
                               action  : {String}
+            | InducedCirc     nt      : {Nonterminal}
+                              inh     : {Name}
+                              syn     : {Name}                
+                              cinter  : {CInterface}
+            | MissingTypeSig  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}

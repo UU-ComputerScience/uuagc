@@ -88,3 +88,6 @@ typeToString :: Nonterminal -> Type -> String
 typeToString _ (Haskell t)  = t
 typeToString nt (NT t   ) | t == _SELF = getName nt
                           | otherwise  = getName t
+
+ind :: String -> String
+ind s = replicate 3 ' ' ++ s
