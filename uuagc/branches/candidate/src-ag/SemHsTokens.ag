@@ -20,6 +20,7 @@ ATTR HsTokensRoot
        usedLocals:{[Identifier]}
        usedAttrs :{[(Identifier,Identifier)]}
        textLines  :{[String]}
+       usedFields:{[Identifier]}
      ]
 
 -------------------------------------------------------------------------------
@@ -67,6 +68,19 @@ ATTR HsTokens HsToken [ | | usedLocals USE {++} {[]} : {[Identifier]}
 
 SEM HsToken
   | AGField lhs.usedAttrs  = [(@field,@attr)]
+
+-------------------------------------------------------------------------------
+--         Used fields
+-------------------------------------------------------------------------------
+ATTR HsTokens HsToken [ | | usedFields USE {Seq.<>} {Seq.empty} : {Seq Identifier} ]
+
+SEM HsToken
+  | AGLocal lhs.usedFields = if @var `elem` @lhs.fieldnames
+                              then Seq.single @var
+                              else Seq.empty
+SEM HsTokensRoot
+  | HsTokensRoot lhs.usedFields = Seq.toList @tokens.usedFields
+
 -------------------------------------------------------------------------------
 --  Pretty printing
 -------------------------------------------------------------------------------

@@ -21,11 +21,17 @@ ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
 
 ATTR Exprs DataAlts Types  Decls        [ nested:{Bool} | | pps: {PP_Docs} ]
 
+ATTR CaseAlt                            [ nested:{Bool} | | pps: {[PP_Doc]} ]
+
 SEM Program
   | Program decls.nested = nest @lhs.options 
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM CaseAlts
+  | Cons lhs.pps = @hd.pps ++ @tl.pps
   | Nil  lhs.pps = []
 
 SEM DataAlts
@@ -58,8 +64,6 @@ SEM Decl
                                             then empty
                                             else "deriving" >#< ppTuple False (map text @derivings)  
                                   )                                            
-
-
   | NewType    lhs.pp      = "newtype" >#< @name >#< "=" >#< @con >#< pp_parens @tp.pp
   | Type       lhs.pp      = "type" >#< @name >#< "=" >#<  @tp.pp
   | TSig       lhs.pp      = @name >#< "::" >#< @tp.pp
@@ -68,16 +72,24 @@ SEM Decl
                                else "--" >#< @txt
 
 SEM Expr
+<<<<<<< .working
   | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)
                                        >-< "in " >#< @body.pp
+                                       )
+  | Case       lhs.pp      = pp_parens (    "case" >#< @expr.pp >#< "of"
+                                       >-< (vlist @alts.pps)
                                        )
   | Lambda     lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
                                        >-< indent 4 @body.pp
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
+  | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nest @exprs.pps
   | App        lhs.pp      = pp_parens $ @name >#< hv_sp @args.pps
   | SimpleExpr lhs.pp      = text @txt
   | TextExpr   lhs.pp      = vlist (map text @lns)
+
+SEM CaseAlt
+  | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
 
 SEM DataAlt
   | DataAlt    lhs.pp      = @name >#< hv_sp (map (pp_parens.text) @args)
@@ -87,6 +99,7 @@ SEM Lhs
   | Pattern3   lhs.pp      = @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
   | TupleLhs   lhs.pp      = ppTuple @lhs.nested (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nest (map text @comps)
   | Fun        lhs.pp      = @name >#< hv_sp @args.pps
 
 SEM Type  [ | | prec:Int ]
@@ -97,6 +110,9 @@ SEM Type  [ | | prec:Int ]
 
   | TupleType  lhs.prec    = 5
                   .pp      = ppTuple @lhs.nested @tps.pps
+
+  | UnboxedTupleType  lhs.prec    = 5
+                         .pp      = ppUnboxedTuple @lhs.nest @tps.pps
 
   | List       lhs.prec    = 5
                   .pp      = "[" >|< @tp.pp >|< "]"
@@ -111,6 +127,8 @@ reallySimple = and . map (\x -> isAlphaNum x || x=='_')
 
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
+ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
 }
 
