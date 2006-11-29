@@ -1,12 +1,12 @@
 \begin{code}
 INCLUDE "CodeSyntax.ag"
+INCLUDE "Patterns.ag"
 
 imports
 {
 import SequentialTypes
 import Code hiding (Type)
 import qualified Code
-import Patterns
 import Options
 import CodeSyntax
 import ErrorMessages
@@ -72,7 +72,7 @@ SEM  CRule
   |  CRule loc.originComment = if  @lhs.o_pretty 
                                    then (Comment @origin:) 
                                    else id
-           lhs.decls = if @hasCode then @originComment [Decl (Pattern3 @pattern.copy) (TextExpr @rhs.textLines)] else []
+           lhs.decls = if @hasCode then @originComment [Decl (Pattern3 @pattern.copy) (TextExpr @rhs)] else []
   |  CChildVisit lhs.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
                                          ++ if @last then [] else [funname @name (@nr+1)]
                                   tuple = mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs

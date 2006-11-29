@@ -47,6 +47,7 @@ SEM AG
                                      @elems.derivings
                                      (if wrappers @lhs.options then @loc.allNonterminals else @elems.wrappers)
                                      @loc.checkedRules
+                                     @elems.typeSigMap
                                      @elems.typeSyns
 
 
@@ -567,14 +568,6 @@ SEM Pattern
 -------------------------------------------------------------------------------
 --         Constructing transformed syntax tree
 -------------------------------------------------------------------------------
-
-SEM AG [ | | trans : Grammar ]
-  | AG lhs.trans = let ws = if wrappers @lhs.options
-                               then @loc.nonterminals
-                               else  @elems.wrappers
-                   in constructGrammar @loc.nonterminals @elems.datas @elems.attrDecls @elems.useMap 
-                                    @elems.derivings ws @elems.ruleMap @elems.typeSigMap @elems.typeSyns 
-
 {
 makeType :: Set Nonterminal -> Type -> Type
 makeType nts tp@(NT x) | x == _SELF       = tp
@@ -590,17 +583,18 @@ constructGrammar ::    Set Nonterminal
                     -> Derivings
                     -> Set Nonterminal
                     -> Map Nonterminal (Map Constructor [Rule])
+                    -> Map Nonterminal (Map Constructor [TypeSig])
                     -> TypeSyns
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsyns =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs tsyns =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
                              rmap      = Map.findWithDefault Map.empty             nt allrules
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              alt (con,flds) =
-                                   let rules = maybe [] fst (Map.lookup con rmap)          
+                                   let rules = maybe [] id (Map.lookup con rmap)          
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        child (nm, tp) =
                                           let (inh,syn) = case tp of
@@ -626,11 +620,12 @@ type TypeSigMapAlt = Map Constructor TypeSigs
 }
 
 ATTR Elem Elems [ | typeSigMap:{TypeSigMap} | ]
-ATTR SemAlt SemAlts [ | typeSigMapAlt:{TypeSigMapAlt} | ]
 
 SEM AG
   | AG elems.typeSigMap = Map.empty
 
+{-- TODO: The type defs for local attributes, this impl. does not work for SET's
+ATTR SemAlt SemAlts [ | typeSigMapAlt:{TypeSigMapAlt} | ]
 SEM Elem
   | Sem alts.typeSigMapAlt = Map.findWithDefault Map.empty @name @lhs.typeSigMap
         lhs.typeSigMap = Map.insert @name @alts.typeSigMapAlt @lhs.typeSigMap     
@@ -650,3 +645,4 @@ SEM SemAlt
 ATTR SemDef SemDefs [ | | typeSigs USE {Seq.<>} {Seq.empty} : {Seq TypeSig} ]
 SEM SemDef
   | TypeDef lhs.typeSigs = Seq.single (TypeSig @ident @tp)
+-}

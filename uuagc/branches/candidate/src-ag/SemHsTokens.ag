@@ -3,7 +3,7 @@ INCLUDE "HsToken.ag"
 imports
 {
 import Char(isPrint,ord)
-import UU.DData.Seq as Seq(Seq,empty,single,(<>))
+import UU.DData.Seq as Seq(Seq,empty,single,(<>),toList)
 import UU.Scanner.Position(Pos(Pos),line,column)
 import UU.Pretty
 

@@ -400,7 +400,7 @@ ATTR Grammar Productions  Production   Alternatives
     [ | | output:SELF ] 
 
 SEM Alternative
-  | Alternative lhs.output = Alternative @con @children.output (@rules.output ++ @newRls) @typeSigs.out
+  | Alternative lhs.output = Alternative @con @children.output (@rules.output ++ @newRls) @typeSigs.output
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @output else @tl.output

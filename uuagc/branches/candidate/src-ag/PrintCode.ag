@@ -21,7 +21,7 @@ ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
 
 ATTR Exprs DataAlts Types  Decls        [ nested:{Bool} | | pps: {PP_Docs} ]
 
-ATTR CaseAlt                            [ nested:{Bool} | | pps: {[PP_Doc]} ]
+ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
 
 SEM Program
   | Program decls.nested = nest @lhs.options 
@@ -72,7 +72,6 @@ SEM Decl
                                else "--" >#< @txt
 
 SEM Expr
-<<<<<<< .working
   | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)
                                        >-< "in " >#< @body.pp
                                        )
@@ -83,7 +82,7 @@ SEM Expr
                                        >-< indent 4 @body.pp
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
-  | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nest @exprs.pps
+  | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nested @exprs.pps
   | App        lhs.pp      = pp_parens $ @name >#< hv_sp @args.pps
   | SimpleExpr lhs.pp      = text @txt
   | TextExpr   lhs.pp      = vlist (map text @lns)
@@ -99,7 +98,7 @@ SEM Lhs
   | Pattern3   lhs.pp      = @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
   | TupleLhs   lhs.pp      = ppTuple @lhs.nested (map text @comps)
-  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nest (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nested (map text @comps)
   | Fun        lhs.pp      = @name >#< hv_sp @args.pps
 
 SEM Type  [ | | prec:Int ]
@@ -112,7 +111,7 @@ SEM Type  [ | | prec:Int ]
                   .pp      = ppTuple @lhs.nested @tps.pps
 
   | UnboxedTupleType  lhs.prec    = 5
-                         .pp      = ppUnboxedTuple @lhs.nest @tps.pps
+                         .pp      = ppUnboxedTuple @lhs.nested @tps.pps
 
   | List       lhs.prec    = 5
                   .pp      = "[" >|< @tp.pp >|< "]"

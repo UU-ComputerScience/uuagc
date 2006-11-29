@@ -1,7 +1,7 @@
 imports
 {
+import Patterns
 import CommonTypes
-import UU.Pretty(PP_Doc)
 import UU.DData.Map(Map)
 import UU.DData.Set(Set)
 import Data.Graph(Vertex)
@@ -59,8 +59,8 @@ DATA  CRule
                    field      :  Name
                    childnt    :  {Maybe Nonterminal}
                    tp         :  {Maybe Type}
-                   pattern    :  PP_Doc 
-                   rhs        :  PP_Doc
+                   pattern    :  Pattern
+                   rhs        :  {[String]}
                    defines    :  {Map Vertex (Name,Name,Maybe Type)}
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
@@ -71,6 +71,3 @@ DATA  CRule
                    syn     :  Attributes
                    last    :  Bool  -- indicates whether this is the last visit to this child
 
-
-
-DERIVING CRule : Show
