@@ -18,7 +18,6 @@ import Options
 import SequentialComputation
 import SequentialTypes
 import CodeSyntax
-import GenerateSeqCode
 import GrammarInfo
 
 -- From uulib
@@ -155,7 +154,7 @@ SEM  Rule
                          in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr)))
                                           | aa <- @pattern.gathAltAttrs, let AltAttr field attr _ = aa ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.pp @rhs.pp @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
 
 -- Giving them a number
 ATTR  Productions Production Alternatives Alternative
@@ -288,8 +287,8 @@ SEM Child
                                    else [CChildVisit @name (getNtName @tp) 0 @inh @syn True]
 
 -- Now just build the CGrammar
-SEM  Grammar [ | | out : CGrammar ]
-  |  Grammar  lhs.out = CGrammar @typeSyns @derivings @wrappers @prods.cProductions
+SEM  Grammar [ | | output : CGrammar ]
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @prods.cProductions
 SEM  Productions [ | | cProductions : CProductions ]
   |  Cons  lhs.cProductions = @hd.cProduction : @tl.cProductions
   |  Nil   lhs.cProductions = []

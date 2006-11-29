@@ -43,11 +43,11 @@ ntattr cr  | isLocal cr =  Nothing
                            in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))
 
 cRuleLhsInh :: Name -> Nonterminal -> Constructor -> Type -> CRule
-cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) empty empty Map.empty False ""
+cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) (error "cRuleLhsInh") [] Map.empty False ""
 cRuleTerminal :: Name -> Nonterminal -> Constructor -> Type -> CRule
-cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) empty empty Map.empty False ""
+cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error "cRuleTerminal") [] Map.empty False ""
 cRuleRhsSyn :: Name -> Nonterminal -> Constructor -> Type -> Name -> Nonterminal -> CRule
-cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) empty empty Map.empty False ""
+cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error "cRuleRhsSyn") [] Map.empty False ""
 
 defaultRule :: Name -> Nonterminal -> Constructor -> Name -> CRule
 defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9)

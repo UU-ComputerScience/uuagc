@@ -20,10 +20,11 @@ ATTR Expression [ nt,con   :{Name}
                   usedAttrs :{[(Name,Name)]}
                   usedFields:{[Name]}
                   textLines :{[String]}
+                  copy : SELF
                 ]
 
 SEM Expression
-  | Expression  loc.(errors,textLines,usedAttrs,usedLocals)
+  | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
                             = let inherited = Inh_HsTokensRoot
                                               { attrs_Inh_HsTokensRoot   = @lhs.attrs
                                               , con_Inh_HsTokensRoot     = @lhs.con
