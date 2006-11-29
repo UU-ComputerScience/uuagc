@@ -310,11 +310,17 @@ SEM  CAlternative
 
 ATTR CVisits CVisit Sequence CRule [ | | comments USE {++} {[]} : {[String]} ] 
 SEM  CRule
-  |  CRule lhs.comments =  if  @field == _LOC
-                               then let  x = getName @name
-                                         y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> t) @tp
+  |  CRule lhs.comments = concat [ makeLocalComment field name tp | (field,name,tp) <- Map.elems @defines ]
+
+{
+makeLocalComment :: Name -> Name -> Maybe Type -> [String]
+makeLocalComment field name tp =
+                             if  field == _LOC
+                               then let  x = getName name
+                                         y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> t) tp
                                     in [x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y]
                                else []
+}
 \end{code} 
 
 And tie it all together
