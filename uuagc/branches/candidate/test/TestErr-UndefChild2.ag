@@ -1,0 +1,10 @@
+-- an attribute is defined for a child that is not a nonterminal
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ x : {Int} | | ]
+
+SEM Aap
+	| Een a.x = 3
+	

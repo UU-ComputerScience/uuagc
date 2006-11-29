@@ -1,4 +1,3 @@
-
 module Options where
 
 import System.Console.GetOpt
@@ -29,8 +28,6 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                ]
 
 allc = "dcfsprm"
-
-
 
 data Options = Options{ moduleName :: ModuleHeader 
                       , dataTypes :: Bool

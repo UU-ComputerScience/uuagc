@@ -1,11 +1,10 @@
-
 imports
 {
-import CommonTypes
-import UU.Pretty
-import Patterns
-import Expression
+-- AbstractSyntax.ag imports
 import UU.DData.Set(Set)
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import CommonTypes
 }
 
 DATA Grammar      | Grammar typeSyns : {TypeSyns}

@@ -4,6 +4,7 @@
 
 imports
 {
+-- Comments.ag imports
 import List  (intersect, (\\))
 import qualified UU.DData.Map as Map(toList) 
 }
@@ -17,31 +18,39 @@ SEM Grammar
 SEM Production
   | Production  loc.comment = let syn'     = map toString (Map.toList @syn)
                                   inh'     = map toString (Map.toList @inh)
-                                  toString (a,t) = (getName a, case t of (NT nt) -> getName nt; Haskell t -> t)
+                                  toString (a,t) = (getName a, case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}" )
                                   chnn     = inh' `intersect` syn'
                                   inhn     = inh' \\ chnn
                                   synn     = syn' \\ chnn
+                                  delSingle [x] = []
+                                  -- delSingle [x] = [x, "      none"]
+                                  delSingle xs  = xs
                               in Comment . unlines $
-                                 [ replicate 3 ' ' ++ "inherited attributes:"
-                                 , unlines . map ((replicate 6 ' ')++) .
-                                       map (\(x,y) -> x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) $ inhn
-                                 , replicate 3 ' ' ++ "chained attributes:"
-                                 , unlines . map ((replicate 6 ' ')++) .
-                                       map (\(x,y) -> x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) $ chnn
-                                 , replicate 3 ' ' ++ "synthesised attributes:"
-                                 , unlines . map ((replicate 6 ' ')++) .
-                                       map (\(x,y) -> x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) $ synn
-                                 ]
+                                  (  delSingle (  "   inherited attributes:"
+                                               : map (\(x,y) -> "      " ++ x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) inhn
+                                               )
+                                  ++ delSingle (  "   chained attributes:"
+                                               : map (\(x,y) -> "      " ++ x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) chnn
+                                               )
+                                  ++ delSingle (  "   synthesized attributes:"
+                                               : map (\(x,y) -> "      " ++ x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) synn
+                                               )
+                                  ++ @alts.comments                                               
+                                  )
                 
-SEM Alternatives [ || comments : {Decls} ] 
-  | Cons lhs.comments = @hd.comment : @tl.comments
+SEM Alternatives [ || comments : {[String]} ] 
+  | Cons lhs.comments = @hd.comment ++ @tl.comments
   | Nil  lhs.comments = []
 
-SEM Alternative [ || comment : {Decl} ] 
-  | Alternative lhs.comment = Comment . unlines $
-                                 [ replicate 3 ' ' ++ "local variables for " ++ getName @lhs.nt ++ "." ++ getName @con ++ ":"
-                                 , unlines . map ((replicate 6 ' ')++) $ map getName @rules.locVars
-                                 ]
+SEM Alternative [ || comment : {[String]} ] 
+  | Alternative lhs.comment = let fld'     = map toString @children.fields
+                                  toString (a,t) = (getName a, case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}" )
+                              in  [  "   alternative " ++ getName @con ++ ":" ]
+                                  ++ map (\(x,y) ->   "      child " ++ x ++ replicate ((14 - length x) `max` 0) ' ' ++ " : " ++ y) fld'
+                                  ++ map (\x     ->   "      local " ++ getName x)  @rules.locVars
+
+
+
 
 -- copied from DefaultRules, double computation :-(
 

@@ -1,11 +1,12 @@
-
 imports
 {
-import UU.Pretty
-import CommonTypes
 import UU.Scanner.Position(Pos)
+import UU.Pretty(PP_Doc)
 import DepTypes(Trace)
+import CommonTypes
 }
+
+TYPE Errors = [Error]
 
 DATA Error  | DupAlt          nt    : {Nonterminal}
                               con,occ1 : {Constructor}                              
@@ -60,6 +61,7 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               attr  : {Name}
 
             | CyclicSet       name:{Name}
+            
             | CustomError     isWarning : {Bool}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
@@ -70,4 +72,6 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               syn     : {Name}
                               isTrace : {Trace}
             
-                                
+            | ParserError     pos     : {Pos}
+                              problem : {String}
+                              action  : {String}
