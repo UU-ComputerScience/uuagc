@@ -1,17 +1,19 @@
-
 imports
 {
-import Options
-import Streaming
-import qualified UU.DData.Map as Map
+-- Dep.ag imports
+import Maybe (fromJust)
 import List(partition,transpose)
-import CommonTypes(_LHS)
+import qualified UU.DData.Map as Map
+import qualified UU.Scanner.Position(line)
+import ErrorMessages(Error(CircGrammar))
 import DepTypes
+import Streaming
+import CommonTypes(_LHS)
+import Options(withCycle)
 }
 
 ATTR Pattern Patterns [ nt:{Identifier} | | ]
 ATTR Pattern Patterns [ con:{Identifier} | | ]
-
 
 -------------------------------------------------------------------------------
 --  Mutually recursive use stream definitions
@@ -142,7 +144,7 @@ SEM Rule
                                                          LHSSyn nt _ _     -> (nt       ,_LHS)
                                                          RHSInh nt _ _ f _ -> (nt       ,f)
                                            rhsstreams = [ addTraceElem
-                                                           (TE { lineNr  = line @rhs.pos
+                                                           (TE { lineNr  = UU.Scanner.Position.line @rhs.pos
                                                                , nt      = @lhs.nt
                                                                , prod    = @lhs.con
                                                                , lhsNt   = nt2

@@ -1,18 +1,14 @@
-
 INCLUDE "Expression.ag"
 
 imports
 {
-import UU.Pretty.Basic(PP_Doc)
-
-import Expression
-import HsTokenScanner(lexTokens)
-import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
-import ErrorMessages
-import UU.Scanner.Position
-import CommonTypes
-import HsToken
+-- ExpressionAttr.ag imports
 import UU.DData.Seq(Seq)
+import HsTokenScanner(lexTokens)
+import HsToken(HsTokensRoot(HsTokensRoot))
+import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
+import ErrorMessages(Error)
+import CommonTypes(Name)
 }
 
 ATTR Expression [ nt,con   :{Name}
@@ -22,11 +18,11 @@ ATTR Expression [ nt,con   :{Name}
                   errors   :{Seq Error}
                   usedLocals:{[Name]}
                   usedAttrs :{[(Name,Name)]}
-                  pp       :{PP_Doc}
+                  textLines :{[String]}
                 ]
 
 SEM Expression
-  | Expression  loc.(errors,pp,usedAttrs,usedLocals)
+  | Expression  loc.(errors,textLines,usedAttrs,usedLocals)
                             = let inherited = Inh_HsTokensRoot
                                               { attrs_Inh_HsTokensRoot   = @lhs.attrs
                                               , con_Inh_HsTokensRoot     = @lhs.con
@@ -37,7 +33,7 @@ SEM Expression
                               in case synthesized of
                                    Syn_HsTokensRoot
                                     { errors_Syn_HsTokensRoot     = errors
-                                    , pp_Syn_HsTokensRoot         = pp
+                                    , textLines_Syn_HsTokensRoot  = textLines
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
-                                    }  -> (errors,pp,usedAttrs,usedLocals)                                 
+                                    }  -> (errors,textLines,usedAttrs,usedLocals)                                 

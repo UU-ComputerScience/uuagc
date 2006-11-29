@@ -1,39 +1,28 @@
-
 INCLUDE "AbstractSyntax.ag"
-INCLUDE "Comments.ag"
 INCLUDE "Patterns.ag"
+
 INCLUDE "ExpressionAttr.ag"
+INCLUDE "Comments.ag"
 INCLUDE "Dep.ag"
 INCLUDE "GenerateCodeSM.ag"
 
 imports
 {
-import CommonTypes
-import Patterns
-import ErrorMessages
-import AbstractSyntax
-import Code hiding (Type)
-import qualified Code
+-- GenerateCode.ag imports
 import qualified UU.DData.Map as Map
 import qualified UU.DData.Seq as Seq
 import qualified UU.DData.Set as Set
-import UU.DData.Map(Map) 
-import UU.DData.Set(Set) 
-import UU.DData.Seq(Seq, (<>)) 
-import Maybe
 import UU.Pretty
-import UU.Util.Utils
-import Expression
+
+import AbstractSyntax
+import Code hiding (Type)
+import qualified Code (Type,Decl(Type))
 import Options
 }
-
 
 -------------------------------------------------------------------------------
 --         Errors
 -------------------------------------------------------------------------------
-
-
-
 -- Everyone that wants to report an error can do this by adding an error message to the
 -- stream of errors
 
@@ -81,19 +70,19 @@ SEM Grammar
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
-ATTR Grammar     [ | | prog : {Program} ]
+ATTR Grammar     [ | | output : {Program} ]
 ATTR Productions [ | | decls USE {++} {[]} : {Decls} ]
 ATTR Production  [ | | decls : {Decls} ]
 
 SEM Grammar
-  | Grammar    lhs.prog = if smacro @lhs.options
-                           then Program (@prods.decls ++ @loc.smUnitDecl ++ @prods.smdecls ++ @loc.defnmdecls)
-                           else Program @prods.decls
+  | Grammar    lhs.output = if smacro @lhs.options
+                             then Program (@prods.decls ++ @loc.smUnitDecl ++ @prods.smdecls ++ @loc.defnmdecls)
+                             else Program @prods.decls
 
 
 SEM Production
   | Production  lhs.decls = Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-') :
-                            (if @lhs.o_pretty then @loc.comment : @alts.comments else []) ++
+                            (if @lhs.o_pretty then [@loc.comment] else []) ++
                             (if @lhs.o_data then [@loc.dataDef] else []) ++
                             (if @lhs.o_sig || @lhs.o_sem then @loc.semDom  else []) ++
                             (if @lhs.o_cata then @loc.cataFun else []) ++
@@ -325,9 +314,8 @@ SEM Rules [ | | decls : {Decls}]
   | Nil  lhs.decls = []
   
 SEM Rule  [ | | decl : {Decls}]
-  | Rule loc.patC  = if @pattern.nPats == 1 then SinglePat else Pattern
-         lhs.decl  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
-                        [Decl (@loc.patC @pattern.pp) (PP @rhs.pp)]
+  | Rule lhs.decl  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
+                        [Decl (Pattern3 @pattern.copy) (TextExpr @rhs.textLines)]
   
 ATTR Child Children [ | | decls USE{++}{[]}: {Decls}]
   
@@ -373,28 +361,3 @@ SEM Production
 
 SEM Grammar
   | Grammar     prods.nts' = @prods.nts
-
--------------------------------------------------------------------------------
---         Pretty printing patterns
--------------------------------------------------------------------------------
-
-SEM Patterns [ | | pps : {[PP_Doc]} ]
-  | Cons lhs.pps = @hd.pp : @tl.pps
-  | Nil  lhs.pps = []
-
-SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = pp_parens $ @name >#< hv (map pp_parens @pats.pps)
-  | Product lhs.pp     = if @pats.nPats == 1
-                         then head @pats.pps
-                         else pp_block "(" ")" "," @pats.pps
-  | Alias   lhs.pp     = if @pat.isUnderscore
-                         then text (attrname False @field @attr)
-                         else attrname False @field @attr >|< "@" >|< @pat.pp
-  | Underscore lhs.pp  = text "_"
-
-ATTR Patterns Pattern [|| nPats USE {+} {0} : Int isUnderscore USE {&&} {False} : Bool ]
-SEM Pattern
-  | *           lhs.nPats = 1
-  | * - Underscore Alias
-                lhs.isUnderscore = False
-  | Underscore  lhs.isUnderscore = True
