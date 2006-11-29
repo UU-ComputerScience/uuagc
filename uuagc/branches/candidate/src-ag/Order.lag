@@ -72,7 +72,7 @@ SEM Production
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit,o_case:{Bool}  prefix : {String} | | ]
+ATTR Productions Production Alternatives Alternative Rules Rule [ o_newtypes, o_cata,o_sig,o_sem,o_rename,o_visit,o_case:{Bool}  prefix : {String} | | ]
 ATTR Productions Production Alternatives Alternative Children Child [ o_unbox:{Bool} | | ]
 ATTR Productions Production [ o_data:{Bool} | | ]
 
@@ -88,6 +88,9 @@ SEM Grammar
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
 
+\end{code}
+
+\begin{code}
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
@@ -154,7 +157,10 @@ SEM  Rule
                          in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr)))
                                           | aa <- @pattern.gathAltAttrs, let AltAttr field attr _ = aa ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
+                            in if @lhs.o_visit
+                                then Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
+                                                  | (field,attr,tp) <- Map.elems @defines ]
+                                else Seq.single (CRule (error "No name") False True @lhs.nt @lhs.con (error "No field") Nothing (error "No type") @pattern.copy @rhs.textLines @defines @owrt @origin)
 
 -- Giving them a number
 ATTR  Productions Production Alternatives Alternative
@@ -191,6 +197,7 @@ SEM Production
   | Production loc.ntattrs =  [ NTAInh @nt inh tp | (inh,tp) <- Map.assocs @inh ]
                               ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
 \end{code}
+
 \begin{code}
                lhs.ntattrs = Seq.fromList (zip [@lhs.acount ..] @ntattrs)
                lhs.acount = @lhs.acount + Map.size @inh + Map.size @syn
