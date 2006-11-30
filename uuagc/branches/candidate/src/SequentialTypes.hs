@@ -71,6 +71,10 @@ instance Ord NTAttr where
   compare (NTAInh nt name _) (NTAInh nt' name' _) = compare nt nt' >/< compare name name'
   compare (NTASyn nt name _) (NTASyn nt' name' _) = compare nt nt' >/< compare name name'
 
+eqCRuleDefines :: CRule -> CRule -> Bool
+eqCRuleDefines a b
+  = getDefines a == getDefines b
+
 (>/<) :: Ordering -> Ordering -> Ordering
 EQ >/< b = b
 a >/< _ = a

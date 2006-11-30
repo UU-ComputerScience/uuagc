@@ -75,7 +75,7 @@ SEM Expr
   | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)
                                        >-< "in " >#< @body.pp
                                        )
-  | Case       lhs.pp      = pp_parens (    "case" >#< @expr.pp >#< "of"
+  | Case       lhs.pp      = pp_parens (    "case" >#< pp_parens @expr.pp >#< "of"
                                        >-< (vlist @alts.pps)
                                        )
   | Lambda     lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
