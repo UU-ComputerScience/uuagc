@@ -74,7 +74,8 @@ SEM  CRule
                                    else id
            lhs.decls = if @hasCode then @originComment [Decl (Pattern3 @pattern.copy) (TextExpr @rhs)] else []
   |  CChildVisit lhs.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
-                                         ++ if @last then [] else [funname @name (@nr+1)]
+                                         ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
+                                  unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs
                                   rhs = App (funname @name @nr) (map (SimpleExpr . attrname False @name) (Map.keys @inh))
                              in [Decl tuple rhs]
@@ -131,7 +132,8 @@ SEM  CRule
   |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals 
                            then [SimpleExpr (funname @name 0)]
                            else [SimpleExpr (attrname @isIn @field @name)]
-  |  CChildVisit lhs.exprs = [SimpleExpr (funname @name (@nr+1))]
+  |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
+                             in [wrap (SimpleExpr (funname @name (@nr+1)))]
 \end{code}
 
 Type signatures are added to the declarations. 
@@ -187,7 +189,7 @@ SEM  CVisit
                                     . mkTupleExpr @lhs.o_unbox (Map.keys @inh)
                                     $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName {-$-}
                               wrap = if  @lhs.o_newtypes 
-                                         then \x -> App (sdtype @lhs.nt) [x] 
+                                         then \x -> App (typeName @lhs.nt @lhs.nr) [x] 
                                          else id
                          in Decl lhs rhs
             loc.tsig = TSig @funcname @semType
