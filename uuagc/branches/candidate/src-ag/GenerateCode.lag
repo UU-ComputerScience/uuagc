@@ -253,12 +253,14 @@ SEM CProduction
 
 ATTR CInterface CSegments CSegment [ | | wrapDecls USE {++} {[]}: {Decls} ]
 SEM  CSegment
-  |  CSegment lhs.wrapDecls =  [Decl (mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs) (App (sem @lhs.nr) rhs)]
-                               where rhs = map (SimpleExpr . lhsname True) (Map.keys @inh)
-                                     lhs = map (lhsname False) (Map.keys @syn) ++ if @lhs.isLast then [] else [sem (@lhs.nr+1)]
-                                     var = "sem"
-                                     sem 0 = var
-                                     sem n = var ++ "_" ++ show n
+  |  CSegment lhs.wrapDecls =  let rhs = map (SimpleExpr . lhsname True) (Map.keys @inh)
+                                   lhs = map (lhsname False) (Map.keys @syn)
+                                         ++ if @lhs.isLast then [] else [unwrap ++ sem (@lhs.nr+1)]
+                                   unwrap = if @lhs.o_newtypes then typeName @lhs.nt (@lhs.nr + 1) ++ " " else ""
+                                   var = "sem"
+                                   sem 0 = var
+                                   sem n = var ++ "_" ++ show n
+                               in [Decl (mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs) (App (sem @lhs.nr) rhs)]
 \end{code}
 
 Errors for missing type signatures. It's an error when one of the
