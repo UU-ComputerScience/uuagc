@@ -35,7 +35,7 @@ import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!),bounds,inRange)
 import Data.Graph
-import Data.List(elemIndex,partition,sort,mapAccumL,find)
+import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy)
 import qualified Data.Tree as Tree
 import Maybe
 }
@@ -251,17 +251,18 @@ SEM Grammar
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
             loc.directDep = Seq.toList @prods.directDep
-            loc.info      = Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
-                                 , tdpToTds   = Array.array (0,@prods.vcount-1) @tdpToTds
-                                 , attrTable  = @attrTable
-                                 , ruleTable  = @ruleTable
-                                 , lmh        = Seq.toList @prods.aranges
-                                 , prods      = @prods.prods
-                                 , wraps      = @wrappers
-                                 , cyclesOnly = not (visit @lhs.options)
-                                 }
-                             where def [] = -1
-                                   def (v:vs) = v
+            loc.info      = let def [] = -1
+                                def (v:vs) = v
+                             in Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
+                                     , tdpToTds   = Array.array (0,@prods.vcount-1) @tdpToTds
+                                     , attrTable  = @attrTable
+                                     , ruleTable  = @ruleTable
+                                     , lmh        = Seq.toList @prods.aranges
+                                     , prods      = @prods.prods
+                                     , wraps      = @wrappers
+                                     , cyclesOnly = not (visit @lhs.options)
+                                     }
+
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
                               case computeSequential @info @directDep of
                                            SeqResult    cim cvm -> (cim,cvm,[])
@@ -293,7 +294,7 @@ ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap |
 SEM  Alternative
   |  Alternative loc.cVisits = if  @lhs.o_dovisit
                                    then Map.find @con (Map.find @lhs.nt @lhs.cVisitsMap)
-                                   else  let  vss = @gathRules ++ @children.singlevisits
+                                   else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
                                          in  [CVisit @lhs.inh @lhs.syn vss [] False]
 
 -- Declarations for single visits
