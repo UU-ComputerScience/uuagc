@@ -225,7 +225,9 @@ SEM  CSegment
                                continuation = if  @lhs.isLast
                                                   then []
                                                   else [SimpleType (typeName @lhs.nt (@lhs.nr + 1))]
-                           in [ Code.Type name tp ]
+                           in if @lhs.o_newtypes
+                              then [ Code.NewType name name tp ]
+                              else [ Code.Type name tp ]
 \end{code}
 
 Wrapper functions
