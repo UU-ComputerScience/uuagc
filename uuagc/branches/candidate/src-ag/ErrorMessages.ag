@@ -20,10 +20,8 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
 
             | DupSynAttr      nt    : {Nonterminal}
                               attr,occ1 : {Name}
-                           
 
-            | DupChild        
-                              nt    : {Nonterminal}
+            | DupChild        nt    : {Nonterminal}
                               con   : {Constructor}
                               name,occ1 : {Name}
 
@@ -31,6 +29,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               con   : {Constructor}
                               field : {Name}
                               attr,occ1 : {Name}
+
+            | DupSig          nt    : {Nonterminal}
+                              con   : {Constructor}
+                              attr  : {Name}
 
             | UndefNont       nt    : {Nonterminal}
 
@@ -51,6 +53,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               con   : {Constructor}
                               field : {Name}
                               attr  : {Name}
+
+--            | SuperfluousSig  nt    : {Nonterminal}
+--                              con   : {Constructor}
+--                              attr  : {Name}
 
             | UndefLocal      nt    : {Nonterminal}
                               con   : {Constructor}

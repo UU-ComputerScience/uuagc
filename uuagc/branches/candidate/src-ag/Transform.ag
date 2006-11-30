@@ -47,7 +47,7 @@ SEM AG
                                      @elems.derivings
                                      (if wrappers @lhs.options then @loc.allNonterminals else @elems.wrappers)
                                      @loc.checkedRules
-                                     @elems.typeSigMap
+                                     @loc.checkedSigs
                                      @elems.typeSyns
 
 
@@ -123,9 +123,12 @@ ATTR Elems Elem Attrs
 -- Attribute definitions
 {type AttrName = (Name,Name) }
 {type RuleInfo = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
+{type SigInfo  = (Identifier,Type) }
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
-     [ | |   collectedRules USE {++} {[]} : {[ (Nonterminal, Constructor, RuleInfo) ]} ]
+     [ | |   collectedRules USE {++} {[]} : {[ (Nonterminal, Constructor, RuleInfo)]} 
+             collectedSigs  USE {++} {[]} : {[ (Nonterminal, Constructor, SigInfo) ]} 
+     ]
 
 
 
@@ -214,12 +217,20 @@ SEM AG
          loc.allRules    = let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.single con [r])
                            in  foldr f (Map.empty) @elems.collectedRules
 
+         loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.single con [t])
+                           in  foldr f (Map.empty) @elems.collectedSigs
+
          loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields)) @loc.allRules
+         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                          )) @loc.allSigs
 
          loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
+         loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
 
          loc.errs4        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allRulesErrs
+                            
+         loc.errs5        = let  f m s = Map.fold ((<>) . snd) s m
+                            in Map.fold f Seq.empty @loc.allSigsErrs
 
          loc.errs1       = let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
                                f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
@@ -232,11 +243,12 @@ SEM AG
          loc.errs3       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
 
-         lhs.errors      = @elems.errors <> @errs3 <> @errs1 <> @errs2 <> @errs4 
+         lhs.errors      = @elems.errors <> @errs3 <> @errs1 <> @errs2 <> @errs4 <> @errs5
 
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
+type SigsAndErrors  = ([TypeSig], Seq Error)
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
@@ -268,6 +280,16 @@ checkRules attributes fields nt con rs
                 _            ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
+    
+checkSigs :: Nonterminal -> Constructor -> [SigInfo] -> SigsAndErrors
+checkSigs nt con sis 
+  = let checkSig (ide,typ) (sigs,errs)
+         = if   ide `elem` map (\(TypeSig n _)->n) sigs
+           then (sigs, Seq.cons (DupSig nt con ide) errs)
+           -- else if not (ide `elem` locattrdefs)
+           -- then (sigs, Seq.cons (SupSig nt con ide) errs)
+           else (TypeSig ide typ:sigs, errs)
+    in  foldr checkSig ([],Seq.empty) sis
 }
 
 
@@ -512,7 +534,9 @@ SEM AG
 -------------------------------------------------------------------------------
 
 
-ATTR SemDef SemDefs [ | | regels USE {++} {[]} : {[RuleInfo]} ]
+ATTR SemDef SemDefs [ | | regels USE {++} {[]} : {[RuleInfo]} 
+                          sigs   USE {++} {[]} : {[SigInfo] } 
+                    ]
 
 
 SEM SemAlt
@@ -529,16 +553,24 @@ SEM SemAlt
                            , con <- Set.toList (Set.difference conset conkeys)
                            ]
            lhs.collectedRules 
-               = 
-                       [ (nt,con,r)
+               =       [ (nt,con,r)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        , r <- @rules.regels
+                       ]
+           lhs.collectedSigs
+               =       [ (nt,con,ts)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       , ts <- @rules.sigs
                        ]
                        
 
 SEM SemDef
   | Def  lhs.regels = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
+
+SEM SemDef
+  | TypeDef  lhs.sigs = [ (@ident, @tp) ]
 
 
 ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
@@ -610,39 +642,3 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs tsyns =
 mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus = Map.unionWith (++)	
 }
-
--------------------------------------------------------------------------------
---         Type Signatures
--------------------------------------------------------------------------------
-{
-type TypeSigMap    = Map Nonterminal TypeSigMapAlt
-type TypeSigMapAlt = Map Constructor TypeSigs
-}
-
-ATTR Elem Elems [ | typeSigMap:{TypeSigMap} | ]
-
-SEM AG
-  | AG elems.typeSigMap = Map.empty
-
-{-- TODO: The type defs for local attributes, this impl. does not work for SET's
-ATTR SemAlt SemAlts [ | typeSigMapAlt:{TypeSigMapAlt} | ]
-SEM Elem
-  | Sem alts.typeSigMapAlt = Map.findWithDefault Map.empty @name @lhs.typeSigMap
-        lhs.typeSigMap = Map.insert @name @alts.typeSigMapAlt @lhs.typeSigMap     
-
-SEM SemAlt
-  | SemAlt lhs.typeSigMapAlt = let find con map = Map.findWithDefault [] con map
-                                   inherited = SemRules.Inh_SemDefs   
-                                               { SemRules.attributes_Inh_SemDefs = undefined
-                                               , SemRules.con_Inh_SemDefs        = undefined
-                                               , SemRules.fieldMap_Inh_SemDefs   = undefined
-                                               , SemRules.nt_Inh_SemDefs         = undefined
-                                               , SemRules.rules_Inh_SemDefs      = undefined
-                                               }
-                                   typeSigs = Seq.toList $ SemRules.typeSigs_Syn_SemDefs $ SemRules.wrap_SemDefs (SemRules.sem_SemDefs @rules) inherited
-                               in foldr (\con map -> Map.insert con (typeSigs ++ find con map) map) @lhs.typeSigMapAlt (Set.toList @constructorSet.constructors)
-
-ATTR SemDef SemDefs [ | | typeSigs USE {Seq.<>} {Seq.empty} : {Seq TypeSig} ]
-SEM SemDef
-  | TypeDef lhs.typeSigs = Seq.single (TypeSig @ident @tp)
--}
