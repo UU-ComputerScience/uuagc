@@ -160,6 +160,24 @@ SEM Error
                                  act  = wfill ["The last rule given is considered valid. All others have been discarded."]
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
+  | DupSig          loc.isWarning = False
+                    lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more typesignatures for"
+                                               ,showAttrDef _LOC @attr,"."
+                                               ]  >-<
+                                         wfill ["First signature:", (showPos @attr),"."]
+
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< "= ...")
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< "= ...")
+
+                                 help =  wfill ["In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", there is more than one rule for the" , showAttrDef _LOC @attr
+                                                       ,". You should remove enough of them to make all typesignatures for alternative"
+                                                       ,getName @con , "of nonterminal " ,getName  @nt , "unique."
+                                                       ]
+                                 act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
   | UndefNont       loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "is not defined."
                                                ] 
