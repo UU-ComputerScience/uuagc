@@ -73,7 +73,7 @@ instance Ord NTAttr where
 
 eqCRuleDefines :: CRule -> CRule -> Bool
 eqCRuleDefines a b
-  = getDefines a == getDefines b
+  = Map.keys (getDefines a) == Map.keys (getDefines b)
 
 (>/<) :: Ordering -> Ordering -> Ordering
 EQ >/< b = b

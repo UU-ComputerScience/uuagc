@@ -167,10 +167,7 @@ SEM  Rule
                          in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr)))
                                           | aa <- @pattern.gathAltAttrs, let AltAttr field attr _ = aa ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in if @lhs.o_wantvisit
-                                then Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
-                                                  | (field,attr,tp) <- Map.elems @defines ]
-                                else Seq.single (CRule (error "No name") False True @lhs.nt @lhs.con (error "No field") Nothing (error "No type") @pattern.copy @rhs.textLines @defines @owrt @origin)
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
 
 -- Giving them a number
 ATTR  Productions Production Alternatives Alternative
