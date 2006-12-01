@@ -141,7 +141,7 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
   | Nil  lhs.pps = []
 
 SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = pp_parens $ @name >#< hv @pats.pps
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
   | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
   | Alias   lhs.pp     = if @pat.isUnderscore
                           then attrname False @field @attr >|< ""
@@ -163,7 +163,7 @@ SEM Patterns [ | | pps' : {[PP_Doc]} ]
   | Nil  lhs.pps' = []
 
 SEM Pattern [ | | pp':PP_Doc ]
-  | Constr  lhs.pp'     = pp_parens $ @name >#< hv (map pp_parens @pats.pps')
+  | Constr  lhs.pp'     = pp_parens $ @name >#< hv_sp (map pp_parens @pats.pps')
   | Product lhs.pp'     = pp_block "(" ")" "," @pats.pps'
   | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
                                         | otherwise                             = attrname False @field @attr
