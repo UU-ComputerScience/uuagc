@@ -142,7 +142,8 @@ Type signatures are added to the declarations.
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
   |  CRule        loc.mkTp = SimpleType . typeToString @lhs.nt
-                  lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
+                  lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) 
+                              |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
   |  CChildVisit  loc.mkTp = SimpleType . typeToString @nt
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
