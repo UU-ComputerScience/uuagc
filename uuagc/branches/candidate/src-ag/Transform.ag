@@ -226,25 +226,24 @@ SEM AG
          loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
 
+         loc.errs1       = let f = checkForDuplicates (DupSynonym)
+                           in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
+
+         loc.errs2       = let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
+                               f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
+                           in  Seq.fromList . concat . map f . Map.toList $ @allFields    -- forbid duplicate fields
+
+         loc.errs3       = let f (nt,cons) = checkForDuplicates (DupAlt nt) cons
+                           in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
+                             -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
+
          loc.errs4        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allRulesErrs
                             
          loc.errs5        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allSigsErrs
 
-         loc.errs1       = let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
-                               f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
-                           in  Seq.fromList . concat . map f . Map.toList $ @allFields    -- forbid duplicate fields
-
-         loc.errs2       = let f (nt,cons) = checkForDuplicates (DupAlt nt) cons
-                           in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
-                             -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
-
-         loc.errs3       = let f = checkForDuplicates (DupSynonym)
-                           in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
-
-         lhs.errors      = @elems.errors <> @errs3 <> @errs1 <> @errs2 <> @errs4 <> @errs5
-
+         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -534,8 +533,8 @@ SEM AG
 -------------------------------------------------------------------------------
 
 
-ATTR SemDef SemDefs [ | | regels USE {++} {[]} : {[RuleInfo]} 
-                          sigs   USE {++} {[]} : {[SigInfo] } 
+ATTR SemDef SemDefs [ | | ruleInfos USE {++} {[]} : {[RuleInfo]} 
+                          sigInfos  USE {++} {[]} : {[SigInfo] } 
                     ]
 
 
@@ -556,21 +555,21 @@ SEM SemAlt
                =       [ (nt,con,r)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
-                       , r <- @rules.regels
+                       , r <- @rules.ruleInfos
                        ]
            lhs.collectedSigs
                =       [ (nt,con,ts)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
-                       , ts <- @rules.sigs
+                       , ts <- @rules.sigInfos
                        ]
                        
 
 SEM SemDef
-  | Def  lhs.regels = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
+  | Def  lhs.ruleInfos = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
 
 SEM SemDef
-  | TypeDef  lhs.sigs = [ (@ident, @tp) ]
+  | TypeDef  lhs.sigInfos = [ (@ident, @tp) ]
 
 
 ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
