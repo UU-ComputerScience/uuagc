@@ -94,10 +94,10 @@ rhsshow field (NTASyn _ attr _) = attrname True field attr
 
 prettyCRule :: CRule -> String
 prettyCRule cr 
-   =  let descr | isLocal cr = "local attribute "
+   =  let descr | isLocal cr = "local attribute " ++ show (getAttr cr)
                 | otherwise =  (if isLhs cr then "lhs " else "")
                                ++ (if isSyn cr then "synthesized " else "inherited ")
                                ++ "attribute "
                                ++ (show (getAttr cr))
-                               ++ (if isRhs cr then "of child " ++ show (getField cr) else "")
+                               ++ (if isRhs cr then " of child " ++ show (getField cr) else "")
       in show (getLhsNt cr) ++ "." ++ show (getCon cr) ++ ", " ++ descr 

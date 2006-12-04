@@ -333,8 +333,9 @@ interfaces.
 \begin{code}
 makeInterfaces :: Info -> Graph -> (Vertex -> Bool) -> T_IRoot
 makeInterfaces info tds usedinh
-  =  let tdsT = transposeG tds
-         mkInter ((nt,cons),(l,m,h)) = sem_Interface_Interface nt cons (makeInterface tdsT usedinh [] (l,m,h))
+  =  let interslist = reverse . makeInterface tds usedinh []
+         mkSegments = foldr (sem_Segments_Cons . uncurry sem_Segment_Segment) sem_Segments_Nil . interslist
+         mkInter ((nt,cons),lmh) = sem_Interface_Interface nt cons (mkSegments lmh)
          inters = foldr (sem_Interfaces_Cons . mkInter) sem_Interfaces_Nil (zip (prods info) (lmh info))
      in sem_IRoot_IRoot inters
 \end{code}
@@ -355,17 +356,17 @@ sinks alternatively. If there are no synthesized attributes at all,
 generate an interface with one visit computing nothing.
 
 \begin{code}
-makeInterface :: Graph -> (Vertex -> Bool) -> [Vertex] -> LMH -> T_Segments
-makeInterface tdsT usedinh del (l,m,h)
-  | m > h = sem_Segment_Segment [] [] `sem_Segments_Cons` sem_Segments_Nil
-  | otherwise = let  inh = filter (\i -> usedinh i && isSink tdsT del i) ([l..(m-1)] \\ del)
-                     del' = del ++ inh
-                     syn = filter (isSink tdsT del') ([m..h] \\ del)
-                     del'' = del' ++ syn
-                     rest = makeInterface tdsT usedinh del'' (l,m,h)
+makeInterface :: Graph -> (Vertex -> Bool) -> [Vertex] -> LMH -> [([Vertex],[Vertex])]
+makeInterface tds usedinh del (l,m,h)
+  | m > h = [([],[])]
+  | otherwise = let  syn = filter (isSink tds del) ([m..h] \\ del)
+                     del' = del ++ syn
+                     inh = filter (\i -> usedinh i && isSink tds del' i) ([l..(m-1)] \\ del')
+                     del'' = del' ++ inh
+                     rest = makeInterface tds usedinh del'' (l,m,h)
                 in if  null inh && null syn
-                       then sem_Segments_Nil
-                       else sem_Segment_Segment inh syn `sem_Segments_Cons` rest
+                       then []
+                       else (inh,syn) : rest
 \end{code}
 
 %if style==poly
