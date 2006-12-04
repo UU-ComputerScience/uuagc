@@ -13,12 +13,12 @@ import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos)
 import UU.Scanner.Token              (Token)
 
-import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
-import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified GenerateCode       as Pass3a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified PrintCode          as PrCod  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..))
+import qualified Transform          as Pass1 (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
+import qualified DefaultRules       as Pass2 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..))
 
 import Options
 import Version       (banner)
@@ -46,23 +46,23 @@ compile :: Options -> String -> String -> IO ()
 compile flags input output
  = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
      
-      let output1  = Pass1.wrap_AG        (Pass1.sem_AG                                output0 )    Pass1.Inh_AG        {Pass1.options_Inh_AG        = flags}
-          output2  = Pass2.wrap_Grammar   (Pass2.sem_Grammar (Pass1.output_Syn_AG      output1))    Pass2.Inh_Grammar   {Pass2.options_Inh_Grammar   = flags}
-          output3  = Pass3.wrap_Grammar   (Pass3.sem_Grammar (Pass2.output_Syn_Grammar output2))    Pass3.Inh_Grammar   {Pass3.options_Inh_Grammar   = flags}
-          output3a = Pass3a.wrap_CGrammar (Pass3a.sem_CGrammar (Pass3.output_Syn_Grammar output3)) Pass3a.Inh_CGrammar {Pass3a.options_Inh_CGrammar = flags}
-          output4  = PrCod.wrap_Program   (PrCod.sem_Program (Pass3a.output_Syn_CGrammar output3a)) PrCod.Inh_Program   {PrCod.options_Inh_Program   = flags}
-          output5  = PrErr.wrap_Errors    (PrErr.sem_Errors                          errorList )    PrErr.Inh_Errors    {PrErr.options_Inh_Errors    = flags} 
+      let output1  = Pass1.wrap_AG        (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
+          output2  = Pass2.wrap_Grammar   (Pass2.sem_Grammar (Pass1.output_Syn_AG       output1)) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags}
+          output3  = Pass3.wrap_Grammar   (Pass3.sem_Grammar (Pass2.output_Syn_Grammar  output2)) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags}
+          output4  = Pass4.wrap_CGrammar  (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags}
+          output5  = Pass5.wrap_Program   (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags}
+          output6  = PrErr.wrap_Errors    (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags} 
 
           errorList        = map message2error parseErrors
-                             ++ Seq.toList (      Pass1.errors_Syn_AG      output1
-                                           Seq.<> Pass2.errors_Syn_Grammar output2
-                                           Seq.<> Pass3.errors_Syn_Grammar output3
-                                           Seq.<> Pass3a.errors_Syn_CGrammar output3a
+                             ++ Seq.toList (      Pass1.errors_Syn_AG       output1
+                                           Seq.<> Pass2.errors_Syn_Grammar  output2
+                                           Seq.<> Pass3.errors_Syn_Grammar  output3
+                                           Seq.<> Pass4.errors_Syn_CGrammar output4
                                            )
           
-      putStr . formatErrors $ PrErr.pp_Syn_Errors output5
+      putStr . formatErrors $ PrErr.pp_Syn_Errors output6
      
-      if not (PrErr.isWarning_Syn_Errors output5) 
+      if not (PrErr.isWarning_Syn_Errors output6) 
        then exitFailure
        else do let outputfile = if null output then outputFile input else output
                    blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
@@ -71,12 +71,11 @@ compile flags input output
                                       
                writeFile  outputfile . unlines . concat . Map.elems $ pragmaBlocks
                appendFile outputfile                                $ if (unbox flags) then "{-# OPTIONS_GHC -fglasgow-exts #-}\n" else ""
-               -- appendFile outputfile                                $ "-- do not edit;" ++ " automatically generated by " ++ banner ++ " from " ++ input ++ "\n"
                appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
                appendFile outputfile                                $ moduleHeader flags input
                appendFile outputfile . unlines . concat . Map.elems $ importBlocks
                appendFile outputfile . unlines . concat . Map.elems $ textBlocks
-               appendFile outputfile . formatProg                   $ PrCod.output_Syn_Program output4
+               appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
                --putStrLn ("\n" ++ outputfile ++ " generated")
                if werrors flags && not (null errorList) then exitFailure else return ()
 

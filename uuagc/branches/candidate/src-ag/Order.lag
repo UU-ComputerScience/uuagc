@@ -1,8 +1,7 @@
 \begin{code}
-INCLUDE "Comments.ag"
 -- INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Patterns.ag"
-INCLUDE "ExpressionAttr.ag"
+INCLUDE "Expression.ag"
 INCLUDE "AbstractSyntax.ag"
 imports
 {
@@ -19,6 +18,9 @@ import SequentialComputation
 import SequentialTypes
 import CodeSyntax
 import GrammarInfo
+import HsToken(HsTokensRoot(HsTokensRoot))
+import HsTokenScanner(lexTokens)
+import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 
 -- From uulib
 import qualified UU.DData.Map as Map
@@ -27,7 +29,6 @@ import qualified UU.DData.Set as Set
 import UU.DData.Map(Map) 
 import UU.DData.Set(Set) 
 import UU.DData.Seq(Seq, (<>)) 
-import UU.Pretty
 import UU.Util.Utils
 
 -- From haskell libraries
@@ -190,6 +191,38 @@ SEM  Rule
                             ++ [ Map.find (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
                in Seq.fromList [ (x,y) | x <- used, y <- defined ]
 
+-- Wrapping an Expression
+
+ATTR Expression [ nt,con   :{Name}
+                  fieldnames   :{[Name]}
+                  attrs    :{[(Name,Name)]}
+                ||
+                  errors   :{Seq Error}
+                  usedLocals:{[Name]}
+                  usedAttrs :{[(Name,Name)]}
+                  usedFields:{[Name]}
+                  textLines :{[String]}
+                  copy : SELF
+                ]
+
+SEM Expression
+  | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
+                            = let inherited = Inh_HsTokensRoot
+                                              { attrs_Inh_HsTokensRoot   = @lhs.attrs
+                                              , con_Inh_HsTokensRoot     = @lhs.con
+                                              , fieldnames_Inh_HsTokensRoot  = @lhs.fieldnames
+                                              , nt_Inh_HsTokensRoot      = @lhs.nt
+                                              }
+                                  synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens @pos @txt)) inherited
+                              in case synthesized of
+                                   Syn_HsTokensRoot
+                                    { errors_Syn_HsTokensRoot     = errors
+                                    , textLines_Syn_HsTokensRoot  = textLines
+                                    , usedAttrs_Syn_HsTokensRoot  = usedAttrs
+                                    , usedLocals_Syn_HsTokensRoot = usedLocals
+                                    , usedFields_Syn_HsTokensRoot = usedFields
+                                    }  -> (errors,textLines,usedAttrs,usedLocals,usedFields)  
+
 -------------------------------------
 -- NT-Attributes
 -------------------------------------
@@ -344,19 +377,12 @@ SEM Children [ | | fields : {[(Name,Type)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
--------------------------------------------------------------------------------
---         Pretty printing patterns
--------------------------------------------------------------------------------
+ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} ]
 
-SEM Patterns [ | | pps : {[PP_Doc]} ]
-  | Cons lhs.pps = @hd.pp : @tl.pps
-  | Nil  lhs.pps = []
-
-SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = pp_parens $ @name >#< hv (map pp_parens @pats.pps)
-  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
-  | Alias   lhs.pp     = attrname False @field @attr >|< "@" >|< @pat.pp
-  | Underscore lhs.pp  = text "_"
+SEM Pattern
+  | Alias    lhs.locVars   = if @field == _LOC 
+                                then [@attr]
+                                else []
 
 {
 swap (a,b) = (b,a)
