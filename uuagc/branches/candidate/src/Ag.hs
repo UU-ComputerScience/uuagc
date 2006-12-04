@@ -78,7 +78,7 @@ compile flags input output
                appendFile outputfile . unlines . concat . Map.elems $ textBlocks
                appendFile outputfile . formatProg                   $ PrCod.output_Syn_Program output4
                --putStrLn ("\n" ++ outputfile ++ " generated")
-               return ()
+               if werrors flags && not (null errorList) then exitFailure else return ()
 
 
 formatProg :: [UU.Pretty.PP_Doc] -> String
