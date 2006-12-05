@@ -11,15 +11,13 @@ import InterfacesRules
 import CodeSyntax
 import GrammarInfo
 
-import Data.Graph hiding (path)
-import Control.Monad.ST
-import Data.Array.MArray hiding (bounds)
-import Data.Array.ST hiding (bounds)
+import Control.Monad(liftM)
+import Control.Monad.ST(ST, runST)
+import Data.Graph(Edge, Graph, Vertex, buildG)
 import Data.Array((!),bounds)
+import Data.Array.ST(STArray, newArray, readArray, writeArray, freeze)
 import Data.Maybe(fromJust,isJust)
-import Control.Monad
-import Data.List(partition,transpose,nub,(\\),delete,minimumBy)
-import qualified UU.DData.Set as Set
+import Data.List(partition,nub,(\\),delete,minimumBy)
 \end{code}
 %endif
 
