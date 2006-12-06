@@ -181,14 +181,16 @@ a placeholder for error situations:
 DATA *
   | Error   why : {String}
 \gorp
-And it is possoble to uniformly add a child to all alternatives of a (set of) datatype(s),
+And it is possible to uniformly add a child to all alternatives of a (set of) datatype(s),
 for example to store the location in the source file in all alternatives of both 
 the \verb"Expr" and the \verb"Stat" datatype:
 \prog
 DATA Expr Stat
   | *  pos : {Int}
 \gorp
-
+If the set of constructors to which the children should be added is other than
+a single identifier or asterisk (for example a enumeration of names) it should be
+enclosed in parentheses to avoid ambiguity with a single name with unnamed children.
 
 
 

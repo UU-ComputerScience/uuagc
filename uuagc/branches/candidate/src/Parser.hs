@@ -205,7 +205,7 @@ pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap')` opt
 
 pAlt :: AGParser Alt
 --pAlt =  Alt <$> pBar <*> pIdentifierU <*> pFields <?> "a datatype alternative"
-pAlt =  Alt <$> pBar <*> pConstructorSet <*> pFields <?> "a datatype alternative"
+pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
 
 pAlts :: AGParser Alts
 pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -226,6 +226,11 @@ pSemAlt :: AGParser SemAlt
 pSemAlt  = SemAlt
           <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
 --  where makeSemAlts p cs defs = [SemAlt p c defs | c <- cs ]
+
+pSimpleConstructorSet :: AGParser ConstructorSet
+pSimpleConstructorSet =  CName <$> pIdentifierU
+                     <|> CAll  <$  pStar
+                     <|> pParens pConstructorSet
 
 pConstructorSet :: AGParser ConstructorSet
 pConstructorSet =  pChainl (CDifference <$ pMinus) term2
