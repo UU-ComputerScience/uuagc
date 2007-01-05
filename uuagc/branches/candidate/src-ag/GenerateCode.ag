@@ -1,4 +1,3 @@
-\begin{code}
 INCLUDE "CodeSyntax.ag"
 INCLUDE "Patterns.ag"
 
@@ -22,11 +21,11 @@ import UU.DData.Seq(Seq)
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
 }
-\end{code}
 
-Options
+-------------------------------------------------------------------------------
+--         Options
+-------------------------------------------------------------------------------
 
-\begin{code}                 
 ATTR CProductions CProduction
      CAlternatives CAlternative
      CVisits CVisit
@@ -43,11 +42,11 @@ SEM CGrammar [ options : Options | | ]
                      .o_rename  = rename    @lhs.options
                      .o_data    = dataTypes @lhs.options
                      .prefix    = prefix    @lhs.options
-\end{code}
 
-Passing information about nonterminal and constructor down
+-------------------------------------------------------------------------------
+-- Passing information about nonterminal and constructor down
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR  CAlternatives CAlternative CVisits 
       CVisit Sequence CRule CInterface 
       CSegments CSegment [ nt:Nonterminal inh,syn:Attributes | | ]
@@ -60,13 +59,13 @@ ATTR CVisits CVisit Sequence CRule [ con:Constructor
 SEM  CAlternative
   |  CAlternative  visits.con = @con
                    visits.terminals = @terminals
-\end{code}
 
-Generating declarations from the sequence. We generate the origin
-comment if pretty printing is requested. A childvisit takes inherited
-attributes and returns synthesized attributes and the next visit.
+-------------------------------------------------------------------------------
+-- Generating declarations from the sequence. We generate the origin
+-- comment if pretty printing is requested. A childvisit takes inherited
+-- attributes and returns synthesized attributes and the next visit.
+-------------------------------------------------------------------------------
 
-\begin{code}                 
 ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CRule
   |  CRule loc.originComment = if  @lhs.o_pretty 
@@ -79,11 +78,11 @@ SEM  CRule
                                   tuple = mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs
                                   rhs = App (funname @name @nr) (map (SimpleExpr . attrname False @name) (Map.keys @inh))
                              in [Decl tuple rhs]
-\end{code}
 
-Numbering the visits
+-------------------------------------------------------------------------------
+-- Numbering the visits
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR  CVisits CVisit
       CSegments CSegment [ nr : Int | | ]
 SEM  CAlternative
@@ -94,11 +93,11 @@ SEM  CInterface
   |  CInterface seg.nr = 0
 SEM  CSegments
   |  Cons tl.nr = @lhs.nr + 1
-\end{code}
 
-Checking last visit
+-------------------------------------------------------------------------------
+-- Checking last visit
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CVisit CSegment [ isLast : Bool | | ]
 ATTR CVisits CSegments [ | | isNil : Bool ]
 SEM  CVisits
@@ -109,11 +108,11 @@ SEM  CSegments
   |  Cons  lhs.isNil = False
            hd.isLast = @tl.isNil
   |  Nil lhs.isNil = True
-\end{code}
 
-Getting the next intra-visit dependencies
+-------------------------------------------------------------------------------
+-- Getting the next intra-visit dependencies
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CVisit [ nextIntra : {Exprs} | | ]
 ATTR CVisits CVisit [ | | intra : {Exprs} ]
 SEM  CVisit 
@@ -122,11 +121,11 @@ SEM  CVisits
   |  Cons  hd.nextIntra = @tl.intra
            lhs.intra = @hd.intra
   |  Nil lhs.intra = []
-\end{code}
 
-Intra-visit dependencies are expressions that need to be passed
+-------------------------------------------------------------------------------
+-- Intra-visit dependencies are expressions that need to be passed
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
   |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals 
@@ -134,11 +133,11 @@ SEM  CRule
                            else [SimpleExpr (attrname @isIn @field @name)]
   |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
                              in [wrap (SimpleExpr (funname @name (@nr+1)))]
-\end{code}
 
-Type signatures are added to the declarations. 
+-------------------------------------------------------------------------------
+-- Type signatures are added to the declarations. 
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
   |  CRule        loc.mkTp = SimpleType . typeToString @lhs.nt
@@ -148,12 +147,12 @@ SEM  CRule
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @last then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
-\end{code}
 
-Types of intra-visit dependencies are needed in the type of the
-semantic function.
+-------------------------------------------------------------------------------
+-- Types of intra-visit dependencies are needed in the type of the
+-- semantic function.
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type)]} | | ]
 SEM  CAlternative
   |  CAlternative visits.children = @children
@@ -164,11 +163,11 @@ ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]}
 SEM  CRule
   |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([tp],True)) @tp
   |  CChildVisit  lhs.tps = [Haskell @nextTp]
-\end{code}
 
-Each visit has its semantic function
+-------------------------------------------------------------------------------
+-- Each visit has its semantic function
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CVisit
   |  CVisit loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
@@ -188,7 +187,7 @@ SEM  CVisit
                                     . mkLambda (map (lhsname True) (Map.keys @inh))
                                     . mkLet @o_case @decls
                                     . mkTupleExpr @lhs.o_unbox (Map.keys @inh)
-                                    $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName {-$-}
+                                    $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes 
                                          then \x -> App (typeName @lhs.nt @lhs.nr) [x] 
                                          else id
@@ -211,11 +210,11 @@ SEM  CVisit
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 }
-\end{code}
 
-The semantic domain is generated from the interface. 
+-------------------------------------------------------------------------------
+-- The semantic domain is generated from the interface. 
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR  CInterface CSegments CSegment [ | | semDom USE {++} {[]} : {[Decl]} ]
 SEM  CInterface
   |  CInterface  lhs.semDom = Comment "semantic domain" : @seg.semDom
@@ -231,11 +230,11 @@ SEM  CSegment
                            in if @lhs.o_newtypes
                               then [ Code.NewType name name tp ]
                               else [ Code.Type name tp ]
-\end{code}
 
-Wrapper functions
+-------------------------------------------------------------------------------
+-- Wrapper functions
+-------------------------------------------------------------------------------
 
-\begin{code}
 SEM CProduction
   | CProduction loc.semWrapper = let inhAttrs = Map.toList @inh
                                      synAttrs = Map.toList @syn
@@ -264,12 +263,12 @@ SEM  CSegment
                                    sem 0 = var
                                    sem n = var ++ "_" ++ show n
                                in [Decl (mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs) (App (sem @lhs.nr) rhs)]
-\end{code}
 
-Errors for missing type signatures. It's an error when one of the
-attributes in the intra-visit dependencies does not have a type.
+-------------------------------------------------------------------------------
+-- Errors for missing type signatures. It's an error when one of the
+-- attributes in the intra-visit dependencies does not have a type.
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CProductions CProduction
      CAlternatives CAlternative
      CVisits CVisit [ | | allTpsFound USE {&&} {True} : Bool ]
@@ -292,11 +291,11 @@ SEM  CVisit
   |  CVisit lhs.errors = @intra.errors
 SEM  CRule
   |  CRule lhs.errors = maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con @name)) (const Seq.empty) @tp
-\end{code}
 
-Provide a description of the interfaces as comments
+-------------------------------------------------------------------------------
+-- Provide a description of the interfaces as comments
+-------------------------------------------------------------------------------
 
-\begin{code}
 SEM CProduction
   | CProduction loc.comment = Comment . unlines . map ind $ ( @inter.comments ++ ("alternatives:" : map ind @alts.comments) )
 
@@ -324,11 +323,11 @@ makeLocalComment what  name tp = let  x = getName name
                                  in   ( what ++ " " ++ x ++ replicate ((14 - length x) `max` 0) ' ' ++ " : " ++ y )
 
 }
-\end{code} 
 
-And tie it all together
+-------------------------------------------------------------------------------
+-- And tie it all together
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CProductions CProduction CAlternatives CAlternative  [ | | decls USE {++} {[]} : {Decls} ]
 ATTR CGrammar [ | | output : Program ]
 
@@ -345,9 +344,7 @@ SEM CProduction
                               ++ (if @lhs.o_sig || @lhs.o_sem       then  @inter.semDom   else [])
                               ++ (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
                               ++ (if @lhs.o_sem                     then  @alts.decls     else [])
-\end{code}
 
-\begin{code}
 {
 -- Lets or nested Cases?
 mkLet :: Bool -> Decls -> Expr -> Expr
@@ -357,14 +354,7 @@ mkLet True decls body = foldr oneCase body decls
 oneCase :: Decl -> Expr -> Expr
 oneCase (Decl left rhs) exp = Case rhs [CaseAlt left exp]
 oneCase _               exp = exp
-                            
-}
-\end{code}
 
-Taken from Sequential.ag
-
-\begin{code}
-{
 -- Gives the name of the visit function
 funname field 0  = show field ++ "_"
 funname field nr = show field ++ "_" ++ show nr
@@ -383,11 +373,11 @@ typeName nt n = "T_" ++ show nt ++ "_" ++ show n
 visitname  ::  String -> Nonterminal -> Int -> String
 visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
 }
-\end{code}
 
-Datatypes were already present
+-------------------------------------------------------------------------------
+-- Datatypes were already present
+-------------------------------------------------------------------------------
 
-\begin{code}
 ATTR CProductions CProduction [ wrappers:{Set Nonterminal} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
 SEM CGrammar
   | CGrammar prods . typeSyns  = @typeSyns
@@ -416,11 +406,11 @@ SEM CAlternatives
 
 SEM CAlternative
   | CAlternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (typeToString @lhs.nt .snd) @children)
-\end{code}
 
-Catamorphism were already present
+-------------------------------------------------------------------------------
+-- Catamorphism were already present
+-------------------------------------------------------------------------------
 
-\begin{code}
 SEM CProduction
   | CProduction loc.cataFun  = let tSig = TSig (cataname @lhs.prefix @nt)
                                                (SimpleType (getName @nt) `Arr` SimpleType (sdtype @nt))
@@ -479,4 +469,3 @@ SEM CAlternative
                                                              [SimpleExpr (locname nm)]
                                    argument (nm, _)    = SimpleExpr (locname nm)
                                in Decl lhs rhs
-\end{code}

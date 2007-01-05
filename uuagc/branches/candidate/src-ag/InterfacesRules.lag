@@ -1,5 +1,4 @@
-%if style==code
-\begin{code}
+\begin{Code}
 INCLUDE "Interfaces.ag"
 
 imports
@@ -19,11 +18,10 @@ import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,intersect)
 import Data.Array ((!),inRange,bounds,assocs)
 }
-\end{code}
-%endif
+\end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Visit sub-sequence-graph}
+\section{Visit sub-sequence-graph}
 
 Visit sub-sequences can be generated from the |Tdp| by a topological
 sort. To that end we add vertices to |Tdp|. For each production, for
@@ -46,53 +44,53 @@ We add the following edges:
 
 Now we can define a visit sub-sequence as a list of vertices: 
 
-\begin{code}
+\begin{Code}
 {
 type VisitSS = [Vertex]
 }
-\end{code}
+\end{Code}
 
 We define a function that generates the visit-subsequences-graph and a
 description of the newly added vertices. We do this using an attribute
 grammar. The visit subsequences graph has transposed edges, so we can
 use |topSort'|.
 
-\begin{code}
+\begin{Code}
 ATTR IRoot [ tdp : Graph | | ]
 SEM  IRoot 
   |  IRoot loc.newedges = Seq.toList @inters.newedges
            loc.visitssGraph =  let graph = buildG (0,@inters.v-1) es
                                    es = @newedges ++ edges @lhs.tdp
                                in transposeG graph
-\end{code}
+\end{Code}
 
 As we will need to look up information, we pass |info| down. An
 attribute v stores a fresh vertex. We start counting from the hightest
 vertex in |tdp|.
 
-\begin{code}
+\begin{Code}
 ATTR Interfaces Interface Segments Segment [ | v : Vertex | ]
 ATTR IRoot Interfaces Interface Segments Segment [ info : Info | | ]
 SEM  IRoot 
   |  IRoot inters.v = snd (bounds @lhs.tdp) + 1
-\end{code}
+\end{Code}
 
 The actual generation of edges takes place in |Segment|. We group the
 attribute occurrences. |isEqualField| checks are at the same position
 (either lhs of the same child).
 
-\begin{code}
+\begin{Code}
 {
 gather :: Info -> [Vertex] -> [[Vertex]]
 gather info =  eqClasses comp
                where comp a b = isEqualField (ruleTable info ! a) (ruleTable info ! b)
 }
-\end{code}
+\end{Code}
 
 When we do this for right-hand side occurrences of the inherited and
 syntesized attributes of a |Segment|, we find the new vertices.
 
-\begin{code}
+\begin{Code}
 SEM  Segment 
   |  Segment  loc.look = \a -> ruleTable @lhs.info ! a
               loc.occurAs = \p us -> [ a  |  u <- us
@@ -102,12 +100,12 @@ SEM  Segment
                             in map (partition (isInh . @look)) (group (@inh ++ @syn))
               loc.v = @lhs.v + length @groups
               loc.newvertices = [@lhs.v .. @loc.v-1]
-\end{code}
+\end{Code}
 
 A description of the new vertices van be found by looking up the field
 of an attribute occurrence
 
-\begin{code}
+\begin{Code}
 ATTR  Interfaces Interface Segments Segment 
       [ visitDescr : {Map Vertex ChildVisit} | | ]
 SEM  IRoot
@@ -127,31 +125,29 @@ cv look n v (inh,syn) =  let  fld = getField (look (head syn))
                               d = ChildVisit fld rnt n inh syn
                          in (v,d)
 }
-\end{code}
+\end{Code}
 
-%if style==code
-\begin{code}
+\begin{Code}
 SEM  IRoot
   |  IRoot loc.descr = Seq.toList @inters.descr
-\end{code}
-%endif
+\end{Code}
 
 The edges between attributes occurrences and their corresponding
 visits can be found as follows:
 
-\begin{code}
+\begin{Code}
 SEM  Segment
   |  Segment loc.attredges = concat (zipWith ed @newvertices @groups)
 
 {
 ed v (inh,syn) = map (\i -> (i,v)) inh ++ map (\s -> (v,s)) syn
 }
-\end{code}
+\end{Code}
 
 For edges between visits we simpy |zip| the current vertices with the
 next ones.
 
-\begin{code}
+\begin{Code}
 ATTR Segment [ nextNewvertices : {[Vertex]} | | newvertices : {[Vertex]} ]
 ATTR Segments [ | | newvertices : {[Vertex]} ]
 SEM  Segments
@@ -162,12 +158,12 @@ SEM  Segments
 SEM  Segment
   |  Segment  loc.visitedges = zip @newvertices @lhs.nextNewvertices
               lhs.newedges = Seq.fromList @attredges Seq.<> Seq.fromList @visitedges
-\end{code}
+\end{Code}
 
 The first visit to a child is passed to the first visit of the parent,
 so we add edges for this, too.
 
-\begin{code}
+\begin{Code}
 ATTR Segments Segment [ | | groups : {[([Vertex],[Vertex])]} ]
 SEM  Segments
   |  Cons lhs.groups = @hd.groups
@@ -182,28 +178,28 @@ SEM  Interface
                 loc.look = \a -> ruleTable @lhs.info ! a
                 loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
                 lhs.descr = @seg.descr Seq.<> Seq.fromList @descr
-\end{code}
+\end{Code}
 
 The visit number can simply be counted
 
-\begin{code}
+\begin{Code}
 ATTR Segments Segment [ n : Int | | ]
 SEM  Interface
   |  Interface seg.n = 0
 SEM  Segments
   |  Cons tl.n = @lhs.n + 1
-\end{code}
+\end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Visit sub-sequences}
 
 To compute the visit subsequences, we pass the visit-subsequence graph down
 
-\begin{code}
+\begin{Code}
 ATTR Interfaces Interface Segments Segment [ vssGraph : Graph | | ]
 SEM  IRoot
   |  IRoot inters.vssGraph = @visitssGraph
-\end{code}
+\end{Code}
 
 Each segment computes subsequences for each production of the
 nonterminal. We group the occurrences of the synthesized attributes,
@@ -211,7 +207,7 @@ and perform a topological sort on it. In the absence of synthesized
 attributes, nothing needs to be computed, so the visit subsequence
 is empty.
 
-\begin{code}
+\begin{Code}
 SEM  Segment
   |  Segment  loc.synOccur = gather @lhs.info (@occurAs isLhs @syn)
               loc.vss =  let hasCode v | inRange (bounds (ruleTable @lhs.info)) v =  getHasCode (ruleTable @lhs.info ! v)
@@ -222,37 +218,37 @@ SEM  Segment
 ATTR Segments Segment [ cons : {[Constructor]} | | ]
 SEM  Interface
   |  Interface seg.cons = @cons
-\end{code}
+\end{Code}
 
 We adapt the topological sort to take a list of vertices to start
 sorting.
 
-\begin{code}
+\begin{Code}
 {
 postorder (Node a ts) = postorderF ts ++ [a]
 postorderF = concatMap postorder
 postOrd g = postorderF . dfs g
 topSort' g = postOrd g
 }
-\end{code}
+\end{Code}
 
 This gives us the subsequence required to compute the synthesized
 attributes. However, a part of this subsequence has already been
 computed in previous visits. We thread this part through. It starts
 with all first visits to children.
 
-\begin{code}
+\begin{Code}
 ATTR Interfaces Interface [ prev : {[Vertex]} | | firstvisitvertices USE {++} {[]} : {[Vertex]} ]
 SEM  IRoot
   |  IRoot inters.prev =  let terminals = [ v | (v,cr) <- assocs (ruleTable @lhs.info), not (getHasCode cr), isLocal cr ]
                           in @inters.firstvisitvertices ++ terminals
 
 ATTR Segments Segment [ | prev : {[Vertex]} | ]
-\end{code}
+\end{Code}
 
 and we remove this part from the subsequence
 
-\begin{code}
+\begin{Code}
 SEM  Segment [ | |  visitss : {[VisitSS]} ]
   |  Segment  loc.visitss' = map (\\ @lhs.prev) @vss
               loc.defined =  let defines v = case Map.lookup v @lhs.visitDescr of
@@ -260,12 +256,12 @@ SEM  Segment [ | |  visitss : {[VisitSS]} ]
                                                Just (ChildVisit _ _ _ inh _) -> v:inh
                              in concatMap (concatMap defines) @visitss
               lhs.prev = @lhs.prev ++ @defined
-\end{code}
+\end{Code}
 
 When more that one attribute is defined in the same rule, this rule is
 repeated in the visit subsequence. We do not want this.
 
-\begin{code}
+\begin{Code}
 SEM  Segment
   |  Segment  loc.visitss = let  rem :: [(Name,Name,Maybe Type)] -> [Vertex] -> [Vertex]
                                  rem prev [] = []
@@ -280,7 +276,7 @@ SEM  Segment
                                    | otherwise = v:rem prev vs
                                  table = ruleTable @lhs.info
                             in map (rem []) @visitss'
-\end{code}
+\end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Intra-visit dependencies}
@@ -291,18 +287,18 @@ needs from its previous visits. The first visit does not have
 intra-visit dependencies, because there are no previous visits. We add
 an attribute that indicates whether it's the first visit.
 
-\begin{code}
+\begin{Code}
 ATTR Segment Segments [ isFirst : {Bool} | | ]
 SEM  Interface
   |  Interface seg.isFirst = True
 SEM  Segments
   |  Cons tl.isFirst = False
-\end{code}
+\end{Code}
 
 We declare an attribute intravisit which gives the intra-visit
 dependencies. We pass the intravisit of the next visit to this
 one. 
-\begin{code}
+\begin{Code}
 {
 type IntraVisit = [Vertex]
 }
@@ -312,14 +308,14 @@ SEM  Segments [ | | hdIntravisits : {[IntraVisit]} ]
   |  Cons  hd.nextIntravisits = @tl.hdIntravisits
            lhs.hdIntravisits = @hd.intravisits
   |  Nil lhs.hdIntravisits = repeat []
-\end{code}
+\end{Code}
 
 The first visit does not have intra-visit dependencies. A later visit
 need all attributes that it's subsequence depends on, and the
 intra-visit dependecies of the next visit, except for those attributes
 that are compted in this visit.
 
-\begin{code}
+\begin{Code}
 ATTR IRoot [ dpr : {[Edge]} | | ]
 ATTR Interfaces Interface Segments Segment [ ddp : Graph | | ]
 SEM  IRoot
@@ -345,7 +341,7 @@ SEM  Segment
               loc.iv =  \vs next -> 
                           let needed = concatMap (@lhs.ddp !) vs
                           in nub (needed ++ next) \\ (@fromLhs ++ @computed)
-\end{code}
+\end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Result}
@@ -357,7 +353,7 @@ gives us for each segment, for each production a subsequence. What we
 want is for each production, for each visit a subsequence, which is
 accomplished by |transpose|. The same is done for intravisits.
 
-\begin{code}
+\begin{Code}
 ATTR Interfaces Interface Segments Segment [ allInters : {CInterfaceMap} | | ]
 SEM  IRoot
   |  IRoot  inters.allInters = @inters.inters
@@ -406,7 +402,7 @@ ccv name nt n table
             CSegment inh syn = seg           
             last = null remain
 }
-\end{code}
+\end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EDP}
@@ -414,7 +410,7 @@ ccv name nt n table
 To find a type-3 cycle we need to know the dependencies that the
 interfaces generate.
 
-\begin{code}
+\begin{Code}
 ATTR Interfaces Interface Segments Segment [ | | edp USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
 SEM  Segment
   |  Segment lhs.edp =  Seq.fromList [(i,s) | i <- @inh, s <- @syn]
@@ -427,5 +423,5 @@ SEM  Segments [ | | firstInh : {[Vertex]} ]
   |  Cons  hd.nextInh = @tl.firstInh
            lhs.firstInh = @hd.inh
   |  Nil  lhs.firstInh = []
-\end{code}
+\end{Code}
 

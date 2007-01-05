@@ -1,5 +1,4 @@
-\begin{code}
--- INCLUDE "GenerateCodeSM.ag"
+--REMOVED SM INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 INCLUDE "AbstractSyntax.ag"
@@ -99,9 +98,6 @@ SEM Grammar
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
 
-\end{code}
-
-\begin{code}
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
@@ -236,9 +232,6 @@ SEM Grammar
 SEM Production
   | Production loc.ntattrs =  [ NTAInh @nt inh tp | (inh,tp) <- Map.assocs @inh ]
                               ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
-\end{code}
-
-\begin{code}
                lhs.ntattrs = Seq.fromList (zip [@lhs.acount ..] @ntattrs)
                lhs.acount = @lhs.acount + Map.size @inh + Map.size @syn
                lhs.aranges =  Seq.single
@@ -317,8 +310,7 @@ SEM  Production
   |  Production  loc.cInter = if  @lhs.o_dovisit
                                       then Map.find @nt @lhs.cInterfaceMap
                                       else CInterface [CSegment @inh @syn]
-\end{code}
-\begin{code}
+
 -- Pass VisitMap down and select the CVisits in the Alternative
 ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
 SEM  Alternative
@@ -416,4 +408,3 @@ inducedCycleErr attrTable cim (v1,v2)
         cinter = Map.find nt cim
     in InducedCirc nt a2 a1 cinter
 }
-\end{code}

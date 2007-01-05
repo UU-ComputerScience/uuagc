@@ -1,4 +1,3 @@
-%if style==code
 \begin{code}
 module SequentialComputation (
     computeSequential, 
@@ -19,18 +18,11 @@ import Data.Array.ST(STArray, newArray, readArray, writeArray, freeze)
 import Data.Maybe(fromJust,isJust)
 import Data.List(partition,nub,(\\),delete,minimumBy)
 \end{code}
-%endif
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Collecting information}
+\section{Collecting information}
 
-Part of this work has already been done in the cycle detection. He
-describes a way to find cycles in the AG. His implementation has the
-problem of being very slow, which is largely due to the way the graphs
-are represented. He saves all information about the attribute in the
-node itself, and generates a new graph for every update.
-
-In the GHC representation of graphsa |Vertex| is an |Int|, and the
+In the GHC representation of graphs |Vertex| is an |Int|, and the
 edges are represented as an Array, mapping nodes to a list of
 nodes. An edge |(x,y)| of graph |a| is represented as |y `elem` a!x|
 (|!| looks up a value in an array). This has the advantage of using
@@ -75,22 +67,7 @@ attributes - an element |(l,m,h) `elem` LMH| means that vertices |i, l
 <= j < m| being inherited and |k, m <= k <= h| being synthesized
 attributes.
 
-%if style==poly
-% Note: Copied from SequentialTypes.hs
-\begin{code}
-data Info = Info  {  tdpToTds    ::  Table Vertex
-                  ,  tdsToTdp    ::  Table [Vertex]
-                  ,  attrTable   ::  Table NTAttr
-                  ,  ruleTable   ::  Table CRule
-                  ,  lmh         ::  [LMH]
-                  ,  prods       ::  [(Nonterminal,[Constructor])]
-                  ,  wraps       ::  Set Nonterminal
-                  ,  cyclesOnly  ::  Bool
-                  }
-
-type LMH = (Vertex,Vertex,Vertex)
-\end{code}
-%endif
+See the |SequentialTypes.Info| and |SequentialTypes.LMH|
 
 Then we collect the direct dependencies, using the integer
 representations. This list of tuples (edges in the dependency graph)
@@ -117,7 +94,7 @@ type Comp s = (Tds s, Tdp s)
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Generating IDS}
+\section{Generating IDS}
 
 As we insert edges into Tdp we keep it transitively closed, so every
 time we add the edge $(s,t)$ to V, we also add the edges $\{ (r,t) ||
@@ -243,7 +220,7 @@ tdsTdp info dpr
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Cycle detection}
+\section{Cycle detection}
 
 The computation returns s2i edges. If for any s2i edge $(u,v)$ there
 is an edge $(v,u)$ then we have found a cycle.
@@ -304,22 +281,17 @@ spath graph from to
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Interfaces}
+\section{Interfaces}
 
-In absence of cycles we can find the interfaces.
-
-We only take attributes that are used.
-
-%if style==poly
-\begin{code}
-%include ../src-ag/Interfaces.ag
-\end{code}
-%endif
+In absence of cycles we can find the interfaces. We only take
+attributes that are used.
 
 When an attribute has no incoming edges it can be computed. As the
 emphasis is on incoming edges, we will work with the transposed Tds
 graph. The funtion |used| indicates which vertices are included in the
 interfaces.
+
+See modules Interfaces and InterfacesRules for more information.
 
 %format sem_IRoot_IRoot = "sem_{IRoot}"
 %format sem_Interface_Interface = "sem_{Interface}"
@@ -367,12 +339,8 @@ makeInterface tds usedinh del (l,m,h)
                        else (inh,syn) : rest
 \end{code}
 
-%if style==poly
-%include InterfacesRules.lag
-%endif
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Detecting type-3 cycles}
+\section{Detecting type-3 cycles}
 
 After the generation of interfaces we need to check Tds for induced
 (type-3) cycles. We only want to return s2i edges. There is no need to
@@ -388,7 +356,7 @@ cycles3 info tds = [ (v,u)  | (l,m,h) <- lmh info
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Tying it together}
+\section{Tying it together}
 
 \begin{code}
 getResult :: Info -> Graph -> Graph -> [Edge] -> (CInterfaceMap, CVisitsMap, [Edge])
