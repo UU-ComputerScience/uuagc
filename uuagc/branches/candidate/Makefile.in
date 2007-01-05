@@ -20,7 +20,6 @@ TEST_DIR = test
 
 # The following variables are set in configure
 AG        = @UUAGC@
-LHS2TEX   = @LHS2TEX@
 BUILD_DIR = @BUILD_DIR@
 MV        = @MV@
 RM        = @RM@
@@ -51,11 +50,13 @@ CABAL_SCRIPT = ./Setup
 SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
 	 HsToken.ag Code.ag Expression.ag Patterns.ag Interfaces.ag\
 	 CodeSyntax.ag
+SRC_LAG_SEM_NAMES =
 
 # And semantic functions from these AG files.
 SRC_AG_SEM_NAMES = DefaultRules.ag GenerateCode.ag PrintCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag \
-	 Transform.ag InterfacesRules.ag Order.ag
+	 Transform.ag Order.ag
+SRC_LAG_SEM_NAMES = InterfacesRules.lag
 
 # Default flags for AG
 FLAGS_AG_SEM = -mcsfp --newtypes --wrappers
@@ -65,12 +66,16 @@ FLAGS_AG_SYN = -mdp
 FLAGS_AG_InterfacesRules.ag = --self
 
 SRC_AG_SYN = $(addprefix $(SRC_AG_DIR)/,$(SRC_AG_SYN_NAMES))
+SRC_LAG_SYN = $(addprefix $(SRC_AG_DIR)/,$(SRC_LAG_SYN_NAMES))
 SRC_AG_SEM = $(addprefix $(SRC_AG_DIR)/,$(SRC_AG_SEM_NAMES))
-SRC_AG = $(SRC_AG_SYN) $(SRC_AG_SEM)
+SRC_LAG_SEM = $(addprefix $(SRC_AG_DIR)/,$(SRC_LAG_SEM_NAMES))
+SRC_AG = $(SRC_AG_SYN) $(SRC_LAG_SYN) $(SRC_AG_SEM) $(SRC_LAG_SEM)
 
 # The corresponding haskell sources
 SRC_HS_SYN = $(addprefix $(SRC_DIR)/,$(patsubst %.ag,%.hs,$(SRC_AG_SYN_NAMES)))
+SRC_HS_SYN_L = $(addprefix $(SRC_DIR)/,$(patsubst %.lag,%.hs,$(SRC_LAG_SYN_NAMES)))
 SRC_HS_SEM = $(addprefix $(SRC_DIR)/,$(patsubst %.ag,%.hs,$(SRC_AG_SEM_NAMES)))
+SRC_HS_SEM_L = $(addprefix $(SRC_DIR)/,$(patsubst %.lag,%.hs,$(SRC_LAG_SEM_NAMES)))
 
 # Generate dependencies for ag files
 DEPEND_AG = ag.depend
@@ -96,27 +101,37 @@ $(DEPEND_AG): Makefile $(SRC_AG)
 ifeq ($(AG),)
 $(SRC_HS_SYN) $(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	@echo "* No AG compiler configured" && exit 1
+$(SRC_HS_SYN_L) $(SRC_HS_SEM_L): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
+	@echo "* No AG compiler configured" && exit 1
 else
 $(SRC_HS_SYN): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
 	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) $*.ag -o ../$(SRC_DIR)/$*.hs && \
+	cd ..
+$(SRC_HS_SYN_L): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
+	cd $(SRC_AG_DIR) && \
+	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) $*.lag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
 
 $(SRC_HS_SEM): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
 	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) $*.ag -o ../$(SRC_DIR)/$*.hs && \
 	cd ..
+$(SRC_HS_SEM_L): $(SRC_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
+	cd $(SRC_AG_DIR) && \
+	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) $*.lag -o ../$(SRC_DIR)/$*.hs && \
+	cd ..
 endif
 
 
 # HS source files for uuag
-SRC_HS_NAMES = Ag.hs CommonTypes.hs DepTypes.hs HsTokenScanner.hs Options.hs Parser.hs SequentialComputation.hs SequentialTypes.hs Scanner.hs Streaming.hs TokenDef.hs Transform.hs Version.hs
+SRC_HS_NAMES = Ag.hs CommonTypes.hs DepTypes.hs HsTokenScanner.hs Options.hs Parser.hs SequentialComputation.lhs SequentialTypes.hs Scanner.hs Streaming.hs TokenDef.hs Transform.hs Version.hs
 SRC_HS = $(addprefix $(SRC_DIR)/,$(SRC_HS_NAMES))
 
 build: $(AG_BINARY)
 
 # Building the uuagc system invokes cabal build
-$(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SYN) $(CABAL_CONFIG)
+$(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L) $(CABAL_CONFIG)
 	@echo "* Compiling hs sources..."
 	$(CABAL_BUILD)
 
@@ -159,7 +174,7 @@ dist_makedirs:
 	for dir in `$(FIND) $(SRC_AG_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 	for dir in `$(FIND) scripts -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 
-dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SYN)
+dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L)
 	$(CP) -p LICENSE \
 		 VERSION \
 		 README \
@@ -192,7 +207,7 @@ dist_info:
 # Clean (only stuff built using uuagc)
 #
 clean:
-	$(RM_F) $(SRC_HS_SEM) $(SRC_HS_SYN) $(GEN_HS) $(GEN_AG)
+	$(RM_F) $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L) $(GEN_HS) $(GEN_AG)
 
 #
 #
@@ -202,18 +217,6 @@ install: $(AG_BINARY)
 	@echo "* Installing UUAG..."
 	$(MKINSTDIR) $(prefix)/bin
 	$(INSTALL) -m 755 $(AG_BINARY) $(prefix)/bin
-
-#
-# Generating AG from Literate AG (LAG)
-#         or HS from Literate HS (LHS)
-# And list all files for which this is done so they can be cleaned
-#
-%.ag : %.lag
-	$(LHS2TEX) --code $< > $@
-GEN_AG = $(patsubst %.lag,%.ag,$(wildcard $(SRC_AG_DIR)/*.lag))
-%.hs : %.lhs
-	$(LHS2TEX) --code $< > $@
-GEN_HS = $(patsubst %.lhs,%.hs,$(wildcard $(SRC_DIR)/*.lhs))
 
 #
 # Testing AG files in $(TEST_DIR)
