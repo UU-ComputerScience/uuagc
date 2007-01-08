@@ -117,7 +117,7 @@ SEM  Segment
   |  Segment lhs.descr =  Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {-$-}
 
 {
--- Groups always have at least one synthesized attribute
+-- Only non-empty syn will ever be forced, because visits with empty syn are never performed
 -- Right hand side synthesized attributes always have a field
 cv :: (Vertex -> CRule) -> Int -> Vertex -> ([Vertex],[Vertex]) -> (Vertex,ChildVisit)
 cv look n v (inh,syn) =  let  fld = getField (look (head syn))

@@ -301,9 +301,9 @@ See modules Interfaces and InterfacesRules for more information.
 %format sem_Segments_Nil = "[]_{Segments}"
 
 \begin{code}
-makeInterfaces :: Info -> Graph -> (Vertex -> Bool) -> T_IRoot
-makeInterfaces info tds usedinh
-  =  let interslist = reverse . makeInterface tds usedinh []
+makeInterfaces :: Info -> Graph -> T_IRoot
+makeInterfaces info tds
+  =  let interslist = reverse . makeInterface tds []
          mkSegments = foldr (sem_Segments_Cons . uncurry sem_Segment_Segment) sem_Segments_Nil . interslist
          mkInter ((nt,cons),lmh) = sem_Interface_Interface nt cons (mkSegments lmh)
          inters = foldr (sem_Interfaces_Cons . mkInter) sem_Interfaces_Nil (zip (prods info) (lmh info))
@@ -326,14 +326,14 @@ sinks alternatively. If there are no synthesized attributes at all,
 generate an interface with one visit computing nothing.
 
 \begin{code}
-makeInterface :: Graph -> (Vertex -> Bool) -> [Vertex] -> LMH -> [([Vertex],[Vertex])]
-makeInterface tds usedinh del (l,m,h)
+makeInterface :: Graph -> [Vertex] -> LMH -> [([Vertex],[Vertex])]
+makeInterface tds del (l,m,h)
   | m > h = [([],[])]
   | otherwise = let  syn = filter (isSink tds del) ([m..h] \\ del)
                      del' = del ++ syn
-                     inh = filter (\i -> usedinh i && isSink tds del' i) ([l..(m-1)] \\ del')
+                     inh = filter (isSink tds del') ([l..(m-1)] \\ del')
                      del'' = del' ++ inh
-                     rest = makeInterface tds usedinh del'' (l,m,h)
+                     rest = makeInterface tds del'' (l,m,h)
                 in if  null inh && null syn
                        then []
                        else (inh,syn) : rest
@@ -361,8 +361,7 @@ cycles3 info tds = [ (v,u)  | (l,m,h) <- lmh info
 \begin{code}
 getResult :: Info -> Graph -> Graph -> [Edge] -> (CInterfaceMap, CVisitsMap, [Edge])
 getResult info tds tdp dpr
-  = let  usedinh v = any (\s -> isRhs s && isSyn s) . map (ruleTable info !) . concatMap (tdp !) $ tdsToTdp info ! v {-$-}
-         inters = makeInterfaces info tds usedinh
+  = let  inters = makeInterfaces info tds
          inhs = Inh_IRoot  {  info_Inh_IRoot = info
                            ,  tdp_Inh_IRoot = tdp
                            ,  dpr_Inh_IRoot = dpr}

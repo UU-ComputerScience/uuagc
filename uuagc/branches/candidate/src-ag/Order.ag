@@ -183,9 +183,9 @@ ATTR Productions Production
 SEM  Rule
   |  Rule  lhs.directDep
              = let  defined = Map.keys @defines
-                    used =  [ Map.find (AltAttr field attr True) @lhs.altAttrs | (field,attr) <- @rhs.usedAttrs]
-                            ++ [ Map.find (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
-               in Seq.fromList [ (x,y) | x <- used, y <- defined ]
+                    used =  [ Map.lookup (AltAttr field attr True) @lhs.altAttrs | (field,attr) <- @rhs.usedAttrs]
+                            ++ [ Map.lookup (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
+               in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
 
 -- Wrapping an Expression
 
