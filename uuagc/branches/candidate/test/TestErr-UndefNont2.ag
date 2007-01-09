@@ -1,4 +1,4 @@
--- an attribute is defined for a non-existing type
+-- a synthesized attribute is defined for a non-existing type
 
 DATA Aap 
 	| Een a : {Int}
