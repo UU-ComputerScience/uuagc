@@ -12,9 +12,7 @@ import ErrorMessages
 }
 
 ATTR HsTokensRoot
-     [ nt,con    :{Identifier}
-       fieldnames    :{[Identifier]}
-       attrs     :{[(Identifier,Identifier)]}
+     [ 
      | | 
        errors    USE {Seq.<>} {Seq.empty}:{Seq Error}
        usedLocals:{[Identifier]}
@@ -24,14 +22,25 @@ ATTR HsTokensRoot
      ]
 
 -------------------------------------------------------------------------------
---  Errors
+--  Context information
 -------------------------------------------------------------------------------
-ATTR HsTokens HsToken [ | |  errors USE {Seq.<>} {Seq.empty}:{Seq Error}  ]
-ATTR HsTokens HsToken [ nt,con   :{Identifier}
-                        fieldnames   :{[Identifier]}
+ATTR HsTokensRoot
+     HsTokens HsToken [ nt,con   :{Identifier}
+                        -- fieldnames   :{[Identifier]}
+                        allfields    :{[(Name,Type)]}
+                        allnts       :{[Name]}
                         attrs    :{[(Identifier,Identifier)]}
                       ||
                       ]
+
+ATTR HsTokens HsToken [ fieldnames : {[Identifier]} | | ]
+SEM HsTokensRoot
+  | HsTokensRoot tokens.fieldnames = map fst @lhs.allfields
+
+-------------------------------------------------------------------------------
+--  Errors
+-------------------------------------------------------------------------------
+ATTR HsTokens HsToken [ | |  errors USE {Seq.<>} {Seq.empty}:{Seq Error}  ]
 
 -------------------------------------------------------------------------------
 -- Syntax errors
@@ -45,13 +54,22 @@ SEM HsToken
 --  Undefined variables
 -------------------------------------------------------------------------------
 
+{
+isNTname allnts (Just (NT nt)) = nt `elem` allnts
+isNTname allnts _              = False
+}
+
+
 SEM HsToken
   | AGLocal   loc.(errors,tok,usedLocals) = 
-                     let result | @var `elem` @lhs.fieldnames   = (Seq.empty, (@pos,fieldname @var), [])
-                                | (_LOC,@var) `elem` @lhs.attrs = (Seq.empty, (@pos,locname @var), [@var])
-                                | otherwise                     = (Seq.single(UndefLocal @lhs.nt @lhs.con @var)
-                                                                  ,(@pos,locname @var), [])
-                     in result
+                     if @var `elem` @lhs.fieldnames   
+                     then if  isNTname @lhs.allnts (lookup @var @lhs.allfields)
+                          then (Seq.single(ChildAsLocal @lhs.nt @lhs.con @var), (@pos,fieldname @var), []    )
+                          else (Seq.empty, (@pos,fieldname @var), []    )
+                     else if (_LOC,@var) `elem` @lhs.attrs 
+                     then (Seq.empty                                   , (@pos,locname   @var), [@var])
+                     else (Seq.single(UndefLocal @lhs.nt @lhs.con @var), (@pos,locname   @var), []    )
+
 SEM HsToken
   | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
                                  then Seq.empty

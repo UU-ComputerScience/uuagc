@@ -1,0 +1,16 @@
+-- The child @child is used as a local variable,
+-- which is not allowed because its type is a Nonterminal
+-- You should use @child.self in this situation.
+
+DATA Noot
+  | One
+  | Two
+  
+DATA Aap 
+	| Een child : Noot
+	
+ATTR Aap [ | | synth : Noot ]
+
+SEM Aap
+  | Een   lhs.synth = @child
+

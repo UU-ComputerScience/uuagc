@@ -190,7 +190,8 @@ SEM  Rule
 -- Wrapping an Expression
 
 ATTR Expression [ nt,con   :{Name}
-                  fieldnames   :{[Name]}
+                  allfields:{[(Name,Type)]}
+                  allnts   :{[Name]}
                   attrs    :{[(Name,Name)]}
                 ||
                   errors   :{Seq Error}
@@ -206,7 +207,8 @@ SEM Expression
                             = let inherited = Inh_HsTokensRoot
                                               { attrs_Inh_HsTokensRoot   = @lhs.attrs
                                               , con_Inh_HsTokensRoot     = @lhs.con
-                                              , fieldnames_Inh_HsTokensRoot  = @lhs.fieldnames
+                                              , allfields_Inh_HsTokensRoot  = @lhs.allfields
+                                              , allnts_Inh_HsTokensRoot  = @lhs.allnts
                                               , nt_Inh_HsTokensRoot      = @lhs.nt
                                               }
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens @pos @txt)) inherited
@@ -345,12 +347,22 @@ ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
 SEM Child
   | Child lhs.terminals = if @maptolocal then [@name] else []
 
+
+-- Collecting nts
+ATTR Production Productions
+     Alternative Alternatives
+     Rule Rules 
+     Child Children [allnts:{[Name]} | | ]
+     
+SEM Grammar
+  | Grammar prods.allnts = map fst (@prods.prods)
+
 -- Collecting fields
 ATTR Rule Rules 
-     Child Children [fieldnames:{[Name]} attrs:{[(Name,Name)]} | | ]
+     Child Children [allfields:{[(Name,Type)]} attrs:{[(Name,Name)]} | | ]
 
 SEM Alternative
-  | Alternative loc.fieldnames = map fst @children.fields
+  | Alternative loc.allfields  = @children.fields
                    .attrs      = map ((,) _LOC) @rules.locVars ++
                                  map ((,) _LHS) @inhnames ++ 
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
