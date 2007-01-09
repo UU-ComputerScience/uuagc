@@ -211,8 +211,9 @@ SEM Error
 
                                  help =  wfill ["There are rules that define or use attributes of field" , getName @name
                                                        ,"in alternative" , getName @con , "of nonterminal" , getName @nt
-                                                       ,", but this field does not exist in the definition of the alternative."
-                                                       ,"Maybe you misspelled it? Otherwise insert the field into the definition."
+                                                       ,", but there is no field with AG-type in the definition of the alternative."
+                                                       ,"Maybe you misspelled it? Otherwise insert the field into the definition,"
+                                                       ,"or change its type from an HS-type to an AG-type."
                                                        ]
                                  act  = wfill ["All rules for the unknown field have been ignored."]
                              in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose

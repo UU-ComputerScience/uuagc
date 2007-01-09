@@ -252,14 +252,10 @@ type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
---DEBUG
-find' nt fields = let err = "Failed in finding element " ++ show nt ++ " in map " ++ show fields
-                  in Map.findWithDefault (error err) nt fields
-	
 checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) -> Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields nt con rs 
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : Map.find con (find' nt fields)
+        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
   
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
   
