@@ -263,6 +263,21 @@ SEM Error
                                  act  = wfill ["The generated program will not run."]
                              in ppError @isWarning (getPos @var) mesg pat help act @lhs.verbose
 
+  | ChildAsLocal    loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Nontrivial field ",getName @var, "is used as local at constructor"
+                                               , getName @con , "of nonterminal",getName @nt, "."
+                                               ]  
+                                 pat   = "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "... = "
+                                                         >#< "..." >#< "@" >|< getName @var >#< "..." )
+
+                                 help =  wfill ["A rule in the definitions for alternative" , getName @con ,"of nonterminal"
+                                               , getName @nt , "contains a nontrivial field name", getName @var, "."
+                                               ,"You should use @", getName @var, ".self instead, where self is a SELF-attribute."
+                                               ]
+                                 act  = wfill ["The generated program probably contains a type error or has undefined variables."]
+                             in ppError @isWarning (getPos @var) mesg pat help act @lhs.verbose
+
   | UndefAttr       loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Undefined", showAttrUse @field @attr, "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."

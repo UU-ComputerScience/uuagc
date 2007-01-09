@@ -1,0 +1,17 @@
+-- The child @child cannot be used as a local variable,
+-- therefore @child.self is used, which is allowed.
+
+DATA Noot
+  | One
+  | Two
+  
+ATTR Noot [ | | self : SELF ]
+
+DATA Aap 
+	| Een child : Noot
+	
+ATTR Aap [ | | synth : Noot ]
+
+SEM Aap
+  | Een   lhs.synth = @child.self
+

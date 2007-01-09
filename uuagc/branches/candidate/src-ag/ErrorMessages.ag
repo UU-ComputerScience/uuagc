@@ -62,6 +62,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               con   : {Constructor}
                               var   : {Name}
 
+            | ChildAsLocal    nt    : {Nonterminal}
+                              con   : {Constructor}
+                              var   : {Name}
+
             | UndefAttr       nt    : {Nonterminal}
                               con   : {Constructor}
                               field : {Name}
