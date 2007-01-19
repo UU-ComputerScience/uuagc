@@ -153,10 +153,8 @@ of the attributes into |Tdp|. If the computation is only done to find
 cycles, we do not add s2i-edges. In this case |u > v| for the edge
 |(u,v)| indicates an s2i-edge. \begin{notes} TODO: Is it clear why? If
 not, we can explain: There are only edges between attributes of the
-same nonterminal. Attributes are numbered as explained for |LMH|, so
-|u > v| is not an i2s-edge. If we never add an s2i-edge, it's
-impossible to have i2i or s2s edges, so |(u,v)| is an
-s2i-edge. \end{notes}
+same nonterminal.
+\end{notes}
 
 \begin{code}
 insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
@@ -164,8 +162,8 @@ insertTds info comp@(tds,_) (u,v)
   =  do vs <- ifM  (addEdge tds (u,v)) 
                    (occur info comp (u,v)) 
                    (return [])
-        if  cyclesOnly info && u > v
-            then return [(u,v)]
+        if  cyclesOnly info && isSynAttr (attrTable info ! u) && isInhAttr (attrTable info ! v)
+            then return ((u,v):vs)
             else return vs
 \end{code}
 
@@ -261,12 +259,13 @@ cyclePath info graph (u,v)
      where  paths :: [[Vertex]]
             paths = [ es  | s <- tdsToTdp info ! u
                           , t <- tdsToTdp info ! v
-                          , let mes1 = spath graph t s, isJust mes1
-                          , let mes2 = spath graph s t, isJust mes2
-                          , let es1 = fromJust mes1 
-                                es2 = fromJust mes2
-                          , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es2
-                          , let es = es1 ++ es2  ]
+                          , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t)
+                          , let mes1 = spath graph s t, isJust mes1
+                          , let es1 = fromJust mes1
+                          , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es1
+                          , let mes2 = spath graph t s, isJust mes2
+                          , let es2 = fromJust mes2
+                          , let es = es2 ++ es1  ]
             comparelength :: [a] -> [b] -> Ordering
             as `comparelength` bs = length as `compare` length bs
 
@@ -386,7 +385,8 @@ computeSequential info dpr
                   IDP (comp@(tds,(tdp,_))) s2i  ->  do  tds' <- freeze tds
                                                         let cyc2 = cycles2 tds' s2i
                                                         if  not (null cyc2) 
-                                                            then  return (DirectCycle [(e,fromJust mes) | e <- cyc2, let mes = cyclePath info dp e, isJust mes])
+                                                            then let errs = [(e,fromJust mes) | e <- cyc2, let mes = cyclePath info dp e, isJust mes ]
+                                                                 in return (DirectCycle errs)
                                                             else do  tdp' <- freeze tdp
                                                                      let  (cim,cvm,edp) = getResult info tds' tdp' dpr
                                                                      mapM_ (insertTds (info{cyclesOnly = False}) comp) edp

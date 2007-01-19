@@ -35,6 +35,11 @@ isSyn cr | isLocal cr  = False
          | otherwise   = isLhs cr
 isInh = not . isSyn
 isEqualField a b = getLhsNt a == getLhsNt b && getRhsNt a == getRhsNt b && getCon a == getCon b && getField a == getField b
+isRhsOfSameCon a b = getLhsNt a == getLhsNt b && getCon a == getCon b && isRhs a && isRhs b
+
+isSynAttr (NTAInh _ _ _) = False
+isSynAttr (NTASyn _ _ _) = True
+isInhAttr = not . isSynAttr
 
 ntattr :: CRule -> Maybe NTAttr
 ntattr cr  | isLocal cr =  Nothing
