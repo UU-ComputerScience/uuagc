@@ -34,8 +34,11 @@ isSyn cr | isLocal cr  = False
          | getIsIn cr  = isRhs cr
          | otherwise   = isLhs cr
 isInh = not . isSyn
-isEqualField a b = getLhsNt a == getLhsNt b && getRhsNt a == getRhsNt b && getCon a == getCon b && getField a == getField b
-isRhsOfSameCon a b = getLhsNt a == getLhsNt b && getCon a == getCon b && isRhs a && isRhs b
+
+isEqualField      a b = isEqualCon a b && getField a == getField b
+isDifferentField  a b = isEqualCon a b && getField a /= getField b 
+isEqualCon        a b = getLhsNt a == getLhsNt b && getCon a == getCon b
+isRhsOfSameCon    a b = isEqualCon a b && isRhs a && isRhs b
 
 isSynAttr (NTAInh _ _ _) = False
 isSynAttr (NTASyn _ _ _) = True
