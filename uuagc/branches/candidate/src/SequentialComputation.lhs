@@ -247,36 +247,56 @@ directGraph info dpr
                               , isLhs (ruleTable info ! t)]
 \end{code}
 
-Now we look up the path that gave the cycle. Given the s2i-edge, we
-find the occurrences of the edge, and then find the shortest path
-through the graph from i to i via s. We only want those paths for
-which the s2i dependency is caused by this production.
+Now a path in this graph has to forfill
+
+\begin{itemize}
+
+\item It ends with a top path $es1$, which is defined as a path in dpr
+      from a rhs-syn to a rhs-inh occurrence
+
+\item It is a valid path, meaning that it exits any production it
+      enters. This is implemented by keeping a stack of entered productions
+
+\end{itemize}
 
 \begin{code}
 cyclePath :: Info -> Graph -> Edge -> Maybe [Vertex]        
 cyclePath info graph (u,v)
-  =  if null paths then Nothing else Just (minimumBy comparelength paths)
+  =  if null paths then Nothing else Just . minimumBy comparelength . filter (validPath info) $ paths {- $ -}
      where  paths :: [[Vertex]]
-            paths = [ es  | s <- tdsToTdp info ! u
-                          , t <- tdsToTdp info ! v
-                          , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t)
-                          , let mes1 = spath graph s t, isJust mes1
-                          , let es1 = fromJust mes1
-                          , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es1
-                          , let mes2 = spath graph t s, isJust mes2
-                          , let es2 = fromJust mes2
-                          , let es = es2 ++ es1  ]
+            paths =  [ es2 ++ tail es1
+                     | s <- tdsToTdp info ! u
+                     , t <- tdsToTdp info ! v
+                     , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t)
+                     , es1 <- allPaths graph s t
+                     , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es1
+                     , es2 <- allPaths graph t s
+                     ]
             comparelength :: [a] -> [b] -> Ordering
             as `comparelength` bs = length as `compare` length bs
 
-spath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
-spath graph from to 
-  =  path' [[v,from] | v <- graph ! from] []
-     where path' [] _ = Nothing
-           path' (l@(v:p):wl) prev 
-             | v == to = Just (reverse l)
-             | v `elem` prev = path' wl prev
-             | otherwise = path' (wl ++ map (:l) (graph ! v)) (v:prev)
+validPath :: Info -> [Vertex] -> Bool
+validPath info ss
+ = validPath' (init ss) []
+  where  validPath' [] [] = True
+         validPath' [] _  = False
+         validPath' (s:ss) tt
+           | isSyn s'    =  case tt of 
+                              []      -> False
+                              (t:tt)  -> isEqualField s' (ruleTable info ! t) && validPath' ss tt
+           | isLocal s'  =  validPath' ss tt
+           | otherwise   =  validPath' ss (s:tt)
+           where  s' = ruleTable info ! s
+
+-- All paths between two vertices that do not visit the same node twice
+allPaths :: Graph -> Vertex -> Vertex -> [[Vertex]]
+allPaths graph from to
+  =  path' [] [from]
+     where -- path' gives all paths with a given prefix, and a list of previously encountered nodes
+           path' prev l@(v:_)
+             |  v == to        =  [ reverse l ]
+             |  v `elem` prev  =  []
+             |  otherwise      =  concatMap (\v' -> path' (v:prev) (v':l)) (graph ! v)
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -369,9 +389,9 @@ getResult info tds tdp dpr
 
 reportCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
 reportCycle dp ss
-  = let  ds = [(s,fromJust mes)  | s <- ss
-                                 , let mes = spath dp s s
-                                 , isJust mes]
+  = let  ds = [(s,head mes)  | s <- ss
+                             , let mes = allPaths dp s s
+                             , not (null mes)]
     in if  null ds 
            then error "'Local to Local'-cycle found, but no paths" 
            else ds
