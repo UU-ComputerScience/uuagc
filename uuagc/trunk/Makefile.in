@@ -35,7 +35,7 @@ HC        = @HC@
 USER_PCKG = @USER_PCKG@
 
 # Some hardcoded settings
-AG_BINARY = ./$(BUILD_DIR)/$(SRC_DIR)/uuagc
+AG_BINARY = ./$(BUILD_DIR)/uuagc/uuagc
 CABAL_BUILD = $(CABAL_SCRIPT) build
 CABAL_CONFIGURE = $(CABAL_SCRIPT) configure $(USER_PCKG)
 # Generated after running ./Setup . May change!
