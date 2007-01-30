@@ -24,8 +24,16 @@ type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
 
 data SeqResult  = SeqResult     CInterfaceMap CVisitsMap
                 | LocLocCycle   [(Vertex,[Vertex])]
-                | DirectCycle   [(Edge,[Vertex])]
+                | DirectCycle   [(Edge,CyclePath)]
                 | InducedCycle  CInterfaceMap [Edge] 
+
+data CyclePath = Path [Vertex]
+               | Original
+               | Induced
+
+keepPath :: CyclePath -> Bool
+keepPath Induced = False
+keepPath _ = True
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)

@@ -1,8 +1,8 @@
 \begin{code}
-module SequentialComputation (
+module SequentialComputation {- (
     computeSequential, 
-) where
-
+) -} where
+import Debug.Trace
 import SequentialTypes
 import CommonTypes
 import Interfaces
@@ -260,17 +260,22 @@ Now a path in this graph has to forfill
 \end{itemize}
 
 \begin{code}
-cyclePath :: Info -> Graph -> Edge -> Maybe [Vertex]        
+cyclePath :: Info -> Graph -> Edge -> CyclePath
 cyclePath info graph (u,v)
-  =  if null paths then Nothing else Just . minimumBy comparelength . filter (validPath info) $ paths {- $ -}
+  =  case paths of
+       []  -> Induced
+       xs  -> case filter (validPath info) xs of
+                [] -> Original
+                (x:xs) -> Path x
      where  paths :: [[Vertex]]
-            paths =  [ es2 ++ tail es1
+            paths =  [ fromJust mes2 ++ tail es1
                      | s <- tdsToTdp info ! u
                      , t <- tdsToTdp info ! v
                      , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t)
-                     , es1 <- allPaths graph s t
+                     , let mes1 = spath graph s t, isJust mes1
+                     , let es1 = fromJust mes1
                      , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es1
-                     , es2 <- allPaths graph t s
+                     , let mes2 = spath graph t s, isJust mes2
                      ]
             comparelength :: [a] -> [b] -> Ordering
             as `comparelength` bs = length as `compare` length bs
@@ -288,16 +293,16 @@ validPath info ss
            | otherwise   =  validPath' ss (s:tt)
            where  s' = ruleTable info ! s
 
--- All paths between two vertices that do not visit the same node twice
-allPaths :: Graph -> Vertex -> Vertex -> [[Vertex]]
-allPaths graph from to
-  =  path' [] [from]
-     where -- path' gives all paths with a given prefix, and a list of previously encountered nodes
-           path' prev l@(v:_)
-             |  v == to        =  [ reverse l ]
-             |  v `elem` prev  =  []
-             |  otherwise      =  concatMap (\v' -> path' (v:prev) (v':l)) (graph ! v)
+spath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
+spath graph from to 
+  =  path' [[v,from] | v <- graph ! from] []
+     where path' [] _ = Nothing
+           path' (l@(v:p):wl) prev 
+             | v == to = Just (reverse l)
+             | v `elem` prev = path' wl prev
+             | otherwise = path' (wl ++ map (:l) (graph ! v)) (v:prev)
 \end{code}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interfaces}
@@ -389,9 +394,9 @@ getResult info tds tdp dpr
 
 reportCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
 reportCycle dp ss
-  = let  ds = [(s,head mes)  | s <- ss
-                             , let mes = allPaths dp s s
-                             , not (null mes)]
+  = let  ds = [(s,fromJust mes)  | s <- ss
+                                 , let mes = spath dp s s
+                                 , isJust mes]
     in if  null ds 
            then error "'Local to Local'-cycle found, but no paths" 
            else ds
@@ -405,7 +410,8 @@ computeSequential info dpr
                   IDP (comp@(tds,(tdp,_))) s2i  ->  do  tds' <- freeze tds
                                                         let cyc2 = cycles2 tds' s2i
                                                         if  not (null cyc2) 
-                                                            then let errs = [(e,fromJust mes) | e <- cyc2, let mes = cyclePath info dp e, isJust mes ]
+                                                            then let errs = [(e,mes) | e <- cyc2
+                                                                            , let mes = cyclePath info dp e, keepPath mes ]
                                                                  in return (DirectCycle errs)
                                                             else do  tdp' <- freeze tdp
                                                                      let  (cim,cvm,edp) = getResult info tds' tdp' dpr
