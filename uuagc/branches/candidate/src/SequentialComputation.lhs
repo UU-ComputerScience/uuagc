@@ -15,7 +15,7 @@ import Control.Monad.ST(ST, runST)
 import Data.Graph(Edge, Graph, Vertex, buildG)
 import Data.Array((!),bounds)
 import Data.Array.ST(STArray, newArray, readArray, writeArray, freeze)
-import Data.Maybe(fromJust,isJust)
+import Data.Maybe(listToMaybe,mapMaybe,isJust,fromJust)
 import Data.List(partition,nub,(\\),delete,minimumBy)
 \end{code}
 
@@ -228,79 +228,68 @@ cycles2 :: Graph -> [Edge] -> [Edge]
 cycles2 tds s2i = [(u,v) | (u,v) <- s2i, u `elem` tds ! v ]
 \end{code}
 
-For error reporting, we want to be able to expain where we found the
-cycle. We describe the path trough the graph that caused the cycle. Of
-course we can only describe direct dependencies, so we have to build a
-graph of those. We add edges between attributes and their occurrences
-elsewhere.
-
 \begin{code}
-directGraph :: Info -> [Edge] -> Graph
-directGraph info dpr 
-  = buildG (l,h) (dpr ++ edges)
-      where (l,h) = bounds (tdpToTds info)
-            edge s t  | isInh (ruleTable info ! s)  = (s,t)
-                      | otherwise                   = (t,s)
-            edges = [edge s t | s <- [l..h]
-                              , isRhs (ruleTable info ! s)
-                              , t <- tdsToTdp info ! (tdpToTds info ! s)
-                              , isLhs (ruleTable info ! t)]
-\end{code}
+cyclePath :: Info -> Graph -> Graph -> Edge -> Maybe [Vertex]
+cyclePath info tds dp (u,v)
+  =  let  is = [ init (fromJust lower) ++ fromJust top
+               | s <- tdsToTdp info ! u
+               , t <- tdsToTdp info ! v
+               , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t) 
+               , let top = directpath dp s t, isJust top
+               , let lower = lowerpath info tds dp [] False t s, isJust lower
+               ]
+     in if null is then Nothing else Just (head is)
+          
 
-Now a path in this graph has to forfill
+-- Returns a path between vertices
+directpath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
+directpath g s t 
+  =  path [] s
+     where  path prev s
+              | s == t = Just [t]
+              | s `elem` prev = Nothing
+              | otherwise =  listToMaybe . map (s:) . mapMaybe (path (s:prev)) $ (g ! s)
 
-\begin{itemize}
+{-
+p1      X t
+        |  
+      s Y fs
 
-\item It ends with a top path $es1$, which is defined as a path in dpr
-      from a rhs-syn to a rhs-inh occurrence
+TDS  s' Y fs'
+-}
 
-\item It is a valid path, meaning that it exits any production it
-      enters. This is implemented by keeping a stack of entered productions
+-- Returns a path between an inherited and a synthesized rhs vertex
+lowerpath :: Info -> Graph -> Graph -> [Vertex] -> Bool -> Vertex -> Vertex -> Maybe [Vertex]
+lowerpath info tds dp prev allowlhs s t
+  =  path prev s
+     where  path prev s
+              | s == t = Just [t]
+              | s `elem` prev = Nothing
+              | getIsIn srule || isLocal srule = listToMaybe . map (s:) . mapMaybe (path (s:prev)) $ (dp ! s)
+              | isLhs srule = Nothing
+              | otherwise = let  s' = tdpToTds info ! s
+                                 fs' = filter (isSynAttr . (attrTable info !)) (tds ! s')
+                                 fs = filter eq (concatMap (tdsToTdp info !) fs')
+                                 rest = mapMaybe (path (s:prev)) fs
+                                 result = [ s:(fromJust bot ++ es)
+                                          | es@(f:_) <-  rest
+                                          , let  f' = tdpToTds info ! f
+                                                 bot = i2spath info tds dp (es ++ prev) s' f' 
+                                          , isJust bot ]
+                            in if null result then Nothing else Just (head result)
+              where srule = ruleTable info ! s
+                    eq t = isEqualField srule (ruleTable info ! t)
 
-\end{itemize}
-
-\begin{code}
-cyclePath :: Info -> Graph -> Edge -> CyclePath
-cyclePath info graph (u,v)
-  =  case paths of
-       []  -> Induced
-       xs  -> case filter (validPath info) xs of
-                [] -> Original
-                (x:xs) -> Path x
-     where  paths :: [[Vertex]]
-            paths =  [ fromJust mes2 ++ tail es1
-                     | s <- tdsToTdp info ! u
-                     , t <- tdsToTdp info ! v
-                     , isRhsOfSameCon (ruleTable info ! s) (ruleTable info ! t)
-                     , let mes1 = spath graph s t, isJust mes1
-                     , let es1 = fromJust mes1
-                     , all (\a -> a == s || a == t || isLocal (ruleTable info ! a)) es1
-                     , let mes2 = spath graph t s, isJust mes2
-                     ]
-            comparelength :: [a] -> [b] -> Ordering
-            as `comparelength` bs = length as `compare` length bs
-
-validPath :: Info -> [Vertex] -> Bool
-validPath info ss
- = validPath' (init ss) []
-  where  validPath' [] [] = True
-         validPath' [] _  = False
-         validPath' (s:ss) tt
-           | isSyn s'    =  case tt of 
-                              []      -> False
-                              (t:tt)  -> isEqualField s' (ruleTable info ! t) && validPath' ss tt
-           | isLocal s'  =  validPath' ss tt
-           | otherwise   =  validPath' ss (s:tt)
-           where  s' = ruleTable info ! s
-
-spath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
-spath graph from to 
-  =  path' [[v,from] | v <- graph ! from] []
-     where path' [] _ = Nothing
-           path' (l@(v:p):wl) prev 
-             | v == to = Just (reverse l)
-             | v `elem` prev = path' wl prev
-             | otherwise = path' (wl ++ map (:l) (graph ! v)) (v:prev)
+-- Assuming a inh to syn dependency in TDS, return a path
+i2spath :: Info -> Graph -> Graph -> [Vertex] -> Vertex -> Vertex -> Maybe [Vertex]
+i2spath info tds dp prev u v 
+  =  let  es = [ (s,t)
+               | s <- tdsToTdp info ! u, let s' = ruleTable info ! s
+               , t <- tdsToTdp info ! v, let t' = ruleTable info ! t
+               , not (s `elem` prev)
+               , isLhs s', isLhs t', isEqualField s' t' ]
+          paths = mapMaybe (\(s,t) -> lowerpath info tds dp prev True s t) es
+     in if null paths then Nothing else Just (head paths)
 \end{code}
 
 
@@ -394,24 +383,34 @@ getResult info tds tdp dpr
 
 reportCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
 reportCycle dp ss
-  = let  ds = [(s,fromJust mes)  | s <- ss
-                                 , let mes = spath dp s s
-                                 , isJust mes]
+  = let  ds = [(s,fromJust mes)  
+              | s <- ss
+              , let mes = spath dp s s, isJust mes ]
     in if  null ds 
            then error "'Local to Local'-cycle found, but no paths" 
            else ds
 
+spath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
+spath graph from to 
+  =  path' [[v,from] | v <- graph ! from] []
+     where path' [] _ = Nothing
+           path' (l@(v:p):wl) prev 
+             | v == to = Just (reverse l)
+             | v `elem` prev = path' wl prev
+             | otherwise = path' (wl ++ map (:l) (graph ! v)) (v:prev)
+
 computeSequential :: Info -> [Edge] -> SeqResult
 computeSequential info dpr
-  = runST  (do  let dp = directGraph info dpr
+  = runST  (do  let dp = buildG (bounds (tdpToTds info)) dpr
                 init <- tdsTdp (info{cyclesOnly = True}) dpr
                 case init of
                   LLCycle ss -> return (LocLocCycle (reportCycle dp ss))
                   IDP (comp@(tds,(tdp,_))) s2i  ->  do  tds' <- freeze tds
                                                         let cyc2 = cycles2 tds' s2i
                                                         if  not (null cyc2) 
-                                                            then let errs = [(e,mes) | e <- cyc2
-                                                                            , let mes = cyclePath info dp e, keepPath mes ]
+                                                            then let errs = [(e,fromJust mes) 
+                                                                            | e <- cyc2
+                                                                            , let mes = cyclePath info tds' dp e, isJust mes ]
                                                                  in return (DirectCycle errs)
                                                             else do  tdp' <- freeze tdp
                                                                      let  (cim,cvm,edp) = getResult info tds' tdp' dpr

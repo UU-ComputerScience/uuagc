@@ -393,11 +393,11 @@ swap (a,b) = (b,a)
 
 showPath :: Table CRule -> [Vertex] -> [String]
 showPath ruleTable path
-  =  let  look a | inRange (bounds ruleTable) a = [ruleTable ! a]
+  =  let  look a | inRange (bounds ruleTable) a = [showOrigin (ruleTable ! a)]
                  | otherwise = []
           showOrigin cr  | getHasCode cr && getName (getAttr cr) /= "self" = prettyCRule cr ++ " (" ++ show (getPos (getAttr cr)) ++ ")"
                          | otherwise = prettyCRule cr
-     in map showOrigin (concatMap look path)
+     in concatMap look path
 
 loclocCycleErr :: Table CRule -> Bool -> (Vertex,[Vertex]) -> Error
 loclocCycleErr ruleTable o_visit (s,path)
@@ -407,13 +407,11 @@ loclocCycleErr ruleTable o_visit (s,path)
          con = getCon cr
      in LocLocCirc nt con attr o_visit (showPath ruleTable path)
 
-directCycleErr :: Table NTAttr -> Table CRule -> Bool -> (Edge,CyclePath) -> Error
+directCycleErr :: Table NTAttr -> Table CRule -> Bool -> (Edge,[Vertex]) -> Error
 directCycleErr attrTable ruleTable o_visit ((v1,v2), cp)
   = let (NTASyn nt a1 _) = attrTable ! v1
         (NTAInh _  a2 _) = attrTable ! v2
-        path = case cp of
-                Path p    -> showPath ruleTable p
-                Original  -> ["No more information available"]
+        path = showPath ruleTable cp
     in DirectCirc nt a2 a1 o_visit path
 
 inducedCycleErr :: Table NTAttr -> CInterfaceMap -> Edge -> Error

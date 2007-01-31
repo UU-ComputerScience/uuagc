@@ -34,6 +34,7 @@ isSyn cr | isLocal cr  = False
          | getIsIn cr  = isRhs cr
          | otherwise   = isLhs cr
 isInh = not . isSyn
+hasCode cr = isLocal cr || (isLhs cr && isInh cr) || (isRhs cr && isSyn cr)
 
 isEqualField      a b = isEqualCon a b && getField a == getField b
 isDifferentField  a b = isEqualCon a b && getField a /= getField b 
@@ -103,9 +104,9 @@ rhsshow field (NTASyn _ attr _) = attrname True field attr
 prettyCRule :: CRule -> String
 prettyCRule cr 
    =  let descr | isLocal cr = "local attribute " ++ show (getAttr cr)
-                | otherwise =  (if isLhs cr then "lhs " else "")
-                               ++ (if isSyn cr then "synthesized " else "inherited ")
+                | otherwise =     (if isSyn cr then "synthesized " else "inherited ")
                                ++ "attribute "
+                               ++ (if isRhs cr then show (getField cr) ++ "." else "")
+                               ++ (if isLhs cr then "lhs." else "")
                                ++ (show (getAttr cr))
-                               ++ (if isRhs cr then " of child " ++ show (getField cr) else "")
       in show (getLhsNt cr) ++ "." ++ show (getCon cr) ++ ", " ++ descr 
