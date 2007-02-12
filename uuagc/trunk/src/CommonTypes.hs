@@ -1,15 +1,18 @@
-
 module CommonTypes where
 
-import UU.Pretty
-import UU.Scanner.Position
+import UU.Pretty (PP,text,pp)
+import UU.Scanner.Position(Pos,noPos)
 import UU.DData.Map(Map)
 import UU.DData.Set(Set)
 
 
+type Blocks = Map String [String]
+
 data Identifier  = Ident {getName::String , getPos::Pos}
+
 instance Eq Identifier where
  Ident x _ == Ident y _ = x == y
+
 instance Ord Identifier where 
  compare (Ident x _) (Ident y _) = compare x y
 
@@ -21,6 +24,7 @@ instance PP Identifier where
 
 data Type = Haskell String
           | NT Name
+
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
                  | Maybe Type
@@ -36,8 +40,8 @@ instance Eq Type where
 type Attributes  = Map Name Type
 type TypeSyns    = [(Nonterminal,ComplexType)]
 
-type AttrNames   = [(Name,Type,(String,String))]
-type UseMap      = Map Nonterminal (Map Name (String,String))
+type AttrNames   = [(Name,Type,(String,String,String))]
+type UseMap      = Map Nonterminal (Map Name (String,String,String))
 type Fields      = [(Name,Type)]
 type Derivings   = Map Nonterminal (Set Name)
 type Strings     = [String]
@@ -48,12 +52,12 @@ type Constructor = Name
 type AttrEnv = ( [Name]
                , [(Name,Name)]
                )
+
 identifier x   = Ident x noPos               
 nullIdent = identifier ""
 _LHS  = identifier "lhs" 
 _SELF = identifier "SELF" 
 _LOC  = identifier "loc" 
-
 
 sdtype :: Nonterminal -> String
 sdtype nt = "T_"++getName nt
@@ -84,3 +88,6 @@ typeToString :: Nonterminal -> Type -> String
 typeToString _ (Haskell t)  = t
 typeToString nt (NT t   ) | t == _SELF = getName nt
                           | otherwise  = getName t
+
+ind :: String -> String
+ind s = replicate 3 ' ' ++ s

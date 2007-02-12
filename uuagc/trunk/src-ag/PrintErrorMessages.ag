@@ -1,17 +1,28 @@
-
 INCLUDE "ErrorMessages.ag"
 
 imports
 {
-import ErrorMessages
 import UU.Pretty
-import CommonTypes
 import UU.Scanner.Position(Pos(..), noPos)
+import ErrorMessages
 import DepTypes
+import Options (Options,verbose)
+import Data.List(mapAccumL,intersect,(\\))
+import GrammarInfo
 }
 
-ATTR Error  [               | | pp  :{PP_Doc} isWarning:{Bool} ]
-ATTR Error  [ verbose:{Bool}| |              ]
+ATTR Error   [ verbose:{Bool}    | | pp                             :{PP_Doc} 
+                                     isWarning                      :{Bool} 
+             ]
+
+ATTR Errors  [ options:{Options} | | pp         USE {>-<} {text ""} : {PP_Doc} 
+                                     isWarning  USE {&&}  {True}    : {Bool} 
+             ]
+
+SEM Errors
+  | *  loc.verbose = verbose @lhs.options 
+
+
 
 SEM Error
   | DupAlt          loc.isWarning = True 
@@ -39,7 +50,7 @@ SEM Error
 
   | DupSynonym      loc.isWarning = True 
                     lhs.pp = let mesg  = wfill ["Definition of type synonym", getName @nt, "clashes with another"
-                                               ,"type synonym or a data definition."
+                                               ,"type synonym."
                                                ] >-<
                                          wfill ["First definition:", (showPos @occ1),"."] >-<
                                          wfill ["Type synonym :"   , (showPos @nt),"."]
@@ -47,7 +58,7 @@ SEM Error
                                        >-< indent 2 ("|" >#< "...")
                                        >-< "TYPE" >#< getName @nt >#< "=" >#<  "..."
                                  help =  wfill ["A type synonym with name", getName  @nt
-                                               ,"has been given while there already is a DATA or TYPE"
+                                               ,"has been given while there already is TYPE"
                                                ,"definition with the same name."
                                                ,"You should either rename or remove the type synonym."
                                                ]
@@ -149,10 +160,27 @@ SEM Error
                                  act  = wfill ["The last rule given is considered valid. All others have been discarded."]
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
+  | DupSig          loc.isWarning = False
+                    lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more typesignatures for"
+                                               ,showAttrDef _LOC @attr,"."
+                                               ]  >-<
+                                         wfill ["First signature:", (showPos @attr),"."]
+
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< "= ...")
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< "= ...")
+
+                                 help =  wfill ["In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", there is more than one rule for the" , showAttrDef _LOC @attr
+                                                       ,". You should remove enough of them to make all typesignatures for alternative"
+                                                       ,getName @con , "of nonterminal " ,getName  @nt , "unique."
+                                                       ]
+                                 act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
   | UndefNont       loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "is not defined."
-                                               ]  >-<
-                                         wfill ["Location:", showPos @nt,"."]
+                                               ] 
                                  pat   = "DATA" >#< getName @nt >#< "..."
 
                                  help =  wfill ["There are attributes and/or rules for nonterminal" , getName @nt  ,", but there is no definition"
@@ -163,8 +191,7 @@ SEM Error
 
   | UndefAlt        loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt, "is  not defined."
-                                               ]  >-<
-                                         wfill ["Location:", (showPos @con),"."]
+                                               ] 
                                  pat   =   "DATA" >#< getName @nt
                                        >-< indent 2 ("|" >#< getName @con >#< "...")
 
@@ -177,16 +204,16 @@ SEM Error
 
   | UndefChild      loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt
-                                               , "does not have a field named", getName @name , "."
-                                               ]  >-<
-                                         wfill ["Location:", showPos @name,"."]
+                                               , "does not have a nontrivial field named", getName @name , "."
+                                               ]  
                                  pat   =   "SEM" >#< @nt
                                        >-< indent 2 ("|" >#< getName @con >#< ppAttr @name (identifier "<attr>") >#< "= ...")
 
                                  help =  wfill ["There are rules that define or use attributes of field" , getName @name
                                                        ,"in alternative" , getName @con , "of nonterminal" , getName @nt
-                                                       ,", but this field does not exist in the definition of the alternative."
-                                                       ,"Maybe you misspelled it? Otherwise insert the field into the definition."
+                                                       ,", but there is no field with AG-type in the definition of the alternative."
+                                                       ,"Maybe you misspelled it? Otherwise insert the field into the definition,"
+                                                       ,"or change its type from an HS-type to an AG-type."
                                                        ]
                                  act  = wfill ["All rules for the unknown field have been ignored."]
                              in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose
@@ -194,8 +221,7 @@ SEM Error
   | MissingRule     loc.isWarning      = True
                     lhs.pp = let mesg  = wfill ["Missing rule for", showAttrDef @field @attr , "in alternative"
                                                , getName @con , "of nonterminal",getName @nt ,"."
-                                               ]>-<
-                                         wfill ["Location:", (showPos @attr),"."]
+                                               ]
                                  pat   =   "SEM" >#< @nt
                                        >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
 
@@ -209,8 +235,7 @@ SEM Error
   | SuperfluousRule loc.isWarning      = True
                     lhs.pp = let mesg  = wfill ["Rule for non-existing", showAttrDef @field @attr , "at alternative"
                                                , getName @con , "of nonterminal",getName @nt, "."
-                                               ]  >-<
-                                         wfill ["Location:", (showPos @attr),"."]
+                                               ]
                                  pat   =   "SEM" >#< getName @nt
                                        >-< indent 2 ("|" >#< getName @con >#< ppAttr @field @attr >#< "= ...")
 
@@ -225,8 +250,7 @@ SEM Error
   | UndefLocal      loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Undefined local variable or field",getName @var, "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
-                                               ]  >-<
-                                         wfill ["Location:", (showPos @var),"."]
+                                               ]  
                                  pat   = "SEM" >#< getName @nt
                                        >-< indent 2 ("|" >#< getName @con >#< "<field>.<attr> = "
                                                          >#< "..." >#< "@" >|< getName @var >#< "..." )
@@ -239,11 +263,25 @@ SEM Error
                                  act  = wfill ["The generated program will not run."]
                              in ppError @isWarning (getPos @var) mesg pat help act @lhs.verbose
 
+  | ChildAsLocal    loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Nontrivial field ",getName @var, "is used as local at constructor"
+                                               , getName @con , "of nonterminal",getName @nt, "."
+                                               ]  
+                                 pat   = "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< "... = "
+                                                         >#< "..." >#< "@" >|< getName @var >#< "..." )
+
+                                 help =  wfill ["A rule in the definitions for alternative" , getName @con ,"of nonterminal"
+                                               , getName @nt , "contains a nontrivial field name", getName @var, "."
+                                               ,"You should use @", getName @var, ".self instead, where self is a SELF-attribute."
+                                               ]
+                                 act  = wfill ["The generated program probably contains a type error or has undefined variables."]
+                             in ppError @isWarning (getPos @var) mesg pat help act @lhs.verbose
+
   | UndefAttr       loc.isWarning      = False
                     lhs.pp = let mesg  = wfill ["Undefined", showAttrUse @field @attr, "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
-                                               ]  >-<
-                                         wfill ["Location:", (showPos @attr),"."]
+                                               ] 
                                  pat   = "SEM" >#< getName @nt
                                        >-< indent 2 ("|" >#< getName @con >#< "<field>.<attr> = "
                                                          >#< "..." >#< ppAttrUse @field @attr >#< "...")
@@ -257,8 +295,7 @@ SEM Error
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
   | CyclicSet       loc.isWarning      = False
-                    lhs.pp = let mesg  = wfill ["Cyclic definition for nonterminal set", getName @name]  >-<
-                                         wfill ["Location:", (showPos @name),"."]
+                    lhs.pp = let mesg  = wfill ["Cyclic definition for nonterminal set", getName @name]  
                                  pat   = "SET" >#< getName @name >#< "=" >#< "..." >#< getName @name >#< "..." 
                                  help =  wfill ["The defintion for a nonterminal set named" , getName @name 
                                                ,"directly or indirectly refers to itself."
@@ -266,23 +303,62 @@ SEM Error
                                                ]
                                  act  = wfill ["The nonterminal set", getName @name, "is considered to be empty."]
                              in ppError @isWarning (getPos @name) mesg pat help act @lhs.verbose
+                             
   | CustomError     lhs.pp = let pat   =  text "unknown"
                                  help = wfill ["not available."]
                                  act  = wfill ["unknown"]
                              in ppError @isWarning @pos @mesg pat help act False
-
                     lhs . isWarning = @isWarning
- | CircGrammar      loc.isWarning      = True
+
+ | LocLocCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Circular dependency pattern for local attribute", getName @attr
+                                               , "of alternative", getName @con, "of nonterminal", getName @nt]
+                                 pat   = text "see help"
+                                 help  = vlist ("The following attributes formed the cycle:": @path)
+                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
+                                       | otherwise = text "The generated program might not run."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
+ | DirectCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
                                                                         else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
-                                         in wfill ["Circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
+                                         in wfill ["Direct circular dependency pattern for", attrtext, "of nonterminal", getName @nt]
                                  pat   = text "see help"
-                                 help  = wfill [@nt +.+ @syn, "<", @nt +.+ @inh, ":"]
-                                         >-< ppTrace @isTrace
-                                         >-< wfill [@nt +.+ @inh, "<", @nt +.+ @syn, ":"]
-                                         >-< ppTrace @siTrace
-                                 act   = text "The generated program might not run."
+                                 help  = vlist ("The following attributes formed the cycle:": @path)
+                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
+                                       | otherwise = text "The generated program might not run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
+                             
+  | ParserError     loc.isWarning      = True
+                    lhs.pp = let mesg = text ("parser expecting " ++ @problem)
+                                 pat  = text ""
+                                 help = text ""
+                                 act  = text @action
+                              in ppError @isWarning @pos mesg pat help act @lhs.verbose
+                             
+ | InducedCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
+                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
+                                         in wfill ["Induced circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
+                                 pat   = text "see help"
+                                 showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (i+1,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
+                                 help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
+                                 act   = text "Generation of visit functions failed."
+                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
+ | MissingTypeSig   loc.isWarning      = True
+                    lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC @attr , "in alternative"
+                                               , getName @con , "of nonterminal",getName @nt ,"."
+                                               ]>-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   =   "SEM" >#< @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< ": ...")
+                                 help  = wfill ["The", showAttrDef _LOC @attr, "in alternative", getName @con
+                                               ,"of nonterminal", getName @nt, "is needed in two separate visits to", getName @nt
+                                               ,"so its type is needed to generate type signatures."
+                                               ,"Please supply its type."
+                                               ]
+                                 act  = wfill ["The type signatures of semantic functions are not generated."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
 {
 ppTrace :: Trace -> PP_Doc
 ppTrace (tr:rest) = wfill [showLineNr (lineNr tr) ++ ":", "SEM", getName (nt tr), "|", getName (prod tr)
@@ -341,17 +417,21 @@ ppError isWarning pos mesg pat hlp act verbose
   = let 
       cl = if isWarning then "warning" else "error"
       position   = case pos of
-                         (Pos l c f) | l >= 0    -> f >|< ":" >|< show l >|< "," >|< show c
+                         (Pos l c f) | l >= 0    -> f >|< ": line " >|< show l >|< ", column " >|< show c
                                      | otherwise -> empty
-      errorClass = "*** UU.AG" >#< cl >#< "***"
-      message    = "ERROR    :" >#< mesg
+      header     = "*** UU.AG" >#< cl >#< position >#< "***"
+      message    = "problem  :" >#< mesg
       pattern    = "pattern  :" >#< pat
       help       = "help     :" >#< hlp
       action     = "action   :" >#< act
     in
       if verbose
-         then vlist [position,errorClass,message,pattern,help,action]
-         else vlist [position, errorClass,message]
+         then vlist [text "",header,message,pattern,help,action]
+         else vlist [text "",header,message]
 
 showPos = show . getPos
+
+ppInterface inter = wfill ["interface:", show inter]
+
 }
+

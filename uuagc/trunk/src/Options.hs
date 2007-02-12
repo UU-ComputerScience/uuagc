@@ -1,4 +1,3 @@
-
 module Options where
 
 import System.Console.GetOpt
@@ -12,7 +11,7 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option ['s']     ["signatures"] (NoArg signaturesOpt)       "generate signatures for semantic functions"
                , Option []        ["newtypes"]   (NoArg newtypesOpt)         "use newtypes instead of type synonyms"
                , Option ['p']     ["pretty"]     (NoArg prettyOpt)           "generate pretty printed list of attributes"
-               , Option ['w']     ["wrappers"]   (NoArg wrappersOpt)          "generate wappers for semantic domains"
+               , Option ['w']     ["wrappers"]   (NoArg wrappersOpt)         "generate wappers for semantic domains"
                , Option ['r']     ["rename"]     (NoArg renameOpt)           "rename data constructors"
                , Option []        ["modcopy"]    (NoArg modcopyOpt)          "use modified copy rule"
                , Option []        ["nest"]       (NoArg nestOpt)             "use nested tuples"
@@ -24,13 +23,17 @@ options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "ge
                , Option ['P']     [""]           (ReqArg searchPathOpt "search path") ("specify seach path")
                , Option []        ["prefix"]     (ReqArg prefixOpt "prefix") "set prefix for semantic functions"
                , Option []        ["self"]       (NoArg selfOpt)             "generate self attribute"
-               , Option []        ["cycle"]       (NoArg cycleOpt)           "check for cyclic definitions"
+               , Option []        ["cycle"]      (NoArg cycleOpt)            "check for cyclic definitions"
                , Option []        ["version"]    (NoArg versionOpt)          "get version information"
+               , Option ['O']     ["optimize"]   (NoArg optimizeOpt)         "optimize generated code (--visit --case)"
+               , Option []        ["visit"]      (NoArg visitOpt)            "try generating visit functions"
+               , Option []        ["seq"]        (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
+               , Option []        ["unbox"]      (NoArg unboxOpt)            "use unboxed tuples"
+               , Option []        ["case"]       (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
+               , Option []        ["Werrors"]    (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                ]
 
 allc = "dcfsprm"
-
-
 
 data Options = Options{ moduleName :: ModuleHeader 
                       , dataTypes :: Bool
@@ -52,6 +55,11 @@ data Options = Options{ moduleName :: ModuleHeader
                       , withCycle :: Bool
                       , showHelp :: Bool
                       , showVersion :: Bool
+                      , visit :: Bool
+                      , withSeq :: Bool
+                      , unbox :: Bool
+                      , cases :: Bool
+                      , werrors :: Bool
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
@@ -72,7 +80,12 @@ noOptions = Options { moduleName   = NoName
                     , showVersion  = False
                     , prefix       = "sem_"
                     , withSelf     = False
-                    , withCycle     = False
+                    , withCycle    = False
+                    , visit        = False
+                    , withSeq      = False
+                    , unbox        = False
+                    , cases        = False
+                    , werrors      = False
                     }
 
 
@@ -83,7 +96,7 @@ semfunsOpt    opts = opts{semfuns      = True}
 signaturesOpt opts = opts{typeSigs     = True}            
 prettyOpt     opts = opts{attrInfo     = True}            
 renameOpt     opts = opts{rename       = True}
-wrappersOpt   opts = opts{wrappers    = True}
+wrappersOpt   opts = opts{wrappers     = True}
 modcopyOpt    opts = opts{modcopy      = True}
 newtypesOpt   opts = opts{newtypes     = True}
 nestOpt       opts = opts{nest         = True}
@@ -92,14 +105,20 @@ verboseOpt    opts = opts{verbose      = True}
 helpOpt       opts = opts{showHelp     = True}            
 versionOpt    opts = opts{showVersion  = True}            
 prefixOpt pre opts = opts{prefix       = pre }            
-selfOpt       opts = opts{withSelf     = True }            
-cycleOpt      opts = opts{withCycle    = True }            
+selfOpt       opts = opts{withSelf     = True}            
+cycleOpt      opts = opts{withCycle    = True}            
+visitOpt      opts = opts{visit        = True, withCycle = True}
+seqOpt        opts = opts{withSeq      = True}
+unboxOpt      opts = opts{unbox        = True}
+casesOpt      opts = opts{cases        = True}
+werrorsOpt    opts = opts{werrors      = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
+optimizeOpt   = visitOpt . casesOpt
 
 getOptions args = let (flags,files,errors) = getOpt Permute options args
                   in (foldl (flip ($)) noOptions flags,files,errors)

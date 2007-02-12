@@ -1,8 +1,8 @@
-
 --generate code for syntax macros
 --use option sm
 imports
 {
+-- GenerateCodeSM.ag imports
 import List(nub)
 import Char
 }
@@ -152,7 +152,10 @@ mkExistList nm vals = (nm ++ " =")
 -------------------------------------------------------------------------------
 ATTR Children Child [o_rename:{Bool}||]
 
-ATTR Grammar [|| smdynlists : {([String], [String])}]
+--ATTR Grammar [|| smimports, smdynlists : {[String]}]
+ATTR Grammar [|| blocks : {Blocks}]
+
+
 SEM Grammar
   | Grammar    loc.smPrimTypes = nub (unittp : @prods.smPrimTypes)
                   .smUnitDecl  = [Code.Type unittp (SimpleType unit)]
@@ -199,34 +202,42 @@ SEM Grammar
                loc.smDefinitions = @loc.constructors ++ @loc.compDyns ++ @loc.inputDyns
                                              ++ @loc.selDyns ++ @loc.selDynVals ++ @loc.dynSemFuns
                                              ++ @loc.dynInsFuns
-               lhs.smdynlists = if   smacro @lhs.options
-                                then (@loc.imports, @loc.smTypeReps ++ @loc.smDefinitions)
-                                else ([],[])
+               
+               lhs.blocks = if smacro @lhs.options
+                             then Map.insert "imports" @loc.imports (Map.single "dynlists" (@loc.smTypeReps ++ @loc.smDefinitions))
+                             else Map.empty
+               
+               
+               
+               
 
-ATTR Productions [ | | smdecls USE {++} {[]} : {Decls} smPrimTypes USE {++} {[]} : {[String]}
-                                                       smTypeCons USE {++} {[]} : {[String]}
-                                                       smTypeConsTop USE {++} {[]} : {[String]}
-                                                       smConstructors USE {++} {[]} : {[(String,(String,[String]))]}
-                                                       smCompDyns USE {++} {[]} : {[(String,(String,[String]))]}
-                                                       smInputDyns USE {++} {[]} : {[(String,(String,String))]}
-                                                       smDynSels USE {++} {[]}: {[(String,(String,String,[String]))]}
-                                                       smSelDynVals USE {++} {[]} : {[(String,(String,[String]))]}
-                                                       smDynSemFuns USE {++} {[]} : {[(String,(String,[String]))]}
-                                                       smInsDynsFuns USE {++} {[]} : {[(String, (String,Code.Type))]}
-                                                       nrChildren : {Int}
-                                                       ]
-ATTR Production  [ | | smdecls : {Decls} smPrimTypes : {[String]}
-                                         smTypeCons : {[String]}
-                                         smTypeConsTop :{[String]}
-                                         smConstructors : {[(String,(String,[String]))]}
-                                         smCompDyns : {[(String,(String,[String]))]}
-                                         smInputDyns : {[(String,(String,String))]}
-                                         smDynSels : {[(String,(String,String,[String]))]}
-                                         smSelDynVals : {[(String,(String,[String]))]}
-                                         smDynSemFuns : {[(String,(String,[String]))]}
-                                         smInsDynsFuns : {[(String, (String,Code.Type))]}
-                                         nrChildren : {Int}
-                                         ]
+ATTR Productions [ | | smdecls USE {++} {[]} : {Decls} 
+                       smPrimTypes USE {++} {[]} : {[String]}
+                       smTypeCons USE {++} {[]} : {[String]}
+                       smTypeConsTop USE {++} {[]} : {[String]}
+                       smConstructors USE {++} {[]} : {[(String,(String,[String]))]}
+                       smCompDyns USE {++} {[]} : {[(String,(String,[String]))]}
+                       smInputDyns USE {++} {[]} : {[(String,(String,String))]}
+                       smDynSels USE {++} {[]}: {[(String,(String,String,[String]))]}
+                       smSelDynVals USE {++} {[]} : {[(String,(String,[String]))]}
+                       smDynSemFuns USE {++} {[]} : {[(String,(String,[String]))]}
+                       smInsDynsFuns USE {++} {[]} : {[(String, (String,Code.Type))]}
+                       nrChildren : {Int}
+                 ]
+                 
+ATTR Production  [ | | smdecls : {Decls} 
+                       smPrimTypes : {[String]}
+                       smTypeCons : {[String]}
+                       smTypeConsTop :{[String]}
+                       smConstructors : {[(String,(String,[String]))]}
+                       smCompDyns : {[(String,(String,[String]))]}
+                       smInputDyns : {[(String,(String,String))]}
+                       smDynSels : {[(String,(String,String,[String]))]}
+                       smSelDynVals : {[(String,(String,[String]))]}
+                       smDynSemFuns : {[(String,(String,[String]))]}
+                       smInsDynsFuns : {[(String, (String,Code.Type))]}
+                       nrChildren : {Int}
+                 ]
 
 SEM Productions
   | Cons lhs.nrChildren = @hd.nrChildren `max` @tl.nrChildren
@@ -396,27 +407,8 @@ ATTR Rules [ | | decls' USE {++}{[]}: {Decls}]
   
 SEM Rule  [ | | decls' : {Decls}]
   | Rule lhs.decls'  = (if @lhs.o_pretty then (Comment @origin:) else id) {- generate origin comment -}
-                        [Decl (Pattern @pattern.pp') (PP @rhs.pp)]
--------------------------------------------------------------------------------
---         Pretty printing patterns
--------------------------------------------------------------------------------
-
-SEM Patterns [ | | pps' : {[PP_Doc]} ]
-  | Cons lhs.pps' = @hd.pp' : @tl.pps'
-  | Nil  lhs.pps' = []
-
-SEM Pattern [ | | pp':PP_Doc ]
-  | Constr  lhs.pp'     = pp_parens $ @name >#< hv (map pp_parens @pats.pps')
-  | Product lhs.pp'     = pp_block "(" ")" "," @pats.pps'
-  | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
-                                        | otherwise                             = attrname False @field @attr
-                          in attribute >|< "@" >|< @pat.pp'
-  | Underscore lhs.pp'  = text "_"
-  
-
-{
-locname' n = "_loc_" ++ getName n
-}
+                        [Decl (Pattern3SM @pattern.copy) (TextExpr @rhs.textLines)]
+                        
   
 SEM Alternative
   | Alternative lhs.smSemFun = @smTpSigs++[@loc.smCompTpSig, @smComputation]

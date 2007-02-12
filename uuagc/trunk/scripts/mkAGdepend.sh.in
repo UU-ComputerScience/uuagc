@@ -28,7 +28,7 @@ calcdeps () {
 for file in ${*/#/$presource}; do
 
     dpre=$(dirname ${file})
-    dpost=${pretarget}${file#${presource}} # hacked 05.01.2003
+    dpost=${pretarget}$(basename $file) # hacked 05.01.2003
     target=$(echo ${dpost} | ${SED} -e 's/l\?ag$/hs/g') # was file 05.01.2003
 #    etarget=$(echo ${target} | ${SED} -e 's/\//\\\//g')
 #    epath=$(echo ${dpre} | ${SED} -e 's/\//\\\//g')

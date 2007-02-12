@@ -1,0 +1,12 @@
+-- an althernative Drie is added to multiple datatypes, without even defining them as a set
+-- in v.0.9.1 this is a syntax error: a DATA-definition requires a single nonterminal
+-- in v.0.9.3 it is allowed
+
+DATA Aap
+	| Een  a : {Int}
+
+DATA Noot
+	| Twee b : {Int}
+	
+DATA Aap Noot
+	| Drie c : {Int}
