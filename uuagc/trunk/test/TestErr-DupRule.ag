@@ -1,0 +1,13 @@
+-- attribute y is defined twice
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ | | y : {Int} ]
+
+SEM Aap
+	| Een lhs.y = 3
+
+SEM Aap
+	| Een lhs.y = 4
+	

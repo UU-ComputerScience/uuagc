@@ -1,0 +1,15 @@
+-- Version 118 would erroneously report the cycle through X and not through Y
+DATA X | X l:Z r:Z
+DATA Y | Y Z
+DATA Z | Z
+
+ATTR * [ | i : Int | ]
+
+SEM  X
+  |  X  l    .  i   =  @r.i
+        r    .  i   =  1
+        lhs  .  i   =  1
+
+SEM  Y
+  |  Y  loc  .  l1  =  @z.i
+        z    .  i   =  @loc.l1

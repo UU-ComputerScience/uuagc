@@ -43,6 +43,7 @@ AC_PATH_PROG(RANLIB,ranlib)
 AC_PATH_PROG(LD,ld)
 AC_PATH_PROG(GREP,grep)
 AC_PATH_PROG(CHMOD,chmod)
+AC_PATH_PROG(LHS2TEX,lhs2TeX)
 
 # Install program
 AC_PROG_INSTALL
@@ -122,5 +123,5 @@ AC_SUBST(FULLVERSION)
 AC_SUBST(VERSION)
 
 
-AC_OUTPUT(Makefile uuagc.cabal scripts/mkAGdepend.sh src/Ag.hs)
+AC_OUTPUT(Makefile uuagc.cabal scripts/mkAGdepend.sh src/Version.hs)
 ${CHMOD} ugo+x scripts/mkAGdepend.sh

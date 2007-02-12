@@ -1,38 +1,46 @@
+INCLUDE "HsToken.ag"
 
 imports
 {
+import Char(isPrint,ord)
+import UU.DData.Seq as Seq(Seq,empty,single,(<>),toList)
+import UU.Scanner.Position(Pos(Pos),line,column)
+import UU.Pretty
+
 import HsToken
 import ErrorMessages
-import CommonTypes
-import UU.Pretty
-import UU.Scanner.Position
-import List
-import Char
-import UU.DData.Seq as Seq
 }
 
-INCLUDE "HsToken.ag"
-
 ATTR HsTokensRoot
-     [ nt,con    :{Identifier}
-       fieldnames    :{[Identifier]}
-       attrs     :{[(Identifier,Identifier)]}
+     [ 
      | | 
        errors    USE {Seq.<>} {Seq.empty}:{Seq Error}
        usedLocals:{[Identifier]}
        usedAttrs :{[(Identifier,Identifier)]}
-       pp        :{PP_Doc}
+       textLines  :{[String]}
+       usedFields:{[Identifier]}
      ]
+
+-------------------------------------------------------------------------------
+--  Context information
+-------------------------------------------------------------------------------
+ATTR HsTokensRoot
+     HsTokens HsToken [ nt,con   :{Identifier}
+                        -- fieldnames   :{[Identifier]}
+                        allfields    :{[(Name,Type)]}
+                        allnts       :{[Name]}
+                        attrs    :{[(Identifier,Identifier)]}
+                      ||
+                      ]
+
+ATTR HsTokens HsToken [ fieldnames : {[Identifier]} | | ]
+SEM HsTokensRoot
+  | HsTokensRoot tokens.fieldnames = map fst @lhs.allfields
 
 -------------------------------------------------------------------------------
 --  Errors
 -------------------------------------------------------------------------------
 ATTR HsTokens HsToken [ | |  errors USE {Seq.<>} {Seq.empty}:{Seq Error}  ]
-ATTR HsTokens HsToken [ nt,con   :{Identifier}
-                        fieldnames   :{[Identifier]}
-                        attrs    :{[(Identifier,Identifier)]}
-                      ||
-                      ]
 
 -------------------------------------------------------------------------------
 -- Syntax errors
@@ -46,13 +54,22 @@ SEM HsToken
 --  Undefined variables
 -------------------------------------------------------------------------------
 
+{
+isNTname allnts (Just (NT nt)) = nt `elem` allnts
+isNTname allnts _              = False
+}
+
+
 SEM HsToken
   | AGLocal   loc.(errors,tok,usedLocals) = 
-                     let result | @var `elem` @lhs.fieldnames   = (Seq.empty, (@pos,fieldname @var), [])
-                                | (_LOC,@var) `elem` @lhs.attrs = (Seq.empty, (@pos,locname @var), [@var])
-                                | otherwise                     = (Seq.single(UndefLocal @lhs.nt @lhs.con @var)
-                                                                  ,(@pos,locname @var), [])
-                     in result
+                     if @var `elem` @lhs.fieldnames   
+                     then if  isNTname @lhs.allnts (lookup @var @lhs.allfields)
+                          then (Seq.single(ChildAsLocal @lhs.nt @lhs.con @var), (@pos,fieldname @var), []    )
+                          else (Seq.empty, (@pos,fieldname @var), []    )
+                     else if (_LOC,@var) `elem` @lhs.attrs 
+                     then (Seq.empty                                   , (@pos,locname   @var), [@var])
+                     else (Seq.single(UndefLocal @lhs.nt @lhs.con @var), (@pos,locname   @var), []    )
+
 SEM HsToken
   | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
                                  then Seq.empty
@@ -69,13 +86,25 @@ ATTR HsTokens HsToken [ | | usedLocals USE {++} {[]} : {[Identifier]}
 
 SEM HsToken
   | AGField lhs.usedAttrs  = [(@field,@attr)]
+
+-------------------------------------------------------------------------------
+--         Used fields
+-------------------------------------------------------------------------------
+ATTR HsTokens HsToken [ | | usedFields USE {Seq.<>} {Seq.empty} : {Seq Identifier} ]
+
+SEM HsToken
+  | AGLocal lhs.usedFields = if @var `elem` @lhs.fieldnames
+                              then Seq.single @var
+                              else Seq.empty
+SEM HsTokensRoot
+  | HsTokensRoot lhs.usedFields = Seq.toList @tokens.usedFields
+
 -------------------------------------------------------------------------------
 --  Pretty printing
 -------------------------------------------------------------------------------
 
 SEM HsTokensRoot
-  | HsTokensRoot lhs.pp = let lns = showTokens @tokens.tks
-                          in  vlist (map text lns)
+  | HsTokensRoot lhs.textLines = showTokens @tokens.tks
 
 SEM HsTokens [ || tks : {[(Pos,String)]} ]
   | Cons lhs.tks = @hd.tok : @tl.tks
@@ -93,20 +122,25 @@ SEM HsToken [ || tok:{(Pos,String)}]
 
    | StrToken  lhs.tok = (@pos, showStrShort @value)
    | Err       lhs.tok = (@pos, "")
+
+
 {
 showTokens :: [(Pos,String)] -> [String]
 showTokens [] = []
 showTokens xs = map showLine . shiftLeft . getLines $ xs
+
 getLines []         = []
 getLines ((p,t):xs) =       let (txs,rest)     = span sameLine xs
                                 sameLine (q,_) = line p == line q
                             in ((p,t):txs) : getLines rest
+
 shiftLeft lns =        let sh = let m = minimum . checkEmpty . filter (>=1) . map (column.fst.head) $ lns
                                     checkEmpty [] = [1]
                                     checkEmpty x  = x
                                 in if m >= 1 then m-1 else 0
                            shift (p,t) = (if column p >= 1 then case p of (Pos l c f) -> Pos l (c - sh) f else p, t)
                        in map (map shift) lns
+
 showLine ts =        let f (p,t) r = let ct = column p
                                      in \c -> spaces (ct-c) ++ t ++ r (length t+ct)
                          spaces x | x < 0 = ""

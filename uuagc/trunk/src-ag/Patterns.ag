@@ -1,9 +1,10 @@
-
 imports
 {
+-- Patterns.ag imports
 import UU.Scanner.Position(Pos)
-import CommonTypes
+import CommonTypes (Constructor,Name)
 }
+
 TYPE Patterns   = [Pattern]
 
 DATA Pattern    | Constr     name  : {Constructor}
@@ -14,3 +15,5 @@ DATA Pattern    | Constr     name  : {Constructor}
                              attr  : {Name}
                              pat   : Pattern
                 | Underscore pos   : {Pos}
+
+ATTR Pattern Patterns [ | | copy : SELF ]

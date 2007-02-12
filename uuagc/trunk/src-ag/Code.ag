@@ -1,58 +1,81 @@
-
 imports
 {
-import UU.Pretty
+import UU.Pretty(PP_Doc)
+import Patterns
+import Data.List(partition)
 }
-TYPE Exprs    = [Expr]
-             
 
+TYPE Exprs    = [Expr]
 TYPE Decls    = [Decl]
 TYPE DataAlts = [DataAlt]
-            
+TYPE CaseAlts = [CaseAlt]
 TYPE Types    = [Type]
-             
 
+DATA Program  | Program          decls : Decls
 
-DATA Program  | Program     decls : Decls
+DATA Expr     | Let              decls : Decls   
+                                 body  : Expr
+              | Case             expr  : Expr
+                                 alts  : CaseAlts
+              | Lambda           args :  {[String]}
+                                 body : Expr
+              | TupleExpr        exprs : Exprs
+	      | UnboxedTupleExpr exprs : Exprs
+              | App              name  : {String} 
+                                 args  : Exprs
+              | SimpleExpr       txt   : {String}
+              | TextExpr         lns   : {[String]}
 
-DATA Expr     | Let         decls : Decls   
-                            body  : Expr
-              | Lambda      args :  {[String]}
-                            body : Expr
-              | TupleExpr   exprs : Exprs
-              | App         name  : {String} 
-                            args  : Exprs
-              | SimpleExpr  txt   : {String}
-              | PP          pp    : {PP_Doc}
+DATA CaseAlt  | CaseAlt          left  : Lhs
+                                 expr  : Expr
 
+DATA Decl     | Decl             left  : Lhs 
+                                 rhs   : Expr
+              | Data             name  : {String} 
+                                 alts  : DataAlts
+                                 derivings : {[String]}
+              | NewType          name  : {String} 
+                                 con   : {String} 
+                                 tp    : Type
+              | Type             name  : {String} 
+                                 tp    : Type
+              | TSig             name  : {String} 
+                                 tp    : Type
+              | Comment          txt   : {String}
 
-DATA Decl     | Decl        left  : Lhs 
-                            rhs   : Expr
-              | Data        name  : {String} 
-                            alts  : DataAlts
-                            derivings : {[String]}
-              | NewType     name  : {String} 
-                            con   : {String} 
-                            tp    : Type
-              | Type        name  : {String} 
-                            tp    : Type
-              | TSig        name  : {String} 
-                            tp    : Type
-              | Comment     txt   : {String}
-
-
-DATA DataAlt  | DataAlt     name  : {String} 
-                            args  : {[String]}
-              | Record      name  : {String} 
-                            args  : {[(String,String)]}
-DATA Type     | Arr         left  : Type 
-                            right : Type
-              | TupleType   tps   : Types
-              | List        tp    : Type
-              | SimpleType  txt   : {String}
+DATA DataAlt  | DataAlt          name  : {String} 
+                                 args  : {[String]}
+              | Record           name  : {String} 
+                                 args  : {[(String,String)]}
+DATA Type     | Arr              left  : Type 
+                                 right : Type
+              | TupleType        tps   : Types
+	      | UnboxedTupleType tps   : Types
+              | List             tp    : Type
+              | SimpleType       txt   : {String}
 	       
-DATA Lhs      | Pattern     pat   : {PP_Doc}
-              | SinglePat   pat   : {PP_Doc}
-              | TupleLhs    comps : {[String]}
-              | Fun         name  : {String} 
-                            args  : Exprs
+DATA Lhs      | Pattern3    pat3  : Pattern
+              | Pattern3SM  pat3  : Pattern
+              | TupleLhs         comps : {[String]} -- \ [Lhs] appears to be more sensible
+              | UnboxedTupleLhs  comps : {[String]} -- /
+              | Fun              name  : {String} 
+                                 args  : Exprs
+
+{
+-- Unboxed tuples
+--   unbox  Whether unboxed tuples are wanted or not
+--   inh    The inherited attributes. 
+--          If there are none, no unboxing can take place, 
+--          because in that case the semantic function (a top-level identifier) would have an unboxed type.
+-- Of course we can't have an unboxed 1-tuple
+mkTupleExpr :: Bool -> [a] -> Exprs -> Expr
+mkTupleExpr unbox inh exprs | not unbox || null inh || length exprs == 1 = TupleExpr exprs
+                            | otherwise                                  = UnboxedTupleExpr exprs
+mkTupleType :: Bool -> [a] -> Types -> Type
+mkTupleType unbox inh tps | not unbox || null inh || length tps == 1 = TupleType tps
+                          | otherwise                                = UnboxedTupleType tps
+mkTupleLhs :: Bool -> [a] -> [String] -> Lhs
+mkTupleLhs  unbox inh comps | not unbox || null inh || length comps == 1 = TupleLhs comps
+                            | otherwise                                  = UnboxedTupleLhs comps
+}
+

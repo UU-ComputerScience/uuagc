@@ -1,0 +1,10 @@
+-- an attribute is defined for a non-existing alternative
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ | | y : {Int} ]
+
+SEM Aap
+	| Twee lhs.y = 3
+	

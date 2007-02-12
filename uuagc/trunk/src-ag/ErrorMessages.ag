@@ -1,11 +1,13 @@
-
 imports
 {
-import UU.Pretty
-import CommonTypes
 import UU.Scanner.Position(Pos)
+import UU.Pretty(PP_Doc)
 import DepTypes(Trace)
+import CodeSyntax
+import CommonTypes
 }
+
+TYPE Errors = [Error]
 
 DATA Error  | DupAlt          nt    : {Nonterminal}
                               con,occ1 : {Constructor}                              
@@ -18,10 +20,8 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
 
             | DupSynAttr      nt    : {Nonterminal}
                               attr,occ1 : {Name}
-                           
 
-            | DupChild        
-                              nt    : {Nonterminal}
+            | DupChild        nt    : {Nonterminal}
                               con   : {Constructor}
                               name,occ1 : {Name}
 
@@ -29,6 +29,10 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               con   : {Constructor}
                               field : {Name}
                               attr,occ1 : {Name}
+
+            | DupSig          nt    : {Nonterminal}
+                              con   : {Constructor}
+                              attr  : {Name}
 
             | UndefNont       nt    : {Nonterminal}
 
@@ -50,7 +54,15 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               field : {Name}
                               attr  : {Name}
 
+--            | SuperfluousSig  nt    : {Nonterminal}
+--                              con   : {Constructor}
+--                              attr  : {Name}
+
             | UndefLocal      nt    : {Nonterminal}
+                              con   : {Constructor}
+                              var   : {Name}
+
+            | ChildAsLocal    nt    : {Nonterminal}
                               con   : {Constructor}
                               var   : {Name}
 
@@ -60,14 +72,28 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               attr  : {Name}
 
             | CyclicSet       name:{Name}
+            
             | CustomError     isWarning : {Bool}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
 
-            | CircGrammar     nt      : {Nonterminal}
+            | LocLocCirc      nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}
+                              o_visit : {Bool}
+                              path    : {[String]}
+            | DirectCirc      nt      : {Nonterminal}
                               inh     : {Name}
-                              siTrace : {Trace}
                               syn     : {Name}
-                              isTrace : {Trace}
-            
-                                
+                              o_visit : {Bool}
+                              path    : {[String]}
+            | ParserError     pos     : {Pos}
+                              problem : {String}
+                              action  : {String}
+            | InducedCirc     nt      : {Nonterminal}
+                              inh     : {Name}
+                              syn     : {Name}                
+                              cinter  : {CInterface}
+            | MissingTypeSig  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}

@@ -1,26 +1,37 @@
-
 INCLUDE "Code.ag"
+INCLUDE "Patterns.ag"
 
 imports
 {
+import Char (isAlphaNum)
 import UU.Pretty
 import Code
+import Patterns
+import Options (Options,nest)
+import CommonTypes (attrname, _LOC, getName, nullIdent)
 }
 
-types
 {
 type PP_Docs = [PP_Doc]
 }
 
+ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
 
+ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
 
-ATTR Program                            [ width:{Int} nest:{Bool} | | output:{String} ]
-ATTR Expr Decl DataAlt Type Lhs         [ nest:{Bool} | | pp:{PP_Doc} ]
+ATTR Exprs DataAlts Types  Decls        [ nested:{Bool} | | pps: {PP_Docs} ]
 
-ATTR Exprs DataAlts Types  Decls        [ nest:{Bool} | | pps: {[PP_Doc]} ]
+ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
+
+SEM Program
+  | Program decls.nested = nest @lhs.options 
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM CaseAlts
+  | Cons lhs.pps = @hd.pps ++ @tl.pps
   | Nil  lhs.pps = []
 
 SEM DataAlts
@@ -35,10 +46,11 @@ SEM Decls
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
+
+
+
 SEM Program
-  | Program    lhs.output  = foldr (\x y -> x . ('\n':) . y) id
-                             (map (\d -> disp d @lhs.width)  @decls.pps)
-                             ""
+  | Program    lhs.output  = @decls.pps
 
 SEM Decl
   | Decl       lhs.pp      = @left.pp >#< "="
@@ -52,8 +64,6 @@ SEM Decl
                                             then empty
                                             else "deriving" >#< ppTuple False (map text @derivings)  
                                   )                                            
-
-
   | NewType    lhs.pp      = "newtype" >#< @name >#< "=" >#< @con >#< pp_parens @tp.pp
   | Type       lhs.pp      = "type" >#< @name >#< "=" >#<  @tp.pp
   | TSig       lhs.pp      = @name >#< "::" >#< @tp.pp
@@ -62,27 +72,34 @@ SEM Decl
                                else "--" >#< @txt
 
 SEM Expr
-  | Let        lhs.pp      = (    "let" >#< (vlist @decls.pps)
-                              >-< "in " >#< @body.pp
-                             )
-  | Lambda     lhs.pp      = (    "\\" >#< (vlist @args) >#< "->" 
-                                  >-< indent 4 @body.pp
-                             )
-  | TupleExpr  lhs.pp      = ppTuple @lhs.nest @exprs.pps
-  | App        lhs.pp      = pp_parens $ @name >#< hv_sp (map pp_parens @args.pps)
+  | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)
+                                       >-< "in " >#< @body.pp
+                                       )
+  | Case       lhs.pp      = pp_parens (    "case" >#< pp_parens @expr.pp >#< "of"
+                                       >-< (vlist @alts.pps)
+                                       )
+  | Lambda     lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
+                                       >-< indent 4 @body.pp
+                                       )
+  | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
+  | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nested @exprs.pps
+  | App        lhs.pp      = pp_parens $ @name >#< hv_sp @args.pps
   | SimpleExpr lhs.pp      = text @txt
-  | PP lhs . pp = @pp
+  | TextExpr   lhs.pp      = vlist (map text @lns)
+
+SEM CaseAlt
+  | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
 
 SEM DataAlt
   | DataAlt    lhs.pp      = @name >#< hv_sp (map (pp_parens.text) @args)
   | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
-
 SEM Lhs
-  | Pattern    lhs.pp      = pp_parens @pat
-  | SinglePat  lhs.pp      = @pat
-  | TupleLhs   lhs.pp      = ppTuple @lhs.nest (map text @comps)
-  | Fun        lhs.pp      = @name >#< hv_sp (map pp_parens @args.pps)
+  | Pattern3   lhs.pp      = @pat3.pp
+  | Pattern3SM lhs.pp      = @pat3.pp'
+  | TupleLhs   lhs.pp      = ppTuple @lhs.nested (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nested (map text @comps)
+  | Fun        lhs.pp      = @name >#< hv_sp @args.pps
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2
@@ -91,17 +108,68 @@ SEM Type  [ | | prec:Int ]
                   .r       = if @right.prec <  2 then pp_parens @right.pp else @right.pp
 
   | TupleType  lhs.prec    = 5
-                  .pp      = ppTuple @lhs.nest @tps.pps
+                  .pp      = ppTuple @lhs.nested @tps.pps
+
+  | UnboxedTupleType  lhs.prec    = 5
+                         .pp      = ppUnboxedTuple @lhs.nested @tps.pps
 
   | List       lhs.prec    = 5
                   .pp      = "[" >|< @tp.pp >|< "]"
 
   | SimpleType lhs.prec    = 5
-                  .pp      = pp_parens $ text @txt
+                  .pp      = if reallySimple @txt then text @txt else pp_parens (text @txt)
 
 {
 
+reallySimple :: String -> Bool
+reallySimple = and . map (\x -> isAlphaNum x || x=='_')
+
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
+ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
+}
+
+
+-------------------------------------------------------------------------------
+--         Pretty printing patterns
+-------------------------------------------------------------------------------
+
+SEM Patterns [ | | pps : {[PP_Doc]} ]
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Pattern [ | | pp:PP_Doc ]
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
+  | Alias   lhs.pp     = if @pat.isUnderscore
+                          then attrname False @field @attr >|< ""
+                          else attrname False @field @attr >|< "@" >|< @pat.pp
+  | Underscore lhs.pp  = text "_"
+
+SEM Pattern [ | | isUnderscore:{Bool}]
+ | Constr     lhs.isUnderscore = False
+ | Product    lhs.isUnderscore = False
+ | Alias      lhs.isUnderscore = False
+ | Underscore lhs.isUnderscore = True
+
+-------------------------------------------------------------------------------
+--         Pretty printing patterns for SM
+-------------------------------------------------------------------------------
+
+SEM Patterns [ | | pps' : {[PP_Doc]} ]
+  | Cons lhs.pps' = @hd.pp' : @tl.pps'
+  | Nil  lhs.pps' = []
+
+SEM Pattern [ | | pp':PP_Doc ]
+  | Constr  lhs.pp'     = pp_parens $ @name >#< hv_sp (map pp_parens @pats.pps')
+  | Product lhs.pp'     = pp_block "(" ")" "," @pats.pps'
+  | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
+                                        | otherwise                             = attrname False @field @attr
+                          in attribute >|< "@" >|< @pat.pp'
+  | Underscore lhs.pp'  = text "_"
+
+{
+locname' n = "_loc_" ++ getName n
 }

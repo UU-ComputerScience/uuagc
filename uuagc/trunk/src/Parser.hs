@@ -1,4 +1,3 @@
-
 module Parser --(parseAG)
 where
 import Data.Maybe
@@ -7,7 +6,6 @@ import UU.Parsing.Machine(RealParser(..),RealRecogn(..),anaDynE,mkPR)
 import ConcreteSyntax
 import CommonTypes
 import Patterns
-import Rules
 import UU.Pretty(text,PP_Doc,empty,(>-<))
 import TokenDef
 import List (intersperse)
@@ -22,11 +20,14 @@ import UU.Scanner.GenTokenParser
 import UU.Scanner.Position
 import UU.Scanner.TokenShow()
 import System.Directory
+
+
 type AGParser = AnaParser Input  Pair Token Pos
 
 pIdentifier, pIdentifierU :: AGParser Identifier
 pIdentifierU = uncurry Ident <$> pConidPos
 pIdentifier   = uncurry Ident <$> pVaridPos
+
 
 parseAG :: [FilePath] -> String -> IO (AG,[Message Token Pos])
 parseAG  searchPath file 
@@ -48,7 +49,7 @@ parseFile searchPath file
                                               let (ess,fss,msgs) = unzip3 res
                                               return (es ++ concat ess, concat fss, msg ++ concat msgs)
                     let (Pair (es,fls) _ ,mesg) = evalStepsMessages steps
-                    loop stop cont (es,files++fls,mesg)
+                    loopp stop cont (es,files++fls,mesg)
 
 resolveFile :: [FilePath] -> FilePath -> IO FilePath
 resolveFile path fname = search (path ++ ["."])                                                  
@@ -75,18 +76,11 @@ evalStepsMessages steps = case steps of
   Best _   rest   _   -> evalStepsMessages rest
   NoMoreSteps v       -> (v,[])
 
-showMessage (Msg expect pos action) = 
-                        "\nParse error: " ++ show pos ++"\n" ++
-                        "Expecting " ++ show expect ++ "\n"++
-                        "Repaired by " ++ actionMessage ++ "\n" 
-    where actionMessage =  case action of
-                             Insert s -> "inserting: " ++ show s
-                             Delete s -> "deleting: "  ++ show s
-                             Other ms -> ms
-loop ::(a->Bool) -> (a->IO a) -> a ->  IO a
-loop pred cont x | pred x = return x
-                 | otherwise = do x' <- cont x
-                                  loop pred cont x'
+loopp ::(a->Bool) -> (a->IO a) -> a ->  IO a
+loopp pred cont x | pred x = return x
+                  | otherwise = do x' <- cont x
+                                   loopp pred cont x'
+                                  
 pElemsFiles :: AGParser ([Elem],[String])
 pElemsFiles = pFoldr (($),([],[])) pElem'
    where pElem' =  addElem <$> pElem
@@ -143,7 +137,8 @@ pComplexType =  List <$> pBracks pType
                         ]
 pElem :: AGParser Elem
 pElem =  Data <$> pDATA
-              <*> pIdentifierU
+              -- <*> pIdentifierU
+              <*> pNontSet
               <*> pOptAttrs
               <*> pAlts
              <*> pSucceed False
@@ -155,7 +150,8 @@ pElem =  Data <$> pDATA
               <*  pEquals
               <*> pComplexType
      <|> Sem  <$> pSEM
-              <*> pIdentifierU
+              -- <*> pIdentifierU
+              <*> pNontSet
               <*> pOptAttrs
               <*> pSemAlts
      <|> Set  <$> pSET
@@ -193,7 +189,7 @@ pType =  NT <$> pIdentifierU
 
 
 pInhAttrNames :: AGParser AttrNames
-pInhAttrNames   = (\vs tp -> map (\v -> (v,tp,("",""))) vs)
+pInhAttrNames   = (\vs tp -> map (\v -> (v,tp,("","",""))) vs)
                   <$> pIdentifiers <*  pColon <*> pType <?> "attribute declarations"
 
 pIdentifiers :: AGParser [Identifier]
@@ -204,11 +200,12 @@ pAttrNames :: AGParser AttrNames
 pAttrNames = (\vs use tp -> map (\v -> (v,tp,use)) vs)
              <$> pIdentifiers <*> pUse <* pColon <*> pType <?> "attribute declarations"
 
-pUse :: AGParser (String,String)
-pUse = ((,) <$ pUSE <*> pCodescrap'  <*> pCodescrap')` opt` ("","") <?> "USE declaration"
+pUse :: AGParser (String,String,String)
+pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap')` opt` ("","","") <?> "USE declaration"
 
 pAlt :: AGParser Alt
-pAlt =  Alt <$> pBar <*> pIdentifierU <*> pFields <?> "a datatype alternative"
+--pAlt =  Alt <$> pBar <*> pIdentifierU <*> pFields <?> "a datatype alternative"
+pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
 
 pAlts :: AGParser Alts
 pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -230,6 +227,11 @@ pSemAlt  = SemAlt
           <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
 --  where makeSemAlts p cs defs = [SemAlt p c defs | c <- cs ]
 
+pSimpleConstructorSet :: AGParser ConstructorSet
+pSimpleConstructorSet =  CName <$> pIdentifierU
+                     <|> CAll  <$  pStar
+                     <|> pParens pConstructorSet
+
 pConstructorSet :: AGParser ConstructorSet
 pConstructorSet =  pChainl (CDifference <$ pMinus) term2
   where term2 =  pChainr (pSucceed CUnion) term1
@@ -246,6 +248,7 @@ pFieldIdentifier =  pIdentifier
 
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
+      <|> (\ident tp -> [TypeDef ident tp]) <$ pLOC <* pDot <*> pIdentifier <* pColon <*> (Haskell . fst <$> pCodescrapL)
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
