@@ -1,9 +1,0 @@
--- the used attribute x is not declared
-
-DATA Aap 
-	| Een a : {Int}
-
-ATTR Aap [ | | y : {Int} ]
-	
-SEM Aap
-	| Een lhs.y = @lhs.x
