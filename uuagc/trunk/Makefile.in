@@ -191,6 +191,7 @@ dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SY
 	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
 	$(CP) -p $(SRC_DIR)/*.hs.in $(DLABEL)/$(SRC_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
+	$(CP) -p $(SRC_AG_DIR)/*.lag $(DLABEL)/$(SRC_AG_DIR)
 	$(CP) -p scripts/*.sh.in $(DLABEL)/scripts
 
 dist_pack: dist_copy
