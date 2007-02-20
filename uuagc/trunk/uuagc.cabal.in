@@ -30,4 +30,4 @@ Other-Modules: AbstractSyntax,
       Transform,
       Version
 Extensions: TypeSynonymInstances       
-Hs-Source-Dir: src
+Hs-Source-Dirs: src
