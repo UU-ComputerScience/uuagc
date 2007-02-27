@@ -1,5 +1,7 @@
+-------------------------------------------
 Installing uuagc from a source distribution
 -------------------------------------------
+Here we assume that you have downloaded the sources from http://www.cs.uu.nl/wiki/HUT/Download .
 
     ghc --make Setup.hs -o setup -package Cabal
     ./setup configure
@@ -14,6 +16,7 @@ Installing uuagc from a source distribution
     make build
     make install
 
+-------------------------------
 Using the user package database
 -------------------------------
 
@@ -33,8 +36,11 @@ Using the user package database
     make build
     make install
 
-Installing uuagc from repository sources
-----------------------------------------
+---------------------------------------------------------------
+Installing uuagc after checking out from the svn respository
+---------------------------------------------------------------
+Please note that this is only possible if you alreday have a running version of the uuagc on your system. 
+This can be downloaded from: http://www.cs.uu.nl/wiki/HUT/Download
 
     autoconf
     ./configure
