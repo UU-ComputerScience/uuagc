@@ -1,0 +1,12 @@
+-- an alternative Drie is added to multiple datatypes, by using a wildcard as a nonterminal in a DATA-definition
+-- in v.0.9.1 this is a syntax error: a DATA-definition requires a single nonterminal
+-- in v.0.9.3 it is allowed
+
+DATA Aap
+	| Een  a : {Int}
+
+DATA Noot
+	| Twee b : {Int}
+	
+DATA *
+	| Drie c : {Int}

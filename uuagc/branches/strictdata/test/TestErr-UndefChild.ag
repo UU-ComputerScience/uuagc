@@ -1,0 +1,10 @@
+-- an attribute is defined for a non-existing child
+
+DATA Aap 
+	| Een a : Aap
+
+ATTR Aap [ x : {Int} | | ]
+
+SEM Aap
+	| Een b.x = 3
+	

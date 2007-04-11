@@ -1,0 +1,73 @@
+imports
+{
+import Patterns
+import CommonTypes
+import UU.DData.Map(Map)
+import UU.DData.Set(Set)
+import Data.Graph(Vertex)
+}
+
+DATA  CGrammar 
+   |  CGrammar  typeSyns : {TypeSyns}
+                derivings: {Derivings} 
+                wrappers:{Set Nonterminal} 
+                prods:CProductions
+
+TYPE CProductions = [CProduction]
+
+DATA  CProduction 
+   |  CProduction  nt     :  Nonterminal
+                   inh    :  Attributes
+                   syn    :  Attributes
+                   alts   :  CAlternatives
+                   inter  :  CInterface
+
+DATA  CInterface
+   |  CInterface seg:CSegments
+
+TYPE CSegments = [CSegment]
+
+DATA  CSegment
+   |  CSegment  inh  :  Attributes
+                syn  :  Attributes
+
+TYPE CAlternatives = [CAlternative]
+
+DATA  CAlternative
+   |  CAlternative  con        : Constructor
+                    visits     : CVisits
+                    children   : {[(Name,Type)]}
+                    terminals  : {[Name]}
+
+TYPE CVisits = [CVisit]
+
+DATA  CVisit 
+   |  CVisit  inh     :  Attributes
+              syn     :  Attributes
+              vss     :  Sequence
+              intra   :  Sequence
+              ordered :  Bool -- indicates that vss is ordered
+
+TYPE Sequence = [CRule]
+
+DATA  CRule
+   |  CRule        name       :  Name
+                   isIn       :  Bool
+                   hasCode    :  Bool
+                   nt         :  Nonterminal
+                   con        :  Constructor
+                   field      :  Name
+                   childnt    :  {Maybe Nonterminal}
+                   tp         :  {Maybe Type}
+                   pattern    :  Pattern
+                   rhs        :  {[String]}
+                   defines    :  {Map Vertex (Name,Name,Maybe Type)}
+                   owrt       :  {Bool}
+                   origin     :  String  -- just for documentation (and maybe errors)
+   |  CChildVisit  name    :  Name  -- corresponding to the name of the child
+                   nt      :  Nonterminal
+                   nr      :  Int   -- visit number
+                   inh     :  Attributes
+                   syn     :  Attributes
+                   last    :  Bool  -- indicates whether this is the last visit to this child
+
