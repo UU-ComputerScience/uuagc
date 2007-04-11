@@ -1,0 +1,14 @@
+-- an attribute is defined generically for two types Aap and Noot, who happen to have the same alternative Een
+-- in v.0.9.1 this is a syntax error: a SEM-definition requires a single nonterminal, not an enumeration of them
+-- in v.0.9.3 it is allowed
+
+DATA Aap
+	| Een  a : {Int}
+
+DATA Noot
+	| Een b : {Int}
+
+ATTR Aap Noot [ | | y : {Int} ]
+
+SEM Aap Noot
+	| Een  lhs.y = 3

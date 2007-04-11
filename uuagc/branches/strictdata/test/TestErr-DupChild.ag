@@ -1,0 +1,5 @@
+-- field a is declared twice
+
+DATA Aap 
+	| Een a : {Int}
+	      a : {Int}
