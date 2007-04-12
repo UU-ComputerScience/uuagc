@@ -341,7 +341,7 @@ SEM CProduction
                               :  (if @lhs.o_pretty                  then [@loc.comment]   else [])
                               ++ (if @lhs.o_data                    then [@loc.dataDef]   else [])
                               ++ (if @lhs.o_cata                    then  @loc.cataFun    else [])
-                              ++ (if @lhs.o_sig || @lhs.o_sem       then  @inter.semDom   else [])
+                              ++ (if @lhs.o_sig                     then  @inter.semDom   else [])
                               ++ (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
                               ++ (if @lhs.o_sem                     then  @alts.decls     else [])
 
