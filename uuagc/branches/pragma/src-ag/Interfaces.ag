@@ -1,0 +1,16 @@
+imports
+{
+import CommonTypes
+import Data.Graph
+}
+
+DATA IRoot | IRoot inters:Interfaces
+TYPE Interfaces = [Interface]
+DATA Interface | Interface nt:Nonterminal
+                           cons:{[Constructor]}
+                           seg:Segments
+TYPE Segments = [Segment]
+DATA Segment | Segment  inh:{[Vertex]}
+                        syn:{[Vertex]}
+                        
+
