@@ -1,0 +1,477 @@
+INCLUDE "CodeSyntax.ag"
+INCLUDE "Patterns.ag"
+
+imports
+{
+import SequentialTypes
+import Code hiding (Type)
+import qualified Code
+import Options
+import CodeSyntax
+import ErrorMessages
+import GrammarInfo
+
+import qualified UU.DData.Map as Map
+import UU.DData.Map(Map) 
+import qualified UU.DData.Set as Set
+import UU.DData.Set(Set) 
+import qualified UU.DData.Seq as Seq
+import UU.DData.Seq(Seq)
+
+import Data.List(partition,intersperse,intersect,(\\))
+import Maybe(fromJust,isJust)
+}
+
+-------------------------------------------------------------------------------
+--         Options
+-------------------------------------------------------------------------------
+
+ATTR CProductions CProduction
+     CAlternatives CAlternative
+     CVisits CVisit
+     Sequence CRule
+     CInterface CSegments CSegment
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap : Bool
+         o_data : {Maybe Bool}
+         prefix : String
+       | | ]
+SEM CGrammar [ options : Options | | ]
+  | CGrammar    prods.o_sig         = typeSigs      @lhs.options
+                     .o_cata        = folds         @lhs.options
+                     .o_sem         = semfuns       @lhs.options
+                     .o_newtypes    = newtypes      @lhs.options
+                     .o_unbox       = unbox         @lhs.options
+                     .o_case        = cases         @lhs.options
+                     .o_pretty      = attrInfo      @lhs.options
+                     .o_rename      = rename        @lhs.options
+                     .o_strictwrap  = strictWrap    @lhs.options
+                     .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
+                     .prefix        = prefix        @lhs.options
+
+-------------------------------------------------------------------------------
+-- Passing information about nonterminal and constructor down
+-------------------------------------------------------------------------------
+
+ATTR  CAlternatives CAlternative CVisits 
+      CVisit Sequence CRule CInterface 
+      CSegments CSegment [ nt:Nonterminal inh,syn:Attributes | | ]
+SEM  CProduction
+  |  CProduction  inter.(inh,syn,nt) = (@inh,@syn,@nt)
+                  alts.(inh,syn,nt) = (@inh,@syn,@nt)
+
+ATTR CVisits CVisit Sequence CRule [ con:Constructor 
+                                     terminals : {[Name]} | | ]
+SEM  CAlternative
+  |  CAlternative  visits.con = @con
+                   visits.terminals = @terminals
+
+-------------------------------------------------------------------------------
+-- Generating declarations from the sequence. We generate the origin
+-- comment if pretty printing is requested. A childvisit takes inherited
+-- attributes and returns synthesized attributes and the next visit.
+-------------------------------------------------------------------------------
+
+ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
+SEM  CRule
+  |  CRule loc.originComment = if  @lhs.o_pretty 
+                                   then (Comment @origin:) 
+                                   else id
+           lhs.decls = if @hasCode then @originComment [Decl (Pattern3 @pattern.copy) (TextExpr @rhs)] else []
+  |  CChildVisit lhs.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
+                                         ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
+                                  unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
+                                  tuple = mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs
+                                  rhs = App (funname @name @nr) (map (SimpleExpr . attrname False @name) (Map.keys @inh))
+                             in [Decl tuple rhs]
+
+-------------------------------------------------------------------------------
+-- Numbering the visits
+-------------------------------------------------------------------------------
+
+ATTR  CVisits CVisit
+      CSegments CSegment [ nr : Int | | ]
+SEM  CAlternative
+  |  CAlternative visits.nr = 0
+SEM  CVisits
+  |  Cons tl.nr = @lhs.nr + 1
+SEM  CInterface
+  |  CInterface seg.nr = 0
+SEM  CSegments
+  |  Cons tl.nr = @lhs.nr + 1
+
+-------------------------------------------------------------------------------
+-- Checking last visit
+-------------------------------------------------------------------------------
+
+ATTR CVisit CSegment [ isLast : Bool | | ]
+ATTR CVisits CSegments [ | | isNil : Bool ]
+SEM  CVisits
+  |  Cons  lhs.isNil = False
+           hd.isLast = @tl.isNil
+  |  Nil lhs.isNil = True
+SEM  CSegments
+  |  Cons  lhs.isNil = False
+           hd.isLast = @tl.isNil
+  |  Nil lhs.isNil = True
+
+-------------------------------------------------------------------------------
+-- Getting the next intra-visit dependencies
+-------------------------------------------------------------------------------
+
+ATTR CVisit [ nextIntra : {Exprs} | | ]
+ATTR CVisits CVisit [ | | intra : {Exprs} ]
+SEM  CVisit 
+  |  CVisit lhs.intra = @intra.exprs
+SEM  CVisits
+  |  Cons  hd.nextIntra = @tl.intra
+           lhs.intra = @hd.intra
+  |  Nil lhs.intra = []
+
+-------------------------------------------------------------------------------
+-- Intra-visit dependencies are expressions that need to be passed
+-------------------------------------------------------------------------------
+
+ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
+SEM  CRule
+  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals 
+                           then [SimpleExpr (funname @name 0)]
+                           else [SimpleExpr (attrname @isIn @field @name)]
+  |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
+                             in [wrap (SimpleExpr (funname @name (@nr+1)))]
+
+-------------------------------------------------------------------------------
+-- Type signatures are added to the declarations. 
+-------------------------------------------------------------------------------
+
+ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
+SEM  CRule
+  |  CRule        loc.mkTp = SimpleType . typeToString @lhs.nt
+                  lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) 
+                              |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
+  |  CChildVisit  loc.mkTp = SimpleType . typeToString @nt
+                  loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
+                  loc.nextTp = typeName @nt (@nr+1)
+                  lhs.tSigs = (if @last then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
+
+-------------------------------------------------------------------------------
+-- Types of intra-visit dependencies are needed in the type of the
+-- semantic function.
+-------------------------------------------------------------------------------
+
+ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type)]} | | ]
+SEM  CAlternative
+  |  CAlternative visits.children = @children
+
+
+ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]} 
+                          allTpsFound USE {&&} {True} : Bool ]
+SEM  CRule
+  |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([tp],True)) @tp
+  |  CChildVisit  lhs.tps = [Haskell @nextTp]
+
+-------------------------------------------------------------------------------
+-- Each visit has its semantic function
+-------------------------------------------------------------------------------
+
+ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
+SEM  CVisit
+  |  CVisit loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
+            loc.nextVisitName = if @lhs.isLast then [] else [visitname @lhs.prefix @lhs.nt (@lhs.nr+1)]
+            loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
+                                     rhs = App fun @lhs.nextIntra
+                                     fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
+                                in if @lhs.isLast then [] else [Decl lhs rhs]
+            loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
+            loc.semFun = let  lhs = Fun @funcname lhs_args
+                              lhs_args = if @lhs.nr == 0 then map field @lhs.children else @intra.exprs
+                              field (name,NT tp) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                                                              | otherwise       = id
+                                                   in unwrap (SimpleExpr (funname name 0))
+                              field (name,_)     =  SimpleExpr (funname name 0)
+                              rhs = wrap 
+                                    . mkLambda (map (lhsname True) (Map.keys @inh))
+                                    . mkLet @o_case @decls
+                                    . mkTupleExpr @lhs.o_unbox (Map.keys @inh)
+                                    $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
+                              wrap = if  @lhs.o_newtypes 
+                                         then \x -> App (typeName @lhs.nt @lhs.nr) [x] 
+                                         else id
+                         in Decl lhs rhs
+            loc.tsig = TSig @funcname @semType
+            loc.semType = let argType (NT tp) rec = SimpleType (sdtype tp) `Arr` rec
+                              argType tp      rec = SimpleType (typeToString @lhs.nt tp) `Arr` rec
+                          in if  @lhs.nr == 0  
+                                 then foldr argType (SimpleType (sdtype @lhs.nt)) (map snd @lhs.children)
+                                 else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
+            lhs.decls =  if  @lhs.with_sig 
+                             then [@tsig, @semFun]
+                             else [@semFun]
+            loc.typeSigs =  if  @lhs.o_sig && not @o_case
+                                then  @vss.tSigs
+                                else  []
+            loc.o_case = @lhs.o_case && @ordered
+
+{
+mkLambda [] e = e
+mkLambda xs e = Lambda xs e
+}
+
+-------------------------------------------------------------------------------
+-- The semantic domain is generated from the interface. 
+-------------------------------------------------------------------------------
+
+ATTR  CInterface CSegments CSegment [ | | semDom USE {++} {[]} : {[Decl]} ]
+SEM  CInterface
+  |  CInterface  lhs.semDom = Comment "semantic domain" : @seg.semDom
+
+SEM  CSegment
+  |  CSegment lhs.semDom = let name = typeName @lhs.nt @lhs.nr
+                               tp = foldr Arr synTps inhTps
+                               inhTps = [SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @inh]
+                               synTps = mkTupleType @lhs.o_unbox inhTps ([SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @syn] ++ continuation)
+                               continuation = if  @lhs.isLast
+                                                  then []
+                                                  else [SimpleType (typeName @lhs.nt (@lhs.nr + 1))]
+                           in if @lhs.o_newtypes
+                              then [ Code.NewType name name tp ]
+                              else [ Code.Type name tp ]
+
+-------------------------------------------------------------------------------
+-- Wrapper functions
+-------------------------------------------------------------------------------
+
+SEM CProduction
+  | CProduction loc.semWrapper = let inhAttrs = Map.toList @inh
+                                     synAttrs = Map.toList @syn
+                                     inhVars = [ SimpleExpr (attrname True _LHS a) | (a,_) <- inhAttrs ]
+                                     synVars = [ SimpleExpr (attrname False _LHS a) | (a,_) <- synAttrs ]
+                                     var = "sem"
+                                     wrapNT = "wrap" ++ "_" ++ getName @nt
+                                     inhNT = "Inh" ++ "_" ++ getName @nt
+                                     synNT = "Syn" ++ "_" ++ getName @nt
+                                     varPat = if  @lhs.o_newtypes
+                                                  then App (sdtype @nt) [SimpleExpr var]
+                                                  else SimpleExpr var
+                                     typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
+                                     mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
+                                     mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
+                                     datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
+                                 in datas ++ [Decl (Fun wrapNT [varPat, App inhNT inhVars])
+                                                   (Let @inter.wrapDecls (App synNT synVars))]
+
+ATTR CInterface CSegments CSegment [ | | wrapDecls USE {++} {[]}: {Decls} ]
+SEM  CSegment
+  |  CSegment lhs.wrapDecls =  let rhs = map (SimpleExpr . lhsname True) (Map.keys @inh)
+                                   lhs = map (lhsname False) (Map.keys @syn)
+                                         ++ if @lhs.isLast then [] else [unwrap ++ sem (@lhs.nr+1)]
+                                   unwrap = if @lhs.o_newtypes then typeName @lhs.nt (@lhs.nr + 1) ++ " " else ""
+                                   var = "sem"
+                                   sem 0 = var
+                                   sem n = var ++ "_" ++ show n
+                               in [Decl (mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs) (App (sem @lhs.nr) rhs)]
+
+-------------------------------------------------------------------------------
+-- Errors for missing type signatures. It's an error when one of the
+-- attributes in the intra-visit dependencies does not have a type.
+-------------------------------------------------------------------------------
+
+ATTR CProductions CProduction
+     CAlternatives CAlternative
+     CVisits CVisit [ | | allTpsFound USE {&&} {True} : Bool ]
+ATTR CProductions CProduction
+     CAlternatives CAlternative
+     CVisits CVisit [ with_sig : Bool | | ]
+
+SEM  CVisit
+  |  CVisit lhs.allTpsFound = @intra.allTpsFound
+SEM CGrammar
+  | CGrammar prods.with_sig = typeSigs @lhs.options && @prods.allTpsFound
+
+ATTR CProductions CProduction
+     CAlternatives CAlternative
+     CVisits CVisit
+     Sequence CRule [ | errors USE {Seq.<>} {Seq.empty} : {Seq Error} | ]
+SEM  CGrammar [ | | errors : {Seq Error} ]
+  |  CGrammar prods.errors = Seq.empty 
+SEM  CVisit
+  |  CVisit lhs.errors = @intra.errors
+SEM  CRule
+  |  CRule lhs.errors = maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con @name)) (const Seq.empty) @tp
+
+-------------------------------------------------------------------------------
+-- Provide a description of the interfaces as comments
+-------------------------------------------------------------------------------
+
+SEM CProduction
+  | CProduction loc.comment = Comment . unlines . map ind $ ( @inter.comments ++ ("alternatives:" : map ind @alts.comments) )
+
+ATTR CInterface CSegments CSegment 
+     CAlternatives CAlternative
+     CVisits CVisit Sequence CRule  [ | | comments USE {++} {[]}: {[String]} ]
+
+SEM CSegment
+  | CSegment     lhs.comments =  ("visit " ++ show @lhs.nr ++ ":") 
+                                 : map ind (showsSegment (CSegment @inh @syn))
+
+SEM CAlternative 
+  | CAlternative lhs.comments =  ("alternative " ++ getName @con ++ ":")
+                                 : map ind (  map (\(x,y) -> makeLocalComment "child" x (Just y)) @children
+                                           ++ @visits.comments
+                                           )
+
+SEM CRule
+  | CRule        lhs.comments =  [ makeLocalComment "local" name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
+
+{
+makeLocalComment :: String -> Name -> Maybe Type -> String
+makeLocalComment what  name tp = let  x = getName name
+                                      y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}") tp
+                                 in   ( what ++ " " ++ x ++ replicate ((14 - length x) `max` 0) ' ' ++ " : " ++ y )
+
+}
+
+-------------------------------------------------------------------------------
+-- And tie it all together
+-------------------------------------------------------------------------------
+
+ATTR CProductions CProduction CAlternatives CAlternative  [ | | decls USE {++} {[]} : {Decls} ]
+ATTR CGrammar [ | | output : Program ]
+
+SEM CGrammar
+  | CGrammar    lhs.output = if smacro @lhs.options
+                              then Program (@prods.decls {-REMOVED SM++ @loc.smUnitDecl ++ @prods.smdecls ++ @loc.defnmdecls -})
+                              else Program @prods.decls
+
+SEM CProduction
+  | CProduction  lhs.decls =  Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
+                              :  (if @lhs.o_pretty                  then [@loc.comment]   else [])
+                              ++ (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
+                              ++ (if @lhs.o_cata                    then  @loc.cataFun    else [])
+                              ++ (if @lhs.o_sig                     then  @inter.semDom   else [])
+                              ++ (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
+                              ++ (if @lhs.o_sem                     then  @alts.decls     else [])
+
+{
+-- Lets or nested Cases?
+mkLet :: Bool -> Decls -> Expr -> Expr
+mkLet False decls body = Let decls body
+mkLet True decls body = foldr oneCase body decls
+
+oneCase :: Decl -> Expr -> Expr
+oneCase (Decl left rhs) exp = Case rhs [CaseAlt left exp]
+oneCase _               exp = exp
+
+-- Gives the name of the visit function
+funname field 0  = show field ++ "_"
+funname field nr = show field ++ "_" ++ show nr
+
+-- Gives the name of a semantic function
+seqSemname :: String -> Nonterminal -> Constructor -> Int -> String
+seqSemname pre nt con  0 = semname pre nt con
+seqSemname pre nt con nr = semname pre nt con ++ "_" ++ show nr
+
+-- Gives the name of a type
+typeName :: Nonterminal -> Int -> String
+typeName nt 0 = "T_" ++ show nt
+typeName nt n = "T_" ++ show nt ++ "_" ++ show n
+
+-- Gives the name of a visit function
+visitname  ::  String -> Nonterminal -> Int -> String
+visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
+}
+
+-------------------------------------------------------------------------------
+-- Datatypes were already present
+-------------------------------------------------------------------------------
+
+ATTR CProductions CProduction [ wrappers:{Set Nonterminal} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
+SEM CGrammar
+  | CGrammar prods . typeSyns  = @typeSyns
+                   . derivings = @derivings 
+                   . wrappers  = @wrappers
+
+SEM CProduction
+  | CProduction loc.dataDef = let typeSyn tp = let theType = 
+                                                    case tp of
+                                                      CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToString @nt t ++")")
+                                                      CommonTypes.List t   -> Code.List $ SimpleType (typeToString @nt t)
+                                                      CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToString @nt t) 
+                                                                                             | (_,t) <- ts
+                                                                                             ]                                                                
+                                               in Code.Type (getName @nt) theType
+                                  derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
+                                  dataDef    = Data (getName @nt) @alts.dataAlts (maybe False id @lhs.o_data) derivings
+                              in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
+
+ATTR CAlternatives     [ | | dataAlts : {DataAlts} ]
+ATTR CAlternative      [ | | dataAlt  : {DataAlt}  ]
+
+SEM CAlternatives
+  | Cons        lhs.dataAlts  = @hd.dataAlt : @tl.dataAlts
+  | Nil         lhs.dataAlts  = []
+
+SEM CAlternative
+  | CAlternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (typeToString @lhs.nt .snd) @children)
+
+-------------------------------------------------------------------------------
+-- Catamorphism were already present
+-------------------------------------------------------------------------------
+
+SEM CProduction
+  | CProduction loc.cataFun  = let tSig = TSig (cataname @lhs.prefix @nt)
+                                               (SimpleType (getName @nt) `Arr` SimpleType (sdtype @nt))
+                                   special typ = case typ of
+                                                 CommonTypes.List tp ->                                  
+                                                     let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))
+                                                         nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
+                                                         arg  = SimpleExpr "list"
+                                                         rarg = case tp of
+                                                                  NT t  -> SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t) ++ " list)")
+                                                                  _     -> arg
+                                                         lhs = Fun (cataname @lhs.prefix @nt) [arg]
+                                                         rhs = (App "Prelude.foldr" [cons,nil,rarg])
+                                                     in  [Decl lhs rhs]
+                                                 CommonTypes.Maybe tp ->                                  
+                                                     let just    = semname @lhs.prefix @nt (identifier "Just")
+                                                         nothing = semname @lhs.prefix @nt (identifier "Nothing" )
+                                                         arg  = SimpleExpr "x"
+                                                         rarg = case tp of
+                                                                  NT t  -> App (cataname @lhs.prefix t) [arg]
+                                                                  _     -> arg
+                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
+                                                     in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])
+                                                         ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing)
+                                                         ]
+                                                 CommonTypes.Tuple tps ->   
+                                                     let con  = semname @lhs.prefix @nt (identifier "Tuple")
+                                                         tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
+                                                         rargs = map rarg tps'                                                        
+                                                         rarg (n, tp) = case tp of
+                                                                  NT t  -> App (cataname @lhs.prefix t) [n]
+                                                                  _     -> n
+                                                                  
+                                                         lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
+                                                         rhs = App con rargs
+                                                     in  [Decl lhs rhs]                                                    
+                               in  Comment "cata" :
+                                   (if @lhs.o_sig then [tSig] else []) ++
+                                   maybe @alts.cataAlts special (lookup @nt @lhs.typeSyns)
+ 
+ATTR CAlternatives     [ | | cataAlts : {Decls} ]
+ATTR CAlternative      [ | | cataAlt  : {Decl}  ]
+
+
+SEM CAlternatives
+  | Cons lhs.cataAlts = @hd.cataAlt : @tl.cataAlts
+  | Nil  lhs.cataAlts = []
+
+SEM CAlternative
+  | CAlternative lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
+                                   lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
+                                                 (map (SimpleExpr . locname . fst) @children)
+                                   rhs = App (semname @lhs.prefix @lhs.nt @con)
+                                             (map argument @children)
+                                   argument (nm,NT tp) = App (cataname @lhs.prefix tp)
+                                                             [SimpleExpr (locname nm)]
+                                   argument (nm, _)    = SimpleExpr (locname nm)
+                               in Decl lhs rhs

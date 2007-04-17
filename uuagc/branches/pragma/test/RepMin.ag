@@ -1,0 +1,30 @@
+DATA Root | Root tree:Tree
+DATA Tree 
+ | Node left:Tree right:Tree
+ | Leaf int:Int
+
+ATTR Tree [ | | minval:Int]
+SEM Tree
+  | Leaf lhs.minval = @int
+  | Node lhs.minval = min @left.minval @right.minval
+
+ATTR Tree [ gmin:{Int} | | ]
+SEM Root 
+  | Root tree.gmin = @tree.minval
+ATTR Tree [ | | result:Tree ] 
+ATTR Root [ | | result:Tree ] 
+SEM Tree
+  | Node lhs.result  = Tree_Node @left.result @right.result
+  | Leaf lhs.result  = Tree_Leaf @lhs.gmin
+SEM Root
+  | Root lhs.result = @tree.result
+
+DERIVING * : Show
+
+{
+main :: IO ()
+main = putStrLn (show test)
+         where test = let tree n  | n <= 0    = sem_Tree_Leaf 1
+                                  | otherwise = sem_Tree_Node (tree (n-1)) (tree (n-2))
+                      in sem_Root_Root (tree 10)
+}

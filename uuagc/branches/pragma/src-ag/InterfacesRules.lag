@@ -1,0 +1,427 @@
+\begin{Code}
+INCLUDE "Interfaces.ag"
+
+imports
+{
+import Interfaces
+import SequentialTypes
+import CodeSyntax
+import GrammarInfo
+
+import UU.DData.Seq as Seq
+import qualified UU.DData.Map as Map
+import UU.DData.Map(Map)
+import qualified UU.DData.Set as Set
+import UU.DData.Set(Set)
+import Data.Graph
+import Data.Maybe (fromJust)
+import Data.List (partition,transpose,(\\),nub,intersect)
+import Data.Array ((!),inRange,bounds,assocs)
+}
+\end{Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Visit sub-sequence-graph}
+
+Visit sub-sequences can be generated from the |Tdp| by a topological
+sort. To that end we add vertices to |Tdp|. For each production, for
+each child, for each visit to that child, we add a vertex $v$. 
+
+We add the following edges:
+
+\begin{enumerate}
+
+    \item From the inherited attributes passed to the visit to $v$,
+    because these attributes need to be computed before visiting $v$.
+
+    \item From the synthesized attributes computed by the visit to
+    $v$, because a visit to $v$ computes these attributes.
+
+    \item From the previous visit to $v$, because we can only visit
+    $c$ for the $i$-th time if we have visited it the $(i-1)$-th time.
+
+\end{enumerate}
+
+Now we can define a visit sub-sequence as a list of vertices: 
+
+\begin{Code}
+{
+type VisitSS = [Vertex]
+}
+\end{Code}
+
+We define a function that generates the visit-subsequences-graph and a
+description of the newly added vertices. We do this using an attribute
+grammar. The visit subsequences graph has transposed edges, so we can
+use |topSort'|.
+
+\begin{Code}
+ATTR IRoot [ tdp : Graph | | ]
+SEM  IRoot 
+  |  IRoot loc.newedges = Seq.toList @inters.newedges
+           loc.visitssGraph =  let graph = buildG (0,@inters.v-1) es
+                                   es = @newedges ++ edges @lhs.tdp
+                               in transposeG graph
+\end{Code}
+
+As we will need to look up information, we pass |info| down. An
+attribute v stores a fresh vertex. We start counting from the hightest
+vertex in |tdp|.
+
+\begin{Code}
+ATTR Interfaces Interface Segments Segment [ | v : Vertex | ]
+ATTR IRoot Interfaces Interface Segments Segment [ info : Info | | ]
+SEM  IRoot 
+  |  IRoot inters.v = snd (bounds @lhs.tdp) + 1
+\end{Code}
+
+The actual generation of edges takes place in |Segment|. We group the
+attribute occurrences. |isEqualField| checks are at the same position
+(either lhs of the same child).
+
+\begin{Code}
+{
+gather :: Info -> [Vertex] -> [[Vertex]]
+gather info =  eqClasses comp
+               where comp a b = isEqualField (ruleTable info ! a) (ruleTable info ! b)
+}
+\end{Code}
+
+When we do this for right-hand side occurrences of the inherited and
+syntesized attributes of a |Segment|, we find the new vertices.
+
+\begin{Code}
+SEM  Segment 
+  |  Segment  loc.look = \a -> ruleTable @lhs.info ! a
+              loc.occurAs = \p us -> [ a  |  u <- us
+                                          ,  a <- tdsToTdp @lhs.info ! u
+                                          ,  p (@look a)]
+              loc.groups =  let group as = gather @lhs.info (@occurAs isRhs as)
+                            in map (partition (isInh . @look)) (group (@inh ++ @syn))
+              loc.v = @lhs.v + length @groups
+              loc.newvertices = [@lhs.v .. @loc.v-1]
+\end{Code}
+
+A description of the new vertices van be found by looking up the field
+of an attribute occurrence
+
+\begin{Code}
+ATTR  Interfaces Interface Segments Segment 
+      [ visitDescr : {Map Vertex ChildVisit} | | ]
+SEM  IRoot
+  |  IRoot  inters.visitDescr = Map.fromList @descr
+ATTR  Interfaces Interface Segments Segment
+      [ | |  newedges USE {Seq.<>} {Seq.empty} : {Seq Edge } 
+             descr USE {Seq.<>} {Seq.empty} : {Seq (Vertex,ChildVisit)} ]
+SEM  Segment
+  |  Segment lhs.descr =  Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {-$-}
+
+{
+-- Only non-empty syn will ever be forced, because visits with empty syn are never performed
+-- Right hand side synthesized attributes always have a field
+cv :: (Vertex -> CRule) -> Int -> Vertex -> ([Vertex],[Vertex]) -> (Vertex,ChildVisit)
+cv look n v (inh,syn) =  let  fld = getField (look (head syn))
+                              rnt = fromJust (getRhsNt (look (head syn)))
+                              d = ChildVisit fld rnt n inh syn
+                         in (v,d)
+}
+\end{Code}
+
+\begin{Code}
+SEM  IRoot
+  |  IRoot loc.descr = Seq.toList @inters.descr
+\end{Code}
+
+The edges between attributes occurrences and their corresponding
+visits can be found as follows:
+
+\begin{Code}
+SEM  Segment
+  |  Segment loc.attredges = concat (zipWith ed @newvertices @groups)
+
+{
+ed v (inh,syn) = map (\i -> (i,v)) inh ++ map (\s -> (v,s)) syn
+}
+\end{Code}
+
+For edges between visits we simpy |zip| the current vertices with the
+next ones.
+
+\begin{Code}
+ATTR Segment [ nextNewvertices : {[Vertex]} | | newvertices : {[Vertex]} ]
+ATTR Segments [ | | newvertices : {[Vertex]} ]
+SEM  Segments
+  |  Cons  hd.nextNewvertices = @tl.newvertices
+           lhs.newvertices = @hd.newvertices
+  |  Nil   lhs.newvertices = []
+
+SEM  Segment
+  |  Segment  loc.visitedges = zip @newvertices @lhs.nextNewvertices
+              lhs.newedges = Seq.fromList @attredges Seq.<> Seq.fromList @visitedges
+\end{Code}
+
+The first visit to a child is passed to the first visit of the parent,
+so we add edges for this, too.
+
+\begin{Code}
+ATTR Segments Segment [ | | groups : {[([Vertex],[Vertex])]} ]
+SEM  Segments
+  |  Cons lhs.groups = @hd.groups
+  |  Nil  lhs.groups = []
+SEM  Interface
+  |  Interface  seg.v = @lhs.v
+                loc.v = @seg.v + length @seg.newvertices
+                lhs.v = @loc.v
+                loc.firstvisitvertices = [@seg.v .. @v-1]
+                loc.newedges = zip @firstvisitvertices @seg.newvertices
+                lhs.newedges = @seg.newedges Seq.<> Seq.fromList @newedges
+                loc.look = \a -> ruleTable @lhs.info ! a
+                loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
+                lhs.descr = @seg.descr Seq.<> Seq.fromList @descr
+\end{Code}
+
+The visit number can simply be counted
+
+\begin{Code}
+ATTR Segments Segment [ n : Int | | ]
+SEM  Interface
+  |  Interface seg.n = 0
+SEM  Segments
+  |  Cons tl.n = @lhs.n + 1
+\end{Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Visit sub-sequences}
+
+To compute the visit subsequences, we pass the visit-subsequence graph down
+
+\begin{Code}
+ATTR Interfaces Interface Segments Segment [ vssGraph : Graph | | ]
+SEM  IRoot
+  |  IRoot inters.vssGraph = @visitssGraph
+\end{Code}
+
+Each segment computes subsequences for each production of the
+nonterminal. We group the occurrences of the synthesized attributes,
+and perform a topological sort on it. In the absence of synthesized
+attributes, nothing needs to be computed, so the visit subsequence
+is empty.
+
+\begin{Code}
+SEM  Segment
+  |  Segment  loc.synOccur = gather @lhs.info (@occurAs isLhs @syn)
+              loc.vss =  let hasCode v | inRange (bounds (ruleTable @lhs.info)) v =  getHasCode (ruleTable @lhs.info ! v)
+                                       | otherwise = True
+                         in if  null @syn
+                                then replicate (length @lhs.cons) []
+                                else map (filter hasCode . topSort' @lhs.vssGraph) @synOccur
+ATTR Segments Segment [ cons : {[Constructor]} | | ]
+SEM  Interface
+  |  Interface seg.cons = @cons
+\end{Code}
+
+We adapt the topological sort to take a list of vertices to start
+sorting.
+
+\begin{Code}
+{
+postorder (Node a ts) = postorderF ts ++ [a]
+postorderF = concatMap postorder
+postOrd g = postorderF . dfs g
+topSort' g = postOrd g
+}
+\end{Code}
+
+This gives us the subsequence required to compute the synthesized
+attributes. However, a part of this subsequence has already been
+computed in previous visits. We thread this part through. It starts
+with all first visits to children.
+
+\begin{Code}
+ATTR Interfaces Interface [ prev : {[Vertex]} | | firstvisitvertices USE {++} {[]} : {[Vertex]} ]
+SEM  IRoot
+  |  IRoot inters.prev =  let terminals = [ v | (v,cr) <- assocs (ruleTable @lhs.info), not (getHasCode cr), isLocal cr ]
+                          in @inters.firstvisitvertices ++ terminals
+
+ATTR Segments Segment [ | prev : {[Vertex]} | ]
+\end{Code}
+
+and we remove this part from the subsequence
+
+\begin{Code}
+SEM  Segment [ | |  visitss : {[VisitSS]} ]
+  |  Segment  loc.visitss' = map (\\ @lhs.prev) @vss
+              loc.defined =  let defines v = case Map.lookup v @lhs.visitDescr of
+                                               Nothing -> [v]
+                                               Just (ChildVisit _ _ _ inh _) -> v:inh
+                             in concatMap (concatMap defines) @visitss
+              lhs.prev = @lhs.prev ++ @defined
+\end{Code}
+
+When more that one attribute is defined in the same rule, this rule is
+repeated in the visit subsequence. We do not want this.
+
+\begin{Code}
+SEM  Segment
+  |  Segment  loc.visitss = let  rem :: [(Name,Name,Maybe Type)] -> [Vertex] -> [Vertex]
+                                 rem prev [] = []
+                                 rem prev (v:vs) 
+                                   | inRange (bounds table) v 
+                                       = let  cr = table ! v
+                                              addV = if  (getField cr,getAttr cr,getType cr) `elem` prev 
+                                                         then id 
+                                                         else (v:) 
+                                              def = Map.elems (getDefines cr)
+                                         in addV (rem (def ++ prev) vs)
+                                   | otherwise = v:rem prev vs
+                                 table = ruleTable @lhs.info
+                            in map (rem []) @visitss'
+\end{Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Intra-visit dependencies}
+
+We ignore terminals, they need to be passed from the first visit up to
+where they are needed. Intra-visit dependencies descibe what a visit
+needs from its previous visits. The first visit does not have
+intra-visit dependencies, because there are no previous visits. We add
+an attribute that indicates whether it's the first visit.
+
+\begin{Code}
+ATTR Segment Segments [ isFirst : {Bool} | | ]
+SEM  Interface
+  |  Interface seg.isFirst = True
+SEM  Segments
+  |  Cons tl.isFirst = False
+\end{Code}
+
+We declare an attribute intravisit which gives the intra-visit
+dependencies. We pass the intravisit of the next visit to this
+one. 
+\begin{Code}
+{
+type IntraVisit = [Vertex]
+}
+
+ATTR Segment [ nextIntravisits : {[IntraVisit]} | |  intravisits : {[IntraVisit]} ]
+SEM  Segments [ | | hdIntravisits : {[IntraVisit]} ]
+  |  Cons  hd.nextIntravisits = @tl.hdIntravisits
+           lhs.hdIntravisits = @hd.intravisits
+  |  Nil lhs.hdIntravisits = repeat []
+\end{Code}
+
+The first visit does not have intra-visit dependencies. A later visit
+need all attributes that it's subsequence depends on, and the
+intra-visit dependecies of the next visit, except for those attributes
+that are compted in this visit.
+
+\begin{Code}
+ATTR IRoot [ dpr : {[Edge]} | | ]
+ATTR Interfaces Interface Segments Segment [ ddp : Graph | | ]
+SEM  IRoot
+  |  IRoot inters.ddp = buildG (0,@inters.v-1) (map swap (@lhs.dpr ++ @newedges))
+
+{
+swap (a,b) = (b,a)
+}
+
+ATTR Segments Segment [ fromLhs : {[Vertex]} | | ]
+SEM  Interface
+  |  Interface seg.fromLhs = @lhs.prev
+SEM  Segments
+  |  Cons  hd.fromLhs = @lhs.fromLhs
+           tl.fromLhs = []
+SEM  Segment 
+  |  Segment  loc.fromLhs = @occurAs isLhs @inh ++ @lhs.fromLhs
+              loc.computed =  let computes v = case Map.lookup v @lhs.visitDescr of
+                                                 Nothing -> Map.keys (getDefines (ruleTable @lhs.info ! v))
+                                                 Just (ChildVisit _ _ _ _ syn) -> v:syn
+                              in concatMap (concatMap computes) @visitss
+              loc.intravisits = zipWith @iv @visitss @lhs.nextIntravisits
+              loc.iv =  \vs next -> 
+                          let needed = concatMap (@lhs.ddp !) vs
+                          in nub (needed ++ next) \\ (@fromLhs ++ @computed)
+\end{Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Result}
+
+Our resulting datastructure is:
+
+Now we pass the visit sub-sequences up. In |Interface|, |@seg.visitss|
+gives us for each segment, for each production a subsequence. What we
+want is for each production, for each visit a subsequence, which is
+accomplished by |transpose|. The same is done for intravisits.
+
+\begin{Code}
+ATTR Interfaces Interface Segments Segment [ allInters : {CInterfaceMap} | | ]
+SEM  IRoot
+  |  IRoot  inters.allInters = @inters.inters
+
+ATTR  IRoot Interfaces [ | | inters : {CInterfaceMap} 
+                             visits : {CVisitsMap} ]
+SEM Interfaces
+  |  Cons  lhs.inters = Map.insert @hd.nt @hd.inter @tl.inters
+           lhs.visits = Map.insert @hd.nt @hd.visits @tl.visits
+  |  Nil   lhs.inters = Map.empty
+           lhs.visits = Map.empty
+
+SEM  Interface [ | | nt : Nonterminal ]
+  |  Interface lhs.nt = @nt
+
+SEM  Interface [ | | inter : CInterface 
+                     visits : {Map Constructor CVisits} ]
+  |  Interface  lhs.inter = CInterface @seg.segs
+                lhs.visits = Map.fromList (zip @cons (transpose @seg.cvisits))
+
+SEM  Segments [ | | segs : CSegments
+                    cvisits USE {:} {[]} : {[[CVisit]]} ] -- For each visit, for each constructor the CVisit
+  |  Cons  lhs.segs = @hd.seg : @tl.segs
+  |  Nil   lhs.segs = []
+
+SEM  Segment [ | | seg : CSegment
+                   cvisits : {[CVisit]} ] -- For this visit, for each constructor the CVisit
+  |  Segment  lhs.seg = -- A fake dependency fixes a type-3 cycle
+                        if False then undefined @lhs.vssGraph @lhs.visitDescr @lhs.prev else CSegment @inhmap @synmap
+              loc.(inhmap,synmap) = let makemap = Map.fromList . map findType
+					findType v = getNtaNameType (attrTable @lhs.info ! v)
+                                    in (makemap @inh,makemap @syn)
+              lhs.cvisits = let  mkVisit vss intra = CVisit @inhmap @synmap (mkSequence vss) (mkSequence intra) True
+                                 mkSequence = map mkRule
+                                 mkRule v = case Map.lookup v @lhs.visitDescr of
+                                              Nothing -> ruleTable @lhs.info ! v
+                                              Just (ChildVisit name nt n _ _) -> ccv name nt n @lhs.allInters
+                            in zipWith mkVisit @visitss @intravisits
+
+{
+ccv :: Name -> Nonterminal -> Int -> CInterfaceMap -> CRule
+ccv name nt n table
+  =  CChildVisit name nt n inh syn last
+     where  CInterface segs = Map.find nt table
+            (seg:remain) = drop n segs
+            CSegment inh syn = seg           
+            last = null remain
+}
+\end{Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{EDP}
+
+To find a type-3 cycle we need to know the dependencies that the
+interfaces generate.
+
+\begin{Code}
+ATTR Interfaces Interface Segments Segment [ | | edp USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+SEM  Segment
+  |  Segment lhs.edp =  Seq.fromList [(i,s) | i <- @inh, s <- @syn]
+                        Seq.<> Seq.fromList [(s,i) | s <- @syn, i <- @lhs.nextInh ]
+SEM  IRoot [ | | edp : {[Edge]} ]
+  |  IRoot  lhs.edp = Seq.toList @inters.edp
+SEM  Segment  [ nextInh : {[Vertex]} | | inh : {[Vertex]} ]
+  |  Segment lhs.inh = @inh
+SEM  Segments [ | | firstInh : {[Vertex]} ]
+  |  Cons  hd.nextInh = @tl.firstInh
+           lhs.firstInh = @hd.inh
+  |  Nil  lhs.firstInh = []
+\end{Code}
+
