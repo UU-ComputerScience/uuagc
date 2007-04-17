@@ -1,0 +1,88 @@
+\documentclass[twoside]{article}
+\usepackage{a4wide}
+%\usepackage[dutch]{babel}
+\usepackage{graphicx}
+
+\raggedbottom
+\parindent=0pt
+\parskip=3pt
+
+\newenvironment{itize}{\begin{list}{$\bullet$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newenvironment{subitize}{\begin{list}{$-$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newcommand{\simplepicture}[2]{\centerline{\mbox{\includegraphics[scale=#1]{figs/#2}}}}
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12 }\dospecials}
+\def\setupverbatimp{\parskip=0pt\par\small\tt\obeylines\uncatcodespecials\catcode`\@=0\parskip=0pt\obeyspaces}
+{\obeyspaces\global\let =~}
+\def\prog{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimp\doverbatimp}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimp^^M#1\gorp{#1|end{list}|vspace{-3pt}|endgroup}}
+
+
+\begin{document}
+%\renewcommand{\textfraction}{0.1}
+
+
+
+\title{UUAGC v.0.9.4\\Release notes}
+
+\author{Atze Dijkstra}
+
+\date{April 17th, 2007}
+
+\maketitle
+
+
+This note describes the differences of UUAGC release 0.9.3,
+as compared to version 0.9.3 of December 2006.
+Version 0.9.4 adds two flags for the generation of strict data types:
+
+\begin{itemize}
+\item {\bf --strictdata}\\
+	Strict data types for |DATA| declarations are generated when this flag is passed.
+	For example, for
+\prog
+DATA X
+  | A  x: Int
+  | B  x: Int
+\gorp
+the generated Haskell code is:
+\prog
+data X = A (Int) (P)
+       | B (Int) (P)
+\gorp
+With the strictdata flag we obtain:
+\prog
+data X = A !(Int) !(P)
+       | B !(Int) !(P)
+\gorp
+	
+\item {\bf --strictwrap}\\
+  Similarly, the strictwrap flag generates strict wrapper data types.
+  For example, for the previous example we define a wrapper by:
+
+\prog
+ATTR X [ | | self: SELF ]
+
+WRAPPER X
+\gorp
+
+Without the strictwrap flag this gives the following code:
+\prog
+data Inh_X = Inh_X {}
+data Syn_X = Syn_X {self_Syn_X :: X}
+wrap_X sem (Inh_X ) =
+    (let ( _lhsOself) =
+             (sem )
+     in  (Syn_X _lhsOself))
+\gorp
+With the strictwrap flag we obtain:
+\prog
+data Syn_X = Syn_X {self_Syn_X :: !(X)}
+\gorp
+
+\end{itemize}
+
+
+
+\end{document}

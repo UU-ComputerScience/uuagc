@@ -91,7 +91,7 @@ SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
 
 SEM DataAlt
-  | DataAlt    lhs.pp      = @name >#< hv_sp (map (pp_parens.text) @args)
+  | DataAlt    lhs.pp      = @name >#< hv_sp (map ((@lhs.strictPre >|<) . pp_parens . text) @args)
   | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 SEM Lhs
@@ -131,6 +131,15 @@ ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
 }
 
+
+-------------------------------------------------------------------------------
+--         Strict data fields
+-------------------------------------------------------------------------------
+
+ATTR DataAlt DataAlts [ strictPre: PP_Doc | | ]
+
+SEM Decl
+  | Data alts.strictPre = if @strict then pp "!" else empty
 
 -------------------------------------------------------------------------------
 --         Pretty printing patterns

@@ -30,18 +30,23 @@ ATTR CProductions CProduction
      CAlternatives CAlternative
      CVisits CVisit
      Sequence CRule
-     CInterface CSegments CSegment [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_data,o_cata : Bool prefix : String | | ]
+     CInterface CSegments CSegment
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap : Bool
+         o_data : {Maybe Bool}
+         prefix : String
+       | | ]
 SEM CGrammar [ options : Options | | ]
-  | CGrammar    prods.o_sig     = typeSigs  @lhs.options
-                     .o_cata    = folds     @lhs.options
-                     .o_sem     = semfuns   @lhs.options
-                     .o_newtypes= newtypes  @lhs.options
-                     .o_unbox   = unbox     @lhs.options
-                     .o_case    = cases     @lhs.options
-                     .o_pretty  = attrInfo  @lhs.options
-                     .o_rename  = rename    @lhs.options
-                     .o_data    = dataTypes @lhs.options
-                     .prefix    = prefix    @lhs.options
+  | CGrammar    prods.o_sig         = typeSigs      @lhs.options
+                     .o_cata        = folds         @lhs.options
+                     .o_sem         = semfuns       @lhs.options
+                     .o_newtypes    = newtypes      @lhs.options
+                     .o_unbox       = unbox         @lhs.options
+                     .o_case        = cases         @lhs.options
+                     .o_pretty      = attrInfo      @lhs.options
+                     .o_rename      = rename        @lhs.options
+                     .o_strictwrap  = strictWrap    @lhs.options
+                     .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
+                     .prefix        = prefix        @lhs.options
 
 -------------------------------------------------------------------------------
 -- Passing information about nonterminal and constructor down
@@ -248,7 +253,8 @@ SEM CProduction
                                                   then App (sdtype @nt) [SimpleExpr var]
                                                   else SimpleExpr var
                                      typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
-                                     mkdata n attrs = Data n [Record n [(getName f++"_"++n,typeToString @nt t) | (f,t) <- attrs]] []
+                                     mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
+                                     mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
                                      datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                  in datas ++ [Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                                    (Let @inter.wrapDecls (App synNT synVars))]
@@ -339,7 +345,7 @@ SEM CGrammar
 SEM CProduction
   | CProduction  lhs.decls =  Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
                               :  (if @lhs.o_pretty                  then [@loc.comment]   else [])
-                              ++ (if @lhs.o_data                    then [@loc.dataDef]   else [])
+                              ++ (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
                               ++ (if @lhs.o_cata                    then  @loc.cataFun    else [])
                               ++ (if @lhs.o_sig                     then  @inter.semDom   else [])
                               ++ (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
@@ -394,7 +400,7 @@ SEM CProduction
                                                                                              ]                                                                
                                                in Code.Type (getName @nt) theType
                                   derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
-                                  dataDef    = Data (getName @nt) @alts.dataAlts derivings
+                                  dataDef    = Data (getName @nt) @alts.dataAlts (maybe False id @lhs.o_data) derivings
                               in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
 
 ATTR CAlternatives     [ | | dataAlts : {DataAlts} ]
