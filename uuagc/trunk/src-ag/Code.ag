@@ -33,6 +33,7 @@ DATA Decl     | Decl             left  : Lhs
                                  rhs   : Expr
               | Data             name  : {String} 
                                  alts  : DataAlts
+                                 strict: Bool
                                  derivings : {[String]}
               | NewType          name  : {String} 
                                  con   : {String} 

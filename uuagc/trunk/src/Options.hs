@@ -6,6 +6,8 @@ options     :: [OptDescr (Options -> Options)]
 options     =  [ Option ['m']     []             (NoArg (moduleOpt Nothing)) "generate default module header"
                , Option []        ["module"]     (OptArg moduleOpt "name")   "generate module header, specify module name"
                , Option ['d']     ["data"]       (NoArg dataOpt)             "generate data type definition"
+               , Option []        ["strictdata"] (NoArg strictDataOpt)       "generate strict data fields (when data is generated)"
+               , Option []        ["strictwrap"] (NoArg strictWrapOpt)       "generate strict wrap fields for WRAPPER generated data"
                , Option ['c']     ["catas"]      (NoArg cataOpt)             "generate catamorphisms"
                , Option ['f']     ["semfuns"]    (NoArg semfunsOpt)          "generate semantic functions"
                , Option ['s']     ["signatures"] (NoArg signaturesOpt)       "generate signatures for semantic functions"
@@ -37,6 +39,8 @@ allc = "dcfsprm"
 
 data Options = Options{ moduleName :: ModuleHeader 
                       , dataTypes :: Bool
+                      , strictData :: Bool
+                      , strictWrap :: Bool
                       , folds :: Bool
                       , semfuns :: Bool
                       , typeSigs :: Bool
@@ -63,6 +67,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       } deriving Show
 noOptions = Options { moduleName   = NoName
                     , dataTypes    = False
+                    , strictData   = False
+                    , strictWrap   = False
                     , folds        = False
                     , semfuns      = False
                     , typeSigs     = False
@@ -91,6 +97,8 @@ noOptions = Options { moduleName   = NoName
 
 moduleOpt  nm opts = opts{moduleName   = maybe Default Name nm}            
 dataOpt       opts = opts{dataTypes    = True}            
+strictDataOpt opts = opts{strictData   = True}            
+strictWrapOpt opts = opts{strictWrap   = True}            
 cataOpt       opts = opts{folds        = True}            
 semfunsOpt    opts = opts{semfuns      = True}            
 signaturesOpt opts = opts{typeSigs     = True}            
