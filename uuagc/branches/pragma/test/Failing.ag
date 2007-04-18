@@ -1,3 +1,0 @@
-SEM A
-  | A y.xs = []
-      lhs.xs = y.xs

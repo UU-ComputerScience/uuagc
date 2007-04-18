@@ -47,11 +47,12 @@ compile flags input output
  = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
      
       let output1  = Pass1.wrap_AG        (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
-          output2  = Pass2.wrap_Grammar   (Pass2.sem_Grammar (Pass1.output_Syn_AG       output1)) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags}
-          output3  = Pass3.wrap_Grammar   (Pass3.sem_Grammar (Pass2.output_Syn_Grammar  output2)) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags}
-          output4  = Pass4.wrap_CGrammar  (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags}
-          output5  = Pass5.wrap_Program   (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags}
-          output6  = PrErr.wrap_Errors    (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags} 
+          flags'   = Pass1.pragmas_Syn_AG output1 $ flags
+          output2  = Pass2.wrap_Grammar   (Pass2.sem_Grammar (Pass1.output_Syn_AG       output1)) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
+          output3  = Pass3.wrap_Grammar   (Pass3.sem_Grammar (Pass2.output_Syn_Grammar  output2)) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
+          output4  = Pass4.wrap_CGrammar  (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
+          output5  = Pass5.wrap_Program   (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
+          output6  = PrErr.wrap_Errors    (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           errorList        = map message2error parseErrors
                              ++ Seq.toList (      Pass1.errors_Syn_AG       output1
@@ -70,14 +71,14 @@ compile flags input output
                    (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
                                       
                writeFile  outputfile . unlines . concat . Map.elems $ pragmaBlocks
-               appendFile outputfile                                $ if (unbox flags) then "{-# OPTIONS_GHC -fglasgow-exts #-}\n" else ""
+               appendFile outputfile                                $ if (unbox flags') then "{-# OPTIONS_GHC -fglasgow-exts #-}\n" else ""
                appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
-               appendFile outputfile                                $ moduleHeader flags input
+               appendFile outputfile                                $ moduleHeader flags' input
                appendFile outputfile . unlines . concat . Map.elems $ importBlocks
                appendFile outputfile . unlines . concat . Map.elems $ textBlocks
                appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
                --putStrLn ("\n" ++ outputfile ++ " generated")
-               if werrors flags && not (null errorList) then exitFailure else return ()
+               if werrors flags' && not (null errorList) then exitFailure else return ()
 
 
 formatProg :: [UU.Pretty.PP_Doc] -> String
@@ -95,8 +96,11 @@ message2error (Msg expect pos action) = ParserError pos (show expect) actionStri
  where actionString 
         =  case action 
            of Insert s -> "inserting: " ++ show s
+
               Delete s -> "deleting: "  ++ show s
+
               Other ms -> ms
+
 
 moduleHeader :: Options -> String -> String
 moduleHeader flags input

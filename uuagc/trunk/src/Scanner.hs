@@ -91,7 +91,8 @@ scan p xs = Just (scan' xs)
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
 keywords = [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "loc","lhs", "INCLUDE"
-           ,"SET","DERIVING","FOR", "WRAPPER", "MAYBE"
+           , "SET","DERIVING","FOR", "WRAPPER", "MAYBE"
+           , "PRAGMA"
            ]
 
 ncomment c p ('-':'}':xs) = advc' 2 p c  xs

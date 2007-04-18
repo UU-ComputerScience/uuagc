@@ -53,6 +53,9 @@ DATA Elem      | Data   pos    : {Pos}
                | Wrapper  pos  : {Pos}
                           set  : NontSet         
 
+               | Pragma   pos  : {Pos}
+                          names: {[Name]}         
+
 DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}
 

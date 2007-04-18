@@ -122,6 +122,9 @@ pNontSet = set0
             <|> All <$ pStar
             <|> pParens set0
 
+pNames :: AGParser [Name]
+pNames = pList1 pIdentifier
+
 pAG  :: AGParser AG
 pAG  = AG <$> pElems
 
@@ -166,6 +169,9 @@ pElem =  Data <$> pDATA
      <|> Wrapper
               <$> pWRAPPER
               <*> pNontSet
+     <|> Pragma
+              <$> pPRAGMA
+              <*> pNames
    <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 
@@ -304,6 +310,7 @@ pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
 pWRAPPER     = pCostReserved 90 "WRAPPER" <?> "WRAPPER"
+pPRAGMA      = pCostReserved 90 "PRAGMA"  <?> "PRAGMA"
 pDATA        = pCostReserved 90 "DATA"    <?> "DATA"
 pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
