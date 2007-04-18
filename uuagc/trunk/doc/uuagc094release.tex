@@ -35,11 +35,19 @@
 
 This note describes the differences of UUAGC release 0.9.3,
 as compared to version 0.9.3 of December 2006.
-Version 0.9.4 adds two flags for the generation of strict data types:
+Version 0.9.4 adds the following features:
+\begin{itemize}
+\item
+Two flags for the generation of strict data types.
+\item
+Source level pragmas, for turning commandline options on/off on a per file basis.
+\end{itemize}
+
+\section{Strictness flags}
 
 \begin{itemize}
 \item {\bf --strictdata}\\
-	Strict data types for |DATA| declarations are generated when this flag is passed.
+	Strict data types for \verb|DATA| declarations are generated when this flag is passed.
 	For example, for
 \prog
 DATA X
@@ -82,6 +90,25 @@ data Syn_X = Syn_X {self_Syn_X :: !(X)}
 \gorp
 
 \end{itemize}
+
+\section{Pragmas}
+
+Some commandline options can be turned on or off with pragmas with the keyword \verb|PRAGMA|, followed by a non-empty list of identifiers.
+For example, the following pragma turns off the cycle check and turns on the visit sequence generation.
+\prog
+PRAGMA nocycle visit
+\gorp
+
+By convention each pragma has the same name as the corresponding option which turns on the feature.
+Also by convention the prefix ``no'' turns the option off.
+
+The following options can be set as a pragma:
+
+\prog
+cycle visit case seq strictdata strictwrap unbox optimize
+\gorp
+
+Pragmas not in this list are silently ignored.
 
 
 
