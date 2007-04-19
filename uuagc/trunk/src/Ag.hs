@@ -20,6 +20,8 @@ import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_C
 import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..))
 
+import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+
 import Options
 import Version       (banner)
 import Parser        (parseAG)
@@ -46,13 +48,18 @@ compile :: Options -> String -> String -> IO ()
 compile flags input output
  = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
      
-      let output1  = Pass1.wrap_AG        (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
-          flags'   = Pass1.pragmas_Syn_AG output1 $ flags
-          output2  = Pass2.wrap_Grammar   (Pass2.sem_Grammar (Pass1.output_Syn_AG       output1)) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
-          output3  = Pass3.wrap_Grammar   (Pass3.sem_Grammar (Pass2.output_Syn_Grammar  output2)) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
-          output4  = Pass4.wrap_CGrammar  (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5  = Pass5.wrap_Program   (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
-          output6  = PrErr.wrap_Errors    (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+      let output1  = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
+          flags'   = Pass1.pragmas_Syn_AG       output1 $ flags
+          grammar1 = Pass1.output_Syn_AG        output1
+          output2  = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1                           ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
+          grammar2 = Pass2.output_Syn_Grammar   output2
+          output3  = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
+          output4  = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
+          output5  = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
+          output6  = PrErr.wrap_Errors          (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+
+          dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
+          dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
 
           errorList        = map message2error parseErrors
                              ++ Seq.toList (      Pass1.errors_Syn_AG       output1
@@ -77,6 +84,15 @@ compile flags input output
                appendFile outputfile . unlines . concat . Map.elems $ importBlocks
                appendFile outputfile . unlines . concat . Map.elems $ textBlocks
                appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
+               appendFile outputfile                                $ if dumpgrammar flags'
+                                                                      then ("{- Dump of grammar without default rules\n" ++)
+                                                                           $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump1) 5000
+                                                                           $ ("\n-}\n" ++)
+                                                                           $ ("{- Dump of grammar with default rules\n" ++)
+                                                                           $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump2) 5000
+                                                                           $ ("\n-}\n" ++)
+                                                                           $ ""
+                                                                      else ""
                --putStrLn ("\n" ++ outputfile ++ " generated")
                if werrors flags' && not (null errorList) then exitFailure else return ()
 

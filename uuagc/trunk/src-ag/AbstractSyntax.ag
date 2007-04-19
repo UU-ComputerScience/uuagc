@@ -45,3 +45,11 @@ DATA Rule         | Rule    pattern : Pattern
 
 DATA TypeSig      | TypeSig name : {Name}
                             tp   : {Type}
+
+SET AllAbstractSyntax
+  = Grammar
+    Production Productions
+    Alternative Alternatives
+    Child Children
+    Rule Rules
+    TypeSig TypeSigs

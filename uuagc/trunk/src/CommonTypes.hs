@@ -29,6 +29,11 @@ data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
                  | Maybe Type
 
+instance Show ComplexType where
+  show (List  t ) = "[" ++ show t ++ "]"
+  show (Tuple ts) = "(" ++ showList [ show n ++ ": " ++ show t | (n,t) <- ts ] "" ++ ")"
+  show (Maybe t ) = "Maybe " ++ show t
+
 instance Show Type where
   show (Haskell t) = t
   show (NT nt  ) = getName nt
