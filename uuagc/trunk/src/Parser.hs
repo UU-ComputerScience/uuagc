@@ -140,7 +140,6 @@ pComplexType =  List <$> pBracks pType
                         ]
 pElem :: AGParser Elem
 pElem =  Data <$> pDATA
-              -- <*> pIdentifierU
               <*> pNontSet
               <*> pOptAttrs
               <*> pAlts
@@ -153,7 +152,6 @@ pElem =  Data <$> pDATA
               <*  pEquals
               <*> pComplexType
      <|> Sem  <$> pSEM
-              -- <*> pIdentifierU
               <*> pNontSet
               <*> pOptAttrs
               <*> pSemAlts
@@ -210,7 +208,6 @@ pUse :: AGParser (String,String,String)
 pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap')` opt` ("","","") <?> "USE declaration"
 
 pAlt :: AGParser Alt
---pAlt =  Alt <$> pBar <*> pIdentifierU <*> pFields <?> "a datatype alternative"
 pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
 
 pAlts :: AGParser Alts
@@ -231,7 +228,6 @@ mklower []     = []
 pSemAlt :: AGParser SemAlt
 pSemAlt  = SemAlt
           <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
---  where makeSemAlts p cs defs = [SemAlt p c defs | c <- cs ]
 
 pSimpleConstructorSet :: AGParser ConstructorSet
 pSimpleConstructorSet =  CName <$> pIdentifierU
@@ -252,9 +248,10 @@ pFieldIdentifier =  pIdentifier
                 <|> Ident "lhs" <$> pLHS 
                 <|> Ident "loc" <$> pLOC
 
+pSemDef :: AGParser [SemDef]
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
+      <|>                            pLOC              *> pList1 pLocDecl
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
-      <|> (\ident tp -> [TypeDef ident tp]) <$ pLOC <* pDot <*> pIdentifier <* pColon <*> (Haskell . fst <$> pCodescrapL)
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
@@ -263,6 +260,16 @@ pAttrDef = (\pat owrt exp fld -> Def (pat fld) exp owrt)
            <$ pDot <*> pattern <*> pAssign <*> pExpr
   where pattern =  pPattern pVar
                <|> (\a fld -> Alias fld a (Underscore noPos)) <$> pIdentifier
+
+
+nl2sp :: Char -> Char
+nl2sp '\n' = ' '
+nl2sp '\r' = ' '
+nl2sp x = x
+
+pLocDecl :: AGParser SemDef
+pLocDecl =   (\ident tp -> TypeDef ident tp)
+              <$ pDot <*> pIdentifier <* pColon <*> (Haskell . map nl2sp . fst <$> pCodescrapL)
  
 pSemDefs :: AGParser SemDefs
 pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"
