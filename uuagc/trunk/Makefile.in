@@ -55,7 +55,8 @@ SRC_LAG_SYN_NAMES =
 # And semantic functions from these AG files.
 SRC_AG_SEM_NAMES = DefaultRules.ag GenerateCode.ag PrintCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag \
-	 Transform.ag Order.ag
+	 Transform.ag Order.ag \
+	 AbstractSyntaxDump.ag 
 SRC_LAG_SEM_NAMES = InterfacesRules.lag
 
 # Default flags for AG

@@ -6,3 +6,6 @@ import UU.Scanner.Position(Pos)
 DATA Expression
    | Expression pos:{Pos}
                 txt:{String}
+
+SET AllExpression
+  = Expression

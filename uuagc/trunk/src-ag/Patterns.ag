@@ -16,4 +16,7 @@ DATA Pattern    | Constr     name  : {Constructor}
                              pat   : Pattern
                 | Underscore pos   : {Pos}
 
-ATTR Pattern Patterns [ | | copy : SELF ]
+ATTR AllPattern [ | | copy : SELF ]
+
+SET AllPattern
+  = Pattern Patterns
