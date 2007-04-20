@@ -51,6 +51,7 @@ ATTR Productions Production Alternatives Alternative [ typeSyns : {TypeSyns} | |
 -- some auxiliary functions
 -------------------------------------------------------------------------------
 {
+fieldName n       = '@' : getName n
 	
 locName n         = '@' : getName n
 
@@ -263,7 +264,7 @@ copyRule nt con modcopy locals (env,(fld,as))
                                      , Seq.single (MissingRule nt con fld a)
                                      )
                   Just f 
-                   | f == _ACHILD -> ( fieldname a
+                   | f == _ACHILD -> ( fieldName a
                                      , Seq.single (deprecatedCopyRuleError nt con fld a)
                                      )
                    | otherwise    -> ( attrName f a
@@ -339,7 +340,7 @@ SEM Alternative
              where   
                childSelf self nm tp 
                  = case tp of NT nt  -> attrName nm self
-                              _      -> fieldname nm
+                              _      -> fieldName nm
                constructor fs
                 | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns 
                   = "(" ++ concat (List.intersperse "," fs) ++ ")"
