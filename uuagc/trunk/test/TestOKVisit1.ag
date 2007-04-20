@@ -1,0 +1,15 @@
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+
+ATTR Aap [ x : Int | y : Int |  z : Int ]
+
+SEM Root
+  | Root  a.x = @a.y
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t
+         lhs.z = @lhs.x

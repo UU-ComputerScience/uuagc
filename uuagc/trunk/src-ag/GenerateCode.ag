@@ -198,8 +198,9 @@ SEM  CVisit
                                          else id
                          in Decl lhs rhs
             loc.tsig = TSig @funcname @semType
-            loc.semType = let argType (NT tp) rec = SimpleType (sdtype tp) `Arr` rec
-                              argType tp      rec = SimpleType (typeToString @lhs.nt tp) `Arr` rec
+            loc.semType = let argType (NT tp) rec | tp /= _SELF = SimpleType (sdtype tp)               `Arr` rec
+                                                  -- | tp == _SELF = ???
+                              argType tp      rec               = SimpleType (typeToString @lhs.nt tp) `Arr` rec
                           in if  @lhs.nr == 0  
                                  then foldr argType (SimpleType (sdtype @lhs.nt)) (map snd @lhs.children)
                                  else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
