@@ -1,0 +1,30 @@
+-- A grammar that requires two visits, and an attribute w that is needed in both passes
+-- and two local attributes p and q, of which p is needed in two passes
+
+-- This translates correctly into an intra-parameter for passing p from visit 0 to visit 1
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Aap
+
+
+ATTR Aap [ x : Int | y : Int |  z : Int   w : Int ]
+
+
+SEM Root
+  | Root  a.x = @a.y + @a.w
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t          + @loc.p + @loc.q
+         lhs.z = @t + @lhs.x + @loc.p
+         lhs.w = 3
+         loc.p : Int
+         loc.p = 8
+         loc.q = 9
+         
+  | Twee lhs.y = 7
+         lhs.z = @u.w   
