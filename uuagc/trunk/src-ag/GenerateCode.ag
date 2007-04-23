@@ -166,7 +166,7 @@ SEM  CAlternative
 ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]} 
                           allTpsFound USE {&&} {True} : Bool ]
 SEM  CRule
-  |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([tp],True)) @tp
+  |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([if tp==NT _SELF then Haskell (getName (fromJust @childnt)) else tp],True)) @tp
   |  CChildVisit  lhs.tps = [Haskell @nextTp]
 
 -------------------------------------------------------------------------------
@@ -198,11 +198,11 @@ SEM  CVisit
                                          else id
                          in Decl lhs rhs
             loc.tsig = TSig @funcname @semType
-            loc.semType = let argType (NT tp) rec | tp /= _SELF = SimpleType (sdtype tp)               `Arr` rec
-                                                  -- | tp == _SELF = ???
-                              argType tp      rec               = SimpleType (typeToString @lhs.nt tp) `Arr` rec
+            loc.semType = let argType (NT tp)      rec | tp /= _SELF = SimpleType (sdtype tp) `Arr` rec
+                                                       | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
+                              argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
                           in if  @lhs.nr == 0  
-                                 then foldr argType (SimpleType (sdtype @lhs.nt)) (map snd @lhs.children)
+                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map snd @lhs.children)
                                  else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
             lhs.decls =  if  @lhs.with_sig 
                              then [@tsig, @semFun]
@@ -320,8 +320,19 @@ SEM CAlternative
                                            ++ @visits.comments
                                            )
 
+SEM CVisit
+  | CVisit       lhs.comments =  ( ("visit vss:") 
+                                   : map ind (@vss.comments)
+                                 )
+                                 ++
+                                 ( ("visit intra:") 
+                                   : map ind (@intra.comments)
+                                 )
+                                 
+
 SEM CRule
   | CRule        lhs.comments =  [ makeLocalComment "local" name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
+  | CChildVisit  lhs.comments =  [ makeLocalComment ("intra " ++ show @nr) @name Nothing ]
 
 {
 makeLocalComment :: String -> Name -> Maybe Type -> String
