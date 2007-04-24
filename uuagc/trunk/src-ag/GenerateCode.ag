@@ -158,6 +158,12 @@ SEM  CRule
 -- semantic function.
 -------------------------------------------------------------------------------
 
+{
+substSelf nt tp = if tp==NT _SELF 
+                  then Haskell (getName nt)
+                  else tp
+}
+
 ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type)]} | | ]
 SEM  CAlternative
   |  CAlternative visits.children = @children
@@ -166,7 +172,7 @@ SEM  CAlternative
 ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]} 
                           allTpsFound USE {&&} {True} : Bool ]
 SEM  CRule
-  |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([if tp==NT _SELF then Haskell (getName (fromJust @childnt)) else tp],True)) @tp
+  |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([substSelf (fromJust @childnt) tp],True)) @tp
   |  CChildVisit  lhs.tps = [Haskell @nextTp]
 
 -------------------------------------------------------------------------------
@@ -297,7 +303,9 @@ SEM  CGrammar [ | | errors : {Seq Error} ]
 SEM  CVisit
   |  CVisit lhs.errors = @intra.errors
 SEM  CRule
-  |  CRule lhs.errors = maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con @name)) (const Seq.empty) @tp
+  |  CRule lhs.errors = let nameOf (Alias _ _ _ pats@(_:_)) = Ident (show (map (\(Alias _ a _ _)->a) pats)) (getPos @name)
+                            nameOf _ = @name
+                        in  maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con (nameOf @pattern.copy))) (const Seq.empty) @tp
 
 -------------------------------------------------------------------------------
 -- Provide a description of the interfaces as comments
@@ -310,35 +318,37 @@ ATTR CInterface CSegments CSegment
      CAlternatives CAlternative
      CVisits CVisit Sequence CRule  [ | | comments USE {++} {[]}: {[String]} ]
 
+ATTR Sequence CRule [ what:String | | ]
+
 SEM CSegment
-  | CSegment     lhs.comments =  ("visit " ++ show @lhs.nr ++ ":") 
-                                 : map ind (showsSegment (CSegment @inh @syn))
+  | CSegment     lhs.comments =  let body = map ind (showsSegment (CSegment @inh @syn))
+                                 in if null body
+                                    then []
+                                    else ("visit " ++ show @lhs.nr ++ ":") : body
 
 SEM CAlternative 
   | CAlternative lhs.comments =  ("alternative " ++ getName @con ++ ":")
-                                 : map ind (  map (\(x,y) -> makeLocalComment "child" x (Just y)) @children
+                                 : map ind (  map (\(x,y) -> makeLocalComment 14 "child" x (Just y)) @children
                                            ++ @visits.comments
                                            )
 
 SEM CVisit
-  | CVisit       lhs.comments =  ( ("visit vss:") 
-                                   : map ind (@vss.comments)
-                                 )
-                                 ++
-                                 ( ("visit intra:") 
-                                   : map ind (@intra.comments)
-                                 )
+  | CVisit       lhs.comments =  let body = map ind (@vss.comments ++ @intra.comments)
+                                 in if null body
+                                    then []
+                                    else ("visit " ++ show @lhs.nr ++ ":") : body
+                 vss.what     = "local"
+                 intra.what   = "intra"
                                  
 
 SEM CRule
-  | CRule        lhs.comments =  [ makeLocalComment "local" name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
-  | CChildVisit  lhs.comments =  [ makeLocalComment ("intra " ++ show @nr) @name Nothing ]
+  | CRule        lhs.comments =  [ makeLocalComment 11 @lhs.what name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
 
 {
-makeLocalComment :: String -> Name -> Maybe Type -> String
-makeLocalComment what  name tp = let  x = getName name
-                                      y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}") tp
-                                 in   ( what ++ " " ++ x ++ replicate ((14 - length x) `max` 0) ' ' ++ " : " ++ y )
+makeLocalComment :: Int -> String -> Name -> Maybe Type -> String
+makeLocalComment width what  name tp = let  x = getName name
+                                            y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}") tp
+                                       in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
 
 }
 

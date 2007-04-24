@@ -259,7 +259,7 @@ pAttrDef :: AGParser (Name -> SemDef)
 pAttrDef = (\pat owrt exp fld -> Def (pat fld) exp owrt)
            <$ pDot <*> pattern <*> pAssign <*> pExpr
   where pattern =  pPattern pVar
-               <|> (\a fld -> Alias fld a (Underscore noPos)) <$> pIdentifier
+               <|> (\a fld -> Alias fld a (Underscore noPos) []) <$> pIdentifier
 
 
 nl2sp :: Char -> Char
@@ -295,7 +295,7 @@ pPattern pvar = pPattern2 where
                <|> pPattern1 <?> "a pattern"
   pPattern1 =  pvariable 
            <|> pPattern2
-  pvariable = (\var pat a -> case var a of (fld,att) -> Alias fld att (pat a)) 
+  pvariable = (\var pat a -> case var a of (fld,att) -> Alias fld att (pat a) []) 
            <$> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos)) 
   pPattern2 = (mkTuple <$> pOParenPos <*> pListSep pComma pPattern0 <* pCParen )
           <|> (const . Underscore) <$> pUScore <?> "a pattern"

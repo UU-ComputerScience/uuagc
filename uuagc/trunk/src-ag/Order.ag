@@ -20,7 +20,6 @@ import GrammarInfo
 import HsToken(HsTokensRoot(HsTokensRoot))
 import HsTokenScanner(lexTokens)
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
-
 -- From uulib
 import qualified UU.DData.Map as Map
 import qualified UU.DData.Seq as Seq
@@ -35,7 +34,7 @@ import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!),bounds,inRange)
 import Data.Graph
-import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy)
+import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse)
 import qualified Data.Tree as Tree
 import Maybe
 }
@@ -158,13 +157,40 @@ SEM  Child
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
 SEM  Rule
-  |  Rule  loc.defines = let  tp field attr  | field == _LOC = Map.lookup attr @lhs.allTypeSigs
-                                             | field == _LHS = Map.lookup attr @lhs.syn
-                                             | otherwise = Map.lookup attr (Map.find field @lhs.childInhs)
-                         in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr)))
-                                          | aa <- @pattern.gathAltAttrs, let AltAttr field attr _ = aa ]
+  |  Rule  loc.defines = let  tp field attr parts | field == _LOC = case parts of 
+                                                                      [] -> Map.lookup attr @lhs.allTypeSigs
+                                                                      _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
+                                                  | field == _LHS = Map.lookup attr @lhs.syn
+                                                  | otherwise     = Map.lookup attr (Map.find field @lhs.childInhs)
+                              typ :: Pattern -> Maybe Type
+                              typ (Alias field attr _ parts) = tp field attr parts
+                              typ (Underscore _)             = Nothing
+                         in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
+                                          |  aa <- @pattern.gathAltAttrs
+                                          ,  let AltAttr field attr _ = aa 
+                                          ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin | (field,attr,tp) <- Map.elems @defines ]
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
+                                            | (field,attr,tp) <- Map.elems @defines 
+                                            ]
+
+{
+substSelf nt tp = if tp==NT _SELF 
+                  then Haskell (getName nt)
+                  else tp
+	
+	
+haskellTupel :: [Type] -> Maybe Type
+haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts))) ++ ")" ))
+}
+
+
+ATTR Pattern [ | | patternParts:Patterns]
+
+SEM Pattern
+  | Alias   lhs.patternParts = @parts.copy
+  | *-Alias lhs.patternParts = []
+  
 
 -- Giving them a number
 ATTR  Productions Production Alternatives Alternative
