@@ -14,6 +14,7 @@ DATA Pattern    | Constr     name  : {Constructor}
                 | Alias      field : {Name}
                              attr  : {Name}
                              pat   : Pattern
+                             parts : Patterns
                 | Underscore pos   : {Pos}
 
 ATTR AllPattern [ | | copy : SELF ]

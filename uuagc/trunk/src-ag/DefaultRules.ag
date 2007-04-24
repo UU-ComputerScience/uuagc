@@ -199,7 +199,7 @@ missingRuleErrorExpr nt con fld a
 	
 makeRule :: (Name,Name) -> Expression -> String -> Rule
 makeRule (f1,a1) expr origin 
- = Rule (Alias f1 a1 (Underscore noPos)) 
+ = Rule (Alias f1 a1 (Underscore noPos) []) 
         expr 
         False 
         origin
@@ -396,13 +396,53 @@ SEM Pattern
 --         Reconstructing the tree
 -------------------------------------------------------------------------------
 
+ATTR Productions Production Alternatives Alternative Rules Rule [ | uniq:Int | ]
+
+SEM Grammar
+  | Grammar prods.uniq = 1
+
 ATTR Grammar Productions  Production   Alternatives
     Alternative Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
     [ | | output:SELF ] 
+
+ATTR Rule [ | | outputs:Rules ]
+
 
 SEM Alternative
   | Alternative lhs.output = Alternative @con @children.output (@rules.output ++ @newRls) @typeSigs.output
 
 SEM Rules 
-  | Cons lhs.output = if @hd.containsVars then @output else @tl.output
+  | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
     -- remove rules that define nothing
+
+SEM Rule
+  | Rule  lhs.outputs = multiRule @loc.output @lhs.uniq
+          lhs.uniq    = @lhs.uniq + 1
+
+
+{
+allNames :: [Pattern] -> String
+allNames = concat . (map patName)
+
+patName :: Pattern -> String
+patName (Alias f a p _) = getName a
+patName (Underscore p) = "_"
+	
+multiRule (Rule (Product pos pats) expr owrt origin) uniq
+  =  Rule (Alias _LOC freshName (Underscore pos) pats) expr owrt origin
+     : map makerule (diag pats)
+     where makerule pats = Rule (Product pos pats) freshExpr owrt origin
+           freshName = Ident ("_tup" ++ show uniq) pos   -- Ident (allNames pats) pos
+           freshExpr = Expression pos (attrName _LOC freshName)
+           diag :: [Pattern] -> [[Pattern]]     
+           diag = foldr f []
+                  where f p m = (p : replicate (length m) (Underscore pos)) : (map ((Underscore pos):) m)
+multiRule r _
+  =  [r]
+
+}
+
+
+  
+
+
