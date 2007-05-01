@@ -97,18 +97,19 @@ type Comp s = (Tds s, Tdp s)
 \section{Generating IDS}
 
 As we insert edges into Tdp we keep it transitively closed, so every
-time we add the edge $(s,t)$ to V, we also add the edges $\{ (r,t) ||
-(t,s) \in V \}$ and $\{ (s,u) || (t,u) \in V \}$.
+time we add the edge $(s,t)$ to V, we also add the edges 
+$\{ (r,t) || (r,s) \in V \}$ and 
+$\{ (s,u) || (t,u) \in V \}$.
 
 \begin{code}
 insertTdp :: Info -> Comp s -> Edge -> ST s [Edge]
-insertTdp info comp@(_,(tdpN,tdpT)) (s,t)
-  = ifM  (hasEdge tdpN (s,t))
-         (return [])
-         (do  rs <- readArray tdpT s
-              us <- readArray tdpN t
-              let edges = carthesian (s:rs) (t:us)
-              concatMapM (addTdpEdge info comp) edges)
+insertTdp info comp@(_,(tdpN,tdpT)) (s,t)                  -- how to insert an edge (s,t):
+  = ifM  (hasEdge tdpN (s,t))                              -- if it's already there...
+         (return [])                                       -- ...we're done; otherwise:
+         (do  rs <- readArray tdpT s                       -- find all sources r for an edge to s
+              us <- readArray tdpN t                       -- find all targets u for an edge from t
+              let edges = carthesian (s:rs) (t:us)         -- construct (s,t) but also (r,t) and (s,u) and even (r,u)
+              concatMapM (addTdpEdge info comp) edges)     -- and add all of them, without having to bother about transitive closure anymore
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM b t e = do  b' <- b
@@ -125,11 +126,11 @@ Edges in |Tdp| can induce edges in |Tds|, so we check whether we add
 an edge, and call induce:
 
 \begin{code}
-addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]
+addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]        -- how to add an edge (s,t) without bothering about the transitive closure:
 addTdpEdge info comp@(_,(tdpN,tdpT)) (s,t)
-  = ifM  (addEdge tdpN (s,t))
-         (do  addEdge tdpT (t,s)
-              induce info comp (s,t))
+  = ifM  (addEdge tdpN (s,t))                              -- add it to the normal graph, and if it was not already there:
+         (do  addEdge tdpT (t,s)                           --   also add it to the transposed graph
+              induce info comp (s,t))                      --   and calculate what it induces in the Tds graph
          (return [])
 \end{code}
 
@@ -137,18 +138,18 @@ An edge in |Tdp| only induces an edge in |Tds| if they are both
 left-hand-side attributes or attributes of the same child.
 
 \begin{code}
-induce :: Info -> Comp s -> Edge -> ST s [Edge]
+induce :: Info -> Comp s -> Edge -> ST s [Edge]            -- how to add induced dependencies for an edge (s,t) betweeen attr.occurences:
 induce info comp (s,t)
-  =  let  u = tdpToTds info ! s
+  =  let  u = tdpToTds info ! s                            -- find the correspnding attributes...
           v = tdpToTds info ! t
           nonlocal = u /= -1 && v /= -1
           equalfield = isEqualField (ruleTable info ! s) (ruleTable info ! t)
-     in if  nonlocal && equalfield
-            then insertTds info comp (u,v)
+     in if  nonlocal && equalfield                         -- ...and if necessary...
+            then insertTds info comp (u,v)                 -- ...insert them in the Tds graph
             else return []
 \end{code}
 
-Inserting edges into |Tds| will insert edges between the occurrances
+Inserting edges into |Tds| will insert edges between the occurrences
 of the attributes into |Tdp|. If the computation is only done to find
 cycles, we do not add s2i-edges. In this case |u > v| for the edge
 |(u,v)| indicates an s2i-edge. \begin{notes} TODO: Is it clear why? If
@@ -162,7 +163,9 @@ insertTds info comp@(tds,_) (u,v)
   =  do vs <- ifM  (addEdge tds (u,v)) 
                    (occur info comp (u,v)) 
                    (return [])
-        if  cyclesOnly info && isSynAttr (attrTable info ! u) && isInhAttr (attrTable info ! v)
+        if  cyclesOnly info 
+            && isSynAttr (attrTable info ! u) 
+            && isInhAttr (attrTable info ! v)
             then return ((u,v):vs)
             else return vs
 \end{code}
@@ -198,23 +201,6 @@ addSimpleEdge info comp@(_,(tdpN,tdpT)) (s,t)
              addEdge tdpT (t,s)
              return [])
 
-data IDP s =  IDP (Comp s) [Edge]
-           |  LLCycle [Vertex]
-
-tdsTdp :: Info -> [Edge] -> ST s (IDP s)
-tdsTdp info dpr 
-   = let  (ll,es) = partition isLocLoc dpr
-          isLocLoc (s,t) = isLoc s && isLoc t
-          isLoc s = isLocal (ruleTable info ! s)
-     in do  tds  <- newArray (bounds (tdsToTdp info)) []
-            tdpN <- newArray (bounds (tdpToTds info)) []
-            tdpT <- newArray (bounds (tdpToTds info)) []
-            let comp = (tds,(tdpN,tdpT))
-            llcycles <- concatMapM (simpleInsert info comp) ll
-            if  null llcycles
-                then do  es <- concatMapM (insertTdp info comp) es
-                         return (IDP comp (nub es))
-                else return (LLCycle llcycles)
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -361,11 +347,13 @@ take into account removed vertices, as they can never form a cycle.
 
 \begin{code}
 cycles3 :: Info -> Graph -> [Edge]
-cycles3 info tds = [ (v,u)  | (l,m,h) <- lmh info
-                            , v <- [m..h]
-                            , u <- tds ! v
-                            , l <= u, u < m
-                            , v `elem` tds ! u ]
+cycles3 info tds = [ (v,u)  
+                   | (l,m,h) <- lmh info        -- for every nonterminal: [l..m-1] are inherited, [m..h] are synthesized
+                   , v <- [m..h]                -- for every synthesized attribute
+                   , u <- tds ! v               -- find dependent attributes...
+                   , l <= u, u < m              -- ...that are inherited...
+                   , v `elem` tds ! u           -- ...and have a cycle back
+                   ]
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,46 +369,68 @@ getResult info tds tdp dpr
          iroot = wrap_IRoot inters inhs
     in (inters_Syn_IRoot iroot, visits_Syn_IRoot iroot, edp_Syn_IRoot iroot)
 
-reportCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
-reportCycle dp ss
+reportLocalCycle :: Graph -> [Vertex] -> [(Vertex,[Vertex])]
+reportLocalCycle dp ss
   = let  ds = [(s,fromJust mes)  
               | s <- ss
-              , let mes = spath dp s s, isJust mes ]
+              , let mes = spath dp s s
+              , isJust mes 
+              ]
     in if  null ds 
            then error "'Local to Local'-cycle found, but no paths" 
            else ds
 
+
+reportDirectCycle info tds2 dp cyc2
+  = [ (e, fromJust mes) 
+    | e <- cyc2
+    , let mes = cyclePath info tds2 dp e
+    , isJust mes 
+    ]
+
+
+
 spath :: Graph -> Vertex -> Vertex -> Maybe [Vertex]
 spath graph from to 
-  =  path' [[v,from] | v <- graph ! from] []
-     where path' [] _ = Nothing
-           path' (l@(v:p):wl) prev 
+  =  path [[v,from] | v <- graph ! from] []
+     where path [] _ = Nothing
+           path (l@(v:p):wl) prev 
              | v == to = Just (reverse l)
-             | v `elem` prev = path' wl prev
-             | otherwise = path' (wl ++ map (:l) (graph ! v)) (v:prev)
+             | v `elem` prev = path wl prev
+             | otherwise = path (wl ++ map (:l) (graph ! v)) (v:prev)
+
+
+isLocLoc rt (s,t) = isLocal (rt ! s) && isLocal (rt ! t)
+
 
 computeSequential :: Info -> [Edge] -> SeqResult
 computeSequential info dpr
-  = runST  (do  let dp = buildG (bounds (tdpToTds info)) dpr
-                init <- tdsTdp (info{cyclesOnly = True}) dpr
-                case init of
-                  LLCycle ss -> return (LocLocCycle (reportCycle dp ss))
-                  IDP (comp@(tds,(tdp,_))) s2i  ->  do  tds' <- freeze tds
-                                                        let cyc2 = cycles2 tds' s2i
-                                                        if  not (null cyc2) 
-                                                            then let errs = [(e,fromJust mes) 
-                                                                            | e <- cyc2
-                                                                            , let mes = cyclePath info tds' dp e, isJust mes ]
-                                                                 in return (DirectCycle errs)
-                                                            else do  tdp' <- freeze tdp
-                                                                     let  (cim,cvm,edp) = getResult info tds' tdp' dpr
-                                                                     mapM_ (insertTds (info{cyclesOnly = False}) comp) edp
-                                                                     tds' <- freeze tds
-                                                                     let cyc3 = (cycles3 info tds')
-                                                                     if  (not (null cyc3))
-                                                                         then return (InducedCycle cim cyc3)
-                                                                         else return (SeqResult cim cvm)
-           )
+  = runST
+    (do let bigBounds   = bounds (tdpToTds info)
+            smallBounds = bounds (tdsToTdp info)
+            (ll,es) = partition (isLocLoc (ruleTable info)) dpr
+            graph = buildG bigBounds dpr
+        tds  <- newArray smallBounds []
+        tdp  <- newArray bigBounds   []
+        tdpT <- newArray bigBounds   []
+        let comp = (tds,(tdp,tdpT))
+        cyc1 <- concatMapM (simpleInsert info comp) ll                                        -- insert the local dependencies
+        if  not (null cyc1)                                                                   -- are they cyclic?
+            then return (LocalCycle (reportLocalCycle graph cyc1))                            -- then report an error.
+            else do  s2i  <- concatMapM (insertTdp (info{cyclesOnly=True}) comp) es           -- insert the other dependencies
+                     tds2 <- freeze tds
+                     let cyc2 = cycles2 tds2 (nub s2i)                                        
+                     if  not (null cyc2)                                                      -- are they cyclic?
+                         then return (DirectCycle (reportDirectCycle info tds2 graph cyc2))   -- then report an error.
+                         else do  tdp2 <- freeze tdp
+                                  let  (cim,cvm,edp) = getResult info tds2 tdp2 dpr
+                                  mapM_ (insertTds (info{cyclesOnly=False}) comp) edp         -- insert dependencies resulting from getResult
+                                  tds3 <- freeze tds
+                                  let cyc3 = cycles3 info tds3
+                                  if  not (null cyc3)                                         -- are they cyclic?
+                                      then return (InducedCycle cim cyc3)                     -- then report an error.
+                                      else return (CycleFree cim cvm)                         -- otherwise we succeed.
+    )
 \end{code}
 
 \end{document}
