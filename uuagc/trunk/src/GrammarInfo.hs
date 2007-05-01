@@ -18,12 +18,36 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   ,  wraps       ::  Set Nonterminal
                   ,  cyclesOnly  ::  Bool
                   }
+                  deriving Show
+
+instance Show CRule
+ where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin) 
+         = concat rhs
+
+
+{-
+                   name       :  Name
+                   isIn       :  Bool
+                   hasCode    :  Bool
+                   nt         :  Nonterminal
+                   con        :  Constructor
+                   field      :  Name
+                   childnt    :  {Maybe Nonterminal}
+                   tp         :  {Maybe Type}
+                   pattern    :  Pattern
+                   rhs        :  {[String]}
+                   defines    :  {Map Vertex (Name,Name,Maybe Type)}
+                   owrt       :  {Bool}
+                   origin     :  String  -
+-}
+
+
 
 type CInterfaceMap = Map Nonterminal CInterface
 type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
 
-data SeqResult  = SeqResult     CInterfaceMap CVisitsMap
-                | LocLocCycle   [(Vertex,[Vertex])]
+data SeqResult  = CycleFree     CInterfaceMap CVisitsMap
+                | LocalCycle    [(Vertex,[Vertex])]
                 | DirectCycle   [(Edge,[Vertex])]
                 | InducedCycle  CInterfaceMap [Edge] 
 

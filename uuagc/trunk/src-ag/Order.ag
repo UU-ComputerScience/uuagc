@@ -37,6 +37,7 @@ import Data.Graph
 import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse)
 import qualified Data.Tree as Tree
 import Maybe
+import Debug.Trace(trace)
 }
 
 -------------------------------------------------------------------------------
@@ -315,17 +316,23 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential @info @directDep of
-                                           SeqResult    cim cvm -> (cim,cvm,[])
-                                           LocLocCycle  errs ->  (error "No interfaces for cyclic AG"
-                                                                 ,error "No visit sub-sequences for cyclic AG"
-                                                                 ,map (loclocCycleErr @ruleTable (visit @lhs.options)) errs)
-                                           DirectCycle  errs ->  (error "No interfaces for cyclic AG"
-                                                                 ,error "No visit sub-sequences for cyclic AG"
-                                                                 ,map (directCycleErr @attrTable @ruleTable (visit @lhs.options)) errs)
-                                           InducedCycle cim errs ->  (cim
-                                                                     ,error "No visit sub-sequences"
-                                                                     ,map (inducedCycleErr @attrTable cim) errs)
+                              case computeSequential ({- trace ("info: " ++ show @info) -} @info) @directDep of
+                                           CycleFree    cim cvm   -> ( cim
+                                                                     , cvm
+                                                                     , []
+                                                                     )
+                                           LocalCycle   errs      -> ( error "No interfaces for AG with local cycles"
+                                                                     , error "No visit sub-sequences for AG with local cycles"
+                                                                     , map (loclocCycleErr @ruleTable (visit @lhs.options)) errs
+                                                                     )
+                                           DirectCycle  errs      -> ( error "No interfaces for AG with direct cycles"
+                                                                     , error "No visit sub-sequences for AG with direct cycles"
+                                                                     , map (directCycleErr @attrTable @ruleTable (visit @lhs.options)) errs
+                                                                     )
+                                           InducedCycle cim errs ->  ( cim
+                                                                     , error "No visit sub-sequences for AG with induced cycles"
+                                                                     , map (inducedCycleErr @attrTable cim) errs
+                                                                     )
             lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
                           Seq.<> @prods.errors
 
