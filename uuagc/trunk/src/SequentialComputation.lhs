@@ -2,7 +2,6 @@
 module SequentialComputation {- (
     computeSequential, 
 ) -} where
-import Debug.Trace
 import SequentialTypes
 import CommonTypes
 import Interfaces
@@ -10,28 +9,39 @@ import InterfacesRules
 import CodeSyntax
 import GrammarInfo
 
-import Control.Monad(liftM)
+import Debug.Trace
+import System.Time
+import System.IO.Unsafe
+import Control.Monad(liftM,when)
 import Control.Monad.ST(ST, runST)
 import Data.Graph(Edge, Graph, Vertex, buildG)
-import Data.Array((!),bounds)
+import Data.Array(Array,(!),bounds)
 import Data.Array.ST(STArray, newArray, readArray, writeArray, freeze)
 import Data.Maybe(listToMaybe,mapMaybe,isJust,fromJust)
 import Data.List(partition,nub,(\\),delete,minimumBy)
+import qualified Data.Set as Set
+
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collecting information}
 
-In the GHC representation of graphs |Vertex| is an |Int|, and the
-edges are represented as an Array, mapping nodes to a list of
-nodes. An edge |(x,y)| of graph |a| is represented as |y `elem` a!x|
-(|!| looks up a value in an array). This has the advantage of using
-less memory. Our algorithm will mostly be adding edges to the graph,
-so we use a mutable array. If we want to use any of the library
-functions, we can freeze the mutable array.
+In the Data.Graph library,
+a graph is represented as |Array Vertex [Vertex]|,
+mapping each vertex to a list of adjacent vertices.
+A |Vertex| is simply encoded by an |Int|.
+So to test whether an edge |(x,y)| belongs to |g|
+we can evaluate |y `elem` g!x|
+
+Our algorithm will mostly be adding edges to the graph,
+so we use a mutable array.
+For even more efficiency, we use Sets instead of lists.
+If we want to use any of the library
+functions, we can convert our representation by |fmap Set.tList . freeze|.
 
 \begin{code}
-type STGraph s = STArray s Vertex [Vertex]
+type STGraph s = STArray s Vertex (Set.Set Vertex)
+type SGraph    = Array     Vertex (Set.Set Vertex)
 \end{code}
 
 We can add an edge to a graph, or remove it. These functions return
@@ -41,19 +51,19 @@ only checks whether a graph contains an edge or not.
 \begin{code}
 addEdge, removeEdge, hasEdge :: STGraph s -> Edge -> ST s Bool
 addEdge graph (u,v) = do  e <- readArray graph u
-                          if  v `elem` e
+                          if  Set.member v e
                               then return False
-                              else do  writeArray graph u (v:e)
+                              else do  writeArray graph u (Set.insert v e)
                                        return True
 
 removeEdge graph (u,v) = do  e <- readArray graph u
-                             if  (v `elem` e)
-                                 then do  (writeArray graph u (delete v e))
+                             if  Set.member v e
+                                 then do  (writeArray graph u (Set.delete v e))
                                           return True
                                  else return False
 
 hasEdge graph (u,v) = do  e <- readArray graph u
-                          return (v `elem` e)
+                          return (Set.member v e)
 \end{code}
 
 The first step is to assign a number to all attributes, and a
@@ -102,82 +112,60 @@ $\{ (r,t) || (r,s) \in V \}$ and
 $\{ (s,u) || (t,u) \in V \}$.
 
 \begin{code}
-insertTdp :: Info -> Comp s -> Edge -> ST s [Edge]
-insertTdp info comp@(_,(tdpN,tdpT)) (s,t)                  -- how to insert an edge (s,t):
-  = ifM  (hasEdge tdpN (s,t))                              -- if it's already there...
-         (return [])                                       -- ...we're done; otherwise:
+insertTdp :: Info -> Comp s -> Edge -> ST s ()
+insertTdp info comp@(_,(tdpN,tdpT)) e@(s,t)                -- how to insert an edge (s,t):
+  = ifM  (hasEdge tdpN e)                                  -- if it's already there...
+         (return ())                                       -- ...we're done; otherwise:
          (do  rs <- readArray tdpT s                       -- find all sources r for an edge to s
               us <- readArray tdpN t                       -- find all targets u for an edge from t
-              let edges = carthesian (s:rs) (t:us)         -- construct (s,t) but also (r,t) and (s,u) and even (r,u)
-              concatMapM (addTdpEdge info comp) edges)     -- and add all of them, without having to bother about transitive closure anymore
+              let edges = cartesian (s:Set.toList rs) (t:Set.toList us) -- construct (s,t) but also (r,t) and (s,u) and even (r,u)
+              mapM_ (addTdpEdge info comp) edges           -- and add all of them, without having to bother about transitive closure anymore
+         )
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM b t e = do  b' <- b
                 if b' then t else e
 
-carthesian :: [a] -> [b] -> [(a,b)]
-carthesian as bs = [(a,b) | a <- as, b <- bs]
+cartesian :: [a] -> [b] -> [(a,b)]
+cartesian as bs = [(a,b) | a <- as, b <- bs]
 
 concatMapM :: Monad m => (a -> m [b]) -> [a] -> m [b]
 concatMapM f xs = liftM concat (mapM f xs)
 \end{code}
 
-Edges in |Tdp| can induce edges in |Tds|, so we check whether we add
-an edge, and call induce:
+Edges in |Tdp| can induce edges in |Tds|, so whenever we add
+an edge, we also add the induced edge if necessary
 
 \begin{code}
-addTdpEdge :: Info -> Comp s -> Edge -> ST s [Edge]        -- how to add an edge (s,t) without bothering about the transitive closure:
-addTdpEdge info comp@(_,(tdpN,tdpT)) (s,t)
-  = ifM  (addEdge tdpN (s,t))                              -- add it to the normal graph, and if it was not already there:
+addTdpEdge :: Info -> Comp s -> Edge -> ST s ()        -- how to add an edge (s,t) without bothering about the transitive closure:
+addTdpEdge info comp@(_,(tdpN,tdpT)) e@(s,t)
+  = ifM  (addEdge tdpN e)                                  -- add it to the normal graph, and if it was not already there:
          (do  addEdge tdpT (t,s)                           --   also add it to the transposed graph
-              induce info comp (s,t))                      --   and calculate what it induces in the Tds graph
-         (return [])
-\end{code}
-
-An edge in |Tdp| only induces an edge in |Tds| if they are both
-left-hand-side attributes or attributes of the same child.
-
-\begin{code}
-induce :: Info -> Comp s -> Edge -> ST s [Edge]            -- how to add induced dependencies for an edge (s,t) betweeen attr.occurences:
-induce info comp (s,t)
-  =  let  u = tdpToTds info ! s                            -- find the correspnding attributes...
-          v = tdpToTds info ! t
-          nonlocal = u /= -1 && v /= -1
-          equalfield = isEqualField (ruleTable info ! s) (ruleTable info ! t)
-     in if  nonlocal && equalfield                         -- ...and if necessary...
-            then insertTds info comp (u,v)                 -- ...insert them in the Tds graph
-            else return []
+              let  u = tdpToTds info ! s                   -- find the corresponding attributes...
+                   v = tdpToTds info ! t
+                   nonlocal = u /= -1 && v /= -1
+                   equalfield = isEqualField (ruleTable info ! s) (ruleTable info ! t)
+              when (nonlocal && equalfield)                -- ...and when necessary...
+                   (insertTds info comp (u,v))             -- ...insert it to the Tds graph
+         )
+         (return ())
 \end{code}
 
 Inserting edges into |Tds| will insert edges between the occurrences
-of the attributes into |Tdp|. If the computation is only done to find
-cycles, we do not add s2i-edges. In this case |u > v| for the edge
-|(u,v)| indicates an s2i-edge. \begin{notes} TODO: Is it clear why? If
-not, we can explain: There are only edges between attributes of the
-same nonterminal.
+of the attributes into |Tdp|.
 \end{notes}
 
 \begin{code}
-insertTds :: Info -> Comp s -> Edge -> ST s [Edge]
-insertTds info comp@(tds,_) (u,v)
-  =  do vs <- ifM  (addEdge tds (u,v)) 
-                   (occur info comp (u,v)) 
-                   (return [])
-        if  cyclesOnly info 
-            && isSynAttr (attrTable info ! u) 
-            && isInhAttr (attrTable info ! v)
-            then return ((u,v):vs)
-            else return vs
-\end{code}
-
-\begin{code}
-occur :: Info -> Comp s -> Edge -> ST s [Edge]
-occur info comp (u,v)
-  =  let  ss = tdsToTdp info ! u
-          ts = tdsToTdp info ! v
-          eqField (s,t) = isEqualField (ruleTable info ! s) (ruleTable info ! t)
-          es = filter eqField (carthesian ss ts)
-     in concatMapM (insertTdp info comp) es
+insertTds :: Info -> Comp s -> Edge -> ST s ()
+insertTds info comp@(tds,_) e@(u,v)
+  =  do ifM  (addEdge tds e) 
+             (mapM_ (insertTdp info comp) [ (s,t)
+                                          | s <- tdsToTdp info ! u
+                                          , t <- tdsToTdp info ! v
+                                          , isEqualField (ruleTable info ! s) (ruleTable info ! t)
+                                          ]
+             ) 
+             (return ())
 \end{code}
 
 If we add the direct dependencies to the Tdp graph in this way, the
@@ -185,19 +173,19 @@ Tds graph is filled with IDS.
 
 \begin{code}
 simpleInsert :: Info -> Comp s -> Edge -> ST s [Vertex]
-simpleInsert info comp@(_,(tdpN,tdpT)) (s,t)
-  = ifM  (hasEdge tdpN (s,t))
+simpleInsert info comp@(_,(tdpN,tdpT)) e@(s,t)
+  = ifM  (hasEdge tdpN e)
          (return [])
          (do  rs <- readArray tdpT s
               us <- readArray tdpN t
-              let edges = carthesian (s:rs) (t:us)
+              let edges = cartesian (s:Set.toList rs) (t:Set.toList us)
               concatMapM (addSimpleEdge info comp) edges)
 
 addSimpleEdge :: Info -> Comp s -> Edge -> ST s [Vertex]
-addSimpleEdge info comp@(_,(tdpN,tdpT)) (s,t)
+addSimpleEdge info comp@(_,(tdpN,tdpT)) e@(s,t)
   = ifM  (hasEdge tdpN (t,s)) 
          (return [s])
-         (do addEdge tdpN (s,t)
+         (do addEdge tdpN e
              addEdge tdpT (t,s)
              return [])
 
@@ -206,17 +194,13 @@ addSimpleEdge info comp@(_,(tdpN,tdpT)) (s,t)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cycle detection}
 
-The computation returns s2i edges. If for any s2i edge $(u,v)$ there
-is an edge $(v,u)$ then we have found a cycle.
-
 \begin{code}
-cycles2 :: Graph -> [Edge] -> [Edge]
-cycles2 tds s2i = [(u,v) | (u,v) <- s2i, u `elem` tds ! v ]
-\end{code}
-
-\begin{code}
+-- dummy definition because the real definition hangs in some situations
 cyclePath :: Info -> Graph -> Graph -> Edge -> Maybe [Vertex]
-cyclePath info tds dp (u,v)
+cyclePath info tds dp (u,v) = Just []
+
+cyclePathHangsInSomeSituations :: Info -> Graph -> Graph -> Edge -> Maybe [Vertex]
+cyclePathHangsInSomeSituations info tds dp (u,v)
   =  let  is = [ init (fromJust lower) ++ fromJust top
                | s <- tdsToTdp info ! u
                , t <- tdsToTdp info ! v
@@ -273,7 +257,10 @@ i2spath info tds dp prev u v
                | s <- tdsToTdp info ! u, let s' = ruleTable info ! s
                , t <- tdsToTdp info ! v, let t' = ruleTable info ! t
                , not (s `elem` prev)
-               , isLhs s', isLhs t', isEqualField s' t' ]
+               , isLhs s'
+               , isLhs t'
+               , isEqualField s' t' 
+               ]
           paths = mapMaybe (\(s,t) -> lowerpath info tds dp prev True s t) es
      in if null paths then Nothing else Just (head paths)
 \end{code}
@@ -339,21 +326,20 @@ makeInterface tds del (l,m,h)
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Detecting type-3 cycles}
+\section{Detecting of cycles}
 
-After the generation of interfaces we need to check Tds for induced
-(type-3) cycles. We only want to return s2i edges. There is no need to
-take into account removed vertices, as they can never form a cycle.
+We only want to return s2i edges.
 
 \begin{code}
-cycles3 :: Info -> Graph -> [Edge]
-cycles3 info tds = [ (v,u)  
-                   | (l,m,h) <- lmh info        -- for every nonterminal: [l..m-1] are inherited, [m..h] are synthesized
-                   , v <- [m..h]                -- for every synthesized attribute
-                   , u <- tds ! v               -- find dependent attributes...
-                   , l <= u, u < m              -- ...that are inherited...
-                   , v `elem` tds ! u           -- ...and have a cycle back
-                   ]
+findCycles :: Info -> SGraph -> [Edge]
+findCycles info tds 
+  = [ (v,u)  
+    | (l,m,h) <- lmh info        -- for every nonterminal: [l..m-1] are inherited, [m..h] are synthesized
+    , v <- [m..h]                -- for every synthesized attribute
+    , u <- Set.toList (tds ! v)  -- find dependent attributes...
+    , l <= u, u < m              -- ...that are inherited...
+    , Set.member v (tds ! u)     -- ...and have a cycle back
+    ]
 \end{code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -410,26 +396,45 @@ computeSequential info dpr
             smallBounds = bounds (tdsToTdp info)
             (ll,es) = partition (isLocLoc (ruleTable info)) dpr
             graph = buildG bigBounds dpr
-        tds  <- newArray smallBounds []
-        tdp  <- newArray bigBounds   []
-        tdpT <- newArray bigBounds   []
+        tds  <- newArray smallBounds Set.empty
+        tdp  <- newArray bigBounds   Set.empty
+        tdpT <- newArray bigBounds   Set.empty
+        --let tm1 = unsafePerformIO getClockTime
+        --zzz <- trace (show tm1 ++ "\nll=" ++ show ll) (return ())
+        --zzz <- trace ("es=" ++ show es) (return ())
         let comp = (tds,(tdp,tdpT))
-        cyc1 <- concatMapM (simpleInsert info comp) ll                                        -- insert the local dependencies
-        if  not (null cyc1)                                                                   -- are they cyclic?
-            then return (LocalCycle (reportLocalCycle graph cyc1))                            -- then report an error.
-            else do  s2i  <- concatMapM (insertTdp (info{cyclesOnly=True}) comp) es           -- insert the other dependencies
+        cyc1 <- concatMapM (simpleInsert info comp) ll                                          -- insert the local dependencies
+        if  not (null cyc1)                                                                     -- are they cyclic?
+            then return (LocalCycle (reportLocalCycle graph cyc1))                              -- then report an error.
+            else do  mapM_ (insertTdp info comp) es                                             -- insert the other dependencies
                      tds2 <- freeze tds
-                     let cyc2 = cycles2 tds2 (nub s2i)                                        
-                     if  not (null cyc2)                                                      -- are they cyclic?
-                         then return (DirectCycle (reportDirectCycle info tds2 graph cyc2))   -- then report an error.
+                     let tds2list = fmap Set.toList tds2
+                     --let tm2 = unsafePerformIO getClockTime
+                     --    tf2 = show (normalizeTimeDiff (diffClockTimes tm2 tm1))
+                     --zzz <- trace (tf2 ++ " tds2=" ++ show tds2) (return ())
+                     let cyc2 = findCycles info tds2
+                     --zzz <- trace ("cyc2" ++ show cyc2) (return ())
+                     if  not (null cyc2)                                                        -- are they cyclic?
+                         then return (DirectCycle (reportDirectCycle info tds2list graph cyc2)) -- then report an error.
                          else do  tdp2 <- freeze tdp
-                                  let  (cim,cvm,edp) = getResult info tds2 tdp2 dpr
-                                  mapM_ (insertTds (info{cyclesOnly=False}) comp) edp         -- insert dependencies resulting from getResult
+                                  let tdp2list = fmap Set.toList tdp2
+                                  --let tm3 = unsafePerformIO getClockTime
+                                  --    tf3 = show (normalizeTimeDiff (diffClockTimes tm3 tm2))
+                                  --zzz <- trace (tf3 ++ " tdp2=" ++ show tdp2) (return ())
+                                  --zzz <- trace ("starting getResult\n") (return ())
+                                  let  (cim,cvm,edp) = getResult info tds2list tdp2list dpr
+                                  --let tm4 = unsafePerformIO getClockTime
+                                  --    tf4 = show (normalizeTimeDiff (diffClockTimes tm4 tm3))
+                                  --zzz <- trace (tf4 ++ " edp=" ++ show edp) (return ())
+                                  mapM_ (insertTds info comp) edp                               -- insert dependencies resulting from visit scheduling
                                   tds3 <- freeze tds
-                                  let cyc3 = cycles3 info tds3
-                                  if  not (null cyc3)                                         -- are they cyclic?
-                                      then return (InducedCycle cim cyc3)                     -- then report an error.
-                                      else return (CycleFree cim cvm)                         -- otherwise we succeed.
+                                  --let tm5 = unsafePerformIO getClockTime
+                                  --    tf5 = show (normalizeTimeDiff (diffClockTimes tm5 tm4))
+                                  --zzz <- trace (tf5 ++ " tds3=" ++ show tds3) (return ())
+                                  let cyc3 = findCycles info tds3
+                                  if  not (null cyc3)                                           -- are they cyclic?
+                                      then return (InducedCycle cim cyc3)                       -- then report an error.
+                                      else return (CycleFree cim cvm)                           -- otherwise we succeed.
     )
 \end{code}
 
