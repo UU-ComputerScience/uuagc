@@ -16,7 +16,7 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   ,  lmh         ::  [LMH]
                   ,  prods       ::  [(Nonterminal,[Constructor])]
                   ,  wraps       ::  Set Nonterminal
-                  ,  cyclesOnly  ::  Bool
+                  -- ,  cyclesOnly  ::  Bool
                   }
                   deriving Show
 
@@ -27,10 +27,11 @@ instance Show CRule
 type CInterfaceMap = Map Nonterminal CInterface
 type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
 
-data SeqResult  = CycleFree     CInterfaceMap CVisitsMap
-                | LocalCycle    [(Vertex,[Vertex])]
-                | DirectCycle   [(Edge,[Vertex])]
-                | InducedCycle  CInterfaceMap [Edge] 
+data CycleStatus  
+  = CycleFree     CInterfaceMap CVisitsMap
+  | LocalCycle    [[Vertex]]
+  | DirectCycle   [(Edge,[Vertex])]
+  | InducedCycle  CInterfaceMap [Edge] 
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)

@@ -25,6 +25,13 @@ SEM Errors
 
 
 SEM Error
+  | ParserError     loc.isWarning      = True
+                    lhs.pp = let mesg = text ("parser expecting " ++ @problem)
+                                 pat  = text ""
+                                 help = text ""
+                                 act  = text @action
+                              in ppError @isWarning @pos mesg pat help act @lhs.verbose
+                             
   | DupAlt          loc.isWarning = True 
                     lhs.pp = let mesg  = wfill ["Repeated definition for alternative", getName @con
                                                ,"of nonterminal", getName @nt, "."
@@ -310,41 +317,37 @@ SEM Error
                              in ppError @isWarning @pos @mesg pat help act False
                     lhs . isWarning = @isWarning
 
- | LocLocCirc      loc.isWarning      = True
-                    lhs.pp = let mesg  = wfill ["Circular dependency pattern for local attribute", getName @attr
+  | LocalCirc       loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Circular dependency for local attribute", getName @attr
                                                , "of alternative", getName @con, "of nonterminal", getName @nt]
-                                 pat   = text "see help"
-                                 help  = vlist ("The following attributes formed the cycle:": @path)
-                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
-                                       | otherwise = text "The generated program might not run."
-                             in ppError @isWarning noPos mesg pat help act @lhs.verbose
- | DirectCirc      loc.isWarning      = True
-                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
-                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
-                                         in wfill ["Direct circular dependency pattern for", attrtext, "of nonterminal", getName @nt]
-                                 pat   = text "see help"
-                                 help  = vlist ("The following attributes formed the cycle:": @path)
-                                 act   | @o_visit = text "An unuptimized version was generated. It might not run"
-                                       | otherwise = text "The generated program might not run."
+                                 pat   = "SEM" >#< getName @nt
+                                         >-< indent 2 ("|" >#< getName @con >#< "loc." >|< getName @attr >#< "="
+                                                           >#< "..." >#< "@loc." >|< getName @attr >#< "...")
+                                 help  = if null @path
+                                         then text "the definition is directly circular"
+                                         else vlist ("The following attributes are also involved in the cycle:": @path)
+                                 act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
+                                       | otherwise = text "The generated program might hang when run."
+                             in ppError @isWarning (getPos (@attr)) mesg pat help act @lhs.verbose
+
+  | DirectCirc      loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Inherited attributes depend on synthesized attributes at nonterminal", getName @nt ]
+                                         >-< vlist (map showEdge @cyclic)
+                                 pat   = text ""
+                                 help  = vlist (map showEdgeLong @cyclic)
+                                 act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
+                                       | otherwise = text "The generated program might hang when run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
                              
-  | ParserError     loc.isWarning      = True
-                    lhs.pp = let mesg = text ("parser expecting " ++ @problem)
-                                 pat  = text ""
-                                 help = text ""
-                                 act  = text @action
-                              in ppError @isWarning @pos mesg pat help act @lhs.verbose
-                             
- | InducedCirc      loc.isWarning      = True
-                    lhs.pp = let mesg  = let attrtext = if @inh == @syn then "threaded attribute " ++ getName @inh
-                                                                        else "inherited attribute " ++ getName @inh ++ " and synthesized attribute " ++getName  @syn
-                                         in wfill ["Induced circular dependency pattern for", attrtext, "of nonterminal",getName  @nt]
-                                 pat   = text "see help"
+  | InducedCirc     loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["After scheduling there is an induced circular dependency for", attrText @inh @syn, "of nonterminal", getName @nt]
+                                 pat   = text ""
                                  showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (i+1,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
                                  help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
-                                 act   = text "Generation of visit functions failed."
+                                 act   = text "Generation of visit functions failed; an unoptimized version was generated."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
- | MissingTypeSig   loc.isWarning      = True
+
+  | MissingTypeSig  loc.isWarning      = True
                     lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC @attr , "in alternative"
                                                , getName @con , "of nonterminal",getName @nt ,"."
                                                ]>-<
@@ -360,6 +363,24 @@ SEM Error
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
 {
+toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
+             | otherwise = xs
+               where k = length xs
+               	
+	
+showEdge ((syn,inh),_) 
+  = text (toWidth 20 (getName inh) ++ " depends on " ++  getName syn)
+
+showEdgeLong ((syn,inh),path) 
+  = text (toWidth 20 (getName inh) ++ " depends on " ++  getName syn)
+    >-< indent 4 (vlist (map text path))
+	
+attrText inh syn
+ = 	if   inh == syn 
+    then "threaded attribute " ++ getName inh
+    else "inherited attribute " ++ getName inh ++ " and synthesized attribute " ++getName syn	
+
+        
 ppTrace :: Trace -> PP_Doc
 ppTrace (tr:rest) = wfill [showLineNr (lineNr tr) ++ ":", "SEM", getName (nt tr), "|", getName (prod tr)
                          , lhsFld tr +.+ lhsAttr tr, "=", "..." +#+ showRhs tr +#+ "..."]

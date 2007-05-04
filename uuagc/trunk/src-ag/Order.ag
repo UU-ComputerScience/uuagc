@@ -33,8 +33,7 @@ import UU.Util.Utils
 import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!),bounds,inRange)
-import Data.Graph
-import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse)
+import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy)
 import qualified Data.Tree as Tree
 import Maybe
 import Debug.Trace(trace)
@@ -312,7 +311,6 @@ SEM Grammar
                                      , lmh        = Seq.toList @prods.aranges
                                      , prods      = @prods.prods
                                      , wraps      = @wrappers
-                                     , cyclesOnly = not (visit @lhs.options)
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
@@ -323,11 +321,11 @@ SEM Grammar
                                                                      )
                                            LocalCycle   errs      -> ( error "No interfaces for AG with local cycles"
                                                                      , error "No visit sub-sequences for AG with local cycles"
-                                                                     , map (loclocCycleErr @ruleTable (visit @lhs.options)) errs
+                                                                     , map (localCycleErr @ruleTable (visit @lhs.options)) errs
                                                                      )
                                            DirectCycle  errs      -> ( error "No interfaces for AG with direct cycles"
                                                                      , error "No visit sub-sequences for AG with direct cycles"
-                                                                     , map (directCycleErr @attrTable @ruleTable (visit @lhs.options)) errs
+                                                                     , directCycleErrs @attrTable @ruleTable (visit @lhs.options) errs
                                                                      )
                                            InducedCycle cim errs ->  ( cim
                                                                      , error "No visit sub-sequences for AG with induced cycles"
@@ -432,20 +430,26 @@ showPath ruleTable path
                          | otherwise = prettyCRule cr
      in concatMap look path
 
-loclocCycleErr :: Table CRule -> Bool -> (Vertex,[Vertex]) -> Error
-loclocCycleErr ruleTable o_visit (s,path)
+localCycleErr :: Table CRule -> Bool -> [Vertex] -> Error
+localCycleErr ruleTable o_visit (s:path)
   =  let cr = ruleTable ! s
          attr = getAttr cr
          nt = getLhsNt cr
          con = getCon cr
-     in LocLocCirc nt con attr o_visit (showPath ruleTable path)
+     in LocalCirc nt con attr o_visit (showPath ruleTable path)
 
-directCycleErr :: Table NTAttr -> Table CRule -> Bool -> (Edge,[Vertex]) -> Error
-directCycleErr attrTable ruleTable o_visit ((v1,v2), cp)
-  = let (NTASyn nt a1 _) = attrTable ! v1
-        (NTAInh _  a2 _) = attrTable ! v2
-        path = showPath ruleTable cp
-    in DirectCirc nt a2 a1 o_visit path
+directCycleErrs :: Table NTAttr -> Table CRule -> Bool -> [(Edge,[Vertex])] -> [Error]
+directCycleErrs attrTable ruleTable o_visit xs
+  = let getNont v = case attrTable ! v of
+                      NTASyn nt _ _ -> nt
+                      NTAInh nt _ _ -> nt
+        getAttr v = case attrTable ! v of
+                      NTASyn _ a _  -> a
+                      NTAInh _ a _  -> a
+        sameNont ((v1,_),_) ((v2,_),_) =  getNont v1 == getNont v2
+        procCycle ((v1,v2),cp) = ((getAttr v1, getAttr v2), showPath ruleTable cp)
+        wrapGroup gr = DirectCirc (getNont (fst (fst (head gr)))) o_visit (map procCycle gr)
+    in  map wrapGroup (groupBy sameNont xs)
 
 inducedCycleErr :: Table NTAttr -> CInterfaceMap -> Edge -> Error
 inducedCycleErr attrTable cim (v1,v2)

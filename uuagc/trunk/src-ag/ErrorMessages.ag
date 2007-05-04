@@ -9,12 +9,17 @@ import CommonTypes
 
 TYPE Errors = [Error]
 
-DATA Error  | DupAlt          nt    : {Nonterminal}
-                              con,occ1 : {Constructor}                              
+DATA Error  | ParserError     pos     : {Pos}
+                              problem : {String}
+                              action  : {String}
+
+            | DupAlt          nt    : {Nonterminal}
+                              con,occ1 : {Constructor}
 
             | DupSynonym      nt,occ1 : {Nonterminal}
+
             | DupSet          name,occ1 : {Nonterminal}
-                             
+
             | DupInhAttr      nt    : {Nonterminal}
                               attr,occ1 :{Name}
 
@@ -72,28 +77,26 @@ DATA Error  | DupAlt          nt    : {Nonterminal}
                               attr  : {Name}
 
             | CyclicSet       name:{Name}
-            
+
             | CustomError     isWarning : {Bool}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
 
-            | LocLocCirc      nt      : {Nonterminal}
+            | LocalCirc       nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
                               o_visit : {Bool}
                               path    : {[String]}
+
             | DirectCirc      nt      : {Nonterminal}
-                              inh     : {Name}
-                              syn     : {Name}
                               o_visit : {Bool}
-                              path    : {[String]}
-            | ParserError     pos     : {Pos}
-                              problem : {String}
-                              action  : {String}
+                              cyclic  : {[((Name,Name),[String])]}
+
             | InducedCirc     nt      : {Nonterminal}
                               inh     : {Name}
-                              syn     : {Name}                
+                              syn     : {Name}
                               cinter  : {CInterface}
+
             | MissingTypeSig  nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
