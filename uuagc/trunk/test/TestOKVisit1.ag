@@ -1,3 +1,5 @@
+-- A grammar that requires 2 visits
+
 DATA Root
    | Root  a : Aap
 
