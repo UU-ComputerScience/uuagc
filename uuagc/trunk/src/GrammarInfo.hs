@@ -31,7 +31,7 @@ data CycleStatus
   = CycleFree     CInterfaceMap CVisitsMap
   | LocalCycle    [[Vertex]]
   | DirectCycle   [(Edge,[Vertex])]
-  | InducedCycle  CInterfaceMap [Edge] 
+  | InducedCycle  CInterfaceMap [(Edge,[Vertex])] 
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)
