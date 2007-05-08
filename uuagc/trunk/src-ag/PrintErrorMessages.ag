@@ -331,10 +331,10 @@ SEM Error
                              in ppError @isWarning (getPos (@attr)) mesg pat help act @lhs.verbose
 
   | DirectCirc      loc.isWarning      = True
-                    lhs.pp = let mesg  = wfill ["Inherited attributes depend on synthesized attributes at nonterminal", getName @nt ]
+                    lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "has synthesized attributes that indirectly influence inherited attributes" ]
                                          >-< vlist (map showEdge @cyclic)
                                  pat   = text ""
-                                 help  = vlist (map showEdgeLong @cyclic)
+                                 help  = vlist (concatMap showEdgeLong @cyclic)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
@@ -369,11 +369,13 @@ toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
                	
 	
 showEdge ((syn,inh),_) 
-  = text (toWidth 20 (getName inh) ++ " depends on " ++  getName syn)
+  = text (toWidth 20 (getName syn) ++ " indirectly influences " ++  getName inh)
 
 showEdgeLong ((syn,inh),path) 
-  = text (toWidth 20 (getName inh) ++ " depends on " ++  getName syn)
-    >-< indent 4 (vlist (map text path))
+  | null path = []
+  | otherwise = [ text (getName syn ++ " indirectly influences " ++  getName inh)
+                  >-< indent 4 (vlist (map text path))
+                ]
 	
 attrText inh syn
  = 	if   inh == syn 
