@@ -442,9 +442,15 @@ showPathLocal ruleTable xs = showP (xs++[-1])
         where r1 = ruleTable ! v1
               a1 = show (getAttr  r1)
 
+
+limitTo :: Int -> [String] -> [String]
+limitTo _ [] = [] 
+limitTo 0 _ = ["....etcetera, etcetera...."]
+limitTo n (x:xs) = x : limitTo (n-1) xs
+
 showPathNice :: Table CRule -> [Vertex] -> [String]
 showPathNice _ [] = []
-showPathNice ruleTable (x:xs) = showP (x:x:xs++[-1])
+showPathNice ruleTable (x:xs) = limitTo 100 (showP (x:x:xs++[x]))
  where showP []         = []
        showP (v1:v2:vs) = let line  = step v1 v2
                               lines = showP vs
