@@ -1,0 +1,31 @@
+DATA Root
+   | Een    a: Aap
+   
+DATA Aap
+   | Twee   b: Noot
+            c: Mies
+            
+DATA Noot
+   | Drie   d: Int
+   
+DATA Mies
+   | Vier   d: Int
+   
+ATTR Aap Noot Mies [ x:Int | | y:Int ]
+
+SEM Root
+  | Een     loc.t = @a.y
+            a.x   = @loc.t
+            
+SEM Aap
+  | Twee    b.x   = @lhs.x
+            c.x   = @b.y
+            lhs.y = @c.y
+            
+SEM Noot
+  | Drie    lhs.y = @lhs.x
+  
+SEM Mies
+  | Vier    lhs.y = @lhs.x
+  
+  
