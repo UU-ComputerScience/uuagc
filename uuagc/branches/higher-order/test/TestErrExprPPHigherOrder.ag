@@ -20,9 +20,11 @@ SEM Expr
 -- Pretty printing
 ATTR Root Expr [|| pp : String ]
 SEM Expr
-  | Tuple  inst.t : Ty = @loc.ty
+  | Tuple  inst.t : Ty
+           inst.t = @loc.ty
            lhs.pp = ppTuple @lhs.mode @l.pp @r.pp `ppTyOf` @t.pp
-  | Const  inst.t : Ty = @loc.ty
+  | Const  inst.t : Ty
+           inst.t = @loc.ty
            lhs.pp = show @i `ppTyOf` @t.pp
 
 ATTR Ty [|| pp USE {`ppTuple`} {[]} : String ]
