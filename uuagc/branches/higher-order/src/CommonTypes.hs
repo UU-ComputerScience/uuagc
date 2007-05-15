@@ -63,6 +63,7 @@ nullIdent = identifier ""
 _LHS  = identifier "lhs" 
 _SELF = identifier "SELF" 
 _LOC  = identifier "loc" 
+_INST = identifier "inst"
 
 sdtype :: Nonterminal -> String
 sdtype nt = "T_"++getName nt
