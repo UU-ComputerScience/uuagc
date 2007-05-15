@@ -1,0 +1,102 @@
+imports
+{
+import UU.Scanner.Position(Pos)
+import UU.Pretty(PP_Doc)
+import DepTypes(Trace)
+import CodeSyntax
+import CommonTypes
+}
+
+TYPE Errors = [Error]
+
+DATA Error  | ParserError     pos     : {Pos}
+                              problem : {String}
+                              action  : {String}
+
+            | DupAlt          nt    : {Nonterminal}
+                              con,occ1 : {Constructor}
+
+            | DupSynonym      nt,occ1 : {Nonterminal}
+
+            | DupSet          name,occ1 : {Nonterminal}
+
+            | DupInhAttr      nt    : {Nonterminal}
+                              attr,occ1 :{Name}
+
+            | DupSynAttr      nt    : {Nonterminal}
+                              attr,occ1 : {Name}
+
+            | DupChild        nt    : {Nonterminal}
+                              con   : {Constructor}
+                              name,occ1 : {Name}
+
+            | DupRule         nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr,occ1 : {Name}
+
+            | DupSig          nt    : {Nonterminal}
+                              con   : {Constructor}
+                              attr  : {Name}
+
+            | UndefNont       nt    : {Nonterminal}
+
+            | UndefAlt        nt    : {Nonterminal}
+                              con   : {Constructor}
+
+            | UndefChild      nt    : {Nonterminal}
+                              con   : {Constructor}
+                              name  : {Name}
+
+            | MissingRule     --pos : {Pos}
+                              nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+            | SuperfluousRule nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+--            | SuperfluousSig  nt    : {Nonterminal}
+--                              con   : {Constructor}
+--                              attr  : {Name}
+
+            | UndefLocal      nt    : {Nonterminal}
+                              con   : {Constructor}
+                              var   : {Name}
+
+            | ChildAsLocal    nt    : {Nonterminal}
+                              con   : {Constructor}
+                              var   : {Name}
+
+            | UndefAttr       nt    : {Nonterminal}
+                              con   : {Constructor}
+                              field : {Name}
+                              attr  : {Name}
+
+            | CyclicSet       name:{Name}
+
+            | CustomError     isWarning : {Bool}
+                              pos   : {Pos}
+                              mesg  : {PP_Doc}
+
+            | LocalCirc       nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}
+                              o_visit : {Bool}
+                              path    : {[String]}
+
+            | DirectCirc      nt      : {Nonterminal}
+                              o_visit : {Bool}
+                              cyclic  : {[((Name,Name),[String])]}
+
+            | InducedCirc     nt      : {Nonterminal}
+                              inh     : {Name}
+                              syn     : {Name}
+                              cinter  : {CInterface}
+
+            | MissingTypeSig  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}

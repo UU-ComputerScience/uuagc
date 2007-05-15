@@ -1,0 +1,33 @@
+name: uuagc
+version: @VERSION@
+license: GPL
+license-file: LICENSE
+maintainer: Alexey Rodriguez <alexey@cs.uu.nl>
+Build-Depends: base, haskell98, uulib
+
+Executable:     uuagc
+Main-Is:        Ag.hs
+Other-Modules: AbstractSyntax,
+      Code,
+      CommonTypes,
+      ConcreteSyntax,
+      DefaultRules,
+      DepTypes,
+      ErrorMessages,
+      Expression,
+      GenerateCode,
+      HsToken,
+      HsTokenScanner,
+      Options,
+      Parser,
+      Patterns,
+      PrintCode,
+      PrintErrorMessages,
+      Scanner,
+      SemHsTokens,
+      Streaming,
+      TokenDef,
+      Transform,
+      Version
+Extensions: TypeSynonymInstances       
+Hs-Source-Dirs: src

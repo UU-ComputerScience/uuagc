@@ -1,0 +1,10 @@
+-- a synthesized attribute is defined for a non-existing type
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ | | y : {Int} ]
+
+SEM Noot
+	| Een lhs.y = 3
+	

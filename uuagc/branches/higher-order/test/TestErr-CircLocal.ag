@@ -1,0 +1,15 @@
+-- A grammar that contains cyclic definitions of local attributes:
+--  a 3-cycle a-b-c-a which is needed for the final result
+--  a 1-cycle s that is not needed
+
+DATA Aap
+	| Een   t : Int
+
+ATTR Aap [ | | z : Int ]
+
+SEM Aap
+  | Een  loc.a = @loc.b
+         loc.b = @loc.c
+         loc.c = @loc.a
+         loc.s = @loc.s
+         lhs.z = @loc.b

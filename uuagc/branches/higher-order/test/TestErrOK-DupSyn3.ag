@@ -1,0 +1,11 @@
+-- type synonym Noot is also defined as a datatype
+-- in v.0.9.1 this is appears to be allowed, although the phrasing of the DupSynonym error suggest that such an error should be reported
+-- in v.0.9.3 this is really allowed, and the error message is changed accordingly
+
+DATA Aap
+	| Een a : {Int}
+	
+TYPE Noot = [Aap]
+
+DATA Noot
+	| Twee b : {Int}

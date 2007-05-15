@@ -1,0 +1,117 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+
+imports
+{
+import Data.List
+import qualified UU.DData.Map as Map
+
+import UU.Pretty
+
+import AbstractSyntax
+}
+
+{
+ppListSep :: (PP s, PP c, PP o, PP a) => o -> c -> s -> [a] -> PP_Doc
+ppListSep o c s pps = o >|< hlist (intersperse (pp s) (map pp pps)) >|< c
+
+ppSpaced :: PP a => [a] -> PP_Doc
+ppSpaced = ppListSep "" "" " "
+
+ppCommas :: PP a => [a] -> PP_Doc
+ppCommas = ppListSep "" "" ", "
+
+ppVList :: PP a => [a] -> PP_Doc
+ppVList = pp_block "[ " "] " ", " . map pp
+
+ppMap :: (Show a, Show b) => Map.Map a b -> PP_Doc
+ppMap m = ppVList [ ppF (show k) $ ppShow v | (k,v) <- Map.toList m ]
+
+ppAssocL :: (Show a, Show b) => [(a,b)] -> PP_Doc
+ppAssocL m = ppVList [ ppF (show k) $ ppShow v | (k,v) <- m ]
+
+ppF :: String -> PP_Doc -> PP_Doc
+ppF s x = s >|< ":" >#< x
+
+ppNest :: PP a => [a] -> [PP_Doc] -> [PP_Doc] -> PP_Doc
+ppNest nms attrs ps = ppNestInfo {- defaultEHCOpts -} nms attrs ps []
+
+ppNestInfo :: PP a => {- EHCOpts -> -} [a] -> [PP_Doc] -> [PP_Doc] -> [(String,PP_Doc)] -> PP_Doc
+ppNestInfo {- opts -} nms attrs ps infos
+  = ppListSep "" "" "_" nms
+    >#< (   (if null attrs then empty else ppSpaced attrs)
+        >-< (if False {- ehcOptDebug opts -} then vlist (map (\(i,p) -> pp i >|< ":" >#< p) infos) else empty)
+        )
+    >-< indent 2 (vlist ps)
+
+ppNm :: String -> PP_Doc
+ppNm = text . show
+
+ppShow :: Show x => x -> PP_Doc
+ppShow x = pp $ show x
+
+mkInfo1 :: String -> PP_Doc -> (String,PP_Doc)
+mkInfo1 = (,)
+}
+
+ATTR AllPattern AllAbstractSyntax AllExpression [ | | pp USE {>-<} {empty} : PP_Doc ]
+
+SEM Grammar
+  | Grammar  		lhs     .  	pp    	=   ppNestInfo ["Grammar","Grammar"] []
+                                                       [ ppF "typeSyns" $ ppAssocL @typeSyns
+                                                       , ppF "useMap" $ ppMap $ Map.map ppMap $ @useMap
+                                                       , ppF "derivings" $ ppMap $ @derivings
+                                                       , ppF "wrappers" $ ppShow $ @wrappers
+                                                       , ppF "prods" $ ppVList @prods.ppL
+                                                       ] []
+
+SEM Production
+  | Production		lhs     .  	pp    	=   ppNestInfo ["Production","Production"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "alts" $ ppVList @alts.ppL] []
+
+SEM Alternative
+  | Alternative		lhs     .  	pp    	=   ppNestInfo ["Alternative","Alternative"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
+
+SEM Child
+  | Child			lhs     .  	pp    	=   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn] []
+
+SEM Rule
+  | Rule			lhs     .  	pp    	=   ppNestInfo ["Rule","Rule"] [ppShow @owrt, pp @origin] [ppF "pattern" $ @pattern.pp, ppF "rhs" $ @rhs.pp] []
+
+SEM TypeSig
+  | TypeSig			lhs     .  	pp    	=   ppNestInfo ["TypeSig","TypeSig"] [pp @name, ppShow @tp] [] []
+
+SEM Pattern
+  | Constr			lhs     .  	pp    	=   ppNestInfo ["Pattern","Constr"] [pp @name] [ppF "pats" $ ppVList @pats.ppL] []
+  | Product			lhs     .  	pp    	=   ppNestInfo ["Pattern","Product"] [ppShow @pos] [ppF "pats" $ ppVList @pats.ppL] []
+  | Alias			lhs     .  	pp    	=   ppNestInfo ["Pattern","Alias"] [pp @field, pp @attr] [ppF "pat" $ @pat.pp] []
+  | Underscore		lhs     .  	pp    	=   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
+
+SEM Expression
+  | Expression		lhs     .  	pp    	=   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ text @txt] []
+
+ATTR Alternatives Productions Children Rules TypeSigs Patterns [ | | ppL: {[PP_Doc]} ]
+
+SEM Patterns
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM TypeSigs
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM Rules
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM Children
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM Alternatives
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM Productions
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]

@@ -1,0 +1,584 @@
+\documentclass[twoside]{article}
+\usepackage{a4wide}
+%\usepackage[dutch]{babel}
+\usepackage{graphicx}
+
+\raggedbottom
+\parindent=0pt
+\parskip=3pt
+
+\newenvironment{itize}{\begin{list}{$\bullet$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newenvironment{subitize}{\begin{list}{$-$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newcommand{\simplepicture}[2]{\centerline{\mbox{\includegraphics[scale=#1]{figs/#2}}}}
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12 }\dospecials}
+\def\setupverbatimp{\parskip=0pt\par\small\tt\obeylines\uncatcodespecials\catcode`\@=0\parskip=0pt\obeyspaces}
+{\obeyspaces\global\let =~}
+\def\prog{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimp\doverbatimp}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimp^^M#1\gorp{#1|end{list}|vspace{-3pt}|endgroup}}
+
+
+\begin{document}
+%\renewcommand{\textfraction}{0.1}
+
+
+\title{UUAGC v.0.9.3\\Release notes and Implementation notes}
+\author{Jeroen Fokker}
+\date{December 4th, 2006}
+\maketitle
+
+This report describes the differences of UUAGC release candidate 0.9.3,
+as compared to version 0.9.1 of December 2005.
+The new version is currently available in the branch named {\em candidate} in the SVN archive.
+
+In short, this version has:
+\begin{itemize}
+\item {\bf Better input}
+	\begin{subitize}
+	\item It was already possible to later add new alternatives to exisiting datatypes.
+	      But now you can also later add new children to existing alternatives.
+	\item You can also add children generically to multiple datatypes.
+	\item It was already possible to declare an attribute for multiple datatypes.
+	      But now you can also generically {\em define} these attributes in a single SEM-definition.
+	\end{subitize}	      
+\item {\bf Better output}
+	\begin{subitize}
+	\item Optionally, the computation of attributes can be scheduled over multiple visits.
+	\item The output is now ghc-6.6 compliant, because the lhs of a definition is no longer put in parentheses.
+	\item There are generally less superfluous parentheses in the output,
+	      which makes the generated code easier to read.
+	\item Comments can be generated not only listing the attributes, but also the children and local variables.
+	\item Error messages have a better layout.
+	\end{subitize}
+\item {\bf Better source}
+	\begin{subitize}
+	\item The five stages of processing that together form the main dataflow are made more uniform,
+	      treating their input (tree and options) and output (next tree, errors, and additional strings)
+	      in a more consistent way. This makes the source easier to understand and modify in the future.
+	\item In imported Haskell libraries, all needed functions are explicitly enumerated.
+	      This makes it more transparent why a module is actually needed.
+	\item Some code (especially the gathering of all information, and the generation of default rules)
+	      has been rewritten in order to make it easier to understand.
+    \end{subitize}
+\end{itemize}
+
+In section~1 we introduce the new features of the input language.
+In section~2 we describe the overall architecture of the program.
+In section~3 we list the modifications that were made for the generic attribute definitions.
+In section~4 we list the modifications that were made for the sequential visits.
+In section~5 we describe the build process as steered by {\em make}.
+
+\newpage
+
+\section{New features}
+
+\subsection{Add children to existing datatypes}
+
+When defining a datatype in Haskell, you have to specify all alternatives in one declaration.
+In contrast, in UUAGC it is possible to add new alternatives to existing datatypes.
+This was already possible in earlier versions. For example:
+\prog
+-- initial definition
+DATA Foo
+   | One  a1 : {Int}
+          a2 : {Int}
+   | Two  b1 : {Int}
+--other definitions
+DATA Bar
+   | First d : {Int}
+-- add-on to first definition
+DATA Foo
+   | Three c1 : {Int}
+\gorp
+In the new version, it is also possible to add new children to existing alternatives.
+For example, to add a second child to alternative \verb"Two" of datatype \verb"Foo",
+you can extend the example above by:
+\prog
+-- add new child to existing alternative
+data Foo
+   | Two  b2 : {Int}
+\gorp
+In earlier versions, this would result in a `duplicate alternative' error,
+but now it is allowed. Of course, the name of the added child \verb"b2" should differ
+from the name of the existing child \verb"b1".
+
+
+\subsection{Generically add children to multiple datatypes}
+
+If two datatypes share a common part, it is now possible to write it only once,
+and later extend it in different ways. For example:
+\prog
+-- common part
+DATA Foo Bar
+   | One a : {Int}
+   | Two b : {Int}
+-- two extensions
+DATA Foo
+   | Three c : {Int}
+DATA Bar
+   | Four  d : {Char}
+\gorp
+In earlier versions, it was a syntax error to enumerate more than one type name in a DATA header.
+Even an attempt to capture both names in a set would fail in earlier versions:
+\prog
+SET Common = Foo Bar
+DATA Common
+   | One a : {Int}
+   | Two b : {Int}
+\gorp
+It would throw a `duplicate synonym' error in earlier versions, but it is possible in the new version.
+
+
+\newpage
+\subsection{Generically define attribute values}
+
+In earlier versions, it was already possible to declare an attribute for multiple datatypes:
+\prog
+ATTR Foo Bar [ | | s : {Int} ]
+\gorp
+But it was not possible to {\em define} the {\em value} of the attribute generically.
+In the new version, it is possible to have a single definition for two datatypes,
+provided that they have a common alternative.
+Of course, this situation will occur more often if the construction in the previous subsection
+is used frequently.
+We are now able to define in a single definition:
+\prog
+SEM Foo Bar
+  | One  lhs.s = 3
+\gorp
+In earlier versions, it was a syntax error to enumerate more than one type name in a SEM definition,
+and an apporach using SETs would also fail.
+
+
+\subsection{Using wildcards}
+
+In earlier versions, it was already possible to use a wildcard name \verb"*", and a name set difference operator \verb"-",
+to generically define an attribute for more than one alternative. For example:
+\prog
+SEM Foo
+  | * - One  lhs.s = 4
+ \gorp
+would define the attribute for alternatives \verb"Two" and \verb"Three".
+
+It should be noted that in the new version, this notation has an even more generic meaning:
+\prog
+SEM Foo Bar
+  | * - One  lhs.s = 4
+\gorp
+will define the attribute for alternatives \verb"Two" and \verb"Three" of datatype \verb"Foo",
+{\em and} for alternatives \verb"Two" and \verb"Four" of datatype \verb"Bar".
+
+It is even allowed to use wildcards in the header of a SEM-definition, as in:
+\prog
+SEM *
+  | * - One  lhs.s = 4
+\gorp
+Also, it is now allowed to use wildcards in the header of DATA and ATTR definitions.
+Thus, we can add an uniform alternative to all existing datatypes, for example to provide 
+a placeholder for error situations:
+\prog
+DATA *
+  | Error   why : {String}
+\gorp
+And it is possible to uniformly add a child to all alternatives of a (set of) datatype(s),
+for example to store the location in the source file in all alternatives of both 
+the \verb"Expr" and the \verb"Stat" datatype:
+\prog
+DATA Expr Stat
+  | *  pos : {Int}
+\gorp
+If the set of constructors to which the children should be added is other than
+a single identifier or asterisk (for example a enumeration of names) it should be
+enclosed in parentheses to avoid ambiguity with a single name with unnamed children.
+
+
+
+\newpage
+\section{Program architecture}
+
+\subsection{Main data flow}
+
+Figure~\ref{fig.dataflow} shows the main dataflow of the UUAGC compiler.
+It is a graphical representation of the {\em main} function in source file {\em Ag.hs}.
+
+The central column shows the various stages of processing.
+The synthesized attribute {\em output} of each stage is fed
+into the next stage as tree to be processed.
+\begin{itize}
+\item The input string is parsed, resulting in an {\em AG} structure.
+      This structure directly corresponds to the source constructs.
+\item The {\em AG} structure is transformed into a {\em Grammar} structure.
+      Child definitions, attribute declarations, and attribute definitions
+      are moved such that everything is grouped per nonterminal.
+      Attribute declarations which are common to multiple nonterminals are copied.
+      In this new version the same may happen to generic attribute definitions and child definitions.
+\item The Grammar structure is processed to automatically add default rules.
+      The result is still a {\em Grammar}.
+\item (this would be the place where other transformations could be plugged in)
+\item The Grammar is ordered, that is the attributes are partinioned in various visits,
+      that can be executed sequentially. The interfaces of the visits are stored,
+      thereby augmenting the Grammar to a {\em CGrammar}.
+\item The CGrammar is used to generate Haskell code.
+      Here, the attributes are encoded into tuples that are passed up and down 
+      by fold-like functions, which are also generated.
+      The result is a structure that represents a Haskell {\em Program}.
+\item The abstract Haskell program is pretty-printed.
+      The result is al list of {\em PP\_Doc} documents, one for each toplevel definition.
+\item The output string is obtained by rendering each {\em PP\_Doc} using the {\em disp} function,
+      and written to the output file.
+\end{itize}
+\begin{figure}[htb]
+\raisebox{0mm}{\simplepicture{0.7}{uuagc-dataflow}}
+\caption{UUAGC main dataflow}
+\label{fig.dataflow}
+\end{figure}
+
+Most of the phases (including parsing) can generate error messages.
+The errors are collected in the synthesized attribute {\em errors},
+which is a {\em Seq}uence of {\em Error} values.
+The error messages are separately prettyprinted and rendered on standard output.
+
+Most of the phases (including error printing) take additional options
+through the inherited attribute {\em options}.
+The options originate frmm the command line of the program.
+
+Some phases, apart from their regular output and error messages, also generate additional code {\em Blocks}.
+A {\em Block} is a named list of uninterpreted strings, which are supposed to contain Haskell code.
+This code is merged with the generated code and written to the output file.
+Blocks with a special name (\verb"optpragmas" and \verb"imports") are moved to the front.
+The blocks are yielded in the syntesized attribute {\em blocks}.
+
+
+
+\subsection{UUAGC source structure}
+
+Figure~\ref{fig.uuagc-include} shows the various modules which make up the UUAGC program.
+The orange boxes in the rightmost column denote Haskell source files,
+of which file {\em AG.hs} contains the main program.
+The yellow boxes in the other columns denote AG source files.
+\begin{figure}[htbp]
+\raisebox{0mm}{\simplepicture{0.7}{uuagc-include}}
+\caption{UUAGC source structure}
+\label{fig.uuagc-include}
+\end{figure}
+
+The eight boxes in the central column correspond to separate tree transformations.
+The first five ({\em Transform}, {\em DefaultRules}, {\em Order}, {\em GenerateCode} and
+{\em PrintCode} are part of the main dataflow discussed in the previous subsection.
+The {\em PrintErrorMessages} transformation, of course, is for prettyprinting error messages.
+Finally, {\em SemHsTokens} and {\em InterfaceRules} are used to separately process attribute definitions
+and interfaces, respectively.
+Attribute definitions are special in UUAGC source, as they conform to Haskell syntax
+(with \verb"@" as an escape character). These Haskell fragments are not parsed by UUAGC,
+but only processed at lexical level.
+
+The nine boxes in the leftmost colums denote modules that describe datatypes
+(rather than their attributes).
+The datatypes that are described are shown in italics in the green pop-up boxes.
+Four of these correspond to the intermediate types discussed in the main data flow:
+\begin{itize}
+\item module {\em ConcreteSyntax} defines the {\em AG} datatype
+\item module {\em AbstractSyntax} defines the {\em Grammar} datatype
+\item module {\em CodeSyntax} defines the {\em CGrammar} datatype
+\item module {\em Code} defines the {\em Program} datatype
+\end{itize}
+The other four modules describe auxiliary datatypes.
+
+In short, the modules boxes in the lefmost column describe the {\em syntax}
+of the language. 
+They are compiled separately using the \verb"-d" flags, and thus only generate datatype definitions.
+The six modules in the central column describe the {\em semantics}
+of the language. 
+They are compiled using the \verb"-cfs" flags, and thus generate catamorphisms (c),
+semantics functions (f) and their signatures (s).
+
+The `syntax' modules are included by the `semantics' modules, which need to know
+the datatypes they are attributing.
+But the `semantics' modules don't generate code defining the datatypes.
+The separation of syntactical and semantical aspects is not only 
+good coding practice, but also necessary.
+Otherwise (that is, if the semantics modules would be compiled with \verb"-d" flag on)
+for example both the {\em DefaultRules} module and the {\em Order} module would generate
+the {\em Grammar} datatype, which is described in the {\em AbstractSyntax} module they both include.
+That would give a conflict when the generated Haskell files from these two modules are linked together.
+
+There is one more column in figure~\ref{fig.uuagc-include}: the two boxes left from the central column
+({\em GenerateCodeSM} and {\em Dep}).
+They denote simple file inclusion, which in this case is only done to prevent the file that includes
+them from growing very big. These files are not compiled separately.
+There are only two files left in this category
+(the other two that used to exist are inlined now).
+Furthermore, these remaining two are obsolescent.
+
+It should be noted that the arrows in figure~\ref{fig.uuagc-include}
+show the way the AG source files {\em include} each other.
+This is not the same as the way the generated Haskell modules {\em import} each other.
+The latter relationship is depicted in figure~\ref{fig.uuagc-import}.
+\begin{figure}[htbp]
+\raisebox{0mm}{\simplepicture{0.7}{uuagc-import}}
+\caption{Dependencies in UUAGC generated code}
+\label{fig.uuagc-import}
+\end{figure}
+
+From this picture, it is more obvious how the various modules cooperate.
+Reading from right to left, we first note that {\em Ag.hs} is the module
+which contains the {\em main} function and sets other modules to work.
+Modules that perform a phase from the main dataflow import
+the description of their source {\em and} target languages.
+For example, the {\em Transform} module imports
+its source language {\em ConcreteSyntax} and its target language {\em AbstractSyntax}.
+This contrasts with the AG-compiletime inclusion relations from figure~\ref{fig.uuagc-include},
+where transformation modules need only to know the datatypes of their source language.
+
+From the Haskell import-relations in figure~\ref{fig.uuagc-import} is also becomes clear
+that the three modules dealing with {\em HsToken} perform a subordinate task for
+the {\em GenerateCode} module.
+Similar observations can be made for three more clusters of files.
+
+Definitions made in {\em Options}, {\em CommonTypes} and {\em ErrorMessages}
+are needed almost everywhere. Also the consumers of {\em Expression} and {\em Patterns}
+are too many to list.
+
+
+\newpage
+\section{Modifications for generic attribute definitions}
+
+For the generic attribute definition feature, and the general code streamlining,
+many files were edited, three were removed, and one was added.
+Not only were the new features described in section 1 implemented,
+but also some modifications were made that streamline the architecture.
+This will make future modifications easier.
+The architecture described in the previous section reflects the new situation.
+
+\subsection{New and obsolete files}
+
+A new Haskell module {\em Version.hs} was introduced.
+It only contains a definition of a banner string containing the version number.
+This used to be done in {\em Ag.hs}, the module containing the main function.
+
+The insertion of the version number is performed by {\em configure},
+which generates {\em Version.hs} from a template {\em Version.hs.in}.
+The fact that this is now isolated from the rest of {\em Ag.hs},
+removes the need for preprocessing {\em Ag.hs} by {\em configure}.
+Therefore, {\em Ag.hs.in} has become obsolete.
+
+The previous version contained two more source modules:
+a `syntactical' unit {\em Rules} and a corresponding `semantical' unit {\em SemRules}.
+The tasks performed by these modules are now integrated in
+{\em ConcreteSyntax} and {\em Transform}, respectively.
+
+The file {\em Expr.hs}, which contained fossile code, is removed.
+
+\subsection{Modified files}
+
+The following `syntactical' units were modified:
+\begin{itize}
+\item {\em ConcreteSyntax}:
+      new datatypes {\em SemDef(s)} were added, originally in the {\em Rules} module.
+      Structures denoting DATA and SEM definitions were adapted to allow for more than one nonterminal name.
+\item {\em Patterns}:
+      added a SELF attribute declaration
+\item {\em Code}:
+      changed the type of two leafs from {\em PP\_Doc} to a more structured type
+      ({\em [String]} and {\em Pattern}, respectively).
+      Prettyprinting to a {\em PP\_Doc} belongs to a later phase.
+\item {\em ErrorMessages}:
+      added a new alternative to denote parsing errors,
+      in order to process parsing errors uniformly with errors in later phases.
+\end{itize}
+
+The following `semantical' units were modified:
+\begin{itize}
+\item {\em Transform}:
+      major rewrite.
+      In the new version, eveything is first collected in lists, and only then checked for duplicates.
+      (Originally, new declarations were checked for duplicates on encountering them, inserting them
+      in an set that was passed as a threaded attribute).
+\item {\em DefaultRules}:
+      drastically rewrote the implementation of use-rules and copy-rules,
+      which makes them shorter and clearer.
+\item {\em GenerateCode}:
+      adapted to changes in {\em Code}.
+      In the included files furthermore:
+      \begin{subitize}
+      \item {\em Comments}: 
+            generate better comments for the \verb"-p" option,
+            listing not only the attributes but also the children and local variables
+      \item {\em GenerateCodeSM}:
+            outputs Haskell code as {\em Blocks}, for uniform treatment with the blocks
+            generated by {\em Transform} (see figure~\ref{fig.dataflow})
+      \end{subitize}
+\item {\em PrintCode}:
+      now also does prettyprinting of patterns, which used to be done too early.
+      Also, suppresses the generation of superfluous parentheses,
+      especially those that are not compliant to ghc-6.6.
+\item {\em PrintErrorMessages}:
+      improved readability of error messages
+\end{itize}
+
+
+
+The following Haskell files were modified:
+\begin{itize}
+\item {\em Parser}:
+      allowing more than one nonterminal in DATA and SEM definitions.
+      Adapted error processing for uniform treatment.
+\item {\em Ag}:
+      streamlined the main dataflow as much as possible,
+      as described in the previous section.
+\end{itize}
+
+
+
+\newpage
+\section{Modifications for sequential visits}
+
+\subsection{New and obsolete files}
+
+The new phase that orders the attributes in sequential visits in the main pipeline 
+is modeled in the `syntactical' unit {\em CodeSyntax.ag}
+and the `semantical' unit {\em Order.lag}. Note that the latter is 
+written in literate-programming style.
+The unit {\em GenerateCode} is also rewritten in literate style, 
+changing the extension to {\em .lag}.
+
+New units are introduced that describe the syntax and semantics of interfaces:
+{\em Interfaces.ag} and {\em InterfaceRules.lag}.
+The wrapping of an interface is steered from {\em SequentialComputation.hs},
+which is an auxiliary file used in the ordering phase.
+Auxiliary types and functions related to ordering are in the new files
+{\em SequentialTypes.hs} and {\em GrammarInfo.hs}.
+
+In the previous version there was optional support for generating so-called `syntax macros'.
+This feature is not compatible with the new sequential codegeneration.
+Four files were related to this feature:
+two include-files to {\em GenerateCode} ({\em GenerateCodeSM.ag} and {\em Dep.ag}),
+and two auxiliary Haskell-files ({\em DepTypes.hs} and {\em Streaming.hs}).
+These files are still in the distribution, but their use is commented out.
+
+The file {\em ExpressionAttr.ag}, formerly included by {\em GenerateCode.ag},
+is now inlined in the new phase {\em Order.lag}, making the original file obsolete.
+
+The file {\em Comments.ag}, formerly included by {\em GenerateCode.ag},
+is now inlined in {\em GenerateCode.lag}, making the original file obsolete.
+The modifications described in the previous section are retained.
+
+
+
+\subsection{Modified files}
+
+A major rewrite was done of the {\em GenerateCode} unit.
+It is now split in two phases: {\em Order.lag} and {\em GenerateCode.lag}.
+
+A new intermediate language is defined in {\em CodeSyntax.ag}.
+It defines a datatype {\em CGrammar}, which is similar to the
+datatype {\em Grammar} defined in {\em AbstractSyntax.ag}.
+The main differences are:
+\begin{itize}
+\item While each {\em Production} contained {\em Alternatives},
+      now {\em CProduction} contains not only {\em CAlternatives} but also {\em CInterfaces}.
+\item While each {\em Alternative} contained {\em Rules},
+      now {\em CAlternative} contains {\em CVisits}, which in turn contain {\em CRules}.
+\item While {\em Rule} had only one alternative denoting an attribute definition,
+      now {em CRule} also has an alternative denoting a child visit.
+\end{itize}
+
+Syntax and semantics of a new auxiliary datastructure {\em Interface} is defined
+in {\em Interfaces.ag} and {\em InterfaceRules.ag}.
+Additional Haskell types and functions are defined in
+{\em SequentialTypes}, {\em SequentialComposition}, and {\em GrammarInfo}.
+
+The source language is slightly enhanced to allow type signatures for local attributes.
+This brings small changes in 
+{\em Parser.hs},
+{\em ConcreteSyntax.ag},
+{\em Transform.ag},
+{\em AbstractSyntax.ag},
+and {\em DefaultRules.ag}.
+
+A notion of {\em unboxed tuples} is introduced,
+which brings small changes in
+{\em Code.ag} and {\em PrintCode.ag}.
+
+The new features can be enabled by six new options introduced in {\em Options.hs}.
+New error situations are trapped in {\em (Print)ErrorMessages.ag}: three tastes of
+circularity replace the old {\em CircGrammar} error, and type signatures can
+be `duplicate' or `missing'.
+
+The main file {\em Ag.hs} is updated to include the new phase, and to handle the new options.
+
+
+\newpage
+\section{Installation}
+
+As described in the readme document, compiling and installing UUAGC from the source
+is very easy. It is done by typing the following commands:
+\begin{itize}
+\item autoconf
+\item configure
+\item make build
+\item make install
+\end{itize}
+Due to the bootstrapping nature of the process
+(UUAGC is written using itself), the third step requires an existing UUAGC system.
+This is not included in the SVN archive, and should be downloaded separately.
+
+The remainder of this section describes in some more detail what happens during
+the steps above. 
+Understanding this is not necessary for simply installing UUAGC,
+but it is to be able to modify the installation procedure.
+The process is summarized in figure~\ref{fig.uuagc-install}, and discussed below.
+
+First, the GNU utility {\em autoconf} is run to generate a configuration script
+named {\em configure}. It is specified by the description in {\em configure.in}.
+
+Next, the {\em configure} script is run.
+It basically inserts some configuration-dependent details
+(such as the compiler to use) in source files.
+Thus, these files can be generated from a template which is provided in the distribution.
+The template typically is named with suffix {\em .in}.
+For UUAGC, four files are generated in this way:
+\begin{itize}
+\item {\em Makefile} generated from template {\em Makefile.in}, 
+      inserting the names of compilers and other utilities to use.
+\item {\em src/Version.hs} generated from template {\em src/Version.hs.in},
+      inserting the version number found in file {\em VERSION}.
+\item {\em uuagc.cabal} generated from template {\em uuagc.cabal.in},
+      again inserting the version number.
+\item {\em scripts/mkAgDepend.sh} generated from template {\em scripts/mkAgDepend.sh.in},
+      which is just copied because it doesn't contain configuration-specific details
+\end{itize}
+\begin{figure}[htbp]
+\raisebox{0mm}{\simplepicture{0.7}{uuagc-install}}
+\caption{Installation of UUAGC}
+\label{fig.uuagc-install}
+\end{figure}
+
+Subsequently, {\em make build} is used to build the system. 
+It performs the following actions, steered by the {\em Makefile} generated before:
+\begin{itize}
+\item (only once):
+      {\em Setup.hs} is compiled to generate a program {\em Setup} that can drive the Haskell compiler
+      steered by a cabal-file
+\item The dependencies between AG-files are detected by chasing the include-statements,
+      thus effectively determining the arrows in figure~\ref{fig.uuagc-include}. 
+      The dependencies are temporarily stored in file {\em ag.depend},
+      and used to decide by {\em make} itself which files need to be recompiled
+\item The `syntactic' AG-sources are compiled using an existing version of UUAGC, with \verb"-d" flag
+\item The `semantic' AG-sources are compiled using an existing version of UUAGC, with \verb"-cfs" flag
+\item The Haskell program is build from the files generated by UUAGC, the original Haskell-files
+      in the distribution, and the {\em Version.hs} that was generated by {\em configure}.
+      Compilation is controlled by {\em Setup}.
+      The dependencies between Haskell files are checked by Haskell itself, so {\em make}
+      needs no information about them.
+\end{itize}
+The setup process is steered by {\em uuagc.cabal}, which specifies that the executable
+should be placed in a subdirectory of directory {\em dist}.
+
+Finally, {\em make install} is used to install the new UUAGC system.
+It copies the executable from the {\em dist} directory to the location where
+executables should be stored.
+
+
+\end{document}
