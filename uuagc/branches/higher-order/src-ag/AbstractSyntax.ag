@@ -1,0 +1,55 @@
+imports
+{
+-- AbstractSyntax.ag imports
+import UU.DData.Set(Set)
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import CommonTypes
+}
+
+DATA Grammar      | Grammar typeSyns : {TypeSyns}
+                            useMap   : {UseMap}
+                            derivings: {Derivings}
+                            wrappers : {Set Nonterminal}
+                            prods    : Productions
+
+TYPE Productions  = [Production]
+
+TYPE Alternatives = [Alternative]
+
+TYPE Children     = [Child]
+
+TYPE Rules        = [Rule]
+
+TYPE TypeSigs     = [TypeSig]
+
+DATA Production   | Production nt   : {Nonterminal}
+                               inh  : {Attributes}
+                               syn  : {Attributes}
+                               alts : Alternatives
+
+DATA Alternative  | Alternative con      : {Constructor}
+                                children : Children
+                                rules    : Rules
+                                typeSigs : TypeSigs
+
+DATA Child        | Child   name  : {Name}
+                            tp    : {Type}
+                            inh   : {Attributes}
+                            syn   : {Attributes}
+
+DATA Rule         | Rule    pattern : Pattern 
+                            rhs     : Expression
+                            owrt    : {Bool}
+                            origin  : String  -- just for documentation (and maybe errors)
+
+DATA TypeSig      | TypeSig name : {Name}
+                            tp   : {Type}
+
+SET AllAbstractSyntax
+  = Grammar
+    Production Productions
+    Alternative Alternatives
+    Child Children
+    Rule Rules
+    TypeSig TypeSigs
