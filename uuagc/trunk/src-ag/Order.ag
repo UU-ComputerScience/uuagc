@@ -165,6 +165,8 @@ SEM  Rule
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
+                              typ x                          = error ("nested tuples temporarily disallowed (Order.ag, line 168)" ++ show x)
+                              
                          in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
                                           |  aa <- @pattern.gathAltAttrs
                                           ,  let AltAttr field attr _ = aa 
@@ -314,7 +316,7 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential ({- trace ("info: " ++ show @info) -} @info) @directDep of
+                              case computeSequential @info @directDep of
                                            CycleFree    cim cvm   -> ( cim
                                                                      , cvm
                                                                      , []
@@ -329,7 +331,7 @@ SEM Grammar
                                                                      )
                                            InducedCycle cim errs ->  ( cim
                                                                      , error "No visit sub-sequences for AG with induced cycles"
-                                                                     , map (inducedCycleErr @attrTable cim) errs
+                                                                     , inducedCycleErrs @attrTable @ruleTable cim errs
                                                                      )
             lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
                           Seq.<> @prods.errors
@@ -425,7 +427,7 @@ swap (a,b) = (b,a)
 showPath :: Table CRule -> [Vertex] -> [String]
 showPath ruleTable path
   =  let  look a | inRange (bounds ruleTable) a = [showOrigin (ruleTable ! a)]
-                 | otherwise = []
+                 | otherwise = ["Vertex " ++ show a]
           showOrigin cr  | getHasCode cr && getName (getAttr cr) /= "self" = prettyCRule cr ++ " (" ++ show (getPos (getAttr cr)) ++ ")"
                          | otherwise = prettyCRule cr
      in concatMap look path
@@ -438,7 +440,7 @@ showPathLocal ruleTable xs = showP (xs++[-1])
        showP (v1:v2:vs) = let line  = step v1 v2
                               lines = showP vs
                           in  line:lines
-       step v1 v2  = "calc local "  ++ a1
+       step v1 v2  = " - " ++ a1
         where r1 = ruleTable ! v1
               a1 = show (getAttr  r1)
 
@@ -450,30 +452,45 @@ limitTo n (x:xs) = x : limitTo (n-1) xs
 
 showPathNice :: Table CRule -> [Vertex] -> [String]
 showPathNice _ [] = []
-showPathNice ruleTable (x:xs) = limitTo 100 (showP (x:x:xs++[x]))
+showPathNice ruleTable xs = limitTo 100 (showP ((-1):xs++[-1]))
  where showP []         = []
        showP (v1:v2:vs) = let line  = step v1 v2
                               lines = showP vs
                           in  if null line  then lines  else line:lines
-       step v1 v2  |  isLocal r1  = if head a1 == '_' 
-                                     then ""
-                                     else "calc local "  ++ a1
-                   |  isSyn   r1  =       "synthesize "  ++ a2 ++ " to "                 ++ f2 ++ " field" ++ 
-                                          " in "         ++ c2 ++ " alternative of "     ++ n2
-                   |  otherwise   =       "pass down  "  ++ a1 ++ " to "                 ++ f1 ++ " field" ++ rest
-        where rest | v2 == -1     =       ""
-                   | otherwise    =       " which is a " ++ n2 ++ " having alternative " ++ c2
+       step v1 v2  |  last &&      first    = induced
+                   |  last &&     isSyn r1  = "synthesize "  ++ otWidth 12 ""    ++ " " ++ toWidth 12 a1 ++ " in " ++ otWidth 12 n1 ++ "|" ++ c1 ++ induced
+                   |  first&& not(isSyn r2) = "inherit    "  ++ otWidth 12 ""    ++ " " ++ toWidth 12 a2 ++ " in " ++ otWidth 12 n2 ++ "|" ++ c2
+                   |  last                  = "pass down  "  ++ otWidth 12 f1    ++ "." ++ a1                                                    ++ induced
+                   |              isSyn r2  = "receive    "  ++ otWidth 12 f2    ++ "." ++ toWidth 12 a2 ++ " in " ++ otWidth 12 n2 ++ "|" ++ c2
+                   |  isLocal r1  = if head a1 == '_' 
+                                         then ""
+                                         else "calculate  "  ++ otWidth 12 "loc" ++ "." ++ a1
+                   |  otherwise             = "pass down  "  ++ otWidth 12 f1    ++ "." ++ toWidth 12 a1 ++ " to " ++ otWidth 12 n2 ++ "|" ++ c2
+          where
+              first = v1<0
+              last  = v2<0
               r1 = ruleTable ! v1
               r2 = ruleTable ! v2
               a1 = show (getAttr  r1)
               a2 = show (getAttr  r2)
               f1 = show (getField r1)
               f2 = show (getField r2)
+              n1 = show (getLhsNt r1)
               n2 = show (getLhsNt r2)
+              c1 = show (getCon   r1)
               c2 = show (getCon   r2)
+              induced | v2== -2   =  " INDUCED dependency to "
+                      | otherwise = ""
 
+toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
+             | otherwise = xs
+               where k = length xs
 
-localCycleErr :: Table CRule -> Bool -> [Vertex] -> Error
+otWidth n xs | k<n       = replicate (n-k) ' ' ++ xs
+             | otherwise = xs
+               where k = length xs
+
+localCycleErr :: Table CRule -> Bool -> Route -> Error
 localCycleErr ruleTable o_visit (s:path)
   =  let cr = ruleTable ! s
          attr = getAttr cr
@@ -481,7 +498,7 @@ localCycleErr ruleTable o_visit (s:path)
          con = getCon cr
      in LocalCirc nt con attr o_visit (showPathLocal ruleTable path)
 
-directCycleErrs :: Table NTAttr -> Table CRule -> Bool -> [(Edge,[Vertex])] -> [Error]
+directCycleErrs :: Table NTAttr -> Table CRule -> Bool -> [EdgeRoutes] -> [Error]
 directCycleErrs attrTable ruleTable o_visit xs
   = let getNont v = case attrTable ! v of
                       NTASyn nt _ _ -> nt
@@ -489,15 +506,22 @@ directCycleErrs attrTable ruleTable o_visit xs
         getAttr v = case attrTable ! v of
                       NTASyn _ a _  -> a
                       NTAInh _ a _  -> a
-        sameNont ((v1,_),_) ((v2,_),_) =  getNont v1 == getNont v2
-        procCycle ((v1,v2),cp) = ((getAttr v1, getAttr v2), showPathNice ruleTable cp)
-        wrapGroup gr = DirectCirc (getNont (fst (fst (head gr)))) o_visit (map procCycle gr)
+        sameNont ((v1,_),_,_) ((v2,_),_,_) =  getNont v1 == getNont v2
+        procCycle ((v1,v2),p1,p2) = ((getAttr v1, getAttr v2), showPathNice ruleTable p1, showPathNice ruleTable p2)
+        wrapGroup gr@(((v1,_),_,_):_) = DirectCirc (getNont v1) o_visit (map procCycle gr)
     in  map wrapGroup (groupBy sameNont xs)
 
-inducedCycleErr :: Table NTAttr -> CInterfaceMap -> (Edge,[Vertex]) -> Error
-inducedCycleErr attrTable cim ((v1,v2),_)
-  = let (NTASyn nt a1 _) = attrTable ! v1
-        (NTAInh _  a2 _) = attrTable ! v2
-        cinter = Map.find nt cim
-    in InducedCirc nt a2 a1 cinter
+inducedCycleErrs :: Table NTAttr -> Table CRule -> CInterfaceMap -> [EdgeRoutes] -> [Error]
+inducedCycleErrs attrTable ruleTable cim xs
+  = let getNont v = case attrTable ! v of
+                      NTASyn nt _ _ -> nt
+                      NTAInh nt _ _ -> nt
+        getAttr v = case attrTable ! v of
+                      NTASyn _ a _  -> a
+                      NTAInh _ a _  -> a
+        sameNont ((v1,_),_,_) ((v2,_),_,_) =  getNont v1 == getNont v2
+        procCycle ((v1,v2),p1,p2) = ((getAttr v1, getAttr v2), showPathNice ruleTable p1, showPathNice ruleTable p2)
+        wrapGroup gr@(((v1,_),_,_):_) = InducedCirc (getNont v1) (Map.find (getNont v1) cim) (map procCycle gr)
+    in  map wrapGroup (groupBy sameNont xs)
+
 }

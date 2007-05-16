@@ -325,26 +325,28 @@ SEM Error
                                                            >#< "..." >#< "@loc." >|< getName @attr >#< "...")
                                  help  = if null @path
                                          then text "the definition is directly circular"
-                                         else vlist ("The following attributes are also involved in the cycle:": @path)
+                                         else hlist ("The following attributes are involved in the cycle:": @path)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
                              in ppError @isWarning (getPos (@attr)) mesg pat help act @lhs.verbose
 
   | DirectCirc      loc.isWarning      = True
-                    lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "has synthesized attributes that indirectly influence inherited attributes" ]
+                    lhs.pp = let mesg  = wfill ["In nonterminal", getName @nt, "synthesized and inherited attributes are mutually dependent" ]
                                          >-< vlist (map showEdge @cyclic)
                                  pat   = text ""
-                                 help  = vlist (concatMap showEdgeLong @cyclic)
+                                 help  = vlist (map showEdgeLong @cyclic)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
-                             
+
   | InducedCirc     loc.isWarning      = True
-                    lhs.pp = let mesg  = wfill ["After scheduling there is an induced circular dependency for", attrText @inh @syn, "of nonterminal", getName @nt]
+                    lhs.pp = let mesg  = wfill ["After scheduling, in nonterminal", getName @nt, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
+                                         >-< vlist (map showEdge @cyclic)
                                  pat   = text ""
                                  showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (i+1,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
                                  help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
-                                 act   = text "Generation of visit functions failed; an unoptimized version was generated."
+                                         >-< vlist (map showEdgeLong @cyclic)
+                                 act   = text "An unoptimized version was generated. It might hang when run."
                              in ppError @isWarning noPos mesg pat help act @lhs.verbose
 
   | MissingTypeSig  loc.isWarning      = True
@@ -366,16 +368,15 @@ SEM Error
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
              | otherwise = xs
                where k = length xs
-               	
 	
-showEdge ((syn,inh),_) 
-  = text (toWidth 20 (getName syn) ++ " indirectly influences " ++  getName inh)
+showEdge ((inh,syn),_,_) 
+  = text ("inherited attribute " ++ toWidth 20 (getName inh) ++ " with synthesized attribute " ++  getName syn)
 
-showEdgeLong ((syn,inh),path) 
-  | null path = []
-  | otherwise = [ text (getName syn ++ " indirectly influences " ++  getName inh)
-                  >-< indent 4 (vlist (map text path))
-                ]
+showEdgeLong ((inh,syn),path1,path2) 
+  = text ("inherited attribute " ++ getName inh ++ " is needed for " ++  "synthesized attribute " ++ getName syn)
+    >-< indent 4 (vlist (map text path2))
+    >-< text "and back: "
+    >-< indent 4 (vlist (map text path1))
 	
 attrText inh syn
  = 	if   inh == syn 

@@ -90,12 +90,11 @@ DATA Error  | ParserError     pos     : {Pos}
 
             | DirectCirc      nt      : {Nonterminal}
                               o_visit : {Bool}
-                              cyclic  : {[((Name,Name),[String])]}
+                              cyclic  : {[((Name,Name),[String],[String])]}
 
             | InducedCirc     nt      : {Nonterminal}
-                              inh     : {Name}
-                              syn     : {Name}
                               cinter  : {CInterface}
+                              cyclic  : {[((Name,Name),[String],[String])]}
 
             | MissingTypeSig  nt      : {Nonterminal}
                               con     : {Constructor}

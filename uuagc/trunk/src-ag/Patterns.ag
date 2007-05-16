@@ -17,6 +17,8 @@ DATA Pattern    | Constr     name  : {Constructor}
                              parts : Patterns
                 | Underscore pos   : {Pos}
 
+DERIVING Pattern:Show
+
 ATTR AllPattern [ | | copy : SELF ]
 
 SET AllPattern

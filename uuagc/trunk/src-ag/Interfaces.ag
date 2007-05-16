@@ -1,7 +1,7 @@
 imports
 {
 import CommonTypes
-import Data.Graph
+import SequentialTypes
 }
 
 DATA IRoot | IRoot inters:Interfaces

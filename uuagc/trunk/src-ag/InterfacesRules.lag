@@ -13,7 +13,8 @@ import qualified UU.DData.Map as Map
 import UU.DData.Map(Map)
 import qualified UU.DData.Set as Set
 import UU.DData.Set(Set)
-import Data.Graph
+import Data.Tree(Tree(Node))
+import Data.Graph(Graph, dfs, edges, buildG, transposeG)
 import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,intersect)
 import Data.Array ((!),inRange,bounds,assocs)

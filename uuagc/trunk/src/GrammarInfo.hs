@@ -1,7 +1,6 @@
 module GrammarInfo where
 
 import SequentialTypes
-import Data.Graph (Table,Vertex,Edge)
 import CodeSyntax
 import UU.DData.Map(Map,toList)
 import UU.DData.Set(Set)
@@ -16,7 +15,6 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   ,  lmh         ::  [LMH]
                   ,  prods       ::  [(Nonterminal,[Constructor])]
                   ,  wraps       ::  Set Nonterminal
-                  -- ,  cyclesOnly  ::  Bool
                   }
                   deriving Show
 
@@ -29,9 +27,9 @@ type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
 
 data CycleStatus  
   = CycleFree     CInterfaceMap CVisitsMap
-  | LocalCycle    [[Vertex]]
-  | DirectCycle   [(Edge,[Vertex])]
-  | InducedCycle  CInterfaceMap [(Edge,[Vertex])] 
+  | LocalCycle    [Route]
+  | DirectCycle   [EdgeRoutes]
+  | InducedCycle  CInterfaceMap [EdgeRoutes] 
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)

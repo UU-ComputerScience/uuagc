@@ -2,12 +2,31 @@ module SequentialTypes where
 
 import CodeSyntax
 import CommonTypes
-import Data.Graph (Table,Vertex)
+import Data.Array(Array)
 import UU.DData.Map (Map)
 import qualified UU.DData.Map as Map
 import Data.Maybe(fromJust)
 import Data.List(partition)
 import UU.Pretty
+
+
+type Vertex    = Int
+data PathStep  = AttrStep Vertex Vertex
+               | AtOcStep Vertex Vertex
+               | AttrIndu Vertex Vertex
+               deriving (Show, Eq)
+               
+type Path      = [PathStep]
+type Route     = [Vertex]
+            
+type Edge      = (Int,Int)
+type EdgePath  = (Edge,Path)
+type EdgePaths = (Edge,Path,Path)
+type EdgeRoute = (Edge,Route)
+type EdgeRoutes= (Edge,Route,Route)
+
+type Table a   = Array     Vertex a
+
 
 data ChildVisit = ChildVisit Name Name Int [Vertex] [Vertex] deriving (Eq,Show) -- field, rhs nt, visit nr., inh, syn
 data NTAttr = NTAInh Nonterminal Name Type -- nt, attribute, type
