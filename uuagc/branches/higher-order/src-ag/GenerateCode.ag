@@ -164,7 +164,7 @@ substSelf nt tp = if tp==NT _SELF
                   else tp
 }
 
-ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type)]} | | ]
+ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type,Bool)]} | | ]
 SEM  CAlternative
   |  CAlternative visits.children = @children
 
@@ -190,10 +190,10 @@ SEM  CVisit
             loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @lhs.children else @intra.exprs
-                              field (name,NT tp) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                              field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                               | otherwise       = id
-                                                   in unwrap (SimpleExpr (funname name 0))
-                              field (name,_)     =  SimpleExpr (funname name 0)
+                                                      in unwrap (SimpleExpr (funname name 0))
+                              field (name,_,_)     =  SimpleExpr (funname name 0)
                               rhs = wrap 
                                     . mkLambda (map (lhsname True) (Map.keys @inh))
                                     . mkLet @o_case @decls
@@ -208,7 +208,7 @@ SEM  CVisit
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
                           in if  @lhs.nr == 0  
-                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map snd @lhs.children)
+                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map (\(_,t,_) -> t) @lhs.children)
                                  else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
             lhs.decls =  if  @lhs.with_sig 
                              then [@tsig, @semFun]
@@ -328,7 +328,7 @@ SEM CSegment
 
 SEM CAlternative 
   | CAlternative lhs.comments =  ("alternative " ++ getName @con ++ ":")
-                                 : map ind (  map (\(x,y) -> makeLocalComment 14 "child" x (Just y)) @children
+                                 : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @children
                                            ++ @visits.comments
                                            )
 
@@ -433,7 +433,7 @@ SEM CAlternatives
   | Nil         lhs.dataAlts  = []
 
 SEM CAlternative
-  | CAlternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (typeToString @lhs.nt .snd) @children)
+  | CAlternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToString @lhs.nt t) @children)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present
@@ -490,10 +490,10 @@ SEM CAlternatives
 SEM CAlternative
   | CAlternative lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
                                    lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
-                                                 (map (SimpleExpr . locname . fst) @children)
+                                                 (map (\(n,_,_) -> SimpleExpr $ locname $ n) @children)
                                    rhs = App (semname @lhs.prefix @lhs.nt @con)
                                              (map argument @children)
-                                   argument (nm,NT tp) = App (cataname @lhs.prefix tp)
-                                                             [SimpleExpr (locname nm)]
-                                   argument (nm, _)    = SimpleExpr (locname nm)
+                                   argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
+                                                               [SimpleExpr (locname nm)]
+                                   argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs

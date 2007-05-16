@@ -216,7 +216,7 @@ SEM  Rule
 -- Wrapping an Expression
 
 ATTR Expression [ nt,con   :{Name}
-                  allfields:{[(Name,Type)]}
+                  allfields:{[(Name,Type,Bool)]}
                   allnts   :{[Name]}
                   attrs    :{[(Name,Name)]}
                 ||
@@ -390,7 +390,7 @@ SEM Grammar
 
 -- Collecting fields
 ATTR Rule Rules 
-     Child Children [allfields:{[(Name,Type)]} attrs:{[(Name,Name)]} | | ]
+     Child Children [allfields:{[(Name,Type,Bool)]} attrs:{[(Name,Name)]} | | ]
 
 SEM Alternative
   | Alternative loc.allfields  = @children.fields
@@ -405,10 +405,10 @@ SEM Child [ | | attributes:{[(Name,Attributes,Attributes)]} ]
   | Child lhs.attributes = [(@name, @inh, @syn)]
 
 
-SEM Child [ | | field : {(Name,Type)} ]
-  | Child lhs.field = (@name, @tp)
+SEM Child [ | | field : {(Name,Type,Bool)} ]
+  | Child lhs.field = (@name, @tp, @higherOrder)
 
-SEM Children [ | | fields : {[(Name,Type)]} ]
+SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
