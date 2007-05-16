@@ -267,7 +267,8 @@ checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map C
               -> Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields insts nt con rs 
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) :  Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
+        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined)
+                 : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
 
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
   
@@ -278,8 +279,8 @@ checkRules attributes fields insts nt con rs
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
-         = case lookup field fieldmap 
-            of  Just (NT tp) -> if field == _LOC
+         = case lookup field fieldmap
+            of  Just (NT tp) -> if field == _LOC || field == _INST
                                    || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
                                  then case Map.lookupIndex fa m 
                                        of  Just ix -> let ((_,attr2),b) = Map.elemAt ix m
@@ -291,7 +292,7 @@ checkRules attributes fields insts nt con rs
                 _            ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
-    
+
 checkSigs :: Nonterminal -> Constructor -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
@@ -310,8 +311,8 @@ checkInsts sigMap nt con
     sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
     
     findSig name
-      = do (NT tp) <- lookup name sigs
-           return (name, NT tp)
+      = do tp@(NT _) <- lookup name sigs
+           return (name, tp)
 }
 
 
@@ -631,16 +632,10 @@ ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
 ATTR Pattern [ | | patunder : {[AttrName]->Pattern} ]
 ATTR Patterns [ | | patunder : {[AttrName]->Patterns} ]
 
--- 'Inst' fields are desugared to 'loc' fields
 SEM Pattern
-  | Alias loc.field' = if @field == _INST then _LOC else @field -- convert "inst" field to "loc" field
-          lhs.definedAttrs = (@field', @attr) : @pat.definedAttrs
-          lhs.patunder     = \us -> if ((@field',@attr) `elem` us) then Underscore noPos else @copy
+  | Alias lhs.definedAttrs = (@field, @attr) : @pat.definedAttrs
+          lhs.patunder     = \us -> if ((@field,@attr) `elem` us) then Underscore noPos else @copy
           lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
-          loc.copy = Alias @field'
-                           @attr
-                           @pat.copy
-                           @parts.copy
   | Underscore lhs.patunder = \us -> @copy
   | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
   | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
@@ -689,28 +684,18 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              alt (con,flds) =
-                                   let rules = maybe [] id (Map.lookup con rmap) ++ instRules
+                                   let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
-                                       instRules = map (uncurry mkInstRule) insts
+                                       cldrn = map (child False) flds ++ map (child True) insts
                                        child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
                                                  NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
                                                  _     -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn isVirtual
-                                   in Alternative con (map (child False) flds ++ map (child True) insts) rules tsigs
+                                   in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers prods
-
-mkInstRule :: Identifier -> Type -> Rule
-mkInstRule ident (NT nt)
-  = Rule pat rhs False org
-  where
-    pat = Alias _INST ident (Underscore pos) []
-    rhs = Expression pos "bla"
-    pos = getPos ident
-    org = "Tree decoration rule for inst attribute "
-          ++ getName ident ++ " at " ++ show pos
 }
 
 {

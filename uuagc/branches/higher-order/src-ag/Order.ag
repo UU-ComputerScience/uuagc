@@ -120,11 +120,11 @@ SEM  Child
   |  Child  loc.maptolocal =  case @tp of
                                 NT nt  -> Map.isEmpty @syn
                                 _      -> True
-            lhs.gathAltAttrs = if  @maptolocal
+            lhs.gathAltAttrs = if  @maptolocal && not @higherOrder
                                    then [ AltAttr _LOC @name True ]
                                    else [ AltAttr @name syn True | syn <- Map.keys @syn ]
 SEM  Pattern
-  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC)]
+  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC || @field == _INST)]
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Alternative
@@ -152,12 +152,13 @@ SEM  Alternative
                   loc.gathRules = @inhRules ++ Seq.toList (@children.gathRules Seq.<> @rules.gathRules)
 
 SEM  Child
-  |  Child  loc.gathRules = if  @maptolocal
+  |  Child  loc.gathRules = if  @maptolocal && not @higherOrder
                                 then Seq.single (cRuleTerminal @name @lhs.nt @lhs.con @tp)
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
 SEM  Rule
-  |  Rule  loc.defines = let  tp field attr parts | field == _LOC = case parts of 
+  |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
+                                                                  = case parts of 
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
@@ -231,11 +232,11 @@ ATTR Expression [ nt,con   :{Name}
 SEM Expression
   | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
                             = let inherited = Inh_HsTokensRoot
-                                              { attrs_Inh_HsTokensRoot   = @lhs.attrs
-                                              , con_Inh_HsTokensRoot     = @lhs.con
+                                              { attrs_Inh_HsTokensRoot      = @lhs.attrs
+                                              , con_Inh_HsTokensRoot        = @lhs.con
                                               , allfields_Inh_HsTokensRoot  = @lhs.allfields
-                                              , allnts_Inh_HsTokensRoot  = @lhs.allnts
-                                              , nt_Inh_HsTokensRoot      = @lhs.nt
+                                              , allnts_Inh_HsTokensRoot     = @lhs.allnts
+                                              , nt_Inh_HsTokensRoot         = @lhs.nt
                                               }
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens @pos @txt)) inherited
                               in case synthesized of
@@ -355,7 +356,7 @@ SEM  Alternative
 -- Declarations for single visits
 ATTR Child Children [ | | singlevisits USE {++} {[]}: {[CRule]}]
 SEM Child 
-  | Child lhs.singlevisits  =  if  @maptolocal
+  | Child lhs.singlevisits  =  if  @maptolocal && not @higherOrder
                                    then []
                                    else [CChildVisit @name (getNtName @tp) 0 @inh @syn True]
 
@@ -376,7 +377,9 @@ SEM  Alternative [ | | cAlternative : CAlternative ]
 -- Collect terminals
 ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
 SEM Child
-  | Child lhs.terminals = if @maptolocal then [@name] else []
+  | Child lhs.terminals = if @maptolocal && not @higherOrder
+                          then [@name]
+                          else []
 
 
 -- Collecting nts
@@ -394,8 +397,9 @@ ATTR Rule Rules
 
 SEM Alternative
   | Alternative loc.allfields  = @children.fields
-                   .attrs      = map ((,) _LOC) @rules.locVars ++
-                                 map ((,) _LHS) @inhnames ++ 
+                   .attrs      = map ((,) _LOC)  @rules.locVars ++
+                                 map ((,) _INST) @rules.instVars ++
+                                 map ((,) _LHS)  @inhnames ++ 
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
                    .inhnames   = Map.keys @lhs.inh
                    .synnames   = Map.keys @lhs.syn
@@ -412,10 +416,13 @@ SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
-ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} ]
+ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} instVars USE {++} {[]} : {[Name]} ]
 
 SEM Pattern
-  | Alias    lhs.locVars   = if @field == _LOC 
+  | Alias    lhs.locVars   = if @field == _LOC
+                                then [@attr]
+                                else []
+             lhs.instVars  = if @field == _INST
                                 then [@attr]
                                 else []
 
