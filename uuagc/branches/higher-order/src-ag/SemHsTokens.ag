@@ -27,7 +27,7 @@ ATTR HsTokensRoot
 ATTR HsTokensRoot
      HsTokens HsToken [ nt,con   :{Identifier}
                         -- fieldnames   :{[Identifier]}
-                        allfields    :{[(Name,Type)]}
+                        allfields    :{[(Name,Type,Bool)]}
                         allnts       :{[Name]}
                         attrs    :{[(Identifier,Identifier)]}
                       ||
@@ -35,7 +35,7 @@ ATTR HsTokensRoot
 
 ATTR HsTokens HsToken [ fieldnames : {[Identifier]} | | ]
 SEM HsTokensRoot
-  | HsTokensRoot tokens.fieldnames = map fst @lhs.allfields
+  | HsTokensRoot tokens.fieldnames = map (\(n,_,_) -> n) @lhs.allfields
 
 -------------------------------------------------------------------------------
 --  Errors
@@ -63,7 +63,7 @@ isNTname allnts _              = False
 SEM HsToken
   | AGLocal   loc.(errors,tok,usedLocals) = 
                      if @var `elem` @lhs.fieldnames   
-                     then if  isNTname @lhs.allnts (lookup @var @lhs.allfields)
+                     then if  isNTname @lhs.allnts (lookup @var (map (\(n,t,_) -> (n,t)) @lhs.allfields))
                           then (Seq.single(ChildAsLocal @lhs.nt @lhs.con @var), (@pos,fieldname @var), []    )
                           else (Seq.empty, (@pos,fieldname @var), []    )
                      else if (_LOC,@var) `elem` @lhs.attrs 

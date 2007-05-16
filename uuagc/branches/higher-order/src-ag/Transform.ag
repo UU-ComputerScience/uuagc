@@ -14,7 +14,7 @@ import ConcreteSyntax
 import AbstractSyntax
 import ErrorMessages
 import Patterns (Patterns(..),Pattern(..))
-import Expression (Expression)
+import Expression (Expression(..))
 
 import Options(Options, withSelf, withCycle, withSeq, strictData, strictWrap, unbox, visit, cases, wrappers)
 import CommonTypes
@@ -689,9 +689,10 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              alt (con,flds) =
-                                   let rules = maybe [] id (Map.lookup con rmap)
+                                   let rules = maybe [] id (Map.lookup con rmap) ++ instRules
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
+                                       instRules = map (uncurry mkInstRule) insts
                                        child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
                                                  NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -700,7 +701,17 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                    in Alternative con (map (child False) flds ++ map (child True) insts) rules tsigs
                             in Production nt inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers prods
- }
+
+mkInstRule :: Identifier -> Type -> Rule
+mkInstRule ident (NT nt)
+  = Rule pat rhs False org
+  where
+    pat = Alias _INST ident (Underscore pos) []
+    rhs = Expression pos "bla"
+    pos = getPos ident
+    org = "Tree decoration rule for inst attribute "
+          ++ getName ident ++ " at " ++ show pos
+}
 
 {
 mapUnionWithSetUnion = Map.unionWith Set.union

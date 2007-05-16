@@ -36,7 +36,7 @@ TYPE CAlternatives = [CAlternative]
 DATA  CAlternative
    |  CAlternative  con        : Constructor
                     visits     : CVisits
-                    children   : {[(Name,Type)]}
+                    children   : {[(Name,Type,Bool)]}
                     terminals  : {[Name]}
 
 TYPE CVisits = [CVisit]
