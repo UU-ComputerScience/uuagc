@@ -4,7 +4,6 @@ import Patterns
 import CommonTypes
 import UU.DData.Map(Map)
 import UU.DData.Set(Set)
-import Data.Graph(Vertex)
 }
 
 DATA  CGrammar 
@@ -61,7 +60,7 @@ DATA  CRule
                    tp         :  {Maybe Type}
                    pattern    :  Pattern
                    rhs        :  {[String]}
-                   defines    :  {Map Vertex (Name,Name,Maybe Type)}
+                   defines    :  {Map Int (Name,Name,Maybe Type)}
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
    |  CChildVisit  name    :  Name  -- corresponding to the name of the child

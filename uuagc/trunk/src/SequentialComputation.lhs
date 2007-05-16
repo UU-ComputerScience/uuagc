@@ -38,17 +38,13 @@ If we want to use any of the library
 functions, we can convert our representation by |fmap Map.keys . freeze|.
 
 \begin{code}
-type Vertex    = Int
-type Path      = [Vertex]
-type Edge      = (Int,Int)
-type EEdge     = (Edge,Path)
-type Table a   = Array     Vertex a
 type Graph     = Array     Vertex [Vertex]
 type MGraph    = Array     Vertex (Map.Map Vertex Path)
 type MMGraph s = STArray s Vertex (Map.Map Vertex Path)
 
-singleStep :: Edge -> EEdge
-singleStep e@(s,t) = (e, [s,t])
+singleStep :: (Vertex->Vertex->PathStep) -> Edge -> EdgePath
+singleStep f e@(s,t) = (e, [f s t])
+
 \end{code}
 
 We can add an edge to a graph, or remove it. These functions return
@@ -56,37 +52,17 @@ whether they did something (resp. addition or removal) or not. hasEdge
 only checks whether a graph contains an edge or not.
 
 \begin{code}
-addEdge :: MMGraph s -> (Edge,Path) -> ST s Bool
+addEdge :: MMGraph s -> EdgePath -> ST s Bool
 addEdge graph ((s,t),p)
  = do m <- readArray graph s
       let b = not (Map.member t m)
       when b (writeArray graph s (Map.insert t p m))
       return b 
- 
- 
-{- -- to find the shortest path instead of any path
-addEdge graph ((s,t),p)
- = do m <- readArray graph s
-      maybe (do writeArray graph s (Map.insert t p m)
-                return True
-            )
-            (\oldP -> 
-                      if length p < length oldP
-                       then (do writeArray graph s (Map.insert t p m)
-                                return True
-                            )
-                       else return False
-            )
-            (Map.lookup t m)
--}
 
-
-hasEdge :: MMGraph s -> (Edge,Path) -> ST s Bool
+hasEdge :: MMGraph s -> EdgePath -> ST s Bool
 hasEdge graph ((s,t),_)
  = do m <- readArray graph s
       return (Map.member t m)
-                              
-                              
 \end{code}
 
 The first step is to assign a number to all attributes, and a
@@ -135,7 +111,7 @@ $\{ (r,t) || (r,s) \in V \}$ and
 $\{ (s,u) || (t,u) \in V \}$.
 
 \begin{code}
-insertTdp :: Info -> Comp s -> EEdge -> ST s ()
+insertTdp :: Info -> Comp s -> EdgePath -> ST s ()
 insertTdp info comp@(_,(tdpN,tdpT)) e@((s,t),ee)                -- how to insert an edge (s,t):
   = do b <- hasEdge tdpN e                                      -- if it's not yet present
        unless b 
@@ -152,7 +128,7 @@ Edges in |Tdp| can induce edges in |Tds|, so whenever we add
 an edge, we also add the induced edge if necessary
 
 \begin{code}
-addTdpEdge :: Info -> Comp s -> EEdge -> ST s ()            -- how to add an edge (s,t) when not having to bother about the transitive closure:
+addTdpEdge :: Info -> Comp s -> EdgePath -> ST s ()         -- how to add an edge (s,t) when not having to bother about the transitive closure:
 addTdpEdge info comp@(_,(tdpN,tdpT)) e@((s,t),ee)
   = do b <- addEdge tdpN e                                  -- add it to the normal graph
        when b                                               -- if it was a new edge
@@ -164,20 +140,17 @@ addTdpEdge info comp@(_,(tdpN,tdpT)) e@((s,t),ee)
                 when (nonlocal && equalfield)               -- ...and when necessary...
                      (insertTds info comp ((u,v),ee))       -- ...insert it to the Tds graph
            )
-
-
 \end{code}
 
 Inserting edges into |Tds| will insert edges between the occurrences
 of the attributes into |Tdp|.
-\end{notes}
 
 \begin{code}
-insertTds :: Info -> Comp s -> EEdge -> ST s ()
+insertTds :: Info -> Comp s -> EdgePath -> ST s ()
 insertTds info comp@(tds,_) e@((u,v),ee)
   =  do b <- addEdge tds e
         when b
-             (mapM_ (insertTdp info comp) [ ((s,t),ee)
+             (mapM_ (insertTdp info comp) [ ( (s,t), [AttrStep u v] )
                                           | s <- tdsToTdp info ! u
                                           , not (getIsIn (ruleTable info ! s))    -- inherited at LHS, or synthesized at RHS
                                           , t <- tdsToTdp info ! v
@@ -193,7 +166,7 @@ Tds graph is filled with IDS.
 Below is a way to only build up the Tdp graph, without reflect the changes in the Tds graph.
 
 \begin{code}
-simpleInsert :: Tdp s -> EEdge -> ST s ()
+simpleInsert :: Tdp s -> EdgePath -> ST s ()
 simpleInsert tdp@(tdpN,tdpT) e@((s,t),ee)
   = do b <- hasEdge tdpT ((t,s),undefined)
        unless b (do  rs <- readArray tdpT s
@@ -204,7 +177,7 @@ simpleInsert tdp@(tdpN,tdpT) e@((s,t),ee)
                      mapM_ (addSimpleEdge tdp) edges
                 )
 
-addSimpleEdge :: Tdp s -> EEdge -> ST s ()
+addSimpleEdge :: Tdp s -> EdgePath -> ST s ()
 addSimpleEdge (tdpN,tdpT) e@((s,t),ee)
   = do b <- addEdge tdpN e
        when b (do addEdge tdpT ((t,s),ee)
@@ -278,18 +251,19 @@ makeInterface tds del (l,m,h)
 We only want to return s2i edges.
 
 \begin{code}
-findCycles :: Info -> MGraph -> [EEdge]
+findCycles :: Info -> MGraph -> [EdgePaths]
 findCycles info tds
-  = [ ((v,u),p1++fromJust mbp2)
+  = [ ((u,v),p1,p2)
     | (l,m,h) <- lmh info                    -- for every nonterminal: [l..m-1] are inherited, [m..h] are synthesized
     , v <- [m..h]                            -- for every synthesized attribute
     , (u,p1) <- Map.toList (tds ! v)         -- find dependent attributes...
     , l <= u, u < m                          -- ...that are inherited...
     , let mbp2 = Map.lookup v (tds ! u)      -- ...and have a cycle back
     , isJust mbp2
+    , let p2 = fromJust mbp2
     ]
 
-findLocCycles :: MGraph -> [EEdge]
+findLocCycles :: MGraph -> [EdgePath]
 findLocCycles tdp
   = let (low, high) = bounds tdp
     in  [ ((u,u),p)
@@ -315,16 +289,57 @@ generateVisits info tds tdp dpr
          iroot = wrap_IRoot inters inhs
     in (inters_Syn_IRoot iroot, visits_Syn_IRoot iroot, edp_Syn_IRoot iroot)
 
-reportLocalCycle :: [EEdge] -> [[Vertex]]
-reportLocalCycle cyc1
-  = fst (foldr f ([],Set.empty) cyc1)
+reportLocalCycle :: MGraph -> [EdgePath] -> [[Vertex]]
+reportLocalCycle tds cyc
+  = fst (foldr f ([],Set.empty) (map (edgePathToEdgeRoute tds) cyc))
     where f ((x,_),p) res@(paths,syms) | Set.member x syms = res    -- don't report a cyclic vertex if it appears on a path of an earlier reported one
                                        | otherwise         = (p:paths, Set.union syms (Set.fromList p))
 
-reportDirectCycle :: [EEdge] -> [(Edge,[Vertex])]
-reportDirectCycle cyc2
-  =  cyc2
-        
+reportCycle :: Info -> MGraph -> [EdgePaths] -> [EdgeRoutes]
+reportCycle info tds cyc
+  = fst (foldr f ([],Set.empty) (map (edgePathsToEdgeRoutes tds) cyc))
+    where f epp@((x,y),p1,p2) res@(paths,syms) | Set.member x syms && 
+                                                 Set.member y syms    = res    -- don't report mutually dependent vertices if both appear on paths reported earlier
+                                               | otherwise            = (epp:paths, Set.union syms (Set.fromList (map tdp2tds (p1++p2))))
+          tdp2tds (-2) = -2
+          tdp2tds v = tdpToTds info ! v
+
+edgePathsToEdgeRoutes :: MGraph -> EdgePaths -> EdgeRoutes
+edgePathsToEdgeRoutes tds (e,p1,p2) = ( e, pathToRoute tds p1, pathToRoute tds p2 )
+
+edgePathToEdgeRoute :: MGraph -> EdgePath -> EdgeRoute
+edgePathToEdgeRoute tds (e,p) = ( e, pathToRoute tds p )
+
+pathToRoute :: MGraph -> Path -> Route
+pathToRoute tds p = convertPath (expandAll p)
+ where expandAll :: Path -> Path
+       expandAll p | hasAttrStep p  = expandAll (expandOne p)
+                   | otherwise      = p
+       expandOne :: Path -> Path
+       expandOne p = shortcut (concatMap expandStep p)
+       expandStep :: PathStep -> Path
+       expandStep (AttrStep u v) = fromJust (Map.lookup v (tds!u))
+       expandStep x              = [x]
+       convertPath :: Path -> Route
+       convertPath p = concatMap convertStep p
+       convertStep :: PathStep -> Route
+       convertStep (AtOcStep s t) = [s,t]
+       convertStep (AttrIndu s t) = [-2,-2]
+
+hasAttrStep :: Path -> Bool
+hasAttrStep []                  = False
+hasAttrStep (AttrStep _ _ : _ ) = True
+hasAttrStep (_            : xs) = hasAttrStep xs     
+
+shortcut :: Eq a => [a] -> [a]
+shortcut []     = []
+shortcut (x:xs) = x : shortcut (removeBefore x xs)
+
+removeBefore :: Eq a => a -> [a] -> [a]
+removeBefore x ys = reverse (takeWhile (/=x) (reverse ys))
+
+
+isLocLoc :: Table CRule -> EdgePath -> Bool
 isLocLoc rt ((s,t),_) = isLocal (rt ! s) && isLocal (rt ! t)
 
 computeSequential :: Info -> [Edge] -> CycleStatus
@@ -332,7 +347,7 @@ computeSequential info dpr
   = runST
     (do let bigBounds   = bounds (tdpToTds info)
             smallBounds = bounds (tdsToTdp info)
-            (ll,es) = partition (isLocLoc (ruleTable info)) (map singleStep dpr)
+            (ll,es) = partition (isLocLoc (ruleTable info)) (map (singleStep AtOcStep) dpr)
         tds  <- newArray smallBounds Map.empty
         tdpN <- newArray bigBounds   Map.empty
         tdpT <- newArray bigBounds   Map.empty
@@ -342,19 +357,19 @@ computeSequential info dpr
         tdp1 <- freeze tdpN
         let cyc1 = findLocCycles tdp1
         if  not (null cyc1)                                                                -- are they cyclic?
-            then do return (LocalCycle (reportLocalCycle cyc1))                            -- then report an error.
+            then do return (LocalCycle (reportLocalCycle undefined cyc1))                  -- then report an error.
             else do  mapM_ (insertTdp info comp) es                                        -- insert the other dependencies
                      tds2 <- freeze tds
                      let cyc2 = findCycles info tds2
                      if  not (null cyc2)                                                   -- are they cyclic?
-                         then do  return (DirectCycle (reportDirectCycle cyc2))            -- then report an error.
+                         then do  return (DirectCycle (reportCycle info tds2 cyc2))        -- then report an error.
                          else do  tdp2 <- freeze tdpN
                                   let  (cim,cvm,edp) = generateVisits info tds2 tdp2 dpr
-                                  mapM_ (insertTds info comp) (map singleStep edp)         -- insert dependencies induced by visit scheduling
+                                  mapM_ (insertTds info comp) (map (singleStep AttrIndu) edp) -- insert dependencies induced by visit scheduling
                                   tds3 <- freeze tds
                                   let cyc3 = findCycles info tds3
                                   if  not (null cyc3)                                      -- are they cyclic?
-                                      then return (InducedCycle cim cyc3)                  -- then report an error.
+                                      then return (InducedCycle cim (reportCycle info tds3 cyc3)) -- then report an error.
                                       else return (CycleFree cim cvm)                      -- otherwise we succeed.
     )
 \end{code}
