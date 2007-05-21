@@ -4,14 +4,16 @@ DATA Root
    | Root  a : Aap
 
 DATA Aap
-	| Een   t : Int
+	| Een
 
-ATTR Aap [ x : Int | y : Int |  z : Int ]
+ATTR Root [ | | z : Int ]
+ATTR Aap [ x : Int | | y : Int z : Int ]
 
 SEM Root
   | Root  a.x = @a.y
-          a.y = 7
           
 SEM Aap
-  | Een  lhs.y = @t
+  | Een  lhs.y = 7
          lhs.z = @lhs.x
+
+WRAPPER Root
