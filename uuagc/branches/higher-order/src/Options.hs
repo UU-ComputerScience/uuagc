@@ -34,6 +34,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["case"]          (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
+               , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                ]
 
 allc = "dcfsprm"
@@ -66,35 +67,37 @@ data Options = Options{ moduleName :: ModuleHeader
                       , cases :: Bool
                       , werrors :: Bool
                       , dumpgrammar :: Bool
+                      , dumpcgrammar :: Bool
                       } deriving Show
-noOptions = Options { moduleName   = NoName
-                    , dataTypes    = False
-                    , strictData   = False
-                    , strictWrap   = False
-                    , folds        = False
-                    , semfuns      = False
-                    , typeSigs     = False
-                    , attrInfo     = False
-                    , rename       = False
-                    , wrappers     = False
-                    , modcopy      = False
-                    , newtypes     = False
-                    , nest         = False
-                    , smacro       = False
-                    , outputFiles  = []
-                    , searchPath   = []
-                    , verbose      = False
-                    , showHelp     = False
-                    , showVersion  = False
-                    , prefix       = "sem_"
-                    , withSelf     = False
-                    , withCycle    = False
-                    , visit        = False
-                    , withSeq      = False
-                    , unbox        = False
-                    , cases        = False
-                    , werrors      = False
-                    , dumpgrammar  = False
+noOptions = Options { moduleName    = NoName
+                    , dataTypes     = False
+                    , strictData    = False
+                    , strictWrap    = False
+                    , folds         = False
+                    , semfuns       = False
+                    , typeSigs      = False
+                    , attrInfo      = False
+                    , rename        = False
+                    , wrappers      = False
+                    , modcopy       = False
+                    , newtypes      = False
+                    , nest          = False
+                    , smacro        = False
+                    , outputFiles   = []
+                    , searchPath    = []
+                    , verbose       = False
+                    , showHelp      = False
+                    , showVersion   = False
+                    , prefix        = "sem_"
+                    , withSelf      = False
+                    , withCycle     = False
+                    , visit         = False
+                    , withSeq       = False
+                    , unbox         = False
+                    , cases         = False
+                    , werrors       = False
+                    , dumpgrammar   = False
+                    , dumpcgrammar  = False
                     }
 
 
@@ -124,6 +127,7 @@ unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
 werrorsOpt      opts = opts{werrors      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
+dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

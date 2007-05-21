@@ -120,7 +120,7 @@ SEM  Child
   |  Child  loc.maptolocal =  case @tp of
                                 NT nt  -> Map.isEmpty @syn
                                 _      -> True
-            lhs.gathAltAttrs = if  @maptolocal && not @higherOrder
+            lhs.gathAltAttrs = if  @maptolocal
                                    then [ AltAttr _LOC @name True ]
                                    else [ AltAttr @name syn True | syn <- Map.keys @syn ]
 SEM  Pattern
@@ -152,7 +152,7 @@ SEM  Alternative
                   loc.gathRules = @inhRules ++ Seq.toList (@children.gathRules Seq.<> @rules.gathRules)
 
 SEM  Child
-  |  Child  loc.gathRules = if  @maptolocal && not @higherOrder
+  |  Child  loc.gathRules = if  @maptolocal
                                 then Seq.single (cRuleTerminal @name @lhs.nt @lhs.con @tp)
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
@@ -356,7 +356,7 @@ SEM  Alternative
 -- Declarations for single visits
 ATTR Child Children [ | | singlevisits USE {++} {[]}: {[CRule]}]
 SEM Child 
-  | Child lhs.singlevisits  =  if  @maptolocal && not @higherOrder
+  | Child lhs.singlevisits  =  if  @maptolocal
                                    then []
                                    else [CChildVisit @name (getNtName @tp) 0 @inh @syn True]
 
@@ -377,7 +377,7 @@ SEM  Alternative [ | | cAlternative : CAlternative ]
 -- Collect terminals
 ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
 SEM Child
-  | Child lhs.terminals = if @maptolocal && not @higherOrder
+  | Child lhs.terminals = if @maptolocal
                           then [@name]
                           else []
 

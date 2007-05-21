@@ -71,3 +71,11 @@ DATA  CRule
                    syn     :  Attributes
                    last    :  Bool  -- indicates whether this is the last visit to this child
 
+
+SET AllCodeSyntax
+  = CGrammar
+    CProduction CProductions
+    CInterface CSegments CSegment
+    CAlternative CAlternatives
+    CVisits CVisit
+    CRule
