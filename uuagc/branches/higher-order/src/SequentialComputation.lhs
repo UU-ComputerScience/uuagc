@@ -297,6 +297,14 @@ findLocCycles tdp
         , (v,p) <- Map.toList (tdp ! u)
         , v==u
         ]
+
+findInstCycles :: [Edge] -> MGraph -> [EEdge]
+findInstCycles instToSynEdges tdp
+  = [ ((i,s), fromJust mbp)
+    | (i, s) <- instToSynEdges
+    , let mbp = Map.lookup i (tdp ! s)
+    , isJust mbp
+    ]
 \end{code}
 
 
@@ -326,13 +334,14 @@ reportDirectCycle cyc2
   =  cyc2
         
 isLocLoc rt ((s,t),_) = isLocal (rt ! s) && isLocal (rt ! t)
+                        -- || (isInst (rt ! s) && isInst (rt ! t))
 
-computeSequential :: Info -> [Edge] -> CycleStatus
-computeSequential info dpr
+computeSequential :: Info -> [Edge] -> [Edge] -> CycleStatus
+computeSequential info dpr instToSynEdges
   = runST
     (do let bigBounds   = bounds (tdpToTds info)
             smallBounds = bounds (tdsToTdp info)
-            (ll,es) = partition (isLocLoc (ruleTable info)) (map singleStep dpr)
+            (ll,es) = partition (isLocLoc (ruleTable info)) (map singleStep (dpr ++ instToSynEdges))
         tds  <- newArray smallBounds Map.empty
         tdpN <- newArray bigBounds   Map.empty
         tdpT <- newArray bigBounds   Map.empty
@@ -349,13 +358,20 @@ computeSequential info dpr
                      if  not (null cyc2)                                                   -- are they cyclic?
                          then do  return (DirectCycle (reportDirectCycle cyc2))            -- then report an error.
                          else do  tdp2 <- freeze tdpN
-                                  let  (cim,cvm,edp) = generateVisits info tds2 tdp2 dpr
-                                  mapM_ (insertTds info comp) (map singleStep edp)         -- insert dependencies induced by visit scheduling
-                                  tds3 <- freeze tds
-                                  let cyc3 = findCycles info tds3
-                                  if  not (null cyc3)                                      -- are they cyclic?
-                                      then return (InducedCycle cim cyc3)                  -- then report an error.
-                                      else return (CycleFree cim cvm)                      -- otherwise we succeed.
+                                  let cyc4 = findInstCycles instToSynEdges tdp2
+                                  if  not (null cyc4)
+                                      then do return (LocalCycle (reportLocalCycle cyc4))              -- then report an error.
+                                      else do let  (cim,cvm,edp) = generateVisits info tds2 tdp2 dpr
+                                              mapM_ (insertTds info comp) (map singleStep edp)         -- insert dependencies induced by visit scheduling
+                                              tds3 <- freeze tds
+                                              let cyc3 = findCycles info tds3
+                                              if  not (null cyc3)                                      -- are they cyclic?
+                                                  then return (InducedCycle cim cyc3)                  -- then report an error.
+                                                  else do tdp3 <- freeze tdpN
+                                                          let cyc5 = findInstCycles instToSynEdges tdp3
+                                                          if  not (null cyc5)
+                                                              then do return (LocalCycle (reportLocalCycle cyc5))     -- then report an error.
+                                                              else do return (CycleFree cim cvm)                      -- otherwise we succeed.
     )
 \end{code}
 

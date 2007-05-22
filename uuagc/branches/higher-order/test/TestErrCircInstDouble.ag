@@ -1,0 +1,16 @@
+DATA Root
+  | Root
+
+DATA Aap
+  | Een
+
+ATTR Aap [|| s : Aap ]
+
+SEM Root
+  | Root  inst.x : Aap
+          inst.y : Aap
+          inst.x = @y.s
+          inst.y = @x.s
+
+SEM Aap
+  | Een  lhs.s = Aap_Een

@@ -41,9 +41,9 @@ import Debug.Trace(trace)
 
 {
 -- Terminates with an error if the key is not in the map
-findWithErr1 :: (Ord k, Show k) => k -> Map k a -> a
-findWithErr1 k
-  = Map.findWithDefault (error ("findWithErr1: key " ++ show k ++ " not in map.")) k
+findWithErr1 :: (Ord k, Show k) => String -> k -> Map k a -> a
+findWithErr1 s k
+  = Map.findWithDefault (error ("findWithErr1 " ++ s ++ ": key " ++ show k ++ " not in map.")) k
 
 findWithErr2 :: (Ord k, Show k, Show a) => k -> Map k a -> a
 findWithErr2 k m
@@ -173,11 +173,11 @@ SEM  Rule
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
-                                                  | otherwise     = Map.lookup attr (findWithErr1 field @lhs.childInhs)
+                                                  | otherwise     = Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
-                         in Map.fromList  [ (findWithErr1 aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
+                         in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
                                           |  aa <- @pattern.gathAltAttrs
                                           ,  let AltAttr field attr _ = aa 
                                           ]
@@ -340,13 +340,14 @@ SEM Grammar
   | Grammar loc.ruleTable = Array.array (0,@prods.vcount-1) (Seq.toList @prods.rules)
             loc.attrTable = Array.array (0,@prods.acount-1) (Seq.toList @prods.ntattrs)
             loc.attrVertex = Map.fromList (map swap (Seq.toList @prods.ntattrs))
-            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 v @attrVertex) (ntattr cr))
+            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v @attrVertex) (ntattr cr))
                             | (s,cr) <- Seq.toList @prods.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
-            loc.directDep = Seq.toList (@prods.directDep Seq.<> @prods.instDep)
+            loc.directDep = Seq.toList @prods.directDep
+            loc.instDep   = Seq.toList @prods.instDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
@@ -359,7 +360,7 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential ({- trace ("info: " ++ show @info) -} @info) @directDep of
+                              case computeSequential ({- trace ("info: " ++ show @info) -} @info) @directDep @instDep of
                                            CycleFree    cim cvm   -> ( cim
                                                                      , cvm
                                                                      , []
@@ -386,14 +387,16 @@ SEM Grammar
 ATTR Productions Production [ cInterfaceMap : CInterfaceMap | | ]
 SEM  Production
   |  Production  loc.cInter = if  @lhs.o_dovisit
-                                      then findWithErr1 @nt @lhs.cInterfaceMap
+                                      then findWithErr1 "Production.cInter" @nt @lhs.cInterfaceMap
                                       else CInterface [CSegment @inh @syn]
 
 -- Pass VisitMap down and select the CVisits in the Alternative
 ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
 SEM  Alternative
   |  Alternative loc.cVisits = if  @lhs.o_dovisit
-                                   then findWithErr1 @con (findWithErr1 @lhs.nt @lhs.cVisitsMap)
+                                   then let altsVisitsMap = findWithErr1 "Alternative.cVisits.nt" @lhs.nt @lhs.cVisitsMap
+                                            visits = findWithErr1 "Alternative.cVisits.con" @con altsVisitsMap
+                                         in visits
                                    else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
                                          in  [CVisit @lhs.inh @lhs.syn vss [] False]
 
@@ -549,6 +552,6 @@ inducedCycleErr :: Table NTAttr -> CInterfaceMap -> (Edge,[Vertex]) -> Error
 inducedCycleErr attrTable cim ((v1,v2),_)
   = let (NTASyn nt a1 _) = attrTable ! v1
         (NTAInh _  a2 _) = attrTable ! v2
-        cinter = findWithErr1 nt cim
+        cinter = findWithErr1 "inducedCycleErr.cinter" nt cim
     in InducedCirc nt a2 a1 cinter
 }

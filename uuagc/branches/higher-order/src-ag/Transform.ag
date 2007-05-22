@@ -4,6 +4,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import List (partition, elem)
+import Data.Maybe
 import qualified UU.DData.Map as Map
 import UU.DData.Map (Map)
 import UU.DData.Set as Set (Set, member, union, toList, fromList, empty, single, member, unions, size, fold, intersection, difference, insert)
@@ -225,9 +226,9 @@ SEM AG
          loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.single con is)
                            in  foldr f (Map.empty) @elems.collectedInsts
 
-         loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts)) @loc.allRules
-         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                                    )) @loc.allSigs
-         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allSigs                      )) @loc.allInsts
+         loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
+         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allSigs                                   )) @loc.allInsts
 
          loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
@@ -263,12 +264,16 @@ type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
-checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) -> Map Nonterminal (Map Constructor [Identifier])
-              -> Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
-checkRules attributes fields insts nt con rs 
+checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) ->
+              Map Nonterminal (Map Constructor [Identifier]) -> Map Nonterminal (Map Constructor [SigInfo]) ->
+              Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
+checkRules attributes fields allinsts allsigs nt con rs
   = let fieldmap :: FieldMap
         fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
+                 ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
+        
+        sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allsigs)
 
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
   
