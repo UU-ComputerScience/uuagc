@@ -44,24 +44,24 @@ TYPE CVisits = [CVisit]
 DATA  CVisit 
    |  CVisit  inh     :  Attributes
               syn     :  Attributes
-              vss     :  Sequence
-              intra   :  Sequence
+              vss     :  Sequence  -- sequence of "steps", where each "step" is either an attribute definition or a child visit
+              intra   :  Sequence  -- how to glue the visits together (there cannot be child visits in this list)
               ordered :  Bool -- indicates that vss is ordered
 
 TYPE Sequence = [CRule]
 
 DATA  CRule
    |  CRule        name       :  Name
-                   isIn       :  Bool
-                   hasCode    :  Bool
+                   isIn       :  Bool   -- True iff there is a definition for an inherited attribute
+                   hasCode    :  Bool   -- True iff there is an RHS
                    nt         :  Nonterminal
                    con        :  Constructor
                    field      :  Name
-                   childnt    :  {Maybe Nonterminal}
-                   tp         :  {Maybe Type}
-                   pattern    :  Pattern
-                   rhs        :  {[String]}
-                   defines    :  {Map Vertex (Name,Name,Maybe Type)}
+                   childnt    :  {Maybe Nonterminal}  -- Just n: 'field' of 'nt' and 'con' is a nonterminal 'n', Nothing: it is a terminal
+                   tp         :  {Maybe Type}     -- type of the attribute
+                   pattern    :  Pattern     -- only defined if 'isIn' is False
+                   rhs        :  {[String]}     -- empty string if 'hasCode' is False
+                   defines    :  {Map Vertex (Name,Name,Maybe Type)}   -- the attributes defined by this rule
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
    |  CChildVisit  name    :  Name  -- corresponding to the name of the child
