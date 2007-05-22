@@ -165,11 +165,12 @@ SEM  Rule
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
-                              typ x                          = error ("nested tuples temporarily disallowed (Order.ag, line 168)" ++ show x)
+                              typ (Product _ pats)           = tp _LOC undefined pats
+                              typ _                          = Nothing
                               
-                         in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
-                                          |  aa <- @pattern.gathAltAttrs
-                                          ,  let AltAttr field attr _ = aa 
+                         in Map.fromList  [ (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
+                                          | (field,attr,isloc,parts) <- @pattern.patternAttrs
+                                          , let aa = AltAttr field attr isloc
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
                             in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
@@ -181,18 +182,17 @@ substSelf nt tp = if tp==NT _SELF
                   then Haskell (getName nt)
                   else tp
 	
-	
 haskellTupel :: [Type] -> Maybe Type
 haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts))) ++ ")" ))
 }
 
 
-ATTR Pattern [ | | patternParts:Patterns]
+ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Name,Name,Bool,Patterns)]} ]
 
-SEM Pattern
-  | Alias   lhs.patternParts = @parts.copy
-  | *-Alias lhs.patternParts = []
-  
+SEM  Pattern
+  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC),@parts.copy)]
+
+
 
 -- Giving them a number
 ATTR  Productions Production Alternatives Alternative

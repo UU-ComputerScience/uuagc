@@ -19,7 +19,6 @@ import ErrorMessages
 import Options(Options,modcopy,rename)
 }
 
-
 -------------------------------------------------------------------------------
 --         Passing down corresponding nonterminal and constructor names
 -------------------------------------------------------------------------------
@@ -416,33 +415,53 @@ SEM Rules
     -- remove rules that define nothing
 
 SEM Rule
-  | Rule  lhs.outputs = multiRule @loc.output @lhs.uniq
-          lhs.uniq    = @lhs.uniq + 1
+  | Rule  (lhs.outputs, lhs.uniq) = multiRule @loc.output @lhs.uniq
 
 
 {
-allNames :: [Pattern] -> String
-allNames = concat . (map patName)
+{- 
+multiRule replaces
+  loc.(a,b) = e
+by  
+  loc.tup1  = e
+  loc.(a,_) = @loc.tup1
+  loc.(_,b) = @loc.tup1
+It needs to thread a unique number for inventing names for the tuples.
 
-patName :: Pattern -> String
-patName (Alias f a p _) = getName a
-patName (Underscore p) = "_"
-	
-multiRule (Rule (Product pos pats) expr owrt origin) uniq
-  =  Rule (Alias _LOC freshName (Underscore pos) pats) expr owrt origin
-     : map makerule (diag pats)
-     where makerule pats = Rule (Product pos pats) freshExpr owrt origin
-           freshName = Ident ("_tup" ++ show uniq) pos   -- Ident (allNames pats) pos
-           freshExpr = Expression pos (attrName _LOC freshName)
-           diag :: [Pattern] -> [[Pattern]]     
-           diag = foldr f []
-                  where f p m = (p : replicate (length m) (Underscore pos)) : (map ((Underscore pos):) m)
-multiRule r _
-  =  [r]
+It also works for nested tuples:
+  loc.(a,(b,c)) = e
+becomes
+  loc.tup1      = e
+  loc.(a,_)     = @loc.tup1
+  loc.(_,tup2)  = @loc.tup1
+  loc.(b,_)     = @loc.tup2
+  loc.(_,c)     = @loc.tup2
+-}
+
+multiRule :: Rule -> Int -> ([Rule], Int)	
+multiRule (Rule pat expr owrt origin) uniq
+  =  let f :: (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
+         f w e (Product pos pats) n 
+           = let freshName = Ident ("_tup" ++ show n) pos 
+                 freshExpr = Expression pos (attrName _LOC freshName)
+                 freshPat  = Alias _LOC freshName (Underscore pos) pats
+                 a = length pats - 1
+                 us b p = Product pos (replicate (a-b) (Underscore pos) ++ [p] ++ replicate b (Underscore pos))
+                 g :: Pattern -> ([Pattern],[Rule],Int) -> ([Pattern],[Rule],Int)
+                 g p (xs1,rs1,n1)   = let (x2,(rs2,n2)) = f (us (length xs1)) freshExpr p n1
+                                      in  (x2:xs1, rs2++rs1, n2)
+                 (xs9,rs9,n9) = foldr g ([], [], n+1) pats
+             in  ( freshPat
+                 , ( Rule (w freshPat) e owrt origin : rs9
+                   , n9
+                   )
+                 )
+         f w e p n 
+           = ( p
+             , ( [Rule (w p) e owrt origin]
+               , n
+               )
+             )
+     in snd (f id expr pat uniq)
 
 }
-
-
-  
-
-

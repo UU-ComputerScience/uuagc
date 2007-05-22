@@ -132,7 +132,9 @@ scanLit xs = (fs, foldr insNL (const "") codeLns 1)
 
         getBlock = getLines . dropWhile comment
         getLines [] = ([],[],[])
-        getLines ((n,l):ls) | "\\begin{Code}" `isPrefixOf` l = let (lns,rest) = codelines ls
+        getLines ((n,l):ls) | "\\begin{code}" `isPrefixOf` l = let (lns,rest) = codelines ls
+                                                               in ([],lns,rest)
+                            | "\\begin{Code}" `isPrefixOf` l = let (lns,rest) = codeLines ls
                                                                in ([],lns,rest)
                             | "\\IN{" `isPrefixOf` l        =
                                      let name = getName l
@@ -154,9 +156,14 @@ breakLine xs = case xs of
                               in (x:l,s)
                 []         -> ([],[])
  
-codelines [] = error "Unterminated code block"
-codelines ((n,l):ls) | "\\end{Code}" `isPrefixOf` l = ([],ls)
+codelines [] = error "Unterminated literate code block"
+codelines ((n,l):ls) | "\\end{code}" `isPrefixOf` l = ([],ls)
                      | otherwise                    = let (lns,r) = codelines ls
+                                                      in ((n,l):lns,r)
+
+codeLines [] = error "Unterminated literate Code block"
+codeLines ((n,l):ls) | "\\end{Code}" `isPrefixOf` l = ([],ls)
+                     | otherwise                    = let (lns,r) = codeLines ls
                                                       in ((n,l):lns,r)
 
 getName l = case r of
