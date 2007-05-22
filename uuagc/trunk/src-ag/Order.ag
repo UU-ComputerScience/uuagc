@@ -106,25 +106,48 @@ getNtName (NT nt) = nt
 getNtName _       = nullIdent
 }
 
+------------------------------------------------------------------
 -- Collect attribute occurrences
+--
+-- All attribute occurences in an alternative are gathered.
+-- This is done by joining various sublists:
+--  1.  inherited attributes for _LHS
+--  2a. synthesized attributes for children
+--  2b. children that are a trivial field
+--  3a. inherited attributes for children 
+--  3b. synthesized attributes for _LHS
+--  3c. local attributes
+--
+-- Sublist 3 is exactly the targets for ATTR definitions, and
+-- thus can be obtained by traversing all rules.
+--
+-- The (field,attr) combination is not enough to uniquely identify
+-- an attribute occurence, because threaded attributes occur twice.
+-- Therefore, in the AltAttr structures, a boolean is added,
+-- that is False in sublists 3a and 3b, i.e. the non-local output fields.
+--
+-- Each AltAttr, that is eacht attribute occurence, is mapped to a number
+-- in the altAttrs Map, starting at vcount
 {
 data AltAttr = AltAttr Name Name Bool 
                deriving (Eq, Ord)
 }
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
 SEM  Alternative
-  |  Alternative  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]
-                                      ++ @children.gathAltAttrs ++ @rules.gathAltAttrs
+  |  Alternative  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]   -- sublist 1
+                                      ++ @children.gathAltAttrs                              -- sublist 2
+                                      ++ @rules.gathAltAttrs                                 -- sublist 3
 
 SEM  Child
   |  Child  loc.maptolocal =  case @tp of
                                 NT nt  -> Map.isEmpty @syn
                                 _      -> True
             lhs.gathAltAttrs = if  @maptolocal
-                                   then [ AltAttr _LOC @name True ]
-                                   else [ AltAttr @name syn True | syn <- Map.keys @syn ]
+                                   then [ AltAttr _LOC @name True ]                          -- sublist 2b
+                                   else [ AltAttr @name syn True | syn <- Map.keys @syn ]    -- sublist 2a
 SEM  Pattern
-  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC)]
+  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC)]                        -- sublist 3
+
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Alternative
@@ -169,8 +192,8 @@ SEM  Rule
                               typ _                          = Nothing
                               
                          in Map.fromList  [ (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
-                                          | (field,attr,isloc,parts) <- @pattern.patternAttrs
-                                          , let aa = AltAttr field attr isloc
+                                          | (field,attr,isLocalOrInput,parts) <- @pattern.patternAttrs
+                                          , let aa = AltAttr field attr isLocalOrInput
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
                             in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
