@@ -39,6 +39,17 @@ import Maybe
 import Debug.Trace(trace)
 }
 
+{
+-- Terminates with an error if the key is not in the map
+findWithErr1 :: (Ord k, Show k) => k -> Map k a -> a
+findWithErr1 k
+  = Map.findWithDefault (error ("findWithErr1: key " ++ show k ++ " not in map.")) k
+
+findWithErr2 :: (Ord k, Show k, Show a) => k -> Map k a -> a
+findWithErr2 k m
+  = Map.findWithDefault (error ("findWithErr2: key " ++ show k ++ " not in map: " ++ show m)) k m
+}
+
 -------------------------------------------------------------------------------
 --         Errors
 -------------------------------------------------------------------------------
@@ -109,7 +120,7 @@ getNtName _       = nullIdent
 -- Collect attribute occurrences
 {
 data AltAttr = AltAttr Name Name Bool 
-               deriving (Eq, Ord)
+               deriving (Eq, Ord, Show)
 }
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
 SEM  Alternative
@@ -162,18 +173,18 @@ SEM  Rule
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
-                                                  | otherwise     = Map.lookup attr (Map.find field @lhs.childInhs)
+                                                  | otherwise     = Map.lookup attr (findWithErr1 field @lhs.childInhs)
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
-                         in Map.fromList  [  (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
+                         in Map.fromList  [ (findWithErr1 aa @lhs.altAttrs, (field,attr,(tp field attr @pattern.patternParts)))
                                           |  aa <- @pattern.gathAltAttrs
                                           ,  let AltAttr field attr _ = aa 
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin
                                             | (field,attr,tp) <- Map.elems @defines 
-                                            ]
+                                            ] 
 
 {
 substSelf nt tp = if tp==NT _SELF 
@@ -213,6 +224,38 @@ SEM  Rule
                     used =  [ Map.lookup (AltAttr field attr True) @lhs.altAttrs | (field,attr) <- @rhs.usedAttrs]
                             ++ [ Map.lookup (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
                in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
+
+-- Inst dependencies
+--
+-- For each inst attribute x of nt N, add the dependency
+--  (inst.x,x.y) for each synthesized attribute of N
+--
+
+ATTR Productions Production 
+     Alternatives Alternative 
+     Rules Rule [ | | instDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+SEM Rule
+  | Rule
+      lhs.instDep
+        = Seq.fromList $
+            [ (instVert, synVert)
+            | (field,instNm,_) <- Map.elems @defines
+            , field == _INST
+            , synNm <- Map.keys (findWithErr2 instNm @lhs.synsOfChildren)
+            , let instAttr = AltAttr _INST instNm True
+                  synAttr  = AltAttr instNm synNm True
+                  instVert = findWithErr2 instAttr @lhs.altAttrs
+                  synVert  = findWithErr2 synAttr @lhs.altAttrs
+            ]
+
+ATTR Rules Rule [ synsOfChildren : {Map Name Attributes} | | ]
+SEM Alternative
+  | Alternative  rules.synsOfChildren = @children.collectChildrenSyns
+
+ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Name Attributes } ]
+SEM Child
+  | Child  lhs.collectChildrenSyns = Map.single @name @syn
+
 
 -- Wrapping an Expression
 
@@ -297,12 +340,13 @@ SEM Grammar
   | Grammar loc.ruleTable = Array.array (0,@prods.vcount-1) (Seq.toList @prods.rules)
             loc.attrTable = Array.array (0,@prods.acount-1) (Seq.toList @prods.ntattrs)
             loc.attrVertex = Map.fromList (map swap (Seq.toList @prods.ntattrs))
-            loc.tdpToTds  = [ (s, maybe (-1) (\v -> Map.find v @attrVertex) (ntattr cr)) | (s,cr) <- Seq.toList @prods.rules]
+            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 v @attrVertex) (ntattr cr))
+                            | (s,cr) <- Seq.toList @prods.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
-            loc.directDep = Seq.toList @prods.directDep
+            loc.directDep = Seq.toList (@prods.directDep Seq.<> @prods.instDep)
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
@@ -342,14 +386,14 @@ SEM Grammar
 ATTR Productions Production [ cInterfaceMap : CInterfaceMap | | ]
 SEM  Production
   |  Production  loc.cInter = if  @lhs.o_dovisit
-                                      then Map.find @nt @lhs.cInterfaceMap
+                                      then findWithErr1 @nt @lhs.cInterfaceMap
                                       else CInterface [CSegment @inh @syn]
 
 -- Pass VisitMap down and select the CVisits in the Alternative
 ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
 SEM  Alternative
   |  Alternative loc.cVisits = if  @lhs.o_dovisit
-                                   then Map.find @con (Map.find @lhs.nt @lhs.cVisitsMap)
+                                   then findWithErr1 @con (findWithErr1 @lhs.nt @lhs.cVisitsMap)
                                    else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
                                          in  [CVisit @lhs.inh @lhs.syn vss [] False]
 
@@ -505,6 +549,6 @@ inducedCycleErr :: Table NTAttr -> CInterfaceMap -> (Edge,[Vertex]) -> Error
 inducedCycleErr attrTable cim ((v1,v2),_)
   = let (NTASyn nt a1 _) = attrTable ! v1
         (NTAInh _  a2 _) = attrTable ! v2
-        cinter = Map.find nt cim
+        cinter = findWithErr1 nt cim
     in InducedCirc nt a2 a1 cinter
 }
