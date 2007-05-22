@@ -145,9 +145,9 @@ SEM  CVisits
 
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
-  |  CRule lhs.exprs = if  (@field == _LOC || @field == _INST) && @name `elem` @lhs.terminals 
-                           then [SimpleExpr (funname @name 0)]
-                           else [SimpleExpr (attrname @isIn @field @name)]
+  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals
+                       then [SimpleExpr (funname @name 0)]
+                       else [SimpleExpr (attrname @isIn @field @name)]
   |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
                              in [wrap (SimpleExpr (funname @name (@nr+1)))]
 
