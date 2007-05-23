@@ -96,6 +96,9 @@ ATTR Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
   | Alias lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
 
+-- used for an ugly hack of @loc.bogusDefs in CVisit:
+ATTR Sequence CRule [|| definedInsts USE {++} {[]} : {[Identifier]} ]
+
 -------------------------------------------------------------------------------
 -- Numbering the visits
 -------------------------------------------------------------------------------
@@ -200,7 +203,13 @@ SEM  CVisit
                                      rhs = App fun @lhs.nextIntra
                                      fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
                                 in if @lhs.isLast then [] else [Decl lhs rhs]
-            loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
+            -- ugly hack to define a child in visit 0 if it is constructed itself in a later visit...
+            loc.bogusDefs = if @lhs.nr == 0
+                            then [ Decl (Pattern3 (Alias _INST' nm (Underscore (getPos nm)) []))
+                                        (SimpleExpr "undefined")
+                                 | (nm, tp, _) <- @loc.higherOrderChildren, not (nm `elem` @vss.definedInsts) ]
+                            else []
+            loc.decls = @typeSigs ++ @vss.decls ++ @loc.bogusDefs ++ @nextVisitDecl
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
                               field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
