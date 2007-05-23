@@ -33,7 +33,7 @@ import UU.Util.Utils
 import Control.Monad(liftM)
 import qualified Data.Array as Array
 import Data.Array((!),bounds,inRange)
-import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy)
+import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy,transpose)
 import qualified Data.Tree as Tree
 import Maybe
 import Debug.Trace(trace)
@@ -476,19 +476,20 @@ limitTo n (x:xs) = x : limitTo (n-1) xs
 showPathNice :: Table CRule -> [Vertex] -> [String]
 showPathNice _ [] = []
 showPathNice ruleTable xs = limitTo 100 (showP ((-1):xs++[-1]))
- where showP []         = []
+ where [maxf, maxa, maxn, maxc] = maxWidths ruleTable (take 100 xs)
+       showP []         = []
        showP (v1:v2:vs) = let line  = step v1 v2
                               lines = showP vs
                           in  if null line  then lines  else line:lines
        step v1 v2  |  last &&      first    = induced
-                   |  last &&     isSyn r1  = "synthesize "  ++ otWidth 12 ""    ++ " " ++ toWidth 12 a1 ++ " in " ++ otWidth 12 n1 ++ "|" ++ c1 ++ induced
-                   |  first&& not(isSyn r2) = "inherit    "  ++ otWidth 12 ""    ++ " " ++ toWidth 12 a2 ++ " in " ++ otWidth 12 n2 ++ "|" ++ c2
-                   |  last                  = "pass down  "  ++ otWidth 12 f1    ++ "." ++ a1                                                    ++ induced
-                   |              isSyn r2  = "receive    "  ++ otWidth 12 f2    ++ "." ++ toWidth 12 a2 ++ " in " ++ otWidth 12 n2 ++ "|" ++ c2
+                   |  last &&     isSyn r1  = "pass up        "  ++ alignR maxf ""    ++ " " ++ alignL maxa a1 ++ " in " ++ alignR maxn n1 ++ "|" ++ c1 ++ induced
+                   |  first&& not(isSyn r2) = "get from above "  ++ alignR maxf ""    ++ " " ++ alignL maxa a2 ++ " in " ++ alignR maxn n2 ++ "|" ++ c2
+                   |  last                  = "pass down      "  ++ alignR maxf f1    ++ "." ++ a1                                                      ++ induced
+                   |              isSyn r2  = "get from below "  ++ alignR maxf f2    ++ "." ++ alignL maxa a2 ++ " in " ++ alignR maxn n2 ++ "|" ++ c2
                    |  isLocal r1  = if head a1 == '_' 
                                          then ""
-                                         else "calculate  "  ++ otWidth 12 "loc" ++ "." ++ a1
-                   |  otherwise             = "pass down  "  ++ otWidth 12 f1    ++ "." ++ toWidth 12 a1 ++ " to " ++ otWidth 12 n2 ++ "|" ++ c2
+                                         else "calculate      "  ++ alignR maxf "loc" ++ "." ++ a1
+                   |  otherwise             = "pass down      "  ++ alignR maxf f1    ++ "." ++ alignL maxa a1 ++ " to " ++ alignR maxn n2 ++ "|" ++ c2
           where
               first = v1<0
               last  = v2<0
@@ -505,13 +506,19 @@ showPathNice ruleTable xs = limitTo 100 (showP ((-1):xs++[-1]))
               induced | v2== -2   =  " INDUCED dependency to "
                       | otherwise = ""
 
-toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
-             | otherwise = xs
-               where k = length xs
 
-otWidth n xs | k<n       = replicate (n-k) ' ' ++ xs
-             | otherwise = xs
-               where k = length xs
+maxWidths ruleTable vs
+  = map maximum (transpose (map getWidth vs))
+  where getWidth v | v<0       = [0,0,0,0]
+                   | otherwise = map (length . show . ($(ruleTable!v))) [getField, getAttr, getLhsNt, getCon]
+
+alignL n xs | k<n       = xs ++ replicate (n-k) ' '
+            | otherwise = xs
+              where k = length xs
+
+alignR n xs | k<n       = replicate (n-k) ' ' ++ xs
+            | otherwise = xs
+              where k = length xs
 
 localCycleErr :: Table CRule -> Bool -> Route -> Error
 localCycleErr ruleTable o_visit (s:path)
