@@ -17,6 +17,8 @@ import Data.Graph
 import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,intersect)
 import Data.Array ((!),inRange,bounds,assocs)
+
+import Debug.Trace(trace)
 }
 \end{Code}
 
