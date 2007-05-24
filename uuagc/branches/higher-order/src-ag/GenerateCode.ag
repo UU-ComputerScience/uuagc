@@ -20,6 +20,8 @@ import UU.DData.Seq(Seq)
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
+
+import Debug.Trace(trace)
 }
 
 
@@ -92,18 +94,18 @@ SEM  CRule
 
 ATTR Sequence CRule [ higherOrderChildren : {[(Name,Type,Bool)]} ||]
 
-ATTR Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
+ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
   | Alias lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
 
--- used for an ugly hack of @loc.bogusDefs in CVisit:
-ATTR Sequence CRule [|| definedInsts USE {++} {[]} : {[Identifier]} ]
+SEM CRule
+  | CRule  lhs.definedInsts = if @isIn then [] else @pattern.definedInsts
 
 -------------------------------------------------------------------------------
 -- Numbering the visits
 -------------------------------------------------------------------------------
 
-ATTR  CVisits CVisit
+ATTR  CVisits CVisit Sequence CRule
       CSegments CSegment [ nr : Int | | ]
 SEM  CAlternative
   |  CAlternative visits.nr = 0
@@ -143,6 +145,16 @@ SEM  CVisits
   |  Nil lhs.intra = []
 
 -------------------------------------------------------------------------------
+-- Superfluous intra-visit dependencies due to higher-order children
+--  (higher-order children can only be passed from their moment of creation)
+-------------------------------------------------------------------------------
+
+SEM CRule
+  | CChildVisit
+      loc.isSuperfluousHigherOrderIntra
+        = @lhs.nr <= Map.findWithDefault (-1) @name @lhs.instVisitNrs
+
+-------------------------------------------------------------------------------
 -- Intra-visit dependencies are expressions that need to be passed
 -------------------------------------------------------------------------------
 
@@ -151,8 +163,10 @@ SEM  CRule
   |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals
                        then [SimpleExpr (funname @name 0)]
                        else [SimpleExpr (attrname @isIn @field @name)]
-  |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
-                             in [wrap (SimpleExpr (funname @name (@nr+1)))]
+  |  CChildVisit lhs.exprs = if @loc.isSuperfluousHigherOrderIntra
+                             then [] -- do not pass inst-childs as parameter if they are not defined yet
+                             else let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
+                                  in [wrap (SimpleExpr (funname @name (@nr+1)))]
 
 -------------------------------------------------------------------------------
 -- Type signatures are added to the declarations. 
@@ -188,7 +202,9 @@ ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]}
                           allTpsFound USE {&&} {True} : Bool ]
 SEM  CRule
   |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([substSelf (fromJust @childnt) tp],True)) @tp
-  |  CChildVisit  lhs.tps = [Haskell @nextTp]
+  |  CChildVisit  lhs.tps = if @loc.isSuperfluousHigherOrderIntra
+                            then []
+                            else [Haskell @nextTp]
 
 -------------------------------------------------------------------------------
 -- Each visit has its semantic function
@@ -203,13 +219,7 @@ SEM  CVisit
                                      rhs = App fun @lhs.nextIntra
                                      fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
                                 in if @lhs.isLast then [] else [Decl lhs rhs]
-            -- ugly hack to define a child in visit 0 if it is constructed itself in a later visit...
-            loc.bogusDefs = if @lhs.nr == 0
-                            then [ Decl (Pattern3 (Alias _INST' nm (Underscore (getPos nm)) []))
-                                        (SimpleExpr "undefined")
-                                 | (nm, tp, _) <- @loc.higherOrderChildren, not (nm `elem` @vss.definedInsts) ]
-                            else []
-            loc.decls = @typeSigs ++ @vss.decls ++ @loc.bogusDefs ++ @nextVisitDecl
+            loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
                               field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
@@ -244,6 +254,16 @@ SEM  CVisit
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 }
+
+ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
+ATTR CVisits CVisit [|| gatherInstVisitNrs USE {`Map.union`} {Map.empty} : {Map Identifier Int} ]
+SEM CAlternative
+  | CAlternative
+      visits.instVisitNrs = @visits.gatherInstVisitNrs
+
+SEM CVisit
+  | CVisit
+      lhs.gatherInstVisitNrs = Map.fromList [(i,@lhs.nr) | i <- @vss.definedInsts]
 
 -------------------------------------------------------------------------------
 -- The semantic domain is generated from the interface. 

@@ -66,7 +66,7 @@ SEM CVisit
   | CVisit          lhs     .   pp      =   ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "sequence" $ ppVList @vss.ppL, ppF "intra" $ ppVList @intra.ppL, ppF "ordered" $ ppBool @ordered] []
 
 SEM CRule
-  | CRule			lhs     .  	pp    	=   ppNestInfo ["CRule","CRule"] [pp @name] [ppF "isIn" $ ppBool @isIn, ppF "hasCode" $ ppBool @hasCode, ppF "nt" $ pp @nt, ppF "con" $ pp @con, ppF "field" $ pp @field, ppF "childnt" $ ppMaybeShow @childnt, ppF "tp" $ ppMaybeShow @tp, ppF "pattern" $ if @isIn then pp "<no pat, because inherited>" else @pattern.pp, ppF "rhs" $ ppStrings @rhs, ppF "defines" $ ppVertexMap @defines, ppF "owrt" $ ppBool @owrt, ppF "origin" $ pp @origin] []
+  | CRule			lhs     .  	pp    	=   ppNestInfo ["CRule","CRule"] [pp @name] [ppF "isIn" $ ppBool @isIn, ppF "hasCode" $ ppBool @hasCode, ppF "nt" $ pp @nt, ppF "con" $ pp @con, ppF "field" $ pp @field, ppF "childnt" $ ppMaybeShow @childnt, ppF "tp" $ ppMaybeShow @tp, ppF "pattern" $ if @isIn then pp "<no pat because In>" else @pattern.pp, ppF "rhs" $ ppStrings @rhs, ppF "defines" $ ppVertexMap @defines, ppF "owrt" $ ppBool @owrt, ppF "origin" $ pp @origin] []
   | CChildVisit     lhs     .   pp      =   ppNestInfo ["CRule","CChildVisit"] [pp @name] [ppF "nt" $ pp @nt, ppF "nr" $ ppShow @nr, ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "last" $ ppBool @last] []
 
 SEM Pattern

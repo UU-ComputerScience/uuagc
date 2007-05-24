@@ -45,7 +45,7 @@ DATA  CVisit
    |  CVisit  inh     :  Attributes
               syn     :  Attributes
               vss     :  Sequence  -- sequence of "steps", where each "step" is either an attribute definition or a child visit
-              intra   :  Sequence  -- how to glue the visits together (there cannot be child visits in this list)
+              intra   :  Sequence  -- how to glue the visits together (child visits are child-intra's, attr-defs are attr-intra's)
               ordered :  Bool -- indicates that vss is ordered
 
 TYPE Sequence = [CRule]
