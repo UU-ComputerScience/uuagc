@@ -1,0 +1,103 @@
+INCLUDE "CodeSyntax.ag"
+INCLUDE "Patterns.ag"
+
+imports
+{
+import Data.List
+import qualified UU.DData.Map as Map
+
+import UU.Pretty
+import PPUtil
+
+import CodeSyntax
+}
+
+{
+ppChild :: (Name,Type,Bool) -> PP_Doc
+ppChild (nm,tp,b)
+  = pp nm >#< "::" >#< pp (show tp) >#< "<" >|< ppBool b >|< ">"
+  
+ppVertexMap :: Map Int (Name,Name,Maybe Type) -> PP_Doc
+ppVertexMap m
+  = ppVList [ ppF (show k) $ ppAttr v | (k,v) <- Map.toList m ]
+
+ppAttr :: (Name,Name,Maybe Type) -> PP_Doc
+ppAttr (fld,nm,mTp)
+  = pp fld >|< "." >|< pp nm >#<
+    case mTp of
+      Just tp -> pp "::" >#< show tp
+      Nothing -> empty
+
+ppBool :: Bool -> PP_Doc
+ppBool True  = pp "T"
+ppBool False = pp "F"
+
+ppMaybeShow :: Show a => Maybe a -> PP_Doc
+ppMaybeShow (Just x) = pp (show x)
+ppMaybeShow Nothing  = pp "_"
+
+ppStrings :: [String] -> PP_Doc
+ppStrings = vlist
+}
+
+
+ATTR AllPattern AllCodeSyntax [ | | pp USE {>-<} {empty} : PP_Doc ]
+
+SEM CGrammar
+  | CGrammar        lhs     .  	pp    	=   ppNestInfo ["CGrammar","CGrammar"] []
+                                                       [ ppF "typeSyns"  $ ppAssocL @typeSyns
+                                                       , ppF "derivings" $ ppMap $ @derivings
+                                                       , ppF "prods"     $ ppVList @prods.ppL
+                                                       ] []
+
+SEM CProduction
+  | CProduction		lhs     .  	pp    	=   ppNestInfo ["CProduction","CProduction"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "alts" $ ppVList @alts.ppL, ppF "inter" @inter.pp] []
+
+SEM CInterface
+  | CInterface      lhs     .   pp      =   ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList @seg.ppL] []
+
+SEM CSegment
+  | CSegment        lhs     .   pp      =   ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn] []
+
+SEM CAlternative
+  | CAlternative	lhs     .  	pp    	=   ppNestInfo ["CAlternative","CAlternative"] [pp @con] [ppF "visits" $ ppVList @visits.ppL, ppF "children" $ ppVList (map ppChild @children),ppF "terminals" $ ppVList (map ppShow @terminals)] []
+
+SEM CVisit
+  | CVisit          lhs     .   pp      =   ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "sequence" $ ppVList @vss.ppL, ppF "intra" $ ppVList @intra.ppL, ppF "ordered" $ ppBool @ordered] []
+
+SEM CRule
+  | CRule			lhs     .  	pp    	=   ppNestInfo ["CRule","CRule"] [pp @name] [ppF "isIn" $ ppBool @isIn, ppF "hasCode" $ ppBool @hasCode, ppF "nt" $ pp @nt, ppF "con" $ pp @con, ppF "field" $ pp @field, ppF "childnt" $ ppMaybeShow @childnt, ppF "tp" $ ppMaybeShow @tp, ppF "pattern" $ if @isIn then pp "<no pat because In>" else @pattern.pp, ppF "rhs" $ ppStrings @rhs, ppF "defines" $ ppVertexMap @defines, ppF "owrt" $ ppBool @owrt, ppF "origin" $ pp @origin] []
+  | CChildVisit     lhs     .   pp      =   ppNestInfo ["CRule","CChildVisit"] [pp @name] [ppF "nt" $ pp @nt, ppF "nr" $ ppShow @nr, ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "last" $ ppBool @last] []
+
+SEM Pattern
+  | Constr			lhs     .  	pp    	=   ppNestInfo ["Pattern","Constr"] [pp @name] [ppF "pats" $ ppVList @pats.ppL] []
+  | Product			lhs     .  	pp    	=   ppNestInfo ["Pattern","Product"] [ppShow @pos] [ppF "pats" $ ppVList @pats.ppL] []
+  | Alias			lhs     .  	pp    	=   ppNestInfo ["Pattern","Alias"] [pp @field, pp @attr] [ppF "pat" $ @pat.pp] []
+  | Underscore		lhs     .  	pp    	=   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
+
+
+ATTR CProductions CSegments CAlternatives CVisits Sequence Patterns [ | | ppL: {[PP_Doc]} ]
+
+SEM Patterns
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM Sequence
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM CVisits
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM CAlternatives
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+
+SEM CSegments
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]
+  
+SEM CProductions
+  | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
+  | Nil				lhs		.	ppL		=	[]

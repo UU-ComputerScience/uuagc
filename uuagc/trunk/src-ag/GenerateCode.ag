@@ -20,7 +20,10 @@ import UU.DData.Seq(Seq)
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
+
+import Debug.Trace(trace)
 }
+
 
 -------------------------------------------------------------------------------
 --         Options
@@ -73,10 +76,15 @@ SEM  CAlternative
 
 ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CRule
-  |  CRule loc.originComment = if  @lhs.o_pretty 
-                                   then (Comment @origin:) 
+  |  CRule loc.instTypes = map (\(n,NT t,_) -> (n,t)) @lhs.higherOrderChildren
+           loc.originComment = if  @lhs.o_pretty
+                                   then (Comment @origin:)
                                    else id
-           lhs.decls = if @hasCode then @originComment [Decl (Pattern3 @pattern.copy) (TextExpr @rhs)] else []
+           loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
+                                            (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
+                                                 [SimpleExpr (attrname False _INST inst)])
+                           | inst <- @pattern.definedInsts ]
+           lhs.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (TextExpr @rhs) : @loc.instDecls) else []
   |  CChildVisit lhs.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
                                          ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
@@ -84,11 +92,20 @@ SEM  CRule
                                   rhs = App (funname @name @nr) (map (SimpleExpr . attrname False @name) (Map.keys @inh))
                              in [Decl tuple rhs]
 
+ATTR Sequence CRule [ higherOrderChildren : {[(Name,Type,Bool)]} ||]
+
+ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
+SEM Pattern
+  | Alias lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
+
+SEM CRule
+  | CRule  lhs.definedInsts = if @isIn then [] else @pattern.definedInsts
+
 -------------------------------------------------------------------------------
 -- Numbering the visits
 -------------------------------------------------------------------------------
 
-ATTR  CVisits CVisit
+ATTR  CVisits CVisit Sequence CRule
       CSegments CSegment [ nr : Int | | ]
 SEM  CAlternative
   |  CAlternative visits.nr = 0
@@ -128,16 +145,28 @@ SEM  CVisits
   |  Nil lhs.intra = []
 
 -------------------------------------------------------------------------------
+-- Superfluous intra-visit dependencies due to higher-order children
+--  (higher-order children can only be passed from their moment of creation)
+-------------------------------------------------------------------------------
+
+SEM CRule
+  | CChildVisit
+      loc.isSuperfluousHigherOrderIntra
+        = @lhs.nr <= Map.findWithDefault (-1) @name @lhs.instVisitNrs
+
+-------------------------------------------------------------------------------
 -- Intra-visit dependencies are expressions that need to be passed
 -------------------------------------------------------------------------------
 
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
-  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals 
-                           then [SimpleExpr (funname @name 0)]
-                           else [SimpleExpr (attrname @isIn @field @name)]
-  |  CChildVisit lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
-                             in [wrap (SimpleExpr (funname @name (@nr+1)))]
+  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals
+                       then [SimpleExpr (funname @name 0)]
+                       else [SimpleExpr (attrname @isIn @field @name)]
+  |  CChildVisit lhs.exprs = if @loc.isSuperfluousHigherOrderIntra
+                             then [] -- do not pass inst-childs as parameter if they are not defined yet
+                             else let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
+                                  in [wrap (SimpleExpr (funname @name (@nr+1)))]
 
 -------------------------------------------------------------------------------
 -- Type signatures are added to the declarations. 
@@ -164,7 +193,7 @@ substSelf nt tp = if tp==NT _SELF
                   else tp
 }
 
-ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type)]} | | ]
+ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type,Bool)]} | | ]
 SEM  CAlternative
   |  CAlternative visits.children = @children
 
@@ -173,7 +202,9 @@ ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]}
                           allTpsFound USE {&&} {True} : Bool ]
 SEM  CRule
   |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([substSelf (fromJust @childnt) tp],True)) @tp
-  |  CChildVisit  lhs.tps = [Haskell @nextTp]
+  |  CChildVisit  lhs.tps = if @loc.isSuperfluousHigherOrderIntra
+                            then []
+                            else [Haskell @nextTp]
 
 -------------------------------------------------------------------------------
 -- Each visit has its semantic function
@@ -181,7 +212,8 @@ SEM  CRule
 
 ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CVisit
-  |  CVisit loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
+  |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,ho) -> ho) @lhs.children
+            loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
             loc.nextVisitName = if @lhs.isLast then [] else [visitname @lhs.prefix @lhs.nt (@lhs.nr+1)]
             loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
                                      rhs = App fun @lhs.nextIntra
@@ -189,11 +221,11 @@ SEM  CVisit
                                 in if @lhs.isLast then [] else [Decl lhs rhs]
             loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
             loc.semFun = let  lhs = Fun @funcname lhs_args
-                              lhs_args = if @lhs.nr == 0 then map field @lhs.children else @intra.exprs
-                              field (name,NT tp) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
+                              field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                               | otherwise       = id
-                                                   in unwrap (SimpleExpr (funname name 0))
-                              field (name,_)     =  SimpleExpr (funname name 0)
+                                                      in unwrap (SimpleExpr (funname name 0))
+                              field (name,_,_)     =  SimpleExpr (funname name 0)
                               rhs = wrap 
                                     . mkLambda (map (lhsname True) (Map.keys @inh))
                                     . mkLet @o_case @decls
@@ -208,7 +240,7 @@ SEM  CVisit
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
                           in if  @lhs.nr == 0  
-                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map snd @lhs.children)
+                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
                                  else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
             lhs.decls =  if  @lhs.with_sig 
                              then [@tsig, @semFun]
@@ -222,6 +254,16 @@ SEM  CVisit
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 }
+
+ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
+ATTR CVisits CVisit [|| gatherInstVisitNrs USE {`Map.union`} {Map.empty} : {Map Identifier Int} ]
+SEM CAlternative
+  | CAlternative
+      visits.instVisitNrs = @visits.gatherInstVisitNrs
+
+SEM CVisit
+  | CVisit
+      lhs.gatherInstVisitNrs = Map.fromList [(i,@lhs.nr) | i <- @vss.definedInsts]
 
 -------------------------------------------------------------------------------
 -- The semantic domain is generated from the interface. 
@@ -327,8 +369,9 @@ SEM CSegment
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
 
 SEM CAlternative 
-  | CAlternative lhs.comments =  ("alternative " ++ getName @con ++ ":")
-                                 : map ind (  map (\(x,y) -> makeLocalComment 14 "child" x (Just y)) @children
+  | CAlternative loc.firstOrderChildren = filter (\(_,_,ho) -> not ho) @children
+                 lhs.comments =  ("alternative " ++ getName @con ++ ":")
+                                 : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @loc.firstOrderChildren
                                            ++ @visits.comments
                                            )
 
@@ -343,6 +386,7 @@ SEM CVisit
 
 SEM CRule
   | CRule        lhs.comments =  [ makeLocalComment 11 @lhs.what name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
+                                 ++ [ makeLocalComment 11 "inst " name tp | (field,name,tp) <- Map.elems @defines, field == _INST ]
 
 {
 makeLocalComment :: Int -> String -> Name -> Maybe Type -> String
@@ -433,7 +477,7 @@ SEM CAlternatives
   | Nil         lhs.dataAlts  = []
 
 SEM CAlternative
-  | CAlternative lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (typeToString @lhs.nt .snd) @children)
+  | CAlternative  lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToString @lhs.nt t) @loc.firstOrderChildren)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present
@@ -490,10 +534,10 @@ SEM CAlternatives
 SEM CAlternative
   | CAlternative lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
                                    lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
-                                                 (map (SimpleExpr . locname . fst) @children)
+                                                 (map (\(n,_,_) -> SimpleExpr $ locname $ n) @loc.firstOrderChildren)
                                    rhs = App (semname @lhs.prefix @lhs.nt @con)
-                                             (map argument @children)
-                                   argument (nm,NT tp) = App (cataname @lhs.prefix tp)
-                                                             [SimpleExpr (locname nm)]
-                                   argument (nm, _)    = SimpleExpr (locname nm)
+                                             (map argument @loc.firstOrderChildren)
+                                   argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
+                                                               [SimpleExpr (locname nm)]
+                                   argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs

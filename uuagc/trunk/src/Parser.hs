@@ -245,12 +245,14 @@ pSemAlts :: AGParser SemAlts
 pSemAlts =  pList pSemAlt <?> "SEM alternatives"
 
 pFieldIdentifier =  pIdentifier 
-                <|> Ident "lhs" <$> pLHS 
-                <|> Ident "loc" <$> pLOC
+                <|> Ident "lhs"  <$> pLHS 
+                <|> Ident "loc"  <$> pLOC
+                <|> Ident "inst" <$> pINST
 
 pSemDef :: AGParser [SemDef]
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|>                            pLOC              *> pList1 pLocDecl
+      <|>                            pINST             *> pList1 pInstDecl
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
@@ -270,7 +272,11 @@ nl2sp x = x
 pLocDecl :: AGParser SemDef
 pLocDecl =   (\ident tp -> TypeDef ident tp)
               <$ pDot <*> pIdentifier <* pColon <*> (Haskell . map nl2sp . fst <$> pCodescrapL)
- 
+
+pInstDecl :: AGParser SemDef
+pInstDecl = (\ident tp -> TypeDef ident tp)
+             <$ pDot <*> pIdentifier <* pColon <*> (NT <$> pIdentifierU)
+
 pSemDefs :: AGParser SemDefs
 pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"
 
@@ -311,7 +317,7 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
-      pBar, pColon, pLHS,pSET,pDERIVING,pMinus,pIntersect,pArrow,
+      pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pWRAPPER, pMAYBE
       :: AGParser  Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
@@ -328,6 +334,7 @@ pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
+pINST        = pCostReserved 5  "inst"    <?> "inst"
 pAt          = pCostReserved 5  "@"       <?> "@"
 pDot         = pCostReserved 5  "."       <?> "."
 pUScore      = pCostReserved 5  "_"       <?> "_"
@@ -339,5 +346,3 @@ pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"
 pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
-
-

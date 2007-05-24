@@ -363,6 +363,21 @@ SEM Error
                                                ]
                                  act  = wfill ["The type signatures of semantic functions are not generated."]
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+  
+  | MissingInstSig  loc.isWarning      = False
+                    lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _INST @attr , "in alternative"
+                                               , getName @con , "of nonterminal",getName @nt ,"."
+                                               ]>-<
+                                         wfill ["Location:", (showPos @attr),"."]
+                                 pat   =   "SEM" >#< @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _INST @attr >#< ": ...")
+                                 help  = wfill ["The", showAttrDef _INST @attr, "in alternative", getName @con
+                                               ,"of nonterminal", getName @nt, "is a non-terminal attribute, so "
+                                               ,"its type is needed to attribute its value."
+                                               ,"Please supply its type."
+                                               ]
+                                 act  = wfill ["It is not possible to proceed without this signature."]
+                             in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
@@ -401,13 +416,15 @@ showLineNr :: Int -> String
 showLineNr i | i==(-1) = "CR"
              | otherwise = show i
 
-showAttrDef f a | f == _LHS = "synthesized attribute " ++ getName a
-                | f == _LOC = "local attribute " ++ getName a 
-                | otherwise = "inherited attribute " ++ getName a ++ " of field " ++ getName f
+showAttrDef f a | f == _LHS  = "synthesized attribute " ++ getName a
+                | f == _LOC  = "local attribute " ++ getName a
+                | f == _INST = "inst attribute " ++ getName a
+                | otherwise  = "inherited attribute " ++ getName a ++ " of field " ++ getName f
 
-showAttrUse f a | f == _LHS = "inherited attribute " ++ getName a
-                | f == _LOC = "local attribute " ++ getName a 
-                | otherwise = "synthesized attribute " ++ getName a ++ " of field " ++ getName f
+showAttrUse f a | f == _LHS  = "inherited attribute " ++ getName a
+                | f == _LOC  = "local attribute " ++ getName a 
+                | f == _INST = "inst attribute " ++ getName a
+                | otherwise  = "synthesized attribute " ++ getName a ++ " of field " ++ getName f
 
 ppAttr f a = text (getName f++"."++getName a)
 ppAttrUse f a = "@" >|< ppAttr f a

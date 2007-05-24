@@ -36,7 +36,17 @@ import Data.Array((!),bounds,inRange)
 import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy,transpose)
 import qualified Data.Tree as Tree
 import Maybe
-import Debug.Trace(trace)
+}
+
+{
+-- Terminates with an error if the key is not in the map
+findWithErr1 :: (Ord k, Show k) => String -> k -> Map k a -> a
+findWithErr1 s k
+  = Map.findWithDefault (error ("findWithErr1 " ++ s ++ ": key " ++ show k ++ " not in map.")) k
+
+findWithErr2 :: (Ord k, Show k, Show a) => k -> Map k a -> a
+findWithErr2 k m
+  = Map.findWithDefault (error ("findWithErr2: key " ++ show k ++ " not in map: " ++ show m)) k m
 }
 
 -------------------------------------------------------------------------------
@@ -130,7 +140,7 @@ getNtName _       = nullIdent
 -- in the altAttrs Map, starting at vcount
 {
 data AltAttr = AltAttr Name Name Bool 
-               deriving (Eq, Ord)
+               deriving (Eq, Ord, Show)
 }
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
 SEM  Alternative
@@ -146,8 +156,7 @@ SEM  Child
                                    then [ AltAttr _LOC @name True ]                          -- sublist 2b
                                    else [ AltAttr @name syn True | syn <- Map.keys @syn ]    -- sublist 2a
 SEM  Pattern
-  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC)]                        -- sublist 3
-
+  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC || @field == _INST)]     -- sublist 3
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Alternative
@@ -180,25 +189,26 @@ SEM  Child
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
 SEM  Rule
-  |  Rule  loc.defines = let  tp field attr parts | field == _LOC = case parts of 
+  |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
+                                                                  = case parts of 
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
-                                                  | otherwise     = Map.lookup attr (Map.find field @lhs.childInhs)
+                                                  | otherwise     = Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
                               typ (Product _ pats)           = tp _LOC undefined pats
                               typ _                          = Nothing
                               
-                         in Map.fromList  [ (Map.find aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
+                         in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
                                           | (field,attr,isLocalOrInput,parts) <- @pattern.patternAttrs
                                           , let aa = AltAttr field attr isLocalOrInput
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin 
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin
                                             | (field,attr,tp) <- Map.elems @defines 
-                                            ]
+                                            ] 
 
 {
 substSelf nt tp = if tp==NT _SELF 
@@ -238,10 +248,42 @@ SEM  Rule
                             ++ [ Map.lookup (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
                in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
 
+-- Inst dependencies
+--
+-- For each inst attribute x of nt N, add the dependency
+--  (inst.x,x.y) for each synthesized attribute of N
+--
+
+ATTR Productions Production 
+     Alternatives Alternative 
+     Rules Rule [ | | instDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+SEM Rule
+  | Rule
+      lhs.instDep
+        = Seq.fromList $
+            [ (instVert, synVert)
+            | (field,instNm,_) <- Map.elems @defines
+            , field == _INST
+            , synNm <- Map.keys (findWithErr2 instNm @lhs.synsOfChildren)
+            , let instAttr = AltAttr _INST instNm True
+                  synAttr  = AltAttr instNm synNm True
+                  instVert = findWithErr2 instAttr @lhs.altAttrs
+                  synVert  = findWithErr2 synAttr @lhs.altAttrs
+            ]
+
+ATTR Rules Rule [ synsOfChildren : {Map Name Attributes} | | ]
+SEM Alternative
+  | Alternative  rules.synsOfChildren = @children.collectChildrenSyns
+
+ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Name Attributes } ]
+SEM Child
+  | Child  lhs.collectChildrenSyns = Map.single @name @syn
+
+
 -- Wrapping an Expression
 
 ATTR Expression [ nt,con   :{Name}
-                  allfields:{[(Name,Type)]}
+                  allfields:{[(Name,Type,Bool)]}
                   allnts   :{[Name]}
                   attrs    :{[(Name,Name)]}
                 ||
@@ -256,11 +298,11 @@ ATTR Expression [ nt,con   :{Name}
 SEM Expression
   | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
                             = let inherited = Inh_HsTokensRoot
-                                              { attrs_Inh_HsTokensRoot   = @lhs.attrs
-                                              , con_Inh_HsTokensRoot     = @lhs.con
+                                              { attrs_Inh_HsTokensRoot      = @lhs.attrs
+                                              , con_Inh_HsTokensRoot        = @lhs.con
                                               , allfields_Inh_HsTokensRoot  = @lhs.allfields
-                                              , allnts_Inh_HsTokensRoot  = @lhs.allnts
-                                              , nt_Inh_HsTokensRoot      = @lhs.nt
+                                              , allnts_Inh_HsTokensRoot     = @lhs.allnts
+                                              , nt_Inh_HsTokensRoot         = @lhs.nt
                                               }
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens @pos @txt)) inherited
                               in case synthesized of
@@ -321,12 +363,14 @@ SEM Grammar
   | Grammar loc.ruleTable = Array.array (0,@prods.vcount-1) (Seq.toList @prods.rules)
             loc.attrTable = Array.array (0,@prods.acount-1) (Seq.toList @prods.ntattrs)
             loc.attrVertex = Map.fromList (map swap (Seq.toList @prods.ntattrs))
-            loc.tdpToTds  = [ (s, maybe (-1) (\v -> Map.find v @attrVertex) (ntattr cr)) | (s,cr) <- Seq.toList @prods.rules]
+            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v @attrVertex) (ntattr cr))
+                            | (s,cr) <- Seq.toList @prods.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
             loc.directDep = Seq.toList @prods.directDep
+            loc.instDep   = Seq.toList @prods.instDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
@@ -339,7 +383,7 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential @info @directDep of
+                              case computeSequential @info @directDep @instDep of
                                            CycleFree    cim cvm   -> ( cim
                                                                      , cvm
                                                                      , []
@@ -366,14 +410,16 @@ SEM Grammar
 ATTR Productions Production [ cInterfaceMap : CInterfaceMap | | ]
 SEM  Production
   |  Production  loc.cInter = if  @lhs.o_dovisit
-                                      then Map.find @nt @lhs.cInterfaceMap
+                                      then findWithErr1 "Production.cInter" @nt @lhs.cInterfaceMap
                                       else CInterface [CSegment @inh @syn]
 
 -- Pass VisitMap down and select the CVisits in the Alternative
 ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
 SEM  Alternative
   |  Alternative loc.cVisits = if  @lhs.o_dovisit
-                                   then Map.find @con (Map.find @lhs.nt @lhs.cVisitsMap)
+                                   then let altsVisitsMap = findWithErr1 "Alternative.cVisits.nt" @lhs.nt @lhs.cVisitsMap
+                                            visits = findWithErr1 "Alternative.cVisits.con" @con altsVisitsMap
+                                         in visits
                                    else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
                                          in  [CVisit @lhs.inh @lhs.syn vss [] False]
 
@@ -401,7 +447,9 @@ SEM  Alternative [ | | cAlternative : CAlternative ]
 -- Collect terminals
 ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
 SEM Child
-  | Child lhs.terminals = if @maptolocal then [@name] else []
+  | Child lhs.terminals = if @maptolocal
+                          then [@name]
+                          else []
 
 
 -- Collecting nts
@@ -415,12 +463,13 @@ SEM Grammar
 
 -- Collecting fields
 ATTR Rule Rules 
-     Child Children [allfields:{[(Name,Type)]} attrs:{[(Name,Name)]} | | ]
+     Child Children [allfields:{[(Name,Type,Bool)]} attrs:{[(Name,Name)]} | | ]
 
 SEM Alternative
   | Alternative loc.allfields  = @children.fields
-                   .attrs      = map ((,) _LOC) @rules.locVars ++
-                                 map ((,) _LHS) @inhnames ++ 
+                   .attrs      = map ((,) _LOC)  @rules.locVars ++
+                                 map ((,) _INST) @rules.instVars ++
+                                 map ((,) _LHS)  @inhnames ++ 
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
                    .inhnames   = Map.keys @lhs.inh
                    .synnames   = Map.keys @lhs.syn
@@ -430,17 +479,20 @@ SEM Child [ | | attributes:{[(Name,Attributes,Attributes)]} ]
   | Child lhs.attributes = [(@name, @inh, @syn)]
 
 
-SEM Child [ | | field : {(Name,Type)} ]
-  | Child lhs.field = (@name, @tp)
+SEM Child [ | | field : {(Name,Type,Bool)} ]
+  | Child lhs.field = (@name, @tp, @higherOrder)
 
-SEM Children [ | | fields : {[(Name,Type)]} ]
+SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
-ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} ]
+ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} instVars USE {++} {[]} : {[Name]} ]
 
 SEM Pattern
-  | Alias    lhs.locVars   = if @field == _LOC 
+  | Alias    lhs.locVars   = if @field == _LOC
+                                then [@attr]
+                                else []
+             lhs.instVars  = if @field == _INST
                                 then [@attr]
                                 else []
 
@@ -551,7 +603,6 @@ inducedCycleErrs attrTable ruleTable cim xs
                       NTAInh _ a _  -> a
         sameNont ((v1,_),_,_) ((v2,_),_,_) =  getNont v1 == getNont v2
         procCycle ((v1,v2),p1,p2) = ((getAttr v1, getAttr v2), showPathNice ruleTable p1, showPathNice ruleTable p2)
-        wrapGroup gr@(((v1,_),_,_):_) = InducedCirc (getNont v1) (Map.find (getNont v1) cim) (map procCycle gr)
+        wrapGroup gr@(((v1,_),_,_):_) = InducedCirc (getNont v1) (findWithErr1 "inducedCycleErr.cinter" (getNont v1) cim) (map procCycle gr)
     in  map wrapGroup (groupBy sameNont xs)
-
 }

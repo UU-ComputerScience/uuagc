@@ -33,10 +33,11 @@ DATA Alternative  | Alternative con      : {Constructor}
                                 rules    : Rules
                                 typeSigs : TypeSigs
 
-DATA Child        | Child   name  : {Name}
-                            tp    : {Type}
-                            inh   : {Attributes}
-                            syn   : {Attributes}
+DATA Child        | Child   name        : {Name}
+                            tp          : {Type}
+                            inh         : {Attributes}
+                            syn         : {Attributes}
+                            higherOrder : {Bool}
 
 DATA Rule         | Rule    pattern : Pattern 
                             rhs     : Expression

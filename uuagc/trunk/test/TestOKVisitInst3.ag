@@ -1,0 +1,29 @@
+-- A grammar that requires 2 visits where an inst attribute is only required in the second visit
+
+DATA Root
+  | Root a : Aap
+
+DATA Aap
+  | Een
+
+DATA Bab
+  | Twee  t : Int
+
+ATTR Root [ z : Int | | ]
+ATTR Aap [ x : Int | | y : Int z : Int ]
+ATTR Bab [ | | p : Int ]
+
+SEM Root
+  | Root a.x = @a.y
+
+SEM Aap
+  | Een  inst.b : Bab
+         inst.b = Bab_Twee @lhs.x  -- can only be constructed in second visit
+         
+         lhs.z = @lhs.x + @b.p  -- second visit
+         lhs.y = 3              -- first visit
+
+SEM Bab
+  | Twee  lhs.p = @t
+
+WRAPPER Root

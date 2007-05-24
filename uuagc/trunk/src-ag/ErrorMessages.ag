@@ -99,3 +99,7 @@ DATA Error  | ParserError     pos     : {Pos}
             | MissingTypeSig  nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
+            
+            | MissingInstSig  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}

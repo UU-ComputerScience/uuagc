@@ -20,7 +20,8 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
 
 instance Show CRule
  where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin) 
-         = concat rhs
+         = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs
+         -- concat rhs
 
 type CInterfaceMap = Map Nonterminal CInterface
 type CVisitsMap = Map Nonterminal (Map Constructor CVisits)

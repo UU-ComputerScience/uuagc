@@ -297,7 +297,7 @@ SEM Alternative
    =
     let locals       = @rules.locals  
         initenv      = Map.fromList (  [ (a,_ACHILD) 
-                                       | (a,_) <- @children.fields
+                                       | (a,_,_) <- @children.fields
                                        ] 
                                     ++ attrs(_LHS, @lhs.inh) 
                                     ++ [ (a,_LOC) 
@@ -332,7 +332,7 @@ SEM Alternative
           = map (useRule locals @children.outputs) useAttrs
    
         selfLocRules  
-          =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp) <- @children.fields])
+          =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp,ho) <- @children.fields, not ho])
              | attr <- Map.keys selfAttrs
              , not (Set.member attr locals)
              ]
@@ -376,12 +376,12 @@ SEM Pattern
                                 then Set.insert @attr @pat.locals
                                 else @pat.locals
 
-SEM Children [ | | fields : {[(Name,Type)]} ]
+SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
   | Cons lhs.fields = @hd.field : @tl.fields
   | Nil  lhs.fields = []
   
-SEM Child    [ | | field  : { (Name,Type) } ]
-  | Child lhs.field = (@name,@tp)
+SEM Child    [ | | field  : { (Name,Type,Bool) } ]
+  | Child lhs.field = (@name,@tp,@higherOrder)
 
 -------------------------------------------------------------------------------
 --
