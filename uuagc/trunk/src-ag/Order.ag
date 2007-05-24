@@ -510,7 +510,7 @@ showPathNice ruleTable xs = limitTo 100 (showP ((-1):xs++[-1]))
 maxWidths ruleTable vs
   = map maximum (transpose (map getWidth vs))
   where getWidth v | v<0       = [0,0,0,0]
-                   | otherwise = map (length . show . ($(ruleTable!v))) [getField, getAttr, getLhsNt, getCon]
+                   | otherwise = map (length . show . ($ (ruleTable!v))) [getField, getAttr, getLhsNt, getCon]
 
 alignL n xs | k<n       = xs ++ replicate (n-k) ' '
             | otherwise = xs
