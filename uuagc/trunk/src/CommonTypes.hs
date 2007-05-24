@@ -60,9 +60,11 @@ type AttrEnv = ( [Name]
 
 identifier x   = Ident x noPos               
 nullIdent = identifier ""
-_LHS  = identifier "lhs" 
-_SELF = identifier "SELF" 
-_LOC  = identifier "loc" 
+_LHS   = identifier "lhs" 
+_SELF  = identifier "SELF" 
+_LOC   = identifier "loc" 
+_INST  = identifier "inst"
+_INST' = identifier "inst'"
 
 sdtype :: Nonterminal -> String
 sdtype nt = "T_"++getName nt
@@ -81,12 +83,16 @@ lhsname :: Bool -> Name -> String
 lhsname isIn = attrname isIn _LHS
 
 attrname :: Bool -> Name -> Name -> String
-attrname isIn field attr | field == _LOC = locname attr 
-                         | otherwise     = let direction | isIn      = "I" 
-                                                         | otherwise = "O"
-                                           in '_' : getName field ++ direction ++ getName attr
+attrname isIn field attr | field == _LOC   = locname attr 
+                         | field == _INST  = instname attr
+                         | field == _INST' = inst'name attr
+                         | otherwise       = let direction | isIn      = "I" 
+                                                           | otherwise = "O"
+                                             in '_' : getName field ++ direction ++ getName attr
                                
 locname v   = '_' : getName v
+instname v  = getName v ++ "_val_"
+inst'name v = getName v ++ "_"
 fieldname v =  getName v++"_"
 
 typeToString :: Nonterminal -> Type -> String

@@ -4,6 +4,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import List (partition, elem)
+import Data.Maybe
 import qualified UU.DData.Map as Map
 import UU.DData.Map (Map)
 import UU.DData.Set as Set (Set, member, union, toList, fromList, empty, single, member, unions, size, fold, intersection, difference, insert)
@@ -14,7 +15,7 @@ import ConcreteSyntax
 import AbstractSyntax
 import ErrorMessages
 import Patterns (Patterns(..),Pattern(..))
-import Expression (Expression)
+import Expression (Expression(..))
 
 import Options(Options, withSelf, withCycle, withSeq, strictData, strictWrap, unbox, visit, cases, wrappers)
 import CommonTypes
@@ -48,6 +49,7 @@ SEM AG
                                      (if wrappers @lhs.options then @loc.allNonterminals else @elems.wrappers)
                                      @loc.checkedRules
                                      @loc.checkedSigs
+                                     @loc.checkedInsts
                                      @elems.typeSyns
 
 
@@ -127,7 +129,8 @@ ATTR Elems Elem Attrs
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules USE {++} {[]} : {[ (Nonterminal, Constructor, RuleInfo)]} 
-             collectedSigs  USE {++} {[]} : {[ (Nonterminal, Constructor, SigInfo) ]} 
+             collectedSigs  USE {++} {[]} : {[ (Nonterminal, Constructor, SigInfo) ]}
+             collectedInsts USE {++} {[]} : {[ (Nonterminal, Constructor, [Identifier]) ]}
      ]
 
 
@@ -219,12 +222,17 @@ SEM AG
 
          loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.single con [t])
                            in  foldr f (Map.empty) @elems.collectedSigs
+         
+         loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.single con is)
+                           in  foldr f (Map.empty) @elems.collectedInsts
 
-         loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields)) @loc.allRules
-         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                          )) @loc.allSigs
+         loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
+         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allSigs                                   )) @loc.allInsts
 
          loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
+         loc.checkedInsts = Map.map (Map.map fst) @loc.allInstsErrs
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
@@ -242,21 +250,31 @@ SEM AG
                             
          loc.errs5        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allSigsErrs
+         
+         loc.errs6        = let  f m s = Map.fold ((<>) . snd) s m
+                            in Map.fold f Seq.empty @loc.allInstsErrs
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5
+         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
 type SigsAndErrors  = ([TypeSig], Seq Error)
+type InstsAndErrors = ([(Identifier, Type)], Seq Error)
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
-checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) -> Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
-checkRules attributes fields nt con rs 
+checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) ->
+              Map Nonterminal (Map Constructor [Identifier]) -> Map Nonterminal (Map Constructor [SigInfo]) ->
+              Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
+checkRules attributes fields allinsts allsigs nt con rs
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
-  
+        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined)
+                 : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
+                 ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
+        
+        sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allsigs)
+
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
   
         checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
@@ -266,8 +284,8 @@ checkRules attributes fields nt con rs
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
-         = case lookup field fieldmap 
-            of  Just (NT tp) -> if field == _LOC
+         = case lookup field fieldmap
+            of  Just (NT tp) -> if field == _LOC || field == _INST
                                    || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
                                  then case Map.lookupIndex fa m 
                                        of  Just ix -> let ((_,attr2),b) = Map.elemAt ix m
@@ -279,7 +297,7 @@ checkRules attributes fields nt con rs
                 _            ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
-    
+
 checkSigs :: Nonterminal -> Constructor -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
@@ -289,9 +307,18 @@ checkSigs nt con sis
            -- then (sigs, Seq.cons (SupSig nt con ide) errs)
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
+
+checkInsts :: Map Nonterminal (Map Constructor [SigInfo]) -> Nonterminal -> Constructor -> [Identifier] -> InstsAndErrors
+checkInsts sigMap nt con
+  = foldr (\inst (insts, errs) -> maybe (insts, Seq.single (MissingInstSig nt con inst) <> errs)
+                                        (\info -> (info : insts, errs)) $ findSig inst) ([], Seq.empty)
+  where
+    sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
+    
+    findSig name
+      = do tp@(NT _) <- lookup name sigs
+           return (name, tp)
 }
-
-
 
 
 -------------------------------------------------------------------------------
@@ -590,7 +617,13 @@ SEM SemAlt
                        , con <- Set.toList conset
                        , ts <- @rules.sigInfos
                        ]
-                       
+           
+           lhs.collectedInsts
+               =       [ (nt,con,@rules.definedInsts)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+
 
 SEM SemDef
   | Def  lhs.ruleInfos = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
@@ -599,6 +632,7 @@ SEM SemDef
   | TypeDef  lhs.sigInfos = [ (@ident, @tp) ]
 
 
+ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
 ATTR Pattern [ | | patunder : {[AttrName]->Pattern} ]
 ATTR Patterns [ | | patunder : {[AttrName]->Patterns} ]
@@ -606,6 +640,7 @@ ATTR Patterns [ | | patunder : {[AttrName]->Patterns} ]
 SEM Pattern
   | Alias lhs.definedAttrs = (@field, @attr) : @pat.definedAttrs
           lhs.patunder     = \us -> if ((@field,@attr) `elem` us) then Underscore noPos else @copy
+          lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
   | Underscore lhs.patunder = \us -> @copy
   | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
   | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
@@ -642,27 +677,31 @@ constructGrammar ::    Set Nonterminal
                     -> Set Nonterminal
                     -> Map Nonterminal (Map Constructor [Rule])
                     -> Map Nonterminal (Map Constructor [TypeSig])
+                    -> Map Nonterminal (Map Constructor [(Identifier, Type)])
                     -> TypeSyns
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs tsyns =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
                              rmap      = Map.findWithDefault Map.empty             nt allrules
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
+                             instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              alt (con,flds) =
-                                   let rules = maybe [] id (Map.lookup con rmap)          
+                                   let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
-                                       child (nm, tp) =
+                                       insts = maybe [] id (Map.lookup con instsmap)
+                                       cldrn = map (child False) flds ++ map (child True) insts
+                                       child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
                                                  NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
                                                  _     -> (Map.empty,Map.empty)
-                                          in Child nm tp inh syn 
-                                   in Alternative con (map child flds) rules tsigs
+                                          in Child nm tp inh syn isVirtual
+                                   in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers prods
- }
+}
 
 {
 mapUnionWithSetUnion = Map.unionWith Set.union

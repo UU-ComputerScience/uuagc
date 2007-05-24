@@ -1,0 +1,66 @@
+DATA Root
+  | Root  e : Expr
+
+DATA Expr
+  | Tuple l : Expr
+          r : Expr
+  | Const i : Int
+
+DATA Ty
+  | Tuple l : Ty
+          r : Ty
+  | Int
+
+-- Type inferencing
+ATTR Expr [|| ty : Ty ]
+SEM Expr
+  | Tuple  loc.ty = @l.ty `Ty_Tuple` @r.ty
+  | Const  loc.ty = Ty_Int
+
+-- Pretty printing
+ATTR Root Expr [|| pp : String ]
+SEM Expr
+  | Tuple  inst.t : Ty
+           inst.t = @loc.ty
+           lhs.pp = ppTuple @lhs.mode @l.pp @r.pp `ppTyOf` @t.pp
+  | Const  inst.t : Ty
+           inst.t = @loc.ty
+           lhs.pp = show @i `ppTyOf` @t.pp
+
+ATTR Ty [|| pp USE {`ppTuple`} {[]} : String ]
+SEM Ty
+  | Tuple  lhs.pp = ppTuple @lhs.mode @l.pp @r.pp
+  | Int    lhs.pp = "Int"
+
+{
+ppTuple :: Bool -> String -> String -> String
+ppTuple True l r = "(" ++ l ++ ", " ++ r ++ ")"
+ppTuple False l r = "{" ++ l ++ ", " ++ r ++ "}"
+
+ppTyOf :: String -> String -> String
+ppTyOf e t = e ++ " :: " ++ t
+}
+
+-- Tuple printing modes
+ATTR Expr Ty [ mode : Bool ||]
+SEM Root
+  | Root  loc.mode = False
+
+SEM Expr
+  | Tuple loc.mode = not @lhs.mode
+
+SEM Ty
+  | Tuple loc.mode = not @lhs.mode
+
+WRAPPER Root
+
+{
+ppExpr :: Expr -> String
+ppExpr e = let sem = sem_Root (Root_Root e)
+               inh = Inh_Root
+               syn = wrap_Root sem inh
+            in pp_Syn_Root syn
+
+main :: String
+main = ppExpr (Expr_Tuple (Expr_Tuple (Expr_Const 1) (Expr_Const 2)) (Expr_Const 3))
+}

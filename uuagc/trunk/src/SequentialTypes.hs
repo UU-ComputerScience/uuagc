@@ -47,6 +47,7 @@ getType     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt o
 getDefines  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = defines
 
 isLocal = (_LOC==) . getField
+isInst = (_INST==) . getField
 isLhs = (_LHS==) . getField
 isRhs cr = not (isLhs cr || isLocal cr)
 isSyn cr | isLocal cr  = False
@@ -66,6 +67,7 @@ isInhAttr = not . isSynAttr
 
 ntattr :: CRule -> Maybe NTAttr
 ntattr cr  | isLocal cr =  Nothing
+           | isInst  cr =  Nothing -- an inst definition is just considered as a local attribute definition
            | otherwise  =  let  at = if isSyn cr then NTASyn else NTAInh
                                 getNt cr = if isRhs cr then fromJust (getRhsNt cr) else getLhsNt cr
                            in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))
@@ -73,9 +75,9 @@ ntattr cr  | isLocal cr =  Nothing
 cRuleLhsInh :: Name -> Nonterminal -> Constructor -> Type -> CRule
 cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) (error "cRuleLhsInh") [] Map.empty False ""
 cRuleTerminal :: Name -> Nonterminal -> Constructor -> Type -> CRule
-cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error "cRuleTerminal") [] Map.empty False ""
+cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error ("cRuleTerminal: " ++ show (attr, nt, con, tp))) [] Map.empty False ""
 cRuleRhsSyn :: Name -> Nonterminal -> Constructor -> Type -> Name -> Nonterminal -> CRule
-cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error "cRuleRhsSyn") [] Map.empty False ""
+cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error ("cRuleRhsSyn: " ++ show (attr, nt, con, tp, field))) [] Map.empty False ""
 
 defaultRule :: Name -> Nonterminal -> Constructor -> Name -> CRule
 defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9)

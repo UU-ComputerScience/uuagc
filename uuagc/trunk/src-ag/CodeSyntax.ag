@@ -35,7 +35,7 @@ TYPE CAlternatives = [CAlternative]
 DATA  CAlternative
    |  CAlternative  con        : Constructor
                     visits     : CVisits
-                    children   : {[(Name,Type)]}
+                    children   : {[(Name,Type,Bool)]}
                     terminals  : {[Name]}
 
 TYPE CVisits = [CVisit]
@@ -43,24 +43,24 @@ TYPE CVisits = [CVisit]
 DATA  CVisit 
    |  CVisit  inh     :  Attributes
               syn     :  Attributes
-              vss     :  Sequence
-              intra   :  Sequence
+              vss     :  Sequence  -- sequence of "steps", where each "step" is either an attribute definition or a child visit
+              intra   :  Sequence  -- how to glue the visits together (child visits are child-intra's, attr-defs are attr-intra's)
               ordered :  Bool -- indicates that vss is ordered
 
 TYPE Sequence = [CRule]
 
 DATA  CRule
    |  CRule        name       :  Name
-                   isIn       :  Bool
-                   hasCode    :  Bool
+                   isIn       :  Bool   -- True iff there is a definition for an inherited attribute
+                   hasCode    :  Bool   -- True iff there is an RHS
                    nt         :  Nonterminal
                    con        :  Constructor
                    field      :  Name
-                   childnt    :  {Maybe Nonterminal}
-                   tp         :  {Maybe Type}
-                   pattern    :  Pattern
-                   rhs        :  {[String]}
-                   defines    :  {Map Int (Name,Name,Maybe Type)}
+                   childnt    :  {Maybe Nonterminal}  -- Just n: 'field' of 'nt' and 'con' is a nonterminal 'n', Nothing: it is a terminal
+                   tp         :  {Maybe Type}     -- type of the attribute
+                   pattern    :  Pattern     -- only defined if 'isIn' is False
+                   rhs        :  {[String]}     -- empty string if 'hasCode' is False
+                   defines    :  {Map Int (Name,Name,Maybe Type)}   -- the attributes defined by this rule
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
    |  CChildVisit  name    :  Name  -- corresponding to the name of the child
@@ -70,3 +70,11 @@ DATA  CRule
                    syn     :  Attributes
                    last    :  Bool  -- indicates whether this is the last visit to this child
 
+
+SET AllCodeSyntax
+  = CGrammar
+    CProduction CProductions
+    CInterface CSegments CSegment
+    CAlternative CAlternatives
+    CVisits CVisit
+    CRule

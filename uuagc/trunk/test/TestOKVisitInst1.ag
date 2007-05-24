@@ -1,7 +1,7 @@
--- A grammar that requires 2 visits
+-- A grammar that requires 2 visits and uses an inst attribute (only in visit 0 of Root_Root)
 
 DATA Root
-   | Root  a : Aap
+   | Root
 
 DATA Aap
 	| Een
@@ -10,8 +10,10 @@ ATTR Root [ | | z : Int ]
 ATTR Aap [ x : Int | | y : Int z : Int ]
 
 SEM Root
-  | Root  a.x = @a.y
-          
+  | Root inst.a : Aap
+         inst.a = Aap_Een
+         a.x = @a.y
+
 SEM Aap
   | Een  lhs.y = 7
          lhs.z = @lhs.x
