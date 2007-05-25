@@ -329,6 +329,19 @@ SEM Error
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
                              in ppError @isWarning (getPos (@attr)) mesg pat help act @lhs.verbose
+  
+  | InstCirc        loc.isWarning      = True
+                    lhs.pp = let mesg  = wfill ["Circular dependency for inst attribute", getName @attr
+                                               , "of alternative", getName @con, "of nonterminal", getName @nt]
+                                 pat   = "SEM" >#< getName @nt
+                                         >-< indent 2 ("|" >#< getName @con >#< "inst." >|< getName @attr >#< "="
+                                                           >#< "..." >#< "@s.<some attribte>" >#< "...")
+                                 help  = if null @path
+                                         then text "the definition is directly circular"
+                                         else hlist ("The following attributes are involved in the cycle:": @path)
+                                 act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
+                                       | otherwise = text "The generated program might hang when run."
+                             in ppError @isWarning (getPos (@attr)) mesg pat help act @lhs.verbose
 
   | DirectCirc      loc.isWarning      = True
                     lhs.pp = let mesg  = wfill ["In nonterminal", getName @nt, "synthesized and inherited attributes are mutually dependent" ]

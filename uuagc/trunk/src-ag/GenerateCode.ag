@@ -20,8 +20,6 @@ import UU.DData.Seq(Seq)
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
-
-import Debug.Trace(trace)
 }
 
 
@@ -83,8 +81,8 @@ SEM  CRule
            loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
                                             (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
                                                  [SimpleExpr (attrname False _INST inst)])
-                           | inst <- @pattern.definedInsts ]
-           lhs.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (TextExpr @rhs) : @loc.instDecls) else []
+                           | inst <- @loc.definedInsts ]
+           lhs.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (TextExpr @rhs) : @loc.instDecls) else @loc.instDecls
   |  CChildVisit lhs.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
                                          ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
@@ -99,7 +97,7 @@ SEM Pattern
   | Alias lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
 
 SEM CRule
-  | CRule  lhs.definedInsts = if @isIn then [] else @pattern.definedInsts
+  | CRule  loc.definedInsts = if @isIn then [] else @pattern.definedInsts
 
 -------------------------------------------------------------------------------
 -- Numbering the visits
@@ -223,7 +221,7 @@ SEM  CVisit
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
                               field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
-                                                              | otherwise       = id
+                                                                | otherwise       = id
                                                       in unwrap (SimpleExpr (funname name 0))
                               field (name,_,_)     =  SimpleExpr (funname name 0)
                               rhs = wrap 

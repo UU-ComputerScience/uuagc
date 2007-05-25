@@ -375,7 +375,7 @@ computeSequential info dpr instToSynEdges
                          else do  tdp2 <- freeze tdpN
                                   let cyc4 = findInstCycles instToSynEdges tdp2
                                   if  not (null cyc4)
-                                      then do return (LocalCycle (reportLocalCycle undefined cyc4))              -- then report an error.
+                                      then do return (InstCycle (reportLocalCycle tds2 cyc4))              -- then report an error.
                                       else do let  (cim,cvm,edp) = generateVisits info tds2 tdp2 dpr
                                               mapM_ (insertTds info comp) (map (singleStep AttrIndu) edp) -- insert dependencies induced by visit scheduling
                                               tds3 <- freeze tds
@@ -385,7 +385,7 @@ computeSequential info dpr instToSynEdges
                                                   else do tdp3 <- freeze tdpN
                                                           let cyc5 = findInstCycles instToSynEdges tdp3
                                                           if  not (null cyc5)
-                                                              then do return (LocalCycle (reportLocalCycle undefined cyc5))     -- then report an error.
+                                                              then do return (InstCycle (reportLocalCycle tds3 cyc5))     -- then report an error.
                                                               else do return (CycleFree cim cvm)                      -- otherwise we succeed.
     )
 \end{code}
