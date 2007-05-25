@@ -87,6 +87,12 @@ DATA Error  | ParserError     pos     : {Pos}
                               attr    : {Name}
                               o_visit : {Bool}
                               path    : {[String]}
+            
+            | InstCirc        nt      : {Nonterminal}
+                              con     : {Constructor}
+                              attr    : {Name}
+                              o_visit : {Bool}
+                              path    : {[String]}
 
             | DirectCirc      nt      : {Nonterminal}
                               o_visit : {Bool}

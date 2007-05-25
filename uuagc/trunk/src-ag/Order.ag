@@ -202,8 +202,8 @@ SEM  Rule
                               typ _                          = Nothing
                               
                          in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
-                                          | (field,attr,isLocalOrInput,parts) <- @pattern.patternAttrs
-                                          , let aa = AltAttr field attr isLocalOrInput
+                                          | (field,attr,isLocalOrInst,parts) <- @pattern.patternAttrs
+                                          , let aa = AltAttr field attr isLocalOrInst
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
                             in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin
@@ -223,7 +223,7 @@ haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts)
 ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Name,Name,Bool,Patterns)]} ]
 
 SEM  Pattern
-  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC),@parts.copy)]
+  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
 
 
 
@@ -391,6 +391,10 @@ SEM Grammar
                                            LocalCycle   errs      -> ( error "No interfaces for AG with local cycles"
                                                                      , error "No visit sub-sequences for AG with local cycles"
                                                                      , map (localCycleErr @ruleTable (visit @lhs.options)) errs
+                                                                     )
+                                           InstCycle    errs      -> ( error "No interfaces for AG with cycles through insts"
+                                                                     , error "No visit sub-sequences for AG with cycles through insts"
+                                                                     , map (instCycleErr @ruleTable (visit @lhs.options)) errs
                                                                      )
                                            DirectCycle  errs      -> ( error "No interfaces for AG with direct cycles"
                                                                      , error "No visit sub-sequences for AG with direct cycles"
@@ -579,6 +583,14 @@ localCycleErr ruleTable o_visit (s:path)
          nt = getLhsNt cr
          con = getCon cr
      in LocalCirc nt con attr o_visit (showPathLocal ruleTable path)
+
+instCycleErr :: Table CRule -> Bool -> Route -> Error
+instCycleErr ruleTable o_visit (s:path)
+  =  let cr = ruleTable ! s
+         attr = getAttr cr
+         nt = getLhsNt cr
+         con = getCon cr
+     in InstCirc nt con attr o_visit (showPathLocal ruleTable path)
 
 directCycleErrs :: Table NTAttr -> Table CRule -> Bool -> [EdgeRoutes] -> [Error]
 directCycleErrs attrTable ruleTable o_visit xs

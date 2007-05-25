@@ -1,0 +1,137 @@
+\documentclass[twoside]{article}
+\usepackage{a4wide}
+%\usepackage[dutch]{babel}
+\usepackage{graphicx}
+
+\raggedbottom
+\parindent=0pt
+\parskip=3pt
+
+\newenvironment{itize}{\begin{list}{$\bullet$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newenvironment{subitize}{\begin{list}{$-$}{\parsep=0pt\parskip=0pt\topsep=0pt\itemsep=0pt}}{\end{list}}
+\newcommand{\simplepicture}[2]{\centerline{\mbox{\includegraphics[scale=#1]{figs/#2}}}}
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12 }\dospecials}
+\def\setupverbatimp{\parskip=0pt\par\small\tt\obeylines\uncatcodespecials\catcode`\^=0\parskip=0pt\obeyspaces}
+{\obeyspaces\global\let =~}
+\def\prog{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimp\doverbatimp}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimp^^M#1\gorp{#1|end{list}|vspace{-3pt}|endgroup}}
+
+
+\begin{document}
+%\renewcommand{\textfraction}{0.1}
+
+
+
+\title{UUAGC v.0.9.5\\Release notes}
+
+\author{Arie Middelkoop}
+
+\date{May 25th, 2007}
+
+\maketitle
+
+
+This note describes the differences of UUAGC release 0.9.5,
+as compared to version 0.9.4 of April 2007.
+Version 0.9.5 adds higher order attributes as new feature to the AG system.
+
+
+\section{Introduction}
+
+Higher Order Attribute Grammars (HAGs) allow the structure of the tree to depend on the semantics of the tree. Trees may be computed as attributes and those trees can be attributed as part of the whole tree. An attribute representing such a tree is called a Higher Order Attributes\footnote{Higher order attributes are also referred to as non-terminal attributes in literature.}. A higher order attribute is a local attribute $a$ of alternative $C$ with the following properties:
+
+\begin{itize}
+\item the value $v$ of attribute $a$ has type $N$
+\item $N$ is a non-terminal
+\item $v$ is attributed according to $N$
+\item The inherited and synthesized attributes of $N$ can be accessed using field $a$ in $C$
+\end{itize}
+
+Note that $a$ is added to the end of the list of children of $C$ and participates as child (not as local attribute) in the automatic rule generation process (copy rules, etc).
+
+
+\section{Syntax}
+
+A higher order attribute is defined as a regular local attribute, except that it uses the field name $inst$ instead of $loc$, and it requires a type signature of a known non-terminal. Example:
+
+\prog
+DATA T
+  | C
+
+DATA N
+  | A x : Int
+
+ATTR T [ y : Int | | z : Int ]
+
+SEM T
+  | C  inst.a : N           -- obligatory type signature of a
+       inst.a = N_A @lhs.y  -- add a child a of non-terminal N to C
+       a.p    = 1           -- define inherited attribute p of N
+       lhs.z  = @a.q        -- use synthesized attribute q of N
+
+ATTR N [ p : Int | | q : Int ]
+
+SEM N
+  | A  lhs.q = @lhs.p + @x
+\gorp
+
+
+\section{Discussion}
+
+\begin{itemize}
+\item The cycle detection does not allow a higher order attribute to depend on its own synthesized attributes:
+\prog
+DATA Root
+  | Root
+
+DATA N
+  | A
+
+ATTR N [ | | s : N ]
+
+SEM Root
+  | Root  inst.x : N
+          inst.y : N
+          inst.x = @y.s  -- cycle
+          inst.y = @x.s  -- cycle
+
+SEM N
+  | A  lhs.s = N_A
+\gorp
+\item Local and inst attributes live in different namespaces:
+\prog
+DATA T
+  | C
+
+ATTR T [ | | a : Int ]
+SEM T
+  | C  loc.a = 3
+  
+       inst.a : T
+       inst.a = C  -- 'inst.a' itself is never selected during
+                   --   the copy-rule process
+       loc.b = @a + @loc.a  -- both refer to 'loc.a = 3'
+\gorp
+\item Higher order attributes are not stored in data types, neither in SELF attributes.
+\item It is allowed to use an inst attribute on the right-hand side of an equation to represent its tree-value (not its semantics). Example:
+\prog
+DATA T
+  | C
+
+DATA InfList
+  | Cons  next : InfList
+
+SEM T
+  | C  inst.a : InfList
+       inst.a = InfList_Cons @inst.a
+       a.nr   = 0
+
+ATTR InfList [ nr : Int | | ]
+SEM InfList
+  | Cons  next.nr = @lhs.nr + 1
+\gorp
+\end{itemize}
+
+\end{document}

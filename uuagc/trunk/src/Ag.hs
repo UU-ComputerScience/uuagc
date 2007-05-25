@@ -109,7 +109,7 @@ compile flags input output
 formatProg :: [UU.Pretty.PP_Doc] -> String
 formatProg pps = foldr (.) 
                        id
-                       (map (\d -> (UU.Pretty.disp d 450) . ( '\n':) ) pps)
+                       (map (\d -> (UU.Pretty.disp d 5000) . ( '\n':) ) pps)
                        ""
 
 formatErrors :: UU.Pretty.PP_Doc -> String

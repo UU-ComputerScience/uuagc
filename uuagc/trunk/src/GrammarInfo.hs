@@ -29,6 +29,7 @@ type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
 data CycleStatus  
   = CycleFree     CInterfaceMap CVisitsMap
   | LocalCycle    [Route]
+  | InstCycle     [Route]
   | DirectCycle   [EdgeRoutes]
   | InducedCycle  CInterfaceMap [EdgeRoutes] 
 
