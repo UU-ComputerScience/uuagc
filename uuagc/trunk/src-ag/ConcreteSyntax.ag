@@ -73,6 +73,7 @@ DATA SemDef    | Def    pattern: Pattern
                         owrt   : {Bool}
                | TypeDef ident : {Identifier}
                          tp    : Type
+               | SemPragma  names : {[Name]}
 
 DATA ConstructorSet | CName       name      : {Constructor}
                     | CUnion      set1,set2 : ConstructorSet

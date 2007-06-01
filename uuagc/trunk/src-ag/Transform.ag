@@ -51,6 +51,7 @@ SEM AG
                                      @loc.checkedSigs
                                      @loc.checkedInsts
                                      @elems.typeSyns
+                                     @elems.semPragmasCollect
 
 
 -------------------------------------------------------------------------------
@@ -514,7 +515,31 @@ SEM Elem
                                          "nooptimize"   -> o { cases = False , visit = False }
                                          "optimize"     -> o { cases = True  , visit = True  }
                                          _              -> o
-                          in  \o -> foldr mk o @names
+                          in \o -> foldr mk o @names
+
+ATTR Elem Elems SemAlts SemAlt [ | | semPragmasCollect USE {`pragmaMapUnion`} {Map.empty} : {PragmaMap} ]
+
+SEM SemAlt
+  | SemAlt
+      loc.pragmaNames       = Set.fromList @rules.pragmaNamesCollect
+      lhs.semPragmasCollect = foldr pragmaMapUnion Map.empty [ pragmaMapSingle nt con @loc.pragmaNames
+                                                             | (nt, conset, _) <- @loc.coninfo
+                                                             , con <- Set.toList conset
+                                                             ]
+
+ATTR SemDefs SemDef [ | | pragmaNamesCollect USE {++} {[]} : {[Name]} ]
+
+SEM SemDef
+  | SemPragma
+      lhs.pragmaNamesCollect = @names
+
+{
+pragmaMapUnion :: PragmaMap -> PragmaMap -> PragmaMap
+pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
+
+pragmaMapSingle :: Nonterminal -> Constructor -> Set Name -> PragmaMap
+pragmaMapSingle nt con nms = Map.single nt (Map.single con nms)
+}
 
 -------------------------------------------------------------------------------
 --         Collecting derivings
@@ -679,9 +704,10 @@ constructGrammar ::    Set Nonterminal
                     -> Map Nonterminal (Map Constructor [TypeSig])
                     -> Map Nonterminal (Map Constructor [(Identifier, Type)])
                     -> TypeSyns
+                    -> PragmaMap
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -700,7 +726,7 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                           in Child nm tp inh syn isVirtual
                                    in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers prods
+   in Grammar tsyns uses derivings wrappers prods pragmaMap
 }
 
 {

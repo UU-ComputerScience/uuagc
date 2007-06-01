@@ -12,6 +12,7 @@ DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             derivings: {Derivings}
                             wrappers : {Set Nonterminal}
                             prods    : Productions
+                            pragmas  : {PragmaMap}
 
 TYPE Productions  = [Production]
 
