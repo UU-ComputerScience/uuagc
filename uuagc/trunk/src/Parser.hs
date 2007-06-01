@@ -253,6 +253,7 @@ pSemDef :: AGParser [SemDef]
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|>                            pLOC              *> pList1 pLocDecl
       <|>                            pINST             *> pList1 pInstDecl
+      <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
@@ -324,6 +325,7 @@ pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
 pWRAPPER     = pCostReserved 90 "WRAPPER" <?> "WRAPPER"
 pPRAGMA      = pCostReserved 90 "PRAGMA"  <?> "PRAGMA"
+pSEMPRAGMA   = pCostReserved 90 "SEMPRAGMA" <?> "SEMPRAGMA"
 pDATA        = pCostReserved 90 "DATA"    <?> "DATA"
 pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"

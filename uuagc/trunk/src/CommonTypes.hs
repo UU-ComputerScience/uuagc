@@ -2,8 +2,10 @@ module CommonTypes where
 
 import UU.Pretty (PP,text,pp)
 import UU.Scanner.Position(Pos,noPos)
+import qualified UU.DData.Map as Map
 import UU.DData.Map(Map)
 import UU.DData.Set(Set)
+import qualified UU.DData.Set as Set
 
 
 type Blocks = Map String [String]
@@ -47,6 +49,7 @@ type TypeSyns    = [(Nonterminal,ComplexType)]
 
 type AttrNames   = [(Name,Type,(String,String,String))]
 type UseMap      = Map Nonterminal (Map Name (String,String,String))
+type PragmaMap   = Map Nonterminal (Map Constructor (Set Name))
 type Fields      = [(Name,Type)]
 type Derivings   = Map Nonterminal (Set Name)
 type Strings     = [String]
@@ -102,3 +105,10 @@ typeToString nt (NT t   ) | t == _SELF = getName nt
 
 ind :: String -> String
 ind s = replicate 3 ' ' ++ s
+
+_NOCASE :: Name
+_NOCASE = identifier "nocase"
+
+hasPragma :: PragmaMap -> Nonterminal -> Constructor -> Name -> Bool
+hasPragma mp nt con nm
+  = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)

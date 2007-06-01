@@ -7,10 +7,11 @@ import UU.DData.Set(Set)
 }
 
 DATA  CGrammar 
-   |  CGrammar  typeSyns : {TypeSyns}
-                derivings: {Derivings} 
-                wrappers:{Set Nonterminal} 
-                prods:CProductions
+   |  CGrammar  typeSyns  : {TypeSyns}
+                derivings : {Derivings} 
+                wrappers  : {Set Nonterminal} 
+                prods     : CProductions
+                pragmas   : {PragmaMap}
 
 TYPE CProductions = [CProduction]
 

@@ -49,6 +49,11 @@ SEM CGrammar [ options : Options | | ]
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
                      .prefix        = prefix        @lhs.options
 
+ATTR CProductions CProduction CAlternatives CAlternative CVisits CVisit [ allPragmas : PragmaMap | | ]
+
+SEM CGrammar
+  | CGrammar  prods.allPragmas = @pragmas
+
 -------------------------------------------------------------------------------
 -- Passing information about nonterminal and constructor down
 -------------------------------------------------------------------------------
@@ -246,7 +251,7 @@ SEM  CVisit
             loc.typeSigs =  if  @lhs.o_sig && not @o_case
                                 then  @vss.tSigs
                                 else  []
-            loc.o_case = @lhs.o_case && @ordered
+            loc.o_case = @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
 
 {
 mkLambda [] e = e
