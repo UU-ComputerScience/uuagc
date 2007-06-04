@@ -17,7 +17,7 @@ import ErrorMessages
 import Patterns (Patterns(..),Pattern(..))
 import Expression (Expression(..))
 
-import Options(Options, withSelf, withCycle, withSeq, strictData, strictWrap, unbox, visit, cases, wrappers)
+import Options(Options, withSelf, withCycle, withSeq, strictData, strictWrap, strictCases, unbox, visit, cases, wrappers)
 import CommonTypes
 }
 
@@ -498,20 +498,22 @@ ATTR AG Elem Elems [ | | pragmas USE {.} {id} :{Options -> Options}]
 
 SEM Elem
   | Pragma  lhs.pragmas = let mk n o = case getName n of
-                                         "nocycle"      -> o { withCycle  = False }
-                                         "cycle"        -> o { withCycle  = True  }
-                                         "nostrictdata" -> o { strictData = False }
-                                         "strictdata"   -> o { strictData = True  }
-                                         "nostrictwrap" -> o { strictWrap = False }
-                                         "strictwrap"   -> o { strictWrap = True  }
-                                         "novisit"      -> o { visit      = False }
-                                         "visit"        -> o { visit      = True  }
-                                         "nocase"       -> o { cases      = False }
-                                         "case"         -> o { cases      = True  }
-                                         "noseq"        -> o { withSeq    = False }
-                                         "seq"          -> o { withSeq    = True  }
-                                         "nounbox"      -> o { unbox      = False }
-                                         "unbox"        -> o { unbox      = True  }
+                                         "nocycle"      -> o { withCycle   = False }
+                                         "cycle"        -> o { withCycle   = True  }
+                                         "nostrictdata" -> o { strictData  = False }
+                                         "strictdata"   -> o { strictData  = True  }
+                                         "nostrictcase" -> o { strictCases = False }
+                                         "strictcase"   -> o { strictCases = True  }
+                                         "nostrictwrap" -> o { strictWrap  = False }
+                                         "strictwrap"   -> o { strictWrap  = True  }
+                                         "novisit"      -> o { visit       = False }
+                                         "visit"        -> o { visit       = True  }
+                                         "nocase"       -> o { cases       = False }
+                                         "case"         -> o { cases       = True  }
+                                         "noseq"        -> o { withSeq     = False }
+                                         "seq"          -> o { withSeq     = True  }
+                                         "nounbox"      -> o { unbox       = False }
+                                         "unbox"        -> o { unbox       = True  }
                                          "nooptimize"   -> o { cases = False , visit = False }
                                          "optimize"     -> o { cases = True  , visit = True  }
                                          _              -> o
