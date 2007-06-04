@@ -7,7 +7,7 @@ import Char (isAlphaNum)
 import UU.Pretty
 import Code
 import Patterns
-import Options (Options,nest)
+import Options (Options,nest,strictCases)
 import CommonTypes (attrname, _LOC, getName, nullIdent)
 }
 
@@ -16,6 +16,8 @@ type PP_Docs = [PP_Doc]
 }
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
+
+ATTR Expr Exprs Decl Decls CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
 
 ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
 
@@ -150,7 +152,7 @@ SEM Decl
 SEM Pattern [ | | singleVar : {Maybe PP_Doc} ]
   | Constr      lhs.singleVar = Nothing
   | Product     lhs.singleVar = Nothing
-  | Alias       lhs.singleVar = if @pat.isUnderscore
+  | Alias       lhs.singleVar = if @pat.isUnderscore && strictCases @lhs.options
                                 then Just @loc.ppVar
                                 else Nothing
   | Underscore  lhs.singleVar = Nothing
