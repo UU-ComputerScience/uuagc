@@ -138,7 +138,7 @@ searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
-optimizeOpt   = visitOpt . strictCasesOpt . casesOpt
+optimizeOpt   = visitOpt . casesOpt
 
 getOptions args = let (flags,files,errors) = getOpt Permute options args
                   in (foldl (flip ($)) noOptions flags,files,errors)
