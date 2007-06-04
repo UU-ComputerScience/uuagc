@@ -32,6 +32,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["seq"]           (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
                , Option []        ["unbox"]         (NoArg unboxOpt)            "use unboxed tuples"
                , Option []        ["case"]          (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
+               , Option []        ["strictcase"]    (NoArg strictCasesOpt)      "Force evaluation of the scrutinee of cases (in generated code, visit functions only)"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
@@ -65,6 +66,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , withSeq :: Bool
                       , unbox :: Bool
                       , cases :: Bool
+                      , strictCases :: Bool
                       , werrors :: Bool
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
@@ -95,6 +97,7 @@ noOptions = Options { moduleName    = NoName
                     , withSeq       = False
                     , unbox         = False
                     , cases         = False
+                    , strictCases   = False
                     , werrors       = False
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
@@ -125,6 +128,7 @@ visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
+strictCasesOpt  opts = opts{strictCases  = True}
 werrorsOpt      opts = opts{werrors      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
@@ -134,7 +138,7 @@ searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
-optimizeOpt   = visitOpt . casesOpt
+optimizeOpt   = visitOpt . strictCasesOpt . casesOpt
 
 getOptions args = let (flags,files,errors) = getOpt Permute options args
                   in (foldl (flip ($)) noOptions flags,files,errors)

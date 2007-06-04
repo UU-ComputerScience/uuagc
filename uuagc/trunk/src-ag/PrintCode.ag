@@ -95,7 +95,9 @@ SEM DataAlt
   | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 SEM Lhs
-  | Pattern3   lhs.pp      = @pat3.pp
+  | Pattern3   lhs.pp      = case @pat3.singleVar of
+                               Just varPP -> @pat3.pp >#< "|" >#< varPP >#< "`seq` True"
+                               Nothing    -> @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
   | TupleLhs   lhs.pp      = ppTuple @lhs.nested (map text @comps)
   | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nested (map text @comps)
@@ -142,6 +144,18 @@ SEM Decl
   | Data alts.strictPre = if @strict then pp "!" else empty
 
 -------------------------------------------------------------------------------
+--         Strict variables
+-------------------------------------------------------------------------------
+
+SEM Pattern [ | | singleVar : {Maybe PP_Doc} ]
+  | Constr      lhs.singleVar = Nothing
+  | Product     lhs.singleVar = Nothing
+  | Alias       lhs.singleVar = if @pat.isUnderscore
+                                then Just @loc.ppVar
+                                else Nothing
+  | Underscore  lhs.singleVar = Nothing
+
+-------------------------------------------------------------------------------
 --         Pretty printing patterns
 -------------------------------------------------------------------------------
 
@@ -152,9 +166,10 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
 SEM Pattern [ | | pp:PP_Doc ]
   | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
   | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
-  | Alias   lhs.pp     = if @pat.isUnderscore
-                          then attrname False @field @attr >|< ""
-                          else attrname False @field @attr >|< "@" >|< @pat.pp
+  | Alias   loc.ppVar  = pp (attrname False @field @attr)
+            lhs.pp     = if @pat.isUnderscore
+                          then @loc.ppVar
+                          else @loc.ppVar >|< "@" >|< @pat.pp
   | Underscore lhs.pp  = text "_"
 
 SEM Pattern [ | | isUnderscore:{Bool}]
