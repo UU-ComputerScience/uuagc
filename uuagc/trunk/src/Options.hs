@@ -128,7 +128,7 @@ visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
-strictCasesOpt  opts = opts{strictCases  = True}
+strictCasesOpt  opts = opts{strictCases  = False}
 werrorsOpt      opts = opts{werrors      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
