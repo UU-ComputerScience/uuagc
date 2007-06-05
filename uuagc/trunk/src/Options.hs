@@ -33,6 +33,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["unbox"]         (NoArg unboxOpt)            "use unboxed tuples"
                , Option []        ["case"]          (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
                , Option []        ["strictcase"]    (NoArg strictCasesOpt)      "Force evaluation of the scrutinee of cases (in generated code, visit functions only)"
+               , Option []        ["localcps"]      (NoArg localCpsOpt)         "Apply a local CPS transformation (in generated code, visit functions only)"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
@@ -67,6 +68,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , unbox :: Bool
                       , cases :: Bool
                       , strictCases :: Bool
+                      , localCps :: Bool
                       , werrors :: Bool
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
@@ -98,6 +100,7 @@ noOptions = Options { moduleName    = NoName
                     , unbox         = False
                     , cases         = False
                     , strictCases   = False
+                    , localCps      = False
                     , werrors       = False
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
@@ -128,7 +131,8 @@ visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
-strictCasesOpt  opts = opts{strictCases  = False}
+strictCasesOpt  opts = opts{strictCases  = True}
+localCpsOpt     opts = opts{localCps     = True}
 werrorsOpt      opts = opts{werrors      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
