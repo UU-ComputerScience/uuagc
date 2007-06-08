@@ -56,6 +56,8 @@ type Strings     = [String]
 type Name        = Identifier
 type Nonterminal = Name
 type Constructor = Name
+type AttrOrderMap = Map Nonterminal (Map Constructor (Set Dependency))
+data Dependency = Dependency (Identifier,Identifier) (Identifier,Identifier) deriving (Eq,Ord,Show)
 
 type AttrEnv = ( [Name]
                , [(Name,Name)]

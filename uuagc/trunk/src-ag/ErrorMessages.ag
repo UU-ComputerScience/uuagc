@@ -109,3 +109,7 @@ DATA Error  | ParserError     pos     : {Pos}
             | MissingInstSig  nt      : {Nonterminal}
                               con     : {Constructor}
                               attr    : {Name}
+            
+            | ErroneousOrder  nt      : {Nonterminal}
+                              con     : {Constructor}
+                              order   : {Dependency}

@@ -12,7 +12,8 @@ DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             derivings: {Derivings}
                             wrappers : {Set Nonterminal}
                             prods    : Productions
-                            pragmas  : {PragmaMap}
+                            pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
+                            manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
 
 TYPE Productions  = [Production]
 
