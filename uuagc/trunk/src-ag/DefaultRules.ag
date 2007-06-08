@@ -12,6 +12,7 @@ import UU.DData.Map(Map)
 import UU.DData.Seq(Seq,(<>)) 
 import UU.Scanner.Position(noPos)
 import UU.Pretty
+import Maybe
 
 import AbstractSyntax
 import ErrorMessages
@@ -291,7 +292,7 @@ copyRule nt con modcopy locals (env,(fld,as))
 SEM Alternative
  | Alternative 
 
-   lhs.errors = @children.errors <> @errs <> @rules.errors
+   lhs.errors = @children.errors <> @errs <> @rules.errors <> @loc.orderErrs
 
    loc.(newRls, errs) 
    =
@@ -464,4 +465,57 @@ multiRule (Rule pat expr owrt origin) uniq
              )
      in snd (f id expr pat uniq)
 
+}
+
+-------------------------------------------------------------------------------
+--         Check the order definitions
+-------------------------------------------------------------------------------
+
+ATTR Productions Production Alternatives Alternative [ manualAttrOrderMap : {AttrOrderMap} | | ]
+
+SEM Grammar
+  | Grammar
+      prods.manualAttrOrderMap = @manualAttrOrderMap
+      
+
+SEM Alternative
+  | Alternative
+      loc.orderDeps = Set.toList $ Map.findWithDefault Set.empty @con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrOrderMap
+      
+      loc.allAttrsInScope
+        = Map.fromList ( [ (_LHS, @lhs.syn `Map.union` @lhs.inh)
+                         , (_LOC, Map.fromList [ (l,Haskell "LOC") | l <- Set.toList @rules.locals]) ]
+                       ++ @children.inputs
+                       ++ @children.outputs
+                       )
+      
+      loc.invalidOrderDepsErrors
+        = [ ErroneousOrder @lhs.nt @con dep
+          | dep@(Dependency (fld,nm) _) <- @loc.orderDeps
+          , not $ isInAttribute @children.outputs fld nm
+          ]
+
+      loc.undefinedAttributeInDepsErrors
+        = [ UndefAttr @lhs.nt @con fld nm
+          | (fld,nm) <- concatMap (\(Dependency a b) -> [a,b]) $ @loc.orderDeps
+          , not $ isDefined @loc.allAttrsInScope fld nm
+          ]
+
+      loc.orderErrs
+        = if null @loc.undefinedAttributeInDepsErrors
+          then Seq.fromList @loc.invalidOrderDepsErrors
+          else Seq.fromList @loc.undefinedAttributeInDepsErrors
+
+{
+isDefined :: Map Name Attributes -> Identifier -> Identifier -> Bool
+isDefined mp fld nm
+  = Map.member nm $ Map.findWithDefault Map.empty fld mp
+
+-- check that for a dependency a < b, that a is an In attribute
+isInAttribute :: [(Name,Attributes)] -> Identifier -> Identifier -> Bool
+isInAttribute allSyns fld nm
+  | fld == _INST || fld == _LOC || fld == _LHS
+      = True
+  | otherwise  -- is nm it a synthesized attribute of fld?
+      = maybe False (Map.member nm) (lookup fld allSyns)
 }

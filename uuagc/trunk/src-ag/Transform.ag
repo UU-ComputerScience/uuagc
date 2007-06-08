@@ -52,6 +52,7 @@ SEM AG
                                      @loc.checkedInsts
                                      @elems.typeSyns
                                      @elems.semPragmasCollect
+                                     @elems.attrOrderCollect
 
 
 -------------------------------------------------------------------------------
@@ -255,7 +256,7 @@ SEM AG
          loc.errs6        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allInstsErrs
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6
+         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6 <> @elems.orderDepErrorsCollect
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -544,6 +545,39 @@ pragmaMapSingle nt con nms = Map.single nt (Map.single con nms)
 }
 
 -------------------------------------------------------------------------------
+--         Collecting attribute orders
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems SemAlts SemAlt [ | | attrOrderCollect USE {`orderMapUnion`} {Map.empty} : {AttrOrderMap} ]
+ATTR Elem Elems SemAlts SemAlt [ | | orderDepErrorsCollect USE {Seq.<>} {Seq.empty} : {Seq Error} ]
+ATTR Elem Elems SemAlts SemAlt [ allAttrDecls : {Map Nonterminal (Attributes, Attributes)} | | ]
+
+SEM SemAlt
+  | SemAlt
+      loc.attrOrders
+        = [ orderMapSingle nt con @rules.orderDepsCollect
+          | (nt, conset, _) <- @loc.coninfo
+          , con <- Set.toList conset
+          ]
+  
+      lhs.attrOrderCollect = foldr orderMapUnion Map.empty @loc.attrOrders
+
+ATTR SemDefs SemDef [ | | orderDepsCollect USE {`Set.union`} {Set.empty} : {Set Dependency} ]
+
+SEM SemDef
+  | AttrOrderBefore
+      loc.dependency       = Dependency @before @after
+      lhs.orderDepsCollect = Set.single @loc.dependency
+
+{
+orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap
+orderMapUnion = Map.unionWith (Map.unionWith Set.union)
+
+orderMapSingle :: Nonterminal -> Constructor -> Set Dependency -> AttrOrderMap
+orderMapSingle nt con deps = Map.single nt (Map.single con deps)
+}
+
+-------------------------------------------------------------------------------
 --         Collecting derivings
 -------------------------------------------------------------------------------
 
@@ -707,9 +741,10 @@ constructGrammar ::    Set Nonterminal
                     -> Map Nonterminal (Map Constructor [(Identifier, Type)])
                     -> TypeSyns
                     -> PragmaMap
+                    -> AttrOrderMap
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -728,7 +763,7 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                           in Child nm tp inh syn isVirtual
                                    in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers prods pragmaMap
+   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap
 }
 
 {

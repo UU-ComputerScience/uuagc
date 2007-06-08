@@ -1,0 +1,17 @@
+DATA Root
+  | Root  a : Aap
+
+DATA Aap
+  | Een
+
+ATTR Aap [ | | p : Int q : Int ]
+SEM Aap
+  | Een  lhs.p = 1
+         lhs.q = 2
+
+ATTR Root [ | | z : Int ]
+SEM Root
+  | Root
+      lhs.z = a.q
+      a.p < a.q  -- compute a.p in visit 0
+                 -- compute a.q in visit 1

@@ -248,6 +248,35 @@ SEM  Rule
                             ++ [ Map.lookup (AltAttr _LOC attr True) @lhs.altAttrs | attr <- @rhs.usedLocals ++ @rhs.usedFields ]
                in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
 
+-- Manual depdendencies (provided by the programmer)
+--
+-- a dependency f1.a1 < f2.a2 is translated to
+-- the edige (vertex(f1.a1), vertex(f2.a2))
+ATTR Productions Production
+     Alternatives Alternative
+     Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+SEM Grammar
+  | Grammar
+      prods.manualAttrDepMap = @manualAttrOrderMap
+SEM Rule
+  | Rule
+      loc.manualDeps
+        = Set.toList $ Map.findWithDefault Set.empty @lhs.con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrDepMap
+      lhs.additionalDep
+        = Seq.fromList [ (vertexA, vertexB)
+                       | Dependency (fldA,nmA) (fldB,nmB) <- @loc.manualDeps
+                       , let vertexA = findWithErr2 (AltAttr fldA nmA True) @lhs.altAttrs
+                       , vertexB <- lookupVertices fldB nmB @lhs.altAttrs
+                       ]
+
+{
+lookupVertices :: Identifier -> Identifier -> Map AltAttr Int -> [Int]
+lookupVertices fld nm attrs
+  = catMaybes (  [Map.lookup (AltAttr fld nm True) attrs]
+              ++ [Map.lookup (AltAttr fld nm False) attrs]
+              )
+}
+
 -- Inst dependencies
 --
 -- For each inst attribute x of nt N, add the dependency
@@ -369,7 +398,7 @@ SEM Grammar
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
-            loc.directDep = Seq.toList @prods.directDep
+            loc.directDep = Seq.toList (@prods.directDep Seq.<> @prods.additionalDep)
             loc.instDep   = Seq.toList @prods.instDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v

@@ -382,8 +382,8 @@ SEM Error
                                                , getName @con , "of nonterminal",getName @nt ,"."
                                                ]>-<
                                          wfill ["Location:", (showPos @attr),"."]
-                                 pat   =   "SEM" >#< @nt
-                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _INST @attr >#< ": ...")
+                                 pat   = "SEM" >#< @nt
+                                           >-< indent 2 ("|" >#< getName @con >#< ppAttr _INST @attr >#< ": ...")
                                  help  = wfill ["The", showAttrDef _INST @attr, "in alternative", getName @con
                                                ,"of nonterminal", getName @nt, "is a non-terminal attribute, so "
                                                ,"its type is needed to attribute its value."
@@ -391,6 +391,27 @@ SEM Error
                                                ]
                                  act  = wfill ["It is not possible to proceed without this signature."]
                              in ppError @isWarning (getPos @attr) mesg pat help act @lhs.verbose
+
+  | ErroneousOrder  loc.isWarning = False
+                    lhs.pp = let (Dependency (fldA,nmA) (fldB,nmB)) = @order
+                                 mesg  = wfill ["At alternative",getName @con, "of nonterminal", getName @nt, "there is an erroneous order"
+                                               , showAttrDef fldA nmA
+                                               , "<"
+                                               , showAttrDef fldB nmB
+                                               ]
+
+                                 pat   = "SEM" >#< getName @nt
+                                           >-< indent 2 ("|" >#< getName @con >#< ppAttr fldA nmA >#< "<" >#< ppAttr fldB nmB)
+
+                                 help =  wfill [ "In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                               , ", there is an erroneous attribute order defined"
+                                               , showAttrDef fldA nmA, "<", showAttrDef fldB nmB
+                                               , "because"
+                                               , showAttrDef fldA nmA
+                                               , "is not an In-attribute (inherited attribute of the production, or a synthesized attribute of a child)"
+                                               ]
+                                 act  = wfill ["Please change the order definition."]
+                             in ppError @isWarning (getPos fldA) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '

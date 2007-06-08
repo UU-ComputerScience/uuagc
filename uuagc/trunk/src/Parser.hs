@@ -254,6 +254,7 @@ pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|>                            pLOC              *> pList1 pLocDecl
       <|>                            pINST             *> pList1 pInstDecl
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
+      <|> (\a b -> [AttrOrderBefore a b]) <$> pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
@@ -319,7 +320,7 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pWRAPPER, pMAYBE
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE
       :: AGParser  Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -348,3 +349,4 @@ pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"
 pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
+pSmaller     = pCostReserved 5  "<"       <?> "<"
