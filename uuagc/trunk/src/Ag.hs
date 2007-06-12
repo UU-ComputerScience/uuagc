@@ -113,7 +113,7 @@ formatProg pps = foldr (.)
                        ""
 
 formatErrors :: UU.Pretty.PP_Doc -> String
-formatErrors pp = UU.Pretty.disp pp 75 ""
+formatErrors pp = UU.Pretty.disp pp 5000 ""
 
 
 message2error :: Message Token Pos -> Error
