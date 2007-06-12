@@ -18,7 +18,7 @@ type PP_Docs = [PP_Doc]
 {
 ppMultiSeq :: [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq strictArgs expr
-  = foldr (\r v -> v >#< "`seq`" >#< pp_parens r) expr strictArgs
+  = foldr (\v r -> v >#< "`seq`" >#< pp_parens r) expr strictArgs
 }
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
