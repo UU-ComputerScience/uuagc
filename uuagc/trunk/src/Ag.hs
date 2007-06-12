@@ -18,7 +18,7 @@ import qualified DefaultRules       as Pass2 (sem_Grammar,  wrap_Grammar,  Syn_G
 import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..))
+import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
@@ -58,7 +58,7 @@ compile flags input output
           grammar3 = Pass3.output_Syn_Grammar   output3
           output4  = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output5  = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
-          output6  = PrErr.wrap_Errors          (PrErr.sem_Errors                           errorList ) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+          output6  = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
@@ -70,10 +70,20 @@ compile flags input output
                                            Seq.<> Pass3.errors_Syn_Grammar  output3
                                            Seq.<> Pass4.errors_Syn_CGrammar output4
                                            )
+                                           
+          fatalErrorList = filter PrErr.isError errorList
+          
+          errorsToReport = if wignore flags'
+                            then fatalErrorList
+                            else errorList
+                            
+          errorsToStopOn = if werrors flags'
+                            then errorList
+                            else fatalErrorList               
           
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
      
-      if not (PrErr.isWarning_Syn_Errors output6) 
+      if not (null fatalErrorList) 
        then exitFailure
        else do let outputfile = if null output then outputFile input else output
                    blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
@@ -103,7 +113,7 @@ compile flags input output
                                                                            $ ""
                                                                       else ""
                --putStrLn ("\n" ++ outputfile ++ " generated")
-               if werrors flags' && not (null errorList) then exitFailure else return ()
+               if not (null errorsToStopOn) then exitFailure else return ()
 
 
 formatProg :: [UU.Pretty.PP_Doc] -> String

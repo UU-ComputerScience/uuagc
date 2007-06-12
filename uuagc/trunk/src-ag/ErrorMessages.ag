@@ -9,6 +9,7 @@ import CommonTypes
 
 TYPE Errors = [Error]
 
+
 DATA Error  | ParserError     pos     : {Pos}
                               problem : {String}
                               action  : {String}
