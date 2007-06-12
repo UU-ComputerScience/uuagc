@@ -7,12 +7,18 @@ import Char (isAlphaNum)
 import UU.Pretty
 import Code
 import Patterns
-import Options (Options,nest,strictCases)
+import Options
 import CommonTypes (attrname, _LOC, getName, nullIdent)
 }
 
 {
 type PP_Docs = [PP_Doc]
+}
+
+{
+ppMultiSeq :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq strictArgs expr
+  = foldr (\r v -> v >#< "`seq`" >#< pp_parens r) expr strictArgs
 }
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
@@ -98,17 +104,23 @@ SEM DataAlt
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 SEM Lhs
   | Pattern3 TupleLhs UnboxedTupleLhs
-      loc.addStrictGuards = if strictCases @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
+      loc.addStrictGuard = if strictCases @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
   | Pattern3
-      loc.strictGuard = foldr (\v r -> v >#< "`seq`" >#< pp_parens r) (pp "True") @pat3.strictVars
+      loc.strictGuard = @pat3.strictVars `ppMultiSeq` (pp "True")
   | TupleLhs UnboxedTupleLhs
-      loc.strictGuard = foldr (\v r -> text v >#< "`seq`" >#< pp_parens r) (pp "True") @comps
+      loc.strictGuard = if stricterCases @lhs.options
+                        then map text @comps `ppMultiSeq` (pp "True")
+                        else pp "True"
 
-  | Pattern3   lhs.pp      = @loc.addStrictGuards @pat3.pp
+  | Fun
+      loc.addStrictGuard = if strictSems @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
+      loc.strictGuard    = @args.pps `ppMultiSeq` (pp "True")
+
+  | Pattern3   lhs.pp      = @loc.addStrictGuard @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
-  | TupleLhs   lhs.pp      = @loc.addStrictGuards $ ppTuple @lhs.nested (map text @comps)
-  | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuards $ ppUnboxedTuple @lhs.nested (map text @comps)
-  | Fun        lhs.pp      = @name >#< hv_sp @args.pps
+  | TupleLhs   lhs.pp      = @loc.addStrictGuard $ ppTuple @lhs.nested (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuard $ ppUnboxedTuple @lhs.nested (map text @comps)
+  | Fun        lhs.pp      = @loc.addStrictGuard (@name >#< hv_sp @args.pps)
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2
@@ -161,8 +173,12 @@ SEM Pattern
         = if strictCases @lhs.options
           then [@loc.ppVar]
           else []
+      loc.strictPatVars
+        = if stricterCases @lhs.options
+          then @pat.strictVars
+          else []
       lhs.strictVars
-        = @loc.strictVar ++ @pat.strictVars -- ++ @parts.strictVars
+        = @loc.strictVar ++ @loc.strictPatVars
       
 
 -------------------------------------------------------------------------------

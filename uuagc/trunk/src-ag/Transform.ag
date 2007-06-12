@@ -17,7 +17,7 @@ import ErrorMessages
 import Patterns (Patterns(..),Pattern(..))
 import Expression (Expression(..))
 
-import Options(Options, withSelf, withCycle, withSeq, strictData, strictWrap, strictCases, unbox, visit, cases, wrappers)
+import Options
 import CommonTypes
 }
 
@@ -505,6 +505,7 @@ SEM Elem
                                          "strictdata"   -> o { strictData  = True  }
                                          "nostrictcase" -> o { strictCases = False }
                                          "strictcase"   -> o { strictCases = True  }
+                                         "strictercase" -> o { strictCases = True, stricterCases = True }
                                          "nostrictwrap" -> o { strictWrap  = False }
                                          "strictwrap"   -> o { strictWrap  = True  }
                                          "novisit"      -> o { visit       = False }
@@ -517,6 +518,7 @@ SEM Elem
                                          "unbox"        -> o { unbox       = True  }
                                          "nooptimize"   -> o { cases = False , visit = False }
                                          "optimize"     -> o { cases = True  , visit = True  }
+                                         "strictsem"    -> o { strictSems = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
