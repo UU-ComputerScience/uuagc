@@ -37,6 +37,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["strictsem"]     (NoArg strictSemOpt)        "Force evaluation of sem-function arguments (in generated code)"
                , Option []        ["localcps"]      (NoArg localCpsOpt)         "Apply a local CPS transformation (in generated code, visit functions only)"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
+               , Option []        ["Wignore"]       (NoArg wignoreOpt)          "Ignore warnings"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                ]
@@ -74,6 +75,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , strictSems :: Bool
                       , localCps :: Bool
                       , werrors :: Bool
+                      , wignore :: Bool
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
                       } deriving Show
@@ -108,6 +110,7 @@ noOptions = Options { moduleName    = NoName
                     , strictSems    = False
                     , localCps      = False
                     , werrors       = False
+                    , wignore       = False
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
                     }
@@ -142,6 +145,7 @@ stricterCasesOpt opts = opts{strictCases  = True, stricterCases = True}
 strictSemOpt    opts = opts{strictSems   = True}
 localCpsOpt     opts = opts{localCps     = True}
 werrorsOpt      opts = opts{werrors      = True}
+wignoreOpt      opts = opts{wignore      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 
