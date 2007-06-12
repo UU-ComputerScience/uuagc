@@ -16,9 +16,15 @@ type PP_Docs = [PP_Doc]
 }
 
 {
-ppMultiSeq :: [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeq strictArgs expr
-  = foldr (\v r -> v >#< "`seq`" >#< pp_parens r) expr strictArgs
+ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqH = ppMultiSeq' (>#<)
+
+ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqV = ppMultiSeq' (>-<)
+
+ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq' next strictArgs expr
+  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
 }
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
@@ -86,8 +92,11 @@ SEM Expr
   | Case       lhs.pp      = pp_parens (    "case" >#< pp_parens @expr.pp >#< "of"
                                        >-< (vlist @alts.pps)
                                        )
-  | Lambda     lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
-                                       >-< indent 4 @body.pp
+  | Lambda     loc.strictParams = if strictSems @lhs.options
+                                  then map text @args
+                                  else []
+               lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
+                                       >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
   | UnboxedTupleExpr  lhs.pp      = ppUnboxedTuple @lhs.nested @exprs.pps
@@ -106,15 +115,15 @@ SEM Lhs
   | Pattern3 TupleLhs UnboxedTupleLhs
       loc.addStrictGuard = if strictCases @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
   | Pattern3
-      loc.strictGuard = @pat3.strictVars `ppMultiSeq` (pp "True")
+      loc.strictGuard = @pat3.strictVars `ppMultiSeqH` (pp "True")
   | TupleLhs UnboxedTupleLhs
       loc.strictGuard = if stricterCases @lhs.options
-                        then map text @comps `ppMultiSeq` (pp "True")
+                        then map text @comps `ppMultiSeqH` (pp "True")
                         else pp "True"
 
   | Fun
       loc.addStrictGuard = if strictSems @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
-      loc.strictGuard    = @args.pps `ppMultiSeq` (pp "True")
+      loc.strictGuard    = @args.pps `ppMultiSeqH` (pp "True")
 
   | Pattern3   lhs.pp      = @loc.addStrictGuard @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
