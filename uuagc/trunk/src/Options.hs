@@ -40,6 +40,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["Wignore"]       (NoArg wignoreOpt)          "Ignore warnings"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
+               , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
                ]
 
 allc = "dcfsprm"
@@ -78,6 +79,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , wignore :: Bool
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
+                      , genTraces :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -113,6 +115,7 @@ noOptions = Options { moduleName    = NoName
                     , wignore       = False
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
+                    , genTraces     = False
                     }
 
 
@@ -148,6 +151,7 @@ werrorsOpt      opts = opts{werrors      = True}
 wignoreOpt      opts = opts{wignore      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
+genTracesOpt    opts = opts{genTraces    = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

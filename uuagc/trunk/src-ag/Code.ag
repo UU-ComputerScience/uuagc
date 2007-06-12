@@ -25,6 +25,8 @@ DATA Expr     | Let              decls : Decls
                                  args  : Exprs
               | SimpleExpr       txt   : {String}
               | TextExpr         lns   : {[String]}
+              | Trace            txt  : {String}
+                                 expr : Expr
 
 DATA CaseAlt  | CaseAlt          left  : Lhs
                                  expr  : Expr

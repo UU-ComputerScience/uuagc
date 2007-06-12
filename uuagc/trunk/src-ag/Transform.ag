@@ -519,6 +519,7 @@ SEM Elem
                                          "nooptimize"   -> o { cases = False , visit = False }
                                          "optimize"     -> o { cases = True  , visit = True  }
                                          "strictsem"    -> o { strictSems = True }
+                                         "gentraces"    -> o { genTraces = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
