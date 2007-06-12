@@ -33,6 +33,8 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["unbox"]         (NoArg unboxOpt)            "use unboxed tuples"
                , Option []        ["case"]          (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
                , Option []        ["strictcase"]    (NoArg strictCasesOpt)      "Force evaluation of the scrutinee of cases (in generated code, visit functions only)"
+               , Option []        ["strictercase"]  (NoArg stricterCasesOpt)      "Force evaluation of all variables bound by a case statement (in generated code)"
+               , Option []        ["strictsem"]     (NoArg strictSemOpt)        "Force evaluation of sem-function arguments (in generated code)"
                , Option []        ["localcps"]      (NoArg localCpsOpt)         "Apply a local CPS transformation (in generated code, visit functions only)"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
@@ -68,6 +70,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , unbox :: Bool
                       , cases :: Bool
                       , strictCases :: Bool
+                      , stricterCases :: Bool
+                      , strictSems :: Bool
                       , localCps :: Bool
                       , werrors :: Bool
                       , dumpgrammar :: Bool
@@ -100,6 +104,8 @@ noOptions = Options { moduleName    = NoName
                     , unbox         = False
                     , cases         = False
                     , strictCases   = False
+                    , stricterCases = False
+                    , strictSems    = False
                     , localCps      = False
                     , werrors       = False
                     , dumpgrammar   = False
@@ -132,6 +138,8 @@ seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
 strictCasesOpt  opts = opts{strictCases  = True}
+stricterCasesOpt opts = opts{strictCases  = True, stricterCases = True}
+strictSemOpt    opts = opts{strictSems   = True}
 localCpsOpt     opts = opts{localCps     = True}
 werrorsOpt      opts = opts{werrors      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
