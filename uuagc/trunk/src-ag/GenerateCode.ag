@@ -32,7 +32,7 @@ ATTR CProductions CProduction
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_cps : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_cps,o_traces : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
@@ -49,6 +49,7 @@ SEM CGrammar [ options : Options | | ]
                      .o_cps         = localCps      @lhs.options
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
                      .prefix        = prefix        @lhs.options
+                     .o_traces      = genTraces     @lhs.options
 
 ATTR CProductions CProduction CAlternatives CAlternative CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -88,7 +89,14 @@ SEM  CRule
                                             (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
                                                  [SimpleExpr (attrname False _INST inst)])
                            | inst <- @loc.definedInsts ]
-           loc.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (TextExpr @rhs) : @loc.instDecls) else @loc.instDecls
+           loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++
+                              if @isIn
+                              then ""
+                              else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
+           loc.addTrace = \v -> if @lhs.o_traces
+                                then Trace @loc.traceDescr v
+                                else v
+           loc.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (@loc.addTrace (TextExpr @rhs)) : @loc.instDecls) else @loc.instDecls
   |  CChildVisit loc.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
                                          ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
@@ -104,6 +112,11 @@ SEM Pattern
 
 SEM CRule
   | CRule  loc.definedInsts = if @isIn then [] else @pattern.definedInsts
+
+ATTR Pattern Patterns [ | | patternAttributes USE {++} {[]} : {[(Name, Name)]} ]
+SEM Pattern
+  | Alias
+      lhs.patternAttributes = (@field,@attr) : (@pat.patternAttributes ++ @parts.patternAttributes)
 
 -------------------------------------------------------------------------------
 -- Numbering the visits

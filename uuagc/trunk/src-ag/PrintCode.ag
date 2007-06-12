@@ -103,6 +103,9 @@ SEM Expr
   | App        lhs.pp      = pp_parens $ @name >#< hv_sp @args.pps
   | SimpleExpr lhs.pp      = text @txt
   | TextExpr   lhs.pp      = vlist (map text @lns)
+  | Trace      lhs.pp      = "trace" >#< (   pp_parens ("\"" >|< text @txt >|< "\"")
+                                         >-< pp_parens @expr.pp
+                                         )
 
 SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
