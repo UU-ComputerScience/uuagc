@@ -97,12 +97,17 @@ SEM DataAlt
   | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 SEM Lhs
-  | Pattern3   lhs.pp      = case @pat3.singleVar of
-                               Just varPP -> @pat3.pp >#< "|" >#< varPP >#< "`seq` True"
-                               Nothing    -> @pat3.pp
+  | Pattern3 TupleLhs UnboxedTupleLhs
+      loc.addStrictGuards = if strictCases @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
+  | Pattern3
+      loc.strictGuard = foldr (\v r -> v >#< "`seq`" >#< pp_parens r) (pp "True") @pat3.strictVars
+  | TupleLhs UnboxedTupleLhs
+      loc.strictGuard = foldr (\v r -> text v >#< "`seq`" >#< pp_parens r) (pp "True") @comps
+
+  | Pattern3   lhs.pp      = @loc.addStrictGuards @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
-  | TupleLhs   lhs.pp      = ppTuple @lhs.nested (map text @comps)
-  | UnboxedTupleLhs   lhs.pp      = ppUnboxedTuple @lhs.nested (map text @comps)
+  | TupleLhs   lhs.pp      = @loc.addStrictGuards $ ppTuple @lhs.nested (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuards $ ppUnboxedTuple @lhs.nested (map text @comps)
   | Fun        lhs.pp      = @name >#< hv_sp @args.pps
 
 SEM Type  [ | | prec:Int ]
@@ -149,13 +154,16 @@ SEM Decl
 --         Strict variables
 -------------------------------------------------------------------------------
 
-SEM Pattern [ | | singleVar : {Maybe PP_Doc} ]
-  | Constr      lhs.singleVar = Nothing
-  | Product     lhs.singleVar = Nothing
-  | Alias       lhs.singleVar = if @pat.isUnderscore && strictCases @lhs.options
-                                then Just @loc.ppVar
-                                else Nothing
-  | Underscore  lhs.singleVar = Nothing
+ATTR Pattern Patterns [ | | strictVars USE {++} {[]} : {[PP_Doc]} ]
+SEM Pattern
+  | Alias
+      loc.strictVar
+        = if strictCases @lhs.options
+          then [@loc.ppVar]
+          else []
+      lhs.strictVars
+        = @loc.strictVar ++ @pat.strictVars -- ++ @parts.strictVars
+      
 
 -------------------------------------------------------------------------------
 --         Pretty printing patterns
