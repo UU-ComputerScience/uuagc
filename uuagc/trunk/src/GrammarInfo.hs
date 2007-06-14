@@ -2,8 +2,10 @@ module GrammarInfo where
 
 import SequentialTypes
 import CodeSyntax
-import UU.DData.Map(Map,toList)
+import UU.DData.Map(Map)
+import qualified UU.DData.Map as Map
 import UU.DData.Set(Set)
+import qualified UU.DData.Set as Set
 import CommonTypes
 import Data.List(intersect,(\\))
 
@@ -19,9 +21,9 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   deriving Show
 
 instance Show CRule
- where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin) 
-         = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs
-         -- concat rhs
+ where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin uses) 
+         = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
+         ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
 
 type CInterfaceMap = Map Nonterminal CInterface
 type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
@@ -35,8 +37,8 @@ data CycleStatus
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)
-   = let syn'     = map toString (toList syn)
-         inh'     = map toString (toList inh)
+   = let syn'     = map toString (Map.toList syn)
+         inh'     = map toString (Map.toList inh)
          toString (a,t) = (getName a, case t of (NT nt) -> getName nt; Haskell t -> t)
          chnn     = inh' `intersect` syn'
          inhn     = inh' \\ chnn

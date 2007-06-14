@@ -520,6 +520,7 @@ SEM Elem
                                          "optimize"     -> o { cases = True  , visit = True  }
                                          "strictsem"    -> o { strictSems = True }
                                          "gentraces"    -> o { genTraces = True }
+                                         "splitsems"    -> o { splitSems = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
