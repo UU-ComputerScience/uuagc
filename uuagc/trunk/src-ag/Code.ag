@@ -45,6 +45,7 @@ DATA Decl     | Decl             left  : Lhs
               | TSig             name  : {String} 
                                  tp    : Type
               | Comment          txt   : {String}
+              | PragmaDecl       txt   : {String}
 
 DATA DataAlt  | DataAlt          name  : {String} 
                                  args  : {[String]}

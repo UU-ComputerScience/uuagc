@@ -84,6 +84,7 @@ SEM Decl
   | Comment    lhs.pp      = if '\n' `elem` @txt
                                then "{-" >-< vlist (lines @txt) >-< "-}"
                                else "--" >#< @txt
+  | PragmaDecl lhs.pp      = "{-#" >#< text @txt >#< "#-}"
 
 SEM Expr
   | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)

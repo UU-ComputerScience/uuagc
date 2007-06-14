@@ -70,6 +70,7 @@ _SELF  = identifier "SELF"
 _LOC   = identifier "loc" 
 _INST  = identifier "inst"
 _INST' = identifier "inst'"
+_FIELD = identifier "field"
 
 sdtype :: Nonterminal -> String
 sdtype nt = "T_"++getName nt
@@ -91,6 +92,7 @@ attrname :: Bool -> Name -> Name -> String
 attrname isIn field attr | field == _LOC   = locname attr 
                          | field == _INST  = instname attr
                          | field == _INST' = inst'name attr
+                         | field == _FIELD = fieldname attr
                          | otherwise       = let direction | isIn      = "I" 
                                                            | otherwise = "O"
                                              in '_' : getName field ++ direction ++ getName attr
