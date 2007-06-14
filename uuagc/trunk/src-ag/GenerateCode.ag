@@ -333,10 +333,11 @@ localCpsToExpr o_case nextVisitDecl
           CpsTerminator decls expr
             -> mkLet o_case (decls ++ nextVisitDecl) expr
           CpsBlock decls (Decl lhs rhs) remainder
-            -> let inDecls = [ Decl (Fun internalCpsName [SimpleExpr internalCpsVarName])
+            -> let inDecls = [ PragmaDecl ("NOINLINE " ++ internalCpsName)
+                             , Decl (Fun internalCpsName [SimpleExpr internalCpsVarName])
                                     (mkLet o_case [Decl lhs (SimpleExpr internalCpsVarName)] (rec remainder))
                              ]
-                   inBody = App internalCpsName [rhs]
+                   inBody = App "head" [App "(:)" [App internalCpsName [rhs], App "(:)" [App internalCpsName [rhs], SimpleExpr "[]"]]]
                    outerBody = Let inDecls inBody
                    block = mkLet o_case decls outerBody
                in block

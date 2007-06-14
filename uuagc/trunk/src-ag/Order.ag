@@ -322,6 +322,7 @@ ATTR Expression [ nt,con   :{Name}
                   usedFields:{[Name]}
                   textLines :{[String]}
                   copy : SELF
+                  allRhsVars : {Set (Name,Name)}
                 ]
 
 SEM Expression
@@ -341,7 +342,13 @@ SEM Expression
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
                                     , usedFields_Syn_HsTokensRoot = usedFields
-                                    }  -> (errors,textLines,usedAttrs,usedLocals,usedFields)  
+                                    }  -> (errors,textLines,usedAttrs,usedLocals,usedFields)
+
+                lhs.allRhsVars = Set.fromList @loc.usedAttrs
+                                 `Set.union`
+                                 Set.fromList [ (_LOC, l) | l <- @loc.usedLocals]
+                                 `Set.union`
+                                 Set.fromList [ (_FIELD, fld) | fld <- @loc.usedFields]
 
 -------------------------------------
 -- NT-Attributes
