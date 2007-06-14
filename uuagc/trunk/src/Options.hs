@@ -36,6 +36,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["strictercase"]  (NoArg stricterCasesOpt)      "Force evaluation of all variables bound by a case statement (in generated code)"
                , Option []        ["strictsem"]     (NoArg strictSemOpt)        "Force evaluation of sem-function arguments (in generated code)"
                , Option []        ["localcps"]      (NoArg localCpsOpt)         "Apply a local CPS transformation (in generated code, visit functions only)"
+               , Option []        ["splitsems"] (NoArg splitSemsOpt)    "Split semantic functions into smaller pieces"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["Wignore"]       (NoArg wignoreOpt)          "Ignore warnings"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
@@ -75,6 +76,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , stricterCases :: Bool
                       , strictSems :: Bool
                       , localCps :: Bool
+                      , splitSems :: Bool
                       , werrors :: Bool
                       , wignore :: Bool
                       , dumpgrammar :: Bool
@@ -111,6 +113,7 @@ noOptions = Options { moduleName    = NoName
                     , stricterCases = False
                     , strictSems    = False
                     , localCps      = False
+                    , splitSems     = False
                     , werrors       = False
                     , wignore       = False
                     , dumpgrammar   = False
@@ -144,9 +147,10 @@ seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
 casesOpt        opts = opts{cases        = True}
 strictCasesOpt  opts = opts{strictCases  = True}
-stricterCasesOpt opts = opts{strictCases  = True, stricterCases = True}
+stricterCasesOpt opts = opts{strictCases = True, stricterCases = True}
 strictSemOpt    opts = opts{strictSems   = True}
 localCpsOpt     opts = opts{localCps     = True}
+splitSemsOpt    opts = opts{splitSems    = True}
 werrorsOpt      opts = opts{werrors      = True}
 wignoreOpt      opts = opts{wignore      = True}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}

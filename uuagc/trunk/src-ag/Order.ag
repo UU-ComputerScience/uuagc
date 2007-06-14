@@ -206,9 +206,9 @@ SEM  Rule
                                           , let aa = AltAttr field attr isLocalOrInst
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars
                                             | (field,attr,tp) <- Map.elems @defines 
-                                            ] 
+                                            ]
 
 {
 substSelf nt tp = if tp==NT _SELF 

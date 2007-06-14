@@ -49,7 +49,7 @@ CABAL_SCRIPT = ./Setup
 # We generate datatype definitions for these AG files.
 SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
 	 HsToken.ag Code.ag Expression.ag Patterns.ag Interfaces.ag\
-	 CodeSyntax.ag
+	 CodeSyntax.ag DeclBlocks.ag
 SRC_LAG_SYN_NAMES =
 
 # And semantic functions from these AG files.

@@ -5,6 +5,8 @@ import CommonTypes
 import Data.Array(Array)
 import UU.DData.Map (Map)
 import qualified UU.DData.Map as Map
+import UU.DData.Set (Set)
+import qualified UU.DData.Set as Set
 import Data.Maybe(fromJust)
 import Data.List(partition)
 import UU.Pretty
@@ -36,15 +38,16 @@ data NTAttr = NTAInh Nonterminal Name Type -- nt, attribute, type
 getNtaNameType (NTAInh nt name tp) = (name,tp)
 getNtaNameType (NTASyn nt name tp) = (name,tp)
 
-getAttr     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = name
-getIsIn     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = ii
-getHasCode  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = hc
-getLhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = nt
-getCon      (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = con
-getField    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = field
-getRhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = childnt
-getType     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = tp
-getDefines  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin) = defines
+getAttr     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = name
+getIsIn     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = ii
+getHasCode  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = hc
+getLhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = nt
+getCon      (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = con
+getField    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = field
+getRhsNt    (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = childnt
+getType     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = tp
+getDefines  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = defines
+getUses     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses) = uses
 
 isLocal = (_LOC==) . getField
 isInst = (_INST==) . getField
@@ -73,14 +76,14 @@ ntattr cr  | isLocal cr =  Nothing
                            in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))
 
 cRuleLhsInh :: Name -> Nonterminal -> Constructor -> Type -> CRule
-cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) (error "cRuleLhsInh") [] Map.empty False ""
+cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) (error "cRuleLhsInh") [] Map.empty False "" Set.empty
 cRuleTerminal :: Name -> Nonterminal -> Constructor -> Type -> CRule
-cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error ("cRuleTerminal: " ++ show (attr, nt, con, tp))) [] Map.empty False ""
+cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error ("cRuleTerminal: " ++ show (attr, nt, con, tp))) [] Map.empty False "" Set.empty
 cRuleRhsSyn :: Name -> Nonterminal -> Constructor -> Type -> Name -> Nonterminal -> CRule
-cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error ("cRuleRhsSyn: " ++ show (attr, nt, con, tp, field))) [] Map.empty False ""
+cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error ("cRuleRhsSyn: " ++ show (attr, nt, con, tp, field))) [] Map.empty False "" Set.empty
 
 defaultRule :: Name -> Nonterminal -> Constructor -> Name -> CRule
-defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9)
+defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9) (er 10)
                                  where er i = error ("Default rule has no code " ++ show i)
 
 instance Eq CRule where
@@ -130,4 +133,5 @@ prettyCRule cr
                                ++ (if isRhs cr then show (getField cr) ++ "." else "")
                                ++ (if isLhs cr then "lhs." else "")
                                ++ (show (getAttr cr))
-      in show (getLhsNt cr) ++ "." ++ show (getCon cr) ++ ", " ++ descr 
+      in show (getLhsNt cr) ++ "." ++ show (getCon cr) ++ ", " ++ descr
+

@@ -3,6 +3,10 @@ imports
 import UU.Pretty(PP_Doc)
 import Patterns
 import Data.List(partition)
+import UU.DData.Set(Set)
+import qualified UU.DData.Set as Set
+import UU.DData.Map(Map)
+import qualified UU.DData.Map as Map
 }
 
 TYPE Exprs    = [Expr]
@@ -31,8 +35,10 @@ DATA Expr     | Let              decls : Decls
 DATA CaseAlt  | CaseAlt          left  : Lhs
                                  expr  : Expr
 
-DATA Decl     | Decl             left  : Lhs 
+DATA Decl     | Decl             left  : Lhs
                                  rhs   : Expr
+                                 binds : {Set String}  -- set of variable names bound by the left-hand side
+                                 uses  : {Set String}  -- set of variable names used by the right-hand side
               | Data             name  : {String} 
                                  alts  : DataAlts
                                  strict: Bool
@@ -72,14 +78,14 @@ DATA Lhs      | Pattern3    pat3  : Pattern
 --          If there are none, no unboxing can take place, 
 --          because in that case the semantic function (a top-level identifier) would have an unboxed type.
 -- Of course we can't have an unboxed 1-tuple
-mkTupleExpr :: Bool -> [a] -> Exprs -> Expr
-mkTupleExpr unbox inh exprs | not unbox || null inh || length exprs == 1 = TupleExpr exprs
-                            | otherwise                                  = UnboxedTupleExpr exprs
-mkTupleType :: Bool -> [a] -> Types -> Type
-mkTupleType unbox inh tps | not unbox || null inh || length tps == 1 = TupleType tps
-                          | otherwise                                = UnboxedTupleType tps
-mkTupleLhs :: Bool -> [a] -> [String] -> Lhs
-mkTupleLhs  unbox inh comps | not unbox || null inh || length comps == 1 = TupleLhs comps
-                            | otherwise                                  = UnboxedTupleLhs comps
+mkTupleExpr :: Bool -> Bool -> Exprs -> Expr
+mkTupleExpr unbox noInh exprs | not unbox || noInh || length exprs == 1 = TupleExpr exprs
+                              | otherwise                               = UnboxedTupleExpr exprs
+mkTupleType :: Bool -> Bool -> Types -> Type
+mkTupleType unbox noInh tps | not unbox || noInh || length tps == 1 = TupleType tps
+                            | otherwise                             = UnboxedTupleType tps
+mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
+mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleLhs comps
+                              | otherwise                               = UnboxedTupleLhs comps
 }
 

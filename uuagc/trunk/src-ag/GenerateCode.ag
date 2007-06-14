@@ -1,5 +1,6 @@
 INCLUDE "CodeSyntax.ag"
 INCLUDE "Patterns.ag"
+INCLUDE "DeclBlocks.ag"
 
 imports
 {
@@ -10,6 +11,7 @@ import Options
 import CodeSyntax
 import ErrorMessages
 import GrammarInfo
+import DeclBlocks
 
 import qualified UU.DData.Map as Map
 import UU.DData.Map(Map) 
@@ -32,7 +34,7 @@ ATTR CProductions CProduction
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_cps,o_traces : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
@@ -46,7 +48,7 @@ SEM CGrammar [ options : Options | | ]
                      .o_pretty      = attrInfo      @lhs.options
                      .o_rename      = rename        @lhs.options
                      .o_strictwrap  = strictWrap    @lhs.options
-                     .o_cps         = localCps      @lhs.options
+                     .o_splitsems   = splitSems     @lhs.options
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
                      .prefix        = prefix        @lhs.options
                      .o_traces      = genTraces     @lhs.options
@@ -86,9 +88,13 @@ SEM  CRule
                                    then (Comment @origin:)
                                    else id
            loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
-                                            (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
-                                                 [SimpleExpr (attrname False _INST inst)])
-                           | inst <- @loc.definedInsts ]
+                                  (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
+                                       [SimpleExpr instLocFieldName])
+                                  (Set.single instSemFieldName)
+                                  (Set.single instLocFieldName)
+                           | inst <- @loc.definedInsts
+                           , let instLocFieldName = attrname True _INST inst
+                           , let instSemFieldName = attrname False _INST' inst ]
            loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++
                               if @isIn
                               then ""
@@ -96,13 +102,19 @@ SEM  CRule
            loc.addTrace = \v -> if @lhs.o_traces
                                 then Trace @loc.traceDescr v
                                 else v
-           loc.decls = if @hasCode then @originComment (Decl (Pattern3 @pattern.copy) (@loc.addTrace (TextExpr @rhs)) : @loc.instDecls) else @loc.instDecls
-  |  CChildVisit loc.decls = let  lhs =  map (attrname True @name) (Map.keys @syn)
-                                         ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
+           loc.decls = if @hasCode
+                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace (TextExpr @rhs))
+                                                  (Set.fromList [attrname False fld nm | (fld,nm,_) <- Map.elems @defines])
+                                                  (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList @uses])
+                                           : @loc.instDecls)
+                       else @loc.instDecls
+  |  CChildVisit loc.decls = let  lhsVars =  map (attrname True @name) (Map.keys @syn)
+                                             ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
+                                  rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
-                                  tuple = mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs
-                                  rhs = App (funname @name @nr) (map (SimpleExpr . attrname False @name) (Map.keys @inh))
-                             in [Decl tuple rhs]
+                                  tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
+                                  rhs = App (funname @name @nr) (map SimpleExpr rhsVars)
+                             in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
 
 ATTR Sequence CRule [ higherOrderChildren : {[(Name,Type,Bool)]} ||]
 
@@ -152,14 +164,18 @@ SEM  CSegments
 -- Getting the next intra-visit dependencies
 -------------------------------------------------------------------------------
 
-ATTR CVisit [ nextIntra : {Exprs} | | ]
-ATTR CVisits CVisit [ | | intra : {Exprs} ]
+ATTR CVisit [ nextIntra : {Exprs} nextIntraVars : {Set String} | | ]
+ATTR CVisits CVisit [ | | intra : {Exprs} intraVars : {Set String} ]
 SEM  CVisit 
   |  CVisit lhs.intra = @intra.exprs
+            lhs.intraVars = @intra.usedVars
 SEM  CVisits
   |  Cons  hd.nextIntra = @tl.intra
+           hd.nextIntraVars = @tl.intraVars
            lhs.intra = @hd.intra
+           lhs.intraVars = @hd.intraVars
   |  Nil lhs.intra = []
+         lhs.intraVars = Set.empty
 
 -------------------------------------------------------------------------------
 -- Superfluous intra-visit dependencies due to higher-order children
@@ -177,13 +193,24 @@ SEM CRule
 
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
-  |  CRule lhs.exprs = if  @field == _LOC && @name `elem` @lhs.terminals
-                       then [SimpleExpr (funname @name 0)]
-                       else [SimpleExpr (attrname @isIn @field @name)]
-  |  CChildVisit lhs.exprs = if @loc.isSuperfluousHigherOrderIntra
-                             then [] -- do not pass inst-childs as parameter if they are not defined yet
-                             else let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
-                                  in [wrap (SimpleExpr (funname @name (@nr+1)))]
+  |  CRule loc.name = if  @field == _LOC && @name `elem` @lhs.terminals
+                      then funname @name 0
+                      else attrname @isIn @field @name
+           lhs.exprs = [SimpleExpr @loc.name]
+  |  CChildVisit 
+       loc.names = -- do not pass inst-childs as parameter if they are not defined yet
+                   if @loc.isSuperfluousHigherOrderIntra
+                   then []
+                   else [funname @name (@nr+1)]
+       lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
+                   in map (wrap . SimpleExpr) @loc.names
+
+ATTR  Sequence CRule [ | | usedVars USE {`Set.union`} {Set.empty} : {Set String} ]
+SEM CRule
+  | CRule
+      lhs.usedVars = Set.single @loc.name
+  | CChildVisit
+      lhs.usedVars = Set.fromList @loc.names
 
 -------------------------------------------------------------------------------
 -- Type signatures are added to the declarations. 
@@ -235,12 +262,18 @@ SEM  CVisit
             loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
                                      rhs = App fun @lhs.nextIntra
                                      fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
-                                in if @lhs.isLast then [] else [Decl lhs rhs]
+                                in if @lhs.isLast
+                                   then []
+                                   else [Decl lhs rhs (Set.fromList @nextVisitName) @lhs.nextIntraVars]
             loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
-            vss.lastExpr = mkTupleExpr @lhs.o_unbox (Map.keys @inh) $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
+            vss.lastExpr = mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh) $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
             intra.lastExpr = error "lastExpr: not used here"
+            loc.lastExprVars = map (lhsname False) (Map.keys @syn) ++ @loc.nextVisitName
+            (loc.blockFunDecls, loc.blockFirstFunCall) = mkPartitionedFunction @loc.funcname @loc.o_case @loc.nextVisitDecl @loc.lastExprVars @vss.blockDecls
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
+                              
+                              
                               field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                                 | otherwise       = id
                                                       in unwrap (SimpleExpr (funname name 0))
@@ -248,15 +281,15 @@ SEM  CVisit
                               
                               rhs = wrap
                                   . mkLambda (map (lhsname True) (Map.keys @inh))
-                                  $ if @ordered && @loc.o_cps
-                                    then localCpsToExpr @loc.o_case @loc.nextVisitDecl @vss.cpsDecls
+                                  $ if @ordered && @loc.o_splitsems
+                                    then @loc.blockFirstFunCall
                                     else mkLet @o_case @decls
-                                         . mkTupleExpr @lhs.o_unbox (Map.keys @inh)
+                                         . mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh)
                                          $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes
                                          then \x -> App (typeName @lhs.nt @lhs.nr) [x] 
                                          else id
-                         in Decl lhs rhs
+                         in Decl lhs rhs Set.empty Set.empty
             loc.tsig = TSig @funcname @semType
             loc.semType = let argType (NT tp)      rec | tp /= _SELF = SimpleType (sdtype tp) `Arr` rec
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
@@ -264,14 +297,19 @@ SEM  CVisit
                           in if  @lhs.nr == 0  
                                  then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
                                  else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
-            lhs.decls =  if  @lhs.with_sig 
-                             then [@tsig, @semFun]
-                             else [@semFun]
+            lhs.decls =  ( if  @lhs.with_sig 
+                           then [@tsig, @semFun]
+                           else [@semFun]
+                         ) ++
+                         ( if @ordered && @loc.o_splitsems
+                           then @loc.blockFunDecls
+                           else []
+                         )
             loc.typeSigs =  if  @lhs.o_sig && not @o_case
                                 then  @vss.tSigs
                                 else  []
             loc.o_case = @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
-            loc.o_cps  = @ordered && @lhs.o_cps
+            loc.o_splitsems = @ordered && @lhs.o_splitsems
 
 {
 mkLambda [] e = e
@@ -289,10 +327,10 @@ SEM CVisit
       lhs.gatherInstVisitNrs = Map.fromList [(i,@lhs.nr) | i <- @vss.definedInsts]
 
 -------------------------------------------------------------------------------
--- Generate a local CPS version of the sequence of rules
+-- Generate a partitioned version of the sequence of rules
 -------------------------------------------------------------------------------
 
-ATTR Sequence [ lastExpr : Expr | | cpsDecls : LocalCps ]
+ATTR Sequence [ lastExpr : Expr | | blockDecls : DeclBlocks ]
 
 ATTR Sequence CRule [ | declsAbove : {[Decl]}  | ]
 SEM CVisit
@@ -308,34 +346,33 @@ SEM CRule
 
 SEM Sequence
   | Cons
-      lhs.cpsDecls = @hd.bldCpsFun @tl.cpsDecls
+      lhs.blockDecls = @hd.bldBlocksFun @tl.blockDecls
   | Nil
-      lhs.cpsDecls = CpsTerminator @lhs.declsAbove @lhs.lastExpr
+      lhs.blockDecls = DeclTerminator @lhs.declsAbove @lhs.lastExpr
 
-ATTR CRule [ | | bldCpsFun : {LocalCps -> LocalCps} ]
+ATTR CRule [ | | bldBlocksFun : {DeclBlocks -> DeclBlocks} ]
 SEM CRule
   | CRule
-      lhs.bldCpsFun = id
+      lhs.bldBlocksFun = id
   | CChildVisit
-      lhs.bldCpsFun = CpsBlock @lhs.declsAbove (head @loc.decls)
+      lhs.bldBlocksFun = DeclBlock @lhs.declsAbove (head @loc.decls)
 
 {
-data LocalCps
-  = CpsBlock [Decl] Decl LocalCps
-  | CpsTerminator [Decl] Expr
-
-localCpsToExpr :: Bool -> [Decl] -> LocalCps -> Expr
+-- dead code - replaced by mkPartitionedFunction
+{-
+localCpsToExpr :: Bool -> [Decl] -> DeclBlocks -> Expr
 localCpsToExpr o_case nextVisitDecl
   = rec
   where
     rec cps
       = case cps of
-          CpsTerminator decls expr
+          DeclTerminator decls expr
             -> mkLet o_case (decls ++ nextVisitDecl) expr
-          CpsBlock decls (Decl lhs rhs) remainder
+          DeclBlock decls (Decl lhs rhs _ _) remainder
             -> let inDecls = [ PragmaDecl ("NOINLINE " ++ internalCpsName)
                              , Decl (Fun internalCpsName [SimpleExpr internalCpsVarName])
-                                    (mkLet o_case [Decl lhs (SimpleExpr internalCpsVarName)] (rec remainder))
+                                    (mkLet o_case [Decl lhs (SimpleExpr internalCpsVarName) Set.empty Set.empty] (rec remainder))
+                                    Set.empty Set.empty
                              ]
                    inBody = App "head" [App "(:)" [App internalCpsName [rhs], App "(:)" [App internalCpsName [rhs], SimpleExpr "[]"]]]
                    outerBody = Let inDecls inBody
@@ -347,6 +384,77 @@ internalCpsName = "internalCps_"
 
 internalCpsVarName :: String
 internalCpsVarName = "internalCps_var_"
+-}
+
+mkPartitionedFunction :: String -> Bool -> [Decl] -> [String] -> DeclBlocks -> ([Decl], Expr)
+mkPartitionedFunction prefix optCase nextVisitDecls lastExprVars cpsTree
+  = let inh = Inh_DeclBlocksRoot { prefix_Inh_DeclBlocksRoot = prefix
+                                 , optCase_Inh_DeclBlocksRoot = optCase
+                                 , nextVisitDecls_Inh_DeclBlocksRoot = nextVisitDecls
+                                 , lastExprVars_Inh_DeclBlocksRoot = lastExprVars
+                                 }
+        sem = sem_DeclBlocksRoot (DeclBlocksRoot cpsTree)
+        syn = wrap_DeclBlocksRoot sem inh
+    in (lambdas_Syn_DeclBlocksRoot syn, firstCall_Syn_DeclBlocksRoot syn)
+}
+
+WRAPPER DeclBlocksRoot
+
+ATTR DeclBlocksRoot DeclBlocks [ prefix : String optCase : Bool nextVisitDecls : {[Decl]} lastExprVars : {[String]} | | ]
+ATTR DeclBlocksRoot [ | | lambdas : {[Decl]} firstCall : Expr ]
+
+SEM DeclBlocksRoot
+  | DeclBlocksRoot
+      lhs.lambdas  = @blocks.decls
+      lhs.firstCall = @blocks.callExpr
+
+ATTR DeclBlocks [ blockNr : Int | | ]
+SEM DeclBlocksRoot
+  | DeclBlocksRoot
+      blocks.blockNr = 1
+SEM DeclBlocks
+  | DeclBlock
+      next.blockNr = @lhs.blockNr + 1
+
+ATTR DeclBlocks [ | | callExpr : Expr freeVars : {[String]} ]
+SEM DeclBlocks
+  | DeclBlock DeclTerminator
+      loc.lambdaName = @lhs.prefix ++ "_block" ++ show @lhs.blockNr
+      loc.pragmaDecl = PragmaDecl ("NOINLINE " ++ @loc.lambdaName)
+      lhs.callExpr = App @loc.lambdaName (map SimpleExpr @loc.freeVars)
+  | DeclTerminator
+      loc.freeVars = freevars @lhs.lastExprVars (@defs ++ @lhs.nextVisitDecls)
+  | DeclBlock
+      loc.freeVars = freevars @next.freeVars (@visit : @defs)
+
+ATTR DeclBlocks [ | | decls : {[Decl]} ]
+SEM DeclBlocks
+  | DeclTerminator
+      lhs.decls = [ mkBlockLambda @lhs.optCase @loc.lambdaName @loc.freeVars (@defs ++ @lhs.nextVisitDecls) @result ]
+  | DeclBlock
+      loc.decl = mkBlockLambda @lhs.optCase @loc.lambdaName @loc.freeVars (@defs ++ [@visit]) @next.callExpr
+      lhs.decls = (if @lhs.blockNr > 1 then [@loc.pragmaDecl] else []) ++ [@loc.decl] ++ @next.decls
+
+{
+freevars :: [String] -> [Decl] -> [String]
+freevars additional decls
+  = Set.toList (allused `Set.difference` alldefined)
+  where
+    allused = Set.unions (Set.fromList additional : map usedvars decls)
+    alldefined = Set.unions (map definedvars decls)
+  
+    usedvars (Decl _ _ _ uses) = uses
+    usedvars _                 = Set.empty
+    
+    definedvars (Decl _ _ defs _) = defs
+    definedvars _                 = Set.empty
+
+mkBlockLambda :: Bool -> String -> [String] -> [Decl] -> Expr -> Decl
+mkBlockLambda optCase name args decls expr
+  = Decl lhs rhs Set.empty Set.empty
+  where
+    lhs = Fun name (map SimpleExpr args)
+    rhs = mkLet optCase decls expr
 }
 
 
@@ -362,7 +470,7 @@ SEM  CSegment
   |  CSegment lhs.semDom = let name = typeName @lhs.nt @lhs.nr
                                tp = foldr Arr synTps inhTps
                                inhTps = [SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @inh]
-                               synTps = mkTupleType @lhs.o_unbox inhTps ([SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @syn] ++ continuation)
+                               synTps = mkTupleType @lhs.o_unbox (null inhTps) ([SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @syn] ++ continuation)
                                continuation = if  @lhs.isLast
                                                   then []
                                                   else [SimpleType (typeName @lhs.nt (@lhs.nr + 1))]
@@ -390,19 +498,22 @@ SEM CProduction
                                      mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
                                      mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
                                      datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
-                                 in datas ++ [Decl (Fun wrapNT [varPat, App inhNT inhVars])
-                                                   (Let @inter.wrapDecls (App synNT synVars))]
+                                 in datas ++ [ Decl (Fun wrapNT [varPat, App inhNT inhVars])
+                                                    (Let @inter.wrapDecls (App synNT synVars))
+                                                    Set.empty Set.empty
+                                             ]
 
 ATTR CInterface CSegments CSegment [ | | wrapDecls USE {++} {[]}: {Decls} ]
 SEM  CSegment
-  |  CSegment lhs.wrapDecls =  let rhs = map (SimpleExpr . lhsname True) (Map.keys @inh)
-                                   lhs = map (lhsname False) (Map.keys @syn)
-                                         ++ if @lhs.isLast then [] else [unwrap ++ sem (@lhs.nr+1)]
+  |  CSegment lhs.wrapDecls =  let lhsVars = map (lhsname False) (Map.keys @syn)
+                                             ++ if @lhs.isLast then [] else [unwrap ++ sem (@lhs.nr+1)]
+                                   rhsVars = map (lhsname True) (Map.keys @inh)
+                                   rhs = map SimpleExpr rhsVars
                                    unwrap = if @lhs.o_newtypes then typeName @lhs.nt (@lhs.nr + 1) ++ " " else ""
                                    var = "sem"
                                    sem 0 = var
                                    sem n = var ++ "_" ++ show n
-                               in [Decl (mkTupleLhs @lhs.o_unbox (Map.keys @inh) lhs) (App (sem @lhs.nr) rhs)]
+                               in [ Decl (mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars) (App (sem @lhs.nr) rhs) (Set.fromList lhsVars) (Set.fromList rhsVars) ]
 
 -------------------------------------------------------------------------------
 -- Errors for missing type signatures. It's an error when one of the
@@ -509,8 +620,8 @@ mkLet False decls body = Let decls body
 mkLet True decls body = foldr oneCase body decls
 
 oneCase :: Decl -> Expr -> Expr
-oneCase (Decl left rhs) exp = Case rhs [CaseAlt left exp]
-oneCase _               exp = exp
+oneCase (Decl left rhs _ _) exp = Case rhs [CaseAlt left exp]
+oneCase _                   exp = exp
 
 -- Gives the name of the visit function
 funname field 0  = show field ++ "_"
@@ -581,7 +692,7 @@ SEM CProduction
                                                                   _     -> arg
                                                          lhs = Fun (cataname @lhs.prefix @nt) [arg]
                                                          rhs = (App "Prelude.foldr" [cons,nil,rarg])
-                                                     in  [Decl lhs rhs]
+                                                     in  [Decl lhs rhs Set.empty Set.empty]
                                                  CommonTypes.Maybe tp ->                                  
                                                      let just    = semname @lhs.prefix @nt (identifier "Just")
                                                          nothing = semname @lhs.prefix @nt (identifier "Nothing" )
@@ -590,8 +701,8 @@ SEM CProduction
                                                                   NT t  -> App (cataname @lhs.prefix t) [arg]
                                                                   _     -> arg
                                                          lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
-                                                     in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])
-                                                         ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing)
+                                                     in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])    Set.empty Set.empty
+                                                         ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing) Set.empty Set.empty
                                                          ]
                                                  CommonTypes.Tuple tps ->   
                                                      let con  = semname @lhs.prefix @nt (identifier "Tuple")
@@ -603,7 +714,7 @@ SEM CProduction
                                                                   
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
                                                          rhs = App con rargs
-                                                     in  [Decl lhs rhs]                                                    
+                                                     in  [Decl lhs rhs Set.empty Set.empty]
                                in  Comment "cata" :
                                    (if @lhs.o_sig then [tSig] else []) ++
                                    maybe @alts.cataAlts special (lookup @nt @lhs.typeSyns)
@@ -625,4 +736,5 @@ SEM CAlternative
                                    argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
                                                                [SimpleExpr (locname nm)]
                                    argument (nm, _,_)    = SimpleExpr (locname nm)
-                               in Decl lhs rhs
+                               in Decl lhs rhs Set.empty Set.empty
+

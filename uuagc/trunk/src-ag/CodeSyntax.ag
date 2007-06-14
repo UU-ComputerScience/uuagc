@@ -64,13 +64,13 @@ DATA  CRule
                    defines    :  {Map Int (Name,Name,Maybe Type)}   -- the attributes defined by this rule
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
+                   uses       :  {Set (Name, Name)}
    |  CChildVisit  name    :  Name  -- corresponding to the name of the child
                    nt      :  Nonterminal
                    nr      :  Int   -- visit number
                    inh     :  Attributes
                    syn     :  Attributes
                    last    :  Bool  -- indicates whether this is the last visit to this child
-
 
 SET AllCodeSyntax
   = CGrammar
