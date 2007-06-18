@@ -5,9 +5,9 @@ imports
 {
 import List (partition, elem)
 import Data.Maybe
-import qualified UU.DData.Map as Map
-import UU.DData.Map (Map)
-import UU.DData.Set as Set (Set, member, union, toList, fromList, empty, single, member, unions, size, fold, intersection, difference, insert)
+import qualified Data.Map as Map
+import Data.Map (Map)
+import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert)
 import UU.DData.Seq as Seq (Seq, empty, (<>), single, cons, toList, fromList)
 import UU.Scanner.Position(noPos)
 
@@ -155,7 +155,7 @@ SEM Elem
 -------------------------------------------------------------------------------
 
 SEM Elem
-  | Txt   lhs.blocks  = Map.single (getName @name) @lines
+  | Txt   lhs.blocks  = Map.singleton (getName @name) @lines
 
 
 -------------------------------------------------------------------------------
@@ -213,19 +213,19 @@ SEM Elem
 SEM AG
   | AG   
 
-         loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.single con fm)
+         loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                            in  foldr f (Map.empty) @elems.collectedFields
 
          loc.allConstrs  = let f (nt,con,_) = Map.insertWith (++) nt [con]
                            in  foldr f (Map.empty) @elems.collectedFields
 
-         loc.allRules    = let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.single con [r])
+         loc.allRules    = let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
                            in  foldr f (Map.empty) @elems.collectedRules
 
-         loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.single con [t])
+         loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
                            in  foldr f (Map.empty) @elems.collectedSigs
          
-         loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.single con is)
+         loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
                            in  foldr f (Map.empty) @elems.collectedInsts
 
          loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
@@ -330,13 +330,13 @@ checkInsts sigMap nt con
 
 
 SEM Elem
-  | Set  lhs.collectedSetNames = Set.single @name
+  | Set  lhs.collectedSetNames = Set.singleton @name
 
 SEM Elem
-  | Type  lhs.collectedNames = Set.single @name
+  | Type  lhs.collectedNames = Set.singleton @name
 
 SEM NontSet
-  | NamedSet lhs.collectedNames = Set.single @name
+  | NamedSet lhs.collectedNames = Set.singleton @name
 
 SEM AG
   | AG   loc.allNonterminals = @elems.collectedNames `Set.difference` @elems.collectedSetNames
@@ -347,10 +347,10 @@ SEM AG
 
 
 SEM ConstructorSet
-  | CName lhs.collectedConstructorNames = Set.single @name
+  | CName lhs.collectedConstructorNames = Set.singleton @name
 
 --SEM Alt
---  | Alt lhs.collectedConstructorNames = Set.single @name
+--  | Alt lhs.collectedConstructorNames = Set.singleton @name
 
 SEM Elem
   | Data  lhs.collectedConstructorsMap = Map.fromList
@@ -413,12 +413,12 @@ SEM Elem
 
 SEM AG
   | AG 
-       elems.defSets     = Map.fromList (map (\x->(x,(Set.single x, Set.empty))) (Set.toList @loc.allNonterminals))
+       elems.defSets     = Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList @loc.allNonterminals))
        elems.definedSets = Map.map fst @elems.defSets
 
 
 SEM Elem
-  | Set loc.(defSets2,errs) = let allUsedNames = Set.unions [ maybe (Set.single n)
+  | Set loc.(defSets2,errs) = let allUsedNames = Set.unions [ maybe (Set.singleton n)
                                                                     snd
                                                                     (Map.lookup n @lhs.defSets)
                                                             | n <- Set.toList @set.collectedNames
@@ -461,13 +461,13 @@ reachableFrom table nts = reach nts
                           else nts
 invert :: Map Nonterminal (Set Nonterminal) -> Map Nonterminal (Set Nonterminal)
 invert m = foldr inv Map.empty (Map.toList m)
-  where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.single x) m) m ns
+  where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.singleton x) m) m ns
 
 path :: Map Nonterminal (Set Nonterminal) -> Nonterminal -> Nonterminal -> Set Nonterminal
 path table from to = let children = Map.findWithDefault Set.empty from table
                          forward  = reachableFrom table children
                          backward = reachableFrom (invert table)
-                                                  (Set.single to)
+                                                  (Set.singleton to)
                      in  Set.intersection forward backward
 }
 
@@ -477,7 +477,7 @@ path table from to = let children = Map.findWithDefault Set.empty from table
 
 
 SEM ConstructorSet
-  | CName       lhs.constructors = \ds -> Set.single @name
+  | CName       lhs.constructors = \ds -> Set.singleton @name
   | CUnion      lhs.constructors = \ds -> @set1.constructors ds `Set.union`      @set2.constructors ds
   | CDifference lhs.constructors = \ds -> @set1.constructors ds `Set.difference` @set2.constructors ds
   | CAll        lhs.constructors = \ds -> ds
@@ -545,7 +545,7 @@ pragmaMapUnion :: PragmaMap -> PragmaMap -> PragmaMap
 pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 pragmaMapSingle :: Nonterminal -> Constructor -> Set Name -> PragmaMap
-pragmaMapSingle nt con nms = Map.single nt (Map.single con nms)
+pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
 }
 
 -------------------------------------------------------------------------------
@@ -571,14 +571,14 @@ ATTR SemDefs SemDef [ | | orderDepsCollect USE {`Set.union`} {Set.empty} : {Set 
 SEM SemDef
   | AttrOrderBefore
       loc.dependency       = Dependency @before @after
-      lhs.orderDepsCollect = Set.single @loc.dependency
+      lhs.orderDepsCollect = Set.singleton @loc.dependency
 
 {
 orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap
 orderMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 orderMapSingle :: Nonterminal -> Constructor -> Set Dependency -> AttrOrderMap
-orderMapSingle nt con deps = Map.single nt (Map.single con deps)
+orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
 }
 
 -------------------------------------------------------------------------------

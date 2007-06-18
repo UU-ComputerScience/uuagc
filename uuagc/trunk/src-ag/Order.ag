@@ -21,11 +21,11 @@ import HsToken(HsTokensRoot(HsTokensRoot))
 import HsTokenScanner(lexTokens)
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 -- From uulib
-import qualified UU.DData.Map as Map
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified UU.DData.Seq as Seq
-import qualified UU.DData.Set as Set
-import UU.DData.Map(Map) 
-import UU.DData.Set(Set) 
+import Data.Map(Map) 
+import Data.Set(Set)
 import UU.DData.Seq(Seq, (<>)) 
 import UU.Util.Utils
 
@@ -150,7 +150,7 @@ SEM  Alternative
 
 SEM  Child
   |  Child  loc.maptolocal =  case @tp of
-                                NT nt  -> Map.isEmpty @syn
+                                NT nt  -> Map.null @syn
                                 _      -> True
             lhs.gathAltAttrs = if  @maptolocal
                                    then [ AltAttr _LOC @name True ]                          -- sublist 2b
@@ -306,7 +306,7 @@ SEM Alternative
 
 ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Name Attributes } ]
 SEM Child
-  | Child  lhs.collectChildrenSyns = Map.single @name @syn
+  | Child  lhs.collectChildrenSyns = Map.singleton @name @syn
 
 
 -- Wrapping an Expression

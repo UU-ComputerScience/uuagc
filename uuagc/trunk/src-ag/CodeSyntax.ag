@@ -2,8 +2,8 @@ imports
 {
 import Patterns
 import CommonTypes
-import UU.DData.Map(Map)
-import UU.DData.Set(Set)
+import Data.Map(Map)
+import Data.Set(Set)
 }
 
 DATA  CGrammar 

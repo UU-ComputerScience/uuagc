@@ -5,11 +5,11 @@ imports
 {
 import qualified List (delete,intersperse)
 
-import qualified UU.DData.Map as Map
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+import Data.Map(Map)
 import qualified UU.DData.Seq as Seq
-import qualified UU.DData.Set as Set
-import UU.DData.Map(Map) 
-import UU.DData.Seq(Seq,(<>)) 
+import UU.DData.Seq(Seq,(<>))
 import UU.Scanner.Position(noPos)
 import UU.Pretty
 import Maybe
@@ -112,7 +112,7 @@ ATTR Grammar Productions Production Alternatives Alternative
 
 ATTR Productions Production  [ || collect_nts USE {`Set.union`} {Set.empty} : {Set Nonterminal}  ]
 SEM Production 
-  | Production lhs.collect_nts = Set.single @nt
+  | Production lhs.collect_nts = Set.singleton @nt
 
 ATTR Productions Production Alternatives Alternative [ nonterminals  : {Set Nonterminal} || ]
 SEM Grammar

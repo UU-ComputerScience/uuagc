@@ -3,7 +3,7 @@ imports
 -- Dep.ag imports
 import Maybe (fromJust)
 import List(partition,transpose)
-import qualified UU.DData.Map as Map
+import qualified Data.Map as Map
 import qualified UU.Scanner.Position(line)
 import ErrorMessages(Error(CircGrammar))
 import DepTypes

@@ -13,10 +13,10 @@ import ErrorMessages
 import GrammarInfo
 import DeclBlocks
 
-import qualified UU.DData.Map as Map
-import UU.DData.Map(Map) 
-import qualified UU.DData.Set as Set
-import UU.DData.Set(Set) 
+import qualified Data.Map as Map
+import Data.Map(Map) 
+import qualified Data.Set as Set
+import Data.Set(Set) 
 import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq)
 
@@ -90,8 +90,8 @@ SEM  CRule
            loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
                                   (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
                                        [SimpleExpr instLocFieldName])
-                                  (Set.single instSemFieldName)
-                                  (Set.single instLocFieldName)
+                                  (Set.singleton instSemFieldName)
+                                  (Set.singleton instLocFieldName)
                            | inst <- @loc.definedInsts
                            , let instLocFieldName = attrname True _INST inst
                            , let instSemFieldName = attrname False _INST' inst ]
@@ -208,7 +208,7 @@ SEM  CRule
 ATTR  Sequence CRule [ | | usedVars USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM CRule
   | CRule
-      lhs.usedVars = Set.single @loc.name
+      lhs.usedVars = Set.singleton @loc.name
   | CChildVisit
       lhs.usedVars = Set.fromList @loc.names
 

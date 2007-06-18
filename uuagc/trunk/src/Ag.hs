@@ -5,7 +5,7 @@ import System.Console.GetOpt         (usageInfo)
 import List                          (isSuffixOf)
 import Monad                         (zipWithM_)
 
-import qualified UU.DData.Map as Map (elems, partitionWithKey, unionWith)
+import qualified Data.Map as Map (elems, partitionWithKey, unionWith)
 import qualified UU.DData.Seq as Seq ((<>),toList)
 import qualified UU.Pretty           (PP_Doc, render, disp)
 

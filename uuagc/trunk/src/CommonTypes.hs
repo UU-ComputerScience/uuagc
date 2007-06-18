@@ -2,10 +2,10 @@ module CommonTypes where
 
 import UU.Pretty (PP,text,pp)
 import UU.Scanner.Position(Pos,noPos)
-import qualified UU.DData.Map as Map
-import UU.DData.Map(Map)
-import UU.DData.Set(Set)
-import qualified UU.DData.Set as Set
+import qualified Data.Map as Map
+import Data.Map(Map)
+import Data.Set(Set)
+import qualified Data.Set as Set
 
 
 type Blocks = Map String [String]
