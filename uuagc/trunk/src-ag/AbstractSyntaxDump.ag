@@ -5,7 +5,7 @@ INCLUDE "Expression.ag"
 imports
 {
 import Data.List
-import qualified UU.DData.Map as Map
+import qualified Data.Map as Map
 
 import UU.Pretty
 import PPUtil

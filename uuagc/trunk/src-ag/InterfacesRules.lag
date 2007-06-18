@@ -9,10 +9,10 @@ import CodeSyntax
 import GrammarInfo
 
 import UU.DData.Seq as Seq
-import qualified UU.DData.Map as Map
-import UU.DData.Map(Map)
-import qualified UU.DData.Set as Set
-import UU.DData.Set(Set)
+import qualified Data.Map as Map
+import Data.Map(Map)
+import qualified Data.Set as Set
+import Data.Set(Set)
 import Data.Tree(Tree(Node))
 import Data.Graph(Graph, dfs, edges, buildG, transposeG)
 import Data.Maybe (fromJust)
@@ -400,7 +400,7 @@ SEM  Segment [ | | seg : CSegment
 ccv :: Name -> Nonterminal -> Int -> CInterfaceMap -> CRule
 ccv name nt n table
   =  CChildVisit name nt n inh syn last
-     where  CInterface segs = Map.find nt table
+     where  CInterface segs = Map.findWithDefault (error ("InterfacesRules::ccv::interfaces not in table for nt: " ++ show nt)) nt table
             (seg:remain) = drop n segs
             CSegment inh syn = seg           
             last = null remain

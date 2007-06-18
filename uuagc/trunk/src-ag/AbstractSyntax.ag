@@ -1,7 +1,7 @@
 imports
 {
 -- AbstractSyntax.ag imports
-import UU.DData.Set(Set)
+import Data.Set(Set)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
 import CommonTypes

@@ -2,10 +2,10 @@ module GrammarInfo where
 
 import SequentialTypes
 import CodeSyntax
-import UU.DData.Map(Map)
-import qualified UU.DData.Map as Map
-import UU.DData.Set(Set)
-import qualified UU.DData.Set as Set
+import Data.Map(Map)
+import qualified Data.Map as Map
+import Data.Set(Set)
+import qualified Data.Set as Set
 import CommonTypes
 import Data.List(intersect,(\\))
 

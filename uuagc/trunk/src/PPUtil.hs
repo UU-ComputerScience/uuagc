@@ -6,7 +6,7 @@ module PPUtil where
 --
 
 import Data.List
-import qualified UU.DData.Map as Map
+import qualified Data.Map as Map
 import UU.Pretty
 
 ppListSep :: (PP s, PP c, PP o, PP a) => o -> c -> s -> [a] -> PP_Doc

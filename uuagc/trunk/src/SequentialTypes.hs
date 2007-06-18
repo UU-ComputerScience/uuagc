@@ -3,10 +3,10 @@ module SequentialTypes where
 import CodeSyntax
 import CommonTypes
 import Data.Array(Array)
-import UU.DData.Map (Map)
-import qualified UU.DData.Map as Map
-import UU.DData.Set (Set)
-import qualified UU.DData.Set as Set
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Maybe(fromJust)
 import Data.List(partition)
 import UU.Pretty
