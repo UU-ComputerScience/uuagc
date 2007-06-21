@@ -107,6 +107,7 @@ SEM Expr
   | Trace      lhs.pp      = "trace" >#< (   pp_parens ("\"" >|< text @txt >|< "\"")
                                          >-< pp_parens @expr.pp
                                          )
+  | PragmaExpr lhs.pp      = "{-#" >#< @txt >#< "#-}" >#< @expr.pp
 
 SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
@@ -121,7 +122,7 @@ SEM Lhs
   | Pattern3
       loc.strictGuard = @pat3.strictVars `ppMultiSeqH` (pp "True")
   | TupleLhs UnboxedTupleLhs
-      loc.strictGuard = if stricterCases @lhs.options
+      loc.strictGuard = if stricterCases @lhs.options && not @lhs.isDeclOfLet
                         then map text @comps `ppMultiSeqH` (pp "True")
                         else pp "True"
 
@@ -183,11 +184,11 @@ ATTR Pattern Patterns [ | | strictVars USE {++} {[]} : {[PP_Doc]} ]
 SEM Pattern
   | Alias
       loc.strictVar
-        = if strictCases @lhs.options
+        = if strictCases @lhs.options && not @lhs.isDeclOfLet
           then [@loc.ppVar]
           else []
       loc.strictPatVars
-        = if stricterCases @lhs.options
+        = if stricterCases @lhs.options && not @lhs.isDeclOfLet
           then @pat.strictVars
           else []
       lhs.strictVars
@@ -236,3 +237,20 @@ SEM Pattern [ | | pp':PP_Doc ]
 {
 locname' n = "_loc_" ++ getName n
 }
+
+-------------------------------------------------------------------------------
+--         Determine if inside a Let
+-------------------------------------------------------------------------------
+
+ATTR Decls Decl Lhs Pattern Patterns [ isDeclOfLet : Bool | | ]
+SEM Program
+  | Program
+      decls.isDeclOfLet = False
+
+SEM Expr
+  | Let
+      decls.isDeclOfLet = True
+SEM CaseAlt
+  | CaseAlt
+      left.isDeclOfLet = False
+

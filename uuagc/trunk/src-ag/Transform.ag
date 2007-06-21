@@ -521,6 +521,7 @@ SEM Elem
                                          "strictsem"    -> o { strictSems = True }
                                          "gentraces"    -> o { genTraces = True }
                                          "splitsems"    -> o { splitSems = True }
+                                         "gencostcentres" -> o { genCostCentres = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 

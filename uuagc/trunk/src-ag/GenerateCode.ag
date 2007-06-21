@@ -34,7 +34,7 @@ ATTR CProductions CProduction
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
@@ -52,6 +52,7 @@ SEM CGrammar [ options : Options | | ]
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
                      .prefix        = prefix        @lhs.options
                      .o_traces      = genTraces     @lhs.options
+                     .o_costcentre  = genCostCentres @lhs.options
 
 ATTR CProductions CProduction CAlternatives CAlternative CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -95,25 +96,34 @@ SEM  CRule
                            | inst <- @loc.definedInsts
                            , let instLocFieldName = attrname True _INST inst
                            , let instSemFieldName = attrname False _INST' inst ]
-           loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++
-                              if @isIn
-                              then ""
-                              else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
+           loc.patDescr = if @isIn
+                          then "_"
+                          else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
+           loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++ @loc.patDescr
+                              
            loc.addTrace = \v -> if @lhs.o_traces
                                 then Trace @loc.traceDescr v
                                 else v
+           loc.costCentreDescr = show @nt ++ ":" ++ show @con ++ ":" ++ @loc.patDescr
+           loc.addCostCentre = \v -> if @lhs.o_costcentre
+                                     then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                     else v
            loc.decls = if @hasCode
-                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace (TextExpr @rhs))
+                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ (TextExpr @rhs))
                                                   (Set.fromList [attrname False fld nm | (fld,nm,_) <- Map.elems @defines])
                                                   (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList @uses])
                                            : @loc.instDecls)
                        else @loc.instDecls
-  |  CChildVisit loc.decls = let  lhsVars =  map (attrname True @name) (Map.keys @syn)
+  |  CChildVisit loc.costCentreDescr = show @lhs.nt ++ ":" ++ show @lhs.con ++ ":" ++ show @name ++ ":" ++ show @nt ++ ":" ++ show @nr
+                 loc.addCostCentre = \v -> if @lhs.o_costcentre
+                                           then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                           else v
+                 loc.decls = let  lhsVars =  map (attrname True @name) (Map.keys @syn)
                                              ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
                                   rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
-                                  rhs = App (funname @name @nr) (map SimpleExpr rhsVars)
+                                  rhs = @loc.addCostCentre $ App (funname @name @nr) (map SimpleExpr rhsVars)
                              in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
 
 ATTR Sequence CRule [ higherOrderChildren : {[(Name,Type,Bool)]} ||]
@@ -270,6 +280,12 @@ SEM  CVisit
             intra.lastExpr = error "lastExpr: not used here"
             loc.lastExprVars = map (lhsname False) (Map.keys @syn) ++ @loc.nextVisitName
             (loc.blockFunDecls, loc.blockFirstFunCall) = mkPartitionedFunction @loc.funcname @loc.o_case @loc.nextVisitDecl @loc.lastExprVars @vss.blockDecls
+            
+            loc.costCentreDescr = "b" ++ ":" ++ show @lhs.nt ++ ":" ++ show @lhs.con ++ ":" ++ show @lhs.nr
+            loc.addCostCentre = \v -> if @lhs.o_costcentre
+                                      then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                      else v
+            
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
                               
@@ -281,6 +297,7 @@ SEM  CVisit
                               
                               rhs = wrap
                                   . mkLambda (map (lhsname True) (Map.keys @inh))
+                                  $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
                                     else mkLet @o_case @decls
