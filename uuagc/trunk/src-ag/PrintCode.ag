@@ -96,7 +96,10 @@ SEM Expr
   | Lambda     loc.strictParams = if strictSems @lhs.options
                                   then map text @args
                                   else []
-               lhs.pp      = pp_parens (    "\\" >#< (vlist @args) >#< "->" 
+               loc.addBang = if bangpats @lhs.options
+                             then \p -> pp_parens ("!" >|< p)
+                             else id
+               lhs.pp      = pp_parens (    "\\" >#< (vlist (map (@loc.addBang . pp) @args)) >#< "->" 
                                        >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
@@ -130,11 +133,16 @@ SEM Lhs
       loc.addStrictGuard = if strictSems @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
       loc.strictGuard    = @args.pps `ppMultiSeqH` (pp "True")
 
+  | TupleLhs UnboxedTupleLhs Fun
+      loc.addBang = if bangpats @lhs.options
+                             then \p -> "!" >|< p
+                             else id
+
   | Pattern3   lhs.pp      = @loc.addStrictGuard @pat3.pp
   | Pattern3SM lhs.pp      = @pat3.pp'
-  | TupleLhs   lhs.pp      = @loc.addStrictGuard $ ppTuple @lhs.nested (map text @comps)
-  | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuard $ ppUnboxedTuple @lhs.nested (map text @comps)
-  | Fun        lhs.pp      = @loc.addStrictGuard (@name >#< hv_sp @args.pps)
+  | TupleLhs   lhs.pp      = @loc.addStrictGuard $ ppTuple @lhs.nested (map (@loc.addBang . text) @comps)
+  | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuard $ ppUnboxedTuple @lhs.nested (map (@loc.addBang . text) @comps)
+  | Fun        lhs.pp      = @loc.addStrictGuard (@name >#< hv_sp (map @loc.addBang @args.pps))
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2
@@ -203,10 +211,16 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
+SEM Pattern
+  | Constr Product Alias
+      loc.addBang = if bangpats @lhs.options && not @lhs.isDeclOfLet
+                    then \p -> "!" >|< p
+                    else id
+
 SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
-  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
-  | Alias   loc.ppVar  = pp (attrname False @field @attr)
+  | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = @loc.addBang $ pp_block "(" ")" "," @pats.pps
+  | Alias   loc.ppVar  = @loc.addBang $ pp (attrname False @field @attr)
             lhs.pp     = if @pat.isUnderscore
                           then @loc.ppVar
                           else @loc.ppVar >|< "@" >|< @pat.pp

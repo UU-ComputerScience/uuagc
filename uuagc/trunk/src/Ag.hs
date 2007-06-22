@@ -89,9 +89,16 @@ compile flags input output
                    blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
                    (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
                    (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
+                   optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
+                   option True s  = [s]
+                   option False _ = []
+                   optionsLine | null optionsGHC = ""
+                               | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}\n"
+                   
+                   
                                       
                writeFile  outputfile . unlines . concat . Map.elems $ pragmaBlocks
-               appendFile outputfile                                $ if (unbox flags') then "{-# OPTIONS_GHC -fglasgow-exts #-}\n" else ""
+               appendFile outputfile                                $ optionsLine
                appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
                appendFile outputfile                                $ moduleHeader flags' input
                appendFile outputfile . unlines . concat . Map.elems $ importBlocks
