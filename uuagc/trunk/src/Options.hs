@@ -31,6 +31,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["visit"]         (NoArg visitOpt)            "try generating visit functions"
                , Option []        ["seq"]           (NoArg seqOpt)              "force evaluation using function seq (visit functions only)"
                , Option []        ["unbox"]         (NoArg unboxOpt)            "use unboxed tuples"
+               , Option []        ["bangpats"]      (NoArg bangpatsOpt)         "use bang patterns (visit functions only)"
                , Option []        ["case"]          (NoArg casesOpt)            "Use nested cases instead of let (visit functions only)"
                , Option []        ["strictcase"]    (NoArg strictCasesOpt)      "Force evaluation of the scrutinee of cases (in generated code, visit functions only)"
                , Option []        ["strictercase"]  (NoArg stricterCasesOpt)      "Force evaluation of all variables bound by a case statement (in generated code)"
@@ -72,6 +73,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , visit :: Bool
                       , withSeq :: Bool
                       , unbox :: Bool
+                      , bangpats :: Bool
                       , cases :: Bool
                       , strictCases :: Bool
                       , stricterCases :: Bool
@@ -110,6 +112,7 @@ noOptions = Options { moduleName    = NoName
                     , visit         = False
                     , withSeq       = False
                     , unbox         = False
+                    , bangpats      = False
                     , cases         = False
                     , strictCases   = False
                     , stricterCases = False
@@ -148,6 +151,7 @@ cycleOpt        opts = opts{withCycle    = True}
 visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
+bangpatsOpt     opts = opts{bangpats     = True}
 casesOpt        opts = opts{cases        = True}
 strictCasesOpt  opts = opts{strictCases  = True}
 stricterCasesOpt opts = opts{strictCases = True, stricterCases = True}
