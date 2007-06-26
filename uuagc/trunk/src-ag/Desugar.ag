@@ -77,9 +77,14 @@ SEM HsToken
 
 SEM Pattern
   | Alias
-      (loc.field', loc.err) = maybeError @field (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr) $
-                                findField @field @attr @lhs.childInhs
-      lhs.errors = @loc.err Seq.<> @pat.errors <> @parts.errors
+      (loc.field', loc.err1) = maybeError @field (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr) $
+                                 findField @field @attr @lhs.childInhs
+      loc.err2 = if @loc.field' == @field
+                 then Seq.empty
+                 else if (@loc.field', @attr) `Set.member` @lhs.defs
+                      then Seq.single $ DupRule @lhs.nt @lhs.con @field @attr @loc.field'
+                      else Seq.empty
+      lhs.errors = @loc.err1 Seq.<> @loc.err2 Seq.<> @pat.errors <> @parts.errors
       lhs.output = Alias @loc.field' @attr @pat.output @parts.output
 
 
@@ -124,4 +129,20 @@ SEM Production
 SEM Alternative
   | Alternative
       rules.con = @con
+
+
+-------------------------------------------------------------------------------
+--         Distribute all defined attributes
+-------------------------------------------------------------------------------
+
+ATTR Rule Rules Pattern Patterns [ | | defsCollect USE {`Set.union`} {Set.empty} : {Set (Name, Name)} ]
+SEM Pattern
+  | Alias
+      loc.def = Set.singleton (@field, @attr)
+      lhs.defsCollect = @loc.def `Set.union` @pat.defsCollect `Set.union` @parts.defsCollect
+
+ATTR Rule Rules Pattern Patterns [ defs : {Set (Name, Name)} | | ]
+SEM Alternative
+  | Alternative
+      rules.defs = @rules.defsCollect
 
