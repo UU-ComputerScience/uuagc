@@ -71,6 +71,8 @@ _LOC   = identifier "loc"
 _INST  = identifier "inst"
 _INST' = identifier "inst'"
 _FIELD = identifier "field"
+_FIRST = identifier "first"
+_LAST  = identifier "last"
 
 sdtype :: Nonterminal -> String
 sdtype nt = "T_"++getName nt
@@ -116,3 +118,11 @@ _NOCASE = identifier "nocase"
 hasPragma :: PragmaMap -> Nonterminal -> Constructor -> Name -> Bool
 hasPragma mp nt con nm
   = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)
+  
+isNonterminal :: Type -> Bool
+isNonterminal (NT _) = True
+isNonterminal _      = False
+
+extractNonterminal :: Type -> Nonterminal
+extractNonterminal (NT n) = n
+

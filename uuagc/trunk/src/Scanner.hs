@@ -91,7 +91,7 @@ scan p xs = Just (scan' xs)
 
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
-keywords = [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "loc","lhs", "inst", "INCLUDE"
+keywords = [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "loc","lhs", "inst", "first", "last", "INCLUDE"
            , "SET","DERIVING","FOR", "WRAPPER", "MAYBE"
            , "PRAGMA", "SEMPRAGMA"
            ]

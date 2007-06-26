@@ -14,6 +14,7 @@ import UU.Scanner.Position           (Pos)
 import UU.Scanner.Token              (Token)
 
 import qualified Transform          as Pass1 (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
+import qualified Desugar            as Pass1a (sem_Grammar, wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified DefaultRules       as Pass2 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
@@ -49,16 +50,18 @@ compile :: Options -> String -> String -> IO ()
 compile flags input output
  = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
 
-      let output1  = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
-          flags'   = Pass1.pragmas_Syn_AG       output1 $ flags
-          grammar1 = Pass1.output_Syn_AG        output1
-          output2  = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1                           ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
-          grammar2 = Pass2.output_Syn_Grammar   output2
-          output3  = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
-          grammar3 = Pass3.output_Syn_Grammar   output3
-          output4  = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5  = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
-          output6  = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+      let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
+          flags'    = Pass1.pragmas_Syn_AG       output1 $ flags
+          grammar1  = Pass1.output_Syn_AG        output1
+          output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags'}
+          grammar1a =Pass1a.output_Syn_Grammar   output1a
+          output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
+          grammar2  = Pass2.output_Syn_Grammar   output2
+          output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
+          grammar3  = Pass3.output_Syn_Grammar   output3
+          output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
+          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
+          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
@@ -66,6 +69,7 @@ compile flags input output
 
           errorList        = map message2error parseErrors
                              ++ Seq.toList (      Pass1.errors_Syn_AG       output1
+                                           Seq.<> Pass1a.errors_Syn_Grammar output1a
                                            Seq.<> Pass2.errors_Syn_Grammar  output2
                                            Seq.<> Pass3.errors_Syn_Grammar  output3
                                            Seq.<> Pass4.errors_Syn_CGrammar output4

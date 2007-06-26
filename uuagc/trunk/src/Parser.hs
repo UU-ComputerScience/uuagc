@@ -245,9 +245,11 @@ pSemAlts :: AGParser SemAlts
 pSemAlts =  pList pSemAlt <?> "SEM alternatives"
 
 pFieldIdentifier =  pIdentifier 
-                <|> Ident "lhs"  <$> pLHS 
-                <|> Ident "loc"  <$> pLOC
-                <|> Ident "inst" <$> pINST
+                <|> Ident "lhs"   <$> pLHS 
+                <|> Ident "loc"   <$> pLOC
+                <|> Ident "inst"  <$> pINST
+                <|> Ident "first" <$> pFIRST
+                <|> Ident "last"  <$> pLAST
 
 pSemDef :: AGParser [SemDef]
 pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
@@ -319,7 +321,7 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
-      pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
+      pBar, pColon, pLHS,pINST,pFIRST,pLAST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE
       :: AGParser  Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
@@ -338,6 +340,8 @@ pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
 pINST        = pCostReserved 5  "inst"    <?> "inst"
+pFIRST       = pCostReserved 5  "first"   <?> "first"
+pLAST        = pCostReserved 5  "last"    <?> "last"
 pAt          = pCostReserved 5  "@"       <?> "@"
 pDot         = pCostReserved 5  "."       <?> "."
 pUScore      = pCostReserved 5  "_"       <?> "_"

@@ -1,0 +1,127 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+INCLUDE "HsToken.ag"
+
+
+imports
+{
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+import Data.Map(Map)
+import qualified UU.DData.Seq as Seq
+import UU.DData.Seq(Seq,(<>))
+import Maybe
+
+import AbstractSyntax
+import ErrorMessages
+import Options
+import HsToken
+import HsTokenScanner
+import TokenDef
+}
+
+WRAPPER HsTokensRoot
+
+
+ATTR Grammar [ options:{Options} | | ]
+
+ATTR Grammar Productions Production Alternatives Alternative Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.<>} {Seq.empty} : {Seq Error} ]
+
+ATTR Grammar Productions Production Alternatives Alternative Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
+
+
+-------------------------------------------------------------------------------
+--         Deal with RHS
+-------------------------------------------------------------------------------
+
+SEM Expression
+  | Expression
+      loc.tokens = lexTokens @pos @txt
+      (loc.txt', lhs.errors) = let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot = @lhs.childInhs
+                                                          , childSyns_Inh_HsTokensRoot = @lhs.childSyns
+                                                          , nt_Inh_HsTokensRoot        = @lhs.nt
+                                                          , con_Inh_HsTokensRoot       = @lhs.con
+                                                          }
+                                   sem = sem_HsTokensRoot (HsTokensRoot @loc.tokens)
+                                   syn = wrap_HsTokensRoot sem inh
+                               in (txt_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
+      lhs.output = Expression @pos @loc.txt'
+
+ATTR HsTokensRoot [ | | txt : String ]
+SEM HsTokensRoot
+  | HsTokensRoot
+      lhs.txt = unlines $ showTokens @tokens.tks
+
+ATTR HsTokensRoot HsToken HsTokens [ | | tks USE {++} {[]} : {[(Pos,String)]} ]
+SEM HsToken
+  | AGLocal
+      lhs.tks = [(@pos, "@" ++ show @var)]  -- note: the distinction between @loc.a and @a gone!
+  | AGField
+      (loc.field', lhs.errors) = maybeError @field (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr) $
+                                   findField @field @attr @lhs.childSyns
+      lhs.tks = [(@pos, "@" ++ show @loc.field' ++ "." ++ show @attr)]
+  | HsToken
+      lhs.tks = [(@pos, @value)]
+  | CharToken
+      lhs.tks = [(@pos, if null @value then "" else showCharShort (head @value))]
+  | StrToken
+      lhs.tks = [(@pos, showStrShort @value)]
+  | Err
+      lhs.tks = [(@pos, "***" ++ @mesg ++ "***")]
+
+
+-------------------------------------------------------------------------------
+--         Deal with LHS
+-------------------------------------------------------------------------------
+
+SEM Pattern
+  | Alias
+      (loc.field', loc.err) = maybeError @field (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr) $
+                                findField @field @attr @lhs.childInhs
+      lhs.errors = @loc.err Seq.<> @pat.errors <> @parts.errors
+      lhs.output = Alias @loc.field' @attr @pat.output @parts.output
+
+
+-------------------------------------------------------------------------------
+--         Distribute attributes of children
+-------------------------------------------------------------------------------
+
+ATTR Children Child [ | | childInhs, childSyns USE {++} {[]} : {[(Name, Name)]} ]
+ATTR Rules Rule Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ childInhs, childSyns : {[(Name, Name)]} | | ]
+
+SEM Child
+  | Child
+      lhs.childInhs = [(i, @name) | i <- Map.keys @inh ]
+      lhs.childSyns = [(s, @name) | s <- Map.keys @syn ]
+
+{
+maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
+maybeError def err mb
+  = maybe (def, Seq.single err) (\r -> (r, Seq.empty)) mb
+
+findField :: Name -> Name -> [(Name,Name)] -> Maybe Name
+findField fld attr list
+  | fld == _FIRST = f list
+  | fld == _LAST  = f (reverse list)
+  | otherwise     = Just fld
+  where
+    f = lookup attr
+}
+
+
+-------------------------------------------------------------------------------
+--         Distribute nt and con
+-------------------------------------------------------------------------------
+
+ATTR Alternatives Alternative Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ nt : Nonterminal | | ]
+ATTR Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ con : Constructor | | ]
+
+SEM Production
+  | Production
+      alts.nt = @nt
+
+SEM Alternative
+  | Alternative
+      rules.con = @con
+
