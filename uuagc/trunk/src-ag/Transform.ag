@@ -271,7 +271,7 @@ checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map C
               Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields allinsts allsigs nt con rs
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined)
+        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined) : (_FIRST, NT undefined) : (_LAST, NT undefined)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
                  ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
         
@@ -287,7 +287,7 @@ checkRules attributes fields allinsts allsigs nt con rs
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
          = case lookup field fieldmap
-            of  Just (NT tp) -> if field == _LOC || field == _INST
+            of  Just (NT tp) -> if field == _LOC || field == _INST || field == _FIRST || field == _LAST
                                    || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
                                  then case Map.lookupIndex fa m 
                                        of  Just ix -> let ((_,attr2),b) = Map.elemAt ix m
