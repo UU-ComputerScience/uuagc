@@ -42,7 +42,7 @@ shiftLeft lns =        let sh = let m = minimum . checkEmpty . filter (>=1) . ma
 
 showLine ts =        let f (p,t) r = let ct = column p
                                      in \c -> spaces (ct-c) ++ t ++ r (length t+ct)
-                         spaces x | x < 0 = ""
+                         spaces x | x <= 0 = " " -- be on the safe side
                                   | otherwise = replicate x ' '
                      in foldr f (const "") ts 1
 
