@@ -28,6 +28,7 @@ import Data.Map(Map)
 import Data.Set(Set)
 import UU.DData.Seq(Seq, (<>)) 
 import UU.Util.Utils
+import UU.Scanner.Position(Pos,initPos)
 
 -- From haskell libraries
 import Control.Monad(liftM)
@@ -334,7 +335,7 @@ SEM Expression
                                               , allnts_Inh_HsTokensRoot     = @lhs.allnts
                                               , nt_Inh_HsTokensRoot         = @lhs.nt
                                               }
-                                  synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens @pos @txt)) inherited
+                                  synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot $ lexTokens (initPos "") @txt)) inherited
                               in case synthesized of
                                    Syn_HsTokensRoot
                                     { errors_Syn_HsTokensRoot     = errors
