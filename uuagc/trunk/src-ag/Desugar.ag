@@ -11,6 +11,7 @@ import qualified Data.Map as Map
 import Data.Map(Map)
 import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq,(<>))
+import UU.Scanner.Position(Pos(..))
 import Maybe
 
 import AbstractSyntax
@@ -53,22 +54,39 @@ SEM HsTokensRoot
   | HsTokensRoot
       lhs.txt = unlines $ showTokens @tokens.tks
 
+ATTR HsToken HsTokens [ | addLines : Int | ]
+SEM HsTokensRoot
+  | HsTokensRoot
+      tokens.addLines = 0
+
 ATTR HsTokensRoot HsToken HsTokens [ | | tks USE {++} {[]} : {[(Pos,String)]} ]
 SEM HsToken
   | AGLocal
-      lhs.tks = [(@pos, "@" ++ show @var)]  -- note: the distinction between @loc.a and @a gone!
+      lhs.tks = [(addl @lhs.addLines @pos, "@" ++ show @var)]  -- note: the distinction between @loc.a and @a gone!
   | AGField
-      (loc.field', lhs.errors) = maybeError @field (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr) $
-                                   findField @field @attr @lhs.childSyns
-      lhs.tks = [(@pos, "@" ++ show @loc.field' ++ "." ++ show @attr)]
+      loc.mField = findField @field @attr @lhs.childSyns
+      
+      loc.field' = maybe @field id @loc.mField
+      lhs.errors = maybe (Seq.single (UndefAttr @lhs.nt @lhs.con (identifier "<ANY>") @attr)) (const Seq.empty) @loc.mField
+      
+      lhs.addLines = if length (getName @field) < length (getName @loc.field')
+                     then @lhs.addLines + 1
+                     else @lhs.addLines
+
+      lhs.tks = [(addl @lhs.addLines @pos, "@" ++ show @loc.field' ++ "." ++ show @attr)]
   | HsToken
-      lhs.tks = [(@pos, @value)]
+      lhs.tks = [(addl @lhs.addLines @pos, @value)]
   | CharToken
-      lhs.tks = [(@pos, if null @value then "" else showCharShort (head @value))]
+      lhs.tks = [(addl @lhs.addLines @pos, if null @value then "" else showCharShort (head @value))]
   | StrToken
-      lhs.tks = [(@pos, showStrShort @value)]
+      lhs.tks = [(addl @lhs.addLines @pos, showStrShort @value)]
   | Err
-      lhs.tks = [(@pos, "***" ++ @mesg ++ "***")]
+      lhs.tks = [(addl @lhs.addLines @pos, "***" ++ @mesg ++ "***")]
+
+{
+addl :: Int -> Pos -> Pos
+addl n (Pos l c f) = Pos (l+n) c f
+}
 
 
 -------------------------------------------------------------------------------
