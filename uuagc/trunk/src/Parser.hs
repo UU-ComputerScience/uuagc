@@ -275,7 +275,7 @@ nl2sp x = x
 
 pLocDecl :: AGParser SemDef
 pLocDecl =   (\ident tp -> TypeDef ident tp)
-              <$ pDot <*> pIdentifier <* pColon <*> (Haskell . map nl2sp . fst <$> pCodescrapL)
+              <$ pDot <*> pIdentifier <* pColon <*> pType
 
 pInstDecl :: AGParser SemDef
 pInstDecl = (\ident tp -> TypeDef ident tp)

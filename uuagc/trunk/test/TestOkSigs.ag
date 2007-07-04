@@ -5,8 +5,8 @@ DATA Aap
 	| Een  a : {Int}
 
 SEM Aap
-   | Een loc.x : Int 
-                 -> Int
+   | Een loc.x : {Int 
+                 -> Int}
             .y : {Int}
          loc.x = (+1)
             .y = 2

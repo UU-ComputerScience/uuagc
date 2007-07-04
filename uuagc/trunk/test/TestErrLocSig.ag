@@ -1,0 +1,8 @@
+DATA Dummy
+  | Dummy
+
+ATTR Dummy [ | | x : Int ]
+
+SEM Dummy
+  | Dummy
+      loc.x : Int = bla
