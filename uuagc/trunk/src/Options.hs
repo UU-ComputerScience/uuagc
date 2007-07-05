@@ -40,6 +40,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["splitsems"] (NoArg splitSemsOpt)    "Split semantic functions into smaller pieces"
                , Option []        ["Werrors"]       (NoArg werrorsOpt)          "Turn warnings into fatal errors"
                , Option []        ["Wignore"]       (NoArg wignoreOpt)          "Ignore warnings"
+               , Option []        ["Wmax"]          (ReqArg wmaxErrsOpt "<max errs reported>") "Sets the maximum number of errors that are reported"
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
@@ -82,6 +83,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , splitSems :: Bool
                       , werrors :: Bool
                       , wignore :: Bool
+                      , wmaxerrs :: Int
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
                       , genTraces :: Bool
@@ -121,6 +123,7 @@ noOptions = Options { moduleName    = NoName
                     , splitSems     = False
                     , werrors       = False
                     , wignore       = False
+                    , wmaxerrs      = 99999
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
                     , genTraces     = False
@@ -160,6 +163,7 @@ localCpsOpt     opts = opts{localCps     = True}
 splitSemsOpt    opts = opts{splitSems    = True}
 werrorsOpt      opts = opts{werrors      = True}
 wignoreOpt      opts = opts{wignore      = True}
+wmaxErrsOpt n   opts = opts{wmaxerrs     = read n}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 genTracesOpt    opts = opts{genTraces    = True}
