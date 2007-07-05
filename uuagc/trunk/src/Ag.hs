@@ -67,7 +67,8 @@ compile flags input output
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
           dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
 
-          errorList        = map message2error parseErrors
+          parseErrorList   = map message2error parseErrors
+          errorList        = parseErrorList
                              ++ Seq.toList (      Pass1.errors_Syn_AG       output1
                                            Seq.<> Pass1a.errors_Syn_Grammar output1a
                                            Seq.<> Pass2.errors_Syn_Grammar  output2
@@ -77,10 +78,13 @@ compile flags input output
                                            
           fatalErrorList = filter PrErr.isError errorList
           
-          errorsToReport = if wignore flags'
-                            then fatalErrorList
-                            else errorList
-                            
+          errorsToReport = take (wmaxerrs flags') $
+                           if null parseErrors
+                           then if wignore flags'
+                                then fatalErrorList
+                                else errorList
+                           else parseErrorList
+          
           errorsToStopOn = if werrors flags'
                             then errorList
                             else fatalErrorList               
