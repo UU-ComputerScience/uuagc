@@ -119,7 +119,7 @@ SEM  CRule
                                            then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                            else v
                  loc.decls = let  lhsVars =  map (attrname True @name) (Map.keys @syn)
-                                             ++ if @last then [] else [unwrap ++ funname @name (@nr+1)]
+                                             ++ if @isLast then [] else [unwrap ++ funname @name (@nr+1)]
                                   rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
@@ -234,7 +234,7 @@ SEM  CRule
   |  CChildVisit  loc.mkTp = SimpleType . typeToString @nt
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
-                  lhs.tSigs = (if @last then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
+                  lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
 
 -------------------------------------------------------------------------------
 -- Types of intra-visit dependencies are needed in the type of the

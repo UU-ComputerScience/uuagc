@@ -70,7 +70,7 @@ DATA  CRule
                    nr      :  Int   -- visit number
                    inh     :  Attributes
                    syn     :  Attributes
-                   last    :  Bool  -- indicates whether this is the last visit to this child
+                   isLast  :  Bool  -- indicates whether this is the last visit to this child
 
 SET AllCodeSyntax
   = CGrammar
