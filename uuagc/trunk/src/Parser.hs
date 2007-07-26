@@ -273,7 +273,10 @@ nl2sp x = x
 
 pLocDecl :: AGParser SemDef
 pLocDecl =   (\ident tp -> TypeDef ident tp)
-              <$ pDot <*> pIdentifier <* pColon <*> pType
+              <$ pDot <*> pIdentifier <* pColon <*> pLocType
+
+pLocType = (Haskell . getName) <$> pIdentifierU
+       <|> Haskell <$> pCodescrap'  <?> "a type"
 
 pInstDecl :: AGParser SemDef
 pInstDecl = (\ident tp -> TypeDef ident tp)
