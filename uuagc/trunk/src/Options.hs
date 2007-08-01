@@ -45,6 +45,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
                , Option []        ["gencostcentres"] (NoArg genCostCentresOpt)  "Generate cost centre pragmas (in generated code)"
+               , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
                ]
 
 allc = "dcfsprm"
@@ -88,6 +89,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , dumpcgrammar :: Bool
                       , genTraces :: Bool
                       , genCostCentres :: Bool
+                      , sepSemMods :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -128,6 +130,7 @@ noOptions = Options { moduleName    = NoName
                     , dumpcgrammar  = False
                     , genTraces     = False
                     , genCostCentres = False
+                    , sepSemMods     = False
                     }
 
 
@@ -168,6 +171,7 @@ dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 genTracesOpt    opts = opts{genTraces    = True}
 genCostCentresOpt opts = opts{genCostCentres = True}
+sepSemModsOpt opts = opts{sepSemMods = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
@@ -182,3 +186,4 @@ getOptions args = let (flags,files,errors) = getOpt Permute options args
 data ModuleHeader  = NoName
                    | Name String
                    | Default deriving Show
+
