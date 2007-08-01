@@ -11,11 +11,21 @@ import qualified Data.Map as Map
 
 TYPE Exprs    = [Expr]
 TYPE Decls    = [Decl]
+TYPE Chunks   = [Chunk]
 TYPE DataAlts = [DataAlt]
 TYPE CaseAlts = [CaseAlt]
 TYPE Types    = [Type]
 
-DATA Program  | Program          decls : Decls
+DATA Program  | Program          chunks : Chunks
+
+DATA Chunk    | Chunk            name         : String
+                                 comment      : Decl
+                                 info         : Decls
+                                 dataDef      : Decls
+                                 cataFun      : Decls
+                                 semDom       : Decls
+                                 semWrapper   : Decls
+                                 semFunctions : Decls
 
 DATA Expr     | Let              decls : Decls   
                                  body  : Expr

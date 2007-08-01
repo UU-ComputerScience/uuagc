@@ -60,7 +60,7 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags'}
+          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksTxt, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainName_Inh_Program = mainName, Pass5.mainFile_Inh_Program = mainFile}
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
@@ -87,48 +87,59 @@ compile flags input output
           
           errorsToStopOn = if werrors flags'
                             then errorList
-                            else fatalErrorList               
+                            else fatalErrorList
           
+          blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
+          (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
+          (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
+          
+          importBlocksTxt = unlines . concat . Map.elems $ importBlocks
+          textBlocksTxt   = unlines . concat . Map.elems $ textBlocks
+          pragmaBlocksTxt = unlines . concat . Map.elems $ pragmaBlocks
+          
+          optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
+          option True s  = [s]
+          option False _ = []
+          optionsLine | null optionsGHC = ""
+                      | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}\n"
+          
+          mainName = stripPath $ defaultModuleName input
+          mainFile = defaultModuleName input
+
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
      
       if not (null fatalErrorList) 
        then exitFailure
-       else do let outputfile = if null output then outputFile input else output
-                   blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
-                   (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
-                   (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
-                   optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
-                   option True s  = [s]
-                   option False _ = []
-                   optionsLine | null optionsGHC = ""
-                               | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}\n"
+       else if sepSemMods flags'
+            then do -- alternative module gen
+                    Pass5.genIO_Syn_Program output5
+                    if not (null errorsToStopOn) then exitFailure else return ()
+            else do -- conventional module gen
+                    let outputfile = if null output then outputFile input else output
                    
-                   
-                                      
-               writeFile  outputfile . unlines . concat . Map.elems $ pragmaBlocks
-               appendFile outputfile                                $ optionsLine
-               appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
-               appendFile outputfile                                $ moduleHeader flags' input
-               appendFile outputfile . unlines . concat . Map.elems $ importBlocks
-               appendFile outputfile . unlines . concat . Map.elems $ textBlocks
-               appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
-               appendFile outputfile                                $ if dumpgrammar flags'
-                                                                      then ("{- Dump of grammar without default rules\n" ++)
-                                                                           $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump1) 5000
-                                                                           $ ("\n-}\n" ++)
-                                                                           $ ("{- Dump of grammar with default rules\n" ++)
-                                                                           $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump2) 5000
-                                                                           $ ("\n-}\n" ++)
-                                                                           $ ""
-                                                                      else ""
-               appendFile outputfile                                $ if dumpcgrammar flags'
-                                                                      then ( "{- Dump of cgrammar\n" ++)
-                                                                           $ UU.Pretty.disp (CGrammarDump.pp_Syn_CGrammar dump3) 5000
-                                                                           $ ("\n-}\n" ++)
-                                                                           $ ""
-                                                                      else ""
-               --putStrLn ("\n" ++ outputfile ++ " generated")
-               if not (null errorsToStopOn) then exitFailure else return ()
+                    writeFile  outputfile pragmaBlocksTxt
+                    appendFile outputfile                                $ optionsLine
+                    appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
+                    appendFile outputfile                                $ moduleHeader flags' input
+                    appendFile outputfile importBlocksTxt
+                    appendFile outputfile textBlocksTxt
+                    appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
+                    appendFile outputfile                                $ if dumpgrammar flags'
+                                                                           then ("{- Dump of grammar without default rules\n" ++)
+                                                                                $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump1) 5000
+                                                                                $ ("\n-}\n" ++)
+                                                                                $ ("{- Dump of grammar with default rules\n" ++)
+                                                                                $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump2) 5000
+                                                                                $ ("\n-}\n" ++)
+                                                                                $ ""
+                                                                           else ""
+                    appendFile outputfile                                $ if dumpcgrammar flags'
+                                                                           then ( "{- Dump of cgrammar\n" ++)
+                                                                                $ UU.Pretty.disp (CGrammarDump.pp_Syn_CGrammar dump3) 5000
+                                                                                $ ("\n-}\n" ++)
+                                                                                $ ""
+                                                                           else ""
+                    if not (null errorsToStopOn) then exitFailure else return ()
 
 
 formatProg :: [UU.Pretty.PP_Doc] -> String
@@ -177,3 +188,13 @@ defaultModuleName name
    else if ".lag" `isSuffixOf` name
    then take (length name - 4) name
    else name
+
+stripPath :: String -> String
+stripPath s
+  = stripPath' s ""
+
+stripPath' [] acc = acc
+stripPath' (x:xs) acc
+  | x == '/' || x == '\\' = stripPath' xs ""
+  | otherwise = stripPath' xs (acc ++ [x])
+

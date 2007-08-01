@@ -613,22 +613,22 @@ makeLocalComment width what  name tp = let  x = getName name
 -- And tie it all together
 -------------------------------------------------------------------------------
 
-ATTR CProductions CProduction CAlternatives CAlternative  [ | | decls USE {++} {[]} : {Decls} ]
+ATTR CProductions CProduction    [ | | chunks USE {++} {[]} : {Chunks} ]
+ATTR CAlternatives CAlternative  [ | | decls USE {++} {[]} : {Decls} ]
 ATTR CGrammar [ | | output : Program ]
 
 SEM CGrammar
-  | CGrammar    lhs.output = if smacro @lhs.options
-                              then Program (@prods.decls {-REMOVED SM++ @loc.smUnitDecl ++ @prods.smdecls ++ @loc.defnmdecls -})
-                              else Program @prods.decls
+  | CGrammar    lhs.output = Program @prods.chunks
 
 SEM CProduction
-  | CProduction  lhs.decls =  Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
-                              :  (if @lhs.o_pretty                  then [@loc.comment]   else [])
-                              ++ (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
-                              ++ (if @lhs.o_cata                    then  @loc.cataFun    else [])
-                              ++ (if @lhs.o_sig                     then  @inter.semDom   else [])
-                              ++ (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
-                              ++ (if @lhs.o_sem                     then  @alts.decls     else [])
+  | CProduction  lhs.chunks = [ Chunk (getName @nt)
+                                      (Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-'))
+                                      (if @lhs.o_pretty                  then [@loc.comment]   else [])
+                                      (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
+                                      (if @lhs.o_cata                    then  @loc.cataFun    else [])
+                                      (if @lhs.o_sig                     then  @inter.semDom   else [])
+                                      (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
+                                      (if @lhs.o_sem                     then  @alts.decls     else []) ]
 
 {
 -- Lets or nested Cases?

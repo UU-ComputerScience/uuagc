@@ -29,16 +29,16 @@ ppMultiSeq' next strictArgs expr
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
 
-ATTR Expr Exprs Decl Decls CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
+ATTR Expr Exprs Decl Decls Chunk Chunks CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
 
 ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
 
-ATTR Exprs DataAlts Types  Decls        [ nested:{Bool} | | pps: {PP_Docs} ]
+ATTR Exprs DataAlts Types  Decls Chunk Chunks [ nested:{Bool} | | pps : {PP_Docs} ]
 
 ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
 
 SEM Program
-  | Program decls.nested = nest @lhs.options 
+  | Program chunks.nested = nest @lhs.options 
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
@@ -60,11 +60,22 @@ SEM Decls
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
-
+SEM Chunks
+  | Cons lhs.pps = @hd.pps ++ @tl.pps
+  | Nil  lhs.pps = []
 
 
 SEM Program
-  | Program    lhs.output  = @decls.pps
+  | Program    lhs.output  = @chunks.pps
+
+SEM Chunk
+  | Chunk      lhs.pps     =  @comment.pp
+                              :  @info.pps
+                              ++ @dataDef.pps
+                              ++ @cataFun.pps
+                              ++ @semDom.pps
+                              ++ @semWrapper.pps
+                              ++ @semFunctions.pps
 
 SEM Decl
   | Decl       lhs.pp      = @left.pp >#< "="
@@ -256,15 +267,95 @@ locname' n = "_loc_" ++ getName n
 --         Determine if inside a Let
 -------------------------------------------------------------------------------
 
-ATTR Decls Decl Lhs Pattern Patterns [ isDeclOfLet : Bool | | ]
+ATTR Chunks Chunk Decls Decl Lhs Pattern Patterns [ isDeclOfLet : Bool | | ]
 SEM Program
   | Program
-      decls.isDeclOfLet = False
+      chunks.isDeclOfLet = False
 
 SEM Expr
   | Let
       decls.isDeclOfLet = True
+
 SEM CaseAlt
   | CaseAlt
       left.isDeclOfLet = False
+
+
+
+-------------------------------------------------------------------------------
+--         Alternative code printing to separate modules
+-------------------------------------------------------------------------------
+
+ATTR Program [ | | genIO : {IO ()} ]
+ATTR Program Chunks Chunk
+  [ importBlocks : String
+    pragmaBlocks : String
+    textBlocks : String
+    optionsLine : String
+    mainName : String
+    mainFile : String | | ]
+
+SEM Program
+  | Program
+      loc.genMainModule
+        = do let outputfile = @lhs.mainFile ++ ".hs"
+             writeFile  outputfile @lhs.pragmaBlocks
+             appendFile outputfile @lhs.optionsLine
+             appendFile outputfile ("module " ++ @lhs.mainName ++ " where\n")
+             appendFile outputfile ("import " ++ @lhs.mainName ++ "_common\n")
+             mapM_ (appendFile outputfile) @chunks.imports
+             mapM_ (appendFile outputfile . renderDocs) @chunks.appendMain
+             return ()
+      loc.genCommonModule
+        = do let outputfile = @lhs.mainFile ++ "_common.hs"
+             writeFile  outputfile @lhs.pragmaBlocks
+             appendFile outputfile @lhs.optionsLine
+             appendFile outputfile ("module " ++ @lhs.mainName ++ "_common where\n")
+             appendFile outputfile @lhs.importBlocks
+             appendFile outputfile @lhs.textBlocks
+             mapM_ (appendFile outputfile . renderDocs) @chunks.appendCommon
+             return ()
+      lhs.genIO = do @loc.genMainModule
+                     @loc.genCommonModule
+                     @chunks.genSems
+
+{
+renderDocs :: [UU.Pretty.PP_Doc] -> String
+renderDocs pps = foldr (.) id (map (\d -> (UU.Pretty.disp d 5000) . ( '\n':) ) pps) ""
+}
+
+ATTR Chunk Chunks [ | | imports USE {++} {[]} : {[String]} ]
+SEM Chunk
+  | Chunk
+      lhs.imports = ["import " ++ @lhs.mainName ++ "_" ++ @name ++ "\n"]
+
+ATTR Chunk Chunks [ | | appendCommon, appendMain USE {++} {[]} : {[[PP_Doc]]} ]
+
+SEM Chunk
+  | Chunk
+      lhs.appendCommon
+        = [ [@comment.pp]
+          , @dataDef.pps
+          , @semDom.pps
+          ]
+      lhs.appendMain
+        = [ [@comment.pp]
+          , @cataFun.pps
+          , @semWrapper.pps
+          ]
+
+ATTR Chunk Chunks [ | | genSems USE {>>} {return ()} : {IO ()} ]
+
+SEM Chunk
+  | Chunk
+      lhs.genSems
+        = do let outputfile = @lhs.mainFile ++ "_" ++ @name ++ ".hs"
+             writeFile  outputfile @lhs.pragmaBlocks
+             appendFile outputfile @lhs.optionsLine
+             appendFile outputfile ("module " ++ @lhs.mainName ++ "_" ++ @name ++ " where\n")
+             appendFile outputfile ("import " ++ @lhs.mainName ++ "_common\n")
+             appendFile outputfile $ renderDocs $ [@comment.pp]
+             appendFile outputfile $ renderDocs $ @info.pps
+             appendFile outputfile $ renderDocs $ @semFunctions.pps
+             return ()
 
