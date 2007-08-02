@@ -4,6 +4,7 @@ import System                        (getArgs, getProgName, exitFailure)
 import System.Console.GetOpt         (usageInfo)
 import List                          (isSuffixOf)
 import Monad                         (zipWithM_)
+import Data.Maybe
 
 import qualified Data.Map as Map (elems, partitionWithKey, unionWith)
 import qualified UU.DData.Seq as Seq ((<>),toList)
@@ -60,7 +61,7 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksTxt, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainName_Inh_Program = mainName, Pass5.mainFile_Inh_Program = mainFile}
+          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksTxt, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
@@ -120,7 +121,9 @@ compile flags input output
                     writeFile  outputfile pragmaBlocksTxt
                     appendFile outputfile                                $ optionsLine
                     appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
-                    appendFile outputfile                                $ moduleHeader flags' input
+                    appendFile outputfile                                $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                                                           then moduleHeader flags' input
+                                                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                     appendFile outputfile importBlocksTxt
                     appendFile outputfile textBlocksTxt
                     appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
@@ -197,4 +200,24 @@ stripPath' [] acc = acc
 stripPath' (x:xs) acc
   | x == '/' || x == '\\' = stripPath' xs ""
   | otherwise = stripPath' xs (acc ++ [x])
+
+mkMainName :: String -> Maybe (String, String) -> String
+mkMainName defaultName Nothing
+  = defaultName
+mkMainName _ (Just (name, _))
+  = name
+
+mkModuleHeader :: Maybe (String, String) -> String -> String -> String -> Bool -> String
+mkModuleHeader Nothing defaultName _ _ _
+  = "module " ++ defaultName ++ " where\n"
+mkModuleHeader (Just (name, exports)) _ suffix addExports replaceExports
+  = "module " ++ name ++ suffix ++ exp ++ " where\n"
+  where
+    exp = if null exports || (replaceExports && null addExports)
+          then ""
+          else if null addExports
+               then "(" ++ exports ++ ")"
+               else if replaceExports
+                    then "(" ++ addExports ++ ")"
+                    else "(" ++ exports ++ "," ++ addExports ++ ")"
 

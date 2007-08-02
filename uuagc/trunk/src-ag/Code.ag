@@ -26,6 +26,7 @@ DATA Chunk    | Chunk            name         : String
                                  semDom       : Decls
                                  semWrapper   : Decls
                                  semFunctions : Decls
+                                 semNames     : {[String]}
 
 DATA Expr     | Let              decls : Decls   
                                  body  : Expr
@@ -34,7 +35,7 @@ DATA Expr     | Let              decls : Decls
               | Lambda           args :  {[String]}
                                  body : Expr
               | TupleExpr        exprs : Exprs
-	      | UnboxedTupleExpr exprs : Exprs
+	          | UnboxedTupleExpr exprs : Exprs
               | App              name  : {String} 
                                  args  : Exprs
               | SimpleExpr       txt   : {String}
@@ -72,7 +73,7 @@ DATA DataAlt  | DataAlt          name  : {String}
 DATA Type     | Arr              left  : Type 
                                  right : Type
               | TupleType        tps   : Types
-	      | UnboxedTupleType tps   : Types
+	          | UnboxedTupleType tps   : Types
               | List             tp    : Type
               | SimpleType       txt   : {String}
 	       

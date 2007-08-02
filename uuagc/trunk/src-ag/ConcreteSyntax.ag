@@ -54,7 +54,11 @@ DATA Elem      | Data   pos    : {Pos}
                           set  : NontSet         
 
                | Pragma   pos  : {Pos}
-                          names: {[Name]}         
+                          names: {[Name]}
+
+               | Module   pos     : {Pos}
+                          name    : {String}
+                          exports : {String}
 
 DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}

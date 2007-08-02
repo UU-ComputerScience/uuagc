@@ -9,6 +9,7 @@ import Code
 import Patterns
 import Options
 import CommonTypes (attrname, _LOC, getName, nullIdent)
+import Data.List(intersperse)
 }
 
 {
@@ -292,8 +293,10 @@ ATTR Program Chunks Chunk
     pragmaBlocks : String
     textBlocks : String
     optionsLine : String
+    mainFile : String
     mainName : String
-    mainFile : String | | ]
+    moduleHeader : {String -> String -> String -> Bool -> String}
+     | | ]
 
 SEM Program
   | Program
@@ -301,7 +304,7 @@ SEM Program
         = do let outputfile = @lhs.mainFile ++ ".hs"
              writeFile  outputfile @lhs.pragmaBlocks
              appendFile outputfile @lhs.optionsLine
-             appendFile outputfile ("module " ++ @lhs.mainName ++ " where\n")
+             appendFile outputfile $ @lhs.moduleHeader @lhs.mainName "" "" False
              appendFile outputfile ("import " ++ @lhs.mainName ++ "_common\n")
              mapM_ (appendFile outputfile) @chunks.imports
              mapM_ (appendFile outputfile . renderDocs) @chunks.appendMain
@@ -310,7 +313,7 @@ SEM Program
         = do let outputfile = @lhs.mainFile ++ "_common.hs"
              writeFile  outputfile @lhs.pragmaBlocks
              appendFile outputfile @lhs.optionsLine
-             appendFile outputfile ("module " ++ @lhs.mainName ++ "_common where\n")
+             appendFile outputfile $ @lhs.moduleHeader @lhs.mainName "_common" "" True
              appendFile outputfile @lhs.importBlocks
              appendFile outputfile @lhs.textBlocks
              mapM_ (appendFile outputfile . renderDocs) @chunks.appendCommon
@@ -352,10 +355,14 @@ SEM Chunk
         = do let outputfile = @lhs.mainFile ++ "_" ++ @name ++ ".hs"
              writeFile  outputfile @lhs.pragmaBlocks
              appendFile outputfile @lhs.optionsLine
-             appendFile outputfile ("module " ++ @lhs.mainName ++ "_" ++ @name ++ " where\n")
+             appendFile outputfile $ @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
              appendFile outputfile ("import " ++ @lhs.mainName ++ "_common\n")
              appendFile outputfile $ renderDocs $ [@comment.pp]
              appendFile outputfile $ renderDocs $ @info.pps
              appendFile outputfile $ renderDocs $ @semFunctions.pps
              return ()
+
+SEM Chunk
+  | Chunk
+      loc.exports = concat $ intersperse "," @semNames
 

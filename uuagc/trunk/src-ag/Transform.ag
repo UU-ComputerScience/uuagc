@@ -3,6 +3,7 @@ INCLUDE "Patterns.ag"
 
 imports
 {
+import Control.Monad(mplus,mzero)
 import List (partition, elem)
 import Data.Maybe
 import qualified Data.Map as Map
@@ -523,6 +524,7 @@ SEM Elem
                                          "gentraces"    -> o { genTraces = True }
                                          "splitsems"    -> o { splitSems = True }
                                          "gencostcentres" -> o { genCostCentres = True }
+                                         "sepsemmods"   -> o { sepSemMods = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
@@ -723,6 +725,17 @@ SEM Pattern
   | Product    lhs.stpos = @pos
   | Alias      lhs.stpos = getPos @field
   | Underscore lhs.stpos = @pos
+
+
+-------------------------------------------------------------------------------
+--         Collect module declaration
+-------------------------------------------------------------------------------
+
+ATTR AG Elems Elem [ | | moduleDecl USE {`mplus`} {mzero} : {Maybe (String,String)} ]
+
+SEM Elem
+  | Module
+      lhs.moduleDecl = Just (@name, @exports)
 
 
 -------------------------------------------------------------------------------
