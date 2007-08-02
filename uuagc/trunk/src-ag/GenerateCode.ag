@@ -628,7 +628,9 @@ SEM CProduction
                                       (if @lhs.o_cata                    then  @loc.cataFun    else [])
                                       (if @lhs.o_sig                     then  @inter.semDom   else [])
                                       (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
-                                      (if @lhs.o_sem                     then  @alts.decls     else []) ]
+                                      (if @lhs.o_sem                     then  @alts.decls     else [])
+                                      (if @lhs.o_sem                     then  @alts.semNames  else [])
+                              ]
 
 {
 -- Lets or nested Cases?
@@ -754,4 +756,21 @@ SEM CAlternative
                                                                [SimpleExpr (locname nm)]
                                    argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs Set.empty Set.empty
+
+
+-------------------------------------------------------------------------------
+-- Collect names of generated stuff
+-------------------------------------------------------------------------------
+
+ATTR CAlternatives CAlternative CVisits CVisit [ | | semNames USE {++} {[]} : {[String]} ]
+
+{-
+SEM CAlternative
+  | CAlternative
+      lhs.semNames = [cataname @lhs.prefix @lhs.nt] ++ @visits.semNames
+-}
+
+SEM CVisit
+  | CVisit
+      lhs.semNames = [@loc.funcname]
 

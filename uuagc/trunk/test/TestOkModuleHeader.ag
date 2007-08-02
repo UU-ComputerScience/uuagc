@@ -1,0 +1,10 @@
+-- Note: Generates not so OK haskell files...
+-- Just tests that that some modules with the appropriate module
+-- headers are generated.
+
+PRAGMA sepsemmods
+
+MODULE {A.B.Test} {bla,Bla,Bla(...)}
+
+DATA D
+ | C

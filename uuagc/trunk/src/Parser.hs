@@ -170,7 +170,12 @@ pElem =  Data <$> pDATA
      <|> Pragma
               <$> pPRAGMA
               <*> pNames
-   <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
+    
+     <|> Module
+              <$> pMODULE
+              <*> pCodescrap'
+              <*> pCodescrap'
+     <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 
 -- Insertion is expensive for pCodeBlock in order to prevent infinite inserts.
@@ -323,7 +328,7 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE, pMODULE
       :: AGParser  Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -353,3 +358,4 @@ pMinus       = pCostReserved 5  "-"       <?> "-"
 pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"
+pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
