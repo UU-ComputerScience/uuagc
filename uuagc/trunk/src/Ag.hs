@@ -201,17 +201,17 @@ stripPath' (x:xs) acc
   | x == '/' || x == '\\' = stripPath' xs ""
   | otherwise = stripPath' xs (acc ++ [x])
 
-mkMainName :: String -> Maybe (String, String) -> String
+mkMainName :: String -> Maybe (String, String,String) -> String
 mkMainName defaultName Nothing
   = defaultName
-mkMainName _ (Just (name, _))
+mkMainName _ (Just (name, _, _))
   = name
 
-mkModuleHeader :: Maybe (String, String) -> String -> String -> String -> Bool -> String
+mkModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> Bool -> String
 mkModuleHeader Nothing defaultName _ _ _
   = "module " ++ defaultName ++ " where\n"
-mkModuleHeader (Just (name, exports)) _ suffix addExports replaceExports
-  = "module " ++ name ++ suffix ++ exp ++ " where\n"
+mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExports
+  = "module " ++ name ++ suffix ++ exp ++ " where\n" ++ imports ++ "\n"
   where
     exp = if null exports || (replaceExports && null addExports)
           then ""
