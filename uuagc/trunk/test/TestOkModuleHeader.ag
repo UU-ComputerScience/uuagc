@@ -5,6 +5,10 @@
 PRAGMA sepsemmods
 
 MODULE {A.B.Test} {bla,Bla,Bla(...)}
+{
+import Q
+import J
+}
 
 DATA D
  | C

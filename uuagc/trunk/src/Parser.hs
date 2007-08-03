@@ -175,6 +175,7 @@ pElem =  Data <$> pDATA
               <$> pMODULE
               <*> pCodescrap'
               <*> pCodescrap'
+              <*> pCodescrap'
      <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 

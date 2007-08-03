@@ -731,11 +731,11 @@ SEM Pattern
 --         Collect module declaration
 -------------------------------------------------------------------------------
 
-ATTR AG Elems Elem [ | | moduleDecl USE {`mplus`} {mzero} : {Maybe (String,String)} ]
+ATTR AG Elems Elem [ | | moduleDecl USE {`mplus`} {mzero} : {Maybe (String,String,String)} ]
 
 SEM Elem
   | Module
-      lhs.moduleDecl = Just (@name, @exports)
+      lhs.moduleDecl = Just (@name, @exports, @imports)
 
 
 -------------------------------------------------------------------------------
