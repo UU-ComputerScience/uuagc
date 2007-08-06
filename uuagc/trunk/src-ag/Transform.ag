@@ -54,7 +54,6 @@ SEM AG
                                      @elems.typeSyns
                                      @elems.semPragmasCollect
                                      @elems.attrOrderCollect
-                                     @elems.defLocTypesCollect
 
 
 -------------------------------------------------------------------------------
@@ -305,7 +304,7 @@ checkRules attributes fields allinsts allsigs nt con rs
 checkSigs :: Nonterminal -> Constructor -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
-         = if   ide `elem` map (\(TypeSig n _)->n) sigs
+         = if   ide `elem` map (\(TypeSig n t)-> n) sigs
            then (sigs, Seq.cons (DupSig nt con ide) errs)
            -- else if not (ide `elem` locattrdefs)
            -- then (sigs, Seq.cons (SupSig nt con ide) errs)
@@ -728,16 +727,6 @@ SEM Pattern
   | Underscore lhs.stpos = @pos
 
 -------------------------------------------------------------------------------
---         Collect default local attribute type signatures
--------------------------------------------------------------------------------
-
-ATTR Elems Elem [ | | defLocTypesCollect USE {`Map.union`} {Map.empty} : {Map Name Type} ]
-
-SEM Elem
-  | Signatures
-      lhs.defLocTypesCollect = Map.fromList @sigs
-
--------------------------------------------------------------------------------
 --         Collect module declaration
 -------------------------------------------------------------------------------
 
@@ -771,10 +760,9 @@ constructGrammar ::    Set Nonterminal
                     -> TypeSyns
                     -> PragmaMap
                     -> AttrOrderMap
-                    -> Map Name Type
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap defLocTypesMap =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -793,7 +781,7 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                           in Child nm tp inh syn isVirtual
                                    in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap defLocTypesMap
+   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap
 }
 
 {
