@@ -175,9 +175,6 @@ pElem =  Data <$> pDATA
               <*> pCodescrap'
               <*> pCodescrap'
               <*> pCodescrap'
-     <|> Signatures
-              <$> pSIGNATURES
-              <*> pList ((,) <$> pIdentifier <* pColon <*> pLocType)
      <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 
@@ -331,7 +328,7 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE, pMODULE, pSIGNATURES
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE, pMODULE
       :: AGParser  Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -362,4 +359,4 @@ pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"
 pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
-pSIGNATURES  = pCostReserved 5  "SIGNATURES" <?> "SIGNATURES"
+

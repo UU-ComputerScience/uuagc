@@ -60,10 +60,6 @@ DATA Elem      | Data   pos    : {Pos}
                           name    : {String}  -- name of the haskell module
                           exports : {String}  -- exports of the haskell module
                           imports : {String}  -- imports to replicate to generated haskell modules
-               
-               | Signatures
-                          pos     : {Pos}
-                          sigs    : {[(Name,Type)]}
 
 DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}

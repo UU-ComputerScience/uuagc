@@ -15,7 +15,6 @@ DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             prods    : Productions
                             pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
-                            defaultLocTypes : {Map Name Type}  -- default type for a named local attribute
 
 TYPE Productions  = [Production]
 
