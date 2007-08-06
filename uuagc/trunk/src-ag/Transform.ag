@@ -54,6 +54,7 @@ SEM AG
                                      @elems.typeSyns
                                      @elems.semPragmasCollect
                                      @elems.attrOrderCollect
+                                     @elems.defLocTypesCollect
 
 
 -------------------------------------------------------------------------------
@@ -726,6 +727,15 @@ SEM Pattern
   | Alias      lhs.stpos = getPos @field
   | Underscore lhs.stpos = @pos
 
+-------------------------------------------------------------------------------
+--         Collect default local attribute type signatures
+-------------------------------------------------------------------------------
+
+ATTR Elems Elem [ | | defLocTypesCollect USE {`Map.union`} {Map.empty} : {Map Name Type} ]
+
+SEM Elem
+  | Signatures
+      lhs.defLocTypesCollect = Map.fromList @sigs
 
 -------------------------------------------------------------------------------
 --         Collect module declaration
@@ -761,9 +771,10 @@ constructGrammar ::    Set Nonterminal
                     -> TypeSyns
                     -> PragmaMap
                     -> AttrOrderMap
+                    -> Map Name Type
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
+constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap defLocTypesMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        prods = map prod gr
        prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -782,7 +793,7 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                           in Child nm tp inh syn isVirtual
                                    in Alternative con cldrn rules tsigs
                             in Production nt inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap
+   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap defLocTypesMap
 }
 
 {

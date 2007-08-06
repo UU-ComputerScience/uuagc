@@ -324,7 +324,7 @@ SEM Program
 
 {
 renderDocs :: [UU.Pretty.PP_Doc] -> String
-renderDocs pps = foldr (.) id (map (\d -> (UU.Pretty.disp d 5000) . ( '\n':) ) pps) ""
+renderDocs pps = foldr (.) id (map (\d -> (UU.Pretty.disp d 50000) . ( '\n':) ) pps) ""
 }
 
 ATTR Chunk Chunks [ | | imports USE {++} {[]} : {[String]} ]
