@@ -177,6 +177,11 @@ SEM  Alternative
   |  Alternative  rules.childNts = Map.fromList (Seq.toList @children.nts)
                   rules.childInhs = Map.fromList (Seq.toList @children.inhs)
 
+ATTR Productions Production Alternatives Alternative Rules Rule [ defLocTypes : {Map Name Type} | | ]
+SEM Grammar
+  | Grammar
+      prods.defLocTypes = @defaultLocTypes
+
 -- Collect CRules
 ATTR  Children Child Rules Rule
       [ | | gathRules USE {Seq.<>} {Seq.empty} : {Seq CRule} ]
@@ -192,7 +197,7 @@ SEM  Child
 SEM  Rule
   |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
                                                                   = case parts of 
-                                                                      [] -> Map.lookup attr @lhs.allTypeSigs
+                                                                      [] -> maybe (Map.lookup attr @lhs.defLocTypes) Just (Map.lookup attr @lhs.allTypeSigs)
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
                                                   | otherwise     = Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
