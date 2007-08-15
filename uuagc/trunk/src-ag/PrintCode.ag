@@ -14,6 +14,7 @@ import System.IO
 import Control.Monad.Writer.Strict(Writer,tell,listen, execWriter, pass)
 import Data.ByteString.Char8(ByteString)
 import qualified Data.ByteString.Char8 as BS
+import System.Directory
 }
 
 {
@@ -381,12 +382,16 @@ SEM Chunk
 {
 writeModule :: FilePath -> ((String -> Writer ByteString ()) -> Writer ByteString ()) -> IO ()
 writeModule path writer
-  = do handle <- openFile path WriteMode
-       BS.hPutStr handle output
-       hFlush handle
-       hClose handle
+  = do bExists <- doesFileExist path
+       if bExists
+        then do input <- BS.readFile path
+                if input /= output
+                 then dumpIt
+                 else return ()
+        else dumpIt
   where
     output = execWriter (writer append)
     append s = pass (return ((), \bs -> bs `BS.append` BS.pack s))
+    dumpIt = BS.writeFile path output
 }
 
