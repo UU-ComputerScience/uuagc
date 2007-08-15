@@ -3,7 +3,7 @@ version: @VERSION@
 license: GPL
 license-file: LICENSE
 maintainer: Alexey Rodriguez <alexey@cs.uu.nl>
-Build-Depends: base, haskell98, uulib
+Build-Depends: base, mtl, haskell98, uulib
 
 Executable:     uuagc
 Main-Is:        Ag.hs

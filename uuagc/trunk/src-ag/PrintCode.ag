@@ -11,6 +11,9 @@ import Options
 import CommonTypes (attrname, _LOC, getName, nullIdent)
 import Data.List(intersperse)
 import System.IO
+import Control.Monad.Writer.Strict(Writer,tell,listen, execWriter, pass)
+import Data.ByteString.Char8(ByteString)
+import qualified Data.ByteString.Char8 as BS
 }
 
 {
@@ -376,11 +379,14 @@ SEM Chunk
       loc.exports = concat $ intersperse "," @semNames
 
 {
-writeModule :: FilePath -> ((String -> IO ()) -> IO ()) -> IO ()
+writeModule :: FilePath -> ((String -> Writer ByteString ()) -> Writer ByteString ()) -> IO ()
 writeModule path writer
   = do handle <- openFile path WriteMode
-       writer (hPutStr handle)
+       BS.hPutStr handle output
        hFlush handle
        hClose handle
+  where
+    output = execWriter (writer append)
+    append s = pass (return ((), \bs -> bs `BS.append` BS.pack s))
 }
 
