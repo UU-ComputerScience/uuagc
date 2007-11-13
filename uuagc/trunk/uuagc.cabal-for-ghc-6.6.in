@@ -1,5 +1,5 @@
 name: uuagc
-version: 0.9.5
+version: @VERSION@
 license: GPL
 license-file: LICENSE
 maintainer: Alexey Rodriguez <alexey@cs.uu.nl>
