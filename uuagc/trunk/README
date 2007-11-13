@@ -1,3 +1,9 @@
+Please pick the right section in this file for instructions depending on how you optained the uuagc sources.
+
+IMPORTANT: We assume that you have the latest official release of GHC installed together with the accompanying Cabal package. For older GHC installations, rename:
+   uuagc.cabal-for-ghc-6.6      to    uuagc.cabal
+
+
 -------------------------------------------
 Installing uuagc from a source distribution
 -------------------------------------------
@@ -29,8 +35,7 @@ Using the user package database
     ./setup build
     ./setup install
 
-  Following the second alternative, you should
-  re-run the configure script:
+  Or, alternatively:
 
     ./configure --with-user-pckg
     make build
@@ -42,9 +47,10 @@ Installing uuagc after checking out from the svn respository
 Please note that this is only possible if you alreday have a running version of the uuagc on your system. 
 This can be downloaded from: http://www.cs.uu.nl/wiki/HUT/Download
 
+  First execute the steps below:
+
     autoconf
     ./configure
     make build
     make install
-
 

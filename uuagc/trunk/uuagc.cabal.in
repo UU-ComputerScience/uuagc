@@ -2,7 +2,7 @@ name: uuagc
 version: @VERSION@
 license: GPL
 license-file: LICENSE
-maintainer: Alexey Rodriguez <alexey@cs.uu.nl>
+maintainer: Arie Middelkoop <ariem@cs.uu.nl>
 Build-Depends: base, containers, directory, array, bytestring, haskell98, uulib, mtl
 
 Executable:     uuagc
