@@ -184,6 +184,8 @@ dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SY
 		 configure.in \
 		 uuagc.cabal \
 		 uuagc.cabal.in \
+		 uuagc.cabal-for-ghc-6.6 \
+		 uuagc.cabal-for-ghc-6.6.in \
 		 Setup.hs \
 		 install-sh \
 		 mkinstalldirs \
