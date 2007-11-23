@@ -502,6 +502,20 @@ ppError :: Bool           -- class of the error, True:error False:warning
         -> Bool           -- verbose? show help and action?
         -> PP_Doc
 ppError isError pos mesg pat hlp act verbose
+  = let position = case pos of
+                     Pos l c f | l >= 0    -> f >|< ":" >|< show l >|< ":" >|< show c
+                               | otherwise -> pp "uuagc"
+        tp      = if isError then "error" else "warning"
+        header  = position >|< ":" >|< tp >|< ":" >|< mesg
+        pattern = "pattern  :" >#< pat
+        help    = "help     :" >#< hlp
+        action  = "action   :" >#< act
+    in if verbose
+         then vlist [text "",header,pattern,help,action]
+         else header
+
+{-
+-- old error reporting code
   = let 
       cl = if isError then "ERROR" else "Warning"
       position   = case pos of
@@ -516,6 +530,7 @@ ppError isError pos mesg pat hlp act verbose
       if verbose
          then vlist [text "",header,message,pattern,help,action]
          else vlist [text "",header,message]
+-}
 
 showPos = show . getPos
 
