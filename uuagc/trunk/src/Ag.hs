@@ -27,7 +27,7 @@ import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  
 
 import Options
 import Version       (banner)
-import Parser        (parseAG)
+import Parser        (parseAG, depsAG)
 import ErrorMessages (Error(ParserError), Errors)
 import CommonTypes   (Blocks)
 
@@ -44,7 +44,9 @@ main
        then putStrLn banner
        else if null files || showHelp flags || (not.null) errs
        then mapM_ putStrLn (usageInfo usageheader options : errs)
-       else zipWithM_ (compile flags) files (outputFiles flags++repeat "")
+       else if genFileDeps flags
+            then reportDeps flags files
+            else zipWithM_ (compile flags) files (outputFiles flags++repeat "")
 
 
 compile :: Options -> String -> String -> IO ()
@@ -220,4 +222,18 @@ mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExport
                else if replaceExports
                     then "(" ++ addExports ++ ")"
                     else "(" ++ exports ++ "," ++ addExports ++ ")"
+
+reportDeps :: Options -> [String] -> IO ()
+reportDeps flags files
+  = do results <- mapM (depsAG (searchPath flags)) files
+       let (fs, mesgs) = foldr combine ([],[]) results
+       let errs = take (wmaxerrs flags) (map message2error mesgs)
+       let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}
+       if null errs
+        then mapM_ putStrLn fs
+        else putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
+  where
+    combine :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
+    combine (fs, mesgs) (fsr, mesgsr)
+      = (fs ++ fsr, mesgs ++ mesgsr)
 

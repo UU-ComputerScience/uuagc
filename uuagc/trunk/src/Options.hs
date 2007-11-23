@@ -46,6 +46,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
                , Option []        ["gencostcentres"] (NoArg genCostCentresOpt)  "Generate cost centre pragmas (in generated code)"
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
+               , Option ['M']     ["genfiledeps"] (NoArg genFileDepsOpt) "Generate a list of dependencies on the input AG files"
                ]
 
 allc = "dcfsprm"
@@ -90,6 +91,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genTraces :: Bool
                       , genCostCentres :: Bool
                       , sepSemMods :: Bool
+                      , genFileDeps :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -131,6 +133,7 @@ noOptions = Options { moduleName    = NoName
                     , genTraces     = False
                     , genCostCentres = False
                     , sepSemMods     = False
+                    , genFileDeps    = False
                     }
 
 
@@ -172,6 +175,7 @@ dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 genTracesOpt    opts = opts{genTraces    = True}
 genCostCentresOpt opts = opts{genCostCentres = True}
 sepSemModsOpt opts = opts{sepSemMods = True}
+genFileDepsOpt opts = opts{genFileDeps = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

@@ -31,10 +31,15 @@ pIdentifier   = uncurry Ident <$> pVaridPos
 
 parseAG :: [FilePath] -> String -> IO (AG,[Message Token Pos])
 parseAG  searchPath file 
-              = do (es,_,mesg) <- parseFile searchPath file
+              = do (es,_,_,mesg) <- parseFile searchPath file
                    return (AG es, mesg)
 
-parseFile :: [FilePath] -> String -> IO  ([Elem],[String],[Message Token Pos ])
+depsAG :: [FilePath] -> String -> IO ([String], [Message Token Pos])
+depsAG searchPath file
+  = do (_,_,fs,mesgs) <- parseFile searchPath file
+       return (fs, mesgs)
+
+parseFile :: [FilePath] -> String -> IO  ([Elem],[String],[String],[Message Token Pos ])
 parseFile searchPath file 
                = do txt <- readFile file
                     let litMode = ".lag" `isSuffixOf` file
@@ -43,13 +48,15 @@ parseFile searchPath file
                         tokens       = input (initPos file) text
 
                         steps = parse pElemsFiles tokens
-                        stop (_,fs,_) = null fs
-                        cont (es,fs,msg) = do files <- mapM (resolveFile searchPath) fs
-                                              res <- mapM (parseFile searchPath) files
-                                              let (ess,fss,msgs) = unzip3 res
-                                              return (es ++ concat ess, concat fss, msg ++ concat msgs)
+                        stop (_,fs,_,_) = null fs
+                        cont (es,fs,allfs,msg)
+                          = do files <- mapM (resolveFile searchPath) fs
+                               res <- mapM (parseFile searchPath) files
+                               let (ess,fss,allfss, msgs) = unzip4 res
+                               return (es ++ concat ess, concat fss, concat allfss ++ allfs, msg ++ concat msgs)
                     let (Pair (es,fls) _ ,mesg) = evalStepsMessages steps
-                    loopp stop cont (es,files++fls,mesg)
+                    let allfs = files ++ fls
+                    loopp stop cont (es,allfs,allfs,mesg)
 
 resolveFile :: [FilePath] -> FilePath -> IO FilePath
 resolveFile path fname = search (path ++ ["."])                                                  
