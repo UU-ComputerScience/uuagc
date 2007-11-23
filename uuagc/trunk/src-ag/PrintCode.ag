@@ -11,9 +11,6 @@ import Options
 import CommonTypes (attrname, _LOC, getName, nullIdent)
 import Data.List(intersperse)
 import System.IO
-import Control.Monad.Writer.Strict(Writer,tell,listen, execWriter, pass)
-import Data.ByteString.Char8(ByteString)
-import qualified Data.ByteString.Char8 as BS
 import System.Directory
 }
 
@@ -307,27 +304,27 @@ SEM Program
   | Program
       loc.mainModuleFile = @lhs.mainFile ++ ".hs"
       loc.genMainModule
-        = writeModule @loc.mainModuleFile $
-          \append ->
-             do append @lhs.pragmaBlocks
-                append @lhs.optionsLine
-                append $ @lhs.moduleHeader @lhs.mainName "" "" False
-                append ("import " ++ @lhs.mainName ++ "_common\n")
-                mapM_ append @chunks.imports
-                mapM_ (append . renderDocs) @chunks.appendMain
-                return ()
+        = writeModule @loc.mainModuleFile
+            ( [ @lhs.pragmaBlocks
+              , @lhs.optionsLine
+              , @lhs.moduleHeader @lhs.mainName "" "" False
+              , ("import " ++ @lhs.mainName ++ "_common\n")
+              ]
+              ++ @chunks.imports
+              ++ map renderDocs @chunks.appendMain
+            )
 
       loc.commonFile = @lhs.mainFile ++ "_common.hs"
       loc.genCommonModule
-        = writeModule @loc.commonFile $
-          \append ->
-             do append @lhs.pragmaBlocks
-                append @lhs.optionsLine
-                append $ @lhs.moduleHeader @lhs.mainName "_common" "" True
-                append @lhs.importBlocks
-                append @lhs.textBlocks
-                mapM_ (append . renderDocs) @chunks.appendCommon
-                return ()
+        = writeModule @loc.commonFile
+              ( [ @lhs.pragmaBlocks
+                , @lhs.optionsLine
+                , @lhs.moduleHeader @lhs.mainName "_common" "" True
+                , @lhs.importBlocks
+                , @lhs.textBlocks
+                ]
+                ++ map renderDocs @chunks.appendCommon
+              )
 
       lhs.genIO = do @loc.genMainModule
                      @loc.genCommonModule
@@ -364,34 +361,32 @@ SEM Chunk
   | Chunk
       loc.outputfile = @lhs.mainFile ++ "_" ++ @name ++ ".hs"
       lhs.genSems
-        = writeModule @loc.outputfile $
-          \append ->
-             do append @lhs.pragmaBlocks
-                append @lhs.optionsLine
-                append $ @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
-                append ("import " ++ @lhs.mainName ++ "_common\n")
-                append $ renderDocs $ [@comment.pp]
-                append $ renderDocs $ @info.pps
-                append $ renderDocs $ @semFunctions.pps
-                return ()
+        = writeModule @loc.outputfile
+            [ @lhs.pragmaBlocks
+            , @lhs.optionsLine
+            , @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
+            , ("import " ++ @lhs.mainName ++ "_common\n")
+            , renderDocs $ [@comment.pp]
+            , renderDocs $ @info.pps
+            , renderDocs $ @semFunctions.pps
+            ]
 
 SEM Chunk
   | Chunk
       loc.exports = concat $ intersperse "," @semNames
 
 {
-writeModule :: FilePath -> ((String -> Writer ByteString ()) -> Writer ByteString ()) -> IO ()
-writeModule path writer
+writeModule :: FilePath -> [String] -> IO ()
+writeModule path strings
   = do bExists <- doesFileExist path
        if bExists
-        then do input <- BS.readFile path
+        then do input <- readFile path
                 if input /= output
                  then dumpIt
                  else return ()
         else dumpIt
   where
-    output = execWriter (writer append)
-    append s = pass (return ((), \bs -> bs `BS.append` BS.pack s))
-    dumpIt = BS.writeFile path output
+    output = concat strings
+    dumpIt = writeFile path output
 }
 
