@@ -3,7 +3,7 @@ version: @VERSION@
 license: GPL
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
-Build-Depends: base, haskell98, uulib, mtl
+Build-Depends: base, haskell98, uulib
 
 Executable:     uuagc
 Main-Is:        Ag.hs
