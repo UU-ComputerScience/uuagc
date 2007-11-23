@@ -85,7 +85,7 @@ compile flags input output
                            if null parseErrors
                            then if wignore flags'
                                 then fatalErrorList
-                                else errorList
+                                else errorsToFront errorList
                            else parseErrorList
           
           errorsToStopOn = if werrors flags'
@@ -166,6 +166,9 @@ message2error (Msg expect pos action) = ParserError pos (show expect) actionStri
               Delete s -> "deleting: "  ++ show s
 
               Other ms -> ms
+
+errorsToFront :: [Error] -> [Error]
+errorsToFront mesgs = filter PrErr.isError mesgs ++ filter (not.PrErr.isError) mesgs
 
 
 moduleHeader :: Options -> String -> String
