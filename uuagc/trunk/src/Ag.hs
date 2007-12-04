@@ -81,12 +81,14 @@ compile flags input output
                                            
           fatalErrorList = filter PrErr.isError errorList
           
-          errorsToReport = take (wmaxerrs flags') $
-                           if null parseErrors
-                           then if wignore flags'
-                                then fatalErrorList
-                                else errorsToFront errorList
-                           else parseErrorList
+          allErrors = if null parseErrors
+                      then if wignore flags'
+                           then fatalErrorList
+                           else errorsToFront errorList
+                      else take 1 parseErrorList
+                      -- the other 1000 or so parse errors are usually not that informative
+                      
+          errorsToReport = take (wmaxerrs flags') allErrors
           
           errorsToStopOn = if werrors flags'
                             then errorList
@@ -109,8 +111,25 @@ compile flags input output
           mainName = stripPath $ defaultModuleName input
           mainFile = defaultModuleName input
 
+          nrOfErrorsToReport = length $ filter PrErr.isError errorsToReport
+          nrOfWarningsToReport = length $ filter (not.PrErr.isError) errorsToReport
+          totalNrOfErrors = length $ filter PrErr.isError allErrors
+          totalNrOfWarnings = length $ filter (not.PrErr.isError) allErrors
+          additionalErrors = totalNrOfErrors - nrOfErrorsToReport
+          additionalWarnings = totalNrOfWarnings - nrOfWarningsToReport
+          pluralS n = if n == 1 then "" else "s"
+
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
-     
+
+      if additionalErrors > 0 
+       then putStr $ "\nPlus " ++ show additionalErrors ++ " more error" ++ pluralS additionalErrors ++
+                     if additionalWarnings > 0
+                     then " and " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
+                     else ".\n"
+       else if additionalWarnings > 0
+            then putStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
+            else return ()
+           
       if not (null fatalErrorList) 
        then exitFailure
        else if sepSemMods flags'
@@ -145,6 +164,7 @@ compile flags input output
                                                                                 $ ""
                                                                            else ""
                     if not (null errorsToStopOn) then exitFailure else return ()
+
 
 
 formatProg :: [UU.Pretty.PP_Doc] -> String
