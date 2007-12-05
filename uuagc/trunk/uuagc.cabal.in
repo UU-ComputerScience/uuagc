@@ -30,4 +30,4 @@ Other-Modules: AbstractSyntax,
       Transform,
       Version
 Extensions: TypeSynonymInstances, MultiParamTypeClasses
-Hs-Source-Dirs: src
+Hs-Source-Dirs: src, src-derived
