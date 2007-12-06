@@ -339,8 +339,9 @@ SEM Alternative
              ]
              where   
                childSelf self nm tp 
-                 = case tp of NT nt  -> attrName nm self
-                              _      -> fieldName nm
+                 = case tp of NT nt                           -> attrName nm self
+                              _      | nm `Set.member` locals -> locname nm
+                                     | otherwise              -> fieldName nm
                constructor fs
                 | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns 
                   = "(" ++ concat (List.intersperse "," fs) ++ ")"
