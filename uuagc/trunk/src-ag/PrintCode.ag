@@ -381,6 +381,7 @@ writeModule path strings
   = do bExists <- doesFileExist path
        if bExists
         then do input <- readFile path
+                seq (length input) (return ())
                 if input /= output
                  then dumpIt
                  else return ()
