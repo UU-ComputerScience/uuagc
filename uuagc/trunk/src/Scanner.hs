@@ -42,9 +42,9 @@ scan p ('-':'-':xs)              = let (com,rest) = span (/= '\n') xs
 scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
 scan p ('{'    :xs)              = advc' 1 p codescrap xs
 scan p ('\CR':xs)                = case xs of
-                                    '\LF':ys -> newl' p scan ys --ms newline
-                                    _        -> newl' p scan xs --mac newline
-scan p ('\LF':xs)                =  newl' p scan xs             --unix newline
+                                    '\LF':ys -> newl' p scanBeginOfLine ys --ms newline
+                                    _        -> newl' p scanBeginOfLine xs --mac newline
+scan p ('\LF':xs)                =  newl' p scanBeginOfLine xs             --unix newline
 scan p (x:xs) | isSpace x        = updPos'  x p scan  xs
 scan p xs = Just (scan' xs)
   where scan' ('.' :rs)          = (reserved "." p, advc 1 p, rs)
@@ -88,6 +88,26 @@ scan p xs = Just (scan' xs)
                                            | otherwise           = valueToken TkConid str
                                    in (tok p, advc (length var+1) p,rest)
                      | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
+
+scanBeginOfLine :: Lexer Token
+scanBeginOfLine p ('L' : 'I' : 'N' : 'E' : ' ' : xs)
+  | isOkBegin rs && isOkEnd rs'
+      = scan (advc (5 + length r + 2 + length s + 1) p') (tail rs')
+  | otherwise
+      = Just (errToken ("Invalid LINE pragma: " ++ show r) p, advc 5 p, xs)
+  where
+    (r,rs)   = span isDigit xs
+    (s, rs') = span (/= '"') (drop 2 rs)
+    p' = Pos (read r) (column p) s
+    
+    isOkBegin (' ' : '"' : _) = True
+    isOkBegin _               = False
+    
+    isOkEnd ('"' : _) = True
+    isOkEnd _         = False
+scanBeginOfLine p xs
+  = scan p xs
+ 
 
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
@@ -152,7 +172,6 @@ breakLine xs = case xs of
                                 '\LF' : zs -> ([],zs) 
                                 _          -> ([],ys)
                 '\LF' : ys -> ([], ys)
-                '\n'  : ys -> ([], ys)
                 x     : ys -> let (l,s) = breakLine ys
                               in (x:l,s)
                 []         -> ([],[])
