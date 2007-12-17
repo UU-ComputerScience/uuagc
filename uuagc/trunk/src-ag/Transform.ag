@@ -156,7 +156,7 @@ SEM Elem
 -------------------------------------------------------------------------------
 
 SEM Elem
-  | Txt   lhs.blocks  = Map.singleton (getName @name) @lines
+  | Txt   lhs.blocks  = Map.singleton (getName @name) (@lines, @pos)
 
 
 -------------------------------------------------------------------------------
@@ -525,6 +525,7 @@ SEM Elem
                                          "splitsems"    -> o { splitSems = True }
                                          "gencostcentres" -> o { genCostCentres = True }
                                          "sepsemmods"   -> o { sepSemMods = True }
+                                         "genlinepragmas" -> o { genLinePragmas = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
@@ -786,5 +787,6 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
 
 {
 mapUnionWithSetUnion = Map.unionWith Set.union
-mapUnionWithPlusPlus = Map.unionWith (++)	
+mapUnionWithPlusPlus = Map.unionWith specialPlus
+  where specialPlus (a,p) (b,q) = (a++b, p)
 }

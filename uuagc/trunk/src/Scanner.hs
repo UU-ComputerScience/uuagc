@@ -90,20 +90,20 @@ scan p xs = Just (scan' xs)
                      | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
 
 scanBeginOfLine :: Lexer Token
-scanBeginOfLine p ('L' : 'I' : 'N' : 'E' : ' ' : xs)
+scanBeginOfLine p ('{' : '-' : ' ' : 'L' : 'I' : 'N' : 'E' : ' ' : xs)
   | isOkBegin rs && isOkEnd rs'
-      = scan (advc (5 + length r + 2 + length s + 1) p') (tail rs')
+      = scan (advc (8 + length r + 2 + length s + 4) p') (drop 4 rs')
   | otherwise
-      = Just (errToken ("Invalid LINE pragma: " ++ show r) p, advc 5 p, xs)
+      = Just (errToken ("Invalid LINE pragma: " ++ show r) p, advc 8 p, xs)
   where
     (r,rs)   = span isDigit xs
     (s, rs') = span (/= '"') (drop 2 rs)
-    p' = Pos (read r) (column p) s
+    p' = Pos (read r - 1) (column p) s    -- LINE pragma indicates the line number of the /next/ line!
     
     isOkBegin (' ' : '"' : _) = True
     isOkBegin _               = False
     
-    isOkEnd ('"' : _) = True
+    isOkEnd ('"' : ' ' : '-' : '}' : _) = True
     isOkEnd _         = False
 scanBeginOfLine p xs
   = scan p xs

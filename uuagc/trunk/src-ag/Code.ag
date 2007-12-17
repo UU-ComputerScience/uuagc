@@ -42,7 +42,9 @@ DATA Expr     | Let              decls : Decls
               | TextExpr         lns   : {[String]}
               | Trace            txt   : {String}
                                  expr  : Expr
-              | PragmaExpr       txt   : {String}
+              | PragmaExpr       onLeftSide : {Bool}
+                                 onNewLine  : {Bool}
+                                 txt   : {String}
                                  expr  : Expr
 
 DATA CaseAlt  | CaseAlt          left  : Lhs

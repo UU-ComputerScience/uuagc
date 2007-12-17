@@ -19,6 +19,7 @@ import qualified Data.Set as Set
 import Data.Set(Set) 
 import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq)
+import UU.Scanner.Position
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
@@ -34,7 +35,7 @@ ATTR CProductions CProduction
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
@@ -53,6 +54,7 @@ SEM CGrammar [ options : Options | | ]
                      .prefix        = prefix        @lhs.options
                      .o_traces      = genTraces     @lhs.options
                      .o_costcentre  = genCostCentres @lhs.options
+                     .o_linePragmas = genLinePragmas @lhs.options
 
 ATTR CProductions CProduction CAlternatives CAlternative CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -106,17 +108,24 @@ SEM  CRule
                                 else v
            loc.costCentreDescr = show @nt ++ ":" ++ show @con ++ ":" ++ @loc.patDescr
            loc.addCostCentre = \v -> if @lhs.o_costcentre
-                                     then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                     then PragmaExpr True False ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                      else v
+           loc.addLinePragma = \v -> let p = getPos @name
+                                         hasPos = line p > 0 && column p >= 0 && not (null (file p))
+                                     in if @lhs.o_linePragmas && hasPos
+                                        then PragmaExpr True True ("LINE " ++ show (line p) ++ " " ++ show (file p))
+                                             $ PragmaExpr False True ("LINE 1000000 " ++ show (file p))
+                                             $ v
+                                        else v
            loc.decls = if @hasCode
-                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ (TextExpr @rhs))
+                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ @loc.addLinePragma $ (TextExpr @rhs))
                                                   (Set.fromList [attrname False fld nm | (fld,nm,_) <- Map.elems @defines])
                                                   (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList @uses])
                                            : @loc.instDecls)
                        else @loc.instDecls
   |  CChildVisit loc.costCentreDescr = show @lhs.nt ++ ":" ++ show @lhs.con ++ ":" ++ show @name ++ ":" ++ show @nt ++ ":" ++ show @nr
                  loc.addCostCentre = \v -> if @lhs.o_costcentre
-                                           then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                           then PragmaExpr True False ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                            else v
                  loc.decls = let  lhsVars =  map (attrname True @name) (Map.keys @syn)
                                              ++ if @isLast then [] else [unwrap ++ funname @name (@nr+1)]
@@ -283,7 +292,7 @@ SEM  CVisit
             
             loc.costCentreDescr = "b" ++ ":" ++ show @lhs.nt ++ ":" ++ show @lhs.con ++ ":" ++ show @lhs.nr
             loc.addCostCentre = \v -> if @lhs.o_costcentre
-                                      then PragmaExpr ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
+                                      then PragmaExpr True False ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                       else v
             
             loc.semFun = let  lhs = Fun @funcname lhs_args
