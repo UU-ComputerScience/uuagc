@@ -45,6 +45,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
                , Option []        ["gencostcentres"] (NoArg genCostCentresOpt)  "Generate cost centre pragmas (in generated code)"
+               , Option []        ["genlinepragmas"] (NoArg genLinePragmasOpt)  "Generate GHC LINE pragmas (in generated code)"
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
                , Option ['M']     ["genfiledeps"] (NoArg genFileDepsOpt) "Generate a list of dependencies on the input AG files"
                ]
@@ -92,6 +93,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genCostCentres :: Bool
                       , sepSemMods :: Bool
                       , genFileDeps :: Bool
+                      , genLinePragmas :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -134,6 +136,7 @@ noOptions = Options { moduleName    = NoName
                     , genCostCentres = False
                     , sepSemMods     = False
                     , genFileDeps    = False
+                    , genLinePragmas = False
                     }
 
 
@@ -176,6 +179,7 @@ genTracesOpt    opts = opts{genTraces    = True}
 genCostCentresOpt opts = opts{genCostCentres = True}
 sepSemModsOpt opts = opts{sepSemMods = True}
 genFileDepsOpt opts = opts{genFileDeps = True}
+genLinePragmasOpt opts = opts{genLinePragmas = True}
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

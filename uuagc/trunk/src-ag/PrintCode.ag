@@ -124,7 +124,17 @@ SEM Expr
   | Trace      lhs.pp      = "trace" >#< (   pp_parens ("\"" >|< text @txt >|< "\"")
                                          >-< pp_parens @expr.pp
                                          )
-  | PragmaExpr lhs.pp      = "{-#" >#< @txt >#< "#-}" >#< @expr.pp
+  | PragmaExpr lhs.pp      = let pragmaDoc = "{-#" >#< @txt >#< "#-}"
+                                 op = if @onNewLine
+                                      then (>-<)
+                                      else (>#<)
+                                 leftOp x y = if @onLeftSide
+                                              then x `op` y
+                                              else y
+                                 rightOp x y = if @onLeftSide
+                                               then x
+                                               else x `op` y
+                             in pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc
 
 SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]

@@ -1,0 +1,16 @@
+DATA D
+  | C
+
+ATTR D [ | | res : Int ]
+
+SEM D
+  | C  
+
+       lhs.res = 'c'
+
+{
+
+a :: Int
+a = 3
+
+}

@@ -1,4 +1,5 @@
 DATA D
   | C
 
-LINE 999 "Bla.cag" parse error
+{- LINE 999 "Bla.cag" -}
+parse error

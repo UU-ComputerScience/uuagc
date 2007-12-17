@@ -11,7 +11,7 @@ import qualified UU.DData.Seq as Seq ((<>),toList)
 import qualified UU.Pretty           (PP_Doc, render, disp)
 
 import UU.Parsing                    (Message(..), Action(..))
-import UU.Scanner.Position           (Pos)
+import UU.Scanner.Position           (Pos, line, file)
 import UU.Scanner.Token              (Token)
 
 import qualified Transform          as Pass1 (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
@@ -98,9 +98,15 @@ compile flags input output
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
           
-          importBlocksTxt = unlines . concat . Map.elems $ importBlocks
-          textBlocksTxt   = unlines . concat . Map.elems $ textBlocks
-          pragmaBlocksTxt = unlines . concat . Map.elems $ pragmaBlocks
+          importBlocksTxt = unlines . concat . map addLocationPragma . Map.elems $ importBlocks
+          textBlocksTxt   = unlines . concat . map addLocationPragma . Map.elems $ textBlocks
+          pragmaBlocksTxt = unlines . concat . map fst               . Map.elems $ pragmaBlocks
+          
+          addLocationPragma (strs, p)
+            | genLinePragmas flags'
+                = ["{-# LINE " ++ show (line p) ++ " " ++ show (file p) ++ " #-}"] ++ strs ++ ["{-# LINE 1000000 " ++ show output ++ " #-}"]
+            | otherwise
+                = strs
           
           optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
           option True s  = [s]
