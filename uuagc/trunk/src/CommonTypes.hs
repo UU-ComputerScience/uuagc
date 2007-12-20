@@ -1,6 +1,7 @@
 module CommonTypes where
 
-import UU.Pretty (PP,text,pp)
+--import UU.Pretty (PP,text,pp)
+import Pretty
 import UU.Scanner.Position(Pos,noPos)
 import qualified Data.Map as Map
 import Data.Map(Map)

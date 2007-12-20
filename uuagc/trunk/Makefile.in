@@ -127,7 +127,7 @@ endif
 
 
 # HS source files for uuag
-SRC_HS_NAMES = Ag.hs CommonTypes.hs DepTypes.hs HsTokenScanner.hs Options.hs Parser.hs SequentialComputation.lhs SequentialTypes.hs Scanner.hs Streaming.hs TokenDef.hs Version.hs
+SRC_HS_NAMES = Ag.hs CommonTypes.hs DepTypes.hs HsTokenScanner.hs Options.hs Parser.hs SequentialComputation.lhs SequentialTypes.hs Scanner.hs Streaming.hs TokenDef.hs Version.hs GrammarInfo.hs PPUtil.hs Pretty.hs
 SRC_HS = $(addprefix $(SRC_DIR)/,$(SRC_HS_NAMES))
 
 build: $(AG_BINARY)

@@ -4,7 +4,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Char (isAlphaNum)
-import UU.Pretty
+import Pretty
 import Code
 import Patterns
 import Options
@@ -29,6 +29,14 @@ ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq' next strictArgs expr
   = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
 }
+
+ATTR Expr Exprs Decl Decls CaseAlt CaseAlts Lhs [ outputfile : {String} | | ]
+
+SEM Chunk
+  | Chunk
+      loc.outputfile = if sepSemMods @lhs.options
+                       then @lhs.mainFile ++ "_" ++ @name ++ ".hs"
+                       else @lhs.mainFile ++ ".hs"
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
 
@@ -135,6 +143,7 @@ SEM Expr
                                                then x
                                                else x `op` y
                              in pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc
+  | LineExpr   lhs.pp      = @expr.pp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show @lhs.outputfile >#< "#-}"
 
 SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
@@ -301,9 +310,9 @@ SEM CaseAlt
 
 ATTR Program [ | | genIO : {IO ()} ]
 ATTR Program Chunks Chunk
-  [ importBlocks : String
+  [ importBlocks : PP_Doc
     pragmaBlocks : String
-    textBlocks : String
+    textBlocks : PP_Doc
     optionsLine : String
     mainFile : String
     mainName : String
@@ -315,25 +324,25 @@ SEM Program
       loc.mainModuleFile = @lhs.mainFile ++ ".hs"
       loc.genMainModule
         = writeModule @loc.mainModuleFile
-            ( [ @lhs.pragmaBlocks
-              , @lhs.optionsLine
-              , @lhs.moduleHeader @lhs.mainName "" "" False
-              , ("import " ++ @lhs.mainName ++ "_common\n")
+            ( [ pp $ @lhs.pragmaBlocks
+              , pp $ @lhs.optionsLine
+              , pp $ @lhs.moduleHeader @lhs.mainName "" "" False
+              , pp $ ("import " ++ @lhs.mainName ++ "_common\n")
               ]
-              ++ @chunks.imports
-              ++ map renderDocs @chunks.appendMain
+              ++ map pp @chunks.imports
+              ++ map vlist @chunks.appendMain
             )
 
       loc.commonFile = @lhs.mainFile ++ "_common.hs"
       loc.genCommonModule
         = writeModule @loc.commonFile
-              ( [ @lhs.pragmaBlocks
-                , @lhs.optionsLine
-                , @lhs.moduleHeader @lhs.mainName "_common" "" True
+              ( [ pp $ @lhs.pragmaBlocks
+                , pp $ @lhs.optionsLine
+                , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
                 , @lhs.importBlocks
                 , @lhs.textBlocks
                 ]
-                ++ map renderDocs @chunks.appendCommon
+                ++ map vlist @chunks.appendCommon
               )
 
       lhs.genIO = do @loc.genMainModule
@@ -341,8 +350,8 @@ SEM Program
                      @chunks.genSems
 
 {
-renderDocs :: [UU.Pretty.PP_Doc] -> String
-renderDocs pps = foldr (.) id (map (\d -> (UU.Pretty.disp d 50000) . ( '\n':) ) pps) ""
+renderDocs :: [PP_Doc] -> String
+renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
 }
 
 ATTR Chunk Chunks [ | | imports USE {++} {[]} : {[String]} ]
@@ -369,16 +378,15 @@ ATTR Chunk Chunks [ | | genSems USE {>>} {return ()} : {IO ()} ]
 
 SEM Chunk
   | Chunk
-      loc.outputfile = @lhs.mainFile ++ "_" ++ @name ++ ".hs"
       lhs.genSems
         = writeModule @loc.outputfile
-            [ @lhs.pragmaBlocks
-            , @lhs.optionsLine
-            , @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
-            , ("import " ++ @lhs.mainName ++ "_common\n")
-            , renderDocs $ [@comment.pp]
-            , renderDocs $ @info.pps
-            , renderDocs $ @semFunctions.pps
+            [ pp $ @lhs.pragmaBlocks
+            , pp $ @lhs.optionsLine
+            , pp $ @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
+            , pp $ ("import " ++ @lhs.mainName ++ "_common\n")
+            , @comment.pp
+            , vlist_sep "" @info.pps
+            , vlist_sep "" @semFunctions.pps
             ]
 
 SEM Chunk
@@ -386,8 +394,8 @@ SEM Chunk
       loc.exports = concat $ intersperse "," @semNames
 
 {
-writeModule :: FilePath -> [String] -> IO ()
-writeModule path strings
+writeModule :: FilePath -> [PP_Doc] -> IO ()
+writeModule path docs
   = do bExists <- doesFileExist path
        if bExists
         then do input <- readFile path
@@ -397,7 +405,7 @@ writeModule path strings
                  else return ()
         else dumpIt
   where
-    output = concat strings
+    output = renderDocs docs
     dumpIt = writeFile path output
 }
 
