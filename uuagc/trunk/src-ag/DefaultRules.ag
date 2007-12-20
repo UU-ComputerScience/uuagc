@@ -11,7 +11,7 @@ import Data.Map(Map)
 import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq,(<>))
 import UU.Scanner.Position(noPos)
-import UU.Pretty
+import Pretty
 import Maybe
 
 import AbstractSyntax

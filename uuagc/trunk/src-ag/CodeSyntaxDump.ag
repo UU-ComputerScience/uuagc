@@ -6,7 +6,7 @@ imports
 import Data.List
 import qualified Data.Map as Map
 
-import UU.Pretty
+import Pretty
 import PPUtil
 
 import CodeSyntax

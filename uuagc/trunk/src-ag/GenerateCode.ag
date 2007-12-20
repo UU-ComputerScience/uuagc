@@ -114,7 +114,7 @@ SEM  CRule
                                          hasPos = line p > 0 && column p >= 0 && not (null (file p))
                                      in if @lhs.o_linePragmas && hasPos
                                         then PragmaExpr True True ("LINE " ++ show (line p) ++ " " ++ show (file p))
-                                             $ PragmaExpr False True ("LINE 1000000 " ++ show (file p))
+                                             $ LineExpr
                                              $ v
                                         else v
            loc.decls = if @hasCode

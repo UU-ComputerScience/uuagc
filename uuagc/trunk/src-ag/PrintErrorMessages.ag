@@ -2,7 +2,7 @@ INCLUDE "ErrorMessages.ag"
 
 imports
 {
-import UU.Pretty
+import Pretty
 import UU.Scanner.Position(Pos(..), noPos)
 import ErrorMessages
 import DepTypes

@@ -7,7 +7,7 @@ module PPUtil where
 
 import Data.List
 import qualified Data.Map as Map
-import UU.Pretty
+import Pretty
 
 ppListSep :: (PP s, PP c, PP o, PP a) => o -> c -> s -> [a] -> PP_Doc
 ppListSep o c s pps = o >|< hlist (intersperse (pp s) (map pp pps)) >|< c

@@ -1,7 +1,7 @@
 imports
 {
 import UU.Scanner.Position(Pos)
-import UU.Pretty(PP_Doc)
+import Pretty
 import DepTypes(Trace)
 import CodeSyntax
 import CommonTypes

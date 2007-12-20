@@ -3,7 +3,7 @@ INCLUDE "HsToken.ag"
 imports
 {
 import UU.DData.Seq as Seq(Seq,empty,single,(<>),toList)
-import UU.Pretty
+import Pretty
 
 import TokenDef
 import HsToken

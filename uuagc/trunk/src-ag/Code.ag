@@ -1,6 +1,6 @@
 imports
 {
-import UU.Pretty(PP_Doc)
+import Pretty
 import Patterns
 import Data.List(partition)
 import Data.Set(Set)
@@ -46,6 +46,7 @@ DATA Expr     | Let              decls : Decls
                                  onNewLine  : {Bool}
                                  txt   : {String}
                                  expr  : Expr
+              | LineExpr         expr  : Expr
 
 DATA CaseAlt  | CaseAlt          left  : Lhs
                                  expr  : Expr

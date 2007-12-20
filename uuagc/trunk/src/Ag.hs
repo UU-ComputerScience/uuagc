@@ -8,7 +8,7 @@ import Data.Maybe
 
 import qualified Data.Map as Map (elems, partitionWithKey, unionWith)
 import qualified UU.DData.Seq as Seq ((<>),toList)
-import qualified UU.Pretty           (PP_Doc, render, disp)
+import Pretty
 
 import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos, line, file)
@@ -63,7 +63,7 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksTxt, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
+          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
@@ -98,21 +98,24 @@ compile flags input output
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
           
-          importBlocksTxt = unlines . concat . map addLocationPragma . Map.elems $ importBlocks
-          textBlocksTxt   = unlines . concat . map addLocationPragma . Map.elems $ textBlocks
-          pragmaBlocksTxt = unlines . concat . map fst               . Map.elems $ pragmaBlocks
+          importBlocksTxt = vlist_sep "" . map addLocationPragma . Map.elems $ importBlocks
+          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.elems $ textBlocks
+          pragmaBlocksTxt = unlines . concat . map fst      . Map.elems $ pragmaBlocks
           
+          outputfile = if null output then outputFile input else output
+          
+          addLocationPragma :: ([String], Pos) -> PP_Doc
           addLocationPragma (strs, p)
             | genLinePragmas flags'
-                = ["{-# LINE " ++ show (line p) ++ " " ++ show (file p) ++ " #-}"] ++ strs ++ ["{-# LINE 1000000 " ++ show output ++ " #-}"]
+                = "{-# LINE" >#< pp (show (line p)) >#< show (file p) >#< "#-}" >-< vlist (map pp strs) >-< "{-# LINE" >#< ppWithLineNr (pp.show.(+1)) >#< show outputfile >#< "#-}"
             | otherwise
-                = strs
+                = vlist (map pp strs)
           
           optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
           option True s  = [s]
           option False _ = []
           optionsLine | null optionsGHC = ""
-                      | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}\n"
+                      | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}"
           
           mainName = stripPath $ defaultModuleName input
           mainFile = defaultModuleName input
@@ -143,44 +146,39 @@ compile flags input output
                     Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
-                    let outputfile = if null output then outputFile input else output
-                   
-                    writeFile  outputfile pragmaBlocksTxt
-                    appendFile outputfile                                $ optionsLine
-                    appendFile outputfile                                $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")\n"
-                    appendFile outputfile                                $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                                                           then moduleHeader flags' input
-                                                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
-                    appendFile outputfile importBlocksTxt
-                    appendFile outputfile textBlocksTxt
-                    appendFile outputfile . formatProg                   $ Pass5.output_Syn_Program output5
-                    appendFile outputfile                                $ if dumpgrammar flags'
-                                                                           then ("{- Dump of grammar without default rules\n" ++)
-                                                                                $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump1) 5000
-                                                                                $ ("\n-}\n" ++)
-                                                                                $ ("{- Dump of grammar with default rules\n" ++)
-                                                                                $ UU.Pretty.disp (GrammarDump.pp_Syn_Grammar dump2) 5000
-                                                                                $ ("\n-}\n" ++)
-                                                                                $ ""
-                                                                           else ""
-                    appendFile outputfile                                $ if dumpcgrammar flags'
-                                                                           then ( "{- Dump of cgrammar\n" ++)
-                                                                                $ UU.Pretty.disp (CGrammarDump.pp_Syn_CGrammar dump3) 5000
-                                                                                $ ("\n-}\n" ++)
-                                                                                $ ""
-                                                                           else ""
+                    let doc = vlist [ pp optionsLine
+                                    , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
+                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                           then moduleHeader flags' input
+                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                    , pp importBlocksTxt
+                                    , textBlocksDoc
+                                    , vlist $ Pass5.output_Syn_Program output5
+                                    , if dumpgrammar flags'
+                                      then vlist [ pp "{- Dump of grammar without default rules"
+                                                 , GrammarDump.pp_Syn_Grammar dump1
+                                                 , pp "-}"
+                                                 , pp "{- Dump of grammar with default rules"
+                                                 , GrammarDump.pp_Syn_Grammar dump2
+                                                 , pp "-}"
+                                                 ]
+                                      else empty
+                                    , if dumpcgrammar flags'
+                                      then vlist [ pp "{- Dump of cgrammar" 
+                                                 , CGrammarDump.pp_Syn_CGrammar dump3
+                                                 , pp "-}"
+                                                 ]
+                                      else empty
+                                    ]
+
+                    let docTxt = disp doc 50000 ""
+                    writeFile outputfile docTxt
                     if not (null errorsToStopOn) then exitFailure else return ()
 
 
 
-formatProg :: [UU.Pretty.PP_Doc] -> String
-formatProg pps = foldr (.) 
-                       id
-                       (map (\d -> (UU.Pretty.disp d 5000) . ( '\n':) ) pps)
-                       ""
-
-formatErrors :: UU.Pretty.PP_Doc -> String
-formatErrors pp = UU.Pretty.disp pp 5000 ""
+formatErrors :: PP_Doc -> String
+formatErrors pp = disp pp 5000 ""
 
 
 message2error :: Message Token Pos -> Error
@@ -203,7 +201,7 @@ moduleHeader flags input
    of Name nm -> genMod nm
       Default -> genMod (defaultModuleName input)
       NoName  -> ""
-   where genMod x = "module " ++ x ++ " where\n"
+   where genMod x = "module " ++ x ++ " where"
 
 inputFile :: String -> String
 inputFile name 
@@ -240,7 +238,7 @@ mkMainName _ (Just (name, _, _))
 
 mkModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> Bool -> String
 mkModuleHeader Nothing defaultName _ _ _
-  = "module " ++ defaultName ++ " where\n"
+  = "module " ++ defaultName ++ " where"
 mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExports
   = "module " ++ name ++ suffix ++ exp ++ " where\n" ++ imports ++ "\n"
   where
