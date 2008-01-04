@@ -7,27 +7,41 @@ Build-Depends: base, haskell98, uulib
 
 Executable:     uuagc
 Main-Is:        Ag.hs
-Other-Modules: AbstractSyntax,
-      Code,
-      CommonTypes,
-      ConcreteSyntax,
-      DefaultRules,
-      DepTypes,
-      ErrorMessages,
-      Expression,
-      GenerateCode,
-      HsToken,
-      HsTokenScanner,
-      Options,
-      Parser,
-      Patterns,
-      PrintCode,
-      PrintErrorMessages,
-      Scanner,
-      SemHsTokens,
-      Streaming,
-      TokenDef,
-      Transform,
-      Version
+Other-Modules: Ag
+    , CommonTypes
+    , DepTypes
+    , GrammarInfo
+    , HsTokenScanner
+    , Options
+    , PPUtil
+    , Parser
+    , Pretty
+    , Scanner
+    , SequentialComputation
+    , SequentialTypes
+    , Streaming
+    , TokenDef
+    , Version
+    , AbstractSyntax
+    , AbstractSyntaxDump
+    , Code
+    , CodeSyntax
+    , CodeSyntaxDump
+    , ConcreteSyntax
+    , DeclBlocks
+    , DefaultRules
+    , Desugar
+    , ErrorMessages
+    , Expression
+    , GenerateCode
+    , HsToken
+    , Interfaces
+    , InterfacesRules
+    , Order
+    , Patterns
+    , PrintCode
+    , PrintErrorMessages
+    , SemHsTokens
+    , Transform
 Extensions: TypeSynonymInstances, MultiParamTypeClasses
 Hs-Source-Dirs: src, src-derived
