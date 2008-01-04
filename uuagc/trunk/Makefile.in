@@ -12,6 +12,8 @@ help:
 	@echo clean - Clean the generated HS sources
 	@echo install - Install the AG compiler
 	@echo dist - Create source distributions
+	@echo
+	@echo derived - Only the derived files
 
 # Directories
 SRC_DIR = src
@@ -133,7 +135,9 @@ SRC_HS = $(addprefix $(SRC_DIR)/,$(SRC_HS_NAMES))
 build: $(AG_BINARY)
 
 # Building the uuagc system invokes cabal build
-$(AG_BINARY): $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L) $(CABAL_CONFIG)
+derived: $(SRC_HS) $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L)
+
+$(AG_BINARY): derived $(CABAL_CONFIG)
 	@echo "* Compiling hs sources..."
 	$(CABAL_BUILD)
 

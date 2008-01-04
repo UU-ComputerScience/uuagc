@@ -2,6 +2,7 @@ Please pick the right section in this file for instructions depending on how you
 
 IMPORTANT: We assume that you have the latest official release of GHC installed together with the accompanying Cabal package. For older GHC installations, rename:
    uuagc.cabal-for-ghc-6.6      to    uuagc.cabal
+ or upgrade to at least Cabal-1.2.x
 
 
 -------------------------------------------
