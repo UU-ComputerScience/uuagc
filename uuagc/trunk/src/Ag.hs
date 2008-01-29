@@ -149,7 +149,7 @@ compile flags input output
                     let doc = vlist [ pp optionsLine
                                     , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                           then moduleHeader flags' input
+                                           then moduleHeader flags' mainName
                                            else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                     , pp importBlocksTxt
                                     , textBlocksDoc
@@ -222,13 +222,8 @@ defaultModuleName name
    else name
 
 stripPath :: String -> String
-stripPath s
-  = stripPath' s ""
-
-stripPath' [] acc = acc
-stripPath' (x:xs) acc
-  | x == '/' || x == '\\' = stripPath' xs ""
-  | otherwise = stripPath' xs (acc ++ [x])
+stripPath
+  = reverse . takeWhile (\c -> c /= '/' && c /= '\\') . reverse
 
 mkMainName :: String -> Maybe (String, String,String) -> String
 mkMainName defaultName Nothing
