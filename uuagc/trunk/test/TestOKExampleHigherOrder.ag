@@ -1,3 +1,7 @@
+imports {
+import System
+}
+
 DATA Root
   | Root  e : Expr
 
@@ -61,6 +65,11 @@ ppExpr e = let sem = sem_Root (Root_Root e)
                syn = wrap_Root sem inh
             in pp_Syn_Root syn
 
-main :: String
-main = ppExpr (Expr_Tuple (Expr_Tuple (Expr_Const 1) (Expr_Const 2)) (Expr_Const 3))
+output :: String
+output = ppExpr (Expr_Tuple (Expr_Tuple (Expr_Const 1) (Expr_Const 2)) (Expr_Const 3))
+
+main :: IO ()
+main = if output == "{(1 :: Int, 2 :: Int) :: {Int, Int}, 3 :: Int} :: ({Int, Int}, Int)"
+       then exitWith ExitSuccess
+       else exitFailure
 }
