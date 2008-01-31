@@ -179,6 +179,7 @@ dist_makedirs:
 	$(RM_F) -r $(DLABEL)
 	$(RM_F) -r $(VLABEL)
 	$(MKDIR) -p $(DLABEL)
+	$(MKDIR) -p $(DLABEL)/test
 	for dir in `$(FIND) $(SRC_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 	for dir in `$(FIND) $(SRC_DERIVED_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 	for dir in `$(FIND) $(SRC_AG_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
@@ -206,6 +207,7 @@ dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SY
 	$(CP) -p $(SRC_DERIVED_DIR)/*.hs $(DLABEL)/$(SRC_DERIVED_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.lag $(DLABEL)/$(SRC_AG_DIR)
+	$(CP) -p test/*.ag $(DLABEL)/test
 	$(CP) -p scripts/*.sh.in $(DLABEL)/scripts
 
 dist_pack: dist_copy
