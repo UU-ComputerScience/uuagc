@@ -224,6 +224,7 @@ source_tarball_info:
 	@echo "* Generating source tarball..."
 
 source_tarball_pack: dist_copy
+	touch svn-revision
 	$(MV) $(DLABEL) $(XLABEL)
 	$(TARCZVF) $(XTLABEL)$(TAREXT) $(XLABEL)
 	
@@ -258,3 +259,8 @@ $(TEST_EXE)	:	%.exe	:	%.hs
 test : $(TEST_EXE)
 cleantest : 
 	$(RM_F) $(TEST_HS) $(TEST_O) $(TEST_EXE)
+
+check:
+	`pwd`/dist/build/uuagc/uuagc -Oa --module=Main test/TestOKExampleHigherOrder.ag
+	ghc --make -i./test test/TestOKExampleHigherOrder.hs -o testprogram
+	./testprogram
