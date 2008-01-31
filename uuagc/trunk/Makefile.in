@@ -166,11 +166,14 @@ endif
 
 # the name is hard-coded
 
+REVISION := $(shell cat svn-revision)
 TODAY  := $(shell date '+%Y-%m-%d')
 DLABEL := uuagc-$(TODAY)
 VLABEL := uuagc-$(VERSION)
 DTLABEL:= uuagc-$(TODAY)-$(DISTTYPE)
 VTLABEL:= uuagc-$(VERSION)-$(DISTTYPE)
+XLABEL := uuagc-$(VERSION)-rev$(REVISION)
+XTLABEL:= uuagc-$(VERSION)-rev$(REVISION)-$(DISTTYPE)
 
 dist_makedirs:
 	$(RM_F) -r $(DLABEL)
@@ -214,6 +217,16 @@ dist: dist_info dist_pack
 
 dist_info:
 	@echo "* Generating distributions..."
+
+source_tarball: source_tarball_info source_tarball_pack
+
+source_tarball_info:
+	@echo "* Generating source tarball..."
+
+source_tarball_pack: dist_copy
+	$(MV) $(DLABEL) $(XLABEL)
+	$(TARCZVF) $(XTLABEL)$(TAREXT) $(XLABEL)
+	
 
 #
 # Clean (only stuff built using uuagc)
