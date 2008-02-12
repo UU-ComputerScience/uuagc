@@ -98,9 +98,9 @@ compile flags input output
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
           
-          importBlocksTxt = vlist_sep "" . map addLocationPragma . Map.elems $ importBlocks
-          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.elems $ textBlocks
-          pragmaBlocksTxt = unlines . concat . map fst      . Map.elems $ pragmaBlocks
+          importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
+          textBlocksDoc   = vlist_sep "" . map addLocationPragma . concat . Map.elems $ textBlocks
+          pragmaBlocksTxt = unlines . concat . map fst      . concat . Map.elems $ pragmaBlocks
           
           outputfile = if null output then outputFile input else output
           

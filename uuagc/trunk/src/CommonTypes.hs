@@ -9,7 +9,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 
 
-type Blocks = Map String ([String], Pos)
+type Blocks = Map String [([String], Pos)]
 
 data Identifier  = Ident {getName::String , getPos::Pos}
 

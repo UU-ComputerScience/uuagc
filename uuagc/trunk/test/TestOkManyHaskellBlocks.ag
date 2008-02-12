@@ -1,0 +1,18 @@
+imports
+{
+import Data.Map
+}
+
+{
+x = 1 + 2
+}
+
+imports
+{
+import Data.Set
+}
+
+{
+y = x - 2
+z = y + x
+}
