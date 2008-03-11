@@ -101,8 +101,6 @@ lexNest cont pos inp = lexNest' cont pos inp
 scanString []            = ("",0,[])
 scanString ('\\':'&':xs) = let (str,w,r) = scanString xs
                            in (str,w+2,r)
-scanString ('\\':'\\':xs) = let (str,w,r) = scanString xs
-                            in ('\\' : str,w+2,r)
 scanString ('\'':xs)     = let (str,w,r) = scanString xs
                            in ('\'': str,w+1,r)
 scanString xs = let (ch,cw,cr) = getchar xs
@@ -118,8 +116,8 @@ getchar s@('\n':_ ) = (Nothing,0,s )
 getchar s@('\t':_ ) = (Nothing,0,s)
 getchar s@('\'':_ ) = (Nothing,0,s)
 getchar s@('"' :_ ) = (Nothing,0,s)
--- getchar   ('\\':xs) = let (c,l,r) = getEscChar xs
---                       in (c,l+1,r)
+getchar   ('\\':xs) = let (c,l,r) = getEscChar xs
+                      in (c,l+1,r)
 getchar (x:xs)      = (Just x,1,xs)
 
 getEscChar [] = (Nothing,0,[])
