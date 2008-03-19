@@ -69,26 +69,26 @@ SEM AG
 -- Names that are in use
 
   -- bottom-up collection
-ATTR Elem Elems          [ | | collectedSetNames USE {`Set.union`} {Set.empty} : {Set Name} ]
-ATTR Elem Elems NontSet  [ | | collectedNames    USE {`Set.union`} {Set.empty} : {Set Name} ]
+ATTR Elem Elems          [ | | collectedSetNames USE {`Set.union`} {Set.empty} : {Set Identifier} ]
+ATTR Elem Elems NontSet  [ | | collectedNames    USE {`Set.union`} {Set.empty} : {Set Identifier} ]
   -- top-down distribution
-ATTR Elem Elems Attrs Alts Alt NontSet [ allNonterminals : {Set Nonterminal} | | ]
+ATTR Elem Elems Attrs Alts Alt NontSet [ allNonterminals : {Set NontermIdent} | | ]
 
 
 -- Constructors that are in use
   -- bottom-up collection
-ATTR Alt Alts ConstructorSet [ | | collectedConstructorNames USE {`Set.union`} {Set.empty} : {Set Constructor} ]
-ATTR Elem Elems [ | | collectedConstructorsMap USE {`mapUnionWithSetUnion`} {Map.empty} : {Map Nonterminal (Set Constructor)} ]
+ATTR Alt Alts ConstructorSet [ | | collectedConstructorNames USE {`Set.union`} {Set.empty} : {Set ConstructorIdent} ]
+ATTR Elem Elems [ | | collectedConstructorsMap USE {`mapUnionWithSetUnion`} {Map.empty} : {Map NontermIdent (Set ConstructorIdent)} ]
   -- top-down distribution
-ATTR Elem Elems Alts Alt [ allConstructors : {Map Nonterminal (Set Constructor)} | | ]
+ATTR Elem Elems Alts Alt [ allConstructors : {Map NontermIdent (Set ConstructorIdent)} | | ]
 
 
 
 -- Nonterminal sets that are defined
-{type DefinedSets = Map Name (Set Nonterminal) }
+{type DefinedSets = Map Identifier (Set NontermIdent) }
   -- bottom-up collection
 ATTR Elem Elems
-     [ | defSets:{Map Name (Set Nonterminal,Set Name)} | ]
+     [ | defSets:{Map Identifier (Set NontermIdent,Set Identifier)} | ]
   -- top-down distribution
 ATTR Elem Elems NontSet
      [ definedSets:{DefinedSets} | | ]
@@ -96,20 +96,20 @@ ATTR Elem Elems NontSet
      
      
 -- Interpreting nonterminal sets     
-ATTR NontSet [ | | nontSet   : {Set Nonterminal} ]
+ATTR NontSet [ | | nontSet   : {Set NontermIdent} ]
 
 
 -- Interpreting constructor sets     
-ATTR ConstructorSet  [ | | constructors : {(Set Constructor->Set Constructor)} ]
+ATTR ConstructorSet  [ | | constructors : {(Set ConstructorIdent->Set ConstructorIdent)} ]
 
 
 
 -- Contextfree structure
-{type FieldMap  = [(Name, Type)] }
-{type DataTypes = Map.Map Nonterminal (Map.Map Constructor FieldMap) }
+{type FieldMap  = [(Identifier, Type)] }
+{type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap) }
   -- bottom-up collection
 ATTR Alt Alts Elem Elems
-     [ | | collectedFields USE {++} {[]} : {[(Nonterminal, Constructor, FieldMap)]}]
+     [ | | collectedFields USE {++} {[]} : {[(NontermIdent, ConstructorIdent, FieldMap)]}]
   -- top-down distribution
 ATTR Elem Elems Attrs SemAlt SemAlts NontSet
      [  allFields : {DataTypes} | | ]
@@ -120,20 +120,20 @@ ATTR Elem Elems Attrs SemAlt SemAlts NontSet
   -- bottom-up collection
 ATTR Elems Elem Attrs
      [
-     | attrDecls:{Map Nonterminal (Attributes, Attributes)}
-     | useMap USE {`merge`} {Map.empty}:{Map Nonterminal (Map Name (String,String,String))}
+     | attrDecls:{Map NontermIdent (Attributes, Attributes)}
+     | useMap USE {`merge`} {Map.empty}:{Map NontermIdent (Map Identifier (String,String,String))}
      ]
 
 
 -- Attribute definitions
-{type AttrName = (Name,Name) }
+{type AttrName = (Identifier,Identifier) }
 {type RuleInfo = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
 {type SigInfo  = (Identifier,Type) }
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
-     [ | |   collectedRules USE {++} {[]} : {[ (Nonterminal, Constructor, RuleInfo)]} 
-             collectedSigs  USE {++} {[]} : {[ (Nonterminal, Constructor, SigInfo) ]}
-             collectedInsts USE {++} {[]} : {[ (Nonterminal, Constructor, [Identifier]) ]}
+     [ | |   collectedRules USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
+             collectedSigs  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, SigInfo) ]}
+             collectedInsts USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
      ]
 
 
@@ -143,7 +143,7 @@ ATTR Elem Elems SemAlt SemAlts
 -------------------------------------------------------------------------------
 
 -- Pass the name of the associated nonterminal to everyone
-ATTR Alt Alts SemAlt SemAlts [ nts:{Set Nonterminal} | | ]
+ATTR Alt Alts SemAlt SemAlts [ nts:{Set NontermIdent} | | ]
 
 SEM Elem
   | Data alts.nts = @names.nontSet
@@ -267,9 +267,9 @@ type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
-checkRules :: Map Nonterminal (Attributes, Attributes) -> Map Nonterminal (Map Constructor FieldMap) ->
-              Map Nonterminal (Map Constructor [Identifier]) -> Map Nonterminal (Map Constructor [SigInfo]) ->
-              Nonterminal -> Constructor -> [RuleInfo] -> RulesAndErrors
+checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
+              Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
+              NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields allinsts allsigs nt con rs
   = let fieldmap :: FieldMap
         fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined) : (_FIRST, NT undefined) : (_LAST, NT undefined)
@@ -301,7 +301,7 @@ checkRules attributes fields allinsts allsigs nt con rs
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
 
-checkSigs :: Nonterminal -> Constructor -> [SigInfo] -> SigsAndErrors
+checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
          = if   ide `elem` map (\(TypeSig n t)-> n) sigs
@@ -311,7 +311,7 @@ checkSigs nt con sis
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
 
-checkInsts :: Map Nonterminal (Map Constructor [SigInfo]) -> Nonterminal -> Constructor -> [Identifier] -> InstsAndErrors
+checkInsts :: Map NontermIdent (Map ConstructorIdent [SigInfo]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
 checkInsts sigMap nt con
   = foldr (\inst (insts, errs) -> maybe (insts, Seq.single (MissingInstSig nt con inst) <> errs)
                                         (\info -> (info : insts, errs)) $ findSig inst) ([], Seq.empty)
@@ -449,22 +449,22 @@ SEM NontSet
 
 
 {
-flattenDatas :: DataTypes -> Map Nonterminal (Set Nonterminal)
+flattenDatas :: DataTypes -> Map NontermIdent (Set NontermIdent)
 flattenDatas ds = Map.map flatten ds
   where flatten cs =  Set.fromList [ nt | (_,NT nt) <- concatMap snd (Map.toList cs)]
 
-reachableFrom :: Map Nonterminal (Set Nonterminal) -> Set Nonterminal -> Set Nonterminal
+reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
 reachableFrom table nts = reach nts
   where reach nts = let nts' = Set.unions (nts : [ ns  | nt <- Set.toList nts
                                                  , let ns = Map.findWithDefault Set.empty nt table ])
                     in if Set.size nts' > Set.size nts
                           then reach nts'
                           else nts
-invert :: Map Nonterminal (Set Nonterminal) -> Map Nonterminal (Set Nonterminal)
+invert :: Map NontermIdent (Set NontermIdent) -> Map NontermIdent (Set NontermIdent)
 invert m = foldr inv Map.empty (Map.toList m)
   where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.singleton x) m) m ns
 
-path :: Map Nonterminal (Set Nonterminal) -> Nonterminal -> Nonterminal -> Set Nonterminal
+path :: Map NontermIdent (Set NontermIdent) -> NontermIdent -> NontermIdent -> Set NontermIdent
 path table from to = let children = Map.findWithDefault Set.empty from table
                          forward  = reachableFrom table children
                          backward = reachableFrom (invert table)
@@ -487,7 +487,7 @@ SEM ConstructorSet
 --         Collecting wrappers
 -------------------------------------------------------------------------------
 
-ATTR Elem Elems [ | | wrappers USE {`Set.union`} {Set.empty} :{Set Nonterminal}]
+ATTR Elem Elems [ | | wrappers USE {`Set.union`} {Set.empty} :{Set NontermIdent}]
 
 SEM Elem
   | Wrapper lhs.wrappers = @set.nontSet
@@ -539,7 +539,7 @@ SEM SemAlt
                                                              , con <- Set.toList conset
                                                              ]
 
-ATTR SemDefs SemDef [ | | pragmaNamesCollect USE {++} {[]} : {[Name]} ]
+ATTR SemDefs SemDef [ | | pragmaNamesCollect USE {++} {[]} : {[Identifier]} ]
 
 SEM SemDef
   | SemPragma
@@ -549,7 +549,7 @@ SEM SemDef
 pragmaMapUnion :: PragmaMap -> PragmaMap -> PragmaMap
 pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
 
-pragmaMapSingle :: Nonterminal -> Constructor -> Set Name -> PragmaMap
+pragmaMapSingle :: NontermIdent -> ConstructorIdent -> Set Identifier -> PragmaMap
 pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
 }
 
@@ -559,7 +559,7 @@ pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
 
 ATTR Elem Elems SemAlts SemAlt [ | | attrOrderCollect USE {`orderMapUnion`} {Map.empty} : {AttrOrderMap} ]
 ATTR Elem Elems SemAlts SemAlt [ | | orderDepErrorsCollect USE {Seq.<>} {Seq.empty} : {Seq Error} ]
-ATTR Elem Elems SemAlts SemAlt [ allAttrDecls : {Map Nonterminal (Attributes, Attributes)} | | ]
+ATTR Elem Elems SemAlts SemAlt [ allAttrDecls : {Map NontermIdent (Attributes, Attributes)} | | ]
 
 SEM SemAlt
   | SemAlt
@@ -582,7 +582,7 @@ SEM SemDef
 orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap
 orderMapUnion = Map.unionWith (Map.unionWith Set.union)
 
-orderMapSingle :: Nonterminal -> Constructor -> Set Dependency -> AttrOrderMap
+orderMapSingle :: NontermIdent -> ConstructorIdent -> Set Dependency -> AttrOrderMap
 orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
 }
 
@@ -616,7 +616,7 @@ SEM Elem
   | Attr attrs.nts = @names.nontSet
   | Sem  attrs.nts = @names.nontSet
 
-SEM Attrs [ nts:{Set Nonterminal} | | ]
+SEM Attrs [ nts:{Set NontermIdent} | | ]
   | Attrs loc.(attrDecls,errors) = checkAttrs @lhs.allFields (Set.toList @lhs.nts) @inherited @synthesized @lhs.attrDecls
 
              .(inherited,synthesized,useMap) = let splitAttrs xs = unzip [ ((n,makeType @lhs.allNonterminals t),(n,ud))
@@ -742,22 +742,22 @@ SEM Elem
 --         Constructing transformed syntax tree
 -------------------------------------------------------------------------------
 {
-makeType :: Set Nonterminal -> Type -> Type
+makeType :: Set NontermIdent -> Type -> Type
 makeType nts tp@(NT x) | x == _SELF       = tp
                        | Set.member x nts = tp
                        | otherwise        = Haskell (getName x)
 makeType _   tp                           = tp
 }
 {
-constructGrammar ::    Set Nonterminal
+constructGrammar ::    Set NontermIdent
                     -> DataTypes
-                    -> Map Nonterminal (Attributes, Attributes)
-                    -> Map Nonterminal (Map Name (String, String, String))
+                    -> Map NontermIdent (Attributes, Attributes)
+                    -> Map NontermIdent (Map Identifier (String, String, String))
                     -> Derivings
-                    -> Set Nonterminal
-                    -> Map Nonterminal (Map Constructor [Rule])
-                    -> Map Nonterminal (Map Constructor [TypeSig])
-                    -> Map Nonterminal (Map Constructor [(Identifier, Type)])
+                    -> Set NontermIdent
+                    -> Map NontermIdent (Map ConstructorIdent [Rule])
+                    -> Map NontermIdent (Map ConstructorIdent [TypeSig])
+                    -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)])
                     -> TypeSyns
                     -> PragmaMap
                     -> AttrOrderMap
@@ -780,8 +780,8 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                                  NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
                                                  _     -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn isVirtual
-                                   in Alternative con cldrn rules tsigs
-                            in Production nt inh syn (map alt alts)
+                                   in Production con cldrn rules tsigs
+                            in Nonterminal nt inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap
 }
 

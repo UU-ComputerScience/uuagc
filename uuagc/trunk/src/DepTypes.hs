@@ -21,15 +21,15 @@ class ContainsTrace a where
 -- kan helaas niet met named fields, want dat levert een conflict op in de uniekheid vd naamgeving.
 -- ERROR "CommonTypes.hs" (line 44): Repeated definition for selector "nt"
 
-data Vertex = Local Name Name Name -- lhs nt, constructor, attribute
-            | LHSInh Name Name Name -- lhs nt, constructor, attribute
-            | LHSSyn Name Name Name -- lhs nt, constructor, attribute
-            | ShRHSInh Name Name Name Name -- lhs nt, constructor, field, attribute !!rhs nt not known, equal to RHSInh!!
-            | ShRHSSyn Name Name Name Name -- lhs nt, constructor, field, attribute !!rhs nt not known, equal to RHSSyn!!
-            | RHSInh Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
-            | RHSSyn Name Name Name Name Name -- rhs nt, lhs nt, constructor, field, attribute
-            | NTInh Name Name -- nt, attribute
-            | NTSyn Name Name -- nt, attribute
+data Vertex = Local Identifier Identifier Identifier -- lhs nt, constructor, attribute
+            | LHSInh Identifier Identifier Identifier -- lhs nt, constructor, attribute
+            | LHSSyn Identifier Identifier Identifier -- lhs nt, constructor, attribute
+            | ShRHSInh Identifier Identifier Identifier Identifier -- lhs nt, constructor, field, attribute !!rhs nt not known, equal to RHSInh!!
+            | ShRHSSyn Identifier Identifier Identifier Identifier -- lhs nt, constructor, field, attribute !!rhs nt not known, equal to RHSSyn!!
+            | RHSInh Identifier Identifier Identifier Identifier Identifier -- rhs nt, lhs nt, constructor, field, attribute
+            | RHSSyn Identifier Identifier Identifier Identifier Identifier -- rhs nt, lhs nt, constructor, field, attribute
+            | NTInh Identifier Identifier -- nt, attribute
+            | NTSyn Identifier Identifier -- nt, attribute
 
 instance Eq Vertex where
  Local       lhs1 con1       attr1 == Local       lhs2 con2       attr2 = lhs1==lhs2 && con1==con2 && attr1==attr2
@@ -86,18 +86,18 @@ instance Show Vertex where
 type UseStream = (Vertex,Stream)
 type Stream = [Result]
 type Result = ([UsedAttr],[UsedAttr])
-data UsedAttr = Loc Name Name Trace -- field name and attribute name
-              | Glo Name Trace -- attribute name
+data UsedAttr = Loc Identifier Identifier Trace -- field name and attribute name
+              | Glo Identifier Trace -- attribute name
 
 -- lhs en rhs slaan op de lhs en rhs van een attribute equation en niet van de productie!!
 data TraceElem = TE { lineNr  :: Int
-                    , nt      :: Nonterminal
-                    , prod    :: Name
-                    , lhsNt   :: Nonterminal
-                    , lhsFld  :: Name
-                    , lhsAttr :: Name
-                    , rhsFld  :: Name
-                    , rhsAttr :: Name } deriving Show
+                    , nt      :: NontermIdent
+                    , prod    :: Identifier
+                    , lhsNt   :: NontermIdent
+                    , lhsFld  :: Identifier
+                    , lhsAttr :: Identifier
+                    , rhsFld  :: Identifier
+                    , rhsAttr :: Identifier } deriving Show
 
 type Trace = [TraceElem]
 
@@ -105,7 +105,7 @@ getTrace :: UsedAttr -> Trace
 getTrace (Loc _ _ trace) = trace
 getTrace (Glo   _ trace) = trace
 
-toPair :: UsedAttr -> (Name,Trace)
+toPair :: UsedAttr -> (Identifier,Trace)
 toPair (Loc _ attr trace) = (attr,trace)
 toPair (Glo   attr trace) = (attr,trace)
 

@@ -30,8 +30,8 @@ import Maybe(fromJust,isJust)
 --         Options
 -------------------------------------------------------------------------------
 
-ATTR CProductions CProduction
-     CAlternatives CAlternative
+ATTR CNonterminals CNonterminal
+     CProductions CProduction
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
@@ -40,7 +40,7 @@ ATTR CProductions CProduction
          prefix : String
        | | ]
 SEM CGrammar [ options : Options | | ]
-  | CGrammar    prods.o_sig         = typeSigs      @lhs.options
+  | CGrammar    nonts.o_sig         = typeSigs      @lhs.options
                      .o_cata        = folds         @lhs.options
                      .o_sem         = semfuns       @lhs.options
                      .o_newtypes    = newtypes      @lhs.options
@@ -56,26 +56,26 @@ SEM CGrammar [ options : Options | | ]
                      .o_costcentre  = genCostCentres @lhs.options
                      .o_linePragmas = genLinePragmas @lhs.options
 
-ATTR CProductions CProduction CAlternatives CAlternative CVisits CVisit [ allPragmas : PragmaMap | | ]
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ allPragmas : PragmaMap | | ]
 
 SEM CGrammar
-  | CGrammar  prods.allPragmas = @pragmas
+  | CGrammar  nonts.allPragmas = @pragmas
 
 -------------------------------------------------------------------------------
 -- Passing information about nonterminal and constructor down
 -------------------------------------------------------------------------------
 
-ATTR  CAlternatives CAlternative CVisits 
+ATTR  CProductions CProduction CVisits 
       CVisit Sequence CRule CInterface 
-      CSegments CSegment [ nt:Nonterminal inh,syn:Attributes | | ]
-SEM  CProduction
-  |  CProduction  inter.(inh,syn,nt) = (@inh,@syn,@nt)
-                  alts.(inh,syn,nt) = (@inh,@syn,@nt)
+      CSegments CSegment [ nt:NontermIdent inh,syn:Attributes | | ]
+SEM  CNonterminal
+  |  CNonterminal  inter.(inh,syn,nt) = (@inh,@syn,@nt)
+                  prods.(inh,syn,nt) = (@inh,@syn,@nt)
 
-ATTR CVisits CVisit Sequence CRule [ con:Constructor 
-                                     terminals : {[Name]} | | ]
-SEM  CAlternative
-  |  CAlternative  visits.con = @con
+ATTR CVisits CVisit Sequence CRule [ con:ConstructorIdent 
+                                     terminals : {[Identifier]} | | ]
+SEM  CProduction
+  |  CProduction  visits.con = @con
                    visits.terminals = @terminals
 
 -------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ SEM  CRule
                                   rhs = @loc.addCostCentre $ App (funname @name @nr) (map SimpleExpr rhsVars)
                              in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
 
-ATTR Sequence CRule [ higherOrderChildren : {[(Name,Type,Bool)]} ||]
+ATTR Sequence CRule [ higherOrderChildren : {[(Identifier,Type,Bool)]} ||]
 
 ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
@@ -144,7 +144,7 @@ SEM Pattern
 SEM CRule
   | CRule  loc.definedInsts = if @isIn then [] else @pattern.definedInsts
 
-ATTR Pattern Patterns [ | | patternAttributes USE {++} {[]} : {[(Name, Name)]} ]
+ATTR Pattern Patterns [ | | patternAttributes USE {++} {[]} : {[(Identifier, Identifier)]} ]
 SEM Pattern
   | Alias
       lhs.patternAttributes = (@field,@attr) : (@pat.patternAttributes ++ @parts.patternAttributes)
@@ -155,8 +155,8 @@ SEM Pattern
 
 ATTR  CVisits CVisit Sequence CRule
       CSegments CSegment [ nr : Int | | ]
-SEM  CAlternative
-  |  CAlternative visits.nr = 0
+SEM  CProduction
+  |  CProduction visits.nr = 0
 SEM  CVisits
   |  Cons tl.nr = @lhs.nr + 1
 SEM  CInterface
@@ -256,9 +256,9 @@ substSelf nt tp = if tp==NT _SELF
                   else tp
 }
 
-ATTR CVisits CVisit Sequence CRule [ children : {[(Name,Type,Bool)]} | | ]
-SEM  CAlternative
-  |  CAlternative visits.children = @children
+ATTR CVisits CVisit Sequence CRule [ children : {[(Identifier,Type,Bool)]} | | ]
+SEM  CProduction
+  |  CProduction visits.children = @children
 
 
 ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]} 
@@ -344,8 +344,8 @@ mkLambda xs e = Lambda xs e
 
 ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
 ATTR CVisits CVisit [|| gatherInstVisitNrs USE {`Map.union`} {Map.empty} : {Map Identifier Int} ]
-SEM CAlternative
-  | CAlternative
+SEM CProduction
+  | CProduction
       visits.instVisitNrs = @visits.gatherInstVisitNrs
 
 SEM CVisit
@@ -508,26 +508,26 @@ SEM  CSegment
 -- Wrapper functions
 -------------------------------------------------------------------------------
 
-SEM CProduction
-  | CProduction loc.semWrapper = let inhAttrs = Map.toList @inh
-                                     synAttrs = Map.toList @syn
-                                     inhVars = [ SimpleExpr (attrname True _LHS a) | (a,_) <- inhAttrs ]
-                                     synVars = [ SimpleExpr (attrname False _LHS a) | (a,_) <- synAttrs ]
-                                     var = "sem"
-                                     wrapNT = "wrap" ++ "_" ++ getName @nt
-                                     inhNT = "Inh" ++ "_" ++ getName @nt
-                                     synNT = "Syn" ++ "_" ++ getName @nt
-                                     varPat = if  @lhs.o_newtypes
-                                                  then App (sdtype @nt) [SimpleExpr var]
-                                                  else SimpleExpr var
-                                     typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
-                                     mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
-                                     mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
-                                     datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
-                                 in datas ++ [ Decl (Fun wrapNT [varPat, App inhNT inhVars])
+SEM CNonterminal
+  | CNonterminal loc.semWrapper = let inhAttrs = Map.toList @inh
+                                      synAttrs = Map.toList @syn
+                                      inhVars = [ SimpleExpr (attrname True _LHS a) | (a,_) <- inhAttrs ]
+                                      synVars = [ SimpleExpr (attrname False _LHS a) | (a,_) <- synAttrs ]
+                                      var = "sem"
+                                      wrapNT = "wrap" ++ "_" ++ getName @nt
+                                      inhNT = "Inh" ++ "_" ++ getName @nt
+                                      synNT = "Syn" ++ "_" ++ getName @nt
+                                      varPat = if  @lhs.o_newtypes
+                                                   then App (sdtype @nt) [SimpleExpr var]
+                                                   else SimpleExpr var
+                                      typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
+                                      mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
+                                      mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
+                                      datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
+                                  in datas ++ [ Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                                     (Let @inter.wrapDecls (App synNT synVars))
                                                     Set.empty Set.empty
-                                             ]
+                                              ]
 
 ATTR CInterface CSegments CSegment [ | | wrapDecls USE {++} {[]}: {Decls} ]
 SEM  CSegment
@@ -546,24 +546,24 @@ SEM  CSegment
 -- attributes in the intra-visit dependencies does not have a type.
 -------------------------------------------------------------------------------
 
-ATTR CProductions CProduction
-     CAlternatives CAlternative
+ATTR CNonterminals CNonterminal
+     CProductions CProduction
      CVisits CVisit [ | | allTpsFound USE {&&} {True} : Bool ]
-ATTR CProductions CProduction
-     CAlternatives CAlternative
+ATTR CNonterminals CNonterminal
+     CProductions CProduction
      CVisits CVisit [ with_sig : Bool | | ]
 
 SEM  CVisit
   |  CVisit lhs.allTpsFound = @intra.allTpsFound
 SEM CGrammar
-  | CGrammar prods.with_sig = typeSigs @lhs.options && @prods.allTpsFound
+  | CGrammar nonts.with_sig = typeSigs @lhs.options && @nonts.allTpsFound
 
-ATTR CProductions CProduction
-     CAlternatives CAlternative
+ATTR CNonterminals CNonterminal
+     CProductions CProduction
      CVisits CVisit
      Sequence CRule [ | errors USE {Seq.<>} {Seq.empty} : {Seq Error} | ]
 SEM  CGrammar [ | | errors : {Seq Error} ]
-  |  CGrammar prods.errors = Seq.empty 
+  |  CGrammar nonts.errors = Seq.empty 
 SEM  CVisit
   |  CVisit lhs.errors = @intra.errors
 SEM  CRule
@@ -575,11 +575,11 @@ SEM  CRule
 -- Provide a description of the interfaces as comments
 -------------------------------------------------------------------------------
 
-SEM CProduction
-  | CProduction loc.comment = Comment . unlines . map ind $ ( @inter.comments ++ ("alternatives:" : map ind @alts.comments) )
+SEM CNonterminal
+  | CNonterminal loc.comment = Comment . unlines . map ind $ ( @inter.comments ++ ("alternatives:" : map ind @prods.comments) )
 
 ATTR CInterface CSegments CSegment 
-     CAlternatives CAlternative
+     CProductions CProduction
      CVisits CVisit Sequence CRule  [ | | comments USE {++} {[]}: {[String]} ]
 
 ATTR Sequence CRule [ what:String | | ]
@@ -590,8 +590,8 @@ SEM CSegment
                                     then []
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
 
-SEM CAlternative 
-  | CAlternative loc.firstOrderChildren = filter (\(_,_,ho) -> not ho) @children
+SEM CProduction 
+  | CProduction loc.firstOrderChildren = filter (\(_,_,ho) -> not ho) @children
                  lhs.comments =  ("alternative " ++ getName @con ++ ":")
                                  : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @loc.firstOrderChildren
                                            ++ @visits.comments
@@ -611,7 +611,7 @@ SEM CRule
                                  ++ [ makeLocalComment 11 "inst " name tp | (field,name,tp) <- Map.elems @defines, field == _INST ]
 
 {
-makeLocalComment :: Int -> String -> Name -> Maybe Type -> String
+makeLocalComment :: Int -> String -> Identifier -> Maybe Type -> String
 makeLocalComment width what  name tp = let  x = getName name
                                             y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}") tp
                                        in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
@@ -622,24 +622,24 @@ makeLocalComment width what  name tp = let  x = getName name
 -- And tie it all together
 -------------------------------------------------------------------------------
 
-ATTR CProductions CProduction    [ | | chunks USE {++} {[]} : {Chunks} ]
-ATTR CAlternatives CAlternative  [ | | decls USE {++} {[]} : {Decls} ]
+ATTR CNonterminals CNonterminal    [ | | chunks USE {++} {[]} : {Chunks} ]
+ATTR CProductions CProduction  [ | | decls USE {++} {[]} : {Decls} ]
 ATTR CGrammar [ | | output : Program ]
 
 SEM CGrammar
-  | CGrammar    lhs.output = Program @prods.chunks
+  | CGrammar    lhs.output = Program @nonts.chunks
 
-SEM CProduction
-  | CProduction  lhs.chunks = [ Chunk (getName @nt)
+SEM CNonterminal
+  | CNonterminal  lhs.chunks = [ Chunk (getName @nt)
                                       (Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-'))
                                       (if @lhs.o_pretty                  then [@loc.comment]   else [])
                                       (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
                                       (if @lhs.o_cata                    then  @loc.cataFun    else [])
                                       (if @lhs.o_sig                     then  @inter.semDom   else [])
                                       (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
-                                      (if @lhs.o_sem                     then  @alts.decls     else [])
-                                      (if @lhs.o_sem                     then  @alts.semNames  else [])
-                              ]
+                                      (if @lhs.o_sem                     then  @prods.decls     else [])
+                                      (if @lhs.o_sem                     then  @prods.semNames  else [])
+                               ]
 
 {
 -- Lets or nested Cases?
@@ -656,17 +656,17 @@ funname field 0  = show field ++ "_"
 funname field nr = show field ++ "_" ++ show nr
 
 -- Gives the name of a semantic function
-seqSemname :: String -> Nonterminal -> Constructor -> Int -> String
+seqSemname :: String -> NontermIdent -> ConstructorIdent -> Int -> String
 seqSemname pre nt con  0 = semname pre nt con
 seqSemname pre nt con nr = semname pre nt con ++ "_" ++ show nr
 
 -- Gives the name of a type
-typeName :: Nonterminal -> Int -> String
+typeName :: NontermIdent -> Int -> String
 typeName nt 0 = "T_" ++ show nt
 typeName nt n = "T_" ++ show nt ++ "_" ++ show n
 
 -- Gives the name of a visit function
-visitname  ::  String -> Nonterminal -> Int -> String
+visitname  ::  String -> NontermIdent -> Int -> String
 visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
 }
 
@@ -674,41 +674,41 @@ visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
 -- Datatypes were already present
 -------------------------------------------------------------------------------
 
-ATTR CProductions CProduction [ wrappers:{Set Nonterminal} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
+ATTR CNonterminals CNonterminal [ wrappers:{Set NontermIdent} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
 SEM CGrammar
-  | CGrammar prods . typeSyns  = @typeSyns
+  | CGrammar nonts . typeSyns  = @typeSyns
                    . derivings = @derivings 
                    . wrappers  = @wrappers
 
-SEM CProduction
-  | CProduction loc.dataDef = let typeSyn tp = let theType = 
-                                                    case tp of
-                                                      CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToString @nt t ++")")
-                                                      CommonTypes.List t   -> Code.List $ SimpleType (typeToString @nt t)
-                                                      CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToString @nt t) 
-                                                                                             | (_,t) <- ts
-                                                                                             ]                                                                
-                                               in Code.Type (getName @nt) theType
-                                  derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
-                                  dataDef    = Data (getName @nt) @alts.dataAlts (maybe False id @lhs.o_data) derivings
-                              in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
+SEM CNonterminal
+  | CNonterminal loc.dataDef = let typeSyn tp = let theType = 
+                                                      case tp of
+                                                        CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToString @nt t ++")")
+                                                        CommonTypes.List t   -> Code.List $ SimpleType (typeToString @nt t)
+                                                        CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToString @nt t) 
+                                                                                               | (_,t) <- ts
+                                                                                               ]
+                                                 in Code.Type (getName @nt) theType
+                                   derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
+                                   dataDef    = Data (getName @nt) @prods.dataAlts (maybe False id @lhs.o_data) derivings
+                               in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
 
-ATTR CAlternatives     [ | | dataAlts : {DataAlts} ]
-ATTR CAlternative      [ | | dataAlt  : {DataAlt}  ]
+ATTR CProductions     [ | | dataAlts : {DataAlts} ]
+ATTR CProduction      [ | | dataAlt  : {DataAlt}  ]
 
-SEM CAlternatives
+SEM CProductions
   | Cons        lhs.dataAlts  = @hd.dataAlt : @tl.dataAlts
   | Nil         lhs.dataAlts  = []
 
-SEM CAlternative
-  | CAlternative  lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToString @lhs.nt t) @loc.firstOrderChildren)
+SEM CProduction
+  | CProduction  lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToString @lhs.nt t) @loc.firstOrderChildren)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present
 -------------------------------------------------------------------------------
 
-SEM CProduction
-  | CProduction loc.cataFun  = let tSig = TSig (cataname @lhs.prefix @nt)
+SEM CNonterminal
+  | CNonterminal loc.cataFun = let tSig = TSig (cataname @lhs.prefix @nt)
                                                (SimpleType (getName @nt) `Arr` SimpleType (sdtype @nt))
                                    special typ = case typ of
                                                  CommonTypes.List tp ->                                  
@@ -745,25 +745,25 @@ SEM CProduction
                                                      in  [Decl lhs rhs Set.empty Set.empty]
                                in  Comment "cata" :
                                    (if @lhs.o_sig then [tSig] else []) ++
-                                   maybe @alts.cataAlts special (lookup @nt @lhs.typeSyns)
+                                   maybe @prods.cataAlts special (lookup @nt @lhs.typeSyns)
  
-ATTR CAlternatives     [ | | cataAlts : {Decls} ]
-ATTR CAlternative      [ | | cataAlt  : {Decl}  ]
+ATTR CProductions     [ | | cataAlts : {Decls} ]
+ATTR CProduction      [ | | cataAlt  : {Decl}  ]
 
 
-SEM CAlternatives
+SEM CProductions
   | Cons lhs.cataAlts = @hd.cataAlt : @tl.cataAlts
   | Nil  lhs.cataAlts = []
 
-SEM CAlternative
-  | CAlternative lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
-                                   lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
+SEM CProduction
+  | CProduction lhs.cataAlt = let lhs = Fun (cataname @lhs.prefix @lhs.nt) [lhs_pat]
+                                  lhs_pat = App (conname @lhs.o_rename @lhs.nt @con)
                                                  (map (\(n,_,_) -> SimpleExpr $ locname $ n) @loc.firstOrderChildren)
-                                   rhs = App (semname @lhs.prefix @lhs.nt @con)
+                                  rhs = App (semname @lhs.prefix @lhs.nt @con)
                                              (map argument @loc.firstOrderChildren)
-                                   argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
+                                  argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
                                                                [SimpleExpr (locname nm)]
-                                   argument (nm, _,_)    = SimpleExpr (locname nm)
+                                  argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs Set.empty Set.empty
 
 
@@ -771,11 +771,11 @@ SEM CAlternative
 -- Collect names of generated stuff
 -------------------------------------------------------------------------------
 
-ATTR CAlternatives CAlternative CVisits CVisit [ | | semNames USE {++} {[]} : {[String]} ]
+ATTR CProductions CProduction CVisits CVisit [ | | semNames USE {++} {[]} : {[String]} ]
 
 {-
-SEM CAlternative
-  | CAlternative
+SEM CProduction
+  | CProduction
       lhs.semNames = [cataname @lhs.prefix @lhs.nt] ++ @visits.semNames
 -}
 

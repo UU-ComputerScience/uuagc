@@ -56,25 +56,25 @@ findWithErr2 k m
 -- Everyone that wants to report an error can do this by adding an error message to the
 -- stream of errors
 
-ATTR Productions Production Alternatives Alternative
+ATTR Nonterminals Nonterminal Productions Production
      Child Children Rule Rules Pattern Patterns Grammar [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
 
 -------------------------------------------------------------------------------
 --         Distributing name of nonterminal and names of attributes
 -------------------------------------------------------------------------------
-ATTR Alternatives Alternative Child Children Rules Rule Patterns Pattern [ nt : {Identifier} inh,syn : {Attributes} | | ]
+ATTR Productions Production Child Children Rules Rule Patterns Pattern [ nt : {Identifier} inh,syn : {Attributes} | | ]
 ATTR Child Children Rules Rule Patterns Pattern [ con : {Identifier} | | ]
 
-SEM Alternative
-  | Alternative children . con = @con
-SEM Alternative
-  | Alternative rules . con = @con
 SEM Production
-  | Production alts . nt = @nt
+  | Production children . con = @con
+SEM Production
+  | Production rules . con = @con
+SEM Nonterminal
+  | Nonterminal prods . nt = @nt
 
-SEM Production
-  | Production alts.inh  = @inh
-               alts.syn  = @syn
+SEM Nonterminal
+  | Nonterminal prods.inh  = @inh
+                prods.syn  = @syn
 
 
 -------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ SEM Production
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative Rules Rule 
+ATTR Nonterminals Nonterminal Productions Production Rules Rule 
    [ o_newtypes
    , o_cata
    , o_sig
@@ -92,11 +92,11 @@ ATTR Productions Production Alternatives Alternative Rules Rule
    , o_dovisit   -- True if o_wantvisit and it is possible to generate visit functions (no cycles)
    , o_case:{Bool}  
    prefix : {String} | | ]
-ATTR Productions Production Alternatives Alternative Children Child [ o_unbox:{Bool} | | ]
-ATTR Productions Production [ o_data:{Bool} | | ]
+ATTR Nonterminals Nonterminal Productions Production Children Child [ o_unbox:{Bool} | | ]
+ATTR Nonterminals Nonterminal [ o_data:{Bool} | | ]
 
 SEM Grammar
-  | Grammar     prods.o_cata    = folds     @lhs.options
+  | Grammar     nonts.o_cata    = folds     @lhs.options
                      .o_data    = dataTypes @lhs.options
                      .o_sig     = typeSigs  @lhs.options
                      .o_sem     = semfuns   @lhs.options
@@ -112,7 +112,7 @@ SEM Grammar
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
 {
-getNtName :: Type -> Nonterminal
+getNtName :: Type -> NontermIdent
 getNtName (NT nt) = nt
 getNtName _       = nullIdent
 }
@@ -140,12 +140,12 @@ getNtName _       = nullIdent
 -- Each AltAttr, that is eacht attribute occurence, is mapped to a number
 -- in the altAttrs Map, starting at vcount
 {
-data AltAttr = AltAttr Name Name Bool 
+data AltAttr = AltAttr Identifier Identifier Bool 
                deriving (Eq, Ord, Show)
 }
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
-SEM  Alternative
-  |  Alternative  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]   -- sublist 1
+SEM  Production
+  |  Production  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]   -- sublist 1
                                       ++ @children.gathAltAttrs                              -- sublist 2
                                       ++ @rules.gathAltAttrs                                 -- sublist 3
 
@@ -160,28 +160,28 @@ SEM  Pattern
   |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC || @field == _INST)]     -- sublist 3
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
-SEM  Alternative
-  |  Alternative rules.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
+SEM  Production
+  |  Production rules.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
 
 -- Information passed to Pattern
 ATTR  Children Child 
-      [  | |  nts USE {Seq.<>} {Seq.empty} : {Seq (Name,Nonterminal)} 
-              inhs USE {Seq.<>} {Seq.empty} : {Seq (Name,Attributes)} ]
+      [  | |  nts USE {Seq.<>} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
+              inhs USE {Seq.<>} {Seq.empty} : {Seq (Identifier,Attributes)} ]
 SEM  Child
   |  Child  lhs.nts = Seq.single (@name,getNtName @tp)
             lhs.inhs = Seq.single (@name,@inh)
 ATTR  Rules Rule
-      [  childNts : {Map Name Nonterminal} 
-         childInhs : {Map Name Attributes} | | ]
-SEM  Alternative
-  |  Alternative  rules.childNts = Map.fromList (Seq.toList @children.nts)
+      [  childNts : {Map Identifier NontermIdent} 
+         childInhs : {Map Identifier Attributes} | | ]
+SEM  Production
+  |  Production  rules.childNts = Map.fromList (Seq.toList @children.nts)
                   rules.childInhs = Map.fromList (Seq.toList @children.inhs)
 
 -- Collect CRules
 ATTR  Children Child Rules Rule
       [ | | gathRules USE {Seq.<>} {Seq.empty} : {Seq CRule} ]
-SEM  Alternative
-  |  Alternative  loc.inhRules = [ cRuleLhsInh inh @lhs.nt @con tp | (inh,tp) <- Map.assocs @lhs.inh ]
+SEM  Production
+  |  Production  loc.inhRules = [ cRuleLhsInh inh @lhs.nt @con tp | (inh,tp) <- Map.assocs @lhs.inh ]
                   loc.gathRules = @inhRules ++ Seq.toList (@children.gathRules Seq.<> @rules.gathRules)
 
 SEM  Child
@@ -221,7 +221,7 @@ haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts)
 }
 
 
-ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Name,Name,Bool,Patterns)]} ]
+ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Identifier,Identifier,Bool,Patterns)]} ]
 
 SEM  Pattern
   |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
@@ -229,18 +229,18 @@ SEM  Pattern
 
 
 -- Giving them a number
-ATTR  Productions Production Alternatives Alternative
+ATTR  Nonterminals Nonterminal Productions Production
       [  | vcount : Int 
          | rules USE {Seq.<>} {Seq.empty} : {Seq (Vertex,CRule)}]
 SEM  Grammar
-  |  Grammar  prods.vcount = 0
-SEM  Alternative
-  |  Alternative  lhs.rules = Seq.fromList (zip [@lhs.vcount..] @gathRules)
+  |  Grammar  nonts.vcount = 0
+SEM  Production
+  |  Production  lhs.rules = Seq.fromList (zip [@lhs.vcount..] @gathRules)
                   lhs.vcount = @lhs.vcount + length @gathRules
 
 -- Direct dependencies
-ATTR Productions Production 
-     Alternatives Alternative 
+ATTR Nonterminals Nonterminal 
+     Productions Production 
      Rules Rule [ | | directDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
 SEM  Rule
   |  Rule  lhs.directDep
@@ -253,12 +253,12 @@ SEM  Rule
 --
 -- a dependency f1.a1 < f2.a2 is translated to
 -- the edige (vertex(f1.a1), vertex(f2.a2))
-ATTR Productions Production
-     Alternatives Alternative
+ATTR Nonterminals Nonterminal
+     Productions Production
      Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
 SEM Grammar
   | Grammar
-      prods.manualAttrDepMap = @manualAttrOrderMap
+      nonts.manualAttrDepMap = @manualAttrOrderMap
 SEM Rule
   | Rule
       loc.manualDeps
@@ -284,8 +284,8 @@ lookupVertices fld nm attrs
 --  (inst.x,x.y) for each synthesized attribute of N
 --
 
-ATTR Productions Production 
-     Alternatives Alternative 
+ATTR Nonterminals Nonterminal 
+     Productions Production 
      Rules Rule [ | | instDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
 SEM Rule
   | Rule
@@ -301,29 +301,29 @@ SEM Rule
                   synVert  = findWithErr2 synAttr @lhs.altAttrs
             ]
 
-ATTR Rules Rule [ synsOfChildren : {Map Name Attributes} | | ]
-SEM Alternative
-  | Alternative  rules.synsOfChildren = @children.collectChildrenSyns
+ATTR Rules Rule [ synsOfChildren : {Map Identifier Attributes} | | ]
+SEM Production
+  | Production  rules.synsOfChildren = @children.collectChildrenSyns
 
-ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Name Attributes } ]
+ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Identifier Attributes } ]
 SEM Child
   | Child  lhs.collectChildrenSyns = Map.singleton @name @syn
 
 
 -- Wrapping an Expression
 
-ATTR Expression [ nt,con   :{Name}
-                  allfields:{[(Name,Type,Bool)]}
-                  allnts   :{[Name]}
-                  attrs    :{[(Name,Name)]}
+ATTR Expression [ nt,con   :{Identifier}
+                  allfields:{[(Identifier,Type,Bool)]}
+                  allnts   :{[Identifier]}
+                  attrs    :{[(Identifier,Identifier)]}
                 ||
                   errors   :{Seq Error}
-                  usedLocals:{[Name]}
-                  usedAttrs :{[(Name,Name)]}
-                  usedFields:{[Name]}
+                  usedLocals:{[Identifier]}
+                  usedAttrs :{[(Identifier,Identifier)]}
+                  usedFields:{[Identifier]}
                   textLines :{[String]}
                   copy : SELF
-                  allRhsVars : {Set (Name,Name)}
+                  allRhsVars : {Set (Identifier,Identifier)}
                 ]
 
 SEM Expression
@@ -357,68 +357,68 @@ SEM Expression
 -------------------------------------
 -- NT-Attributes
 -------------------------------------
-ATTR  Productions Production 
+ATTR  Nonterminals Nonterminal 
       [ | acount : Int |  ntattrs USE {Seq.<>} {Seq.empty} : {Seq (Vertex,NTAttr)} 
                           aranges  USE {Seq.<>} {Seq.empty} : {Seq (Int,Int,Int)}]
 
 SEM Grammar
-  | Grammar prods.acount = 0
+  | Grammar nonts.acount = 0
 
-SEM Production
-  | Production loc.ntattrs =  [ NTAInh @nt inh tp | (inh,tp) <- Map.assocs @inh ]
-                              ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
-               lhs.ntattrs = Seq.fromList (zip [@lhs.acount ..] @ntattrs)
-               lhs.acount = @lhs.acount + Map.size @inh + Map.size @syn
-               lhs.aranges =  Seq.single
+SEM Nonterminal
+  | Nonterminal loc.ntattrs =  [ NTAInh @nt inh tp | (inh,tp) <- Map.assocs @inh ]
+                               ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
+                lhs.ntattrs = Seq.fromList (zip [@lhs.acount ..] @ntattrs)
+                lhs.acount  = @lhs.acount + Map.size @inh + Map.size @syn
+                lhs.aranges =  Seq.single
                                 (@lhs.acount
                                 ,@lhs.acount + Map.size @inh
                                 ,@lhs.acount + Map.size @syn + Map.size @inh - 1)
 ------------------------------------------------------------------
 -- Pass structure up
 ------------------------------------------------------------------
-ATTR Productions Production [ | | prods USE {++} {[]} : {[(Nonterminal,[Constructor])]} ]
+ATTR Nonterminals Nonterminal [ | | nonts USE {++} {[]} : {[(NontermIdent,[ConstructorIdent])]} ]
+SEM  Nonterminal
+  |  Nonterminal  lhs.nonts = [(@nt,@prods.cons)]
+ATTR Productions Production [ | | cons USE {++} {[]} : {[ConstructorIdent]} ]
 SEM  Production
-  |  Production  lhs.prods = [(@nt,@alts.cons)]
-ATTR Alternatives Alternative [ | | cons USE {++} {[]} : {[Constructor]} ]
-SEM  Alternative
-  |  Alternative  lhs.cons = [@con]
+  |  Production  lhs.cons = [@con]
 
 ------------------------------------------------------------------
 -- Collect type signatures
 ------------------------------------------------------------------
-ATTR TypeSigs TypeSig [ | typeSigs : {Map Name Type} | ]
-SEM Alternative
-  | Alternative typeSigs.typeSigs = Map.empty
+ATTR TypeSigs TypeSig [ | typeSigs : {Map Identifier Type} | ]
+SEM Production
+  | Production typeSigs.typeSigs = Map.empty
 SEM TypeSig
   | TypeSig lhs.typeSigs = Map.insert @name @tp @lhs.typeSigs
 
-ATTR Rules Rule Patterns Pattern [ allTypeSigs : {Map Name Type} | | ]
-SEM  Alternative
-  |  Alternative rules.allTypeSigs = @typeSigs.typeSigs
+ATTR Rules Rule Patterns Pattern [ allTypeSigs : {Map Identifier Type} | | ]
+SEM  Production
+  |  Production rules.allTypeSigs = @typeSigs.typeSigs
 
 ------------------------------------------------------------------
 -- Invoking sequential computation
 ------------------------------------------------------------------
 SEM Grammar
-  | Grammar loc.ruleTable = Array.array (0,@prods.vcount-1) (Seq.toList @prods.rules)
-            loc.attrTable = Array.array (0,@prods.acount-1) (Seq.toList @prods.ntattrs)
-            loc.attrVertex = Map.fromList (map swap (Seq.toList @prods.ntattrs))
+  | Grammar loc.ruleTable = Array.array (0,@nonts.vcount-1) (Seq.toList @nonts.rules)
+            loc.attrTable = Array.array (0,@nonts.acount-1) (Seq.toList @nonts.ntattrs)
+            loc.attrVertex = Map.fromList (map swap (Seq.toList @nonts.ntattrs))
             loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v @attrVertex) (ntattr cr))
-                            | (s,cr) <- Seq.toList @prods.rules]
+                            | (s,cr) <- Seq.toList @nonts.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
-            loc.directDep = Seq.toList (@prods.directDep Seq.<> @prods.additionalDep)
-            loc.instDep   = Seq.toList @prods.instDep
+            loc.directDep = Seq.toList (@nonts.directDep Seq.<> @nonts.additionalDep)
+            loc.instDep   = Seq.toList @nonts.instDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
-                             in Info { tdsToTdp   = Array.array (0,@prods.acount-1) @tdsToTdp
-                                     , tdpToTds   = Array.array (0,@prods.vcount-1) @tdpToTds
+                             in Info { tdsToTdp   = Array.array (0,@nonts.acount-1) @tdsToTdp
+                                     , tdpToTds   = Array.array (0,@nonts.vcount-1) @tdpToTds
                                      , attrTable  = @attrTable
                                      , ruleTable  = @ruleTable
-                                     , lmh        = Seq.toList @prods.aranges
-                                     , prods      = @prods.prods
+                                     , lmh        = Seq.toList @nonts.aranges
+                                     , nonts      = @nonts.nonts
                                      , wraps      = @wrappers
                                      }
 
@@ -445,24 +445,24 @@ SEM Grammar
                                                                      , inducedCycleErrs @attrTable @ruleTable cim errs
                                                                      )
             lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
-                          Seq.<> @prods.errors
+                          Seq.<> @nonts.errors
 
 ------------------------------------------------------------------
 -- Generate CGrammar
 ------------------------------------------------------------------
--- Pass InterfaceMap down and select the Interface in the Production
-ATTR Productions Production [ cInterfaceMap : CInterfaceMap | | ]
-SEM  Production
-  |  Production  loc.cInter = if  @lhs.o_dovisit
-                                      then findWithErr1 "Production.cInter" @nt @lhs.cInterfaceMap
+-- Pass InterfaceMap down and select the Interface in the Nonterminal
+ATTR Nonterminals Nonterminal [ cInterfaceMap : CInterfaceMap | | ]
+SEM  Nonterminal
+  |  Nonterminal  loc.cInter = if  @lhs.o_dovisit
+                                      then findWithErr1 "Nonterminal.cInter" @nt @lhs.cInterfaceMap
                                       else CInterface [CSegment @inh @syn]
 
--- Pass VisitMap down and select the CVisits in the Alternative
-ATTR Productions Production Alternatives Alternative [ cVisitsMap : CVisitsMap | | ]
-SEM  Alternative
-  |  Alternative loc.cVisits = if  @lhs.o_dovisit
-                                   then let altsVisitsMap = findWithErr1 "Alternative.cVisits.nt" @lhs.nt @lhs.cVisitsMap
-                                            visits = findWithErr1 "Alternative.cVisits.con" @con altsVisitsMap
+-- Pass VisitMap down and select the CVisits in the Production
+ATTR Nonterminals Nonterminal Productions Production [ cVisitsMap : CVisitsMap | | ]
+SEM  Production
+  |  Production loc.cVisits = if  @lhs.o_dovisit
+                                   then let prodsVisitsMap = findWithErr1 "Production.cVisits.nt" @lhs.nt @lhs.cVisitsMap
+                                            visits = findWithErr1 "Production.cVisits.con" @con prodsVisitsMap
                                          in visits
                                    else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
                                          in  [CVisit @lhs.inh @lhs.syn vss [] False]
@@ -476,20 +476,20 @@ SEM Child
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
-  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @prods.cProductions @pragmas
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas
+SEM  Nonterminals [ | | cNonterminals : CNonterminals ]
+  |  Cons  lhs.cNonterminals = @hd.cNonterminal : @tl.cNonterminals
+  |  Nil   lhs.cNonterminals = []
+SEM  Nonterminal [ | | cNonterminal : CNonterminal ]
+  |  Nonterminal  lhs.cNonterminal = CNonterminal @nt @inh @syn @prods.cProductions @cInter
 SEM  Productions [ | | cProductions : CProductions ]
   |  Cons  lhs.cProductions = @hd.cProduction : @tl.cProductions
   |  Nil   lhs.cProductions = []
 SEM  Production [ | | cProduction : CProduction ]
-  |  Production  lhs.cProduction = CProduction @nt @inh @syn @alts.cAlternatives @cInter
-SEM  Alternatives [ | | cAlternatives : CAlternatives ]
-  |  Cons  lhs.cAlternatives = @hd.cAlternative : @tl.cAlternatives
-  |  Nil   lhs.cAlternatives = []
-SEM  Alternative [ | | cAlternative : CAlternative ]
-  |  Alternative  lhs.cAlternative = CAlternative @con @cVisits @children.fields @children.terminals
+  |  Production  lhs.cProduction = CProduction @con @cVisits @children.fields @children.terminals
 
 -- Collect terminals
-ATTR Children Child  [ | | terminals USE {++} {[]} : {[Name]} ]
+ATTR Children Child  [ | | terminals USE {++} {[]} : {[Identifier]} ]
 SEM Child
   | Child lhs.terminals = if @maptolocal
                           then [@name]
@@ -497,20 +497,20 @@ SEM Child
 
 
 -- Collecting nts
-ATTR Production Productions
-     Alternative Alternatives
+ATTR Nonterminal Nonterminals
+     Production Productions
      Rule Rules 
-     Child Children [allnts:{[Name]} | | ]
+     Child Children [allnts:{[Identifier]} | | ]
      
 SEM Grammar
-  | Grammar prods.allnts = map fst (@prods.prods)
+  | Grammar nonts.allnts = map fst (@nonts.nonts)
 
 -- Collecting fields
 ATTR Rule Rules 
-     Child Children [allfields:{[(Name,Type,Bool)]} attrs:{[(Name,Name)]} | | ]
+     Child Children [allfields:{[(Identifier,Type,Bool)]} attrs:{[(Identifier,Identifier)]} | | ]
 
-SEM Alternative
-  | Alternative loc.allfields  = @children.fields
+SEM Production
+  | Production loc.allfields  = @children.fields
                    .attrs      = map ((,) _LOC)  @rules.locVars ++
                                  map ((,) _INST) @rules.instVars ++
                                  map ((,) _LHS)  @inhnames ++ 
@@ -518,19 +518,19 @@ SEM Alternative
                    .inhnames   = Map.keys @lhs.inh
                    .synnames   = Map.keys @lhs.syn
 
-ATTR Children [ | | attributes USE {++} {[]} : {[(Name,Attributes,Attributes)]} ]
-SEM Child [ | | attributes:{[(Name,Attributes,Attributes)]} ]
+ATTR Children [ | | attributes USE {++} {[]} : {[(Identifier,Attributes,Attributes)]} ]
+SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
   | Child lhs.attributes = [(@name, @inh, @syn)]
 
 
-SEM Child [ | | field : {(Name,Type,Bool)} ]
+SEM Child [ | | field : {(Identifier,Type,Bool)} ]
   | Child lhs.field = (@name, @tp, @higherOrder)
 
-SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
+SEM Children [ | | fields : {[(Identifier,Type,Bool)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
-ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Name]} instVars USE {++} {[]} : {[Name]} ]
+ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Identifier]} instVars USE {++} {[]} : {[Identifier]} ]
 
 SEM Pattern
   | Alias    lhs.locVars   = if @field == _LOC

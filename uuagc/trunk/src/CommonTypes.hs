@@ -1,6 +1,5 @@
 module CommonTypes where
 
---import UU.Pretty (PP,text,pp)
 import Pretty
 import UU.Scanner.Position(Pos,noPos)
 import qualified Data.Map as Map
@@ -26,7 +25,7 @@ instance PP Identifier where
   pp = text . getName
 
 data Type = Haskell String
-          | NT Name
+          | NT Identifier
 
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
@@ -45,23 +44,22 @@ instance Eq Type where
   NT x == NT y = x == y
   _      == _      = False
   
-type Attributes  = Map Name Type
-type TypeSyns    = [(Nonterminal,ComplexType)]
+type Attributes  = Map Identifier Type
+type TypeSyns    = [(NontermIdent,ComplexType)]
 
-type AttrNames   = [(Name,Type,(String,String,String))]
-type UseMap      = Map Nonterminal (Map Name (String,String,String))
-type PragmaMap   = Map Nonterminal (Map Constructor (Set Name))
-type Fields      = [(Name,Type)]
-type Derivings   = Map Nonterminal (Set Name)
+type AttrNames   = [(Identifier,Type,(String,String,String))]
+type UseMap      = Map NontermIdent (Map Identifier (String,String,String))
+type PragmaMap   = Map NontermIdent (Map ConstructorIdent (Set Identifier))
+type Fields      = [(Identifier,Type)]
+type Derivings   = Map NontermIdent (Set Identifier)
 type Strings     = [String]
-type Name        = Identifier
-type Nonterminal = Name
-type Constructor = Name
-type AttrOrderMap = Map Nonterminal (Map Constructor (Set Dependency))
+type NontermIdent     = Identifier
+type ConstructorIdent = Identifier
+type AttrOrderMap = Map NontermIdent (Map ConstructorIdent (Set Dependency))
 data Dependency = Dependency (Identifier,Identifier) (Identifier,Identifier) deriving (Eq,Ord,Show)
 
-type AttrEnv = ( [Name]
-               , [(Name,Name)]
+type AttrEnv = ( [Identifier]
+               , [(Identifier,Identifier)]
                )
 
 identifier x   = Ident x noPos               
@@ -75,23 +73,23 @@ _FIELD = identifier "field"
 _FIRST = identifier "first"
 _LAST  = identifier "last"
 
-sdtype :: Nonterminal -> String
+sdtype :: NontermIdent -> String
 sdtype nt = "T_"++getName nt
 
-cataname ::  String -> Name -> String
+cataname ::  String -> Identifier -> String
 cataname pre name = pre++getName name
 
-conname :: Bool -> Nonterminal -> Constructor -> String
+conname :: Bool -> NontermIdent -> ConstructorIdent -> String
 conname rename nt con | rename =  getName nt ++ "_" ++ getName con
                       | otherwise = getName con
 
-semname  ::  String -> Nonterminal -> Constructor -> String
+semname  ::  String -> NontermIdent -> ConstructorIdent -> String
 semname pre nt con =  pre ++ (getName nt ++ "_" ++ getName con)
 
-lhsname :: Bool -> Name -> String
+lhsname :: Bool -> Identifier -> String
 lhsname isIn = attrname isIn _LHS
 
-attrname :: Bool -> Name -> Name -> String
+attrname :: Bool -> Identifier -> Identifier -> String
 attrname isIn field attr | field == _LOC   = locname attr 
                          | field == _INST  = instname attr
                          | field == _INST' = inst'name attr
@@ -105,7 +103,7 @@ instname v  = getName v ++ "_val_"
 inst'name v = getName v ++ "_"
 fieldname v =  getName v++"_"
 
-typeToString :: Nonterminal -> Type -> String
+typeToString :: NontermIdent -> Type -> String
 typeToString _ (Haskell t)  = t
 typeToString nt (NT t   ) | t == _SELF = getName nt
                           | otherwise  = getName t
@@ -113,10 +111,10 @@ typeToString nt (NT t   ) | t == _SELF = getName nt
 ind :: String -> String
 ind s = replicate 3 ' ' ++ s
 
-_NOCASE :: Name
+_NOCASE :: Identifier
 _NOCASE = identifier "nocase"
 
-hasPragma :: PragmaMap -> Nonterminal -> Constructor -> Name -> Bool
+hasPragma :: PragmaMap -> NontermIdent -> ConstructorIdent -> Identifier -> Bool
 hasPragma mp nt con nm
   = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)
   
@@ -124,6 +122,6 @@ isNonterminal :: Type -> Bool
 isNonterminal (NT _) = True
 isNonterminal _      = False
 
-extractNonterminal :: Type -> Nonterminal
+extractNonterminal :: Type -> NontermIdent
 extractNonterminal (NT n) = n
 

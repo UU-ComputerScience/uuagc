@@ -129,7 +129,7 @@ pNontSet = set0
             <|> All <$ pStar
             <|> pParens set0
 
-pNames :: AGParser [Name]
+pNames :: AGParser [Identifier]
 pNames = pList1 pIdentifier
 
 pAG  :: AGParser AG
@@ -271,7 +271,7 @@ pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
-pAttrDef :: AGParser (Name -> SemDef)
+pAttrDef :: AGParser (Identifier -> SemDef)
 pAttrDef = (\pat owrt exp fld -> Def (pat fld) exp owrt)
            <$ pDot <*> pattern <*> pAssign <*> pExpr
   where pattern =  pPattern pVar
@@ -297,7 +297,7 @@ pInstDecl = (\ident tp -> TypeDef ident tp)
 pSemDefs :: AGParser SemDefs
 pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"
 
-pVar :: AGParser (Name -> (Name, Name))
+pVar :: AGParser (Identifier -> (Identifier, Identifier))
 pVar = (\att fld -> (fld,att)) <$> pIdentifier
 
  
@@ -308,10 +308,10 @@ pAssign :: AGParser Bool
 pAssign =  False <$ pReserved "="
        <|> True  <$ pReserved ":="
        
-pAttrDefs :: AGParser (Name -> [SemDef])
+pAttrDefs :: AGParser (Identifier -> [SemDef])
 pAttrDefs = (\fs field -> map ($ field) fs) <$> pList1 pAttrDef  <?> "attribute definitions"
 
-pPattern :: AGParser (a -> (Name,Name)) -> AGParser (a -> Pattern)
+pPattern :: AGParser (a -> (Identifier,Identifier)) -> AGParser (a -> Pattern)
 pPattern pvar = pPattern2 where
   pPattern0 =  (\i pats a -> Constr i (map ($ a) pats))
                <$> pIdentifierU <*> pList  pPattern1

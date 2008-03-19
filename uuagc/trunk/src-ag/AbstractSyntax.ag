@@ -11,14 +11,14 @@ import CommonTypes
 DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             useMap   : {UseMap}
                             derivings: {Derivings}
-                            wrappers : {Set Nonterminal}
-                            prods    : Productions
+                            wrappers : {Set NontermIdent}
+                            nonts    : Nonterminals
                             pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
 
-TYPE Productions  = [Production]
+TYPE Nonterminals = [Nonterminal]
 
-TYPE Alternatives = [Alternative]
+TYPE Productions  = [Production]
 
 TYPE Children     = [Child]
 
@@ -26,17 +26,17 @@ TYPE Rules        = [Rule]
 
 TYPE TypeSigs     = [TypeSig]
 
-DATA Production   | Production nt   : {Nonterminal}
-                               inh  : {Attributes}
-                               syn  : {Attributes}
-                               alts : Alternatives
+DATA Nonterminal  | Nonterminal nt    : {NontermIdent}
+                                inh   : {Attributes}
+                                syn   : {Attributes}
+                                prods : Productions
 
-DATA Alternative  | Alternative con      : {Constructor}
+DATA Production  | Production   con      : {ConstructorIdent}
                                 children : Children
                                 rules    : Rules
                                 typeSigs : TypeSigs
 
-DATA Child        | Child   name        : {Name}
+DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
                             inh         : {Attributes}
                             syn         : {Attributes}
@@ -47,13 +47,13 @@ DATA Rule         | Rule    pattern : Pattern
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)
 
-DATA TypeSig      | TypeSig name : {Name}
+DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}
 
 SET AllAbstractSyntax
   = Grammar
+    Nonterminal Nonterminals
     Production Productions
-    Alternative Alternatives
     Child Children
     Rule Rules
     TypeSig TypeSigs

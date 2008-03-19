@@ -218,7 +218,7 @@ SEM  Segment
                          in if  null @syn
                                 then replicate (length @lhs.cons) []
                                 else map (filter hasCode . topSort' @lhs.vssGraph) @synOccur
-ATTR Segments Segment [ cons : {[Constructor]} | | ]
+ATTR Segments Segment [ cons : {[ConstructorIdent]} | | ]
 SEM  Interface
   |  Interface seg.cons = @cons
 \end{Code}
@@ -266,7 +266,7 @@ repeated in the visit subsequence. We do not want this.
 
 \begin{Code}
 SEM  Segment
-  |  Segment  loc.visitss = let  rem :: [(Name,Name,Maybe Type)] -> [Vertex] -> [Vertex]
+  |  Segment  loc.visitss = let  rem :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
                                  rem prev [] = []
                                  rem prev (v:vs) 
                                    | inRange (bounds table) v 
@@ -369,11 +369,11 @@ SEM Interfaces
   |  Nil   lhs.inters = Map.empty
            lhs.visits = Map.empty
 
-SEM  Interface [ | | nt : Nonterminal ]
+SEM  Interface [ | | nt : NontermIdent ]
   |  Interface lhs.nt = @nt
 
 SEM  Interface [ | | inter : CInterface 
-                     visits : {Map Constructor CVisits} ]
+                     visits : {Map ConstructorIdent CVisits} ]
   |  Interface  lhs.inter = CInterface @seg.segs
                 lhs.visits = Map.fromList (zip @cons (transpose @seg.cvisits))
 
@@ -397,7 +397,7 @@ SEM  Segment [ | | seg : CSegment
                             in zipWith mkVisit @visitss @intravisits
 
 {
-ccv :: Name -> Nonterminal -> Int -> CInterfaceMap -> CRule
+ccv :: Identifier -> NontermIdent -> Int -> CInterfaceMap -> CRule
 ccv name nt n table
   =  CChildVisit name nt n inh syn last
      where  CInterface segs = Map.findWithDefault (error ("InterfacesRules::ccv::interfaces not in table for nt: " ++ show nt)) nt table

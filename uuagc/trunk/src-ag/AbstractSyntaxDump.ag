@@ -21,14 +21,14 @@ SEM Grammar
                                                        , ppF "useMap" $ ppMap $ Map.map ppMap $ @useMap
                                                        , ppF "derivings" $ ppMap $ @derivings
                                                        , ppF "wrappers" $ ppShow $ @wrappers
-                                                       , ppF "prods" $ ppVList @prods.ppL
+                                                       , ppF "nonts" $ ppVList @nonts.ppL
                                                        ] []
 
-SEM Production
-  | Production		lhs     .  	pp    	=   ppNestInfo ["Production","Production"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "alts" $ ppVList @alts.ppL] []
+SEM Nonterminal
+  | Nonterminal		lhs     .  	pp    	=   ppNestInfo ["Nonterminal","Nonterminal"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL] []
 
-SEM Alternative
-  | Alternative		lhs     .  	pp    	=   ppNestInfo ["Alternative","Alternative"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
+SEM Production
+  | Production		lhs     .  	pp    	=   ppNestInfo ["Production","Production"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
 
 SEM Child
   | Child			lhs     .  	pp    	=   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn] []
@@ -48,7 +48,7 @@ SEM Pattern
 SEM Expression
   | Expression		lhs     .  	pp    	=   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ text @txt] []
 
-ATTR Alternatives Productions Children Rules TypeSigs Patterns [ | | ppL: {[PP_Doc]} ]
+ATTR Productions Nonterminals Children Rules TypeSigs Patterns [ | | ppL: {[PP_Doc]} ]
 
 SEM Patterns
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
@@ -66,10 +66,10 @@ SEM Children
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
 
-SEM Alternatives
+SEM Productions
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
 
-SEM Productions
+SEM Nonterminals
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
