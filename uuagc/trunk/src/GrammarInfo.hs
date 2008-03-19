@@ -15,8 +15,8 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   ,  attrTable   ::  Table NTAttr
                   ,  ruleTable   ::  Table CRule
                   ,  lmh         ::  [LMH]
-                  ,  prods       ::  [(Nonterminal,[Constructor])]
-                  ,  wraps       ::  Set Nonterminal
+                  ,  nonts       ::  [(NontermIdent,[ConstructorIdent])]
+                  ,  wraps       ::  Set NontermIdent
                   }
                   deriving Show
 
@@ -25,8 +25,8 @@ instance Show CRule
          = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
          ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
 
-type CInterfaceMap = Map Nonterminal CInterface
-type CVisitsMap = Map Nonterminal (Map Constructor CVisits)
+type CInterfaceMap = Map NontermIdent CInterface
+type CVisitsMap = Map NontermIdent (Map ConstructorIdent CVisits)
 
 data CycleStatus  
   = CycleFree     CInterfaceMap CVisitsMap

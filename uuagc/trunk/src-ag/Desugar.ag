@@ -27,9 +27,9 @@ WRAPPER HsTokensRoot
 
 ATTR Grammar [ options:{Options} | | ]
 
-ATTR Grammar Productions Production Alternatives Alternative Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.<>} {Seq.empty} : {Seq Error} ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.<>} {Seq.empty} : {Seq Error} ]
 
-ATTR Grammar Productions Production Alternatives Alternative Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
 
 
 -------------------------------------------------------------------------------
@@ -110,8 +110,8 @@ SEM Pattern
 --         Distribute attributes of children
 -------------------------------------------------------------------------------
 
-ATTR Children Child [ | | childInhs, childSyns USE {++} {[]} : {[(Name, Name)]} ]
-ATTR Rules Rule Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ childInhs, childSyns : {[(Name, Name)]} | | ]
+ATTR Children Child [ | | childInhs, childSyns USE {++} {[]} : {[(Identifier, Identifier)]} ]
+ATTR Rules Rule Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ childInhs, childSyns : {[(Identifier, Identifier)]} | | ]
 
 SEM Child
   | Child
@@ -123,7 +123,7 @@ maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
 maybeError def err mb
   = maybe (def, Seq.single err) (\r -> (r, Seq.empty)) mb
 
-findField :: Name -> Name -> [(Name,Name)] -> Maybe Name
+findField :: Identifier -> Identifier -> [(Identifier,Identifier)] -> Maybe Identifier
 findField fld attr list
   | fld == _FIRST = f list
   | fld == _LAST  = f (reverse list)
@@ -137,15 +137,15 @@ findField fld attr list
 --         Distribute nt and con
 -------------------------------------------------------------------------------
 
-ATTR Alternatives Alternative Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ nt : Nonterminal | | ]
-ATTR Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ con : Constructor | | ]
+ATTR Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ nt : NontermIdent | | ]
+ATTR Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ con : ConstructorIdent | | ]
+
+SEM Nonterminal
+  | Nonterminal
+      prods.nt = @nt
 
 SEM Production
   | Production
-      alts.nt = @nt
-
-SEM Alternative
-  | Alternative
       rules.con = @con
 
 
@@ -153,14 +153,14 @@ SEM Alternative
 --         Distribute all defined attributes
 -------------------------------------------------------------------------------
 
-ATTR Rule Rules Pattern Patterns [ | | defsCollect USE {`Set.union`} {Set.empty} : {Set (Name, Name)} ]
+ATTR Rule Rules Pattern Patterns [ | | defsCollect USE {`Set.union`} {Set.empty} : {Set (Identifier, Identifier)} ]
 SEM Pattern
   | Alias
       loc.def = Set.singleton (@field, @attr)
       lhs.defsCollect = @loc.def `Set.union` @pat.defsCollect `Set.union` @parts.defsCollect
 
-ATTR Rule Rules Pattern Patterns [ defs : {Set (Name, Name)} | | ]
-SEM Alternative
-  | Alternative
+ATTR Rule Rules Pattern Patterns [ defs : {Set (Identifier, Identifier)} | | ]
+SEM Production
+  | Production
       rules.defs = @rules.defsCollect
 

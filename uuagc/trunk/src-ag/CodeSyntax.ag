@@ -9,17 +9,17 @@ import Data.Set(Set)
 DATA  CGrammar 
    |  CGrammar  typeSyns  : {TypeSyns}
                 derivings : {Derivings} 
-                wrappers  : {Set Nonterminal} 
-                prods     : CProductions
+                wrappers  : {Set NontermIdent} 
+                nonts     : CNonterminals
                 pragmas   : {PragmaMap}
 
-TYPE CProductions = [CProduction]
+TYPE CNonterminals = [CNonterminal]
 
-DATA  CProduction 
-   |  CProduction  nt     :  Nonterminal
+DATA  CNonterminal 
+   |  CNonterminal nt     :  NontermIdent
                    inh    :  Attributes
                    syn    :  Attributes
-                   alts   :  CAlternatives
+                   prods  :  CProductions
                    inter  :  CInterface
 
 DATA  CInterface
@@ -31,13 +31,13 @@ DATA  CSegment
    |  CSegment  inh  :  Attributes
                 syn  :  Attributes
 
-TYPE CAlternatives = [CAlternative]
+TYPE CProductions = [CProduction]
 
-DATA  CAlternative
-   |  CAlternative  con        : Constructor
+DATA  CProduction
+   |  CProduction   con        : ConstructorIdent
                     visits     : CVisits
-                    children   : {[(Name,Type,Bool)]}
-                    terminals  : {[Name]}
+                    children   : {[(Identifier,Type,Bool)]}
+                    terminals  : {[Identifier]}
 
 TYPE CVisits = [CVisit]
 
@@ -51,22 +51,22 @@ DATA  CVisit
 TYPE Sequence = [CRule]
 
 DATA  CRule
-   |  CRule        name       :  Name
+   |  CRule        name       :  Identifier
                    isIn       :  Bool   -- True iff there is a definition for an inherited attribute
                    hasCode    :  Bool   -- True iff there is an RHS
-                   nt         :  Nonterminal
-                   con        :  Constructor
-                   field      :  Name
-                   childnt    :  {Maybe Nonterminal}  -- Just n: 'field' of 'nt' and 'con' is a nonterminal 'n', Nothing: it is a terminal
+                   nt         :  NontermIdent
+                   con        :  ConstructorIdent
+                   field      :  Identifier
+                   childnt    :  {Maybe NontermIdent}  -- Just n: 'field' of 'nt' and 'con' is a nonterminal 'n', Nothing: it is a terminal
                    tp         :  {Maybe Type}     -- type of the attribute
                    pattern    :  Pattern     -- only defined if 'isIn' is False
                    rhs        :  {[String]}     -- empty string if 'hasCode' is False
-                   defines    :  {Map Int (Name,Name,Maybe Type)}   -- the attributes defined by this rule
+                   defines    :  {Map Int (Identifier,Identifier,Maybe Type)}   -- the attributes defined by this rule
                    owrt       :  {Bool}
                    origin     :  String  -- just for documentation (and maybe errors)
-                   uses       :  {Set (Name, Name)}
-   |  CChildVisit  name    :  Name  -- corresponding to the name of the child
-                   nt      :  Nonterminal
+                   uses       :  {Set (Identifier, Identifier)}
+   |  CChildVisit  name    :  Identifier  -- corresponding to the name of the child
+                   nt      :  NontermIdent
                    nr      :  Int   -- visit number
                    inh     :  Attributes
                    syn     :  Attributes
@@ -74,8 +74,8 @@ DATA  CRule
 
 SET AllCodeSyntax
   = CGrammar
-    CProduction CProductions
+    CNonterminal CNonterminals
     CInterface CSegments CSegment
-    CAlternative CAlternatives
+    CProduction CProductions
     CVisits CVisit
     CRule

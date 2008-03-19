@@ -13,15 +13,15 @@ import CodeSyntax
 }
 
 {
-ppChild :: (Name,Type,Bool) -> PP_Doc
+ppChild :: (Identifier,Type,Bool) -> PP_Doc
 ppChild (nm,tp,b)
   = pp nm >#< "::" >#< pp (show tp) >#< "<" >|< ppBool b >|< ">"
   
-ppVertexMap :: Map Int (Name,Name,Maybe Type) -> PP_Doc
+ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc
 ppVertexMap m
   = ppVList [ ppF (show k) $ ppAttr v | (k,v) <- Map.toList m ]
 
-ppAttr :: (Name,Name,Maybe Type) -> PP_Doc
+ppAttr :: (Identifier,Identifier,Maybe Type) -> PP_Doc
 ppAttr (fld,nm,mTp)
   = pp fld >|< "." >|< pp nm >#<
     case mTp of
@@ -47,11 +47,11 @@ SEM CGrammar
   | CGrammar        lhs     .  	pp    	=   ppNestInfo ["CGrammar","CGrammar"] []
                                                        [ ppF "typeSyns"  $ ppAssocL @typeSyns
                                                        , ppF "derivings" $ ppMap $ @derivings
-                                                       , ppF "prods"     $ ppVList @prods.ppL
+                                                       , ppF "nonts"     $ ppVList @nonts.ppL
                                                        ] []
 
-SEM CProduction
-  | CProduction		lhs     .  	pp    	=   ppNestInfo ["CProduction","CProduction"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "alts" $ ppVList @alts.ppL, ppF "inter" @inter.pp] []
+SEM CNonterminal
+  | CNonterminal		lhs     .  	pp    	=   ppNestInfo ["CNonterminal","CNonterminal"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL, ppF "inter" @inter.pp] []
 
 SEM CInterface
   | CInterface      lhs     .   pp      =   ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList @seg.ppL] []
@@ -59,8 +59,8 @@ SEM CInterface
 SEM CSegment
   | CSegment        lhs     .   pp      =   ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn] []
 
-SEM CAlternative
-  | CAlternative	lhs     .  	pp    	=   ppNestInfo ["CAlternative","CAlternative"] [pp @con] [ppF "visits" $ ppVList @visits.ppL, ppF "children" $ ppVList (map ppChild @children),ppF "terminals" $ ppVList (map ppShow @terminals)] []
+SEM CProduction
+  | CProduction	lhs     .  	pp    	=   ppNestInfo ["CProduction","CProduction"] [pp @con] [ppF "visits" $ ppVList @visits.ppL, ppF "children" $ ppVList (map ppChild @children),ppF "terminals" $ ppVList (map ppShow @terminals)] []
 
 SEM CVisit
   | CVisit          lhs     .   pp      =   ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "sequence" $ ppVList @vss.ppL, ppF "intra" $ ppVList @intra.ppL, ppF "ordered" $ ppBool @ordered] []
@@ -76,7 +76,7 @@ SEM Pattern
   | Underscore		lhs     .  	pp    	=   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
 
 
-ATTR CProductions CSegments CAlternatives CVisits Sequence Patterns [ | | ppL: {[PP_Doc]} ]
+ATTR CNonterminals CSegments CProductions CVisits Sequence Patterns [ | | ppL: {[PP_Doc]} ]
 
 SEM Patterns
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
@@ -90,7 +90,7 @@ SEM CVisits
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
 
-SEM CAlternatives
+SEM CProductions
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
 
@@ -98,6 +98,6 @@ SEM CSegments
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
   
-SEM CProductions
+SEM CNonterminals
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]

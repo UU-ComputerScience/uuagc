@@ -6,8 +6,8 @@ import SequentialTypes
 
 DATA IRoot | IRoot inters:Interfaces
 TYPE Interfaces = [Interface]
-DATA Interface | Interface nt:Nonterminal
-                           cons:{[Constructor]}
+DATA Interface | Interface nt:NontermIdent
+                           cons:{[ConstructorIdent]}
                            seg:Segments
 TYPE Segments = [Segment]
 DATA Segment | Segment  inh:{[Vertex]}

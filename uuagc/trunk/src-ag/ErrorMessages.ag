@@ -14,103 +14,103 @@ DATA Error  | ParserError     pos     : {Pos}
                               problem : {String}
                               action  : {String}
 
-            | DupAlt          nt    : {Nonterminal}
-                              con,occ1 : {Constructor}
+            | DupAlt          nt    : {NontermIdent}
+                              con,occ1 : {ConstructorIdent}
 
-            | DupSynonym      nt,occ1 : {Nonterminal}
+            | DupSynonym      nt,occ1 : {NontermIdent}
 
-            | DupSet          name,occ1 : {Nonterminal}
+            | DupSet          name,occ1 : {NontermIdent}
 
-            | DupInhAttr      nt    : {Nonterminal}
-                              attr,occ1 :{Name}
+            | DupInhAttr      nt    : {NontermIdent}
+                              attr,occ1 :{Identifier}
 
-            | DupSynAttr      nt    : {Nonterminal}
-                              attr,occ1 : {Name}
+            | DupSynAttr      nt    : {NontermIdent}
+                              attr,occ1 : {Identifier}
 
-            | DupChild        nt    : {Nonterminal}
-                              con   : {Constructor}
-                              name,occ1 : {Name}
+            | DupChild        nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              name,occ1 : {Identifier}
 
-            | DupRule         nt    : {Nonterminal}
-                              con   : {Constructor}
-                              field : {Name}
-                              attr,occ1 : {Name}
+            | DupRule         nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr,occ1 : {Identifier}
 
-            | DupSig          nt    : {Nonterminal}
-                              con   : {Constructor}
-                              attr  : {Name}
+            | DupSig          nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              attr  : {Identifier}
 
-            | UndefNont       nt    : {Nonterminal}
+            | UndefNont       nt    : {NontermIdent}
 
-            | UndefAlt        nt    : {Nonterminal}
-                              con   : {Constructor}
+            | UndefAlt        nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
 
-            | UndefChild      nt    : {Nonterminal}
-                              con   : {Constructor}
-                              name  : {Name}
+            | UndefChild      nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              name  : {Identifier}
 
             | MissingRule     --pos : {Pos}
-                              nt    : {Nonterminal}
-                              con   : {Constructor}
-                              field : {Name}
-                              attr  : {Name}
+                              nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
 
-            | SuperfluousRule nt    : {Nonterminal}
-                              con   : {Constructor}
-                              field : {Name}
-                              attr  : {Name}
+            | SuperfluousRule nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
 
---            | SuperfluousSig  nt    : {Nonterminal}
---                              con   : {Constructor}
---                              attr  : {Name}
+--            | SuperfluousSig  nt    : {NontermIdent}
+--                              con   : {ConstructorIdent}
+--                              attr  : {Identifier}
 
-            | UndefLocal      nt    : {Nonterminal}
-                              con   : {Constructor}
-                              var   : {Name}
+            | UndefLocal      nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              var   : {Identifier}
 
-            | ChildAsLocal    nt    : {Nonterminal}
-                              con   : {Constructor}
-                              var   : {Name}
+            | ChildAsLocal    nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              var   : {Identifier}
 
-            | UndefAttr       nt    : {Nonterminal}
-                              con   : {Constructor}
-                              field : {Name}
-                              attr  : {Name}
+            | UndefAttr       nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
 
-            | CyclicSet       name:{Name}
+            | CyclicSet       name:{Identifier}
 
             | CustomError     isWarning : {Bool}
                               pos   : {Pos}
                               mesg  : {PP_Doc}
 
-            | LocalCirc       nt      : {Nonterminal}
-                              con     : {Constructor}
-                              attr    : {Name}
+            | LocalCirc       nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
                               o_visit : {Bool}
                               path    : {[String]}
             
-            | InstCirc        nt      : {Nonterminal}
-                              con     : {Constructor}
-                              attr    : {Name}
+            | InstCirc        nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
                               o_visit : {Bool}
                               path    : {[String]}
 
-            | DirectCirc      nt      : {Nonterminal}
+            | DirectCirc      nt      : {NontermIdent}
                               o_visit : {Bool}
-                              cyclic  : {[((Name,Name),[String],[String])]}
+                              cyclic  : {[((Identifier,Identifier),[String],[String])]}
 
-            | InducedCirc     nt      : {Nonterminal}
+            | InducedCirc     nt      : {NontermIdent}
                               cinter  : {CInterface}
-                              cyclic  : {[((Name,Name),[String],[String])]}
+                              cyclic  : {[((Identifier,Identifier),[String],[String])]}
 
-            | MissingTypeSig  nt      : {Nonterminal}
-                              con     : {Constructor}
-                              attr    : {Name}
+            | MissingTypeSig  nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
             
-            | MissingInstSig  nt      : {Nonterminal}
-                              con     : {Constructor}
-                              attr    : {Name}
+            | MissingInstSig  nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
             
-            | ErroneousOrder  nt      : {Nonterminal}
-                              con     : {Constructor}
+            | ErroneousOrder  nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
                               order   : {Dependency}

@@ -2,17 +2,17 @@ imports
 {
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
-import CommonTypes (Constructor,Name)
+import CommonTypes (ConstructorIdent,Identifier)
 }
 
 TYPE Patterns   = [Pattern]
 
-DATA Pattern    | Constr     name  : {Constructor}
+DATA Pattern    | Constr     name  : {ConstructorIdent}
                              pats  : Patterns
                 | Product    pos   : {Pos}
                              pats  : Patterns
-                | Alias      field : {Name}
-                             attr  : {Name}
+                | Alias      field : {Identifier}
+                             attr  : {Identifier}
                              pat   : Pattern
                              parts : Patterns
                 | Underscore pos   : {Pos}

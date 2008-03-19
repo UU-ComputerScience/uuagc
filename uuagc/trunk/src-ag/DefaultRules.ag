@@ -23,8 +23,8 @@ import Options(Options,modcopy,rename)
 -------------------------------------------------------------------------------
 --         Passing down corresponding nonterminal and constructor names
 -------------------------------------------------------------------------------
-ATTR Rule Rules Child Children Alternative Alternatives  Pattern Patterns [ nt:Nonterminal | | ]
-ATTR Rule Rules Child Children Pattern Patterns [ con:Constructor | | ]
+ATTR Rule Rules Child Children Production Productions  Pattern Patterns [ nt:NontermIdent | | ]
+ATTR Rule Rules Child Children Pattern Patterns [ con:ConstructorIdent | | ]
 
 
 -------------------------------------------------------------------------------
@@ -32,19 +32,19 @@ ATTR Rule Rules Child Children Pattern Patterns [ con:Constructor | | ]
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Productions Production Alternatives Alternative [ o_rename:{Bool} 
+ATTR Nonterminals Nonterminal Productions Production [ o_rename:{Bool} 
                                                        cr:Bool {- copy rule -}  
                                                      | | ]
 
 ATTR Children Child [ cr:Bool {- copy rule -}  | | ]
 SEM Grammar
-  | Grammar     prods.o_rename  = rename    @lhs.options
-                prods.cr        = modcopy   @lhs.options
+  | Grammar     nonts.o_rename  = rename    @lhs.options
+                nonts.cr        = modcopy   @lhs.options
                     
 -------------------------------------------------------------------------------
 -- Type synonyms environment
 -------------------------------------------------------------------------------
-ATTR Productions Production Alternatives Alternative [ typeSyns : {TypeSyns} | | ]
+ATTR Nonterminals Nonterminal Productions Production [ typeSyns : {TypeSyns} | | ]
 
 
 -------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ getConName typeSyns rename nt con1
 
 concatSeq = foldr Seq.append Seq.empty
 
-splitAttrs :: Map Name a -> [Name] -> ([(Name,a)],[Name])	  -- a used as (String,String)
+splitAttrs :: Map Identifier a -> [Identifier] -> ([(Identifier,a)],[Identifier])	  -- a used as (String,String)
 splitAttrs _      []           
   =  ([],[])
 splitAttrs useMap (n:rest) 
@@ -87,7 +87,7 @@ splitAttrs useMap (n:rest)
           Just x  -> ((n,x):uses ,   normals )       
           Nothing -> (      uses , n:normals )
 
-removeDefined ::  Set (Name,Name) -> (Name,Attributes) -> (Name,[Name])
+removeDefined ::  Set (Identifier,Identifier) -> (Identifier,Attributes) -> (Identifier,[Identifier])
 removeDefined defined (fld,as) 
   = ( fld
     , [ a 
@@ -102,7 +102,7 @@ removeDefined defined (fld,as)
 --         Errors
 -------------------------------------------------------------------------------
 
-ATTR Grammar Productions Production Alternatives Alternative
+ATTR Grammar Nonterminals Nonterminal Productions Production
      Child Children Rule Rules Pattern Patterns 
      [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
 
@@ -110,44 +110,44 @@ ATTR Grammar Productions Production Alternatives Alternative
 -- Set of all defined nonterminals
 -------------------------------------------------------------------------------
 
-ATTR Productions Production  [ || collect_nts USE {`Set.union`} {Set.empty} : {Set Nonterminal}  ]
-SEM Production 
-  | Production lhs.collect_nts = Set.singleton @nt
+ATTR Nonterminals Nonterminal  [ || collect_nts USE {`Set.union`} {Set.empty} : {Set NontermIdent}  ]
+SEM Nonterminal 
+  | Nonterminal lhs.collect_nts = Set.singleton @nt
 
-ATTR Productions Production Alternatives Alternative [ nonterminals  : {Set Nonterminal} || ]
+ATTR Nonterminals Nonterminal Productions Production [ nonterminals  : {Set NontermIdent} || ]
 SEM Grammar
-  | Grammar prods.nonterminals = @prods.collect_nts
+  | Grammar nonts.nonterminals = @nonts.collect_nts
 -------------------------------------------------------------------------------
 --
 -------------------------------------------------------------------------------
 
--- Pass down the lhs-attributes and the USE's to each alternative of a production
+-- Pass down the lhs-attributes and the USE's to each alternative of a nonterminal
 --
-ATTR Productions Production [ useMap : {UseMap} || ]
-ATTR Alternatives Alternative [ inh, syn:{Attributes} useMap : {Map Name (String,String,String)}|| ]
+ATTR Nonterminals Nonterminal [ useMap : {UseMap} || ]
+ATTR Productions Production [ inh, syn:{Attributes} useMap : {Map Identifier (String,String,String)}|| ]
+
+SEM Nonterminal
+  | Nonterminal  prods.inh  = @inh
+                 prods.syn  = @syn
+                 prods.useMap = Map.findWithDefault Map.empty @nt @lhs.useMap
 
 SEM Production
-  | Production  alts.inh  = @inh
-                alts.syn  = @syn
-                alts.useMap = Map.findWithDefault Map.empty @nt @lhs.useMap
-
-SEM Alternative
-  | Alternative rules.con    = @con
+  | Production rules.con    = @con
                 children.con = @con
 SEM Child
   | Child lhs . name = @name
 SEM Grammar
-  | Grammar prods . useMap = @useMap
+  | Grammar nonts . useMap = @useMap
 SEM Grammar
-  | Grammar prods . typeSyns = @typeSyns
-SEM Production
-  | Production alts . nt = @nt
+  | Grammar nonts . typeSyns = @typeSyns
+SEM Nonterminal
+  | Nonterminal prods . nt = @nt
 
-SEM Child [ | | name:{Name} inherited,synthesized:{Attributes} ]
+SEM Child [ | | name:{Identifier} inherited,synthesized:{Attributes} ]
   | Child lhs.inherited = @inh
           lhs.synthesized = @syn
           
-SEM Children [ | | inputs,outputs:{[(Name, Attributes)]} ]
+SEM Children [ | | inputs,outputs:{[(Identifier, Attributes)]} ]
   | Cons lhs.inputs  = (@hd.name, @hd.inherited) : @tl.inputs
             .outputs = (@hd.name, @hd.synthesized) : @tl.outputs
   | Nil  lhs.inputs  = []
@@ -197,7 +197,7 @@ missingRuleErrorExpr nt con fld a
 	
 	
 	
-makeRule :: (Name,Name) -> Expression -> String -> Rule
+makeRule :: (Identifier,Identifier) -> Expression -> String -> Rule
 makeRule (f1,a1) expr origin 
  = Rule (Alias f1 a1 (Underscore noPos) []) 
         expr 
@@ -205,7 +205,7 @@ makeRule (f1,a1) expr origin
         origin
 
 
-useRule :: Set Name -> [(Name,Attributes)] -> (Name,(String,String,String)) -> Rule
+useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
 useRule locals ch_outs (n,(op,e,pos)) 
  =  let elems = [ fld 
                 | (fld,as) <- ch_outs
@@ -239,7 +239,7 @@ concatRE rsess = let (rss,ess) = unzip rsess
                  in (concat rss, concatSeq ess)
 
 
-copyRule :: Name -> Name -> Bool -> Set Name -> (Map Name Name, (Name,[Name])) -> ([Rule], Seq Error)
+copyRule :: Identifier -> Identifier -> Bool -> Set Identifier -> (Map Identifier Identifier, (Identifier,[Identifier])) -> ([Rule], Seq Error)
 copyRule nt con modcopy locals (env,(fld,as)) 
  = concatRE (map copyRu as)
  
@@ -289,8 +289,8 @@ copyRule nt con modcopy locals (env,(fld,as))
 
 
 
-SEM Alternative
- | Alternative 
+SEM Production
+ | Production 
 
    lhs.errors = @children.errors <> @errs <> @rules.errors <> @loc.orderErrs
 
@@ -367,8 +367,8 @@ SEM Alternative
    
    
 ATTR Rule Rules Pattern Patterns
-  [ | | locals        USE {`Set.union`} {Set.empty} : {Set Name} 
-        definedAttrs  USE {`Set.union`} {Set.empty} : {Set (Name,Name)}
+  [ | | locals        USE {`Set.union`} {Set.empty} : {Set Identifier} 
+        definedAttrs  USE {`Set.union`} {Set.empty} : {Set (Identifier,Identifier)}
   ]
 
 
@@ -378,11 +378,11 @@ SEM Pattern
                                 then Set.insert @attr @pat.locals
                                 else @pat.locals
 
-SEM Children [ | | fields : {[(Name,Type,Bool)]} ]
+SEM Children [ | | fields : {[(Identifier,Type,Bool)]} ]
   | Cons lhs.fields = @hd.field : @tl.fields
   | Nil  lhs.fields = []
   
-SEM Child    [ | | field  : { (Name,Type,Bool) } ]
+SEM Child    [ | | field  : { (Identifier,Type,Bool) } ]
   | Child lhs.field = (@name,@tp,@higherOrder)
 
 -------------------------------------------------------------------------------
@@ -397,20 +397,20 @@ SEM Pattern
 --         Reconstructing the tree
 -------------------------------------------------------------------------------
 
-ATTR Productions Production Alternatives Alternative Rules Rule [ | uniq:Int | ]
+ATTR Nonterminals Nonterminal Productions Production Rules Rule [ | uniq:Int | ]
 
 SEM Grammar
-  | Grammar prods.uniq = 1
+  | Grammar nonts.uniq = 1
 
-ATTR Grammar Productions  Production   Alternatives
-    Alternative Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
+ATTR Grammar Nonterminals  Nonterminal   Productions
+    Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
     [ | | output:SELF ] 
 
 ATTR Rule [ | | outputs:Rules ]
 
 
-SEM Alternative
-  | Alternative lhs.output = Alternative @con @children.output (@rules.output ++ @newRls) @typeSigs.output
+SEM Production
+  | Production lhs.output = Production @con @children.output (@rules.output ++ @newRls) @typeSigs.output
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
@@ -472,15 +472,15 @@ multiRule (Rule pat expr owrt origin) uniq
 --         Check the order definitions
 -------------------------------------------------------------------------------
 
-ATTR Productions Production Alternatives Alternative [ manualAttrOrderMap : {AttrOrderMap} | | ]
+ATTR Nonterminals Nonterminal Productions Production [ manualAttrOrderMap : {AttrOrderMap} | | ]
 
 SEM Grammar
   | Grammar
-      prods.manualAttrOrderMap = @manualAttrOrderMap
+      nonts.manualAttrOrderMap = @manualAttrOrderMap
       
 
-SEM Alternative
-  | Alternative
+SEM Production
+  | Production
       loc.orderDeps = Set.toList $ Map.findWithDefault Set.empty @con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrOrderMap
       
       loc.allAttrsInScope
@@ -508,12 +508,12 @@ SEM Alternative
           else Seq.fromList @loc.undefinedAttributeInDepsErrors
 
 {
-isDefined :: Map Name Attributes -> Identifier -> Identifier -> Bool
+isDefined :: Map Identifier Attributes -> Identifier -> Identifier -> Bool
 isDefined mp fld nm
   = Map.member nm $ Map.findWithDefault Map.empty fld mp
 
 -- check that for a dependency a < b, that a is an In attribute
-isInAttribute :: [(Name,Attributes)] -> Identifier -> Identifier -> Bool
+isInAttribute :: [(Identifier,Attributes)] -> Identifier -> Identifier -> Bool
 isInAttribute allSyns fld nm
   | fld == _INST || fld == _LOC || fld == _LHS
       = True

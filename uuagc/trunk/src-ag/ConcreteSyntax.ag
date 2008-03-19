@@ -18,14 +18,14 @@ TYPE SemDefs   = [SemDef]
 DATA AG        | AG     elems  : Elems
 
 DATA Elem      | Data   pos    : {Pos}
-                        -- name   : {Nonterminal}
+                        -- name   : {NontermIdent}
                         names  : NontSet
                         attrs  : Attrs
                         alts   : Alts
                         ext    : {Bool}
 
                | Type   pos    : {Pos}
-                        name   : {Nonterminal}
+                        name   : {NontermIdent}
                         type   : {ComplexType}
 
                | Attr   pos    : {Pos}
@@ -33,28 +33,28 @@ DATA Elem      | Data   pos    : {Pos}
                         attrs  : Attrs
 
                | Sem    pos    : {Pos}
-                        -- name   : {Nonterminal}
+                        -- name   : {NontermIdent}
                         names  : NontSet
                         attrs  : Attrs
                         alts   : SemAlts
 
                | Txt    pos    : {Pos}
-                        name   : {Name}
+                        name   : {NontermIdent}
                         lines  : {[String]}
                         
                | Set    pos    : {Pos}
-                        name   : {Name}
+                        name   : {NontermIdent}
                         set    : NontSet
                         
                | Deriving pos  : {Pos}
                           set  : NontSet         
-                          classes : {[Name]}
+                          classes : {[NontermIdent]}
                           
                | Wrapper  pos  : {Pos}
                           set  : NontSet         
 
                | Pragma   pos  : {Pos}
-                          names: {[Name]}
+                          names: {[NontermIdent]}
 
                | Module   pos     : {Pos}
                           name    : {String}  -- name of the haskell module
@@ -65,7 +65,7 @@ DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}
 
 DATA Alt       | Alt    pos    : {Pos}
---                        name   : {Constructor}
+--                        name   : {ConstructorIdent}
                         names  : ConstructorSet
                         fields : {Fields}
 
@@ -78,19 +78,19 @@ DATA SemDef    | Def    pattern: Pattern
                         owrt   : {Bool}
                | TypeDef ident : {Identifier}
                          tp    : Type
-               | SemPragma  names : {[Name]}
+               | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {(Identifier,Identifier)}
                                   after  : {(Identifier,Identifier)}
 
-DATA ConstructorSet | CName       name      : {Constructor}
+DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet
                     | CDifference set1,set2 : ConstructorSet
                     | CAll  
 
-DATA NontSet   | NamedSet   name      : {Nonterminal}
+DATA NontSet   | NamedSet   name      : {NontermIdent}
                | All  
                | Union      set1,set2 : NontSet
                | Intersect  set1,set2 : NontSet
                | Difference set1,set2 : NontSet
-               | Path       from,to   : {Nonterminal}
+               | Path       from,to   : {NontermIdent}
                

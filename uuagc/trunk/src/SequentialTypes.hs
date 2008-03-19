@@ -30,9 +30,9 @@ type EdgeRoutes= (Edge,Route,Route)
 type Table a   = Array     Vertex a
 
 
-data ChildVisit = ChildVisit Name Name Int [Vertex] [Vertex] deriving (Eq,Show) -- field, rhs nt, visit nr., inh, syn
-data NTAttr = NTAInh Nonterminal Name Type -- nt, attribute, type
-            | NTASyn Nonterminal Name Type -- nt, attribute, type
+data ChildVisit = ChildVisit Identifier Identifier Int [Vertex] [Vertex] deriving (Eq,Show) -- field, rhs nt, visit nr., inh, syn
+data NTAttr = NTAInh NontermIdent Identifier Type -- nt, attribute, type
+            | NTASyn NontermIdent Identifier Type -- nt, attribute, type
                deriving Show
 
 getNtaNameType (NTAInh nt name tp) = (name,tp)
@@ -75,14 +75,14 @@ ntattr cr  | isLocal cr =  Nothing
                                 getNt cr = if isRhs cr then fromJust (getRhsNt cr) else getLhsNt cr
                            in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))
 
-cRuleLhsInh :: Name -> Nonterminal -> Constructor -> Type -> CRule
+cRuleLhsInh :: Identifier -> NontermIdent -> ConstructorIdent -> Type -> CRule
 cRuleLhsInh attr nt con tp = CRule attr True False nt con _LHS Nothing (Just tp) (error "cRuleLhsInh") [] Map.empty False "" Set.empty
-cRuleTerminal :: Name -> Nonterminal -> Constructor -> Type -> CRule
+cRuleTerminal :: Identifier -> NontermIdent -> ConstructorIdent -> Type -> CRule
 cRuleTerminal attr nt con tp = CRule attr True False nt con _LOC Nothing (Just tp) (error ("cRuleTerminal: " ++ show (attr, nt, con, tp))) [] Map.empty False "" Set.empty
-cRuleRhsSyn :: Name -> Nonterminal -> Constructor -> Type -> Name -> Nonterminal -> CRule
+cRuleRhsSyn :: Identifier -> NontermIdent -> ConstructorIdent -> Type -> Identifier -> NontermIdent -> CRule
 cRuleRhsSyn attr nt con tp field childnt = CRule attr True False nt con field (Just childnt) (Just tp) (error ("cRuleRhsSyn: " ++ show (attr, nt, con, tp, field))) [] Map.empty False "" Set.empty
 
-defaultRule :: Name -> Nonterminal -> Constructor -> Name -> CRule
+defaultRule :: Identifier -> NontermIdent -> ConstructorIdent -> Identifier -> CRule
 defaultRule attr nt con field =  CRule attr (er 1) (er 2) nt con field (er 3) (er 4) (er 5) (er 6) (er 7) (er 8) (er 9) (er 10)
                                  where er i = error ("Default rule has no code " ++ show i)
 
@@ -121,7 +121,7 @@ eqClasses p (a:as) = let (isA,rest) = partition (p a) as
 lhsshow (NTAInh field attr _) = lhsname True attr
 lhsshow (NTASyn field attr _) = lhsname False attr 
 
-rhsshow :: Name -> NTAttr -> String
+rhsshow :: Identifier -> NTAttr -> String
 rhsshow field (NTAInh _ attr _) = attrname False field attr
 rhsshow field (NTASyn _ attr _) = attrname True field attr 
 

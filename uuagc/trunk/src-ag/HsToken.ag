@@ -10,11 +10,11 @@ DATA HsTokensRoot
 TYPE HsTokens = [HsToken]
 
 DATA HsToken
-   | AGLocal   var   : {Name}
+   | AGLocal   var   : {Identifier}
                pos   : {Pos}
 
-   | AGField   field : {Name}
-               attr  : {Name}
+   | AGField   field : {Identifier}
+               attr  : {Identifier}
                pos   : {Pos}
 
    | HsToken   value : {String}
