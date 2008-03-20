@@ -59,6 +59,12 @@ executable uuagc
     , PrintErrorMessages
     , SemHsTokens
     , Transform
+    , ATermWrite
+    , ATermAbstractSyntax
+    , TfmToVisage
+    , Visage
+    , VisageSyntax
+    , VisagePatterns
   extensions: TypeSynonymInstances, MultiParamTypeClasses
   hs-source-dirs: src, src-derived
 

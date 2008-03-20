@@ -21,15 +21,18 @@ import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_G
 import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
+import qualified TfmToVisage        as PassV (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
+import qualified Visage as VisageDump (sem_VisageGrammar, wrap_VisageGrammar, Syn_VisageGrammar(..), Inh_VisageGrammar(..))
 
 import Options
 import Version       (banner)
 import Parser        (parseAG, depsAG)
 import ErrorMessages (Error(ParserError), Errors)
 import CommonTypes   (Blocks)
+import ATermWrite
 
 
 main :: IO ()
@@ -60,6 +63,8 @@ compile flags input output
           grammar1a =Pass1a.output_Syn_Grammar   output1a
           output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
           grammar2  = Pass2.output_Syn_Grammar   output2
+          outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
+          grammarV  = PassV.visage_Syn_Grammar   outputV
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
@@ -69,6 +74,9 @@ compile flags input output
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
           dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
+          
+          outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
+          aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
 
           parseErrorList   = map message2error parseErrors
           errorList        = parseErrorList
@@ -141,7 +149,12 @@ compile flags input output
            
       if not (null fatalErrorList) 
        then exitFailure
-       else if sepSemMods flags'
+       else 
+        do if genvisage flags
+            then writeFile (outputfile++".visage") (writeATerm aterm)
+            else return ()
+
+           if sepSemMods flags'
             then do -- alternative module gen
                     Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()

@@ -20,8 +20,10 @@ shift 2
 calcdeps () {
     depfiles=$(${GREP} '^INCLUDE' $3 | ${SED} -e "s/INCLUDE \"\(.*\)\"/\1/g")
     for dep in ${depfiles}; do
-        echo $1 : $2/${dep}
-        calcdeps $1 $2 $2/${dep}
+      if [ -f $2/$dep ]; then
+        echo "$1 : $2/$dep"
+        calcdeps "$1" "$2" "$2/$dep"
+      fi
     done
 }    
 
