@@ -43,5 +43,11 @@ Other-Modules: Ag
     , PrintErrorMessages
     , SemHsTokens
     , Transform
+    , ATermWrite
+    , ATermAbstractSyntax
+    , TfmToVisage
+    , Visage
+    , VisageSyntax
+    , VisagePatterns
 Extensions: TypeSynonymInstances, MultiParamTypeClasses
 Hs-Source-Dirs: src, src-derived

@@ -52,14 +52,15 @@ CABAL_SCRIPT = ./Setup
 # We generate datatype definitions for these AG files.
 SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
 	 HsToken.ag Code.ag Expression.ag Patterns.ag Interfaces.ag\
-	 CodeSyntax.ag DeclBlocks.ag
+	 CodeSyntax.ag DeclBlocks.ag VisageSyntax.ag VisagePatterns.ag
 SRC_LAG_SYN_NAMES =
 
 # And semantic functions from these AG files.
 SRC_AG_SEM_NAMES = Desugar.ag DefaultRules.ag GenerateCode.ag PrintCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag \
 	 Transform.ag Order.ag \
-	 AbstractSyntaxDump.ag CodeSyntaxDump.ag
+	 AbstractSyntaxDump.ag CodeSyntaxDump.ag \
+	 Visage.ag TfmToVisage.ag
 SRC_LAG_SEM_NAMES = InterfacesRules.lag
 
 # Default flags for AG
@@ -166,7 +167,7 @@ endif
 
 # the name is hard-coded
 
-REVISION := $(shell cat svn-revision)
+REVISION := $(shell if [ -f svn-revision ]; then cat svn-revision; else echo "unknown"; fi)
 TODAY  := $(shell date '+%Y-%m-%d')
 DLABEL := uuagc-$(TODAY)
 VLABEL := uuagc-$(VERSION)

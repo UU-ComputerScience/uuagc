@@ -1,0 +1,121 @@
+INCLUDE "VisageSyntax.ag"
+INCLUDE "VisagePatterns.ag"
+INCLUDE "Expression.ag"
+
+
+imports {
+import UU.Scanner.Position(Pos(..))
+import CommonTypes
+import ATermAbstractSyntax
+import Expression
+import VisagePatterns
+import VisageSyntax
+import qualified Data.Map as Map
+import Data.Map(Map)
+import Data.List(intersperse)
+}
+
+{
+convert :: String -> String
+convert [] = []
+convert (c:ct) | c == '\n' = '\\' : 'n' : convert ct
+               | otherwise = c : convert ct
+ 
+sQ :: String -> String
+sQ []     = []
+sQ (x:xs) = if (x=='"') then rest else x:rest
+    where
+      rest = if not (null xs) && last xs == '"' then init xs else xs
+
+showAGPos :: Pos -> String
+showAGPos (Pos l c f) | l == (-1) = ""
+                      | otherwise = let file = if null f then "" else f -- No show of f
+                                        lc = "(line " ++ show l ++ ", column " ++ show c ++")"
+                                    in file ++ lc
+
+showMap :: (Show a, Show b) => Map a b -> String
+showMap
+  = braces . concat . intersperse "," . map (uncurry assign) . Map.assocs
+  where
+    braces s = "{" ++ s ++ "}"
+    assign a b = show a ++ ":=" ++ show b
+}
+
+WRAPPER VisageGrammar
+
+ATTR VisageGrammar VisageNonterminal VisageProduction 
+     VisageChild VisageRule Expression VisagePattern [ || aterm:{ATerm} ]
+ATTR VisageNonterminals VisageProductions VisageChildren 
+     VisageRules VisagePatterns [ || aterms:{[ATerm]} ]
+ATTR VisageRules -> VisageRule [ isLoc : Bool | | ]
+
+SEM VisageGrammar
+  | VGrammar     lhs.aterm = AAppl "Productions" @nonts.aterms
+
+
+SEM VisageNonterminals
+  | Cons 	lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil		lhs.aterms = []
+
+
+SEM VisageNonterminal
+  | VNonterminal  lhs.aterm = AAppl "Production" [AString (sQ (getName @nt)), AString (sQ(showMap @inh)), 
+                                                 AString (sQ(showMap @syn)), AAppl "Alternatives" @alts.aterms]
+
+
+SEM VisageProductions
+  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil		lhs.aterms = []
+
+
+SEM VisageProduction
+  | VProduction lhs.aterm = AAppl "Alternative" [AString (sQ (getName @con)), AAppl "Children" @children.aterms, 
+                                                  AAppl "Rules" @rules.aterms, 
+                                                  AAppl "LocRules" @locrules.aterms] 
+                 locrules.isLoc = True
+                 rules.isLoc    = False
+                                  
+SEM VisageChildren
+  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil		lhs.aterms = []	
+
+
+SEM VisageChild
+  | VChild       lhs.aterm = AAppl "Child" [AString (sQ (getName @name)), AString (sQ (show @tp)), 
+                                            AString (sQ (showMap @inh)), 
+                                            AString (sQ (showMap @syn)), 
+                                            AAppl "Rules" @rules.aterms]
+                 rules.isLoc = False
+                 
+SEM VisageRules
+  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil		lhs.aterms = []
+
+
+SEM VisageRule
+  | VRule        lhs.aterm = AAppl (if @lhs.isLoc then "LocRule" else "Rule") 
+                                   ([AString (sQ (getName @attr)), @pat.aterm, @rhs.aterm] ++ if @lhs.isLoc then [AString (sQ (show @owrt))] else [])
+  
+
+
+SEM Expression
+  | Expression  lhs.aterm = AAppl "Expression" [AString (sQ (showAGPos @pos)), AString (sQ (show @txt))]
+
+
+SEM VisagePatterns
+  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil		lhs.aterms = []
+
+
+SEM VisagePattern
+  | VConstr      lhs.aterm = AAppl "Pattern" [AAppl "Constr" [AString (sQ (showAGPos (getPos @name))), 
+                                              AString (sQ (getName @name)), 
+                                              AAppl "Patterns" @pats.aterms]]
+  | VProduct     lhs.aterm = AAppl "Pattern" [AAppl "Product" [AString (sQ (showAGPos @pos)), 
+                                                               AAppl "Patterns" @pats.aterms]]
+  | VVar         lhs.aterm = AAppl "Pattern" [AAppl "Var" [AString (sQ (showAGPos (getPos @field))), 
+                                                           AString (sQ (getName @field ++ "." ++ getName @attr))]]
+  | VAlias       lhs.aterm = AAppl "Pattern" [AAppl "Alias" [AString (sQ (showAGPos (getPos @field))), 
+                                                             AString (sQ (getName @field ++ "." ++ getName @attr)), @pat.aterm]]
+  | VUnderscore  lhs.aterm = AAppl "Pattern" [AAppl "Underscore" [AString (sQ (showAGPos @pos))]]
+

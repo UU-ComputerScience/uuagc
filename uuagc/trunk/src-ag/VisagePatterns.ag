@@ -1,0 +1,19 @@
+imports
+{
+import UU.Scanner.Position(Pos)
+import CommonTypes
+}
+
+TYPE VisagePatterns   = [VisagePattern]
+
+DATA VisagePattern    | VConstr     name  : {ConstructorIdent}
+                                    pats  : VisagePatterns
+                      | VProduct    pos   : {Pos}
+                                    pats  : VisagePatterns
+                      | VVar        field : {Identifier}             
+                                    attr  : {Identifier}
+                      | VAlias      field : {Identifier}
+                                    attr  : {Identifier}
+                                    pat   : VisagePattern
+                      | VUnderscore pos   : {Pos}
+

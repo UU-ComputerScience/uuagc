@@ -1,0 +1,134 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+
+imports {
+import AbstractSyntax
+import VisagePatterns
+import VisageSyntax
+}
+
+{
+-- Maps a rule to a pair 
+-- Later, I expect to map to a list of rules, because we might need to unfold.
+
+
+-- Checks that a certain alias is in fact a Var in the old representation of the AG system
+isVar (Alias _ _ (Underscore _) _) = True
+isVar _ = False
+
+type VisageRuleMap = [(String, VisageRule)]
+
+splitVRules :: [VisageRule] -> VisageRuleMap
+splitVRules vrs = concat (map unfoldvrs vrs)
+
+unfoldvrs :: VisageRule -> VisageRuleMap
+unfoldvrs vr@(VRule attrfields _ _ _ _) = zip (map (getName . fst) attrfields) (map (copyRule vr) attrfields)
+
+copyRule :: VisageRule -> (Identifier,Identifier) -> VisageRule
+copyRule (VRule attrfields _ pat expr owrt) (field,attr) = VRule attrfields attr pat expr owrt
+
+getForField :: String -> VisageRuleMap -> [VisageRule]
+getForField field xs = map snd (filter ((field ==) . fst) xs)
+
+{-
+   Delivers a map from fieldname to VisageRule with all references to others underscored.
+   So, (lhs.x, rt.y, loc.z) = (0,1,2) becomes something like
+   [("lhs", (lhs.x,_,_) = (0,1,2)
+
+   At this point, we do not use this anymore.
+   
+allways :: VisageRule -> VisageRuleMap
+allways vr@(VRule vrfields _ _ _ _) = zip vrfields (map (underScoreRule vr) (nub vrfields))
+
+splitVRules :: [VisageRule] -> VisageRuleMap
+splitVRules vrs = concat (map allways vrs)
+
+underScoreRule :: VisageRule -> String -> VisageRule
+underScoreRule (VRule fields pat expr owrt rule) s = VRule fields (underScore s pat) expr owrt rule
+
+underScore :: String -> VisagePattern -> VisagePattern
+underScore field (VConstr name pats) = VConstr name (map (underScore field) pats) 
+underScore field (VProduct pos pats) = VProduct pos (map (underScore field) pats)
+underScore field vp@(VVar vfield attr)  = 
+   if (field == getName vfield) 
+   then vp
+   else (VUnderscore (getPos vfield))
+-- Should I recurse into the pat of VAlias?
+underScore field vp@(VAlias afield attr pat) =
+   if (field == getName afield) 
+   then vp
+   else (VUnderscore (getPos afield))
+underScore field vp@(VUnderscore pos) = vp
+                 
+-}
+}
+
+
+ATTR Expression Pattern Patterns [ | | self : SELF ]
+
+ATTR Grammar  [ || visage:{VisageGrammar} ]
+ATTR Nonterminal  [ || vnont:{VisageNonterminal} ]
+ATTR Nonterminals  [ || vnonts:{[VisageNonterminal]} ]
+ATTR Production  [ || vprod:{VisageProduction} ]
+ATTR Productions  [ || vprods:{[VisageProduction]} ]
+ATTR Rule [ || vrule : {VisageRule} ]
+ATTR Rules [ || vrules : {[VisageRule]} ]
+ATTR Child    [ rulemap : {VisageRuleMap} || vchild:{VisageChild} ]
+ATTR Children [ rulemap : {VisageRuleMap} || vchildren:{[VisageChild]} ]
+ATTR Pattern [ || vpat:{VisagePattern} ]
+ATTR Patterns [ || vpats: {[VisagePattern]} ]
+
+SEM Grammar
+  | Grammar     lhs.visage = VGrammar @nonts.vnonts
+
+SEM Nonterminals
+  | Cons 	lhs.vnonts = @hd.vnont : @tl.vnonts
+  | Nil		lhs.vnonts = []
+
+SEM Nonterminal
+  | Nonterminal  lhs.vnont = VNonterminal @nt @inh @syn @prods.vprods
+  
+SEM Productions
+  | Cons	lhs.vprods = @hd.vprod : @tl.vprods
+  | Nil		lhs.vprods = []
+
+SEM Production
+  | Production  lhs.vprod        = VProduction @con @children.vchildren @lhsrules @locrules                 
+                loc.splitVRules  = splitVRules @rules.vrules
+                loc.locrules     = getForField "loc" @splitVRules
+                loc.lhsrules     = getForField "lhs" @splitVRules
+                children.rulemap = @splitVRules
+                
+SEM Children
+  | Cons	lhs.vchildren = @hd.vchild : @tl.vchildren
+  | Nil		lhs.vchildren = []	
+
+SEM Child
+  | Child lhs.vchild = VChild @name @tp @inh @syn (getForField (getName @name) @lhs.rulemap)
+
+SEM Rules
+  | Cons	lhs.vrules = @hd.vrule : @tl.vrules
+  | Nil		lhs.vrules = []
+
+-- The undefined may seem strange, but it really belongs there.
+SEM Rule
+  | Rule  lhs.vrule  = VRule @pattern.fieldattrs undefined @pattern.vpat @rhs.self @owrt
+  
+SEM Patterns
+  | Cons	lhs.vpats = @hd.vpat : @tl.vpats
+  | Nil		lhs.vpats = []
+
+SEM Pattern
+  | Constr      lhs.vpat = VConstr @name @pats.vpats
+  | Product     lhs.vpat = VProduct @pos @pats.vpats
+  | Alias       lhs.vpat = if (isVar @self) 
+                           then VVar @field @attr
+                           else VAlias @field @attr @pat.vpat
+  | Underscore  lhs.vpat = VUnderscore @pos
+
+-- All (field,attrs) in a pattern
+ATTR Patterns -> Pattern [ | | fieldattrs USE { ++ } { [] } : { [(Identifier,Identifier)] } ] 
+
+SEM Pattern
+  | Alias       lhs.fieldattrs = [(@field, @attr)]
