@@ -1,11 +1,12 @@
 imports
 {
 import UU.Scanner.Position(Pos)
+import HsToken
 }
 
 DATA Expression
    | Expression pos:{Pos}
-                txt:{String}
+                tks:{[HsToken]}
 
 SET AllExpression
   = Expression

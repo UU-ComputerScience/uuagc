@@ -86,7 +86,7 @@ SEM  CProduction
 
 ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CRule
-  |  CRule loc.instTypes = map (\(n,NT t,_) -> (n,t)) @lhs.higherOrderChildren
+  |  CRule loc.instTypes = map (\(n,NT t _,_) -> (n,t)) @lhs.higherOrderChildren
            loc.originComment = if  @lhs.o_pretty
                                    then (Comment @origin:)
                                    else id
@@ -237,10 +237,10 @@ SEM CRule
 
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
-  |  CRule        loc.mkTp = SimpleType . typeToString @lhs.nt
+  |  CRule        loc.mkTp = SimpleType . typeToHaskellString (Just @lhs.nt)
                   lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) 
                               |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
-  |  CChildVisit  loc.mkTp = SimpleType . typeToString @nt
+  |  CChildVisit  loc.mkTp = SimpleType . typeToHaskellString (Just @nt)
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
@@ -251,9 +251,9 @@ SEM  CRule
 -------------------------------------------------------------------------------
 
 {
-substSelf nt tp = if tp==NT _SELF 
-                  then Haskell (getName nt)
-                  else tp
+substSelf nt tp = case tp of
+                    NT t tps | t == _SELF -> Haskell (getName nt ++ " " ++ unwords tps)
+                    _                     -> tp
 }
 
 ATTR CVisits CVisit Sequence CRule [ children : {[(Identifier,Type,Bool)]} | | ]
@@ -299,10 +299,10 @@ SEM  CVisit
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
                               
                               
-                              field (name,NT tp,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
-                                                                | otherwise       = id
-                                                      in unwrap (SimpleExpr (funname name 0))
-                              field (name,_,_)     =  SimpleExpr (funname name 0)
+                              field (name,NT tp _,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                                                                  | otherwise       = id
+                                                        in unwrap (SimpleExpr (funname name 0))
+                              field (name,_,_)       =  SimpleExpr (funname name 0)
                               
                               rhs = wrap
                                   . mkLambda (map (lhsname True) (Map.keys @inh))
@@ -317,7 +317,7 @@ SEM  CVisit
                                          else id
                          in Decl lhs rhs Set.empty Set.empty
             loc.tsig = TSig @funcname @semType
-            loc.semType = let argType (NT tp)      rec | tp /= _SELF = SimpleType (sdtype tp) `Arr` rec
+            loc.semType = let argType (NT tp _)    rec | tp /= _SELF = SimpleType (sdtype tp) `Arr` rec
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
                           in if  @lhs.nr == 0  
@@ -495,8 +495,8 @@ SEM  CInterface
 SEM  CSegment
   |  CSegment lhs.semDom = let name = typeName @lhs.nt @lhs.nr
                                tp = foldr Arr synTps inhTps
-                               inhTps = [SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @inh]
-                               synTps = mkTupleType @lhs.o_unbox (null inhTps) ([SimpleType (typeToString @lhs.nt tp) |  tp <- Map.elems @syn] ++ continuation)
+                               inhTps = [SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @inh]
+                               synTps = mkTupleType @lhs.o_unbox (null inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @syn] ++ continuation)
                                continuation = if  @lhs.isLast
                                                   then []
                                                   else [SimpleType (typeName @lhs.nt (@lhs.nr + 1))]
@@ -522,7 +522,7 @@ SEM CNonterminal
                                                    else SimpleExpr var
                                       typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
                                       mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
-                                      mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToString @nt t) | (f,t) <- attrs]] False []
+                                      mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToHaskellString (Just @nt) t) | (f,t) <- attrs]] False []
                                       datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                   in datas ++ [ Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                                     (Let @inter.wrapDecls (App synNT synVars))
@@ -604,7 +604,7 @@ SEM CVisit
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
                  vss.what     = "local"
                  intra.what   = "intra"
-                                 
+
 
 SEM CRule
   | CRule        lhs.comments =  [ makeLocalComment 11 @lhs.what name tp | (field,name,tp) <- Map.elems @defines, field == _LOC ]
@@ -613,7 +613,7 @@ SEM CRule
 {
 makeLocalComment :: Int -> String -> Identifier -> Maybe Type -> String
 makeLocalComment width what  name tp = let  x = getName name
-                                            y = maybe "_" (\t -> case t of (NT nt) -> getName nt; Haskell t -> '{':t++"}") tp
+                                            y = maybe "_" (\t -> case t of (NT nt tps) -> getName nt ++ " " ++ unwords tps; Haskell t -> '{':t++"}") tp
                                        in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
 
 }
@@ -683,9 +683,9 @@ SEM CGrammar
 SEM CNonterminal
   | CNonterminal loc.dataDef = let typeSyn tp = let theType = 
                                                       case tp of
-                                                        CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToString @nt t ++")")
-                                                        CommonTypes.List t   -> Code.List $ SimpleType (typeToString @nt t)
-                                                        CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToString @nt t) 
+                                                        CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) t ++")")
+                                                        CommonTypes.List t   -> Code.List $ SimpleType (typeToHaskellString (Just @nt) t)
+                                                        CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) t) 
                                                                                                | (_,t) <- ts
                                                                                                ]
                                                  in Code.Type (getName @nt) theType
@@ -701,7 +701,7 @@ SEM CProductions
   | Nil         lhs.dataAlts  = []
 
 SEM CProduction
-  | CProduction  lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToString @lhs.nt t) @loc.firstOrderChildren)
+  | CProduction  lhs.dataAlt   = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToHaskellString (Just @lhs.nt) t) @loc.firstOrderChildren)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present
@@ -716,8 +716,8 @@ SEM CNonterminal
                                                          nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
                                                          arg  = SimpleExpr "list"
                                                          rarg = case tp of
-                                                                  NT t  -> SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t) ++ " list)")
-                                                                  _     -> arg
+                                                                  NT t _ -> SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t) ++ " list)")
+                                                                  _      -> arg
                                                          lhs = Fun (cataname @lhs.prefix @nt) [arg]
                                                          rhs = (App "Prelude.foldr" [cons,nil,rarg])
                                                      in  [Decl lhs rhs Set.empty Set.empty]
@@ -726,8 +726,8 @@ SEM CNonterminal
                                                          nothing = semname @lhs.prefix @nt (identifier "Nothing" )
                                                          arg  = SimpleExpr "x"
                                                          rarg = case tp of
-                                                                  NT t  -> App (cataname @lhs.prefix t) [arg]
-                                                                  _     -> arg
+                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  _      -> arg
                                                          lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
                                                      in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])    Set.empty Set.empty
                                                          ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing) Set.empty Set.empty
@@ -737,8 +737,8 @@ SEM CNonterminal
                                                          tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
                                                          rargs = map rarg tps'                                                        
                                                          rarg (n, tp) = case tp of
-                                                                  NT t  -> App (cataname @lhs.prefix t) [n]
-                                                                  _     -> n
+                                                                  NT t _ -> App (cataname @lhs.prefix t) [n]
+                                                                  _      -> n
                                                                   
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
                                                          rhs = App con rargs
@@ -761,7 +761,7 @@ SEM CProduction
                                                  (map (\(n,_,_) -> SimpleExpr $ locname $ n) @loc.firstOrderChildren)
                                   rhs = App (semname @lhs.prefix @lhs.nt @con)
                                              (map argument @loc.firstOrderChildren)
-                                  argument (nm,NT tp,_) = App (cataname @lhs.prefix tp)
+                                  argument (nm,NT tp _,_) = App (cataname @lhs.prefix tp)
                                                                [SimpleExpr (locname nm)]
                                   argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs Set.empty Set.empty

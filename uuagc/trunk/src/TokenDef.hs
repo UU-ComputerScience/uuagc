@@ -7,6 +7,8 @@ import UU.Scanner.GenTokenOrd
 import UU.Scanner.Position
 import UU.Parsing.MachineInterface(Symbol(..))
 import Char(isPrint,ord)
+import HsToken
+import CommonTypes
 
 
 
@@ -23,6 +25,20 @@ instance Symbol Token  where
                 TkError -> 0
                 _       -> 5
 
+
+tokensToStrings :: [HsToken] -> [(Pos,String)]
+tokensToStrings
+  = map tokenToString
+
+tokenToString :: HsToken -> (Pos, String)
+tokenToString tk
+  = case tk of
+      AGLocal var pos        -> (pos, "@" ++ getName var)
+      AGField field attr pos -> (pos, "@" ++ getName field ++ "." ++ getName attr)
+      HsToken value pos      -> (pos, value)
+      CharToken value pos    -> (pos, show value)
+      StrToken value pos     -> (pos, show value)
+      Err mesg pos           -> (pos, " ***" ++ mesg ++ "*** ")
 
 showTokens :: [(Pos,String)] -> [String]
 showTokens [] = []

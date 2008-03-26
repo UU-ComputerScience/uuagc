@@ -18,7 +18,6 @@ TYPE SemDefs   = [SemDef]
 DATA AG        | AG     elems  : Elems
 
 DATA Elem      | Data   pos    : {Pos}
-                        -- name   : {NontermIdent}
                         names  : NontSet
                         attrs  : Attrs
                         alts   : Alts
@@ -33,7 +32,6 @@ DATA Elem      | Data   pos    : {Pos}
                         attrs  : Attrs
 
                | Sem    pos    : {Pos}
-                        -- name   : {NontermIdent}
                         names  : NontSet
                         attrs  : Attrs
                         alts   : SemAlts
@@ -41,17 +39,17 @@ DATA Elem      | Data   pos    : {Pos}
                | Txt    pos    : {Pos}
                         name   : {NontermIdent}
                         lines  : {[String]}
-                        
+
                | Set    pos    : {Pos}
                         name   : {NontermIdent}
                         set    : NontSet
-                        
+
                | Deriving pos  : {Pos}
-                          set  : NontSet         
+                          set  : NontSet
                           classes : {[NontermIdent]}
                           
                | Wrapper  pos  : {Pos}
-                          set  : NontSet         
+                          set  : NontSet
 
                | Pragma   pos  : {Pos}
                           names: {[NontermIdent]}
@@ -65,7 +63,6 @@ DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}
 
 DATA Alt       | Alt    pos    : {Pos}
---                        name   : {ConstructorIdent}
                         names  : ConstructorSet
                         fields : {Fields}
 
@@ -74,7 +71,7 @@ DATA SemAlt    | SemAlt pos    : {Pos}
                         rules  : SemDefs
 
 DATA SemDef    | Def    pattern: Pattern
-                        rhs    : {Expression}                     
+                        rhs    : {Expression}
                         owrt   : {Bool}
                | TypeDef ident : {Identifier}
                          tp    : Type

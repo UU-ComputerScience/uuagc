@@ -13,6 +13,8 @@ import UU.DData.Seq(Seq,(<>))
 import UU.Scanner.Position(noPos)
 import Pretty
 import Maybe
+import HsToken
+import HsTokenScanner
 
 import AbstractSyntax
 import ErrorMessages
@@ -40,7 +42,7 @@ ATTR Children Child [ cr:Bool {- copy rule -}  | | ]
 SEM Grammar
   | Grammar     nonts.o_rename  = rename    @lhs.options
                 nonts.cr        = modcopy   @lhs.options
-                    
+
 -------------------------------------------------------------------------------
 -- Type synonyms environment
 -------------------------------------------------------------------------------
@@ -211,14 +213,21 @@ useRule locals ch_outs (n,(op,e,pos))
                 | (fld,as) <- ch_outs
                 , Map.member n as
                 ]
-                
+
         expr | Set.member n locals  =  attrName _LOC n
              | null elems           =  e
              | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) 
                                               (map (flip attrName n) elems)
-             
+
+        tks | Set.member n locals  =  [AGLocal n noPos]
+            | null elems           =  lexTokens noPos e
+            | otherwise            =  lexTokens noPos str
+                                      where
+                                        str = foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) 
+                                                (map (flip attrName n) elems)
+
     in makeRule (_LHS,n) 
-                (Expression noPos expr) 
+                (Expression noPos tks)
                 ("use rule " ++ pos)
 
 
@@ -227,9 +236,12 @@ useRule locals ch_outs (n,(op,e,pos))
 selfRule lhsNecLoc attr x   
  = let expr | lhsNecLoc  = locName attr
             | otherwise  = x
-     
+
+       tks | lhsNecLoc   = [AGLocal attr noPos]
+           | otherwise   = lexTokens noPos x
+
    in makeRule (if lhsNecLoc then _LHS else _LOC,attr)
-               (Expression noPos expr)
+               (Expression noPos tks)
                "self rule"
                
 
@@ -246,7 +258,7 @@ copyRule nt con modcopy locals (env,(fld,as))
  where 
        copyRu a
            = ( [ makeRule (fld,a) 
-                          (Expression noPos expr)
+                          (Expression noPos tks)
                           (cruletxt sel)
                ]
              , err
@@ -270,8 +282,21 @@ copyRule nt con modcopy locals (env,(fld,as))
                    | otherwise    -> ( attrName f a
                                      , Seq.empty
                                      )
-                                            
-              cruletxt sel 
+              
+              (tks,err')
+               = case sel of
+                  Nothing         -> ( [HsToken (missingRuleErrorExpr nt con fld a) noPos]
+                                     , Seq.single (MissingRule nt con fld a)
+                                     )
+                  Just f 
+                   | f == _ACHILD -> ( [AGLocal a noPos]
+                                     , Seq.single (deprecatedCopyRuleError nt con fld a)
+                                     )
+                   | otherwise    -> ( [AGField f a noPos]
+                                     , Seq.empty
+                                     )
+
+              cruletxt sel
                | local                            = "copy rule (from local)"
                | deprChild                        = "deprecated child copy"
                | Set.member a locals && nonlocal  = "modified copy rule"
@@ -316,7 +341,7 @@ SEM Production
         lhs_env    = last envs
         
         (selfAttrs, normalAttrs) 
-          = Map.partition (==NT _SELF) @lhs.syn
+          = Map.partition isSELFNonterminal @lhs.syn
                  
         (_,undefAttrs)    
           = removeDefined @rules.definedAttrs (_LHS, normalAttrs)
@@ -339,7 +364,7 @@ SEM Production
              ]
              where   
                childSelf self nm tp 
-                 = case tp of NT nt                           -> attrName nm self
+                 = case tp of NT nt _                         -> attrName nm self
                               _      | nm `Set.member` locals -> locname nm
                                      | otherwise              -> fieldName nm
                constructor fs
@@ -445,7 +470,8 @@ multiRule (Rule pat expr owrt origin) uniq
   =  let f :: (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
          f w e (Product pos pats) n 
            = let freshName = Ident ("_tup" ++ show n) pos 
-                 freshExpr = Expression pos (attrName _LOC freshName)
+                 freshExpr = Expression pos freshTks
+                 freshTks  = [AGField _LOC freshName pos]
                  freshPat  = Alias _LOC freshName (Underscore pos) pats
                  a = length pats - 1
                  us b p = Product pos (replicate (a-b) (Underscore pos) ++ [p] ++ replicate b (Underscore pos))
