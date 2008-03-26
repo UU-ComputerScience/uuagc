@@ -13,6 +13,7 @@ import VisageSyntax
 import qualified Data.Map as Map
 import Data.Map(Map)
 import Data.List(intersperse)
+import TokenDef
 }
 
 {
@@ -99,7 +100,7 @@ SEM VisageRule
 
 
 SEM Expression
-  | Expression  lhs.aterm = AAppl "Expression" [AString (sQ (showAGPos @pos)), AString (sQ (show @txt))]
+  | Expression  lhs.aterm = AAppl "Expression" [AString (sQ (showAGPos @pos)), AString (sQ (unlines . showTokens . tokensToStrings $ @tks))]
 
 
 SEM VisagePatterns

@@ -16,7 +16,7 @@ import Data.Set(Set)
 import Data.Tree(Tree(Node))
 import Data.Graph(Graph, dfs, edges, buildG, transposeG)
 import Data.Maybe (fromJust)
-import Data.List (partition,transpose,(\\),nub,intersect)
+import Data.List (partition,transpose,(\\),nub,intersect, findIndex)
 import Data.Array ((!),inRange,bounds,assocs)
 
 import Debug.Trace(trace)
@@ -271,9 +271,12 @@ SEM  Segment
                                  rem prev (v:vs) 
                                    | inRange (bounds table) v 
                                        = let  cr = table ! v
-                                              addV = if  (getField cr,getAttr cr,getType cr) `elem` prev 
-                                                         then id 
-                                                         else (v:) 
+                                              addV = case findIndex cmp prev of
+                                                       Just _ -> id
+                                                       _      -> (v:)
+                                              cmp (fld,attr,tp) = getField cr == fld && getAttr cr == attr && sameNT (getType cr) tp
+                                              sameNT (Just (NT ntA _)) (Just (NT ntB _)) = ntA == ntB
+                                              sameNT _          _                        = False
                                               def = Map.elems (getDefines cr)
                                          in addV (rem (def ++ prev) vs)
                                    | otherwise = v:rem prev vs

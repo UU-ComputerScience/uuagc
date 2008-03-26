@@ -25,7 +25,7 @@ instance PP Identifier where
   pp = text . getName
 
 data Type = Haskell String
-          | NT Identifier
+          | NT Identifier [String]
 
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
@@ -37,13 +37,8 @@ instance Show ComplexType where
   show (Maybe t ) = "Maybe " ++ show t
 
 instance Show Type where
-  show (Haskell t) = t
-  show (NT nt  ) = getName nt
+  show = typeToHaskellString Nothing
 
-instance Eq Type where
-  NT x == NT y = x == y
-  _      == _      = False
-  
 type Attributes  = Map Identifier Type
 type TypeSyns    = [(NontermIdent,ComplexType)]
 
@@ -103,10 +98,22 @@ instname v  = getName v ++ "_val_"
 inst'name v = getName v ++ "_"
 fieldname v =  getName v++"_"
 
-typeToString :: NontermIdent -> Type -> String
-typeToString _ (Haskell t)  = t
-typeToString nt (NT t   ) | t == _SELF = getName nt
-                          | otherwise  = getName t
+typeToAGString :: Type -> String
+typeToAGString tp
+  = case tp of
+      Haskell t -> t
+      NT nt tps -> formatNonterminalToHaskell (getName nt) (map (\s -> "{" ++ s ++ "}") tps)
+
+typeToHaskellString :: Maybe NontermIdent -> Type -> String
+typeToHaskellString mbNt tp
+  = case tp of
+      Haskell t -> t
+      NT nt tps | nt == _SELF -> formatNonterminalToHaskell (maybe "Unknown" getName mbNt) tps
+                | otherwise   -> formatNonterminalToHaskell (getName nt) tps
+
+formatNonterminalToHaskell :: String -> [String] -> String
+formatNonterminalToHaskell nt tps
+  = unwords (nt:tps)
 
 ind :: String -> String
 ind s = replicate 3 ' ' ++ s
@@ -119,9 +126,19 @@ hasPragma mp nt con nm
   = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)
   
 isNonterminal :: Type -> Bool
-isNonterminal (NT _) = True
-isNonterminal _      = False
+isNonterminal (NT _ _) = True
+isNonterminal _        = False
+
+isSELFNonterminal :: Type -> Bool
+isSELFNonterminal (NT nt _) | nt == _SELF = True
+isSELFNonterminal _                       = False
 
 extractNonterminal :: Type -> NontermIdent
-extractNonterminal (NT n) = n
+extractNonterminal (NT n _) = n
+
+nontermArgs :: Type -> [String]
+nontermArgs tp
+  = case tp of
+      NT _ args -> args
+      _         -> [] 
 

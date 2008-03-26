@@ -38,31 +38,28 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule
 
 SEM Expression
   | Expression
-      loc.tokens = lexTokens @pos @txt
-      (loc.txt', lhs.errors) = let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot = @lhs.childInhs
+      (loc.tks', lhs.errors) = let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot = @lhs.childInhs
                                                           , childSyns_Inh_HsTokensRoot = @lhs.childSyns
                                                           , nt_Inh_HsTokensRoot        = @lhs.nt
                                                           , con_Inh_HsTokensRoot       = @lhs.con
                                                           }
-                                   sem = sem_HsTokensRoot (HsTokensRoot @loc.tokens)
+                                   sem = sem_HsTokensRoot (HsTokensRoot @tks)
                                    syn = wrap_HsTokensRoot sem inh
-                               in (txt_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
-      lhs.output = Expression @pos @loc.txt'
+                               in (tks_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
+      lhs.output = Expression @pos @tks'
 
-ATTR HsTokensRoot [ | | txt : String ]
-SEM HsTokensRoot
-  | HsTokensRoot
-      lhs.txt = unlines $ showTokens @tokens.tks
 
 ATTR HsToken HsTokens [ | addLines : Int | ]
 SEM HsTokensRoot
   | HsTokensRoot
       tokens.addLines = 0
 
-ATTR HsTokensRoot HsToken HsTokens [ | | tks USE {++} {[]} : {[(Pos,String)]} ]
+ATTR HsTokensRoot [ | | tks : {[HsToken]} ]
+ATTR HsToken HsTokens [ | | tks : SELF ]
+
 SEM HsToken
   | AGLocal
-      lhs.tks = [(addl @lhs.addLines @pos, "@" ++ show @var)]  -- note: the distinction between @loc.a and @a gone!
+      loc.tks = AGLocal @var (addl @lhs.addLines @pos)
   | AGField
       loc.mField = findField @field @attr @lhs.childSyns
       
@@ -72,16 +69,16 @@ SEM HsToken
       lhs.addLines = if length (getName @field) < length (getName @loc.field')
                      then @lhs.addLines + 1
                      else @lhs.addLines
-
-      lhs.tks = [(addl @lhs.addLines @pos, "@" ++ show @loc.field' ++ "." ++ show @attr)]
+      
+      loc.tks = AGField @field @attr (addl @lhs.addLines @pos)
   | HsToken
-      lhs.tks = [(addl @lhs.addLines @pos, @value)]
+      loc.tks = HsToken @value (addl @lhs.addLines @pos)
   | CharToken
-      lhs.tks = [(addl @lhs.addLines @pos, if null @value then "" else showCharShort (head @value))]
+      loc.tks = CharToken @value (addl @lhs.addLines @pos)
   | StrToken
-      lhs.tks = [(addl @lhs.addLines @pos, showStrShort @value)]
+      loc.tks = StrToken @value (addl @lhs.addLines @pos)
   | Err
-      lhs.tks = [(addl @lhs.addLines @pos, "***" ++ @mesg ++ "***")]
+      loc.tks = Err @mesg (addl @lhs.addLines @pos)
 
 {
 addl :: Int -> Pos -> Pos

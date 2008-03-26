@@ -272,7 +272,7 @@ checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields allinsts allsigs nt con rs
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt) : (_LOC,NT undefined) : (_INST, NT undefined) : (_FIRST, NT undefined) : (_LAST, NT undefined)
+        fieldmap = (_LHS,NT nt undefined) : (_LOC,NT undefined undefined) : (_INST, NT undefined undefined) : (_FIRST, NT undefined undefined) : (_LAST, NT undefined undefined)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
                  ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
         
@@ -288,16 +288,16 @@ checkRules attributes fields allinsts allsigs nt con rs
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
          = case lookup field fieldmap
-            of  Just (NT tp) -> if field == _LOC || field == _INST || field == _FIRST || field == _LAST
-                                   || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
-                                 then case Map.lookupIndex fa m 
-                                       of  Just ix -> let ((_,attr2),b) = Map.elemAt ix m
+            of  Just (NT tp _) -> if field == _LOC || field == _INST || field == _FIRST || field == _LAST
+                                     || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
+                                  then case Map.lookupIndex fa m of
+                                           Just ix -> let ((_,attr2),b) = Map.elemAt ix m
                                                        in  if b && not (fa `elem` bs)
-                                                            then (                                             e, Map.insert fa owrt m, fa:u, fa:bs)
-                                                            else (Seq.cons (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
-                                           Nothing ->            (                                             e, Map.insert fa owrt m,    u, fa:bs)
-                                 else                            (Seq.cons (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
-                _            ->                                  (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
+                                                           then (                                             e, Map.insert fa owrt m, fa:u, fa:bs)
+                                                           else (Seq.cons (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
+                                           Nothing ->           (                                             e, Map.insert fa owrt m,    u, fa:bs)
+                                  else                          (Seq.cons (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
+                _              ->                               (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
 
@@ -319,7 +319,7 @@ checkInsts sigMap nt con
     sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
     
     findSig name
-      = do tp@(NT _) <- lookup name sigs
+      = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
 }
 
@@ -390,7 +390,7 @@ ATTR Elem Elems [ | | typeSyns USE {++} {[]} : {TypeSyns} ]
 SEM Elem
   | Type  loc.expanded       = case @argType of
                                        List tp -> [(Ident "Cons" @pos, [(Ident "hd" @pos, tp)
-                                                                       ,(Ident "tl" @pos, NT @name)
+                                                                       ,(Ident "tl" @pos, NT @name (nontermArgs tp))
                                                                        ]
                                                    )
                                                   ,(Ident "Nil" @pos,  [])
@@ -451,7 +451,7 @@ SEM NontSet
 {
 flattenDatas :: DataTypes -> Map NontermIdent (Set NontermIdent)
 flattenDatas ds = Map.map flatten ds
-  where flatten cs =  Set.fromList [ nt | (_,NT nt) <- concatMap snd (Map.toList cs)]
+  where flatten cs =  Set.fromList [ nt | (_,NT nt _) <- concatMap snd (Map.toList cs)]
 
 reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
 reachableFrom table nts = reach nts
@@ -643,7 +643,7 @@ checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nt
 -- Add declaration of self-attribute for each nonterminal: ATTR <nt> [ | | self:SELF]
 {
 addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
-                     in  Map.insert name (eInh, Map.insert (Ident "self" noPos) (NT _SELF) eSyn)atMap
+                     in  Map.insert name (eInh, Map.insert (Ident "self" noPos) (NT _SELF []) eSyn)atMap
 }
 
 
@@ -743,10 +743,10 @@ SEM Elem
 -------------------------------------------------------------------------------
 {
 makeType :: Set NontermIdent -> Type -> Type
-makeType nts tp@(NT x) | x == _SELF       = tp
-                       | Set.member x nts = tp
-                       | otherwise        = Haskell (getName x)
-makeType _   tp                           = tp
+makeType nts tp@(NT x _) | x == _SELF       = tp
+                         | Set.member x nts = tp
+                         | otherwise        = Haskell (typeToHaskellString Nothing tp)
+makeType _   tp                             = tp
 }
 {
 constructGrammar ::    Set NontermIdent
@@ -777,8 +777,8 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                        cldrn = map (child False) flds ++ map (child True) insts
                                        child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
-                                                 NT nt -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
-                                                 _     -> (Map.empty,Map.empty)
+                                                 NT nt _ -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
+                                                 _       -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn isVirtual
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt inh syn (map alt alts)

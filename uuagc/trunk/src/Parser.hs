@@ -20,6 +20,7 @@ import UU.Scanner.GenTokenParser
 import UU.Scanner.Position
 import UU.Scanner.TokenShow()
 import System.Directory
+import HsTokenScanner
 
 
 type AGParser = AnaParser Input  Pair Token Pos
@@ -200,7 +201,7 @@ pOptAttrs :: AGParser Attrs
 pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
 
 pType :: AGParser Type
-pType =  NT <$> pIdentifierU
+pType =  (\nt -> NT nt []) <$> pIdentifierU
      <|> Haskell <$> pCodescrap'  <?> "a type"
 
 
@@ -231,7 +232,7 @@ pFields    = concat <$> pList_ng pField <?> "fields"
 pField     :: AGParser Fields
 pField     =  (\nms tp -> map (flip (,) tp) nms)
            <$> pIdentifiers <* pColon <*> pType
-           <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s)]) <$> pIdentifierU
+           <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s [])]) <$> pIdentifierU
 
 mklower :: String -> String
 mklower (x:xs) = toLower x : xs
@@ -292,7 +293,7 @@ pLocType = (Haskell . getName) <$> pIdentifierU
 
 pInstDecl :: AGParser SemDef
 pInstDecl = (\ident tp -> TypeDef ident tp)
-             <$ pDot <*> pIdentifier <* pColon <*> (NT <$> pIdentifierU)
+             <$ pDot <*> pIdentifier <* pColon <*> ((\nt -> NT nt []) <$> pIdentifierU)
 
 pSemDefs :: AGParser SemDefs
 pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"
@@ -302,7 +303,7 @@ pVar = (\att fld -> (fld,att)) <$> pIdentifier
 
  
 pExpr :: AGParser Expression
-pExpr = (\(str,pos) ->  Expression pos str) <$> ( pCodescrapL  ) <?> "an expression"
+pExpr = (\(str,pos) ->  Expression pos (lexTokens pos str)) <$> pCodescrapL <?> "an expression"
 
 pAssign :: AGParser Bool
 pAssign =  False <$ pReserved "="

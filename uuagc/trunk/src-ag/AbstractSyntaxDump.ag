@@ -11,6 +11,7 @@ import Pretty
 import PPUtil
 
 import AbstractSyntax
+import TokenDef
 }
 
 ATTR AllPattern AllAbstractSyntax AllExpression [ | | pp USE {>-<} {empty} : PP_Doc ]
@@ -46,7 +47,7 @@ SEM Pattern
   | Underscore		lhs     .  	pp    	=   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
 
 SEM Expression
-  | Expression		lhs     .  	pp    	=   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ text @txt] []
+  | Expression		lhs     .  	pp    	=   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ vlist . showTokens . tokensToStrings $ @tks] []
 
 ATTR Productions Nonterminals Children Rules TypeSigs Patterns [ | | ppL: {[PP_Doc]} ]
 
