@@ -20,6 +20,9 @@ import Data.Set(Set)
 import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq)
 import UU.Scanner.Position
+import TokenDef
+import HsToken
+import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
@@ -77,6 +80,18 @@ ATTR CVisits CVisit Sequence CRule [ con:ConstructorIdent
 SEM  CProduction
   |  CProduction  visits.con = @con
                    visits.terminals = @terminals
+
+ATTR CNonterminals CNonterminal CSegments CSegment CInterface CProductions CProduction CVisits CVisit Sequence CRule [ paramMap : ParamMap | | ]
+
+SEM CGrammar
+  | CGrammar nonts.paramMap = @paramMap
+
+
+ATTR CVisits CVisit Sequence CRule [ paramInstMap : {Map Identifier (NontermIdent, [String])} | | ]
+
+SEM CProduction
+  | CProduction
+      loc.paramInstMap = Map.fromList [(nm, (extractNonterminal tp, tps)) | (nm,tp,_) <- @children, let tps = nontermArgs tp, not (null tps) ]
 
 -------------------------------------------------------------------------------
 -- Generating declarations from the sequence. We generate the origin
@@ -238,12 +253,32 @@ SEM CRule
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
   |  CRule        loc.mkTp = SimpleType . typeToHaskellString (Just @lhs.nt)
-                  lhs.tSigs = [ TSig (attrname False field attr) (@mkTp (fromJust tp)) 
+                  lhs.tSigs = [ TSig (attrname False field attr) (@loc.evalTp field $ @mkTp (fromJust tp)) 
                               |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
-  |  CChildVisit  loc.mkTp = SimpleType . typeToHaskellString (Just @nt)
+
+                  loc.orgParams = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
+                  loc.evalTp =
+                    \field tp -> let orgFldParams = map getName $ Map.findWithDefault [] childNt @lhs.paramMap
+                                     (childNt,instParams) = Map.findWithDefault (@lhs.nt,[]) field @lhs.paramInstMap
+                                     replMap = Map.fromList (zip orgFldParams instParams)
+                                     replace k = Map.findWithDefault k k replMap
+                                 in if null instParams
+                                    then if null @orgParams
+                                         then tp
+                                         else idEvalType tp
+                                    else evalType replace tp
+
+  |  CChildVisit  loc.mkTp = @loc.evalTp . SimpleType . typeToHaskellString (Just @nt)
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
-                  lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (SimpleType @nextTp) :)) @definedTps
+                  lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (TypeApp (SimpleType @nextTp) (map SimpleType @loc.instParams)) :)) @definedTps
+                  
+                  loc.orgParams = map getName $ Map.findWithDefault [] @nt @lhs.paramMap
+                  loc.instParams = snd $ Map.findWithDefault (@nt,[]) @name @lhs.paramInstMap
+                  loc.replParamMap = Map.fromList (zip @loc.orgParams @loc.instParams)
+                  loc.replace = \k -> Map.findWithDefault k k @loc.replParamMap
+                  loc.evalTp = if null @loc.orgParams then id else evalType @loc.replace
+      
 
 -------------------------------------------------------------------------------
 -- Types of intra-visit dependencies are needed in the type of the
@@ -295,15 +330,24 @@ SEM  CVisit
                                       then PragmaExpr True False ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                       else v
             
+            loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
+
+                              field (name,NT tp tps,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
+                                                                    | otherwise       = id
+                                                             
+                                                             addType expr | null tps  = expr
+                                                                          | otherwise = TypedExpr expr (@lhs.unfoldSemDom tp 0 tps)
+
+                                                         in unwrap $ addType $ SimpleExpr $ funname name 0
+                              field (name,tp,_)        = let expr = SimpleExpr (funname name 0)
+                                                         in if null @loc.params
+                                                            then expr
+                                                            else TypedExpr expr (SimpleType (typeToHaskellString (Just @lhs.nt) tp))
                               
-                              
-                              field (name,NT tp _,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
-                                                                  | otherwise       = id
-                                                        in unwrap (SimpleExpr (funname name 0))
-                              field (name,_,_)       =  SimpleExpr (funname name 0)
-                              
+                               
+
                               rhs = wrap
                                   . mkLambda (map (lhsname True) (Map.keys @inh))
                                   $ @loc.addCostCentre
@@ -317,12 +361,17 @@ SEM  CVisit
                                          else id
                          in Decl lhs rhs Set.empty Set.empty
             loc.tsig = TSig @funcname @semType
-            loc.semType = let argType (NT tp _)    rec | tp /= _SELF = SimpleType (sdtype tp) `Arr` rec
+            loc.semType = let argType (NT tp tps)  rec | tp /= _SELF = typeAppStrs (sdtype tp) tps `Arr` rec
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
-                          in if  @lhs.nr == 0  
-                                 then foldr argType (SimpleType (sdtype   @lhs.nt        )) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
-                                 else foldr argType (SimpleType (typeName @lhs.nt @lhs.nr)) @intra.tps
+
+                              evalTp | null @loc.params = id
+                                     | otherwise        = idEvalType
+                              
+                          in evalTp $
+                             if  @lhs.nr == 0  
+                                 then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
+                                 else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) @intra.tps
             lhs.decls =  ( if  @lhs.with_sig 
                            then [@tsig, @semFun]
                            else [@semFun]
@@ -340,6 +389,8 @@ SEM  CVisit
 {
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
+
+typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
 }
 
 ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
@@ -493,16 +544,62 @@ SEM  CInterface
   |  CInterface  lhs.semDom = Comment "semantic domain" : @seg.semDom
 
 SEM  CSegment
-  |  CSegment lhs.semDom = let name = typeName @lhs.nt @lhs.nr
-                               tp = foldr Arr synTps inhTps
-                               inhTps = [SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @inh]
-                               synTps = mkTupleType @lhs.o_unbox (null inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @syn] ++ continuation)
-                               continuation = if  @lhs.isLast
-                                                  then []
-                                                  else [SimpleType (typeName @lhs.nt (@lhs.nr + 1))]
+  |  CSegment loc.tp = foldr Arr @loc.synTps @loc.inhTps
+              loc.inhTps = [SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @inh]
+              loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) tp) |  tp <- Map.elems @syn] ++ @loc.continuation)
+              loc.continuation = if  @lhs.isLast
+                                 then []
+                                 else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map SimpleType @loc.params)]
+              loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
+              lhs.semDom = let name = typeName @lhs.nt @lhs.nr
+                               evalTp | null @loc.params = id
+                                      | otherwise        = idEvalType
                            in if @lhs.o_newtypes
-                              then [ Code.NewType name name tp ]
-                              else [ Code.Type name tp ]
+                              then [ Code.NewType name @loc.params name (evalTp @loc.tp) ]
+                              else [ Code.Type name @loc.params (evalTp @loc.tp) ]
+
+ATTR CNonterminals CNonterminal CInterface CSegments CSegment [ | | semDomUnfoldGath USE {`Map.union`} {Map.empty} : {Map (NontermIdent, Int) ([String], Code.Type)} ]
+
+SEM CSegment
+  | CSegment
+      lhs.semDomUnfoldGath = Map.singleton (@lhs.nt, @lhs.nr) (@loc.params, @loc.tp)
+
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ unfoldSemDom : {NontermIdent -> Int -> [String] -> Code.Type} | | ]
+
+SEM CGrammar
+  | CGrammar
+      loc.unfoldSemDom =
+       \nt nr repl ->
+        let (params, tp) = Map.findWithDefault (error "No such semantic domain") (nt, nr) @nonts.semDomUnfoldGath
+            replMap = Map.fromList (zip params repl)
+            replace k = Map.findWithDefault k k replMap
+        in evalType replace tp
+
+{
+evalType :: (String -> String) -> Code.Type -> Code.Type
+evalType replf t
+  = chase t
+  where
+    chase t
+      = case t of
+          Arr l r              -> Arr (chase l) (chase r)
+          TypeApp f as         -> TypeApp (chase f) (map chase as)
+          TupleType tps        -> TupleType (map chase tps)
+          UnboxedTupleType tps -> UnboxedTupleType (map chase tps)
+          Code.List tp         -> Code.List (chase tp)
+          SimpleType txt       -> let tks  = lexTokens (initPos txt) txt
+                                      tks' = map replaceTok tks
+                                      txt' = unlines . showTokens . tokensToStrings $ tks'
+                                  in SimpleType txt'
+
+    replaceTok t
+      = case t of
+          AGLocal v p -> HsToken (replf $ getName v) p
+          _           -> t
+
+idEvalType :: Code.Type -> Code.Type
+idEvalType = evalType id
+}
 
 -------------------------------------------------------------------------------
 -- Wrapper functions
@@ -520,11 +617,18 @@ SEM CNonterminal
                                       varPat = if  @lhs.o_newtypes
                                                    then App (sdtype @nt) [SimpleExpr var]
                                                    else SimpleExpr var
-                                      typeSig = TSig wrapNT (SimpleType (sdtype @nt) `Arr` (SimpleType inhNT `Arr` SimpleType synNT))
+                                      params = map getName $ Map.findWithDefault [] @nt @lhs.paramMap
+                                      evalTp | null params = id
+                                             | otherwise   = idEvalType
+                                      evalTpCommon t | null params = t
+                                                     | otherwise   = case (evalTp (SimpleType t)) of SimpleType t' -> t'
+                                      appParams nm = TypeApp (SimpleType nm) (map SimpleType params)
+                                      typeSig = TSig wrapNT (evalTp $ appParams (sdtype @nt) `Arr` (appParams inhNT `Arr` appParams synNT))
                                       mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
-                                      mkdata n attrs = Data n [Record n [(getName f++"_"++n,mkstrict $ typeToHaskellString (Just @nt) t) | (f,t) <- attrs]] False []
+                                      mkdata n attrs = Data n params [Record n [(getName f++"_"++n,mkstrict $ evalTpCommon $ typeToHaskellString (Just @nt) t) | (f,t) <- attrs]] False []
                                       datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
-                                  in datas ++ [ Decl (Fun wrapNT [varPat, App inhNT inhVars])
+                                  in datas ++ [ typeSig
+                                              , Decl (Fun wrapNT [varPat, App inhNT inhVars])
                                                     (Let @inter.wrapDecls (App synNT synVars))
                                                     Set.empty Set.empty
                                               ]
@@ -688,9 +792,10 @@ SEM CNonterminal
                                                         CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) t) 
                                                                                                | (_,t) <- ts
                                                                                                ]
-                                                 in Code.Type (getName @nt) theType
+                                                    params = map getName $ Map.findWithDefault [] @nt @lhs.paramMap
+                                                 in Code.Type (getName @nt) params theType
                                    derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
-                                   dataDef    = Data (getName @nt) @prods.dataAlts (maybe False id @lhs.o_data) derivings
+                                   dataDef    = Data (getName @nt) (map getName @params) @prods.dataAlts (maybe False id @lhs.o_data) derivings
                                in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
 
 ATTR CProductions     [ | | dataAlts : {DataAlts} ]
@@ -708,8 +813,12 @@ SEM CProduction
 -------------------------------------------------------------------------------
 
 SEM CNonterminal
-  | CNonterminal loc.cataFun = let tSig = TSig (cataname @lhs.prefix @nt)
-                                               (SimpleType (getName @nt) `Arr` SimpleType (sdtype @nt))
+  | CNonterminal loc.cataFun = let params = map getName $ Map.findWithDefault [] @nt @lhs.paramMap
+                                   appParams nm = TypeApp (SimpleType nm) (map SimpleType params)
+                                   evalTp | null params = id
+                                          | otherwise   = idEvalType
+                                   tSig = TSig (cataname @lhs.prefix @nt)
+                                               (evalTp $ appParams (getName @nt) `Arr` appParams (sdtype @nt))
                                    special typ = case typ of
                                                  CommonTypes.List tp ->                                  
                                                      let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))

@@ -47,6 +47,8 @@ DATA Expr     | Let              decls : Decls
                                  txt   : {String}
                                  expr  : Expr
               | LineExpr         expr  : Expr
+              | TypedExpr        expr  : Expr
+                                 tp    : Type
 
 DATA CaseAlt  | CaseAlt          left  : Lhs
                                  expr  : Expr
@@ -55,14 +57,17 @@ DATA Decl     | Decl             left  : Lhs
                                  rhs   : Expr
                                  binds : {Set String}  -- set of variable names bound by the left-hand side
                                  uses  : {Set String}  -- set of variable names used by the right-hand side
-              | Data             name  : {String} 
+              | Data             name  : {String}
+                                 params: {[String]}
                                  alts  : DataAlts
                                  strict: Bool
                                  derivings : {[String]}
-              | NewType          name  : {String} 
+              | NewType          name  : {String}
+                                 params: {[String]}
                                  con   : {String} 
                                  tp    : Type
-              | Type             name  : {String} 
+              | Type             name  : {String}
+                                 params: {[String]}
                                  tp    : Type
               | TSig             name  : {String} 
                                  tp    : Type
@@ -75,6 +80,8 @@ DATA DataAlt  | DataAlt          name  : {String}
                                  args  : {[(String,String)]}
 DATA Type     | Arr              left  : Type 
                                  right : Type
+              | TypeApp          func  : Type
+                                 args  : Types
               | TupleType        tps   : Types
 	          | UnboxedTupleType tps   : Types
               | List             tp    : Type

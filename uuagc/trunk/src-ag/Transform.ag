@@ -43,6 +43,7 @@ ATTR AG Elems Elem
 
 SEM AG
   | AG lhs.output = constructGrammar @loc.allNonterminals
+                                     @elems.paramsCollect
                                      @loc.allFields
                                      @loc.allAttrDecls
                                      @elems.useMap
@@ -390,7 +391,7 @@ ATTR Elem Elems [ | | typeSyns USE {++} {[]} : {TypeSyns} ]
 SEM Elem
   | Type  loc.expanded       = case @argType of
                                        List tp -> [(Ident "Cons" @pos, [(Ident "hd" @pos, tp)
-                                                                       ,(Ident "tl" @pos, NT @name (nontermArgs tp))
+                                                                       ,(Ident "tl" @pos, NT @name (map getName @params))
                                                                        ]
                                                    )
                                                   ,(Ident "Nil" @pos,  [])
@@ -526,6 +527,8 @@ SEM Elem
                                          "gencostcentres" -> o { genCostCentres = True }
                                          "sepsemmods"   -> o { sepSemMods = True }
                                          "genlinepragmas" -> o { genLinePragmas = True }
+                                         "newtypes"       -> o { newtypes = True }
+                                         "nonewtypes"     -> o { newtypes = False }
                                          _              -> o
                           in \o -> foldr mk o @names
 
@@ -584,6 +587,29 @@ orderMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 orderMapSingle :: NontermIdent -> ConstructorIdent -> Set Dependency -> AttrOrderMap
 orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
+}
+
+-------------------------------------------------------------------------------
+--         Collecting nonterminal type parameters
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | paramsCollect USE {`mergeParams`} {Map.empty} : {ParamMap}]
+
+SEM Elem
+  | Data
+      lhs.paramsCollect = if null @params
+                          then Map.empty
+                          else Map.fromList [(nt, @params) | nt <- Set.toList @names.nontSet]
+
+SEM Elem
+  | Type
+      lhs.paramsCollect = if null @params
+                          then Map.empty
+                          else Map.singleton @name @params
+
+{
+mergeParams :: ParamMap -> ParamMap -> ParamMap
+mergeParams = Map.unionWith (++)
 }
 
 -------------------------------------------------------------------------------
@@ -750,6 +776,7 @@ makeType _   tp                             = tp
 }
 {
 constructGrammar ::    Set NontermIdent
+                    -> ParamMap
                     -> DataTypes
                     -> Map NontermIdent (Attributes, Attributes)
                     -> Map NontermIdent (Map Identifier (String, String, String))
@@ -763,13 +790,14 @@ constructGrammar ::    Set NontermIdent
                     -> AttrOrderMap
                     -> Grammar
 
-constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
-       prods = map prod gr
-       prod (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
+       nonts = map nont gr
+       nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
                              rmap      = Map.findWithDefault Map.empty             nt allrules
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
+                             params    = Map.findWithDefault []                    nt ntParams
                              alt (con,flds) =
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
@@ -781,8 +809,8 @@ constructGrammar nts gram attrs uses derivings wrappers allrules tsigs allinsts 
                                                  _       -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn isVirtual
                                    in Production con cldrn rules tsigs
-                            in Nonterminal nt inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers prods pragmaMap orderMap
+                            in Nonterminal nt params inh syn (map alt alts)
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams
 }
 
 {

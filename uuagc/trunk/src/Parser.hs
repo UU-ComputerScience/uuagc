@@ -149,6 +149,7 @@ pComplexType =  List <$> pBracks pType
 pElem :: AGParser Elem
 pElem =  Data <$> pDATA
               <*> pNontSet
+              <*> pList pIdentifier
               <*> pOptAttrs
               <*> pAlts
              <*> pSucceed False
@@ -157,6 +158,7 @@ pElem =  Data <$> pDATA
               <*> pAttrs
      <|> Type <$> pTYPE
               <*> pIdentifierU
+              <*> pList pIdentifier
               <*  pEquals
               <*> pComplexType
      <|> Sem  <$> pSEM
@@ -202,6 +204,7 @@ pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
 
 pType :: AGParser Type
 pType =  (\nt -> NT nt []) <$> pIdentifierU
+     <|> pParens (NT <$> pIdentifierU <*> pList pCodescrap')
      <|> Haskell <$> pCodescrap'  <?> "a type"
 
 

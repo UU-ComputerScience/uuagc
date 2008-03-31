@@ -51,7 +51,7 @@ SEM CGrammar
                                                        ] []
 
 SEM CNonterminal
-  | CNonterminal		lhs     .  	pp    	=   ppNestInfo ["CNonterminal","CNonterminal"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL, ppF "inter" @inter.pp] []
+  | CNonterminal		lhs     .  	pp    	=   ppNestInfo ["CNonterminal","CNonterminal"] (pp @nt : map pp @params) [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL, ppF "inter" @inter.pp] []
 
 SEM CInterface
   | CInterface      lhs     .   pp      =   ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList @seg.ppL] []

@@ -15,6 +15,7 @@ DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             nonts    : Nonterminals
                             pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
+                            paramMap : {ParamMap}
 
 TYPE Nonterminals = [Nonterminal]
 
@@ -26,10 +27,11 @@ TYPE Rules        = [Rule]
 
 TYPE TypeSigs     = [TypeSig]
 
-DATA Nonterminal  | Nonterminal nt    : {NontermIdent}
-                                inh   : {Attributes}
-                                syn   : {Attributes}
-                                prods : Productions
+DATA Nonterminal  | Nonterminal nt     : {NontermIdent}
+                                params : {[Identifier]}
+                                inh    : {Attributes}
+                                syn    : {Attributes}
+                                prods  : Productions
 
 DATA Production  | Production   con      : {ConstructorIdent}
                                 children : Children
