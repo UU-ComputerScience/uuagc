@@ -26,7 +26,7 @@ SEM Grammar
                                                        ] []
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	pp    	=   ppNestInfo ["Nonterminal","Nonterminal"] [pp @nt] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL] []
+  | Nonterminal		lhs     .  	pp    	=   ppNestInfo ["Nonterminal","Nonterminal"] (pp @nt : map pp @params) [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL] []
 
 SEM Production
   | Production		lhs     .  	pp    	=   ppNestInfo ["Production","Production"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []

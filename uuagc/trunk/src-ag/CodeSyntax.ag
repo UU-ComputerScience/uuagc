@@ -12,11 +12,13 @@ DATA  CGrammar
                 wrappers  : {Set NontermIdent} 
                 nonts     : CNonterminals
                 pragmas   : {PragmaMap}
+                paramMap  : {ParamMap}
 
 TYPE CNonterminals = [CNonterminal]
 
 DATA  CNonterminal 
    |  CNonterminal nt     :  NontermIdent
+                   params :  {[Identifier]}
                    inh    :  Attributes
                    syn    :  Attributes
                    prods  :  CProductions

@@ -1,7 +1,7 @@
 # Define $(GHC) and $(AG) before calling this Makefile
 # i.e. GHC=ghc AG=uuagc make test
 
-agflags := -mdcfspr --strictdata --strictwrap --dumpgrammar --dumpgrammar --genlinepragmas --genvisage
+agflags := -mdcfspr --strictdata --strictwrap --dumpgrammar --dumpcgrammar --genlinepragmas --genvisage
 ghcflags := --make -O2
 
 ags := $(wildcard *.ag)

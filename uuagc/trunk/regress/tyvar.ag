@@ -1,0 +1,56 @@
+-- Tests parameterized nonterminals, in combination with:
+-- no visit functions
+-- lets instead of cases
+-- type syns
+
+MODULE {Main} {} {}
+
+optpragmas
+{
+{-# OPTIONS_GHC -fglasgow-exts #-}
+}
+
+
+PRAGMA strictdata
+PRAGMA newtypes
+
+
+DATA Root
+  | Root
+      exprs : (Exprs {String})
+
+TYPE Exprs v = [(Expr {v})]
+
+DATA Expr v
+  | Var
+      nm : {v}
+  | App
+      f : (Expr {v})
+      a : (Expr {v})
+
+WRAPPER Expr
+WRAPPER Root
+
+
+ATTR Root [ | | ftv : {[String]} ]
+ATTR Exprs Expr [ | | ftv USE {++} {[]} : {[@v]} ]
+
+SEM Expr
+  | Var
+      loc.ftv : {[@v]}
+      loc.ftv = [@nm]
+
+
+{
+expr :: Expr String
+expr
+  = Expr_App (Expr_Var "id") (Expr_Var "x")
+
+main :: IO ()
+main
+  = let inh = Inh_Root {}
+        sem = sem_Root (Root_Root [expr])
+        syn = wrap_Root sem inh
+    in putStrLn ("ftvs: " ++ show (ftv_Syn_Root syn))
+}
+

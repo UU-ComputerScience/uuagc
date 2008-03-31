@@ -19,12 +19,14 @@ DATA AG        | AG     elems  : Elems
 
 DATA Elem      | Data   pos    : {Pos}
                         names  : NontSet
+                        params : {[Identifier]}
                         attrs  : Attrs
                         alts   : Alts
                         ext    : {Bool}
 
                | Type   pos    : {Pos}
                         name   : {NontermIdent}
+                        params : {[Identifier]}
                         type   : {ComplexType}
 
                | Attr   pos    : {Pos}

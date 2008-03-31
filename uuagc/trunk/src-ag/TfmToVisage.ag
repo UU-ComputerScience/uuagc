@@ -1,3 +1,6 @@
+-- !!!! The Visage AST does not support nonterminals with type variables!
+-- !!!! Type variables in data type declarations are ignored.
+
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"

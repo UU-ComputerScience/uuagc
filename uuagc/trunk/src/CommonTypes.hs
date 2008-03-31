@@ -41,7 +41,7 @@ instance Show Type where
 
 type Attributes  = Map Identifier Type
 type TypeSyns    = [(NontermIdent,ComplexType)]
-
+type ParamMap    = Map NontermIdent [Identifier]
 type AttrNames   = [(Identifier,Type,(String,String,String))]
 type UseMap      = Map NontermIdent (Map Identifier (String,String,String))
 type PragmaMap   = Map NontermIdent (Map ConstructorIdent (Set Identifier))

@@ -160,6 +160,7 @@ compile flags input output
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
                     let doc = vlist [ pp optionsLine
+                                    , pp pragmaBlocksTxt
                                     , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
                                            then moduleHeader flags' mainName
