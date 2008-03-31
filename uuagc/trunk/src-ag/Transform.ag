@@ -797,7 +797,7 @@ SEM Elem
 makeType :: Set NontermIdent -> Type -> Type
 makeType nts tp@(NT x _) | x == _SELF       = tp
                          | Set.member x nts = tp
-                         | otherwise        = Haskell (typeToHaskellString Nothing tp)
+                         | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
 makeType _   tp                             = tp
 }
 {
