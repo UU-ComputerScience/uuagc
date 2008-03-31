@@ -78,7 +78,9 @@ DATA DataAlt  | DataAlt          name  : {String}
                                  args  : {[String]}
               | Record           name  : {String} 
                                  args  : {[(String,String)]}
-DATA Type     | Arr              left  : Type 
+DATA Type     | Arr              left  : Type
+                                 right : Type
+              | CtxApp           left  : {[(String, [String])]}
                                  right : Type
               | TypeApp          func  : Type
                                  args  : Types

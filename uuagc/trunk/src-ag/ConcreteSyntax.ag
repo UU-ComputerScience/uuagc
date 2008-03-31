@@ -18,6 +18,7 @@ TYPE SemDefs   = [SemDef]
 DATA AG        | AG     elems  : Elems
 
 DATA Elem      | Data   pos    : {Pos}
+                        ctx    : {ClassContext}
                         names  : NontSet
                         params : {[Identifier]}
                         attrs  : Attrs
@@ -25,15 +26,18 @@ DATA Elem      | Data   pos    : {Pos}
                         ext    : {Bool}
 
                | Type   pos    : {Pos}
+                        ctx    : {ClassContext}
                         name   : {NontermIdent}
                         params : {[Identifier]}
                         type   : {ComplexType}
 
                | Attr   pos    : {Pos}
+                        ctx    : {ClassContext}
                         names  : NontSet
                         attrs  : Attrs
 
                | Sem    pos    : {Pos}
+                        ctx    : {ClassContext}
                         names  : NontSet
                         attrs  : Attrs
                         alts   : SemAlts
