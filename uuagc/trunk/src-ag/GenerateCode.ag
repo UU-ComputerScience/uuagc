@@ -26,8 +26,6 @@ import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
-
-import Debug.Trace
 }
 
 
@@ -93,7 +91,15 @@ ATTR CVisits CVisit Sequence CRule [ paramInstMap : {Map Identifier (NontermIden
 
 SEM CProduction
   | CProduction
-      loc.paramInstMap = Map.fromList [(nm, (extractNonterminal tp, tps)) | (nm,tp,_) <- @children, let tps = nontermArgs tp, not (null tps) ]
+      loc.paramInstMap = Map.fromList [(nm, (extractNonterminal tp, tps)) | (nm,tp,_) <- @children, let tps = map cleanupArg $ nontermArgs tp, not (null tps) ]
+
+{
+-- remove possible @v references in the types of a data type.
+cleanupArg :: String -> String
+cleanupArg s
+  = case idEvalType (SimpleType s) of
+      SimpleType s' -> s'
+}
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ contextMap : {ContextMap} | | ]
 
@@ -286,7 +292,7 @@ SEM  CRule
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (TypeApp (SimpleType @nextTp) (map SimpleType @loc.instParams)) :)) @definedTps
-                  
+
                   loc.orgParams = map getName $ Map.findWithDefault [] @nt @lhs.paramMap
                   loc.instParams = snd $ Map.findWithDefault (@nt,[]) @name @lhs.paramInstMap
                   loc.replParamMap = Map.fromList (zip @loc.orgParams @loc.instParams)
@@ -301,8 +307,7 @@ SEM  CRule
 
 {
 substSelf nt tp = case tp of
-                    NT t tps | t == _SELF -> trace ("calling substself: " ++ show t ++ " -> " ++ show nt ++ ": " ++ show tps) $
-                                             Haskell (getName nt ++ " " ++ unwords tps)
+                    NT t tps | t == _SELF -> Haskell (getName nt ++ " " ++ unwords tps)
                     _                     -> tp
 }
 
@@ -361,10 +366,11 @@ SEM  CVisit
                                                             then expr
                                                             else TypedExpr expr (SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp))
                               
-                               
+                              mbEvalTp | null @loc.params = const Nothing
+                                       | otherwise        = Just . idEvalType
 
                               rhs = wrap
-                                  . mkLambda (map (lhsname True) (Map.keys @inh))
+                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ SimpleType $ typeToHaskellString (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
                                   $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
@@ -402,6 +408,11 @@ SEM  CVisit
             loc.o_splitsems = @ordered && @lhs.o_splitsems
 
 {
+mkLambdaArg :: String -> Maybe Code.Type -> Expr
+mkLambdaArg nm Nothing = SimpleExpr nm
+mkLambdaArg nm (Just tp) = TypedExpr (SimpleExpr nm) tp
+
+mkLambda :: Exprs -> Expr -> Expr
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 
