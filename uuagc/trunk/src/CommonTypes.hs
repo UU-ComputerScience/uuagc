@@ -37,7 +37,7 @@ instance Show ComplexType where
   show (Maybe t ) = "Maybe " ++ show t
 
 instance Show Type where
-  show = typeToHaskellString Nothing
+  show = typeToHaskellString Nothing []
 
 type Attributes  = Map Identifier Type
 type TypeSyns    = [(NontermIdent,ComplexType)]
@@ -106,11 +106,11 @@ typeToAGString tp
       Haskell t -> t
       NT nt tps -> formatNonterminalToHaskell (getName nt) (map (\s -> "{" ++ s ++ "}") tps)
 
-typeToHaskellString :: Maybe NontermIdent -> Type -> String
-typeToHaskellString mbNt tp
+typeToHaskellString :: Maybe NontermIdent -> [String] -> Type -> String
+typeToHaskellString mbNt params tp
   = case tp of
       Haskell t -> t
-      NT nt tps | nt == _SELF -> formatNonterminalToHaskell (maybe "Unknown" getName mbNt) tps
+      NT nt tps | nt == _SELF -> formatNonterminalToHaskell (maybe "Unknown" getName mbNt) params
                 | otherwise   -> formatNonterminalToHaskell (getName nt) tps
 
 formatNonterminalToHaskell :: String -> [String] -> String
