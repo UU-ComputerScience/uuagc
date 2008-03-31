@@ -4,7 +4,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Control.Monad(mplus,mzero)
-import List (partition, elem)
+import List (partition, elem, nub)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -55,6 +55,7 @@ SEM AG
                                      @elems.typeSyns
                                      @elems.semPragmasCollect
                                      @elems.attrOrderCollect
+                                     @elems.ctxCollect
 
 
 -------------------------------------------------------------------------------
@@ -613,6 +614,31 @@ mergeParams = Map.unionWith (++)
 }
 
 -------------------------------------------------------------------------------
+--         Collecting class contexts of semantic functions
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | ctxCollect USE {`mergeCtx`} {Map.empty} : {ContextMap}]
+
+SEM Elem
+  | Sem Data Attr
+      lhs.ctxCollect = if null @ctx
+                       then Map.empty
+                       else Map.fromList [(nt, @ctx) | nt <- Set.toList @names.nontSet]
+
+SEM Elem
+  | Type
+      lhs.ctxCollect = if null @ctx
+                       then Map.empty
+                       else Map.singleton @name @ctx
+
+{
+mergeCtx :: ContextMap -> ContextMap -> ContextMap
+mergeCtx
+  = Map.unionWith nubconcat
+  where nubconcat a b = nub (a ++ b)
+}
+
+-------------------------------------------------------------------------------
 --         Collecting derivings
 -------------------------------------------------------------------------------
 
@@ -788,9 +814,10 @@ constructGrammar ::    Set NontermIdent
                     -> TypeSyns
                     -> PragmaMap
                     -> AttrOrderMap
+                    -> ContextMap
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -810,7 +837,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                           in Child nm tp inh syn isVirtual
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap
 }
 
 {

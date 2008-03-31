@@ -148,20 +148,24 @@ pComplexType =  List <$> pBracks pType
                         ]
 pElem :: AGParser Elem
 pElem =  Data <$> pDATA
+              <*> pOptClassContext
               <*> pNontSet
               <*> pList pIdentifier
               <*> pOptAttrs
               <*> pAlts
              <*> pSucceed False
      <|> Attr <$> pATTR
+              <*> pOptClassContext
               <*> pNontSet
               <*> pAttrs
      <|> Type <$> pTYPE
+              <*> pOptClassContext
               <*> pIdentifierU
               <*> pList pIdentifier
               <*  pEquals
               <*> pComplexType
      <|> Sem  <$> pSEM
+              <*> pOptClassContext
               <*> pNontSet
               <*> pOptAttrs
               <*> pSemAlts
@@ -188,10 +192,20 @@ pElem =  Data <$> pDATA
      <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 
+
 -- Insertion is expensive for pCodeBlock in order to prevent infinite inserts.
 pCodeBlock ::  AGParser (String,Pos)
 pCodeBlock   = pCostValToken 90 TkTextln "" <?> "a code block"
 
+
+pOptClassContext :: AGParser ClassContext
+pOptClassContext
+  =   pClassContext <* pDoubleArrow
+  <|> pSucceed []
+
+pClassContext :: AGParser ClassContext
+pClassContext
+  = pListSep pComma ((,) <$> pIdentifierU <*> pList pCodescrap')
 
 pAttrs :: AGParser Attrs
 pAttrs = Attrs <$> pOBrackPos <*> (concat <$> pList pInhAttrNames <?> "inherited attribute declarations")
@@ -338,9 +352,9 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
-      pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pMAYBE, pMODULE
-      :: AGParser  Pos
+      pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pMODULE
+      :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
 pWRAPPER     = pCostReserved 90 "WRAPPER" <?> "WRAPPER"
@@ -366,6 +380,7 @@ pColonEquals = pCostReserved 5  ":="      <?> ":="
 pBar         = pCostReserved 5  "|"       <?> "|"
 pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"
+pDoubleArrow = pCostReserved 5  "=>"      <?> "=>"
 pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"

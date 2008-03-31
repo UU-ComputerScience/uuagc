@@ -93,6 +93,18 @@ SEM CProduction
   | CProduction
       loc.paramInstMap = Map.fromList [(nm, (extractNonterminal tp, tps)) | (nm,tp,_) <- @children, let tps = nontermArgs tp, not (null tps) ]
 
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ contextMap : {ContextMap} | | ]
+
+SEM CGrammar
+  | CGrammar
+      nonts.contextMap = @contextMap
+
+{
+appContext :: ContextMap -> NontermIdent -> Code.Type -> Code.Type
+appContext mp nt tp
+  = maybe tp (\ctx -> CtxApp (map (\(n,ns) -> (getName n, ns)) ctx) tp) $ Map.lookup nt mp
+}
+
 -------------------------------------------------------------------------------
 -- Generating declarations from the sequence. We generate the origin
 -- comment if pretty printing is requested. A childvisit takes inherited
@@ -368,7 +380,7 @@ SEM  CVisit
                               evalTp | null @loc.params = id
                                      | otherwise        = idEvalType
                               
-                          in evalTp $
+                          in appContext @lhs.contextMap @lhs.nt $ evalTp $
                              if  @lhs.nr == 0  
                                  then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
                                  else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) @intra.tps
@@ -818,7 +830,7 @@ SEM CNonterminal
                                    evalTp | null params = id
                                           | otherwise   = idEvalType
                                    tSig = TSig (cataname @lhs.prefix @nt)
-                                               (evalTp $ appParams (getName @nt) `Arr` appParams (sdtype @nt))
+                                               (appContext @lhs.contextMap @nt $ evalTp $ appParams (getName @nt) `Arr` appParams (sdtype @nt))
                                    special typ = case typ of
                                                  CommonTypes.List tp ->                                  
                                                      let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))

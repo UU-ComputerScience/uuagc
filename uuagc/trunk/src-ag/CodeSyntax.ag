@@ -13,6 +13,7 @@ DATA  CGrammar
                 nonts     : CNonterminals
                 pragmas   : {PragmaMap}
                 paramMap  : {ParamMap}
+                contextMap: {ContextMap}
 
 TYPE CNonterminals = [CNonterminal]
 

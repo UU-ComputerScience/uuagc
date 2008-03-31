@@ -66,6 +66,7 @@ scan p xs = Just (scan' xs)
                                                , advc (1+length str) p,rest)
                                           else (valueToken TkString str p, advc (2+length str) p, tail rest)
 
+        scan' ('=' : '>' : rs)   = (reserved "=>" p, advc 2 p, rs)
         scan' ('=' :rs)          = (reserved "=" p, advc 1 p, rs)
         scan' (':':'=':rs)       = (reserved ":=" p, advc 2 p, rs)
 

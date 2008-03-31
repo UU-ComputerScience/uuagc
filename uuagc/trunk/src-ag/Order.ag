@@ -474,7 +474,7 @@ SEM Child
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
-  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap
 SEM  Nonterminals [ | | cNonterminals : CNonterminals ]
   |  Cons  lhs.cNonterminals = @hd.cNonterminal : @tl.cNonterminals
   |  Nil   lhs.cNonterminals = []

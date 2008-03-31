@@ -186,6 +186,9 @@ SEM Type  [ | | prec:Int ]
 
   | TypeApp
       lhs.pp = hv_sp (@func.pp : @args.pps)
+  
+  | CtxApp
+      lhs.pp = (pp_block "(" ")" "," $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) @left) >#< "=>" >#< @right.pp
 
   | TupleType  lhs.prec    = 5
                   .pp      = ppTuple @lhs.nested @tps.pps

@@ -16,6 +16,7 @@ DATA Grammar      | Grammar typeSyns : {TypeSyns}
                             pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
                             paramMap : {ParamMap}
+                            contextMap : {ContextMap}
 
 TYPE Nonterminals = [Nonterminal]
 
