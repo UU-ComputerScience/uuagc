@@ -2,12 +2,19 @@
 -- visit functions
 -- case expressions
 -- bang patterns
+-- class context
 
 MODULE {Main} {} {}
 
 optpragmas
 {
 {-# OPTIONS_GHC -fglasgow-exts #-}
+}
+
+imports
+{
+import Data.Set(Set)
+import qualified Data.Set as Set
 }
 
 PRAGMA strictdata
@@ -31,27 +38,27 @@ DATA C c
 WRAPPER A
 
 
-ATTR B [ | | bsGath USE {++} {[]} : {[@b]} ]
-ATTR C [ | | csGath USE {++} {[]} : {[@c]} ]
+ATTR Ord {b} => B [ | | bsGath USE {`Set.union`} {Set.empty} : {Set @b} ]
+ATTR Ord {c} => C [ | | csGath USE {`Set.union`} {Set.empty} : {Set @c} ]
 
 SEM B
   | B
-      loc.bsGath : {[@b]}
-      loc.bsGath = [@x]
+      loc.bsGath : {Set @b}
+      loc.bsGath = Set.singleton @x
 
 SEM C
   | C
-      loc.csGath : {[@c]}
-      loc.csGath = [@x]
+      loc.csGath : {Set @c}
+      loc.csGath = Set.singleton @x
 
 
 ATTR B [ bs : {[@b]} | | ]
 ATTR C [ cs : {[@c]} | | ]
 
-SEM A
+SEM Ord {b}, Ord {c} => A
   | A
-      b.bs = @b.bsGath
-      c.cs = @c.csGath
+      b.bs = Set.toList @b.bsGath
+      c.cs = Set.toList @c.csGath
 
 
 ATTR A B C [ | | count USE {+} {0} : Int ]
