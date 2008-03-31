@@ -216,9 +216,13 @@ pAttrs = Attrs <$> pOBrackPos <*> (concat <$> pList pInhAttrNames <?> "inherited
 pOptAttrs :: AGParser Attrs
 pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
 
+pTypeNt :: AGParser Type
+pTypeNt
+  =   (\nt -> NT nt []) <$> pIdentifierU
+  <|> pParens (NT <$> pIdentifierU <*> pList pCodescrap')
+
 pType :: AGParser Type
-pType =  (\nt -> NT nt []) <$> pIdentifierU
-     <|> pParens (NT <$> pIdentifierU <*> pList pCodescrap')
+pType =  pTypeNt
      <|> Haskell <$> pCodescrap'  <?> "a type"
 
 
@@ -310,7 +314,7 @@ pLocType = (Haskell . getName) <$> pIdentifierU
 
 pInstDecl :: AGParser SemDef
 pInstDecl = (\ident tp -> TypeDef ident tp)
-             <$ pDot <*> pIdentifier <* pColon <*> ((\nt -> NT nt []) <$> pIdentifierU)
+             <$ pDot <*> pIdentifier <* pColon <*> pTypeNt
 
 pSemDefs :: AGParser SemDefs
 pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"

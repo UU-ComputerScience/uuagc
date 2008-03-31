@@ -116,12 +116,12 @@ SEM Expr
                                        >-< (vlist @alts.pps)
                                        )
   | Lambda     loc.strictParams = if strictSems @lhs.options
-                                  then map text @args
+                                  then @args.pps
                                   else []
                loc.addBang = if bangpats @lhs.options
                              then \p -> pp_parens ("!" >|< p)
                              else id
-               lhs.pp      = pp_parens (    "\\" >#< (vlist (map (@loc.addBang . pp) @args)) >#< "->" 
+               lhs.pp      = pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->" 
                                        >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps

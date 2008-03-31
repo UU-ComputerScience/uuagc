@@ -32,7 +32,7 @@ DATA Expr     | Let              decls : Decls
                                  body  : Expr
               | Case             expr  : Expr
                                  alts  : CaseAlts
-              | Lambda           args :  {[String]}
+              | Lambda           args :  Exprs
                                  body : Expr
               | TupleExpr        exprs : Exprs
 	          | UnboxedTupleExpr exprs : Exprs
