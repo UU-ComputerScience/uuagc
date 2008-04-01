@@ -48,8 +48,8 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
                                       ('.':r:rs) 
                                           | isIdStart r -> let (at,p3,rest2) = scanIdent (advc 2 p2) rs
                                                                attr = r : at
-                                                           in AGField (Ident field p) (Ident attr p) p : doScan p3 rest2
-                                      _                 -> AGLocal (Ident field p) p : doScan p2 rest
+                                                           in AGField (Ident field p) (Ident attr p) p Nothing : doScan p3 rest2
+                                      _                 -> AGLocal (Ident field p) p Nothing : doScan p2 rest
 
    doScan p ('-':'-':s)  = doScan p (dropWhile (/= '\n') s)
    doScan p ('{':'-':s)  = advc' 2 p (lexNest doScan) s   -- }

@@ -219,7 +219,7 @@ useRule locals ch_outs (n,(op,e,pos))
              | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) 
                                               (map (flip attrName n) elems)
 
-        tks | Set.member n locals  =  [AGLocal n noPos]
+        tks | Set.member n locals  =  [AGLocal n noPos Nothing]
             | null elems           =  lexTokens noPos e
             | otherwise            =  lexTokens noPos str
                                       where
@@ -237,7 +237,7 @@ selfRule lhsNecLoc attr x
  = let expr | lhsNecLoc  = locName attr
             | otherwise  = x
 
-       tks | lhsNecLoc   = [AGLocal attr noPos]
+       tks | lhsNecLoc   = [AGLocal attr noPos Nothing]
            | otherwise   = lexTokens noPos x
 
    in makeRule (if lhsNecLoc then _LHS else _LOC,attr)
@@ -289,10 +289,10 @@ copyRule nt con modcopy locals (env,(fld,as))
                                      , Seq.single (MissingRule nt con fld a)
                                      )
                   Just f 
-                   | f == _ACHILD -> ( [AGLocal a noPos]
+                   | f == _ACHILD -> ( [AGLocal a noPos Nothing]
                                      , Seq.single (deprecatedCopyRuleError nt con fld a)
                                      )
-                   | otherwise    -> ( [AGField f a noPos]
+                   | otherwise    -> ( [AGField f a noPos Nothing]
                                      , Seq.empty
                                      )
 
@@ -471,7 +471,7 @@ multiRule (Rule pat expr owrt origin) uniq
          f w e (Product pos pats) n 
            = let freshName = Ident ("_tup" ++ show n) pos 
                  freshExpr = Expression pos freshTks
-                 freshTks  = [AGField _LOC freshName pos]
+                 freshTks  = [AGField _LOC freshName pos Nothing]
                  freshPat  = Alias _LOC freshName (Underscore pos) pats
                  a = length pats - 1
                  us b p = Product pos (replicate (a-b) (Underscore pos) ++ [p] ++ replicate b (Underscore pos))

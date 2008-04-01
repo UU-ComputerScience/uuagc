@@ -12,10 +12,12 @@ TYPE HsTokens = [HsToken]
 DATA HsToken
    | AGLocal   var   : {Identifier}
                pos   : {Pos}
+               rdesc : {Maybe String}  -- description of the rule the local reference appears in
 
    | AGField   field : {Identifier}
                attr  : {Identifier}
                pos   : {Pos}
+               rdesc : {Maybe String}  -- description of the rule the attribute reference appears in
 
    | HsToken   value : {String}
                pos   : {Pos}

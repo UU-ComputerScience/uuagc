@@ -44,6 +44,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["dumpgrammar"]   (NoArg dumpgrammarOpt)      "Dump internal grammar representation (in generated code)"
                , Option []        ["dumpcgrammar"]  (NoArg dumpcgrammarOpt)      "Dump internal cgrammar representation (in generated code)"
                , Option []        ["gentraces"]     (NoArg genTracesOpt)        "Generate trace expressions (in generated code)"
+               , Option []        ["genusetraces"]  (NoArg genUseTracesOpt)     "Generate trace expressions at attribute use sites (in generated code)"
                , Option []        ["gencostcentres"] (NoArg genCostCentresOpt)  "Generate cost centre pragmas (in generated code)"
                , Option []        ["genlinepragmas"] (NoArg genLinePragmasOpt)  "Generate GHC LINE pragmas (in generated code)"
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
@@ -91,6 +92,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
                       , genTraces :: Bool
+                      , genUseTraces :: Bool
                       , genCostCentres :: Bool
                       , sepSemMods :: Bool
                       , genFileDeps :: Bool
@@ -135,6 +137,7 @@ noOptions = Options { moduleName    = NoName
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
                     , genTraces     = False
+                    , genUseTraces  = False
                     , genCostCentres = False
                     , sepSemMods     = False
                     , genFileDeps    = False
@@ -179,6 +182,7 @@ wmaxErrsOpt n   opts = opts{wmaxerrs     = read n}
 dumpgrammarOpt  opts = opts{dumpgrammar  = True}
 dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 genTracesOpt    opts = opts{genTraces    = True}
+genUseTracesOpt opts = opts{genUseTraces = True}
 genCostCentresOpt opts = opts{genCostCentres = True}
 sepSemModsOpt opts = opts{sepSemMods = True}
 genFileDepsOpt opts = opts{genFileDeps = True}

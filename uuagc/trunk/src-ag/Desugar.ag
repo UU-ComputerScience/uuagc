@@ -13,6 +13,7 @@ import qualified UU.DData.Seq as Seq
 import UU.DData.Seq(Seq,(<>))
 import UU.Scanner.Position(Pos(..))
 import Maybe
+import Data.List(intersperse)
 
 import AbstractSyntax
 import ErrorMessages
@@ -25,7 +26,7 @@ import TokenDef
 WRAPPER HsTokensRoot
 
 
-ATTR Grammar [ options:{Options} | | ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression [ options:{Options} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.<>} {Seq.empty} : {Seq Error} ]
 
@@ -38,16 +39,20 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule
 
 SEM Expression
   | Expression
-      (loc.tks', lhs.errors) = let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot = @lhs.childInhs
-                                                          , childSyns_Inh_HsTokensRoot = @lhs.childSyns
-                                                          , nt_Inh_HsTokensRoot        = @lhs.nt
-                                                          , con_Inh_HsTokensRoot       = @lhs.con
+      (loc.tks', lhs.errors) = let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot     = @lhs.childInhs
+                                                          , childSyns_Inh_HsTokensRoot     = @lhs.childSyns
+                                                          , nt_Inh_HsTokensRoot            = @lhs.nt
+                                                          , con_Inh_HsTokensRoot           = @lhs.con
+                                                          , ruleDescr_Inh_HsTokensRoot     = @lhs.ruleDescr
+                                                          , useFieldIdent_Inh_HsTokensRoot = genUseTraces @lhs.options
                                                           }
                                    sem = sem_HsTokensRoot (HsTokensRoot @tks)
                                    syn = wrap_HsTokensRoot sem inh
                                in (tks_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
       lhs.output = Expression @pos @tks'
 
+
+ATTR HsTokensRoot HsTokens HsToken [ useFieldIdent : Bool | | ]
 
 ATTR HsToken HsTokens [ | addLines : Int | ]
 SEM HsTokensRoot
@@ -59,18 +64,21 @@ ATTR HsToken HsTokens [ | | tks : SELF ]
 
 SEM HsToken
   | AGLocal
-      loc.tks = AGLocal @var (addl @lhs.addLines @pos)
+      lhs.addLines = if @lhs.useFieldIdent
+                     then @lhs.addLines + 1
+                     else @lhs.addLines
+      loc.tks = AGLocal @var (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
   | AGField
       loc.mField = findField @field @attr @lhs.childSyns
       
       loc.field' = maybe @field id @loc.mField
       lhs.errors = maybe (Seq.single (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)))) (const Seq.empty) @loc.mField
       
-      lhs.addLines = if length (getName @field) < length (getName @loc.field')
+      lhs.addLines = if @lhs.useFieldIdent || length (getName @field) < length (getName @loc.field')
                      then @lhs.addLines + 1
                      else @lhs.addLines
       
-      loc.tks = AGField @field @attr (addl @lhs.addLines @pos)
+      loc.tks = AGField @field @attr (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
   | HsToken
       loc.tks = HsToken @value (addl @lhs.addLines @pos)
   | CharToken
@@ -144,6 +152,17 @@ SEM Nonterminal
 SEM Production
   | Production
       rules.con = @con
+
+
+-------------------------------------------------------------------------------
+--         Distribute a pattern description
+-------------------------------------------------------------------------------
+
+ATTR Expression HsTokensRoot HsToken HsTokens [ ruleDescr : String | | ]
+
+SEM Rule
+  | Rule
+      loc.ruleDescr = show @lhs.nt ++ " :: " ++ show @lhs.con ++ " :: " ++ (concat $ intersperse "," $ map (\(f,a) -> show f ++ "." ++ show a) $ Set.toList @pattern.defsCollect)
 
 
 -------------------------------------------------------------------------------
