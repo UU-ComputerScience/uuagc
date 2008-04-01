@@ -620,8 +620,8 @@ evalType replf t
 
     replaceTok t
       = case t of
-          AGLocal v p -> HsToken (replf $ getName v) p
-          _           -> t
+          AGLocal v p _ -> HsToken (replf $ getName v) p
+          _             -> t
 
 idEvalType :: Code.Type -> Code.Type
 idEvalType = evalType id

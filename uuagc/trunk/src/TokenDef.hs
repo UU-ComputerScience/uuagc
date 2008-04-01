@@ -33,12 +33,12 @@ tokensToStrings
 tokenToString :: HsToken -> (Pos, String)
 tokenToString tk
   = case tk of
-      AGLocal var pos        -> (pos, "@" ++ getName var)
-      AGField field attr pos -> (pos, "@" ++ getName field ++ "." ++ getName attr)
-      HsToken value pos      -> (pos, value)
-      CharToken value pos    -> (pos, show value)
-      StrToken value pos     -> (pos, show value)
-      Err mesg pos           -> (pos, " ***" ++ mesg ++ "*** ")
+      AGLocal var pos _        -> (pos, "@" ++ getName var)
+      AGField field attr pos _ -> (pos, "@" ++ getName field ++ "." ++ getName attr)
+      HsToken value pos        -> (pos, value)
+      CharToken value pos      -> (pos, show value)
+      StrToken value pos       -> (pos, show value)
+      Err mesg pos             -> (pos, " ***" ++ mesg ++ "*** ")
 
 showTokens :: [(Pos,String)] -> [String]
 showTokens [] = []

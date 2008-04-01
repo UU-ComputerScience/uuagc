@@ -109,7 +109,11 @@ SEM HsTokens [ || tks : {[(Pos,String)]} ]
   | Nil  lhs.tks = []
 
 SEM HsToken [ || tok:{(Pos,String)}]
-   | AGField lhs.tok = (@pos, attrname True @field @attr)
+   | AGField
+       loc.addTrace = case @rdesc of
+                        Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ " (" ++ x ++ "))"
+                        Nothing -> id
+       lhs.tok = (@pos, @loc.addTrace $ attrname True @field @attr)
 
    | HsToken lhs.tok = (@pos, @value)
 
