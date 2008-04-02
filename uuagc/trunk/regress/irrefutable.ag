@@ -15,6 +15,7 @@ import System.IO.Unsafe
 PRAGMA strictdata
 PRAGMA optimize
 PRAGMA strictcase
+PRAGMA nostrictwrap
 
 DATA D
   | C
