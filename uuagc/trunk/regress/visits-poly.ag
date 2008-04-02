@@ -24,8 +24,8 @@ PRAGMA optimize
 
 DATA A b c
   | A
-      b : (B {b})
-      c : (C {c})
+      b : (B b)
+      c : (C c)
 
 DATA B b
   | B
@@ -38,8 +38,8 @@ DATA C c
 WRAPPER A
 
 
-ATTR Ord {b} => B [ | | bsGath USE {`Set.union`} {Set.empty} : {Set @b} ]
-ATTR Ord {c} => C [ | | csGath USE {`Set.union`} {Set.empty} : {Set @c} ]
+ATTR Ord b => B [ | | bsGath USE {`Set.union`} {Set.empty} : {Set @b} ]
+ATTR Ord c => C [ | | csGath USE {`Set.union`} {Set.empty} : {Set @c} ]
 
 SEM B
   | B

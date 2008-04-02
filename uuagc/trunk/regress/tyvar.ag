@@ -26,28 +26,28 @@ DATA Root
   | Root
       exprs : (Exprs {String})
 
-TYPE Read {v} => Exprs v = [(Expr {v})]
+TYPE Read v => Exprs v = [Expr v]
 
-DATA Read {v} => Expr v
+DATA Read v => Expr v
   | Var
       nm : {v}
   | App
-      f : (Expr {v})
-      a : (Expr {v})
+      f : (Expr v)
+      a : (Expr v)
 
 WRAPPER Expr
 WRAPPER Root
 
 
 ATTR Root [ | | ftv : {Set String} ]
-ATTR Ord {v} => Exprs Expr [ | | ftv USE {`Set.union`} {Set.empty} : {Set @v} ]
+ATTR Ord v => Exprs Expr [ | | ftv USE {`Set.union`} {Set.empty} : {Set @v} ]
 
-SEM Ord {v}, Show {v} => Expr
+SEM Ord v, Show v => Expr
   | Var
       loc.ftv : {Set @v}
       loc.ftv = Set.singleton @nm
 
-SEM Show {v} => Exprs
+SEM Show v => Exprs
 
 {
 expr :: Expr String

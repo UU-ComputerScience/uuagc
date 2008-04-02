@@ -139,10 +139,10 @@ pAG  = AG <$> pElems
 pElems :: AGParser Elems
 pElems = pList_ng pElem
 
-pComplexType =  List <$> pBracks pType 
+pComplexType =  List <$> pBracks pTypeEncapsulated 
             <|> Maybe <$ pMAYBE <*> pType
             <|> tuple <$> pParens (pListSep pComma field)
- where field = (,) <$> ((Just <$> pIdentifier <* pColon) `opt` Nothing) <*> pType
+ where field = (,) <$> ((Just <$> pIdentifier <* pColon) `opt` Nothing) <*> pTypeEncapsulated
        tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
                         | (n,(f,t)) <- zip [1..] xs
                         ]
@@ -205,7 +205,7 @@ pOptClassContext
 
 pClassContext :: AGParser ClassContext
 pClassContext
-  = pListSep pComma ((,) <$> pIdentifierU <*> pList pCodescrap')
+  = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
 
 pAttrs :: AGParser Attrs
 pAttrs = Attrs <$> pOBrackPos <*> (concat <$> pList pInhAttrNames <?> "inherited attribute declarations")
@@ -219,7 +219,21 @@ pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
 pTypeNt :: AGParser Type
 pTypeNt
   =   (\nt -> NT nt []) <$> pIdentifierU
-  <|> pParens (NT <$> pIdentifierU <*> pList pCodescrap')
+  <|> pParens (NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
+
+pTypeHaskellAnyAsString :: AGParser String
+pTypeHaskellAnyAsString
+  =   getName <$> pIdentifier
+  <|> getName <$> pIdentifierU
+  <|> pCodescrap' <?> "a type"
+
+-- if the type is within some kind of parentheses or brackets (then we allow lowercase identifiers as well)
+pTypeEncapsulated :: AGParser Type
+pTypeEncapsulated
+  =   pParens pTypeEncapsulated
+  <|> NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString
+  <|> (Haskell . getName) <$> pIdentifier
+  <|> Haskell <$> pCodescrap'  <?> "a type"
 
 pType :: AGParser Type
 pType =  pTypeNt
