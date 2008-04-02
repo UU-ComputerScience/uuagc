@@ -155,16 +155,19 @@ SEM DataAlt
                                                 [ f >#< "::" >#< t | (f,t) <- @args ]
 SEM Lhs
   | Pattern3 TupleLhs UnboxedTupleLhs
-      loc.addStrictGuard = if strictCases @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
+      loc.addStrictGuard = if strictCases @lhs.options && @loc.hasStrictVars then \v -> v >#< "|" >#< @loc.strictGuard else id
   | Pattern3
       loc.strictGuard = @pat3.strictVars `ppMultiSeqH` (pp "True")
+      loc.hasStrictVars = not (null @pat3.strictVars)
   | TupleLhs UnboxedTupleLhs
       loc.strictGuard = if stricterCases @lhs.options && not @lhs.isDeclOfLet
                         then map text @comps `ppMultiSeqH` (pp "True")
                         else pp "True"
+      loc.hasStrictVars = not (null @comps)
 
   | Fun
-      loc.addStrictGuard = if strictSems @lhs.options then \v -> v >#< "|" >#< @loc.strictGuard else id
+      loc.addStrictGuard = if strictSems @lhs.options && @loc.hasStrictVars then \v -> v >#< "|" >#< @loc.strictGuard else id
+      loc.hasStrictVars  = not (null @args.pps)
       loc.strictGuard    = @args.pps `ppMultiSeqH` (pp "True")
 
   | TupleLhs UnboxedTupleLhs Fun
@@ -241,7 +244,8 @@ SEM Pattern
           else []
       lhs.strictVars
         = @loc.strictVar ++ @loc.strictPatVars
-      
+  | Irrefutable
+      lhs.strictVars = []
 
 -------------------------------------------------------------------------------
 --         Pretty printing patterns
@@ -253,24 +257,35 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
 
 SEM Pattern
   | Constr Product Alias
-      loc.addBang = if bangpats @lhs.options && not @lhs.isDeclOfLet
+      loc.addBang = if bangpats @lhs.options && not @lhs.isDeclOfLet && not @lhs.belowIrrefutable
                     then \p -> "!" >|< p
                     else id
 
 SEM Pattern [ | | pp:PP_Doc ]
   | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @name >#< hv_sp @pats.pps
   | Product lhs.pp     = @loc.addBang $ pp_block "(" ")" "," @pats.pps
-  | Alias   loc.ppVar  = @loc.addBang $ pp (attrname False @field @attr)
+  | Alias   loc.ppVar  = pp (attrname False @field @attr)
+            loc.ppVarBang = @loc.addBang $ @loc.ppVar
             lhs.pp     = if @pat.isUnderscore
-                          then @loc.ppVar
-                          else @loc.ppVar >|< "@" >|< @pat.pp
+                          then @loc.ppVarBang
+                          else @loc.ppVarBang >|< "@" >|< @pat.pp
+  | Irrefutable lhs.pp = text "~" >|< pp_parens @pat.pp
   | Underscore lhs.pp  = text "_"
 
 SEM Pattern [ | | isUnderscore:{Bool}]
- | Constr     lhs.isUnderscore = False
- | Product    lhs.isUnderscore = False
- | Alias      lhs.isUnderscore = False
- | Underscore lhs.isUnderscore = True
+ | Constr      lhs.isUnderscore = False
+ | Product     lhs.isUnderscore = False
+ | Alias       lhs.isUnderscore = False
+ | Underscore  lhs.isUnderscore = True
+
+ATTR Pattern Patterns [ belowIrrefutable : Bool | | ]
+SEM Pattern
+  | Irrefutable
+      pat.belowIrrefutable = True
+
+SEM Lhs
+  | Pattern3 Pattern3SM
+      pat3.belowIrrefutable = False
 
 -------------------------------------------------------------------------------
 --         Pretty printing patterns for SM
@@ -286,6 +301,7 @@ SEM Pattern [ | | pp':PP_Doc ]
   | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
                                         | otherwise                             = attrname False @field @attr
                           in attribute >|< "@" >|< @pat.pp'
+  | Irrefutable lhs.pp' = text "~" >|< pp_parens @pat.pp
   | Underscore lhs.pp'  = text "_"
 
 {

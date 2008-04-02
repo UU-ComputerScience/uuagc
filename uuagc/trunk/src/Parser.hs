@@ -311,7 +311,7 @@ pAttrDef :: AGParser (Identifier -> SemDef)
 pAttrDef = (\pat owrt exp fld -> Def (pat fld) exp owrt)
            <$ pDot <*> pattern <*> pAssign <*> pExpr
   where pattern =  pPattern pVar
-               <|> (\a fld -> Alias fld a (Underscore noPos) []) <$> pIdentifier
+               <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
 
 
 nl2sp :: Char -> Char
@@ -352,10 +352,10 @@ pPattern pvar = pPattern2 where
   pPattern0 =  (\i pats a -> Constr i (map ($ a) pats))
                <$> pIdentifierU <*> pList  pPattern1
                <|> pPattern1 <?> "a pattern"
-  pPattern1 =  pvariable 
+  pPattern1 =  pvariable
            <|> pPattern2
-  pvariable = (\var pat a -> case var a of (fld,att) -> Alias fld att (pat a) []) 
-           <$> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos)) 
+  pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a) []) 
+           <$> ((Irrefutable <$ pTilde) `opt` id) <*> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos)) 
   pPattern2 = (mkTuple <$> pOParenPos <*> pListSep pComma pPattern0 <* pCParen )
           <|> (const . Underscore) <$> pUScore <?> "a pattern"
     where mkTuple _ [x] a = x a
@@ -369,7 +369,7 @@ pCodescrap' = fst <$> pCodescrap
 pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
-pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals,
+pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pMODULE
       :: AGParser Pos
@@ -395,6 +395,7 @@ pUScore      = pCostReserved 5  "_"       <?> "_"
 pColon       = pCostReserved 5  ":"       <?> ":"
 pEquals      = pCostReserved 5  "="       <?> "="
 pColonEquals = pCostReserved 5  ":="      <?> ":="
+pTilde       = pCostReserved 5  "~"       <?> "~"
 pBar         = pCostReserved 5  "|"       <?> "|"
 pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"

@@ -767,6 +767,7 @@ SEM Pattern
   | Underscore lhs.patunder = \us -> @copy
   | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
   | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
+  | Irrefutable lhs.patunder = \us -> Irrefutable (@pat.patunder us)
 
 SEM Patterns
   | Nil lhs.patunder = \us ->  []
