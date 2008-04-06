@@ -108,7 +108,7 @@ SEM Pattern
                       then Seq.single $ DupRule @lhs.nt @lhs.con @field @attr @loc.field'
                       else Seq.empty
       lhs.errors = @loc.err1 Seq.<> @loc.err2 Seq.<> @pat.errors <> @parts.errors
-      lhs.output = Alias @loc.field' @attr @pat.output @parts.output
+      loc.output = Alias @loc.field' @attr @pat.output @parts.output
 
 
 -------------------------------------------------------------------------------
@@ -179,4 +179,37 @@ ATTR Rule Rules Pattern Patterns [ defs : {Set (Identifier, Identifier)} | | ]
 SEM Production
   | Production
       rules.defs = @rules.defsCollect
+
+
+-------------------------------------------------------------------------------
+--         Collect a list of all attributes (that are not irrefutable)
+-------------------------------------------------------------------------------
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns
+  [ | | allAttributes USE {`mergeAttributes`} {Map.empty} : {AttrMap} ]
+
+SEM Pattern
+  | Alias
+      lhs.allAttributes = (Map.singleton @lhs.nt $ Map.singleton @lhs.con $ Set.singleton (@field, @attr)) `mergeAttributes` @pat.allAttributes
+  | Irrefutable
+      lhs.allAttributes = Map.empty
+
+{
+mergeAttributes :: AttrMap -> AttrMap -> AttrMap
+mergeAttributes = Map.unionWith $ Map.unionWith $ Set.union
+}
+
+
+-------------------------------------------------------------------------------
+--         Distribute a list of attributes forced to irrefutables
+-------------------------------------------------------------------------------
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns
+  [ forcedIrrefutables : {AttrMap} | | ]
+
+SEM Pattern
+  | Alias
+      lhs.output = if Set.member (@field, @attr) $ Map.findWithDefault Set.empty @lhs.con $ Map.findWithDefault Map.empty @lhs.nt $ @lhs.forcedIrrefutables
+                   then Irrefutable @loc.output
+                   else @loc.output
 

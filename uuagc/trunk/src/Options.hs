@@ -50,6 +50,8 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
                , Option ['M']     ["genfiledeps"] (NoArg genFileDepsOpt) "Generate a list of dependencies on the input AG files"
                , Option []        ["genvisage"] (NoArg genVisageOpt)  "Generate output for the AG visualizer Visage"
+               , Option []        ["genattrlist"] (NoArg genAttrListOpt) "Generate a list of all explicitly defined attributes (outside irrefutable patterns)"
+               , Option []        ["forceirrefutable"] (OptArg forceIrrefutableOpt "file") "Force a set of explicitly defined attributes to be irrefutable, specify file containing the attribute set"
                ]
 
 allc = "dcfsprm"
@@ -98,6 +100,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genFileDeps :: Bool
                       , genLinePragmas :: Bool
                       , genvisage :: Bool
+                      , genAttributeList :: Bool
+                      , forceIrrefutables :: Maybe String
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -143,6 +147,8 @@ noOptions = Options { moduleName    = NoName
                     , genFileDeps    = False
                     , genLinePragmas = False
                     , genvisage      = False
+                    , genAttributeList = False
+                    , forceIrrefutables = Nothing
                     }
 
 
@@ -188,6 +194,8 @@ sepSemModsOpt opts = opts{sepSemMods = True}
 genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
+genAttrListOpt opts = opts { genAttributeList = True }
+forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
