@@ -1,7 +1,7 @@
 # Define $(GHC) and $(AG) before calling this Makefile
 # i.e. GHC=ghc AG=uuagc make test
 
-agflags := -mdcfspr --strictdata --strictwrap --dumpgrammar --dumpcgrammar --genlinepragmas --genvisage
+agflags := -mdcfspr --strictdata --strictwrap --dumpgrammar --dumpcgrammar --genlinepragmas --genvisage --genattrlist
 ghcflags := --make -O2
 
 ags := $(wildcard *.ag)
@@ -9,7 +9,7 @@ hss := $(ags:.ag=.hs)
 runs := $(ags:.ag=.run)
 prgs := $(ags:.ag=.exec)
 exps := $(ags:.ag=.exp)
-drvs := $(hss) $(prgs) $(ags:.ag=.o) $(ags:.ag=.hi) $(ags:.ag=.hs.visage) $(ags:.ag=.out)
+drvs := $(hss) $(prgs) $(ags:.ag=.o) $(ags:.ag=.hi) $(ags:.ag=.hs.visage) $(ags:.ag=.out) $(ags:.ag=.hs.attrs)
 
 test : $(runs)
 	rm -f $(drvs)

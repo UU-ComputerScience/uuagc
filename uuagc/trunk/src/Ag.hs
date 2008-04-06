@@ -6,7 +6,8 @@ import List                          (isSuffixOf)
 import Monad                         (zipWithM_)
 import Data.Maybe
 
-import qualified Data.Map as Map (elems, partitionWithKey, unionWith)
+import qualified Data.Set as Set
+import qualified Data.Map as Map
 import qualified UU.DData.Seq as Seq ((<>),toList)
 import Pretty
 
@@ -31,7 +32,7 @@ import Options
 import Version       (banner)
 import Parser        (parseAG, depsAG)
 import ErrorMessages (Error(ParserError), Errors)
-import CommonTypes   (Blocks)
+import CommonTypes
 import ATermWrite
 
 
@@ -55,11 +56,12 @@ main
 compile :: Options -> String -> String -> IO ()
 compile flags input output
  = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
+      irrefutableMap <- readIrrefutableMap flags
 
       let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
           flags'    = Pass1.pragmas_Syn_AG       output1 $ flags
           grammar1  = Pass1.output_Syn_AG        output1
-          output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags'}
+          output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags', Pass1a.forcedIrrefutables_Inh_Grammar = irrefutableMap }
           grammar1a =Pass1a.output_Syn_Grammar   output1a
           output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
           grammar2  = Pass2.output_Syn_Grammar   output2
@@ -152,6 +154,10 @@ compile flags input output
        else 
         do if genvisage flags
             then writeFile (outputfile++".visage") (writeATerm aterm)
+            else return ()
+            
+           if genAttributeList flags
+            then writeAttributeList (outputfile++".attrs") (Pass1a.allAttributes_Syn_Grammar output1a)
             else return ()
 
            if sepSemMods flags'
@@ -272,4 +278,21 @@ reportDeps flags files
     combine :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
     combine (fs, mesgs) (fsr, mesgsr)
       = (fs ++ fsr, mesgs ++ mesgsr)
+
+
+writeAttributeList :: String -> AttrMap -> IO ()
+writeAttributeList file mp
+  = writeFile file s
+  where
+    s = show $ map (\(x,y) -> (show x, y)) $ Map.toList $ Map.map (map (\(x,y) -> (show x, y)) . Map.toList . Map.map (map (\(x,y) -> (show x, show y)) . Set.toList)) $ mp
+
+readIrrefutableMap :: Options -> IO AttrMap
+readIrrefutableMap flags
+  = case forceIrrefutables flags of
+      Just file -> do s <- readFile file
+                      seq (length s) (return ())
+                      let lists :: [(String,[(String,[(String, String)])])]
+                          lists = read s
+                      return $ Map.fromList [ (identifier n, Map.fromList [(identifier c, Set.fromList [ (identifier fld, identifier attr) | (fld,attr) <- ss ]) | (c,ss) <- cs ]) | (n,cs) <- lists ]
+      Nothing   -> return Map.empty
 
