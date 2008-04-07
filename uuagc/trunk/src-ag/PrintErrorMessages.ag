@@ -6,7 +6,7 @@ import Pretty
 import UU.Scanner.Position(Pos(..), noPos)
 import ErrorMessages
 import DepTypes
-import Options (Options,verbose)
+import Options
 import Data.List(mapAccumL,intersect,(\\))
 import GrammarInfo
 }
@@ -14,33 +14,37 @@ import GrammarInfo
 
 
 {
-isError :: Error -> Bool
-isError (ParserError     _ _ _    ) = True
-isError (DupAlt          _ _ _    ) = False
-isError (DupSynonym      _ _      ) = False
-isError (DupSet          _ _      ) = False
-isError (DupInhAttr      _ _ _    ) = True
-isError (DupSynAttr      _ _ _    ) = True
-isError (DupChild        _ _ _ _  ) = False
-isError (DupRule         _ _ _ _ _) = True
-isError (DupSig          _ _ _    ) = True
-isError (UndefNont       _        ) = True
-isError (UndefAlt        _ _      ) = True
-isError (UndefChild      _ _ _    ) = True
-isError (MissingRule     _ _ _ _  ) = False
-isError (SuperfluousRule _ _ _ _  ) = False
-isError (UndefLocal      _ _ _    ) = True
-isError (ChildAsLocal    _ _ _    ) = False
-isError (UndefAttr       _ _ _ _  ) = True
-isError (CyclicSet       _        ) = True
-isError (CustomError     w _ _    ) = not w
-isError (LocalCirc       _ _ _ _ _) = False
-isError (InstCirc        _ _ _ _ _) = False
-isError (DirectCirc      _ _ _    ) = False
-isError (InducedCirc     _ _ _    ) = False
-isError (MissingTypeSig  _ _ _    ) = False
-isError (MissingInstSig  _ _ _    ) = True
-isError (ErroneousOrder  _ _ _    ) = True
+isError :: Options -> Error -> Bool
+isError opts (ParserError     _ _ _    ) = True
+isError opts (DupAlt          _ _ _    ) = False
+isError opts (DupSynonym      _ _      ) = False
+isError opts (DupSet          _ _      ) = False
+isError opts (DupInhAttr      _ _ _    ) = True
+isError opts (DupSynAttr      _ _ _    ) = True
+isError opts (DupChild        _ _ _ _  ) = False
+isError opts (DupRule         _ _ _ _ _) = True
+isError opts (DupSig          _ _ _    ) = True
+isError opts (UndefNont       _        ) = True
+isError opts (UndefAlt        _ _      ) = True
+isError opts (UndefChild      _ _ _    ) = True
+isError opts (MissingRule     _ _ _ _  ) = False
+isError opts (SuperfluousRule _ _ _ _  ) = False
+isError opts (UndefLocal      _ _ _    ) = True
+isError opts (ChildAsLocal    _ _ _    ) = False
+isError opts (UndefAttr       _ _ _ _  ) = True
+isError opts (CyclicSet       _        ) = True
+isError opts (CustomError     w _ _    ) = not w
+isError opts (LocalCirc       _ _ _ _ _) = cycleIsDangerous opts
+isError opts (InstCirc        _ _ _ _ _) = cycleIsDangerous opts
+isError opts (DirectCirc      _ _ _    ) = cycleIsDangerous opts
+isError opts (InducedCirc     _ _ _    ) = cycleIsDangerous opts
+isError opts (MissingTypeSig  _ _ _    ) = False
+isError opts (MissingInstSig  _ _ _    ) = True
+isError opts (ErroneousOrder  _ _ _    ) = True
+
+cycleIsDangerous :: Options -> Bool
+cycleIsDangerous opts
+  = any ($ opts) [ wignore, bangpats, cases, strictCases, stricterCases, strictSems, withCycle ]
 }
 
 
@@ -48,7 +52,7 @@ isError (ErroneousOrder  _ _ _    ) = True
 
 
 
-ATTR Error   [ verbose:{Bool}    | | pp                             :{PP_Doc} 
+ATTR Error   [ options:{Options} verbose:{Bool}    | | pp           :{PP_Doc} 
                                      me                             :SELF
              ]
 
@@ -65,7 +69,7 @@ SEM Error
                                  pat  = text ""
                                  help = text ""
                                  act  = text @action
-                              in ppError (isError @me) @pos mesg pat help act @lhs.verbose
+                              in ppError (isError @lhs.options @me) @pos mesg pat help act @lhs.verbose
                              
   | DupAlt          lhs.pp = let mesg  = wfill ["Repeated definition for alternative", getName @con
                                                ,"of nonterminal", getName @nt, "."
@@ -87,7 +91,7 @@ SEM Error
                                               ,"is considered valid. All other alternatives have been discarded."
                                               ]
 
-                             in ppError (isError @me) (getPos @con) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @con) mesg pat help act @lhs.verbose
 
   | DupSynonym      lhs.pp = let mesg  = wfill ["Definition of type synonym", getName @nt, "clashes with another"
                                                ,"type synonym."
@@ -104,7 +108,7 @@ SEM Error
                                                ]
                                  act  = wfill [ "The clashing type synonym will be ignored."
                                               ]
-                             in ppError (isError @me)  (getPos @nt) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me)  (getPos @nt) mesg pat help act @lhs.verbose
 
   | DupSet          lhs.pp = let mesg  = wfill ["Definition of nonterminal set", getName @name, "clashes with another"
                                                ,"set, a type synonym or a data definition."
@@ -120,7 +124,7 @@ SEM Error
                                                ]
                                  act  = wfill [ "The clashing nonterminal set will be ignored."
                                               ]
-                             in ppError (isError @me)  (getPos @name) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me)  (getPos @name) mesg pat help act @lhs.verbose
                              
   | DupInhAttr      lhs.pp = let mesg  = wfill ["Repeated declaration of inherited attribute", getName @attr
                                                , "of nonterminal", getName @nt, "."
@@ -139,7 +143,7 @@ SEM Error
                                               ,"All others have been discarded. The generated program will probably not run."
                                               ]
 
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
                              
   | DupSynAttr      lhs.pp = let mesg  = wfill ["Repeated declaration of synthesized attribute", getName @attr
                                                , "of nonterminal", getName @nt, "."
@@ -158,7 +162,7 @@ SEM Error
                                               ,"All others have been discarded. The generated program will probably not run."
                                               ]
 
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
                              
   | DupChild        lhs.pp = let mesg  = wfill ["Repeated declaration for field", getName @name, "of alternative"
                                                ,getName @con, "of nonterminal", getName @nt, "."
@@ -178,7 +182,7 @@ SEM Error
                                  act  = wfill ["The last declaration with its corresponding type is considered valid."
                                               ,"All others have been discarded."
                                               ]
-                             in ppError (isError @me) (getPos @name) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @name) mesg pat help act @lhs.verbose
 
   | DupRule         lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more rules for"
                                                ,showAttrDef @field @attr,"."
@@ -196,7 +200,7 @@ SEM Error
                                                        ,getName @con , "of nonterminal " ,getName  @nt , "uniquely named."
                                                        ]
                                  act  = wfill ["The last rule given is considered valid. All others have been discarded."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | DupSig          lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more typesignatures for"
                                                ,showAttrDef _LOC @attr,"."
@@ -213,7 +217,7 @@ SEM Error
                                                        ,getName @con , "of nonterminal " ,getName  @nt , "unique."
                                                        ]
                                  act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | UndefNont       lhs.pp = let mesg  = wfill ["Nonterminal", getName @nt, "is not defined."
                                                ] 
@@ -223,7 +227,7 @@ SEM Error
                                                        , "for" ,getName  @nt, ". Maybe you misspelled it? Otherwise insert a definition."
                                                        ]
                                  act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
-                             in ppError (isError @me) (getPos @nt) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @nt) mesg pat help act @lhs.verbose
 
   | UndefAlt        lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt, "is  not defined."
                                                ] 
@@ -235,7 +239,7 @@ SEM Error
                                                        ,"nonterminal" , getName @nt, ". Maybe you misspelled it? Otherwise insert a definition."
                                                        ]
                                  act  = wfill ["All rules for the unknown alternative have been ignored."]
-                             in ppError (isError @me) (getPos @con) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @con) mesg pat help act @lhs.verbose
 
   | UndefChild      lhs.pp = let mesg  = wfill ["Constructor", getName @con, "of nonterminal" ,getName @nt
                                                , "does not have a nontrivial field named", getName @name , "."
@@ -250,7 +254,7 @@ SEM Error
                                                        ,"or change its type from an HS-type to an AG-type."
                                                        ]
                                  act  = wfill ["All rules for the unknown field have been ignored."]
-                             in ppError (isError @me) (getPos @name) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @name) mesg pat help act @lhs.verbose
 
   | MissingRule     lhs.pp = let mesg  = wfill ["Missing rule for", showAttrDef @field @attr , "in alternative"
                                                , getName @con , "of nonterminal",getName @nt ,"."
@@ -263,7 +267,7 @@ SEM Error
                                                ,"by a copy rule, so you should add an appropriate rule."
                                                ]
                                  act  = wfill ["The value of the attribute has been set to undefined."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | SuperfluousRule lhs.pp = let mesg  = wfill ["Rule for non-existing", showAttrDef @field @attr , "at alternative"
                                                , getName @con , "of nonterminal",getName @nt, "."
@@ -277,7 +281,7 @@ SEM Error
                                                ,"Otherwise either remove the rule or add an appropriate attribute definition."
                                                ]
                                  act  = wfill ["The rule has been ignored."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | UndefLocal      lhs.pp = let mesg  = wfill ["Undefined local variable or field",getName @var, "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
@@ -292,7 +296,7 @@ SEM Error
                                                ,"Otherwise either remove the rule or add an appropriate definition."
                                                ]
                                  act  = wfill ["The generated program will not run."]
-                             in ppError (isError @me) (getPos @var) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @var) mesg pat help act @lhs.verbose
 
   | ChildAsLocal    lhs.pp = let mesg  = wfill ["Nontrivial field ",getName @var, "is used as local at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
@@ -306,7 +310,7 @@ SEM Error
                                                ,"You should use @", getName @var, ".self instead, where self is a SELF-attribute."
                                                ]
                                  act  = wfill ["The generated program probably contains a type error or has undefined variables."]
-                             in ppError (isError @me) (getPos @var) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @var) mesg pat help act @lhs.verbose
 
   | UndefAttr       lhs.pp = let mesg  = wfill ["Undefined", showAttrUse @field @attr, "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
@@ -321,7 +325,7 @@ SEM Error
                                                ,"Otherwise either remove the rule or add an appropriate attribute definition."
                                                ]
                                  act  = wfill ["The generated program will not run."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | CyclicSet       lhs.pp = let mesg  = wfill ["Cyclic definition for nonterminal set", getName @name]  
                                  pat   = "SET" >#< getName @name >#< "=" >#< "..." >#< getName @name >#< "..." 
@@ -330,12 +334,12 @@ SEM Error
                                                ,"Adapt the definition of the nonterminal set, to remove the cyclic dependency."
                                                ]
                                  act  = wfill ["The nonterminal set", getName @name, "is considered to be empty."]
-                             in ppError (isError @me) (getPos @name) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @name) mesg pat help act @lhs.verbose
                              
   | CustomError     lhs.pp = let pat   =  text "unknown"
                                  help = wfill ["not available."]
                                  act  = wfill ["unknown"]
-                             in ppError (isError @me) @pos @mesg pat help act False
+                             in ppError (isError @lhs.options @me) @pos @mesg pat help act False
 
   | LocalCirc       lhs.pp = let mesg  = wfill ["Circular dependency for local attribute", getName @attr
                                                , "of alternative", getName @con, "of nonterminal", getName @nt]
@@ -347,7 +351,7 @@ SEM Error
                                          else hlist ("The following attributes are involved in the cycle:": @path)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
-                             in ppError (isError @me) (getPos (@attr)) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos (@attr)) mesg pat help act @lhs.verbose
   
   | InstCirc        lhs.pp = let mesg  = wfill ["Circular dependency for inst attribute", getName @attr
                                                , "of alternative", getName @con, "of nonterminal", getName @nt]
@@ -359,7 +363,7 @@ SEM Error
                                          else hlist ("The following attributes are involved in the cycle:": @path)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
-                             in ppError (isError @me) (getPos (@attr)) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos (@attr)) mesg pat help act @lhs.verbose
 
   | DirectCirc      lhs.pp = let mesg  = wfill ["In nonterminal", getName @nt, "synthesized and inherited attributes are mutually dependent" ]
                                          >-< vlist (map showEdge @cyclic)
@@ -367,7 +371,7 @@ SEM Error
                                  help  = vlist (map showEdgeLong @cyclic)
                                  act   | @o_visit = text "An unoptimized version was generated. It might hang when run."
                                        | otherwise = text "The generated program might hang when run."
-                             in ppError (isError @me) noPos mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) noPos mesg pat help act @lhs.verbose
 
   | InducedCirc     lhs.pp = let mesg  = wfill ["After scheduling, in nonterminal", getName @nt, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
                                          >-< vlist (map showEdge @cyclic)
@@ -376,7 +380,7 @@ SEM Error
                                  help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
                                          >-< vlist (map showEdgeLong @cyclic)
                                  act   = text "An unoptimized version was generated. It might hang when run."
-                             in ppError (isError @me) noPos mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) noPos mesg pat help act @lhs.verbose
 
   | MissingTypeSig  lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC @attr , "in alternative"
                                                , getName @con , "of nonterminal",getName @nt ,"."
@@ -390,7 +394,7 @@ SEM Error
                                                ,"Please supply its type."
                                                ]
                                  act  = wfill ["The type signatures of semantic functions are not generated."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
   
   | MissingInstSig  lhs.pp = let mesg = wfill ["Type signature needed, but not found for", showAttrDef _INST @attr , "in alternative"
                                                , getName @con , "of nonterminal",getName @nt ,"."
@@ -404,7 +408,7 @@ SEM Error
                                                ,"Please supply its type."
                                                ]
                                  act  = wfill ["It is not possible to proceed without this signature."]
-                             in ppError (isError @me) (getPos @attr) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
   | ErroneousOrder  lhs.pp = let (Dependency (fldA,nmA) (fldB,nmB)) = @order
                                  mesg  = wfill ["At alternative",getName @con, "of nonterminal", getName @nt, "there is an erroneous order"
@@ -424,7 +428,7 @@ SEM Error
                                                , "is not an In-attribute (inherited attribute of the production, or a synthesized attribute of a child)"
                                                ]
                                  act  = wfill ["Please change the order definition."]
-                             in ppError (isError @me) (getPos fldA) mesg pat help act @lhs.verbose
+                             in ppError (isError @lhs.options @me) (getPos fldA) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
