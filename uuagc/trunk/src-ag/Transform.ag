@@ -579,8 +579,8 @@ ATTR SemDefs SemDef [ | | orderDepsCollect USE {`Set.union`} {Set.empty} : {Set 
 
 SEM SemDef
   | AttrOrderBefore
-      loc.dependency       = Dependency @before @after
-      lhs.orderDepsCollect = Set.singleton @loc.dependency
+      loc.dependency       = [ Dependency b a | b <- @before, a <- @after ]
+      lhs.orderDepsCollect = Set.fromList @loc.dependency
 
 {
 orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap

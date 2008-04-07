@@ -82,8 +82,8 @@ DATA SemDef    | Def    pattern: Pattern
                | TypeDef ident : {Identifier}
                          tp    : Type
                | SemPragma  names : {[NontermIdent]}
-               | AttrOrderBefore  before : {(Identifier,Identifier)}
-                                  after  : {(Identifier,Identifier)}
+               | AttrOrderBefore  before : {[(Identifier,Identifier)]}
+                                  after  : {[(Identifier,Identifier)]}
 
 DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet
