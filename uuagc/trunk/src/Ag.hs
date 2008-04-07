@@ -89,12 +89,12 @@ compile flags input output
                                            Seq.<> Pass4.errors_Syn_CGrammar output4
                                            )
                                            
-          fatalErrorList = filter PrErr.isError errorList
+          fatalErrorList = filter (PrErr.isError flags') errorList
           
           allErrors = if null parseErrors
                       then if wignore flags'
                            then fatalErrorList
-                           else errorsToFront errorList
+                           else errorsToFront flags' errorList
                       else take 1 parseErrorList
                       -- the other 1000 or so parse errors are usually not that informative
                       
@@ -130,10 +130,10 @@ compile flags input output
           mainName = stripPath $ defaultModuleName input
           mainFile = defaultModuleName input
 
-          nrOfErrorsToReport = length $ filter PrErr.isError errorsToReport
-          nrOfWarningsToReport = length $ filter (not.PrErr.isError) errorsToReport
-          totalNrOfErrors = length $ filter PrErr.isError allErrors
-          totalNrOfWarnings = length $ filter (not.PrErr.isError) allErrors
+          nrOfErrorsToReport = length $ filter (PrErr.isError flags') errorsToReport
+          nrOfWarningsToReport = length $ filter (not.(PrErr.isError flags')) errorsToReport
+          totalNrOfErrors = length $ filter (PrErr.isError flags') allErrors
+          totalNrOfWarnings = length $ filter (not.(PrErr.isError flags')) allErrors
           additionalErrors = totalNrOfErrors - nrOfErrorsToReport
           additionalWarnings = totalNrOfWarnings - nrOfWarningsToReport
           pluralS n = if n == 1 then "" else "s"
@@ -152,11 +152,11 @@ compile flags input output
       if not (null fatalErrorList) 
        then exitFailure
        else 
-        do if genvisage flags
+        do if genvisage flags'
             then writeFile (outputfile++".visage") (writeATerm aterm)
             else return ()
             
-           if genAttributeList flags
+           if genAttributeList flags'
             then writeAttributeList (outputfile++".attrs") (Pass1a.allAttributes_Syn_Grammar output1a)
             else return ()
 
@@ -211,8 +211,8 @@ message2error (Msg expect pos action) = ParserError pos (show expect) actionStri
 
               Other ms -> ms
 
-errorsToFront :: [Error] -> [Error]
-errorsToFront mesgs = filter PrErr.isError mesgs ++ filter (not.PrErr.isError) mesgs
+errorsToFront :: Options -> [Error] -> [Error]
+errorsToFront flags mesgs = filter (PrErr.isError flags) mesgs ++ filter (not.(PrErr.isError flags)) mesgs
 
 
 moduleHeader :: Options -> String -> String
