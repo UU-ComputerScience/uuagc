@@ -72,7 +72,7 @@ SEM HsToken
       loc.mField = findField @field @attr @lhs.childSyns
       
       loc.field' = maybe @field id @loc.mField
-      lhs.errors = maybe (Seq.single (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)))) (const Seq.empty) @loc.mField
+      lhs.errors = maybe (Seq.single (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)) False)) (const Seq.empty) @loc.mField
       
       lhs.addLines = if @lhs.useFieldIdent || length (getName @field) < length (getName @loc.field')
                      then @lhs.addLines + 1
@@ -100,7 +100,7 @@ addl n (Pos l c f) = Pos (l+n) c f
 
 SEM Pattern
   | Alias
-      (loc.field', loc.err1) = maybeError @field (UndefAttr @lhs.nt @lhs.con (Ident "<ANY>" (getPos @field)) @attr) $
+      (loc.field', loc.err1) = maybeError @field (UndefAttr @lhs.nt @lhs.con (Ident "<ANY>" (getPos @field)) @attr True) $
                                  findField @field @attr @lhs.childInhs
       loc.err2 = if @loc.field' == @field
                  then Seq.empty

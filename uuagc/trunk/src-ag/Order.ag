@@ -253,7 +253,7 @@ SEM  Rule
 -- Manual depdendencies (provided by the programmer)
 --
 -- a dependency f1.a1 < f2.a2 is translated to
--- the edige (vertex(f1.a1), vertex(f2.a2))
+-- the edge (vertex(f1.a1), vertex(f2.a2))
 ATTR Nonterminals Nonterminal
      Productions Production
      Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
@@ -274,8 +274,10 @@ SEM Rule
 {
 lookupVertices :: Identifier -> Identifier -> Map AltAttr Int -> [Int]
 lookupVertices fld nm attrs
-  = catMaybes (  [Map.lookup (AltAttr fld nm True) attrs]
-              ++ [Map.lookup (AltAttr fld nm False) attrs]
+  = catMaybes (  [Map.lookup (AltAttr fld nm False) attrs]  -- look for all "out" attributes
+              ++ if fld == _LOC
+                 then [Map.lookup (AltAttr fld nm True) attrs]
+                 else []
               )
 }
 

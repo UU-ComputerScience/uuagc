@@ -31,7 +31,7 @@ isError opts (MissingRule     _ _ _ _  ) = False
 isError opts (SuperfluousRule _ _ _ _  ) = False
 isError opts (UndefLocal      _ _ _    ) = True
 isError opts (ChildAsLocal    _ _ _    ) = False
-isError opts (UndefAttr       _ _ _ _  ) = True
+isError opts (UndefAttr       _ _ _ _ _) = True
 isError opts (CyclicSet       _        ) = True
 isError opts (CustomError     w _ _    ) = not w
 isError opts (LocalCirc       _ _ _ _ _) = cycleIsDangerous opts
@@ -40,7 +40,6 @@ isError opts (DirectCirc      _ _ _    ) = cycleIsDangerous opts
 isError opts (InducedCirc     _ _ _    ) = cycleIsDangerous opts
 isError opts (MissingTypeSig  _ _ _    ) = False
 isError opts (MissingInstSig  _ _ _    ) = True
-isError opts (ErroneousOrder  _ _ _    ) = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -291,7 +290,7 @@ SEM Error
                                                          >#< "..." >#< "@" >|< getName @var >#< "..." )
 
                                  help =  wfill ["A rule in the definitions for alternative" , getName @con ,"of nonterminal"
-                                               , getName @nt , "contains a local variable or field name that is not defined"
+                                               , getName @nt , "contains a local variable or field name that is not defined. "
                                                ,"Maybe you misspelled it?"
                                                ,"Otherwise either remove the rule or add an appropriate definition."
                                                ]
@@ -312,7 +311,11 @@ SEM Error
                                  act  = wfill ["The generated program probably contains a type error or has undefined variables."]
                              in ppError (isError @lhs.options @me) (getPos @var) mesg pat help act @lhs.verbose
 
-  | UndefAttr       lhs.pp = let mesg  = wfill ["Undefined", showAttrUse @field @attr, "at constructor"
+  | UndefAttr       lhs.pp = let mesg  = wfill ["Undefined"
+                                               , if @isOut
+                                                 then showAttrDef @field @attr
+                                                 else showAttrUse @field @attr
+                                               , "at constructor"
                                                , getName @con , "of nonterminal",getName @nt, "."
                                                ] 
                                  pat   = "SEM" >#< getName @nt
@@ -409,26 +412,6 @@ SEM Error
                                                ]
                                  act  = wfill ["It is not possible to proceed without this signature."]
                              in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
-
-  | ErroneousOrder  lhs.pp = let (Dependency (fldA,nmA) (fldB,nmB)) = @order
-                                 mesg  = wfill ["At alternative",getName @con, "of nonterminal", getName @nt, "there is an erroneous order"
-                                               , showAttrDef fldA nmA
-                                               , "<"
-                                               , showAttrDef fldB nmB
-                                               ]
-
-                                 pat   = "SEM" >#< getName @nt
-                                           >-< indent 2 ("|" >#< getName @con >#< ppAttr fldA nmA >#< "<" >#< ppAttr fldB nmB)
-
-                                 help =  wfill [ "In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
-                                               , ", there is an erroneous attribute order defined"
-                                               , showAttrDef fldA nmA, "<", showAttrDef fldB nmB
-                                               , "because"
-                                               , showAttrDef fldA nmA
-                                               , "is not an In-attribute (inherited attribute of the production, or a synthesized attribute of a child)"
-                                               ]
-                                 act  = wfill ["Please change the order definition."]
-                             in ppError (isError @lhs.options @me) (getPos fldA) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '

@@ -259,7 +259,7 @@ SEM AG
          loc.errs6        = let  f m s = Map.fold ((<>) . snd) s m
                             in Map.fold f Seq.empty @loc.allInstsErrs
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6 <> @elems.orderDepErrorsCollect
+         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -563,7 +563,6 @@ pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
 -------------------------------------------------------------------------------
 
 ATTR Elem Elems SemAlts SemAlt [ | | attrOrderCollect USE {`orderMapUnion`} {Map.empty} : {AttrOrderMap} ]
-ATTR Elem Elems SemAlts SemAlt [ | | orderDepErrorsCollect USE {Seq.<>} {Seq.empty} : {Seq Error} ]
 ATTR Elem Elems SemAlts SemAlt [ allAttrDecls : {Map NontermIdent (Attributes, Attributes)} | | ]
 
 SEM SemAlt
@@ -573,7 +572,7 @@ SEM SemAlt
           | (nt, conset, _) <- @loc.coninfo
           , con <- Set.toList conset
           ]
-  
+
       lhs.attrOrderCollect = foldr orderMapUnion Map.empty @loc.attrOrders
 
 ATTR SemDefs SemDef [ | | orderDepsCollect USE {`Set.union`} {Set.empty} : {Set Dependency} ]

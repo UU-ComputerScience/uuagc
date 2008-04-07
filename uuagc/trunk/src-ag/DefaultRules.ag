@@ -509,40 +509,41 @@ SEM Production
   | Production
       loc.orderDeps = Set.toList $ Map.findWithDefault Set.empty @con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrOrderMap
       
-      loc.allAttrsInScope
-        = Map.fromList ( [ (_LHS, @lhs.syn `Map.union` @lhs.inh)
-                         , (_LOC, Map.fromList [ (l,Haskell "LOC") | l <- Set.toList @rules.locals]) ]
-                       ++ @children.inputs
-                       ++ @children.outputs
-                       )
-      
-      loc.invalidOrderDepsErrors
-        = [ ErroneousOrder @lhs.nt @con dep
-          | dep@(Dependency (fld,nm) _) <- @loc.orderDeps
-          , not $ isInAttribute @children.outputs fld nm
-          ]
-
-      loc.undefinedAttributeInDepsErrors
-        = [ UndefAttr @lhs.nt @con fld nm
-          | (fld,nm) <- concatMap (\(Dependency a b) -> [a,b]) $ @loc.orderDeps
-          , not $ isDefined @loc.allAttrsInScope fld nm
-          ]
-
       loc.orderErrs
-        = if null @loc.undefinedAttributeInDepsErrors
-          then Seq.fromList @loc.invalidOrderDepsErrors
-          else Seq.fromList @loc.undefinedAttributeInDepsErrors
+        = let chldOutMap = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.outputs ]
+              chldInMap  = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.inputs ]
+        
+              -- a local attribute
+              -- or an inherited attribute of the production
+              -- or an out-attribute of a child
+              isInAttribute :: Identifier -> Identifier -> [Error]
+              isInAttribute fld nm
+                 | fld == _LOC = if nm `Set.member` @rules.locals
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm False]
+                 | fld == _LHS = if nm `Map.member` @lhs.inh
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm False]
+                 | otherwise   = if nm `Set.member` (Map.findWithDefault Set.empty fld chldOutMap)
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm False]
+              
+              -- a local attribute
+              -- or a synthesized attribute of the production
+              -- or an in-attribute of a child
+              isOutAttribute :: Identifier -> Identifier -> [Error]
+              isOutAttribute fld nm
+                 | fld == _LOC = if nm `Set.member` @rules.locals
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm True]
+                 | fld == _LHS = if nm `Map.member` @lhs.syn
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm True]
+                 | otherwise   = if nm `Set.member` (Map.findWithDefault Set.empty fld chldInMap)
+                                 then []
+                                 else [UndefAttr @lhs.nt @con fld nm True]
+          in Seq.fromList . concat $
+             [ isInAttribute fldA nmA ++ isOutAttribute fldB nmB
+             | dep@(Dependency (fldA,nmA) (fldB,nmB)) <- @loc.orderDeps
+             ]
 
-{
-isDefined :: Map Identifier Attributes -> Identifier -> Identifier -> Bool
-isDefined mp fld nm
-  = Map.member nm $ Map.findWithDefault Map.empty fld mp
-
--- check that for a dependency a < b, that a is an In attribute
-isInAttribute :: [(Identifier,Attributes)] -> Identifier -> Identifier -> Bool
-isInAttribute allSyns fld nm
-  | fld == _INST || fld == _LOC || fld == _LHS
-      = True
-  | otherwise  -- is nm it a synthesized attribute of fld?
-      = maybe False (Map.member nm) (lookup fld allSyns)
-}

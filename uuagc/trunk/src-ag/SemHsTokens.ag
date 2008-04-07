@@ -73,7 +73,7 @@ SEM HsToken
                                  then Seq.empty
                                  else if not(@field `elem` (_LHS : _LOC: @lhs.fieldnames))
                                          then Seq.single (UndefChild @lhs.nt @lhs.con @field)
-                                         else Seq.single (UndefAttr @lhs.nt @lhs.con @field @attr)
+                                         else Seq.single (UndefAttr @lhs.nt @lhs.con @field @attr False)
                                          
 -------------------------------------------------------------------------------
 --         Used variables
