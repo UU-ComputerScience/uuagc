@@ -76,6 +76,7 @@ DATA Error  | ParserError     pos     : {Pos}
                               con   : {ConstructorIdent}
                               field : {Identifier}
                               attr  : {Identifier}
+                              isOut : {Bool}
 
             | CyclicSet       name:{Identifier}
 
@@ -110,7 +111,4 @@ DATA Error  | ParserError     pos     : {Pos}
             | MissingInstSig  nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
-            
-            | ErroneousOrder  nt      : {NontermIdent}
-                              con     : {ConstructorIdent}
-                              order   : {Dependency}
+
