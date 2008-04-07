@@ -292,8 +292,9 @@ pConstructorSet =  pChainl (CDifference <$ pMinus) term2
 pSemAlts :: AGParser SemAlts
 pSemAlts =  pList pSemAlt <?> "SEM alternatives"
 
-pFieldIdentifier =  pIdentifier 
-                <|> Ident "lhs"  <$> pLHS 
+pFieldIdentifier :: AGParser Identifier
+pFieldIdentifier =  pIdentifier
+                <|> Ident "lhs"  <$> pLHS
                 <|> Ident "loc"  <$> pLOC
                 <|> Ident "inst" <$> pINST
 
@@ -302,7 +303,7 @@ pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
       <|>                            pLOC              *> pList1 pLocDecl
       <|>                            pINST             *> pList1 pInstDecl
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
-      <|> (\a b -> [AttrOrderBefore a b]) <$> pAttr <* pSmaller <*> pAttr
+      <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier

@@ -23,7 +23,7 @@ SEM D [ y : Int | | x : Int ]
     loc.z = 1
   
     lhs.y < loc.z  
-    k1.x < k2.y
+    k1.x lhs.y < k2.y
     loc.z < k1.y
     k1.x < lhs.x
 
