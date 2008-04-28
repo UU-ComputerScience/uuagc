@@ -68,8 +68,8 @@ _LOC   = identifier "loc"
 _INST  = identifier "inst"
 _INST' = identifier "inst'"
 _FIELD = identifier "field"
-_FIRST = identifier "first"
-_LAST  = identifier "last"
+_FIRST = identifier "first__"
+_LAST  = identifier "last__"
 
 sdtype :: NontermIdent -> String
 sdtype nt = "T_"++getName nt
