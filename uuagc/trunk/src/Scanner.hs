@@ -1,4 +1,3 @@
-
 module Scanner where
 import TokenDef
 import UU.Scanner.Position

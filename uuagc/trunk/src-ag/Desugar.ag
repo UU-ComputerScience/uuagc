@@ -78,7 +78,7 @@ SEM HsToken
                      then @lhs.addLines + 1
                      else @lhs.addLines
       
-      loc.tks = AGField @field @attr (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
+      loc.tks = AGField @loc.field' @attr (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
   | HsToken
       loc.tks = HsToken @value (addl @lhs.addLines @pos)
   | CharToken
