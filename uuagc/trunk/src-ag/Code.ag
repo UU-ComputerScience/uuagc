@@ -88,13 +88,15 @@ DATA Type     | Arr              left  : Type
 	          | UnboxedTupleType tps   : Types
               | List             tp    : Type
               | SimpleType       txt   : {String}
-	       
+
 DATA Lhs      | Pattern3    pat3  : Pattern
               | Pattern3SM  pat3  : Pattern
               | TupleLhs         comps : {[String]} -- \ [Lhs] appears to be more sensible
               | UnboxedTupleLhs  comps : {[String]} -- /
               | Fun              name  : {String} 
                                  args  : Exprs
+
+DERIVING Type : Show
 
 {
 -- Unboxed tuples

@@ -26,6 +26,8 @@ import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
+
+import Debug.Trace
 }
 
 
@@ -257,7 +259,11 @@ SEM  CRule
                    then []
                    else [funname @name (@nr+1)]
        lhs.exprs = let wrap = if @lhs.o_newtypes then \x -> App (typeName @nt (@nr + 1)) [x] else id
-                   in map (wrap . SimpleExpr) @loc.names
+
+                       addType expr | null @loc.instParams = expr
+                                    | otherwise            = TypedExpr expr (@lhs.unfoldSemDom @nt (@nr+1) @loc.instParams)
+
+                   in map (wrap . addType . SimpleExpr) @loc.names
 
 ATTR  Sequence CRule [ | | usedVars USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM CRule
@@ -281,7 +287,7 @@ SEM  CRule
                     \field tp -> let orgFldParams = map getName $ Map.findWithDefault [] childNt @lhs.paramMap
                                      (childNt,instParams) = Map.findWithDefault (@lhs.nt,[]) field @lhs.paramInstMap
                                      replMap = Map.fromList (zip orgFldParams instParams)
-                                     replace k = Map.findWithDefault k k replMap
+                                     replace k = Map.findWithDefault ('@':k) k replMap
                                  in if null instParams
                                     then if null @orgParams
                                          then tp
@@ -322,7 +328,7 @@ SEM  CRule
   |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([substSelf (fromJust @childnt) tp],True)) @tp
   |  CChildVisit  lhs.tps = if @loc.isSuperfluousHigherOrderIntra
                             then []
-                            else [Haskell @nextTp]
+                            else [NT (ntOfVisit @nt (@nr+1)) @loc.instParams]
 
 -------------------------------------------------------------------------------
 -- Each visit has its semantic function
@@ -575,7 +581,7 @@ SEM  CSegment
               loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp) |  tp <- Map.elems @syn] ++ @loc.continuation)
               loc.continuation = if  @lhs.isLast
                                  then []
-                                 else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map SimpleType @loc.params)]
+                                 else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map (SimpleType . ('@':)) @loc.params)]
               loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
               lhs.semDom = let name = typeName @lhs.nt @lhs.nr
                                evalTp | null @loc.params = id
@@ -590,15 +596,15 @@ SEM CSegment
   | CSegment
       lhs.semDomUnfoldGath = Map.singleton (@lhs.nt, @lhs.nr) (@loc.params, @loc.tp)
 
-ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ unfoldSemDom : {NontermIdent -> Int -> [String] -> Code.Type} | | ]
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit Sequence CRule [ unfoldSemDom : {NontermIdent -> Int -> [String] -> Code.Type} | | ]
 
 SEM CGrammar
   | CGrammar
       loc.unfoldSemDom =
        \nt nr repl ->
-        let (params, tp) = Map.findWithDefault (error "No such semantic domain") (nt, nr) @nonts.semDomUnfoldGath
+        let (params, tp) = Map.findWithDefault (error ("No such semantic domain: " ++ show nt)) (nt, nr) @nonts.semDomUnfoldGath
             replMap = Map.fromList (zip params repl)
-            replace k = Map.findWithDefault k k replMap
+            replace k = Map.findWithDefault ('@':k) k replMap
         in evalType replace tp
 
 {
@@ -795,6 +801,10 @@ seqSemname pre nt con nr = semname pre nt con ++ "_" ++ show nr
 typeName :: NontermIdent -> Int -> String
 typeName nt 0 = "T_" ++ show nt
 typeName nt n = "T_" ++ show nt ++ "_" ++ show n
+
+ntOfVisit :: NontermIdent -> Int -> NontermIdent
+ntOfVisit nt 0 = nt
+ntOfVisit nt n = Ident (show nt ++ "_" ++ show n) (getPos nt)
 
 -- Gives the name of a visit function
 visitname  ::  String -> NontermIdent -> Int -> String
