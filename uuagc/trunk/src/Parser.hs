@@ -218,8 +218,8 @@ pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
 
 pTypeNt :: AGParser Type
 pTypeNt
-  =   (\nt -> NT nt []) <$> pIdentifierU
-  <|> pParens (NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
+  =   ((\nt -> NT nt []) <$> pIdentifierU <?> "nonterminal name (no brackets)")
+  <|> (pParens (NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString) <?> "nonterminal name with parameters (using parenthesis)")
 
 pTypeHaskellAnyAsString :: AGParser String
 pTypeHaskellAnyAsString
