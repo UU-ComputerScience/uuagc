@@ -4,6 +4,7 @@ INCLUDE "DeclBlocks.ag"
 
 imports
 {
+import CommonTypes
 import SequentialTypes
 import Code hiding (Type)
 import qualified Code
@@ -26,8 +27,6 @@ import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
-
-import Debug.Trace
 }
 
 
@@ -115,6 +114,18 @@ appContext mp nt tp
   = maybe tp (\ctx -> CtxApp (map (\(n,ns) -> (getName n, ns)) ctx) tp) $ Map.lookup nt mp
 }
 
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit Sequence CRule [ allNts : {Set NontermIdent} | | ]
+
+SEM CGrammar
+  | CGrammar
+      nonts.allNts = @nonts.gathNts
+
+ATTR CNonterminals CNonterminal [ | | gathNts USE {`Set.union`} {Set.empty} : {Set NontermIdent} ]
+
+SEM CNonterminal
+  | CNonterminal
+      lhs.gathNts = Set.singleton @nt
+
 -------------------------------------------------------------------------------
 -- Generating declarations from the sequence. We generate the origin
 -- comment if pretty printing is requested. A childvisit takes inherited
@@ -128,8 +139,12 @@ SEM  CRule
                                    then (Comment @origin:)
                                    else id
            loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
-                                  (App (cataname @lhs.prefix (fromJust $ inst `lookup` @loc.instTypes))
-                                       [SimpleExpr instLocFieldName])
+                                  ( let nm = fromJust $ inst `lookup` @loc.instTypes
+                                    in case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
+                                         True  -> App (cataname @lhs.prefix nm)
+                                                      [SimpleExpr instLocFieldName]
+                                         False -> SimpleExpr instLocFieldName
+                                  )    
                                   (Set.singleton instSemFieldName)
                                   (Set.singleton instLocFieldName)
                            | inst <- @loc.definedInsts

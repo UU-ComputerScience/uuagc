@@ -233,7 +233,7 @@ SEM AG
 
          loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
          loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
-         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allSigs                                   )) @loc.allInsts
+         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs              )) @loc.allInsts
 
          loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
@@ -313,10 +313,20 @@ checkSigs nt con sis
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
 
-checkInsts :: Map NontermIdent (Map ConstructorIdent [SigInfo]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
-checkInsts sigMap nt con
-  = foldr (\inst (insts, errs) -> maybe (insts, Seq.single (MissingInstSig nt con inst) <> errs)
-                                        (\info -> (info : insts, errs)) $ findSig inst) ([], Seq.empty)
+checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
+checkInsts allNts sigMap nt con
+  = foldr (\inst (insts, errs) ->
+              maybe (insts, Seq.single (MissingInstSig nt con inst) <> errs)
+                    (\info@(_, NT nm _) -> case nm `Set.member` allNts of
+                                             True  -> (info : insts, errs)
+                                             False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
+                                                                                    in case nm' `Set.member` allNts of
+                                                                                         True  -> (info : insts, errs)
+                                                                                         False -> (insts, Seq.single (UndefNont nm') <> errs)
+                                                   | otherwise                   -> (insts, Seq.single (UndefNont nm) <> errs)
+                    ) 
+                  $ findSig inst
+          ) ([], Seq.empty)
   where
     sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
     
