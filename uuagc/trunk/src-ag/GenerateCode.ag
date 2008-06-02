@@ -385,7 +385,7 @@ SEM  CVisit
                               field (name,tp,_)        = let expr = SimpleExpr (funname name 0)
                                                          in if null @loc.params
                                                             then expr
-                                                            else TypedExpr expr (SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp))
+                                                            else TypedExpr expr (idEvalType $ SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp))
                               
                               mbEvalTp | null @loc.params = const Nothing
                                        | otherwise        = Just . idEvalType
@@ -840,12 +840,14 @@ SEM CNonterminal
   | CNonterminal loc.dataDef = let params' = map getName @params
                                    typeSyn tp = let theType = 
                                                       case tp of
-                                                        CommonTypes.Maybe t  -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) params' t ++")")
-                                                        CommonTypes.List t   -> Code.List $ SimpleType (typeToHaskellString (Just @nt) params' t)
-                                                        CommonTypes.Tuple ts -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) params' t) 
+                                                        CommonTypes.Maybe t      -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) params' t ++")")
+                                                        CommonTypes.Either t1 t2 -> SimpleType ("Either (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
+                                                                                                           ++ typeToHaskellString (Just @nt) params' t2 ++")")
+                                                        CommonTypes.List t       -> Code.List $ SimpleType (typeToHaskellString (Just @nt) params' t)
+                                                        CommonTypes.Tuple ts     -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) params' t) 
                                                                                                | (_,t) <- ts
                                                                                                ]
-                                                 in Code.Type (getName @nt) params' theType
+                                                 in Code.Type (getName @nt) params' (idEvalType theType)
                                    derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
                                    dataDef    = Data (getName @nt) (map getName @params) @prods.dataAlts (maybe False id @lhs.o_data) derivings
                                in maybe dataDef typeSyn $ lookup @nt @lhs.typeSyns
@@ -892,6 +894,20 @@ SEM CNonterminal
                                                          lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
                                                      in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])    Set.empty Set.empty
                                                          ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing) Set.empty Set.empty
+                                                         ]
+                                                 CommonTypes.Either tp1 tp2 ->                                  
+                                                     let left  = semname @lhs.prefix @nt (identifier "Left")
+                                                         right = semname @lhs.prefix @nt (identifier "Right" )
+                                                         arg   = SimpleExpr "x"
+                                                         rarg0 = case tp1 of
+                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  _      -> arg
+                                                         rarg1 = case tp2 of
+                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  _      -> arg
+                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
+                                                     in  [Decl (lhs (App "Prelude.Left"  [arg]))     (App left  [rarg0])    Set.empty Set.empty
+                                                         ,Decl (lhs (App "Prelude.Right" [arg]))     (App right [rarg1])    Set.empty Set.empty
                                                          ]
                                                  CommonTypes.Tuple tps ->   
                                                      let con  = semname @lhs.prefix @nt (identifier "Tuple")

@@ -139,9 +139,10 @@ pAG  = AG <$> pElems
 pElems :: AGParser Elems
 pElems = pList_ng pElem
 
-pComplexType =  List <$> pBracks pTypeEncapsulated 
-            <|> Maybe <$ pMAYBE <*> pType
-            <|> tuple <$> pParens (pListSep pComma field)
+pComplexType =  List   <$> pBracks pTypeEncapsulated 
+            <|> Maybe  <$ pMAYBE <*> pType
+            <|> Either <$ pEITHER <*> pType <*> pType
+            <|> tuple  <$> pParens (pListSep pComma field)
  where field = (,) <$> ((Just <$> pIdentifier <* pColon) `opt` Nothing) <*> pTypeEncapsulated
        tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
                         | (n,(f,t)) <- zip [1..] xs
@@ -372,7 +373,7 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pMODULE
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMODULE
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -386,6 +387,7 @@ pSEM         = pCostReserved 90 "SEM"     <?> "SEM"
 pINCLUDE     = pCostReserved 90 "INCLUDE" <?> "INCLUDE"
 pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
+pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"

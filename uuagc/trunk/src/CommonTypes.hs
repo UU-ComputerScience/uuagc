@@ -30,11 +30,13 @@ data Type = Haskell String
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
                  | Maybe Type
+                 | Either Type Type
 
 instance Show ComplexType where
-  show (List  t ) = "[" ++ show t ++ "]"
-  show (Tuple ts) = "(" ++ showList [ show n ++ ": " ++ show t | (n,t) <- ts ] "" ++ ")"
-  show (Maybe t ) = "Maybe " ++ show t
+  show (List  t )     = "[" ++ show t ++ "]"
+  show (Tuple ts)     = "(" ++ showList [ show n ++ ": " ++ show t | (n,t) <- ts ] "" ++ ")"
+  show (Maybe t )     = "Maybe " ++ show t
+  show (Either t1 t2) = "Either " ++ show t1 ++ " " ++ show t2
 
 instance Show Type where
   show = typeToHaskellString Nothing []

@@ -412,11 +412,16 @@ SEM Elem
                                                    )
                                                   ,(Ident "Nothing" @pos,  [])
                                                   ]
+                                       Either tp1 tp2 -> [
+                                                    (Ident "Left"    @pos,  [(Ident "left"  @pos, tp1) ])
+                                                  , (Ident "Right"   @pos,  [(Ident "right" @pos, tp2) ])
+                                                  ]
                                        Tuple xs -> [(Ident "Tuple" @pos, xs)]
           loc.argType        = case @type of
-                                Maybe tp  -> Maybe  (  makeType @lhs.allNonterminals tp)
-                                List tp   -> List   (  makeType @lhs.allNonterminals tp)
-                                Tuple xs  -> Tuple [(f,makeType @lhs.allNonterminals tp) | (f,tp) <- xs]
+                                Maybe tp       -> Maybe  (  makeType @lhs.allNonterminals tp)
+                                Either tp1 tp2 -> Either (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
+                                List tp        -> List   (  makeType @lhs.allNonterminals tp)
+                                Tuple xs       -> Tuple [(f,makeType @lhs.allNonterminals tp) | (f,tp) <- xs]
           lhs.typeSyns       = [(@name,@argType)]
 
 -------------------------------------------------------------------------------
