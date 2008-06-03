@@ -70,7 +70,7 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
-          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
+          output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
@@ -109,8 +109,9 @@ compile flags input output
           (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
           
           importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
-          textBlocksDoc   = vlist_sep "" . map addLocationPragma . concat . Map.elems $ textBlocks
-          pragmaBlocksTxt = unlines . concat . map fst      . concat . Map.elems $ pragmaBlocks
+          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] "" $ textBlocks
+          pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
+          textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\k _ -> k /= "") $ textBlocks
           
           outputfile = if null output then outputFile input else output
           
@@ -139,8 +140,8 @@ compile flags input output
           pluralS n = if n == 1 then "" else "s"
 
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
-
-      if additionalErrors > 0 
+      
+      if additionalErrors > 0
        then putStr $ "\nPlus " ++ show additionalErrors ++ " more error" ++ pluralS additionalErrors ++
                      if additionalWarnings > 0
                      then " and " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"

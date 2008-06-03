@@ -190,7 +190,7 @@ pElem =  Data <$> pDATA
               <*> pCodescrap'
               <*> pCodescrap'
               <*> pCodescrap'
-     <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
+     <|> codeBlock <$> (pIdentifier <|> (pATTACH *> pIdentifierU) <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
            where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
 
 
@@ -373,13 +373,14 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMODULE
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMODULE, pATTACH
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
 pWRAPPER     = pCostReserved 90 "WRAPPER" <?> "WRAPPER"
 pPRAGMA      = pCostReserved 90 "PRAGMA"  <?> "PRAGMA"
 pSEMPRAGMA   = pCostReserved 90 "SEMPRAGMA" <?> "SEMPRAGMA"
+pATTACH      = pCostReserved 90 "ATTACH"  <?> "ATTACH"
 pDATA        = pCostReserved 90 "DATA"    <?> "DATA"
 pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
