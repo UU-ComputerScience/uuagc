@@ -87,6 +87,7 @@ SEM Chunk
                               ++ @semDom.pps
                               ++ @semWrapper.pps
                               ++ @semFunctions.pps
+                              ++ [Map.findWithDefault empty @name @lhs.textBlockMap]
 
 SEM Decl
   | Decl       lhs.pp      = @left.pp >#< "="
@@ -336,6 +337,7 @@ ATTR Program Chunks Chunk
   [ importBlocks : PP_Doc
     pragmaBlocks : String
     textBlocks : PP_Doc
+    textBlockMap : {Map String PP_Doc}
     optionsLine : String
     mainFile : String
     mainName : String
@@ -390,12 +392,11 @@ SEM Chunk
         = [ [@comment.pp]
           , @dataDef.pps
           , @semDom.pps
+          , @semWrapper.pps
+
           ]
       lhs.appendMain
-        = [ [@comment.pp]
-          , @cataFun.pps
-          , @semWrapper.pps
-          ]
+        = []
 
 ATTR Chunk Chunks [ | | genSems USE {>>} {return ()} : {IO ()} ]
 
@@ -408,8 +409,10 @@ SEM Chunk
             , pp $ @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
             , pp $ ("import " ++ @lhs.mainName ++ "_common\n")
             , @comment.pp
+            , vlist_sep "" @cataFun.pps
             , vlist_sep "" @info.pps
             , vlist_sep "" @semFunctions.pps
+            , Map.findWithDefault empty @name @lhs.textBlockMap
             ]
 
 SEM Chunk
