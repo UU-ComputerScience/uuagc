@@ -1,3 +1,6 @@
+PRAGMA strictdata
+PRAGMA strictwrap
+
 INCLUDE "ConcreteSyntax.ag"
 INCLUDE "Patterns.ag"
 

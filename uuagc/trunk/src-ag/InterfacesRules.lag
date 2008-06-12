@@ -1,4 +1,9 @@
 \begin{Code}
+PRAGMA strictdata
+PRAGMA optimize
+PRAGMA bangpats
+PRAGMA strictwrap
+
 INCLUDE "Interfaces.ag"
 
 imports
@@ -95,12 +100,17 @@ syntesized attributes of a |Segment|, we find the new vertices.
 
 \begin{Code}
 SEM  Segment 
-  |  Segment  loc.look = \a -> ruleTable @lhs.info ! a
+  |  Segment  loc.look : {Vertex -> CRule}
+              loc.look = \a -> ruleTable @lhs.info ! a
+              
+              loc.occurAs : {(CRule -> Bool) -> [Vertex] -> [Vertex]}
               loc.occurAs = \p us -> [ a  |  u <- us
                                           ,  a <- tdsToTdp @lhs.info ! u
                                           ,  p (@look a)]
+              loc.groups : {[([Vertex],[Vertex])]}
               loc.groups =  let group as = gather @lhs.info (@occurAs isRhs as)
                             in map (partition (isInh . @look)) (group (@inh ++ @syn))
+              loc.v : {Int}
               loc.v = @lhs.v + length @groups
               loc.newvertices = [@lhs.v .. @loc.v-1]
 \end{Code}
@@ -178,6 +188,8 @@ SEM  Interface
                 loc.firstvisitvertices = [@seg.v .. @v-1]
                 loc.newedges = zip @firstvisitvertices @seg.newvertices
                 lhs.newedges = @seg.newedges Seq.<> Seq.fromList @newedges
+                
+                loc.look : {Vertex -> CRule}
                 loc.look = \a -> ruleTable @lhs.info ! a
                 loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
                 lhs.descr = @seg.descr Seq.<> Seq.fromList @descr
@@ -266,7 +278,8 @@ repeated in the visit subsequence. We do not want this.
 
 \begin{Code}
 SEM  Segment
-  |  Segment  loc.visitss = let  rem :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
+  |  Segment  loc.visitss : {[[Vertex]]}
+              loc.visitss = let  rem :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
                                  rem prev [] = []
                                  rem prev (v:vs) 
                                    | inRange (bounds table) v 
@@ -389,6 +402,8 @@ SEM  Segment [ | | seg : CSegment
                    cvisits : {[CVisit]} ] -- For this visit, for each constructor the CVisit
   |  Segment  lhs.seg = -- A fake dependency fixes a type-3 cycle
                         if False then undefined @lhs.vssGraph @lhs.visitDescr @lhs.prev else CSegment @inhmap @synmap
+              loc.inhmap : {Map Identifier Type}
+              loc.synmap : {Map Identifier Type}
               loc.(inhmap,synmap) = let makemap = Map.fromList . map findType
 					findType v = getNtaNameType (attrTable @lhs.info ! v)
                                     in (makemap @inh,makemap @syn)
