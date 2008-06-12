@@ -1,120 +1,94 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
--- Layer on top of the original UU.Pretty class
+-------------------------------------------------------------------------
+-- Subset of UU.Pretty, based on very simple pretty printing
+-- Extended with line-nr tracking
+-------------------------------------------------------------------------
+
 module Pretty
-  ( (>|<)
-  , (>-<)
+  ( PP_Doc, PP(..)
+  , disp
+
+  , (>|<), (>-<)
   , (>#<)
-  , text
-  , empty
-  , indent
-  , pp_block
-  , hlist
-  , vlist
-  , vlist_sep
+  , ppWithLineNr
+  , hlist, vlist, hv
   , fill
+  , indent
+
+  , pp_block
+  , vlist_sep
   , pp_parens
   , hv_sp
-  , ppWithLineNr
-  , disp
-  , PP_Doc
-  , PP (..)
-  ) where
 
-import qualified UU.Pretty as U
+  , empty, text
+  )
+  where
+
 import Data.List(intersperse)
+  
+-------------------------------------------------------------------------
+-- Doc structure
+-------------------------------------------------------------------------
 
+data Doc
+  = Emp
+  | Str			!String					-- basic string
+  | Hor			Doc  !Doc				-- horizontal positioning
+  | Ver			Doc  !Doc				-- vertical positioning
+  | Ind			!Int Doc				-- indent
+  | Line        (Int -> Doc)            -- line nr
 
---
--- Type classes and data types that mimic UU.Pretty
---
+type PP_Doc = Doc
 
-class Show a => PP a where
-  pp :: a -> PP_Doc
-  pp = text . show
+-------------------------------------------------------------------------
+-- Basic combinators
+-------------------------------------------------------------------------
 
-  ppList :: [a] -> PP_Doc
-  ppList as = if null as
-              then empty
-              else foldr (>|<) empty . map pp $ as
-
-instance PP PP_Doc where
-  pp = id
-
-instance Show PP_Doc where
-  show (PP_Doc f) = let (doc, _, _) = f 1
-                    in show doc
-
-instance PP String where
-  pp = text
-
-instance PP Char where
-  pp = text . (\c -> [c])
-
-
-newtype PP_Doc = PP_Doc (Int -> (U.PP_Doc, Int, Bool))
-
-fromInternal :: PP a => a -> Int -> (U.PP_Doc, Int, Bool)
-fromInternal x l
-  = let (PP_Doc f) = pp x
-    in f l
-
-
---
--- Layer on top of primitive combinators
---
-
-infixr 3 >|<
-infixr 2 >-<
-infixr 3 >#<
+infixr 3 >|<, >#<
+infixr 2 >-< 
 
 (>|<) :: (PP a, PP b) => a -> b -> PP_Doc
-x >|< y
-  = PP_Doc $
-      \l -> let (p, n, s) = fromInternal x l
-                (q, m, t) = fromInternal y n
-            in  (p U.>|< q, m, s && t)
+l >|< r = pp l `Hor` pp r
 
 (>-<) :: (PP a, PP b) => a -> b -> PP_Doc
-x >-< y
-  = PP_Doc $
-      \l -> let (p, n, s) = fromInternal x l
-                (q, m, t) = fromInternal y (if s then n else n+1)
-             in (p U.>-< q, if t then m-1 else m, s && t)
+l >-< r = pp l `Ver` pp r
+
+(>#<) :: (PP a, PP b) => a -> b -> PP_Doc
+l >#< r  =  l >|< " " >|< r
+
+indent :: PP a => Int -> a -> PP_Doc
+indent i d = Ind i $ pp d
 
 text :: String -> PP_Doc
 text s
   = let ls = lines s
         ls' | null ls   = [""]
             | otherwise = ls
-    in vlist (map ppLine ls')
-  where
-    ppLine txt
-      = PP_Doc $
-          \l -> (U.text txt, l, False)
+    in vlist (map Str ls')
 
 empty :: PP_Doc
-empty
-  = PP_Doc $
-      \l -> (U.empty, l, True)
+empty = Emp
 
+ppWithLineNr :: PP a => (Int -> a) -> PP_Doc
+ppWithLineNr f = Line (pp . f)
 
---
--- Layer on top of the higher-level combinators
--- (shameless copy of their definition)
---
+-------------------------------------------------------------------------
+-- Derived combinators
+-------------------------------------------------------------------------
 
-(>#<) :: (PP a, PP b) => a -> b -> PP_Doc
-l >#< r = l >|< " " >|< r
+hlist, vlist :: PP a => [a] -> PP_Doc
+vlist [] = empty
+vlist as = foldr  (>-<) empty as
+hlist [] = empty
+hlist as = foldr  (>|<) empty as
 
-hlist :: PP a => [a] -> PP_Doc
-hlist = foldr (>|<) empty
+hv :: PP a => [a] -> PP_Doc
+hv = vlist
 
-vlist :: PP a => [a] -> PP_Doc
-vlist = foldr (>-<) empty
+hv_sp :: PP a => [a] -> PP_Doc
+hv_sp = foldr (>#<) empty
 
-vlist_sep :: (PP a, PP b) => a -> [b] -> PP_Doc
-vlist_sep sep lst
-  = vlist (intersperse (pp sep) (map pp lst))
+fill :: PP a => [a] -> PP_Doc
+fill = hlist
 
 pp_block:: (PP a, PP b, PP c) => a -> b -> c -> [PP_Doc] -> PP_Doc
 pp_block o c s as = pp o >|< hlist (intersperse (pp s) as) >|< pp c
@@ -122,30 +96,77 @@ pp_block o c s as = pp o >|< hlist (intersperse (pp s) as) >|< pp c
 pp_parens :: PP a => a -> PP_Doc
 pp_parens p = '(' >|< p >|< ')'
 
+vlist_sep :: (PP a, PP b) => a -> [b] -> PP_Doc
+vlist_sep sep lst
+  = vlist (intersperse (pp sep) (map pp lst))
 
---
--- Layer on top of the higher-level "smart" combinators
--- (dump alternative implementation)
---
+-------------------------------------------------------------------------
+-- PP class
+-------------------------------------------------------------------------
 
-indent :: PP a => Int -> a -> PP_Doc
-indent n p = foldr (>#<) (pp p) (replicate n empty)
+class Show a => PP a where
+  pp     :: a   -> PP_Doc
+  pp       = text . show
 
-fill :: PP a => [a] -> PP_Doc
-fill = foldr (>#<) empty
+  ppList :: [a] -> PP_Doc
+  ppList as = hlist as
 
-hv_sp :: PP a => [a] -> PP_Doc
-hv_sp = foldr (>#<) empty
+instance PP Doc where
+  pp     = id
 
+instance PP Char where
+  pp c   = text [c]
+  ppList = text
 
--- Special combinator that exposes the line number
-ppWithLineNr :: (Int -> PP_Doc) -> PP_Doc
-ppWithLineNr f
-  = PP_Doc $
-      \l -> fromInternal (f l) l
+instance PP a => PP [a] where
+  pp = ppList
 
--- Render function
-disp :: PP a => a -> Int -> String -> String
-disp p n = let (doc, _, _) = fromInternal (pp p) 1
-            in U.disp doc n
+instance Show Doc where
+  show p = disp p 200 ""
+
+instance PP Int where
+  pp = text . show
+
+instance PP Float where
+  pp = text . show
+
+-------------------------------------------------------------------------
+-- Observation
+-------------------------------------------------------------------------
+
+isEmpty :: PP_Doc -> Bool
+isEmpty Emp         = True
+isEmpty (Ver d1 d2) = isEmpty d1 && isEmpty d2
+isEmpty (Hor d1 d2) = isEmpty d1 && isEmpty d2
+isEmpty (Ind _  d ) = isEmpty d
+isEmpty _           = False
+
+-------------------------------------------------------------------------
+-- Rendering
+-------------------------------------------------------------------------
+
+disp  ::  PP_Doc -> Int -> ShowS
+disp d _ s
+  = r
+  where (r,_,_) = put 0 1 d s
+        put p l d s
+          = case d of
+              Emp              -> (s,p,l)
+              Str s'           -> (s' ++ s,p + length s',l)
+              Ind i  d         -> (ind ++ r,p', l')
+                               where (r,p',l') = put (p+i) l d s
+                                     ind = replicate i ' '
+              Hor d1 d2        -> (r1,p2,l2)
+                               where (r1,p1,l1) = put p  l  d1 r2
+                                     (r2,p2,l2) = put p1 l1 d2 s
+              Ver d1 d2 | isEmpty d1
+                               -> put p l d2 s
+              Ver d1 d2 | isEmpty d2
+                               -> put p l d1 s
+              Ver d1 d2        -> (r1,p2,l2)
+                               where (r1,p1,l1) = put p l d1 $ "\n" ++ ind ++ r2
+                                     (r2,p2,l2) = put p (l1+1) d2 s
+                                     ind = replicate p ' '
+              Line f           -> (r,p',l')
+                               where (r,p',l') = put p l (f l) s
 
