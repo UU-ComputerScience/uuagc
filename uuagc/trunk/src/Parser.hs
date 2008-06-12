@@ -190,8 +190,8 @@ pElem =  Data <$> pDATA
               <*> pCodescrap'
               <*> pCodescrap'
               <*> pCodescrap'
-     <|> codeBlock <$> (pIdentifier <|> (pATTACH *> pIdentifierU) <|> pSucceed (Ident "" noPos)) <*> pCodeBlock <?> "a statement"
-           where codeBlock nm (txt,pos) = Txt pos nm (lines txt)
+     <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> ((Just <$ pATTACH <*> pIdentifierU) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
+           where codeBlock nm mbNt (txt,pos) = Txt pos nm mbNt (lines txt)
 
 
 -- Insertion is expensive for pCodeBlock in order to prevent infinite inserts.

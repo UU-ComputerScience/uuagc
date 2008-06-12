@@ -158,7 +158,16 @@ SEM Elem
 -------------------------------------------------------------------------------
 
 SEM Elem
-  | Txt   lhs.blocks  = Map.singleton (getName @name) [(@lines, @pos)]
+  | Txt  loc.blockInfo  = ( let nm = getName @name
+                            in if nm == "imports"
+                               then BlockImport
+                               else if nm == "optpragmas"
+                                    then BlockPragma
+                                    else BlockOther
+                          , @mbNt
+                          )
+         loc.blockValue = [(@lines, @pos)]
+         lhs.blocks     = Map.singleton @loc.blockInfo @loc.blockValue
 
 
 -------------------------------------------------------------------------------

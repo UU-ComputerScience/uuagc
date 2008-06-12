@@ -43,7 +43,8 @@ DATA Elem      | Data   pos    : {Pos}
                         alts   : SemAlts
 
                | Txt    pos    : {Pos}
-                        name   : {NontermIdent}
+                        name   : {Identifier}
+                        mbNt   : {Maybe NontermIdent}
                         lines  : {[String]}
 
                | Set    pos    : {Pos}
