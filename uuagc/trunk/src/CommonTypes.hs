@@ -8,9 +8,15 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 
 
-type Blocks = Map String [([String], Pos)]
+type Blocks = Map BlockInfo [([String], Pos)]
+type BlockInfo = (BlockType, Maybe NontermIdent)
+data BlockType
+  = BlockImport
+  | BlockPragma
+  | BlockOther
+  deriving (Eq, Ord, Show)
 
-data Identifier  = Ident {getName::String , getPos::Pos}
+data Identifier = Ident { getName::String, getPos::Pos }
 
 instance Eq Identifier where
  Ident x _ == Ident y _ = x == y

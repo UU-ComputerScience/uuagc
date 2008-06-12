@@ -12,6 +12,7 @@ import CommonTypes (attrname, _LOC, getName, nullIdent)
 import Data.List(intersperse)
 import System.IO
 import System.Directory
+import CommonTypes(BlockInfo, BlockType(..), identifier)
 }
 
 {
@@ -87,7 +88,7 @@ SEM Chunk
                               ++ @semDom.pps
                               ++ @semWrapper.pps
                               ++ @semFunctions.pps
-                              ++ [Map.findWithDefault empty @name @lhs.textBlockMap]
+                              ++ [Map.findWithDefault empty (BlockOther, Just $ identifier @name) @lhs.textBlockMap]
 
 SEM Decl
   | Decl       lhs.pp      = @left.pp >#< "="
@@ -337,7 +338,7 @@ ATTR Program Chunks Chunk
   [ importBlocks : PP_Doc
     pragmaBlocks : String
     textBlocks : PP_Doc
-    textBlockMap : {Map String PP_Doc}
+    textBlockMap : {Map BlockInfo PP_Doc}
     optionsLine : String
     mainFile : String
     mainName : String
@@ -392,11 +393,12 @@ SEM Chunk
         = [ [@comment.pp]
           , @dataDef.pps
           , @semDom.pps
-          , @semWrapper.pps
-
           ]
       lhs.appendMain
-        = []
+        = [ [@comment.pp]
+          , @cataFun.pps
+          , @semWrapper.pps
+          ]
 
 ATTR Chunk Chunks [ | | genSems USE {>>} {return ()} : {IO ()} ]
 
@@ -405,14 +407,15 @@ SEM Chunk
       lhs.genSems
         = writeModule @loc.outputfile
             [ pp $ @lhs.pragmaBlocks
+            , pp $ Map.findWithDefault empty (BlockPragma, Just $ identifier @name) @lhs.textBlockMap
             , pp $ @lhs.optionsLine
             , pp $ @lhs.moduleHeader @lhs.mainName ("_" ++ @name) @loc.exports True
             , pp $ ("import " ++ @lhs.mainName ++ "_common\n")
+            , pp $ Map.findWithDefault empty (BlockImport, Just $ identifier @name) @lhs.textBlockMap
             , @comment.pp
-            , vlist_sep "" @cataFun.pps
             , vlist_sep "" @info.pps
             , vlist_sep "" @semFunctions.pps
-            , Map.findWithDefault empty @name @lhs.textBlockMap
+            , Map.findWithDefault empty (BlockOther, Just $ identifier @name) @lhs.textBlockMap
             ]
 
 SEM Chunk

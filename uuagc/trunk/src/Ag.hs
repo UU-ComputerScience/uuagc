@@ -105,13 +105,13 @@ compile flags input output
                             else fatalErrorList
           
           blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
-          (pragmaBlocks, blocks2)    = Map.partitionWithKey (\k _->k=="optpragmas") blocks1
-          (importBlocks, textBlocks) = Map.partitionWithKey (\k _->k=="imports"   ) blocks2
+          (pragmaBlocks, blocks2)    = Map.partitionWithKey (\(k, at) _->k==BlockPragma && at == Nothing) blocks1
+          (importBlocks, textBlocks) = Map.partitionWithKey (\(k, at) _->k==BlockImport && at == Nothing) blocks2
           
           importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
-          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] "" $ textBlocks
+          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockOther, Nothing) $ textBlocks
           pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
-          textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\k _ -> k /= "") $ textBlocks
+          textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
           
           outputfile = if null output then outputFile input else output
           
