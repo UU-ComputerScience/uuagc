@@ -1,3 +1,6 @@
+PRAGMA strictdata
+PRAGMA strictwrap
+
 --REMOVED SM INCLUDE "GenerateCodeSM.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"

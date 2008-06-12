@@ -1,3 +1,6 @@
+PRAGMA strictwrap
+PRAGMA strictdata
+
 INCLUDE "CodeSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "DeclBlocks.ag"
@@ -264,10 +267,10 @@ SEM CRule
 
 ATTR  Sequence CRule [ | | exprs USE {++} {[]} : {Exprs} ]
 SEM  CRule
-  |  CRule loc.name = if  @field == _LOC && @name `elem` @lhs.terminals
-                      then funname @name 0
-                      else attrname @isIn @field @name
-           lhs.exprs = [SimpleExpr @loc.name]
+  |  CRule loc.rulename = if  @field == _LOC && @name `elem` @lhs.terminals
+                          then funname @name 0
+                          else attrname @isIn @field @name
+           lhs.exprs = [SimpleExpr @loc.rulename]
   |  CChildVisit 
        loc.names = -- do not pass inst-childs as parameter if they are not defined yet
                    if @loc.isSuperfluousHigherOrderIntra
@@ -283,7 +286,7 @@ SEM  CRule
 ATTR  Sequence CRule [ | | usedVars USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM CRule
   | CRule
-      lhs.usedVars = Set.singleton @loc.name
+      lhs.usedVars = Set.singleton @loc.rulename
   | CChildVisit
       lhs.usedVars = Set.fromList @loc.names
 
