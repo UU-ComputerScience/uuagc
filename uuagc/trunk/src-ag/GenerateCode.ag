@@ -846,6 +846,9 @@ SEM CNonterminal
                                                         CommonTypes.Maybe t      -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) params' t ++")")
                                                         CommonTypes.Either t1 t2 -> SimpleType ("Either (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
                                                                                                            ++ typeToHaskellString (Just @nt) params' t2 ++")")
+                                                        CommonTypes.Map t1 t2    -> SimpleType ("Map (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
+                                                                                                        ++ typeToHaskellString (Just @nt) params' t2 ++")")
+                                                        CommonTypes.IntMap t     -> SimpleType ("IntMap (" ++ typeToHaskellString (Just @nt) params' t ++")")
                                                         CommonTypes.List t       -> Code.List $ SimpleType (typeToHaskellString (Just @nt) params' t)
                                                         CommonTypes.Tuple ts     -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) params' t) 
                                                                                                | (_,t) <- ts
@@ -912,6 +915,26 @@ SEM CNonterminal
                                                      in  [Decl (lhs (App "Prelude.Left"  [arg]))     (App left  [rarg0])    Set.empty Set.empty
                                                          ,Decl (lhs (App "Prelude.Right" [arg]))     (App right [rarg1])    Set.empty Set.empty
                                                          ]
+                                                 CommonTypes.Map _ tp ->
+                                                   let entry = SimpleExpr (semname @lhs.prefix @nt (identifier "Entry"))
+                                                       nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil"))
+                                                       arg   = SimpleExpr "m"
+                                                       rarg  = case tp of
+                                                                 NT t _ -> App "Map.map" [SimpleExpr $ cataname @lhs.prefix t, arg]
+                                                                 _      -> arg
+                                                       lhs   = Fun (cataname @lhs.prefix @nt) [arg]
+                                                       rhs   = App "Map.foldWithKey" [entry,nil,rarg]
+                                                   in [Decl lhs rhs Set.empty Set.empty]
+                                                 CommonTypes.IntMap tp ->
+                                                   let entry = SimpleExpr (semname @lhs.prefix @nt (identifier "Entry"))
+                                                       nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil"))
+                                                       arg   = SimpleExpr "m"
+                                                       rarg  = case tp of
+                                                                 NT t _ -> App "IntMap.map" [SimpleExpr $ cataname @lhs.prefix t, arg]
+                                                                 _      -> arg
+                                                       lhs   = Fun (cataname @lhs.prefix @nt) [arg]
+                                                       rhs   = App "IntMap.foldWithKey" [entry,nil,rarg]
+                                                   in [Decl lhs rhs Set.empty Set.empty]
                                                  CommonTypes.Tuple tps ->   
                                                      let con  = semname @lhs.prefix @nt (identifier "Tuple")
                                                          tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
