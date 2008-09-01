@@ -37,12 +37,16 @@ data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
                  | Maybe Type
                  | Either Type Type
+                 | Map Type Type
+                 | IntMap Type
 
 instance Show ComplexType where
   show (List  t )     = "[" ++ show t ++ "]"
   show (Tuple ts)     = "(" ++ showList [ show n ++ ": " ++ show t | (n,t) <- ts ] "" ++ ")"
   show (Maybe t )     = "Maybe " ++ show t
   show (Either t1 t2) = "Either " ++ show t1 ++ " " ++ show t2
+  show (Map t1 t2)    = "Map " ++ show t1 ++ " " ++ show t2
+  show (IntMap t1)    = "IntMap " ++ show t1
 
 instance Show Type where
   show = typeToHaskellString Nothing []

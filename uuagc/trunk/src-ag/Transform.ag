@@ -428,12 +428,26 @@ SEM Elem
                                                     (Ident "Left"    @pos,  [(Ident "left"  @pos, tp1) ])
                                                   , (Ident "Right"   @pos,  [(Ident "right" @pos, tp2) ])
                                                   ]
+                                       Map tp1 tp2 -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, tp1)
+                                                                             , (Ident "val" @pos, tp2)
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
+                                       IntMap tp   -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, Haskell "Int")
+                                                                             , (Ident "val" @pos, tp)
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
                                        Tuple xs -> [(Ident "Tuple" @pos, xs)]
           loc.argType        = case @type of
                                 Maybe tp       -> Maybe  (  makeType @lhs.allNonterminals tp)
                                 Either tp1 tp2 -> Either (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
                                 List tp        -> List   (  makeType @lhs.allNonterminals tp)
                                 Tuple xs       -> Tuple [(f,makeType @lhs.allNonterminals tp) | (f,tp) <- xs]
+                                Map tp1 tp2    -> Map    (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
+                                IntMap tp      -> IntMap (  makeType @lhs.allNonterminals tp)
           lhs.typeSyns       = [(@name,@argType)]
 
 -------------------------------------------------------------------------------

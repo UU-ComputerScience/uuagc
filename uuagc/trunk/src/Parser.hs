@@ -142,6 +142,8 @@ pElems = pList_ng pElem
 pComplexType =  List   <$> pBracks pTypeEncapsulated 
             <|> Maybe  <$ pMAYBE <*> pType
             <|> Either <$ pEITHER <*> pType <*> pType
+            <|> Map    <$ pMAP <*> pTypePrimitive <*> pType
+            <|> IntMap <$ pINTMAP <*> pType
             <|> tuple  <$> pParens (pListSep pComma field)
  where field = (,) <$> ((Just <$> pIdentifier <* pColon) `opt` Nothing) <*> pTypeEncapsulated
        tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
@@ -234,11 +236,15 @@ pTypeEncapsulated
   =   pParens pTypeEncapsulated
   <|> NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString
   <|> (Haskell . getName) <$> pIdentifier
-  <|> Haskell <$> pCodescrap'  <?> "a type"
+  <|> pTypePrimitive
+
+pTypePrimitive :: AGParser Type
+pTypePrimitive
+  = Haskell <$> pCodescrap'  <?> "a type"
 
 pType :: AGParser Type
 pType =  pTypeNt
-     <|> Haskell <$> pCodescrap'  <?> "a type"
+     <|> pTypePrimitive
 
 
 pInhAttrNames :: AGParser AttrNames
@@ -373,7 +379,8 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMODULE, pATTACH
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
+      pMODULE, pATTACH
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -389,6 +396,8 @@ pINCLUDE     = pCostReserved 90 "INCLUDE" <?> "INCLUDE"
 pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
+pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
+pINTMAP      = pCostReserved 5  "INTMAP"  <?> "INTMAP"
 pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
