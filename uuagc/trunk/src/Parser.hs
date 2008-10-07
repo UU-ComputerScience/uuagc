@@ -328,8 +328,8 @@ nl2sp '\r' = ' '
 nl2sp x = x
 
 pLocDecl :: AGParser SemDef
-pLocDecl =   (\ident tp -> TypeDef ident tp)
-              <$ pDot <*> pIdentifier <* pColon <*> pLocType
+pLocDecl = pDot <**> (pIdentifier <**> (pColon <**> (   (\tp _ ident _  -> TypeDef ident tp) <$> pLocType
+                                                    <|> (\ref _ ident _ -> UniqueDef ident ref) <$ pUNIQUEREF <*> pIdentifier )))
 
 pLocType = (Haskell . getName) <$> pIdentifierU
        <|> Haskell <$> pCodescrap'  <?> "a type"
@@ -380,7 +380,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH
+      pMODULE, pATTACH, pUNIQUEREF
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -417,4 +417,5 @@ pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"
 pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
+pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
 

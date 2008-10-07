@@ -111,4 +111,11 @@ DATA Error  | ParserError     pos     : {Pos}
             | MissingInstSig  nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
+            
+            | DupUnique       nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+            
+            | MissingUnique   nt      : {NontermIdent}
+                              attr    : {Identifier}
 

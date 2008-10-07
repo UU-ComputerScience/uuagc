@@ -40,6 +40,8 @@ isError opts (DirectCirc      _ _ _    ) = cycleIsDangerous opts
 isError opts (InducedCirc     _ _ _    ) = cycleIsDangerous opts
 isError opts (MissingTypeSig  _ _ _    ) = False
 isError opts (MissingInstSig  _ _ _    ) = True
+isError opts (DupUnique       _ _ _    ) = False
+isError opts (MissingUnique   _ _      ) = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -411,6 +413,39 @@ SEM Error
                                                ,"Please supply its type."
                                                ]
                                  act  = wfill ["It is not possible to proceed without this signature."]
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+
+  | MissingUnique   lhs.pp = let mesg  = wfill ["Missing unique counter (chained attribute)"
+                                               , getName @attr
+                                               , "at nonterminal"
+                                               , getName @nt, "."
+                                               ] 
+                                 pat   = "ATTR" >#< getName @nt >#< "[ |" >#< getName @attr >#< " : ... | ]"
+
+                                 help =  wfill ["A unique attribute signature in a constructor for nonterminal" , getName @nt
+                                               , "refers to an unique counter (chained attribute) named "
+                                               , getName @attr
+                                               ,"Maybe you misspelled it?"
+                                               ,"Otherwise either remove the signature or add an appropriate attribute definition."
+                                               ]
+                                 act  = wfill ["It is not possible to proceed without this declaration."]
+                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+
+  | DupUnique       lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more unique-attribute signatures for"
+                                               ,showAttrDef _LOC @attr,"."
+                                               ]  >-<
+                                         wfill ["First signature:", (showPos @attr),"."]
+
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< " : UNIQUEREF ...")
+                                       >-< indent 2 ("|" >#< getName @con >#< ppAttr _LOC @attr >#< " : UNIQUEREF ...")
+
+                                 help =  wfill ["In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", there is more than one unique-attribute signature for the" , showAttrDef _LOC @attr
+                                                       ,". You should remove enough of them to make all unique-signatures for alternative"
+                                                       ,getName @con , "of nonterminal " ,getName  @nt , "unique."
+                                                       ]
+                                 act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
                              in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
 {

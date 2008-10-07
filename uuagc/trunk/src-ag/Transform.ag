@@ -7,7 +7,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Control.Monad(mplus,mzero)
-import List (partition, elem, nub)
+import List (partition, elem, nub,intersperse)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -20,6 +20,7 @@ import AbstractSyntax
 import ErrorMessages
 import Patterns (Patterns(..),Pattern(..))
 import Expression (Expression(..))
+import HsToken
 
 import Options
 import CommonTypes
@@ -59,6 +60,7 @@ SEM AG
                                      @elems.semPragmasCollect
                                      @elems.attrOrderCollect
                                      @elems.ctxCollect
+                                     @loc.checkedUniques
 
 
 -------------------------------------------------------------------------------
@@ -131,14 +133,16 @@ ATTR Elems Elem Attrs
 
 
 -- Attribute definitions
-{type AttrName = (Identifier,Identifier) }
-{type RuleInfo = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
-{type SigInfo  = (Identifier,Type) }
+{type AttrName   = (Identifier,Identifier) }
+{type RuleInfo   = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
+{type SigInfo    = (Identifier,Type) }
+{type UniqueInfo = (Identifier,Identifier) }
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
-     [ | |   collectedRules USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
-             collectedSigs  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, SigInfo) ]}
-             collectedInsts USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
+     [ | |   collectedRules   USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
+             collectedSigs    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, SigInfo) ]}
+             collectedInsts   USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
+             collectedUniques USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
      ]
 
 
@@ -238,18 +242,27 @@ SEM AG
                            in  foldr f (Map.empty) @elems.collectedRules
 
          loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
-                           in  foldr f (Map.empty) @elems.collectedSigs
+                               typeof nt r = Map.findWithDefault (Haskell "<unknown>") r $ fst $ Map.findWithDefault (Map.empty,Map.empty) nt @loc.allAttrDecls
+                           in  foldr f (Map.empty) ( @elems.collectedSigs
+                                                   ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- @elems.collectedUniques, (ident,ref) <- us ]
+                                                   )
          
          loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
                            in  foldr f (Map.empty) @elems.collectedInsts
+         
+         loc.allUniques  = let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
+                           in foldr f (Map.empty) @elems.collectedUniques
 
-         loc.allRulesErrs = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
-         loc.allSigsErrs  = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
-         loc.allInstsErrs = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs              )) @loc.allInsts
+         loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
+         loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs              )) @loc.allInsts
+         loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
 
-         loc.checkedRules = Map.map (Map.map fst) @loc.allRulesErrs
-         loc.checkedSigs  = Map.map (Map.map fst) @loc.allSigsErrs
-         loc.checkedInsts = Map.map (Map.map fst) @loc.allInstsErrs
+         loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
+         loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs
+         loc.checkedInsts    = Map.map (Map.map fst) @loc.allInstsErrs
+         loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
+         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.allAttrDecls)) @loc.checkedUniques)
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
@@ -262,21 +275,25 @@ SEM AG
                            in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
                              -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
 
-         loc.errs4        = let  f m s = Map.fold ((<>) . snd) s m
-                            in Map.fold f Seq.empty @loc.allRulesErrs
+         loc.errs4       = let  f m s = Map.fold ((<>) . snd) s m
+                           in Map.fold f Seq.empty @loc.allRulesErrs
                             
-         loc.errs5        = let  f m s = Map.fold ((<>) . snd) s m
-                            in Map.fold f Seq.empty @loc.allSigsErrs
+         loc.errs5       = let  f m s = Map.fold ((<>) . snd) s m
+                           in Map.fold f Seq.empty @loc.allSigsErrs
          
-         loc.errs6        = let  f m s = Map.fold ((<>) . snd) s m
-                            in Map.fold f Seq.empty @loc.allInstsErrs
+         loc.errs6       = let  f m s = Map.fold ((<>) . snd) s m
+                           in Map.fold f Seq.empty @loc.allInstsErrs
+         
+         loc.errs7       = let  f m s = Map.fold ((<>) . snd) s m
+                           in Map.fold f Seq.empty @loc.allUniquesErrs
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6
+         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6 <> @errs7
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
 type SigsAndErrors  = ([TypeSig], Seq Error)
 type InstsAndErrors = ([(Identifier, Type)], Seq Error)
+type UniquesAndErrors = (Map Identifier Identifier, Seq Error)
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
@@ -345,6 +362,45 @@ checkInsts allNts sigMap nt con
     findSig name
       = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
+
+checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [UniqueInfo] -> UniquesAndErrors
+checkUniques allAttrs nt con uniques
+  = let checkUnique (ident,ref) (us,errs)
+          = if ident `Map.member` us
+            then (us, Seq.cons (DupUnique nt con ident) errs)
+            else if Map.member ref inhs && Map.member ref syns
+                 then (Map.insert ident ref us, errs)
+                 else (us, Seq.cons (MissingUnique nt ref) errs)
+
+        (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
+    in foldr checkUnique (Map.empty, Seq.empty) uniques
+}
+
+
+{
+mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
+mkUniqueRules opts allFields allAttrDecls nt con usMap
+  = map apply groups
+  where
+    fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allFields)
+
+    groups = Map.assocs $ Map.foldWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
+    apply (ref,us) = mkRule ref (findOutField ref) us
+    findOutField ref = case [ chld | (chld,NT tp _) <- fields, tp `hasSyn` ref] of
+                         []    -> _LHS
+                         (x:_) -> x
+    hasSyn tp ref = Map.member ref $ snd $ Map.findWithDefault (Map.empty,Map.empty) tp allAttrDecls
+    mkRule ref outFld locAttrs
+      = let pat = Product noPos (attr outFld ref : [attr _LOC u | u <- locAttrs ])
+            rhs = Expression noPos $ wrap ref $ foldr gencase (finalout locAttrs) locAttrs
+                     -- [HsToken ("mkUniques" ++ show (length locAttrs) ++ " ") noPos, AGField _LHS ref noPos Nothing]
+        in Rule pat rhs False "-- generated by the unique rule mechanism."
+    attr fld a = Alias fld a (Underscore noPos) []
+    gencase nm outp
+      = h ("case " ++ uniqueDispenser opts ++ " __cont of { (__cont, " ++ getName nm ++ ") -> ") ++ outp ++ h "}"
+    h s = [HsToken s noPos]
+    finalout us = h ("(__cont, " ++ concat (intersperse "," (map getName us)) ++ ")")
+    wrap ref inp = h "case " ++ [AGField _LHS ref noPos Nothing] ++ h " of { __cont | __cont `seq` True -> " ++ inp ++ h "}"
 }
 
 
@@ -750,8 +806,9 @@ SEM AG
 -------------------------------------------------------------------------------
 
 
-ATTR SemDef SemDefs [ | | ruleInfos USE {++} {[]} : {[RuleInfo]} 
-                          sigInfos  USE {++} {[]} : {[SigInfo] } 
+ATTR SemDef SemDefs [ | | ruleInfos   USE {++} {[]} : {[RuleInfo]} 
+                          sigInfos    USE {++} {[]} : {[SigInfo]} 
+                          uniqueInfos USE {++} {[]} : {[UniqueInfo]}
                     ]
 
 
@@ -786,6 +843,12 @@ SEM SemAlt
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
+           
+           lhs.collectedUniques
+               =       [ (nt,con,@rules.uniqueInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
 
 
 SEM SemDef
@@ -793,6 +856,9 @@ SEM SemDef
 
 SEM SemDef
   | TypeDef  lhs.sigInfos = [ (@ident, @tp) ]
+
+SEM SemDef
+  | UniqueDef  lhs.uniqueInfos = [ (@ident, @ref) ]
 
 
 ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
@@ -857,9 +923,10 @@ constructGrammar ::    Set NontermIdent
                     -> PragmaMap
                     -> AttrOrderMap
                     -> ContextMap
+                    -> UniqueMap
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -879,7 +946,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                           in Child nm tp inh syn isVirtual
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap
 }
 
 {

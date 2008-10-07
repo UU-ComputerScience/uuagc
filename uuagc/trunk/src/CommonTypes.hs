@@ -58,6 +58,7 @@ type AttrNames   = [(Identifier,Type,(String,String,String))]
 type UseMap      = Map NontermIdent (Map Identifier (String,String,String))
 type PragmaMap   = Map NontermIdent (Map ConstructorIdent (Set Identifier))
 type AttrMap     = Map NontermIdent (Map ConstructorIdent (Set (Identifier,Identifier)))
+type UniqueMap   = Map NontermIdent (Map ConstructorIdent (Map Identifier Identifier))
 type Fields      = [(Identifier,Type)]
 type Derivings   = Map NontermIdent (Set Identifier)
 type ClassContext = [(Identifier, [String])]
