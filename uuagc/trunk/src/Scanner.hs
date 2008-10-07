@@ -114,7 +114,7 @@ ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
 keywords = [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "loc","lhs", "inst", "INCLUDE"
            , "SET","DERIVING","FOR", "WRAPPER", "MAYBE", "EITHER", "MAP", "INTMAP"
-           , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH"
+           , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF"
            ]
 
 ncomment c p ('-':'}':xs) = advc' 2 p c  xs

@@ -82,6 +82,8 @@ DATA SemDef    | Def    pattern: Pattern
                         owrt   : {Bool}
                | TypeDef ident : {Identifier}
                          tp    : Type
+               | UniqueDef ident : {Identifier}
+                           ref   : {Identifier}
                | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {[(Identifier,Identifier)]}
                                   after  : {[(Identifier,Identifier)]}

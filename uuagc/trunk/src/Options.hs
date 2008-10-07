@@ -52,6 +52,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["genvisage"] (NoArg genVisageOpt)  "Generate output for the AG visualizer Visage"
                , Option []        ["genattrlist"] (NoArg genAttrListOpt) "Generate a list of all explicitly defined attributes (outside irrefutable patterns)"
                , Option []        ["forceirrefutable"] (OptArg forceIrrefutableOpt "file") "Force a set of explicitly defined attributes to be irrefutable, specify file containing the attribute set"
+               , Option []        ["uniquedispenser"] (ReqArg uniqueDispenserOpt "name") "The Haskell function to call in the generated code"
                ]
 
 allc = "dcfsprm"
@@ -102,6 +103,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genvisage :: Bool
                       , genAttributeList :: Bool
                       , forceIrrefutables :: Maybe String
+                      , uniqueDispenser :: String
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -149,6 +151,7 @@ noOptions = Options { moduleName    = NoName
                     , genvisage      = False
                     , genAttributeList = False
                     , forceIrrefutables = Nothing
+                    , uniqueDispenser = "nextUnique"
                     }
 
 
@@ -196,6 +199,7 @@ genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
 genAttrListOpt opts = opts { genAttributeList = True }
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
+uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

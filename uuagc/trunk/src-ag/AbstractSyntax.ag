@@ -8,15 +8,16 @@ import Expression  (Expression(..))
 import CommonTypes
 }
 
-DATA Grammar      | Grammar typeSyns : {TypeSyns}
-                            useMap   : {UseMap}
-                            derivings: {Derivings}
-                            wrappers : {Set NontermIdent}
-                            nonts    : Nonterminals
-                            pragmas  : {PragmaMap}     -- pragmas defined at a certain alternative
+DATA Grammar      | Grammar typeSyns  : {TypeSyns}
+                            useMap    : {UseMap}
+                            derivings : {Derivings}
+                            wrappers  : {Set NontermIdent}
+                            nonts     : Nonterminals
+                            pragmas   : {PragmaMap}     -- pragmas defined at a certain alternative
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
-                            paramMap : {ParamMap}
+                            paramMap   : {ParamMap}
                             contextMap : {ContextMap}
+                            uniqueMap  : {UniqueMap}
 
 TYPE Nonterminals = [Nonterminal]
 
