@@ -599,6 +599,14 @@ ATTR AG Elem Elems [ | | pragmas USE {.} {id} :{Options -> Options}]
 
 SEM Elem
   | Pragma  lhs.pragmas = let mk n o = case getName n of
+                                         "gencatas"     -> o { folds       = True  }
+                                         "nogencatas"   -> o { folds       = False }
+                                         "gendatas"     -> o { dataTypes   = True  }
+                                         "nogendatas"   -> o { dataTypes   = False }
+                                         "gensems"      -> o { semfuns     = True  }
+                                         "nogensems"    -> o { semfuns     = False }
+                                         "gentypesigs"  -> o { typeSigs    = True  }
+                                         "nogentypesigs"-> o { typeSigs    = False }
                                          "nocycle"      -> o { withCycle   = False }
                                          "cycle"        -> o { withCycle   = True  }
                                          "nostrictdata" -> o { strictData  = False }
