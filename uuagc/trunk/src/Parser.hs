@@ -215,6 +215,20 @@ pAttrs = Attrs <$> pOBrackPos <*> (concat <$> pList pInhAttrNames <?> "inherited
                               <* pBar    <*> (concat <$> pList pAttrNames <?> "chained attribute declarations"  )
                               <* pBar    <*> (concat <$> pList pAttrNames <?> "synthesised attribute declarations"  )
                <*  pCBrack
+       <|> (\ds -> Attrs (fst $ head ds) [n | (_,Left nms) <- ds, n <- nms] [] [n | (_,Right nms) <- ds, n <- nms]) <$> pList1 pSingleAttrDefs
+
+pSingleAttrDefs :: AGParser (Pos, Either AttrNames AttrNames)
+pSingleAttrDefs
+  =    (\p is -> (p, Left is))  <$> pINH <*> pList1Sep pComma pSingleInhAttrDef
+  <|>  (\p is -> (p, Right is)) <$> pSYN <*> pList1Sep pComma pSingleSynAttrDef
+
+pSingleInhAttrDef :: AGParser (Identifier,Type,(String,String,String))
+pSingleInhAttrDef
+  = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pColon <*> pType <?> "inh attribute declaration"
+
+pSingleSynAttrDef :: AGParser (Identifier,Type,(String,String,String))
+pSingleSynAttrDef
+  = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pColon <*> pType <?> "syn attribute declaration"
 
 pOptAttrs :: AGParser Attrs
 pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
@@ -380,7 +394,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -394,6 +408,8 @@ pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
 pSEM         = pCostReserved 90 "SEM"     <?> "SEM"
 pINCLUDE     = pCostReserved 90 "INCLUDE" <?> "INCLUDE"
 pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
+pINH         = pCostReserved 90 "INH"     <?> "INH"
+pSYN         = pCostReserved 90 "SYN"     <?> "SYN"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
