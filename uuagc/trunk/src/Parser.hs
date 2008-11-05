@@ -141,13 +141,13 @@ pNames = pList1 pIdentifier
 pElems :: Options -> AGParser Elems
 pElems opts = pList_ng (pElem opts)
 
-pComplexType =  List   <$> pBracks pTypeEncapsulated 
+pComplexType opts =  List   <$> pBracks pTypeEncapsulated 
             <|> Maybe  <$ pMAYBE <*> pType
             <|> Either <$ pEITHER <*> pType <*> pType
             <|> Map    <$ pMAP <*> pTypePrimitive <*> pType
             <|> IntMap <$ pINTMAP <*> pType
             <|> tuple  <$> pParens (pListSep pComma field)
- where field = (,) <$> ((Just <$> pIdentifier <* pColon) `opt` Nothing) <*> pTypeEncapsulated
+ where field = (,) <$> ((Just <$> pIdentifier <* pTypeColon opts) `opt` Nothing) <*> pTypeEncapsulated
        tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
                         | (n,(f,t)) <- zip [1..] xs
                         ]
@@ -157,23 +157,23 @@ pElem opts
               <*> pOptClassContext
               <*> pNontSet
               <*> pList pIdentifier
-              <*> pOptAttrs
-              <*> pAlts
+              <*> pOptAttrs opts
+              <*> pAlts opts
              <*> pSucceed False
      <|> Attr <$> pATTR
               <*> pOptClassContext
               <*> pNontSet
-              <*> pAttrs
+              <*> pAttrs opts
      <|> Type <$> pTYPE
               <*> pOptClassContext
               <*> pIdentifierU
               <*> pList pIdentifier
               <*  pEquals
-              <*> pComplexType
+              <*> pComplexType opts
      <|> Sem  <$> pSEM
               <*> pOptClassContext
               <*> pNontSet
-              <*> pOptAttrs
+              <*> pOptAttrs opts
               <*> pSemAlts opts
      <|> Set  <$> pSET
               <*> pIdentifierU
@@ -213,28 +213,29 @@ pClassContext :: AGParser ClassContext
 pClassContext
   = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
 
-pAttrs :: AGParser Attrs
-pAttrs = Attrs <$> pOBrackPos <*> (concat <$> pList pInhAttrNames <?> "inherited attribute declarations")
-                              <* pBar    <*> (concat <$> pList pAttrNames <?> "chained attribute declarations"  )
-                              <* pBar    <*> (concat <$> pList pAttrNames <?> "synthesised attribute declarations"  )
+pAttrs :: Options -> AGParser Attrs
+pAttrs opts
+    = Attrs <$> pOBrackPos <*> (concat <$> pList (pInhAttrNames opts) <?> "inherited attribute declarations")
+                              <* pBar    <*> (concat <$> pList (pAttrNames opts) <?> "chained attribute declarations"  )
+                              <* pBar    <*> (concat <$> pList (pAttrNames opts) <?> "synthesised attribute declarations"  )
                <*  pCBrack
-       <|> (\ds -> Attrs (fst $ head ds) [n | (_,Left nms) <- ds, n <- nms] [] [n | (_,Right nms) <- ds, n <- nms]) <$> pList1 pSingleAttrDefs
+       <|> (\ds -> Attrs (fst $ head ds) [n | (_,Left nms) <- ds, n <- nms] [] [n | (_,Right nms) <- ds, n <- nms]) <$> pList1 (pSingleAttrDefs opts)
 
-pSingleAttrDefs :: AGParser (Pos, Either AttrNames AttrNames)
-pSingleAttrDefs
-  =    (\p is -> (p, Left is))  <$> pINH <*> pList1Sep pComma pSingleInhAttrDef
-  <|>  (\p is -> (p, Right is)) <$> pSYN <*> pList1Sep pComma pSingleSynAttrDef
+pSingleAttrDefs :: Options -> AGParser (Pos, Either AttrNames AttrNames)
+pSingleAttrDefs opts
+  =    (\p is -> (p, Left is))  <$> pINH <*> pList1Sep pComma (pSingleInhAttrDef opts)
+  <|>  (\p is -> (p, Right is)) <$> pSYN <*> pList1Sep pComma (pSingleSynAttrDef opts)
 
-pSingleInhAttrDef :: AGParser (Identifier,Type,(String,String,String))
-pSingleInhAttrDef
-  = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pColon <*> pType <?> "inh attribute declaration"
+pSingleInhAttrDef :: Options -> AGParser (Identifier,Type,(String,String,String))
+pSingleInhAttrDef opts
+  = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon opts <*> pType <?> "inh attribute declaration"
 
-pSingleSynAttrDef :: AGParser (Identifier,Type,(String,String,String))
-pSingleSynAttrDef
-  = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pColon <*> pType <?> "syn attribute declaration"
+pSingleSynAttrDef :: Options -> AGParser (Identifier,Type,(String,String,String))
+pSingleSynAttrDef opts
+  = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pTypeColon opts <*> pType <?> "syn attribute declaration"
 
-pOptAttrs :: AGParser Attrs
-pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
+pOptAttrs :: Options -> AGParser Attrs
+pOptAttrs opts = pAttrs opts `opt` Attrs noPos [] [] []
 
 pTypeNt :: AGParser Type
 pTypeNt
@@ -264,33 +265,36 @@ pType =  pTypeNt
      <|> pTypePrimitive
 
 
-pInhAttrNames :: AGParser AttrNames
-pInhAttrNames   = (\vs tp -> map (\v -> (v,tp,("","",""))) vs)
-                  <$> pIdentifiers <*  pColon <*> pType <?> "attribute declarations"
+pInhAttrNames :: Options -> AGParser AttrNames
+pInhAttrNames opts
+               = (\vs tp -> map (\v -> (v,tp,("","",""))) vs)
+                  <$> pIdentifiers <*  pTypeColon opts <*> pType <?> "attribute declarations"
 
 pIdentifiers :: AGParser [Identifier]
 pIdentifiers =  pList1Sep pComma pIdentifier <?> "lowercase identifiers"
 
 
-pAttrNames :: AGParser AttrNames
-pAttrNames = (\vs use tp -> map (\v -> (v,tp,use)) vs)
-             <$> pIdentifiers <*> pUse <* pColon <*> pType <?> "attribute declarations"
+pAttrNames :: Options -> AGParser AttrNames
+pAttrNames opts 
+         = (\vs use tp -> map (\v -> (v,tp,use)) vs)
+             <$> pIdentifiers <*> pUse <* pTypeColon opts <*> pType <?> "attribute declarations"
 
 pUse :: AGParser (String,String,String)
 pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap')` opt` ("","","") <?> "USE declaration"
 
-pAlt :: AGParser Alt
-pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
+pAlt :: Options -> AGParser Alt
+pAlt opts =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields opts <?> "a datatype alternative"
 
-pAlts :: AGParser Alts
-pAlts =  pList_ng pAlt <?> "datatype alternatives"
+pAlts :: Options -> AGParser Alts
+pAlts opts =  pList_ng (pAlt opts) <?> "datatype alternatives"
 
-pFields    :: AGParser Fields
-pFields    = concat <$> pList_ng pField <?> "fields"
+pFields    :: Options -> AGParser Fields
+pFields opts = concat <$> pList_ng (pField opts) <?> "fields"
 
-pField     :: AGParser Fields
-pField     =  (\nms tp -> map (flip (,) tp) nms)
-           <$> pIdentifiers <* pColon <*> pType
+pField     :: Options -> AGParser Fields
+pField opts
+        =  (\nms tp -> map (flip (,) tp) nms)
+           <$> pIdentifiers <* pTypeColon opts <*> pType
            <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s [])]) <$> pIdentifierU
 
 mklower :: String -> String
@@ -324,8 +328,8 @@ pFieldIdentifier =  pIdentifier
 pSemDef :: Options -> AGParser [SemDef]
 pSemDef opts
       =   (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 (pAttrDef opts)
-      <|>                            pLOC              *> pList1 pLocDecl
-      <|>                            pINST             *> pList1 pInstDecl
+      <|>                            pLOC              *> pList1 (pLocDecl opts)
+      <|>                            pINST             *> pList1 (pInstDecl opts)
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
       <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr opts
@@ -345,16 +349,16 @@ nl2sp '\n' = ' '
 nl2sp '\r' = ' '
 nl2sp x = x
 
-pLocDecl :: AGParser SemDef
-pLocDecl = pDot <**> (pIdentifier <**> (pColon <**> (   (\tp _ ident _  -> TypeDef ident tp) <$> pLocType
-                                                    <|> (\ref _ ident _ -> UniqueDef ident ref) <$ pUNIQUEREF <*> pIdentifier )))
+pLocDecl :: Options -> AGParser SemDef
+pLocDecl opts = pDot <**> (pIdentifier <**> (pTypeColon opts <**> (   (\tp _ ident _  -> TypeDef ident tp) <$> pLocType
+                                                                  <|> (\ref _ ident _ -> UniqueDef ident ref) <$ pUNIQUEREF <*> pIdentifier )))
 
 pLocType = (Haskell . getName) <$> pIdentifierU
        <|> Haskell <$> pCodescrap'  <?> "a type"
 
-pInstDecl :: AGParser SemDef
-pInstDecl = (\ident tp -> TypeDef ident tp)
-             <$ pDot <*> pIdentifier <* pColon <*> pTypeNt
+pInstDecl :: Options -> AGParser SemDef
+pInstDecl opts = (\ident tp -> TypeDef ident tp)
+                  <$ pDot <*> pIdentifier <* pTypeColon opts <*> pTypeNt
 
 pSemDefs :: Options -> AGParser SemDefs
 pSemDefs opts =  concat <$> pList_ng (pSemDef opts) <?> "attribute rules"
@@ -395,6 +399,13 @@ pCodescrap' = fst <$> pCodescrap
 pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
+pTypeColon :: Options -> AGParser Pos
+pTypeColon opts
+  = if doubleColons opts
+    then pDoubleColon
+    else pColon
+
+
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
@@ -426,6 +437,7 @@ pAt          = pCostReserved 5  "@"       <?> "@"
 pDot         = pCostReserved 5  "."       <?> "."
 pUScore      = pCostReserved 5  "_"       <?> "_"
 pColon       = pCostReserved 5  ":"       <?> ":"
+pDoubleColon = pCostReserved 5  "::"      <?> "::"
 pEquals      = pCostReserved 5  "="       <?> "="
 pColonEquals = pCostReserved 5  ":="      <?> ":="
 pTilde       = pCostReserved 5  "~"       <?> "~"

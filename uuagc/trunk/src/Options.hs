@@ -54,6 +54,8 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["forceirrefutable"] (OptArg forceIrrefutableOpt "file") "Force a set of explicitly defined attributes to be irrefutable, specify file containing the attribute set"
                , Option []        ["uniquedispenser"] (ReqArg uniqueDispenserOpt "name") "The Haskell function to call in the generated code"
                , Option []        ["lckeywords"]      (NoArg lcKeywordsOpt) "Use lowercase keywords (sem, attr) instead of the uppercase ones (SEM, ATTR)"
+               , Option []        ["doublecolons"]    (NoArg doubleColonsOpt) "Use double colons for type signatures instead of single colons"
+               , Option ['H']     ["haskellsyntax"]   (NoArg haskellSyntaxOpt) "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
                ]
 
 allc = "dcfsprm"
@@ -106,6 +108,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , forceIrrefutables :: Maybe String
                       , uniqueDispenser :: String
                       , lcKeywords :: Bool
+                      , doubleColons :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -155,6 +158,7 @@ noOptions = Options { moduleName    = NoName
                     , forceIrrefutables = Nothing
                     , uniqueDispenser = "nextUnique"
                     , lcKeywords      = False
+                    , doubleColons    = False
                     }
 
 
@@ -204,6 +208,8 @@ genAttrListOpt opts = opts { genAttributeList = True }
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
 uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
 lcKeywordsOpt opts = opts { lcKeywords = True }
+doubleColonsOpt opts = opts { doubleColons = True }
+haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
