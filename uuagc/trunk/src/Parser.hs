@@ -1,4 +1,4 @@
-module Parser --(parseAG)
+module Parser
 where
 import Data.Maybe
 import UU.Parsing
@@ -21,6 +21,7 @@ import UU.Scanner.Position
 import UU.Scanner.TokenShow()
 import System.Directory
 import HsTokenScanner
+import Options
 
 
 type AGParser = AnaParser Input  Pair Token Pos
@@ -30,29 +31,29 @@ pIdentifierU = uncurry Ident <$> pConidPos
 pIdentifier   = uncurry Ident <$> pVaridPos
 
 
-parseAG :: [FilePath] -> String -> IO (AG,[Message Token Pos])
-parseAG  searchPath file 
-              = do (es,_,_,mesg) <- parseFile searchPath file
+parseAG :: Options -> [FilePath] -> String -> IO (AG,[Message Token Pos])
+parseAG opts searchPath file 
+              = do (es,_,_,mesg) <- parseFile opts searchPath file
                    return (AG es, mesg)
 
-depsAG :: [FilePath] -> String -> IO ([String], [Message Token Pos])
-depsAG searchPath file
-  = do (_,_,fs,mesgs) <- parseFile searchPath file
+depsAG :: Options -> [FilePath] -> String -> IO ([String], [Message Token Pos])
+depsAG opts searchPath file
+  = do (_,_,fs,mesgs) <- parseFile opts searchPath file
        return (fs, mesgs)
 
-parseFile :: [FilePath] -> String -> IO  ([Elem],[String],[String],[Message Token Pos ])
-parseFile searchPath file 
+parseFile :: Options -> [FilePath] -> String -> IO  ([Elem],[String],[String],[Message Token Pos ])
+parseFile opts searchPath file 
                = do txt <- readFile file
                     let litMode = ".lag" `isSuffixOf` file
                         (files,text) = if litMode then scanLit txt
                                        else ([],txt)
-                        tokens       = input (initPos file) text
+                        tokens       = input opts (initPos file) text
 
-                        steps = parse pElemsFiles tokens
+                        steps = parse (pElemsFiles opts) tokens
                         stop (_,fs,_,_) = null fs
                         cont (es,fs,allfs,msg)
                           = do files <- mapM (resolveFile searchPath) fs
-                               res <- mapM (parseFile searchPath) files
+                               res <- mapM (parseFile opts searchPath) files
                                let (ess,fss,allfss, msgs) = unzip4 res
                                return (es ++ concat ess, concat fss, concat allfss ++ allfs, msg ++ concat msgs)
                     let (Pair (es,fls) _ ,mesg) = evalStepsMessages steps
@@ -89,22 +90,23 @@ loopp pred cont x | pred x = return x
                   | otherwise = do x' <- cont x
                                    loopp pred cont x'
                                   
-pElemsFiles :: AGParser ([Elem],[String])
-pElemsFiles = pFoldr (($),([],[])) pElem'
-   where pElem' =  addElem <$> pElem
+pElemsFiles :: Options -> AGParser ([Elem],[String])
+pElemsFiles opts = pFoldr (($),([],[])) pElem'
+   where pElem' =  addElem <$> pElem opts
                <|> pINCLUDE *> (addInc <$> pStringPos)
          addElem e      (es,fs) = (e:es,   fs)
          addInc  (fn,_) (es,fs) = (  es,fn:fs)
 
-pCodescrapL = (\(ValToken _ str pos) -> (str, pos))<$>
-            parseScrapL  <?> "a code block"
+pCodescrapL opts = (\(ValToken _ str pos) -> (str, pos))<$>
+            parseScrapL opts  <?> "a code block"
 
-parseScrapL :: AGParser Token
-parseScrapL = let p acc =  (\k (Input pos str next) ->
+parseScrapL :: Options -> AGParser Token
+parseScrapL opts
+            = let p acc =  (\k (Input pos str next) ->
                             let (sc,rest) = case next of
                                   Just (t@(ValToken TkTextln _ _), rs) -> (t,rs)
                                   _ -> let (tok,p2,inp2) = codescrapL pos str
-                                       in (tok, input p2 inp2)
+                                       in (tok, input opts p2 inp2)
                                 steps   = k ( rest)
                             in  (val (acc sc)  steps)
                        )
@@ -133,11 +135,11 @@ pNontSet = set0
 pNames :: AGParser [Identifier]
 pNames = pList1 pIdentifier
 
-pAG  :: AGParser AG
-pAG  = AG <$> pElems
+-- pAG  :: Options -> AGParser AG
+-- pAG opts = AG <$> pElems opts
 
-pElems :: AGParser Elems
-pElems = pList_ng pElem
+pElems :: Options -> AGParser Elems
+pElems opts = pList_ng (pElem opts)
 
 pComplexType =  List   <$> pBracks pTypeEncapsulated 
             <|> Maybe  <$ pMAYBE <*> pType
@@ -149,8 +151,9 @@ pComplexType =  List   <$> pBracks pTypeEncapsulated
        tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
                         | (n,(f,t)) <- zip [1..] xs
                         ]
-pElem :: AGParser Elem
-pElem =  Data <$> pDATA
+pElem :: Options -> AGParser Elem
+pElem opts
+      =  Data <$> pDATA
               <*> pOptClassContext
               <*> pNontSet
               <*> pList pIdentifier
@@ -171,7 +174,7 @@ pElem =  Data <$> pDATA
               <*> pOptClassContext
               <*> pNontSet
               <*> pOptAttrs
-              <*> pSemAlts
+              <*> pSemAlts opts
      <|> Set  <$> pSET
               <*> pIdentifierU
               <*  pEquals
@@ -294,9 +297,8 @@ mklower :: String -> String
 mklower (x:xs) = toLower x : xs
 mklower []     = []
 
-pSemAlt :: AGParser SemAlt
-pSemAlt  = SemAlt
-          <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
+pSemAlt :: Options -> AGParser SemAlt
+pSemAlt opts = SemAlt <$> pBar <*> pConstructorSet <*> pSemDefs opts <?> "SEM alternative"
 
 pSimpleConstructorSet :: AGParser ConstructorSet
 pSimpleConstructorSet =  CName <$> pIdentifierU
@@ -310,8 +312,8 @@ pConstructorSet =  pChainl (CDifference <$ pMinus) term2
              <|> CAll  <$  pStar
                
 
-pSemAlts :: AGParser SemAlts
-pSemAlts =  pList pSemAlt <?> "SEM alternatives"
+pSemAlts :: Options -> AGParser SemAlts
+pSemAlts opts =  pList (pSemAlt opts) <?> "SEM alternatives"
 
 pFieldIdentifier :: AGParser Identifier
 pFieldIdentifier =  pIdentifier
@@ -319,19 +321,21 @@ pFieldIdentifier =  pIdentifier
                 <|> Ident "loc"  <$> pLOC
                 <|> Ident "inst" <$> pINST
 
-pSemDef :: AGParser [SemDef]
-pSemDef = (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
+pSemDef :: Options -> AGParser [SemDef]
+pSemDef opts
+      =   (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 (pAttrDef opts)
       <|>                            pLOC              *> pList1 pLocDecl
       <|>                            pINST             *> pList1 pInstDecl
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
       <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
-      <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr
+      <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr opts
  
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
-pAttrDef :: AGParser (Identifier -> SemDef)
-pAttrDef = (\pat owrt exp fld -> Def (pat fld) exp owrt)
-           <$ pDot <*> pattern <*> pAssign <*> pExpr
+pAttrDef :: Options -> AGParser (Identifier -> SemDef)
+pAttrDef opts
+  = (\pat owrt exp fld -> Def (pat fld) exp owrt)
+           <$ pDot <*> pattern <*> pAssign <*> pExpr opts
   where pattern =  pPattern pVar
                <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
 
@@ -352,22 +356,22 @@ pInstDecl :: AGParser SemDef
 pInstDecl = (\ident tp -> TypeDef ident tp)
              <$ pDot <*> pIdentifier <* pColon <*> pTypeNt
 
-pSemDefs :: AGParser SemDefs
-pSemDefs =  concat <$> pList_ng pSemDef  <?> "attribute rules"
+pSemDefs :: Options -> AGParser SemDefs
+pSemDefs opts =  concat <$> pList_ng (pSemDef opts) <?> "attribute rules"
 
 pVar :: AGParser (Identifier -> (Identifier, Identifier))
 pVar = (\att fld -> (fld,att)) <$> pIdentifier
 
  
-pExpr :: AGParser Expression
-pExpr = (\(str,pos) ->  Expression pos (lexTokens pos str)) <$> pCodescrapL <?> "an expression"
+pExpr :: Options -> AGParser Expression
+pExpr opts = (\(str,pos) ->  Expression pos (lexTokens pos str)) <$> pCodescrapL opts <?> "an expression"
 
 pAssign :: AGParser Bool
 pAssign =  False <$ pReserved "="
        <|> True  <$ pReserved ":="
        
-pAttrDefs :: AGParser (Identifier -> [SemDef])
-pAttrDefs = (\fs field -> map ($ field) fs) <$> pList1 pAttrDef  <?> "attribute definitions"
+-- pAttrDefs :: Options -> AGParser (Identifier -> [SemDef])
+-- pAttrDefs opts = (\fs field -> map ($ field) fs) <$> pList1 (pAttrDef opts) <?> "attribute definitions"
 
 pPattern :: AGParser (a -> (Identifier,Identifier)) -> AGParser (a -> Pattern)
 pPattern pvar = pPattern2 where
