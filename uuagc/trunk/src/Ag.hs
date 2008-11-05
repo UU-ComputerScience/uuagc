@@ -55,7 +55,7 @@ main
 
 compile :: Options -> String -> String -> IO ()
 compile flags input output
- = do (output0,parseErrors) <- parseAG (searchPath flags) (inputFile input)
+ = do (output0,parseErrors) <- parseAG flags (searchPath flags) (inputFile input)
       irrefutableMap <- readIrrefutableMap flags
 
       let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
@@ -268,7 +268,7 @@ mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExport
 
 reportDeps :: Options -> [String] -> IO ()
 reportDeps flags files
-  = do results <- mapM (depsAG (searchPath flags)) files
+  = do results <- mapM (depsAG flags (searchPath flags)) files
        let (fs, mesgs) = foldr combine ([],[]) results
        let errs = take (wmaxerrs flags) (map message2error mesgs)
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}

@@ -7,6 +7,7 @@ import Maybe
 import List
 import Char
 import UU.Scanner.GenToken
+import Options
 
 data Input = Input !Pos String (Maybe (Token, Input))  
 
@@ -24,95 +25,107 @@ instance InputState Input Token Pos where
                                     Nothing    -> pos -- end of file
 
 
-input :: Pos -> String -> Input
-input pos inp = Input pos 
+input :: Options -> Pos -> String -> Input
+input opts pos inp = Input pos 
                       inp 
-                      (case scan pos inp of
+                      (case scan opts pos inp of
                              Nothing      -> Nothing
-                             Just (s,p,r) -> Just (s, input p r)
+                             Just (s,p,r) -> Just (s, input opts p r)
                       )
 
 type Lexer s = Pos -> String -> Maybe (s,Pos,String)
 
-scan :: Lexer Token
-scan p []                        = Nothing
-scan p ('-':'-':xs)              = let (com,rest) = span (/= '\n') xs
-                                   in advc' (2+length com) p scan rest
-scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
-scan p ('{'    :xs)              = advc' 1 p codescrap xs
-scan p ('\CR':xs)                = case xs of
-                                    '\LF':ys -> newl' p scanBeginOfLine ys --ms newline
-                                    _        -> newl' p scanBeginOfLine xs --mac newline
-scan p ('\LF':xs)                =  newl' p scanBeginOfLine xs             --unix newline
-scan p (x:xs) | isSpace x        = updPos'  x p scan  xs
-scan p xs = Just (scan' xs)
-  where scan' ('.' :rs)          = (reserved "." p, advc 1 p, rs)
-        scan' ('@' :rs)          = (reserved "@" p, advc 1 p, rs)
-        scan' (',' :rs)          = (reserved "," p, advc 1 p, rs)
-        scan' ('_' :rs)          = (reserved "_" p, advc 1 p, rs)
-        scan' ('~' :rs)          = (reserved "~" p, advc 1 p, rs)
-        scan' ('<' :rs)          = (reserved "<" p, advc 1 p, rs)
-        scan' ('[' :rs)          = (reserved "[" p, advc 1 p, rs)
-        scan' (']' :rs)          = (reserved "]" p, advc 1 p, rs)
-        scan' ('(' :rs)          = (reserved "(" p, advc 1 p, rs)
-        scan' (')' :rs)          = (reserved ")" p, advc 1 p, rs)
---        scan' ('{'    :rs)       = (OBrace      p, advc 1 p, rs)
---        scan' ('}'    :rs)       = (CBrace      p, advc 1 p, rs)
-
-        scan' ('\"' :rs)         = let isOk c = c /= '"' && c /= '\n'
-                                       (str,rest) = span isOk rs
-                                   in if null rest || head rest /= '"'
-                                          then (errToken "unterminated string literal"   p
-                                               , advc (1+length str) p,rest)
-                                          else (valueToken TkString str p, advc (2+length str) p, tail rest)
-
-        scan' ('=' : '>' : rs)   = (reserved "=>" p, advc 2 p, rs)
-        scan' ('=' :rs)          = (reserved "=" p, advc 1 p, rs)
-        scan' (':':'=':rs)       = (reserved ":=" p, advc 2 p, rs)
-
-        scan' (':' :rs)          = (reserved ":" p, advc 1 p, rs)
-        scan' ('|' :rs)          = (reserved "|" p, advc 1 p, rs)
-
-        scan' ('/':'\\':rs)      = (reserved "/\\" p, advc 2 p, rs)
-        scan' ('-':'>' :rs)      = (reserved "->" p, advc 2 p, rs)
-        scan' ('-'     :rs)      = (reserved "-" p, advc 1 p, rs)
-        scan' ('*'     :rs)      = (reserved "*" p, advc 1 p, rs)
-
-        scan' (x:rs) | isLower x = let (var,rest) = ident rs
-                                       str        = (x:var)
-                                       tok | str `elem` keywords = reserved str
-                                           | otherwise           = valueToken TkVarid str
-                                   in (tok p, advc (length var+1) p, rest)
-                     | isUpper x = let (var,rest) = ident rs
-                                       str        = (x:var)
-                                       tok | str `elem` keywords = reserved str 
-                                           | otherwise           = valueToken TkConid str
-                                   in (tok p, advc (length var+1) p,rest)
-                     | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
-
-scanBeginOfLine :: Lexer Token
-scanBeginOfLine p ('{' : '-' : ' ' : 'L' : 'I' : 'N' : 'E' : ' ' : xs)
-  | isOkBegin rs && isOkEnd rs'
-      = scan (advc (8 + length r + 2 + length s + 4) p') (drop 4 rs')
-  | otherwise
-      = Just (errToken ("Invalid LINE pragma: " ++ show r) p, advc 8 p, xs)
+scan :: Options -> Lexer Token
+scan opts
+  = scan
   where
-    (r,rs)   = span isDigit xs
-    (s, rs') = span (/= '"') (drop 2 rs)
-    p' = Pos (read r - 1) (column p) s    -- LINE pragma indicates the line number of the /next/ line!
+    keywords' = if lcKeywords opts
+                then map (map toLower) keywords
+                else keywords
+    mkKeyword s | s `elem` lowercaseKeywords = s
+                | otherwise                  = map toUpper s
+  
+    scan :: Lexer Token
+    scan p []                        = Nothing
+    scan p ('-':'-':xs)              = let (com,rest) = span (/= '\n') xs
+                                       in advc' (2+length com) p scan rest
+    scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
+    scan p ('{'    :xs)              = advc' 1 p codescrap xs
+    scan p ('\CR':xs)                = case xs of
+                                        '\LF':ys -> newl' p scanBeginOfLine ys --ms newline
+                                        _        -> newl' p scanBeginOfLine xs --mac newline
+    scan p ('\LF':xs)                =  newl' p scanBeginOfLine xs             --unix newline
+    scan p (x:xs) | isSpace x        = updPos'  x p scan  xs
+    scan p xs = Just (scan' xs)
+      where scan' ('.' :rs)          = (reserved "." p, advc 1 p, rs)
+            scan' ('@' :rs)          = (reserved "@" p, advc 1 p, rs)
+            scan' (',' :rs)          = (reserved "," p, advc 1 p, rs)
+            scan' ('_' :rs)          = (reserved "_" p, advc 1 p, rs)
+            scan' ('~' :rs)          = (reserved "~" p, advc 1 p, rs)
+            scan' ('<' :rs)          = (reserved "<" p, advc 1 p, rs)
+            scan' ('[' :rs)          = (reserved "[" p, advc 1 p, rs)
+            scan' (']' :rs)          = (reserved "]" p, advc 1 p, rs)
+            scan' ('(' :rs)          = (reserved "(" p, advc 1 p, rs)
+            scan' (')' :rs)          = (reserved ")" p, advc 1 p, rs)
+    --        scan' ('{'    :rs)       = (OBrace      p, advc 1 p, rs)
+    --        scan' ('}'    :rs)       = (CBrace      p, advc 1 p, rs)
     
-    isOkBegin (' ' : '"' : _) = True
-    isOkBegin _               = False
+            scan' ('\"' :rs)         = let isOk c = c /= '"' && c /= '\n'
+                                           (str,rest) = span isOk rs
+                                       in if null rest || head rest /= '"'
+                                              then (errToken "unterminated string literal"   p
+                                                   , advc (1+length str) p,rest)
+                                              else (valueToken TkString str p, advc (2+length str) p, tail rest)
     
-    isOkEnd ('"' : ' ' : '-' : '}' : _) = True
-    isOkEnd _         = False
-scanBeginOfLine p xs
-  = scan p xs
+            scan' ('=' : '>' : rs)   = (reserved "=>" p, advc 2 p, rs)
+            scan' ('=' :rs)          = (reserved "=" p, advc 1 p, rs)
+            scan' (':':'=':rs)       = (reserved ":=" p, advc 2 p, rs)
+    
+            scan' (':' :rs)          = (reserved ":" p, advc 1 p, rs)
+            scan' ('|' :rs)          = (reserved "|" p, advc 1 p, rs)
+    
+            scan' ('/':'\\':rs)      = (reserved "/\\" p, advc 2 p, rs)
+            scan' ('-':'>' :rs)      = (reserved "->" p, advc 2 p, rs)
+            scan' ('-'     :rs)      = (reserved "-" p, advc 1 p, rs)
+            scan' ('*'     :rs)      = (reserved "*" p, advc 1 p, rs)
+    
+            scan' (x:rs) | isLower x = let (var,rest) = ident rs
+                                           str        = (x:var)
+                                           tok | str `elem` keywords' = reserved (mkKeyword str)
+                                               | otherwise            = valueToken TkVarid str
+                                       in (tok p, advc (length var+1) p, rest)
+                         | isUpper x = let (var,rest) = ident rs
+                                           str        = (x:var)
+                                           tok | str `elem` keywords' = reserved (mkKeyword str)
+                                               | otherwise            = valueToken TkConid str
+                                       in (tok p, advc (length var+1) p,rest)
+                         | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
+    
+    scanBeginOfLine :: Lexer Token
+    scanBeginOfLine p ('{' : '-' : ' ' : 'L' : 'I' : 'N' : 'E' : ' ' : xs)
+      | isOkBegin rs && isOkEnd rs'
+          = scan (advc (8 + length r + 2 + length s + 4) p') (drop 4 rs')
+      | otherwise
+          = Just (errToken ("Invalid LINE pragma: " ++ show r) p, advc 8 p, xs)
+      where
+        (r,rs)   = span isDigit xs
+        (s, rs') = span (/= '"') (drop 2 rs)
+        p' = Pos (read r - 1) (column p) s    -- LINE pragma indicates the line number of the /next/ line!
+    
+        isOkBegin (' ' : '"' : _) = True
+        isOkBegin _               = False
+    
+        isOkEnd ('"' : ' ' : '-' : '}' : _) = True
+        isOkEnd _         = False
+    scanBeginOfLine p xs
+      = scan p xs
  
 
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
-keywords = [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "loc","lhs", "inst", "INCLUDE"
+lowercaseKeywords = ["loc","lhs", "inst"]
+keywords = lowercaseKeywords ++
+           [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "SET","DERIVING","FOR", "WRAPPER", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN"
            ]
