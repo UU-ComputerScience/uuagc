@@ -1,0 +1,114 @@
+MODULE {TigerAS} {} {}
+
+imports
+{
+import TigerTypes
+import UU.Scanner.Position
+}
+
+DATA Program | Program expr:Expr
+  
+DATA DeclGroup 
+   | VarDec   pos:Pos 
+              ident:VarIdent 
+              tp:{Maybe TypeIdent} 
+              expr:Expr
+
+   | TypeDecs decs:TypeDecs
+
+   | FunDecs  decs:FunDecs
+   
+DATA TypeDec  
+   | TypeDec pos:Pos 
+             ident:TypeIdent 
+             tp:Type 
+
+DATA FunDec   
+   | FunDec pos:Pos
+            ident:VarIdent 
+   	    argTps:{[TypedVar]} 
+	    retTp:{Maybe TypeIdent} 
+	    body:Expr
+
+TYPE TypeDecs = [TypeDec] 
+TYPE FunDecs  = [FunDec ] 
+
+TYPE AssignFields = [AssignField] 
+TYPE Declarations = [DeclGroup]
+
+TYPE Args  = [Expr]
+
+DATA LValue 
+   | Sub   pos:Pos
+           expr:LValue 
+           index:Expr
+           
+
+   | Dot   pos:Pos 
+           expr:LValue 
+           ident:VarIdent
+
+   | Ident ident:VarIdent
+
+DATA Expr
+   | LValue     lvalue:LValue
+
+   | Apply      ident:VarIdent 
+                args:Args
+
+   | RecordVal  ident:TypeIdent 
+                fields:AssignFields
+
+   | ArrayVal   ident:TypeIdent 
+                size:Expr 
+                init:Expr
+
+   | IntLit     value:Integer 
+                pos:Pos
+
+   | StringLit  value:String 
+                pos:Pos 
+
+   | While      pos:Pos 
+                cond:Expr 
+                body:Expr
+
+   | For        pos:Pos 
+                ident:VarIdent 
+                low:Expr 
+                hi:Expr 
+                body:Expr
+
+   | If         pos:Pos 
+                cond:Expr 
+                thenPart:Expr 
+                elsePart:Expr
+
+   | Let        pos:Pos 
+                decls:Declarations
+                body:Expr
+
+   | Assign     lvalue:LValue
+                pos:Pos 
+                expr:Expr
+
+   | Op         op:String 
+                pos:Pos 
+                left:Expr 
+                right:Expr
+
+   | UnOp       pos:Pos 
+                op:String 
+                expr:Expr
+
+   | Skip
+
+   | Nil        pos:Pos
+
+   | Break      pos:Pos
+
+   | Sequence   left:Expr 
+                right:Expr
+
+DATA AssignField 
+   | AssignField ident:VarIdent expr:Expr
