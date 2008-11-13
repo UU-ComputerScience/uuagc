@@ -1,0 +1,48 @@
+ALEX=@ALEX@
+UUAGC=@UUAGC@
+GHC=@GHC@
+
+all: build
+
+build: dist/build/tiger/tiger
+
+dist/build/tiger/tiger: populate-derived invoke-cabal
+	./setup build
+	echo "./dist/build/tiger/tiger is ready"
+
+populate-derived: ag-derived alex-derived
+ag-derived: derived/TigerAS.hs derived/TigerSem.hs derived/TigerError.hs
+alex-derived: derived/TigerScanner.hs
+
+derived/TigerAS.hs: src/TigerAS.ag
+	$(UUAGC) -md src/TigerAS.ag -o derived/TigerAS.hs
+
+derived/TigerSem.hs: src/TigerAS.ag src/TigerSem.ag
+	$(UUAGC) -mfsc src/TigerSem.ag -o derived/TigerSem.hs
+
+derived/TigerError.hs: src/TigerError.ag
+	$(UUAGC) -mdfsc src/TigerError.ag -o derived/TigerError.hs
+
+derived/TigerScanner.hs: src/TigerScanner.x
+	$(ALEX) -o derived/TigerScanner.hs -g src/TigerScanner.x
+
+invoke-cabal: setup dist/setup-config
+
+setup: tiger.cabal
+	$(GHC) -O2 --make Setup.hs -o setup
+
+dist/setup-config: tiger.cabal
+	./setup configure -g --with-compiler=$(GHC)
+
+clean:
+	rm -rf derived/*
+	./setup clean
+	rm -f setup Setup.hi Setup.o 
+	rm -rf dist
+
+distclean: clean
+	rm -f Makefile config.status config.log ./configure
+	rm -rf autom4te.cache
+
+install: build
+	./setup install
