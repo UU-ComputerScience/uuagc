@@ -1,6 +1,13 @@
 ALEX=@ALEX@
 UUAGC=@UUAGC@
 GHC=@GHC@
+VERSION=1.0
+RM        = @RM@
+RM_F      = $(RM) -f
+MKDIR     = @MKDIR@
+FIND      = @FIND@
+CP        = @CP@
+MV        = @MV@
 
 all: build
 
@@ -46,3 +53,65 @@ distclean: clean
 
 install: build
 	./setup install
+
+
+#
+# distribution (for the time being source only and unix)
+#
+
+DISTTYPE=src
+
+ifeq ($(DISTTYPE),win32)
+        TARCZVF    := zip -r
+        TAREXT     := .zip
+else
+        TARCZVF    := tar cvzf
+        TAREXT     := .tar.gz
+endif
+
+REVISION := $(shell if [ -f svn-revision ]; then cat svn-revision; else echo "unknown"; fi)
+TODAY  := $(shell date '+%Y-%m-%d')
+DLABEL := tiger-$(TODAY)
+VLABEL := tiger-$(VERSION)
+DTLABEL:= tiger-$(TODAY)-$(DISTTYPE)
+VTLABEL:= tiger-$(VERSION)-$(DISTTYPE)
+XLABEL := tiger-$(VERSION)-rev$(REVISION)
+XTLABEL:= tiger-$(VERSION)-rev$(REVISION)-$(DISTTYPE)
+
+SRC_DIR=src
+SRC_DERIVED_DIR=derived
+SRC_AG_DIR=src
+
+dist_makedirs:
+	$(RM_F) -r $(DLABEL)
+	$(RM_F) -r $(VLABEL)
+	$(MKDIR) -p $(DLABEL)
+	$(MKDIR) -p $(DLABEL)/testcases
+	for dir in `$(FIND) $(SRC_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+	for dir in `$(FIND) $(SRC_DERIVED_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+	for dir in `$(FIND) $(SRC_AG_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
+
+dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L)
+	$(CP) -p LICENSE \
+		 Makefile.in \
+		 configure \
+		 configure.ac \
+		 tiger.cabal \
+		 Setup.hs \
+		 $(DLABEL)
+# populate source and scripts
+	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
+	$(CP) -p $(SRC_DERIVED_DIR)/*.hs $(DLABEL)/$(SRC_DERIVED_DIR)
+	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
+	$(CP) -p testcases/*.tig $(DLABEL)/testcases
+
+dist_pack: dist_copy
+	$(TARCZVF) $(DTLABEL)$(TAREXT) $(DLABEL)
+	$(MV) $(DLABEL) $(VLABEL)
+	$(TARCZVF) $(VTLABEL)$(TAREXT) $(VLABEL)
+
+dist: dist_info dist_pack
+
+dist_info:
+	@echo "* Generating distributions..."
+
