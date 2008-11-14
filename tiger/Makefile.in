@@ -1,13 +1,15 @@
 ALEX=@ALEX@
 UUAGC=@UUAGC@
 GHC=@GHC@
-VERSION=1.0
 RM        = @RM@
 RM_F      = $(RM) -f
 MKDIR     = @MKDIR@
 FIND      = @FIND@
 CP        = @CP@
 MV        = @MV@
+GREP      = @GREP@
+# WARNING a brittle way to extract the version number from the cabal file
+VERSION=`$(GREP) ^version tiger.cabal | sed 's/version: //'`
 
 all: build
 
