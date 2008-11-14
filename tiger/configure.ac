@@ -4,6 +4,23 @@ AC_INIT(tiger, 1.0)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CONFIG_SRCDIR([Makefile.in])
 
+# other programs
+AC_PATH_PROG(MV,mv)
+AC_PATH_PROG(CP,cp)
+AC_PATH_PROG(RM,rm)
+AC_PATH_PROG(MKDIR,mkdir)
+AC_PATH_PROG(TOUCH,touch)
+AC_PATH_PROG(DIFF,diff)
+AC_PATH_PROG(FIND,find)
+AC_PATH_PROG(SORT,sort)
+AC_PATH_PROG(UNIQ,uniq)
+AC_PATH_PROG(AR,ar)
+AC_PATH_PROG(RANLIB,ranlib)
+AC_PATH_PROG(LD,ld)
+AC_PATH_PROG(GREP,grep)
+AC_PATH_PROG(CHMOD,chmod)
+AC_PATH_PROG(LHS2TEX,lhs2TeX)
+
 
 dnl find AG compiler
 
