@@ -93,7 +93,7 @@ dist_makedirs:
 	for dir in `$(FIND) $(SRC_DERIVED_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 	for dir in `$(FIND) $(SRC_AG_DIR) -type d -not -path '*/.svn*'`; do $(MKDIR) -p $(DLABEL)/$${dir}; done
 
-dist_copy: dist_makedirs $(SRC_HS_SEM) $(SRC_HS_SEM_L) $(SRC_HS_SYN) $(SRC_HS_SYN_L)
+dist_copy: dist_makedirs ag-derived
 	$(CP) -p LICENSE \
 		 Makefile.in \
 		 configure \
