@@ -103,6 +103,7 @@ dist_copy: dist_makedirs ag-derived
 		 $(DLABEL)
 # populate source and scripts
 	$(CP) -p $(SRC_DIR)/*.hs $(DLABEL)/$(SRC_DIR)
+	$(CP) -p $(SRC_DIR)/*.x $(DLABEL)/$(SRC_DIR)
 	$(CP) -p $(SRC_DERIVED_DIR)/*.hs $(DLABEL)/$(SRC_DERIVED_DIR)
 	$(CP) -p $(SRC_AG_DIR)/*.ag $(DLABEL)/$(SRC_AG_DIR)
 	$(CP) -p testcases/*.tig $(DLABEL)/testcases
