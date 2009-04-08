@@ -1,4 +1,7 @@
+{-# OPTIONS -fglasgow-exts #-}
+
 module Scanner where
+import GHC.Prim
 import TokenDef
 import UU.Scanner.Position
 import UU.Scanner.Token
@@ -19,7 +22,7 @@ instance InputState Input Token Pos where
  splitState (Input _ _ next) = 
                 case next of
                      Nothing         -> error "splitState on empty input"
-                     Just (s, rest)  -> ( s, rest)
+                     Just (s, rest)  -> (# s, rest #)
  getPosition (Input pos _ next) =  case next of 
                                     Just (s,_) -> position s
                                     Nothing    -> pos -- end of file
