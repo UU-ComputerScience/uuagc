@@ -25,10 +25,13 @@ let
     build =
       { tarball ? jobs.tarball {}
       , system ? "i686-linux"
-      , uulib ? (import ../uulib/release.nix {}).build {inherit system;}
+      , uulib_i686 ? (import ../uulib/release.nix {}).build { system = "i686-linux"; }
+      , uulib_x64 ? {}
       }:
 
       with import nixpkgs {inherit system;};
+
+      let uulib = if system == "i686-linux" then uulib_i686 else uulib_x64; in
 
       haskellPackages.cabal.mkDerivation (self: {
         pname = "uuagc";
