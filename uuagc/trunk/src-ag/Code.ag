@@ -4,7 +4,7 @@ import Pretty
 import Patterns
 import Data.List(partition)
 import Data.Set(Set)
-import qualified UU.DData.Set as Set
+import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
 }

@@ -8,7 +8,8 @@ import Data.Maybe
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified UU.DData.Seq as Seq ((<>),toList)
+import qualified Data.Sequence as Seq ((><))
+import Data.Foldable(toList)
 import Pretty
 
 import UU.Parsing                    (Message(..), Action(..))
@@ -82,12 +83,12 @@ compile flags input output
 
           parseErrorList   = map message2error parseErrors
           errorList        = parseErrorList
-                             ++ Seq.toList (      Pass1.errors_Syn_AG       output1
-                                           Seq.<> Pass1a.errors_Syn_Grammar output1a
-                                           Seq.<> Pass2.errors_Syn_Grammar  output2
-                                           Seq.<> Pass3.errors_Syn_Grammar  output3
-                                           Seq.<> Pass4.errors_Syn_CGrammar output4
-                                           )
+                             ++ toList ( Pass1.errors_Syn_AG       output1
+                                         Seq.>< Pass1a.errors_Syn_Grammar output1a
+                                         Seq.>< Pass2.errors_Syn_Grammar  output2
+                                         Seq.>< Pass3.errors_Syn_Grammar  output3
+                                         Seq.>< Pass4.errors_Syn_CGrammar output4
+                                       )
                                            
           fatalErrorList = filter (PrErr.isError flags') errorList
           

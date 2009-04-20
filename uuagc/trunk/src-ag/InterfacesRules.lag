@@ -13,7 +13,8 @@ import SequentialTypes
 import CodeSyntax
 import GrammarInfo
 
-import UU.DData.Seq as Seq
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq)
 import qualified Data.Map as Map
 import Data.Map(Map)
 import qualified Data.Set as Set
@@ -23,6 +24,7 @@ import Data.Graph(Graph, dfs, edges, buildG, transposeG)
 import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,intersect, findIndex)
 import Data.Array ((!),inRange,bounds,assocs)
+import Data.Foldable(toList)
 
 import Debug.Trace(trace)
 }
@@ -66,7 +68,7 @@ use |topSort'|.
 \begin{Code}
 ATTR IRoot [ tdp : Graph | | ]
 SEM  IRoot 
-  |  IRoot loc.newedges = Seq.toList @inters.newedges
+  |  IRoot loc.newedges = toList @inters.newedges
            loc.visitssGraph =  let graph = buildG (0,@inters.v-1) es
                                    es = @newedges ++ edges @lhs.tdp
                                in transposeG graph
@@ -124,8 +126,8 @@ ATTR  Interfaces Interface Segments Segment
 SEM  IRoot
   |  IRoot  inters.visitDescr = Map.fromList @descr
 ATTR  Interfaces Interface Segments Segment
-      [ | |  newedges USE {Seq.<>} {Seq.empty} : {Seq Edge } 
-             descr USE {Seq.<>} {Seq.empty} : {Seq (Vertex,ChildVisit)} ]
+      [ | |  newedges USE {Seq.><} {Seq.empty} : {Seq Edge } 
+             descr USE {Seq.><} {Seq.empty} : {Seq (Vertex,ChildVisit)} ]
 SEM  Segment
   |  Segment lhs.descr =  Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {-$-}
 
@@ -142,7 +144,7 @@ cv look n v (inh,syn) =  let  fld = getField (look (head syn))
 
 \begin{Code}
 SEM  IRoot
-  |  IRoot loc.descr = Seq.toList @inters.descr
+  |  IRoot loc.descr = toList @inters.descr
 \end{Code}
 
 The edges between attributes occurrences and their corresponding
@@ -170,7 +172,7 @@ SEM  Segments
 
 SEM  Segment
   |  Segment  loc.visitedges = zip @newvertices @lhs.nextNewvertices
-              lhs.newedges = Seq.fromList @attredges Seq.<> Seq.fromList @visitedges
+              lhs.newedges = Seq.fromList @attredges Seq.>< Seq.fromList @visitedges
 \end{Code}
 
 The first visit to a child is passed to the first visit of the parent,
@@ -187,12 +189,12 @@ SEM  Interface
                 lhs.v = @loc.v
                 loc.firstvisitvertices = [@seg.v .. @v-1]
                 loc.newedges = zip @firstvisitvertices @seg.newvertices
-                lhs.newedges = @seg.newedges Seq.<> Seq.fromList @newedges
+                lhs.newedges = @seg.newedges Seq.>< Seq.fromList @newedges
                 
                 loc.look : {Vertex -> CRule}
                 loc.look = \a -> ruleTable @lhs.info ! a
                 loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
-                lhs.descr = @seg.descr Seq.<> Seq.fromList @descr
+                lhs.descr = @seg.descr Seq.>< Seq.fromList @descr
 \end{Code}
 
 The visit number can simply be counted
@@ -432,12 +434,12 @@ To find a type-3 cycle we need to know the dependencies that the
 interfaces generate.
 
 \begin{Code}
-ATTR Interfaces Interface Segments Segment [ | | edp USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+ATTR Interfaces Interface Segments Segment [ | | edp USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM  Segment
   |  Segment lhs.edp =  Seq.fromList [(i,s) | i <- @inh, s <- @syn]
-                        Seq.<> Seq.fromList [(s,i) | s <- @syn, i <- @lhs.nextInh ]
+                        Seq.>< Seq.fromList [(s,i) | s <- @syn, i <- @lhs.nextInh ]
 SEM  IRoot [ | | edp : {[Edge]} ]
-  |  IRoot  lhs.edp = Seq.toList @inters.edp
+  |  IRoot  lhs.edp = toList @inters.edp
 SEM  Segment  [ nextInh : {[Vertex]} | | inh : {[Vertex]} ]
   |  Segment lhs.inh = @inh
 SEM  Segments [ | | firstInh : {[Vertex]} ]

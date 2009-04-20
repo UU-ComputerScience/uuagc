@@ -21,8 +21,8 @@ import qualified Data.Map as Map
 import Data.Map(Map) 
 import qualified Data.Set as Set
 import Data.Set(Set) 
-import qualified UU.DData.Seq as Seq
-import UU.DData.Seq(Seq)
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq)
 import UU.Scanner.Position
 import TokenDef
 import HsToken
@@ -716,7 +716,7 @@ SEM CGrammar
 ATTR CNonterminals CNonterminal
      CProductions CProduction
      CVisits CVisit
-     Sequence CRule [ | errors USE {Seq.<>} {Seq.empty} : {Seq Error} | ]
+     Sequence CRule [ | errors USE {Seq.><} {Seq.empty} : {Seq Error} | ]
 SEM  CGrammar [ | | errors : {Seq Error} ]
   |  CGrammar nonts.errors = Seq.empty 
 SEM  CVisit
@@ -724,7 +724,7 @@ SEM  CVisit
 SEM  CRule
   |  CRule lhs.errors = let nameOf (Alias _ _ _ pats@(_:_)) = Ident (show (map (\(Alias _ a _ _)->a) pats)) (getPos @name)
                             nameOf _ = @name
-                        in  maybe (Seq.single (MissingTypeSig @lhs.nt @lhs.con (nameOf @pattern.copy))) (const Seq.empty) @tp
+                        in  maybe (Seq.singleton (MissingTypeSig @lhs.nt @lhs.con (nameOf @pattern.copy))) (const Seq.empty) @tp
 
 -------------------------------------------------------------------------------
 -- Provide a description of the interfaces as comments

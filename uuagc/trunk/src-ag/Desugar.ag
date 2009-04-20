@@ -14,8 +14,8 @@ imports
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import Data.Map(Map)
-import qualified UU.DData.Seq as Seq
-import UU.DData.Seq(Seq,(<>))
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq,(><))
 import UU.Scanner.Position(Pos(..))
 import Maybe
 import Data.List(intersperse)
@@ -33,7 +33,7 @@ WRAPPER HsTokensRoot
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression [ options:{Options} | | ]
 
-ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.<>} {Seq.empty} : {Seq Error} ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
 
@@ -77,7 +77,7 @@ SEM HsToken
       loc.mField = findField @field @attr @lhs.childSyns
       
       loc.field' = maybe @field id @loc.mField
-      lhs.errors = maybe (Seq.single (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)) False)) (const Seq.empty) @loc.mField
+      lhs.errors = maybe (Seq.singleton (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)) False)) (const Seq.empty) @loc.mField
       
       lhs.addLines = if @lhs.useFieldIdent || length (getName @field) < length (getName @loc.field')
                      then @lhs.addLines + 1
@@ -110,9 +110,9 @@ SEM Pattern
       loc.err2 = if @loc.field' == @field
                  then Seq.empty
                  else if (@loc.field', @attr) `Set.member` @lhs.defs
-                      then Seq.single $ DupRule @lhs.nt @lhs.con @field @attr @loc.field'
+                      then Seq.singleton $ DupRule @lhs.nt @lhs.con @field @attr @loc.field'
                       else Seq.empty
-      lhs.errors = @loc.err1 Seq.<> @loc.err2 Seq.<> @pat.errors <> @parts.errors
+      lhs.errors = @loc.err1 Seq.>< @loc.err2 Seq.>< @pat.errors Seq.>< @parts.errors
       loc.output = Alias @loc.field' @attr @pat.output @parts.output
 
 
@@ -131,7 +131,7 @@ SEM Child
 {
 maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
 maybeError def err mb
-  = maybe (def, Seq.single err) (\r -> (r, Seq.empty)) mb
+  = maybe (def, Seq.singleton err) (\r -> (r, Seq.empty)) mb
 
 findField :: Identifier -> Identifier -> [(Identifier,Identifier)] -> Maybe Identifier
 findField fld attr list

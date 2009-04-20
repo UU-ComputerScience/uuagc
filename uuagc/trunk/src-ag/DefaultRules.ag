@@ -13,8 +13,8 @@ import qualified List (delete,intersperse)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import Data.Map(Map)
-import qualified UU.DData.Seq as Seq
-import UU.DData.Seq(Seq,(<>))
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq,(><))
 import UU.Scanner.Position(noPos)
 import Pretty
 import Maybe
@@ -83,7 +83,7 @@ getConName typeSyns rename nt con1
 
 
 
-concatSeq = foldr Seq.append Seq.empty
+concatSeq = foldr (Seq.><) Seq.empty
 
 splitAttrs :: Map Identifier a -> [Identifier] -> ([(Identifier,a)],[Identifier])	  -- a used as (String,String)
 splitAttrs _      []           
@@ -111,7 +111,7 @@ removeDefined defined (fld,as)
 
 ATTR Grammar Nonterminals Nonterminal Productions Production
      Child Children Rule Rules Pattern Patterns 
-     [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
+     [ | | errors USE {Seq.><} {Seq.empty}:{Seq Error} ]
 
 -------------------------------------------------------------------------------
 -- Set of all defined nonterminals
@@ -278,11 +278,11 @@ copyRule nt con modcopy locals (env,(fld,as))
               (expr,err) 
                = case sel of
                   Nothing         -> ( missingRuleErrorExpr nt con fld a
-                                     , Seq.single (MissingRule nt con fld a)
+                                     , Seq.singleton (MissingRule nt con fld a)
                                      )
                   Just f 
                    | f == _ACHILD -> ( fieldName a
-                                     , Seq.single (deprecatedCopyRuleError nt con fld a)
+                                     , Seq.singleton (deprecatedCopyRuleError nt con fld a)
                                      )
                    | otherwise    -> ( attrName f a
                                      , Seq.empty
@@ -291,11 +291,11 @@ copyRule nt con modcopy locals (env,(fld,as))
               (tks,err')
                = case sel of
                   Nothing         -> ( [HsToken (missingRuleErrorExpr nt con fld a) noPos]
-                                     , Seq.single (MissingRule nt con fld a)
+                                     , Seq.singleton (MissingRule nt con fld a)
                                      )
                   Just f 
                    | f == _ACHILD -> ( [AGLocal a noPos Nothing]
-                                     , Seq.single (deprecatedCopyRuleError nt con fld a)
+                                     , Seq.singleton (deprecatedCopyRuleError nt con fld a)
                                      )
                    | otherwise    -> ( [AGField f a noPos Nothing]
                                      , Seq.empty
@@ -322,7 +322,7 @@ copyRule nt con modcopy locals (env,(fld,as))
 SEM Production
  | Production 
 
-   lhs.errors = @children.errors <> @errs <> @rules.errors <> @loc.orderErrs
+   lhs.errors = @children.errors >< @errs >< @rules.errors >< @loc.orderErrs
 
    loc.(newRls, errs) 
    =
@@ -391,7 +391,7 @@ SEM Production
                      locals 
                      (lhs_env, (_LHS, others))
                                      
-    in (uRules++selfLocRules++selfRules++rules5++rules1, errors1<>errs5)   
+    in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)   
     
     
    
