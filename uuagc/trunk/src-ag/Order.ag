@@ -26,12 +26,13 @@ import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_
 -- From uulib
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified UU.DData.Seq as Seq
+import qualified Data.Sequence as Seq
 import Data.Map(Map) 
 import Data.Set(Set)
-import UU.DData.Seq(Seq, (<>)) 
+import Data.Sequence(Seq, (><))
 import UU.Util.Utils
 import UU.Scanner.Position(Pos(..),initPos)
+import Data.Foldable(toList)
 
 -- From haskell libraries
 import Control.Monad(liftM)
@@ -60,7 +61,7 @@ findWithErr2 k m
 -- stream of errors
 
 ATTR Nonterminals Nonterminal Productions Production
-     Child Children Rule Rules Pattern Patterns Grammar [ | | errors USE {Seq.<>} {Seq.empty}:{Seq Error} ]
+     Child Children Rule Rules Pattern Patterns Grammar [ | | errors USE {Seq.><} {Seq.empty}:{Seq Error} ]
 
 -------------------------------------------------------------------------------
 --         Distributing name of nonterminal and names of attributes
@@ -168,28 +169,28 @@ SEM  Production
 
 -- Information passed to Pattern
 ATTR  Children Child 
-      [  | |  nts USE {Seq.<>} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
-              inhs USE {Seq.<>} {Seq.empty} : {Seq (Identifier,Attributes)} ]
+      [  | |  nts USE {Seq.><} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
+              inhs USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)} ]
 SEM  Child
-  |  Child  lhs.nts = Seq.single (@name,getNtName @tp)
-            lhs.inhs = Seq.single (@name,@inh)
+  |  Child  lhs.nts = Seq.singleton (@name,getNtName @tp)
+            lhs.inhs = Seq.singleton (@name,@inh)
 ATTR  Rules Rule
       [  childNts : {Map Identifier NontermIdent} 
          childInhs : {Map Identifier Attributes} | | ]
 SEM  Production
-  |  Production  rules.childNts = Map.fromList (Seq.toList @children.nts)
-                  rules.childInhs = Map.fromList (Seq.toList @children.inhs)
+  |  Production  rules.childNts = Map.fromList (toList @children.nts)
+                  rules.childInhs = Map.fromList (toList @children.inhs)
 
 -- Collect CRules
 ATTR  Children Child Rules Rule
-      [ | | gathRules USE {Seq.<>} {Seq.empty} : {Seq CRule} ]
+      [ | | gathRules USE {Seq.><} {Seq.empty} : {Seq CRule} ]
 SEM  Production
   |  Production  loc.inhRules = [ cRuleLhsInh inh @lhs.nt @con tp | (inh,tp) <- Map.assocs @lhs.inh ]
-                  loc.gathRules = @inhRules ++ Seq.toList (@children.gathRules Seq.<> @rules.gathRules)
+                  loc.gathRules = @inhRules ++ toList (@children.gathRules Seq.>< @rules.gathRules)
 
 SEM  Child
   |  Child  loc.gathRules = if  @maptolocal
-                                then Seq.single (cRuleTerminal @name @lhs.nt @lhs.con @tp)
+                                then Seq.singleton (cRuleTerminal @name @lhs.nt @lhs.con @tp)
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
 SEM  Rule
@@ -235,7 +236,7 @@ SEM  Pattern
 -- Giving them a number
 ATTR  Nonterminals Nonterminal Productions Production
       [  | vcount : Int 
-         | rules USE {Seq.<>} {Seq.empty} : {Seq (Vertex,CRule)}]
+         | rules USE {Seq.><} {Seq.empty} : {Seq (Vertex,CRule)}]
 SEM  Grammar
   |  Grammar  nonts.vcount = 0
 SEM  Production
@@ -245,7 +246,7 @@ SEM  Production
 -- Direct dependencies
 ATTR Nonterminals Nonterminal 
      Productions Production 
-     Rules Rule [ | | directDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+     Rules Rule [ | | directDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM  Rule
   |  Rule  lhs.directDep
              = let  defined = Map.keys @defines
@@ -259,7 +260,7 @@ SEM  Rule
 -- the edge (vertex(f1.a1), vertex(f2.a2))
 ATTR Nonterminals Nonterminal
      Productions Production
-     Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+     Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM Grammar
   | Grammar
       nonts.manualAttrDepMap = @manualAttrOrderMap
@@ -292,7 +293,7 @@ lookupVertices fld nm attrs
 
 ATTR Nonterminals Nonterminal 
      Productions Production 
-     Rules Rule [ | | instDep USE {Seq.<>} {Seq.empty} : {Seq Edge} ]
+     Rules Rule [ | | instDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM Rule
   | Rule
       lhs.instDep
@@ -361,8 +362,8 @@ SEM Expression
 -- NT-Attributes
 -------------------------------------
 ATTR  Nonterminals Nonterminal 
-      [ | acount : Int |  ntattrs USE {Seq.<>} {Seq.empty} : {Seq (Vertex,NTAttr)} 
-                          aranges  USE {Seq.<>} {Seq.empty} : {Seq (Int,Int,Int)}]
+      [ | acount : Int |  ntattrs USE {Seq.><} {Seq.empty} : {Seq (Vertex,NTAttr)} 
+                          aranges  USE {Seq.><} {Seq.empty} : {Seq (Int,Int,Int)}]
 
 SEM Grammar
   | Grammar nonts.acount = 0
@@ -372,7 +373,7 @@ SEM Nonterminal
                                ++ [NTASyn @nt syn tp | (syn,tp) <- Map.assocs @syn ]
                 lhs.ntattrs = Seq.fromList (zip [@lhs.acount ..] @ntattrs)
                 lhs.acount  = @lhs.acount + Map.size @inh + Map.size @syn
-                lhs.aranges =  Seq.single
+                lhs.aranges =  Seq.singleton
                                 (@lhs.acount
                                 ,@lhs.acount + Map.size @inh
                                 ,@lhs.acount + Map.size @syn + Map.size @inh - 1)
@@ -403,24 +404,24 @@ SEM  Production
 -- Invoking sequential computation
 ------------------------------------------------------------------
 SEM Grammar
-  | Grammar loc.ruleTable = Array.array (0,@nonts.vcount-1) (Seq.toList @nonts.rules)
-            loc.attrTable = Array.array (0,@nonts.acount-1) (Seq.toList @nonts.ntattrs)
-            loc.attrVertex = Map.fromList (map swap (Seq.toList @nonts.ntattrs))
+  | Grammar loc.ruleTable = Array.array (0,@nonts.vcount-1) (toList @nonts.rules)
+            loc.attrTable = Array.array (0,@nonts.acount-1) (toList @nonts.ntattrs)
+            loc.attrVertex = Map.fromList (map swap (toList @nonts.ntattrs))
             loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v @attrVertex) (ntattr cr))
-                            | (s,cr) <- Seq.toList @nonts.rules]
+                            | (s,cr) <- toList @nonts.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
                                                     | otherwise = Just (v,s:map fst svs)
                              in mapMaybe conv (eqClasses eq @tdpToTds)
-            loc.directDep = Seq.toList (@nonts.directDep Seq.<> @nonts.additionalDep)
-            loc.instDep   = Seq.toList @nonts.instDep
+            loc.directDep = toList (@nonts.directDep Seq.>< @nonts.additionalDep)
+            loc.instDep   = toList @nonts.instDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@nonts.acount-1) @tdsToTdp
                                      , tdpToTds   = Array.array (0,@nonts.vcount-1) @tdpToTds
                                      , attrTable  = @attrTable
                                      , ruleTable  = @ruleTable
-                                     , lmh        = Seq.toList @nonts.aranges
+                                     , lmh        = toList @nonts.aranges
                                      , nonts      = @nonts.nonts
                                      , wraps      = @wrappers
                                      }
@@ -448,7 +449,7 @@ SEM Grammar
                                                                      , inducedCycleErrs @attrTable @ruleTable cim errs
                                                                      )
             lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
-                          Seq.<> @nonts.errors
+                          Seq.>< @nonts.errors
 
 ------------------------------------------------------------------
 -- Generate CGrammar

@@ -12,7 +12,9 @@ import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert)
-import UU.DData.Seq as Seq (Seq, empty, (<>), single, cons, toList, fromList)
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq, empty, (><),fromList)
+import Data.Foldable(toList)
 import UU.Scanner.Position(noPos)
 
 import ConcreteSyntax
@@ -37,7 +39,7 @@ ATTR AG
 
 -- as a side effect, we generate error messages and Haskell code blocks that need to be embedded in the final code
 ATTR AG Elems Elem SemAlts SemAlt Attrs NontSet ConstructorSet
-     [ | | errors USE {Seq.<>}{Seq.empty}:{Seq Error} ]
+     [ | | errors USE {Seq.><}{Seq.empty}:{Seq Error} ]
 ATTR AG Elems Elem
      [ | | blocks USE {`mapUnionWithPlusPlus`} {Map.empty}: {Blocks} ]
 
@@ -188,7 +190,7 @@ checkDuplicate :: (Identifier -> Identifier -> Error)
 checkDuplicate dupError key val m
   = case Map.lookupIndex key m of
      Just ix -> let (key',_) = Map.elemAt ix m
-                in  (m,Seq.single (dupError key key'))
+                in  (m,Seq.singleton (dupError key key'))
      Nothing -> (Map.insert key val m,Seq.empty)
 
 checkDuplicates :: (Identifier -> Identifier -> Error)
@@ -198,7 +200,7 @@ checkDuplicates dupError new m = foldErrors check m new
 
 foldErrors f e xs = foldl g (e,Seq.empty) xs
   where g ~(e,es) x = let (e',es') = f x e
-                      in (e', es <> es')
+                      in (e', es >< es')
 
 
 checkForDuplicates :: (Identifier -> Identifier -> Error)  ->  [Identifier]  ->  [Error]
@@ -275,19 +277,19 @@ SEM AG
                            in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
                              -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
 
-         loc.errs4       = let  f m s = Map.fold ((<>) . snd) s m
+         loc.errs4       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allRulesErrs
                             
-         loc.errs5       = let  f m s = Map.fold ((<>) . snd) s m
+         loc.errs5       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allSigsErrs
          
-         loc.errs6       = let  f m s = Map.fold ((<>) . snd) s m
+         loc.errs6       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allInstsErrs
          
-         loc.errs7       = let  f m s = Map.fold ((<>) . snd) s m
+         loc.errs7       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allUniquesErrs
 
-         lhs.errors      = @elems.errors <> @errs1 <> @errs2 <> @errs3 <> @errs4 <> @errs5 <> @errs6 <> @errs7
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -325,10 +327,10 @@ checkRules attributes fields allinsts allsigs nt con rs
                                            Just ix -> let ((_,attr2),b) = Map.elemAt ix m
                                                        in  if b && not (fa `elem` bs)
                                                            then (                                             e, Map.insert fa owrt m, fa:u, fa:bs)
-                                                           else (Seq.cons (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
+                                                           else (((Seq.<|)) (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
                                            Nothing ->           (                                             e, Map.insert fa owrt m,    u, fa:bs)
-                                  else                          (Seq.cons (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
-                _              ->                               (Seq.cons (UndefChild nt con field)           e,                    m, fa:u,    bs )
+                                  else                          (((Seq.<|)) (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
+                _              ->                               (((Seq.<|)) (UndefChild nt con field)           e,                    m, fa:u,    bs )
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
 
@@ -336,23 +338,23 @@ checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
          = if   ide `elem` map (\(TypeSig n t)-> n) sigs
-           then (sigs, Seq.cons (DupSig nt con ide) errs)
+           then (sigs, ((Seq.<|)) (DupSig nt con ide) errs)
            -- else if not (ide `elem` locattrdefs)
-           -- then (sigs, Seq.cons (SupSig nt con ide) errs)
+           -- then (sigs, ((Seq.<|)) (SupSig nt con ide) errs)
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
 
 checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
 checkInsts allNts sigMap nt con
   = foldr (\inst (insts, errs) ->
-              maybe (insts, Seq.single (MissingInstSig nt con inst) <> errs)
+              maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
                     (\info@(_, NT nm _) -> case nm `Set.member` allNts of
                                              True  -> (info : insts, errs)
                                              False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
                                                                                     in case nm' `Set.member` allNts of
                                                                                          True  -> (info : insts, errs)
-                                                                                         False -> (insts, Seq.single (UndefNont nm') <> errs)
-                                                   | otherwise                   -> (insts, Seq.single (UndefNont nm) <> errs)
+                                                                                         False -> (insts, Seq.singleton (UndefNont nm') >< errs)
+                                                   | otherwise                   -> (insts, Seq.singleton (UndefNont nm) >< errs)
                     ) 
                   $ findSig inst
           ) ([], Seq.empty)
@@ -367,10 +369,10 @@ checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> Con
 checkUniques allAttrs nt con uniques
   = let checkUnique (ident,ref) (us,errs)
           = if ident `Map.member` us
-            then (us, Seq.cons (DupUnique nt con ident) errs)
+            then (us, ((Seq.<|)) (DupUnique nt con ident) errs)
             else if Map.member ref inhs && Map.member ref syns
                  then (Map.insert ident ref us, errs)
-                 else (us, Seq.cons (MissingUnique nt ref) errs)
+                 else (us, ((Seq.<|)) (MissingUnique nt ref) errs)
 
         (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkUnique (Map.empty, Seq.empty) uniques
@@ -524,17 +526,17 @@ SEM Elem
                                                             | n <- Set.toList @set.collectedNames
                                                             ]
                                   (nontSet,e1) | Set.member @name allUsedNames
-                                                           = (Set.empty, Seq.single(CyclicSet @name))
+                                                           = (Set.empty, Seq.singleton(CyclicSet @name))
                                                | otherwise = (@set.nontSet, Seq.empty)
                                   (res, e2) = checkDuplicate DupSet  @name (nontSet,Set.insert @name allUsedNames) @lhs.defSets
-                              in (res, e1 Seq.<> e2)
+                              in (res, e1 Seq.>< e2)
         lhs.defSets         = @defSets2
-           .errors          = @errs <> @set.errors
+           .errors          = @errs >< @set.errors
 
 SEM NontSet
   | All        lhs.nontSet = @lhs.allNonterminals
   | NamedSet   loc.(nontSet,errors) = case Map.lookup @name @lhs.definedSets of
-                                                   Nothing  -> (Set.empty, Seq.single (UndefNont @name))
+                                                   Nothing  -> (Set.empty, Seq.singleton (UndefNont @name))
                                                    Just set -> (set, Seq.empty)
   | Union      lhs.nontSet = Set.union         @set1.nontSet @set2.nontSet
   | Intersect  lhs.nontSet = Set.intersection  @set1.nontSet @set2.nontSet
@@ -543,8 +545,8 @@ SEM NontSet
                              in path table @from @to
                lhs.errors = let check name | Set.member name @lhs.allNonterminals
                                                        = Seq.empty
-                                           | otherwise = Seq.single (UndefNont name)
-                            in check @from <> check @to
+                                           | otherwise = Seq.singleton (UndefNont name)
+                            in check @from >< check @to
 
 
 {
@@ -789,11 +791,11 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
 
 {
 checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nts where
-  check nt decls | not (nt `Map.member` allFields) = (decls,Seq.single(UndefNont nt))
+  check nt decls | not (nt `Map.member` allFields) = (decls,Seq.singleton(UndefNont nt))
                  | otherwise = let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt decls
                                    (inh',einh) = checkDuplicates (DupInhAttr nt) inherited   inh
                                    (syn',esyn) = checkDuplicates (DupSynAttr nt) synthesized syn
-                               in (Map.insert nt (inh',syn') decls,einh <> esyn)
+                               in (Map.insert nt (inh',syn') decls,einh >< esyn)
 }
 
 
