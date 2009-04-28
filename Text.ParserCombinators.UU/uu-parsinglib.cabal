@@ -1,0 +1,16 @@
+Name:                uu-parsinglib
+Version:             2.0.0
+Build-Type:          Simple
+License:             LGPL
+Author:              Doaitse Swierstra
+Maintainer:          doaitse@swierstra.net       
+Stability:           experimental
+Homepage:            http://www.cs.uu.nl/wiki/bin/view/HUT/ParserCombinators
+Bug-reports:         mailto:doaitse@swierstra.net
+Synopsis:            New version of the Utrecht University parser combinator library        
+Cabal-Version:       >=1.2
+Hs-source-dirs:      src
+
+Library
+     Build-Depends:     base, haskell98
+     Exposed-modules:   Text.ParserCombinators.UU.Parsing Text.ParserCombinators.UU.Examples
