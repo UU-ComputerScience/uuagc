@@ -10,6 +10,7 @@
 module Text.ParserCombinators.UU.Examples where
 import Char
 import Text.ParserCombinators.UU.Parsing
+import Text.ParserCombinators.UU.BasicInstances
 type P b =  P_m (Str Char) b -> String -> (b, [Error Char Char Int]) 
 test :: P b
 test p inp = parse ( (,) <$> p <*> pEnd) (listToStr inp)
@@ -105,6 +106,6 @@ getal = pNatural
 
 rune ::  String -> IO ()
 rune i = do let (a,b) = exec expr i
-            if null b then  print ("Resultaat: " ++ show a)
+            if null b then  print ("Result: " ++ show a)
                       else do print b
-                              print ("Resultaat: " ++ show a)
+                              print ("Result: " ++ show a)

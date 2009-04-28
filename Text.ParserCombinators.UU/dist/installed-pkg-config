@@ -6,25 +6,26 @@ maintainer: doaitse@swierstra.net
 stability: experimental
 homepage: http://www.cs.uu.nl/wiki/bin/view/HUT/ParserCombinators
 package-url:
-description:
-category:
+description: New version of the Utrecht University parser combinator library, containing monadic, online, error correction, annotation free, applicative style parser combinators.
+category: Text.ParserCombinators
 author: Doaitse Swierstra
 exposed: True
 exposed-modules: Text.ParserCombinators.UU.Parsing
+                 Text.ParserCombinators.UU.BasicInstances
                  Text.ParserCombinators.UU.Examples
 hidden-modules:
-import-dirs: /Users/doaitse/.cabal/lib/uu-parsinglib-2.0.0/ghc-6.10.1
-library-dirs: /Users/doaitse/.cabal/lib/uu-parsinglib-2.0.0/ghc-6.10.1
+import-dirs: /usr/local/lib/uu-parsinglib-2.0.0/ghc-6.10.1
+library-dirs: /usr/local/lib/uu-parsinglib-2.0.0/ghc-6.10.1
 hs-libraries: HSuu-parsinglib-2.0.0
 extra-libraries:
 extra-ghci-libraries:
 include-dirs:
 includes:
-depends: base-3.0.3.0 haskell98-1.0.1.0
+depends: base-4.0.0.0 haskell98-1.0.1.0
 hugs-options:
 cc-options:
 ld-options:
 framework-dirs:
 frameworks:
-haddock-interfaces: /Users/doaitse/.cabal/share/doc/uu-parsinglib-2.0.0/html/uu-parsinglib.haddock
-haddock-html: /Users/doaitse/.cabal/share/doc/uu-parsinglib-2.0.0/html
+haddock-interfaces: /usr/local/share/doc/uu-parsinglib-2.0.0/html/uu-parsinglib.haddock
+haddock-html: /usr/local/share/doc/uu-parsinglib-2.0.0/html

@@ -12,10 +12,10 @@ version = Version {versionBranch = [2,0,0], versionTags = []}
 
 bindir, libdir, datadir, libexecdir :: FilePath
 
-bindir     = "/Users/doaitse/.cabal/bin"
-libdir     = "/Users/doaitse/.cabal/lib/uu-parsinglib-2.0.0/ghc-6.10.1"
-datadir    = "/Users/doaitse/.cabal/share/uu-parsinglib-2.0.0"
-libexecdir = "/Users/doaitse/.cabal/libexec"
+bindir     = "/usr/local/bin"
+libdir     = "/usr/local/lib/uu-parsinglib-2.0.0/ghc-6.10.1"
+datadir    = "/usr/local/share/uu-parsinglib-2.0.0"
+libexecdir = "/usr/local/libexec"
 
 getBinDir, getLibDir, getDataDir, getLibexecDir :: IO FilePath
 getBinDir = catch (getEnv "uu_parsinglib_bindir") (\_ -> return bindir)
