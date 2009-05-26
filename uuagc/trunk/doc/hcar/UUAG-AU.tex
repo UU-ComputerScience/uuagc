@@ -1,0 +1,22 @@
+\begin{hcarentry}[updated]{UUAG}
+\report{Arie Middelkoop}%05/09
+\status{stable, maintained}
+\participants{ST Group of Utrecht University}
+\makeheader
+
+UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell which makes it easy to write \emph{catamorphisms} (that is, functions that do to any datatype what \emph{foldr} does to lists). You can define tree walks using the intuitive concepts of \emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power of Haskell. The generated tree walks are \emph{efficient} in both space and time.
+
+New features are support for polymorphic abstract syntax and higher-order attributes. With polymorphic abstract syntax, the type of certain terminals can be parameterized. Higher-order attributes are useful to incorporate computed values as subtrees in the AST.
+
+The system is in use by a variety of large and small projects, such as the Haskell compiler EHC, the editor Proxima for structured documents, the Helium compiler~\cref{helium}, the Generic Haskell compiler, and UUAG itself. The current version is 0.9.10 (April 2009), is extensively tested, and is available on Hackage.
+
+The last year, there have been bugfix releases only, and one feature has been introduced. An alternative syntax is now available which resembles the Haskell syntax more closely. This syntax can be enabled by means of a commandline flag. The old syntax is still the default.
+
+\FurtherReading
+\begin{compactitem}
+\item
+  \url{http://www.cs.uu.nl/wiki/bin/view/HUT/AttributeGrammarSystem}
+\item
+  \url{http://hackage.haskell.org/packages/archive/uuagc/0.9.10/uuagc-0.9.10.tar.gz}
+\end{compactitem}
+\end{hcarentry}
