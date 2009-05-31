@@ -183,8 +183,8 @@ instance  (   Functor (P_h  st), Functor (P_f  st))
 
 instance  (   Applicative (P_h  st), Applicative (P_f  st)) 
           =>  Applicative (P_m  st) where
- P_m (hp, fp)  <*> P_m (hq, fq)    = P_m  (hp <*> hq, fp <*> fq)
- pure a                            = P_m  (pure a, pure a)       
+ P_m (hp, fp)  <*> ~(P_m (hq, fq))    = P_m  (hp <*> hq, fp <*> fq)
+ pure a                               = P_m  (pure a, pure a)       
 
 instance  (   Alternative (P_h  st), Alternative (P_f  st)) 
           =>  Alternative (P_m  st) where 
@@ -200,14 +200,14 @@ instance   Parse P_m  where
 
 instance Applicative (P_h state) => Monad (P_h state) where
   P_h p >>= a2q  = P_h ( \ k -> p (\ a -> unP_h (a2q a) k))
-  return     = pReturn
+  return     = pure
 
 instance Applicative (P_m st) => Monad (P_m st) where
      P_m  (P_h p, _)  >>=  a2q = 
            P_m  (  P_h   (\k -> p (\ a -> unP_m_h (a2q a) k))
                 ,  P_f   (\k -> p (\ a -> unP_m_f (a2q a) k))
                 )
-     return  = pReturn 
+     return  = pure 
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -- %%%%%%%%%%%%% Greedy      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
