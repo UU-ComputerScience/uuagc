@@ -9,17 +9,15 @@
               NoMonomorphismRestriction#-}
 
 
-
- 
 module Text.ParserCombinators.UU.Parsing where
 import Prelude hiding (fail)
+import Control.Applicative  hiding ((<*), (*>), (<$), many, some, optional)
 import Char
 import Debug.Trace
 import Maybe
 
-infixl  5  <*>, <*, *>
-infixr  3  <|> 
-infixl  5  <$>, <$
+infixl  4  <*, *>
+infixl  4  <$
 
 ap f a = f a 
 
@@ -27,16 +25,10 @@ ap f a = f a
 -- %%%%%%%%%%%%% Classes     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-class  Applicative p where
-  (<*>)     ::   p (b -> a)  -> p b   ->   p a
-  (<|>)     ::   p a         -> p a   ->   p a
-  (<$>)     ::   (b -> a)    -> p b   ->   p a
-  pReturn   ::   a                    ->   p a
-  pFail     ::                             p a
-  f <$> p   =  pReturn f <*> p
+class (Applicative p, Alternative p) => Parser p where
 
-instance Applicative p => Functor p where
-  fmap = (<$>)
+pReturn  = pure
+pFail    = empty
 
 class  Symbol p  symbol token | symbol -> token where
   pSym  ::  symbol -> p token
@@ -53,7 +45,7 @@ class Eof state where
        eof          ::  state   -> Bool
        deleteAtEnd  ::  state   -> Maybe (Cost, state)
 
-class  Parser p  where
+class  Parse p  where
        parse  ::   Eof state => p state a -> state -> a
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,20 +111,23 @@ l                       `best'`  r               =   l `best` r
 newtype  P_h    st  a =  P_h  (forall r . (a  -> st -> Steps r)  -> st -> Steps r)
 unP_h (P_h p) = p
 
-instance   Applicative (P_h  state) where
-  (P_h p) <*> (P_h q)  =  P_h  (\  k -> p (\ f -> q (\ a -> k (f a)))) 
-  (P_h p) <|> (P_h q)  =  P_h  (\  k inp  -> p k inp `best` q k inp) 
-  f  <$> (P_h p)       =  P_h  (\  k -> p (\a -> k (f a))) 
-  pFail                =  P_h  (\  k -> const noAlts) 
-  pReturn a            =  P_h  (\  k -> k a)
+instance   Functor (P_h  state) where 
+  fmap f      (P_h p)  =  P_h  (\  k -> p (\a -> k (f a))) 
 
+instance   Applicative (P_h  state) where
+  (P_h p) <*> (P_h q)  =  P_h  (\  k -> p (\ f -> q (\ a -> k (f a))))  
+  pure a               =  P_h  (\  k -> k a)
+
+instance   Alternative (P_h  state) where 
+  (P_h p) <|> (P_h q)  =  P_h  (\  k inp  -> p k inp `best` q k inp) 
+  empty                =  P_h  (\  k -> const noAlts) 
 
 instance  ( Provides state symbol token) => Symbol (P_h  state) symbol token where
   pSym a =  P_h (splitState a)
 
 data Id a = Id a deriving Show
 
-instance   Parser P_h  where
+instance   Parse P_h  where
   parse (P_h p)
    =  fst . eval . p  (\ a rest -> if eof rest then push a fail else error "pEnd missing?") 
 
@@ -144,16 +139,22 @@ instance   Parser P_h  where
 newtype  P_f st a  = P_f (forall r . (st -> Steps   r) -> st -> Steps   (a, r))
 unP_f (P_f p) = p
 
+instance  Functor (P_f st) where
+ fmap f p     =   pure f <*> p
+
 instance Applicative (P_f st) where
- P_f p  <*>  P_f q  =   P_f ( (apply .) . (p .q))
+ P_f p  <*>  P_f q  =   P_f ( (apply .) . (p .q)) 
+ pure a          =   P_f ((push a).)
+
+instance Alternative (P_f st) where
  P_f p  <|>  P_f q  =   P_f (\ k inp  -> p k inp `best` q k inp)  
- pReturn a          =   P_f ((push a).)
- pFail              =   P_f (\ k inp  -> noAlts)
+ empty              =   P_f (\ k inp  -> noAlts)
+
 
 instance  (Provides state symbol token) =>  Symbol (P_f  state) symbol token where
   pSym a =  P_f (\ k inp-> splitState a (\ t inp' -> push t (k inp')) inp)
 
-instance  Parser P_f  where
+instance  Parse P_f  where
   parse (P_f p) =  fst . eval . p (\ rest -> if eof rest then fail else error "pEnd missing")
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,17 +177,24 @@ newtype P_m state a = P_m (P_h  state a, P_f state a)
 unP_m_h (P_m  (P_h h,  _    ))  =  h
 unP_m_f (P_m  (_    ,  P_f f))  =  f
 
+instance  (   Functor (P_h  st), Functor (P_f  st)) 
+          =>  Functor (P_m  st) where
+ fmap f  (P_m (hp, fp))  = P_m  (fmap f hp, fmap f fp)      
+
 instance  (   Applicative (P_h  st), Applicative (P_f  st)) 
           =>  Applicative (P_m  st) where
- P_m (hp, fp)  <*> P_m ~(hq, fq)   = P_m  (hp <*> hq, fp <*> fq) 
+ P_m (hp, fp)  <*> P_m (hq, fq)    = P_m  (hp <*> hq, fp <*> fq)
+ pure a                            = P_m  (pure a, pure a)       
+
+instance  (   Alternative (P_h  st), Alternative (P_f  st)) 
+          =>  Alternative (P_m  st) where 
  P_m (hp, fp)  <|> P_m (hq, fq)    = P_m  (hp <|> hq, fp <|> fq)
- pReturn a                         = P_m  (pReturn a, pReturn a) 
- pFail                             = P_m  (pFail,         pFail)       
- 
+ empty                             = P_m  (empty,         empty)       
+
 instance  (Provides state symbol token)  => Symbol (P_m state) symbol token where
   pSym a =  P_m (pSym a, pSym a)
 
-instance   Parser P_m  where
+instance   Parse P_m  where
   parse (P_m (_, (P_f fp)))  
       =  fst . eval. fp (\ rest -> if eof rest  then fail else error "End_fmissing?") 
 
@@ -360,26 +368,20 @@ instance Switch P_m where
 newtype  R st a  = R (forall r . (st -> Steps   r) -> st -> Steps r)
 unR (R p) = p
 
+instance Functor (R st) where
+ fmap f  (R r)       =  R r
+
 instance Applicative (R st) where
- R p  <*>  R q   =   R (p.q)
+ R p  <*>  R q   =   R (p.q)  
+ pure    a       =   R (id)
+
+instance Alternative (R st) where
  R p  <|>  R q   =   R (\ k inp  -> p k inp `best` q k inp)  
- pReturn a       =   R (id)
- pFail           =   R (\ k inp  -> noAlts)
+ empty           =   R (\ k inp  -> noAlts)
 
 instance  (Provides state symbol token) =>  Symbol (R  state) symbol token where
   pSym a =  R (\k inp ->  splitState a (\ v inp' -> k inp') inp) 
 
-{-
-class  ExtApplicative p  where
-  (<*)      ::  p st a          -> R st b   ->   p st a
-  (*>)      ::  R st b          -> p st a   ->   p st a
-  (<$)      ::  a               -> R st b   ->   p st a
-
-instance ExtApplicative P_h  where
-  P_h p <* R r     = P_h ( p. (r.)) 
-  R   r *> P_h p   = P_h ( r .p   )
-  f     <$  R r   = P_h ( r . ($f))
--}
 
 class  Applicative p => ExtApplicative p st | p -> st where
   (<*)      ::  p  a          -> R st b   ->   p  a

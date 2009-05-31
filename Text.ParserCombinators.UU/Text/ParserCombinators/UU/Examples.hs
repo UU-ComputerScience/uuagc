@@ -11,6 +11,8 @@ module Text.ParserCombinators.UU.Examples where
 import Char
 import Text.ParserCombinators.UU.Parsing
 import Text.ParserCombinators.UU.BasicInstances
+-- import Control.Applicative hiding ((<$), (<*), (*>))
+
 type P b =  P_m (Str Char) b -> String -> (b, [Error Char Char Int]) 
 test :: P b
 test p inp = parse ( (,) <$> p <*> pEnd) (listToStr inp)

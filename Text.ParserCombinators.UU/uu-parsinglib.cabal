@@ -1,5 +1,5 @@
 Name:                uu-parsinglib
-Version:             2.0.1
+Version:             2.1.0
 Build-Type:          Simple
 License:             LGPL
 Author:              Doaitse Swierstra
@@ -9,7 +9,7 @@ Homepage:            http://www.cs.uu.nl/wiki/bin/view/HUT/ParserCombinators
 Bug-reports:         mailto:doaitse@swierstra.net
 Synopsis:            New version of the Utrecht University parser combinator library        
 Cabal-Version:       >=1.2
-Description:         New version of the Utrecht University parser combinator library, containing monadic, online, error correction, annotation free, applicative style parser combinators.
+Description:         New version of the Utrecht University parser combinator library, containing monadic, online, error correction, annotation free, applicative style parser combinators, now based on Control.Applicative
 Category:            Text.ParserCombinators Parsing Text
 
 Library
