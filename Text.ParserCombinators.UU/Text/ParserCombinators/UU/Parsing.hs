@@ -17,9 +17,9 @@ import Char
 import Debug.Trace
 import Maybe
 
-infixl  5  <*>
+infixl  5  <*>, <*, *>
 infixr  3  <|> 
-infixl  5  <$> 
+infixl  5  <$>, <$
 
 ap f a = f a 
 
