@@ -1,2 +1,11 @@
-This repository contains a completely  version of the Utrecht parser combinator library under construction. For more details see the technical report which is mentioned at the bottom of http://www.cs.uu.nl/wiki/bin/view/HUT/ParserCombinators . The fisrt part of this report is a general introduction into parser combinators, whereas the second part conatins the motivation for and documentation of the current package.
+This repository contains a completely  version of the Utrecht parser combinator library under construction. 
+
+For more details see the technical report which is mentioned at the bottom of 
+
+http://www.cs.uu.nl/wiki/bin/view/HUT/ParserCombinators . 
+
+The first part of this report is a general introduction into parser combinators, whereas the second part conatins the motivation
+for and documentation of the current package.
+
+Version 2.0.1  - some missing infix declaration were added
 
