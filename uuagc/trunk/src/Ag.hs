@@ -275,7 +275,8 @@ reportDeps flags files
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}
        if null errs
         then mapM_ putStrLn fs
-        else putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
+        else do putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
+                exitFailure
   where
     combine :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
     combine (fs, mesgs) (fsr, mesgsr)
