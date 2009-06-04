@@ -12,7 +12,7 @@
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 module Text.ParserCombinators.UU.BasicInstances where
-import Text.ParserCombinators.UU.Parsing
+import Text.ParserCombinators.UU.Core
 
 data Error t s pos = Inserted s pos Strings
                    | Deleted  t pos Strings
