@@ -10,9 +10,6 @@
 module Text.ParserCombinators.UU.Examples where
 import Char
 import Text.ParserCombinators.UU.Parsing
-import Text.ParserCombinators.UU.BasicInstances
-import Control.Applicative hiding ((<$), (<*), (*>))
-
 
 type P b =  P_m (Str Char) b -> String -> (b, [Error Char Char Int]) 
 test :: P b
@@ -31,7 +28,7 @@ pCount p = (\ a b -> b+1) <$> p <*> pCount p <<|> pReturn 0
 pExact 0 p = pReturn []
 pExact n p = (:) <$> p <*> pExact (n-1) p
 
-paz = pMany (pSym ('a', 'z'))
+paz = pList (pSym ('a', 'z'))
 
 paz' = pSym (\t -> 'a' <= t && t <= 'z', "a .. z", 'k')
 
@@ -48,18 +45,6 @@ main = do print (test pa "a")
           print (test paz' "m")
           print (test paz' "")
 
-infixl 3 `opt`
-p `opt` v = p <|> pReturn v 
-
--- parsing many things
-pMany p  = (:) <$> p <*> pMany p <|> pReturn []
-pMany1 p = (:) <$> p <*> pMany p
-pChoice = foldr (<|>) pFail
-pSeq (p : pp ) = (:) <$> p <*> pSeq pp 
-pSeq [ ] = pReturn [ ] 
-pListSep p s = pListSep1 p s `opt` []
-pListSep1 p s = (:) <$> p <*> pSepTail p s
-   where pSepTail p s = pMany (s *> p)
 
 
 -- bracketing expressions
@@ -70,18 +55,17 @@ pCurlys p = id <$ pSym '{' <*> p <* pSym '}'
 -- parsing numbers
 pDigit = pSym ('0', '9')
 pDigitAsInt = digit2Int <$> pDigit 
-pNatural = foldl (\a b -> a * 10 + b ) 0 <$> pMany1 pDigitAsInt
+pNatural = foldl (\a b -> a * 10 + b ) 0 <$> pList1 pDigitAsInt
 digit2Int a =  ord a - ord '0'
 
 -- parsing letters and identifiers
 pLower  = pSym ('a','z')
 pUpper  = pSym ('A','Z')
 pLetter = pUpper <|> pLower
-pVarId  = (:) <$> pLower <*> pMany pIdChar
-pConId  = (:) <$> pUpper <*> pMany pIdChar
-pIdChar = pLower <|> pUpper <|> pDigit <|> pSymIn "='"
-pSymIn s = pChoice $ map pSym s
-pKey str = pSeq (map pSym str)
+pVarId  = (:) <$> pLower <*> pList pIdChar
+pConId  = (:) <$> pUpper <*> pList pIdChar
+pIdChar = pLower <|> pUpper <|> pDigit <|> pAnySym "='"
+
 
 -- running the parser; if complete input accepted return the result else fail with reporting unconsumed tokens
 run :: forall t. P_m (Str Char) t -> String -> t
@@ -98,14 +82,10 @@ pTest_MS = id <$ pSym 'u' <*> pSym '2'
 
 pOp (c, op) = op <$ pSym c
 
-pChainl t op = applyall <$> t <*> pMany (flip <$> op <*> t)
-applyall e [] = e
-applyall e (f:fs) = applyall (f e) fs
-
-expr = term `pChainl` (pOp ('+', (+)) <|> pOp ('-', (-)))
-term = factor `pChainl` pOp ('*' , (*))
-factor = getal <|> pSym '(' *> expr <* pSym ')'
-getal = pNatural
+sepBy p op = pChainl op p
+expr    = term   `sepBy` (pOp ('+', (+)) <|> pOp ('-', (-)))
+term    = factor `sepBy` pOp ('*' , (*))
+factor  = pNatural <|> pSym '(' *> expr <* pSym ')'
 
 rune ::  String -> IO ()
 rune i = do let (a,b) = exec expr i
