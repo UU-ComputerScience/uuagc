@@ -1,0 +1,22 @@
+
+name:          uuagc-cabal
+version:       0.2.6
+cabal-version: >=1.6
+build-type:    Simple
+license:       GPL
+license-file:  LICENSE
+copyright:     Copyright: (C) Juan Francisco Cardona McCormick
+author:        Juan Francisco Cardona McCormick
+maintainer:    fcardona@eafit.edu.co
+stability:     Experimental
+bug-reports:   mailto: fcardona@eafit.edu.co
+description:   A preprocesor for Universiteit Utrect Attribute Grammar Compiler (uuagc) under cabal system.
+
+Library
+   build-depends:   base, Cabal, directory, process, uulib, filepath
+   hs-source-dirs:  src
+   exposed-modules: Distribution.Simple.UUAGC
+   other-modules:   Distribution.Simple.UUAGC.UUAGC,
+                    Distribution.Simple.UUAGC.Parser,
+                    Distribution.Simple.UUAGC.AbsSyn,
+                    Distribution.Simple.UUAGC.Options

@@ -1,0 +1,14 @@
+
+ATTR Tree [||count : Int sum : Int]
+
+SEM Tree
+  |  Leaf  lhs.count = 1
+           lhs.sum   = @int
+  |  Bin   lhs.count = @lt.count + @rt.count
+           lhs.sum   = @lt.sum + @rt.sum
+
+ATTR Root [|| avg : Int]
+
+SEM Root
+  | Root   lhs.avg = @tree.sum `div` @tree.count
+
