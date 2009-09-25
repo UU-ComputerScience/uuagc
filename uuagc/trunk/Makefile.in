@@ -22,7 +22,7 @@ SRC_AG_DIR = src-ag
 TEST_DIR = test
 
 # The following variables are set in configure
-AG        = @UUAGC@
+AG        = "@UUAGC@"
 BUILD_DIR = @BUILD_DIR@
 MV        = @MV@
 RM        = @RM@
@@ -36,7 +36,7 @@ VERSION   = @VERSION@
 prefix    = @prefix@
 MKINSTDIR = ./mkinstalldirs
 INSTALL   = @INSTALL@
-HC        = @HC@
+HC        = "@HC@"
 # whether to use user package database
 USER_PCKG = @USER_PCKG@
 
