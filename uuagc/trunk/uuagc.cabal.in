@@ -19,12 +19,12 @@ flag compatibility2
   description: compatibility flag.
 executable uuagc
   if flag(compatibility1)
-    build-depends: base >= 4, ghc-prim
+    build-depends: base >= 4, base < 5, ghc-prim
   else
     build-depends: base < 4
 
   if flag(compatibility2)
-    build-depends: base >= 3, containers, directory, array
+    build-depends: base >= 3, base < 5, containers, directory, array
   else
     build-depends: base < 3
 
