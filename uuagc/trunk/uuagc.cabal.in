@@ -75,3 +75,11 @@ executable uuagc
   extensions: TypeSynonymInstances, MultiParamTypeClasses
   hs-source-dirs: src, src-derived
 
+Library
+   build-depends:   base >= 4, base < 5, Cabal, directory, process, uulib, filepath
+   hs-source-dirs:  cabal-plugin/src
+   exposed-modules: Distribution.Simple.UUAGC
+   other-modules:   Distribution.Simple.UUAGC.UUAGC,
+                    Distribution.Simple.UUAGC.Parser,
+                    Distribution.Simple.UUAGC.AbsSyn,
+                    Distribution.Simple.UUAGC.Options
