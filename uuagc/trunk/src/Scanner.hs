@@ -161,7 +161,7 @@ codescrap' d p (x  :xs)     = let (p2,xs2,sc) = updPos' x p (codescrap' d) xs
                               in (p2,xs2,x:sc)
 --Literate Mode
 scanLit xs = (fs, foldr insNL (const "") codeLns 1)
-  where insNL (n,line) rec = \n1 -> replicate (n-n1) '\n' ++ line ++ rec n
+  where insNL (n,line) r = \n1 -> replicate (n-n1) '\n' ++ line ++ r n
         (fs,codeLns,_) = getBlocks ([1..] `zip`  toLines xs)
         getBlocks [] = ([],[],[])
         getBlocks xs = let (files1,txt1,r1) = getBlock xs

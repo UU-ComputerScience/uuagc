@@ -406,9 +406,9 @@ SEM  CVisit
                                          else id
                          in Decl lhs rhs Set.empty Set.empty
             loc.tsig = TSig @funcname @semType
-            loc.semType = let argType (NT tp tps)  rec | tp /= _SELF = typeAppStrs (sdtype tp) tps `Arr` rec
+            loc.semType = let argType (NT tp tps)  r   | tp /= _SELF = typeAppStrs (sdtype tp) tps `Arr` r
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
-                              argType (Haskell tp) rec               = SimpleType tp          `Arr` rec
+                              argType (Haskell tp) r                 = SimpleType tp          `Arr` r
 
                               evalTp | null @loc.params = id
                                      | otherwise        = idEvalType
@@ -489,9 +489,9 @@ SEM CRule
 {-
 localCpsToExpr :: Bool -> [Decl] -> DeclBlocks -> Expr
 localCpsToExpr o_case nextVisitDecl
-  = rec
+  = r
   where
-    rec cps
+    r cps
       = case cps of
           DeclTerminator decls expr
             -> mkLet o_case (decls ++ nextVisitDecl) expr
