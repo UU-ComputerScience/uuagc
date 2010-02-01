@@ -18,6 +18,7 @@ DATA Grammar      | Grammar typeSyns  : {TypeSyns}
                             paramMap   : {ParamMap}
                             contextMap : {ContextMap}
                             uniqueMap  : {UniqueMap}
+                            augmentsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
 
 TYPE Nonterminals = [Nonterminal]
 

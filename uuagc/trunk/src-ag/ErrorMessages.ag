@@ -118,4 +118,6 @@ DATA Error  | ParserError     pos     : {Pos}
             
             | MissingUnique   nt      : {NontermIdent}
                               attr    : {Identifier}
-
+            
+            | MissingSyn      nt      : {NontermIdent}
+                              attr    : {Identifier}
