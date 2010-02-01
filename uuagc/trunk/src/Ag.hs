@@ -123,7 +123,7 @@ compile flags input output
             | otherwise
                 = vlist (map pp strs)
           
-          optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-fbang-patterns"
+          optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-XBangPatterns"
           option True s  = [s]
           option False _ = []
           optionsLine | null optionsGHC = ""

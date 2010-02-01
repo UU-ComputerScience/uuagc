@@ -331,6 +331,7 @@ pSemDef opts
       <|>                            pLOC              *> pList1 (pLocDecl opts)
       <|>                            pINST             *> pList1 (pInstDecl opts)
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
+      <|> (\n e -> [AugmentDef n e]) <$ pAUGMENT <*> pIdentifier <* pAssign <*> pExpr opts
       <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr opts
  
@@ -409,7 +410,7 @@ pTypeColon opts
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -450,4 +451,4 @@ pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"
 pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
 pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
-
+pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"

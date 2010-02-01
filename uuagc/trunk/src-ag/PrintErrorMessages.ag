@@ -42,6 +42,7 @@ isError opts (MissingTypeSig  _ _ _    ) = False
 isError opts (MissingInstSig  _ _ _    ) = True
 isError opts (DupUnique       _ _ _    ) = False
 isError opts (MissingUnique   _ _      ) = True
+isError opts (MissingSyn      _ _      ) = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -447,6 +448,22 @@ SEM Error
                                                        ]
                                  act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
                              in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+
+ | MissingSyn      lhs.pp = let mesg  = wfill ["Missing synthesized attribute"
+                                              , getName @attr
+                                              , "at nonterminal"
+                                              , getName @nt, "."
+                                              ] 
+                                pat   = "ATTR" >#< getName @nt >#< "[ | | " >#< getName @attr >#< " : ... ]"
+
+                                help =  wfill ["An augment rule for a constructor for nonterminal" , getName @nt
+                                              , "refers to a synthesized attribute named "
+                                              , getName @attr
+                                              ,"Maybe you misspelled it?"
+                                              ,"Otherwise add an appropriate attribute definition."
+                                              ]
+                                act  = wfill ["It is not possible to proceed without this declaration."]
+                            in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '

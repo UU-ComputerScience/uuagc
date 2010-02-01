@@ -26,6 +26,7 @@ import Options
 import HsToken
 import HsTokenScanner
 import TokenDef
+import CommonTypes
 }
 
 WRAPPER HsTokensRoot
@@ -218,3 +219,82 @@ SEM Pattern
                    then Irrefutable @loc.output
                    else @loc.output
 
+
+-------------------------------------------------------------------------------
+--         Decompose augment map and rebuild it
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ augmentsIn : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
+                              | | augmentsOut USE {`Map.union`} {Map.empty} : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} ]
+ATTR Productions Production [ augmentsIn : {Map ConstructorIdent (Map Identifier [Expression])}
+                            | | augmentsOut USE {`Map.union`} {Map.empty} : {Map ConstructorIdent (Map Identifier [Expression])} ]
+
+SEM Grammar
+  | Grammar
+      nonts.augmentsIn = @augmentsMap
+
+SEM Nonterminal
+  | Nonterminal
+      loc.augmentsIn = Map.findWithDefault Map.empty @nt @lhs.augmentsIn
+      loc.augmentsOut = Map.singleton @nt @prods.augmentsOut
+
+SEM Production
+  | Production
+      loc.augmentsIn = Map.findWithDefault Map.empty @con @lhs.augmentsIn
+      loc.augmentsOut = Map.singleton @con @loc.augmentsOut1
+      
+      (loc.augmentErrs, loc.augmentsOut1) = Map.mapAccum (desugarExprs @lhs.options @lhs.nt @con @children.childInhs @children.childSyns) Seq.empty @loc.augmentsIn
+
+WRAPPER Expression
+
+{
+desugarExprs :: Options -> NontermIdent -> ConstructorIdent ->
+                [(Identifier, Identifier)] -> [(Identifier, Identifier)] ->
+                Seq Error -> [Expression] -> (Seq Error, [Expression])
+desugarExprs options nt con childInhs childSyns
+  = mapAccum (desugarExpr options nt con childInhs childSyns)
+  where mapAccum f e = foldr (\x (e0,xs) -> let (e1,x') = f e0 x in (e1, x:xs)) (e, [])
+
+desugarExpr :: Options -> NontermIdent -> ConstructorIdent ->
+               [(Identifier, Identifier)] -> [(Identifier, Identifier)] ->
+               Seq Error -> Expression -> (Seq Error, Expression)
+desugarExpr options nt con childInhs childSyns errs expr
+  = (errs Seq.>< errors_Syn_Expression syn, output_Syn_Expression syn)
+  where
+    inh = Inh_Expression { childInhs_Inh_Expression = childInhs
+                         , childSyns_Inh_Expression = childSyns
+                         , con_Inh_Expression       = con
+                         , nt_Inh_Expression        = nt
+                         , options_Inh_Expression   = options
+                         , ruleDescr_Inh_Expression = "augment-rule"
+                         }
+    sem = sem_Expression expr
+    syn = wrap_Expression sem inh
+}
+
+
+-------------------------------------------------------------------------------
+--         Errors of a production
+-------------------------------------------------------------------------------
+
+SEM Production
+  | Production
+      lhs.errors = @rules.errors Seq.>< @loc.augmentErrs
+
+-------------------------------------------------------------------------------
+--         Reconstruct the grammar
+-------------------------------------------------------------------------------
+
+SEM Grammar
+  | Grammar
+      lhs.output = Grammar @typeSyns
+                           @useMap
+                           @derivings
+                           @wrappers
+                           @nonts.output
+                           @pragmas
+                           @manualAttrOrderMap
+                           @paramMap
+                           @contextMap
+                           @uniqueMap
+                           @nonts.augmentsOut

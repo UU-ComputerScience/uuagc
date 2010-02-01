@@ -20,6 +20,7 @@ import Pretty
 import Maybe
 import HsToken
 import HsTokenScanner
+import Data.List(intersperse)
 
 import AbstractSyntax
 import ErrorMessages
@@ -353,7 +354,6 @@ SEM Production
                  
         (useAttrs,others) 
           = splitAttrs @lhs.useMap undefAttrs
-   
 
         (rules1, errors1)
           = concatRE $ map (copyRule @lhs.nt @con @lhs.cr locals)
@@ -390,10 +390,42 @@ SEM Production
                      @lhs.cr 
                      locals 
                      (lhs_env, (_LHS, others))
-                                     
     in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)   
-    
-    
+
+{
+addAugments :: (Identifier, [Expression]) -> [Rule] -> [Rule]
+addAugments (_, exprs) rules
+  | null exprs = rules
+addAugments (syn, exprs) rules
+  = [rule] ++ funRules ++ map modify rules
+  where
+    rule = Rule (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule"
+    rhs  = Expression noPos tks
+    tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
+    funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
+
+    substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
+    funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
+    funRules = zipWith (\name expr -> Rule (Alias _LOC name (Underscore noPos) []) expr False "augment function") funNames exprs
+
+    modify (Rule pat rhs owrt origin)
+      | containsSyn pat = Rule (modifyPat pat) rhs owrt origin
+    modify r = r
+
+    containsSyn (Constr _ pats)   = any containsSyn pats
+    containsSyn (Product _ pats)  = any containsSyn pats
+    containsSyn (Irrefutable pat) = containsSyn pat
+    containsSyn (Alias field attr pat parts) = (field == _LHS && attr == syn) || containsSyn pat || any containsSyn parts
+    containsSyn _ = False
+
+    modifyPat (Constr name pats) = Constr name (map modifyPat pats)
+    modifyPat (Product pos pats) = Product pos (map modifyPat pats)
+    modifyPat (Irrefutable pat)  = Irrefutable (modifyPat pat)
+    modifyPat (Alias field attr pat parts)
+      | field == _LHS && attr == syn = Alias _LOC substSyn (modifyPat pat) (map modifyPat parts)
+      | otherwise                    = Alias field attr (modifyPat pat) (map modifyPat parts)
+    modifyPat p = p
+}
    
    
 ATTR Rule Rules Pattern Patterns
@@ -440,7 +472,9 @@ ATTR Rule [ | | outputs:Rules ]
 
 
 SEM Production
-  | Production lhs.output = Production @con @children.output (@rules.output ++ @newRls) @typeSigs.output
+  | Production
+      loc.extra  = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
+      lhs.output = Production @con @children.output @loc.extra @typeSigs.output
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
@@ -552,3 +586,14 @@ SEM Production
              | dep@(Dependency (fldA,nmA) (fldB,nmB)) <- @loc.orderDeps
              ]
 
+
+-------------------------------------------------------------------------------
+--         Decompose augment
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ augmentsIn : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} | | ]
+ATTR Productions Production [ augmentsIn : {Map ConstructorIdent (Map Identifier [Expression])} | | ]
+
+SEM Grammar     | Grammar      nonts.augmentsIn = @augmentsMap
+SEM Nonterminal | Nonterminal  loc.augmentsIn = Map.findWithDefault Map.empty @nt @lhs.augmentsIn
+SEM Production  | Production   loc.augmentsIn = Map.findWithDefault Map.empty @con @lhs.augmentsIn
