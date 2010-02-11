@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -XScopedTypeVariables -XPatternSignatures #-}
+{-# OPTIONS_GHC -XScopedTypeVariables #-}
 module Distribution.Simple.UUAGC.Parser(parserAG, scanner, parseIOAction) where
 
 import UU.Parsing

@@ -259,6 +259,9 @@ SEM AG
                            in foldr f (Map.empty) @elems.collectedUniques
          loc.allAugments = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                            in foldr f Map.empty @elems.collectedAugments
+         
+         loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
+                              in Map.map (Map.map gen) @loc.allAugments
 
          loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
          loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
@@ -267,7 +270,7 @@ SEM AG
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
 
          loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
-         loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs
+         loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
          loc.checkedInsts    = Map.map (Map.map fst) @loc.allInstsErrs
          loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
@@ -399,6 +402,8 @@ checkAugments allAttrs nt con augments
 
         (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkAugment (Map.empty, Seq.empty) augments
+
+unionunionplusplus = Map.unionWith (Map.unionWith (++))
 }
 
 

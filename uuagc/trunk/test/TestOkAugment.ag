@@ -5,6 +5,6 @@ ATTR D [ | | x : Int ]
 
 SEM D
   | C  lhs.x = 1
-       AUGMENT x = (+1)
-       AUGMENT x = (+2)
+       +x = (+1)
+       +x = (+2)
 
