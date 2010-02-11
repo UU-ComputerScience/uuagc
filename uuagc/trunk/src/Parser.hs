@@ -331,10 +331,13 @@ pSemDef opts
       <|>                            pLOC              *> pList1 (pLocDecl opts)
       <|>                            pINST             *> pList1 (pInstDecl opts)
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
-      <|> (\n e -> [AugmentDef n e]) <$ pAUGMENT <*> pIdentifier <* pAssign <*> pExpr opts
+      <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pIdentifier <* pAssign <*> pExpr opts
       <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr opts
- 
+
+pAugmentToken :: AGParser ()
+pAugmentToken = () <$ (pAUGMENT <|> pPlus)
+
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
  
 pAttrDef :: Options -> AGParser (Identifier -> SemDef)
@@ -410,7 +413,7 @@ pTypeColon opts
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -442,6 +445,7 @@ pDoubleColon = pCostReserved 5  "::"      <?> "::"
 pEquals      = pCostReserved 5  "="       <?> "="
 pColonEquals = pCostReserved 5  ":="      <?> ":="
 pTilde       = pCostReserved 5  "~"       <?> "~"
+pPlus        = pCostReserved 5  "+"       <?> "+"
 pBar         = pCostReserved 5  "|"       <?> "|"
 pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"

@@ -65,6 +65,7 @@ scan opts
             scan' (',' :rs)          = (reserved "," p, advc 1 p, rs)
             scan' ('_' :rs)          = (reserved "_" p, advc 1 p, rs)
             scan' ('~' :rs)          = (reserved "~" p, advc 1 p, rs)
+            scan' ('+' :rs)          = (reserved "+" p, advc 1 p, rs)
             scan' ('<' :rs)          = (reserved "<" p, advc 1 p, rs)
             scan' ('[' :rs)          = (reserved "[" p, advc 1 p, rs)
             scan' (']' :rs)          = (reserved "]" p, advc 1 p, rs)
