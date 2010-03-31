@@ -144,7 +144,10 @@ $(AG_BINARY): derived $(CABAL_CONFIG)
 
 $(CABAL_CONFIG): $(CABAL_SCRIPT)
 	@echo "* Configuring Cabal"
-	$(CABAL_CONFIGURE) --prefix=$(prefix)
+	$(CABAL_CONFIGURE) --user
+
+# AM: ignore the prefix; instead install as user command
+# --prefix=$(prefix)
 
 $(CABAL_SCRIPT): $(CABAL_SOURCE)
 	@echo "* Building Cabal script"

@@ -989,7 +989,8 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        cldrn = map (child False) flds ++ map (child True) insts
                                        child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
-                                                 NT nt _ -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
+                                                 NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
+                                                            in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
                                                  _       -> (Map.empty,Map.empty)
                                           in Child nm tp inh syn isVirtual
                                    in Production con cldrn rules tsigs

@@ -1,0 +1,9 @@
+DATA Koe
+ | Koe
+
+ATTR Koe [ | | legs:Int]
+
+SEM Koe
+ | Koe inst.koe : Koe
+       inst.koe = Koe_Koe
+       lhs.legs = @koe.legs

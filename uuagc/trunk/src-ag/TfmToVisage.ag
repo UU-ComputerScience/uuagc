@@ -98,7 +98,7 @@ SEM Productions
 
 SEM Production
   | Production  lhs.vprod        = VProduction @con @children.vchildren @lhsrules @locrules                 
-                loc.splitVRules  = splitVRules @rules.vrules
+             Â   loc.splitVRules  = splitVRules @rules.vrules
                 loc.locrules     = getForField "loc" @splitVRules
                 loc.lhsrules     = getForField "lhs" @splitVRules
                 children.rulemap = @splitVRules
