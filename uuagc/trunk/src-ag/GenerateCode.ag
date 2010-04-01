@@ -885,7 +885,8 @@ SEM CNonterminal
                                                          nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
                                                          arg  = SimpleExpr "list"
                                                          rarg = case tp of
-                                                                  NT t _ -> SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t) ++ " list)")
+                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                            in SimpleExpr ("(Prelude.map " ++ (cataname @lhs.prefix t') ++ " list)")
                                                                   _      -> arg
                                                          lhs = Fun (cataname @lhs.prefix @nt) [arg]
                                                          rhs = (App "Prelude.foldr" [cons,nil,rarg])
@@ -895,7 +896,8 @@ SEM CNonterminal
                                                          nothing = semname @lhs.prefix @nt (identifier "Nothing" )
                                                          arg  = SimpleExpr "x"
                                                          rarg = case tp of
-                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                            in App (cataname @lhs.prefix t') [arg]
                                                                   _      -> arg
                                                          lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
                                                      in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])    Set.empty Set.empty
@@ -906,10 +908,12 @@ SEM CNonterminal
                                                          right = semname @lhs.prefix @nt (identifier "Right" )
                                                          arg   = SimpleExpr "x"
                                                          rarg0 = case tp1 of
-                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                            in App (cataname @lhs.prefix t') [arg]
                                                                   _      -> arg
                                                          rarg1 = case tp2 of
-                                                                  NT t _ -> App (cataname @lhs.prefix t) [arg]
+                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                            in App (cataname @lhs.prefix t') [arg]
                                                                   _      -> arg
                                                          lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
                                                      in  [Decl (lhs (App "Prelude.Left"  [arg]))     (App left  [rarg0])    Set.empty Set.empty
@@ -920,7 +924,8 @@ SEM CNonterminal
                                                        nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil"))
                                                        arg   = SimpleExpr "m"
                                                        rarg  = case tp of
-                                                                 NT t _ -> App "Map.map" [SimpleExpr $ cataname @lhs.prefix t, arg]
+                                                                 NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                           in App "Map.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
                                                                  _      -> arg
                                                        lhs   = Fun (cataname @lhs.prefix @nt) [arg]
                                                        rhs   = App "Map.foldWithKey" [entry,nil,rarg]
@@ -930,7 +935,8 @@ SEM CNonterminal
                                                        nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil"))
                                                        arg   = SimpleExpr "m"
                                                        rarg  = case tp of
-                                                                 NT t _ -> App "IntMap.map" [SimpleExpr $ cataname @lhs.prefix t, arg]
+                                                                 NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                           in App "IntMap.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
                                                                  _      -> arg
                                                        lhs   = Fun (cataname @lhs.prefix @nt) [arg]
                                                        rhs   = App "IntMap.foldWithKey" [entry,nil,rarg]
@@ -940,7 +946,8 @@ SEM CNonterminal
                                                          tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
                                                          rargs = map rarg tps'                                                        
                                                          rarg (n, tp) = case tp of
-                                                                  NT t _ -> App (cataname @lhs.prefix t) [n]
+                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
+                                                                            in App (cataname @lhs.prefix t') [n]
                                                                   _      -> n
                                                                   
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
@@ -964,8 +971,9 @@ SEM CProduction
                                                  (map (\(n,_,_) -> SimpleExpr $ locname $ n) @loc.firstOrderChildren)
                                   rhs = App (semname @lhs.prefix @lhs.nt @con)
                                              (map argument @loc.firstOrderChildren)
-                                  argument (nm,NT tp _,_) = App (cataname @lhs.prefix tp)
-                                                               [SimpleExpr (locname nm)]
+                                  argument (nm,NT tp _,_) = let tp' = maybe tp id (deforestedNt tp)
+                                                            in App (cataname @lhs.prefix tp')
+                                                                   [SimpleExpr (locname nm)]
                                   argument (nm, _,_)    = SimpleExpr (locname nm)
                                in Decl lhs rhs Set.empty Set.empty
 

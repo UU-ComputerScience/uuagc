@@ -101,7 +101,7 @@ SEM Alternative
 
 
 {
-getNonterminalName (NT nt) = nt
+getNonterminalName (NT nt) = maybe nt id (deforestedNt nt)
 getNonterminalName _       = nullIdent
 
 child_syn2stream :: Vertex -> [Vertex] -> [UseStream] -> Stream
