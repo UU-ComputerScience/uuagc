@@ -117,7 +117,7 @@ SEM Grammar
 ------------------------------------------------------------------
 {
 getNtName :: Type -> NontermIdent
-getNtName (NT nt _) = nt
+getNtName (NT nt _) = maybe nt id (deforestedNt nt)
 getNtName _         = nullIdent
 }
 

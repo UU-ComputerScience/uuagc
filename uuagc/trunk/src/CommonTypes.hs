@@ -149,8 +149,9 @@ isSELFNonterminal :: Type -> Bool
 isSELFNonterminal (NT nt _) | nt == _SELF = True
 isSELFNonterminal _                       = False
 
+-- TODO: check if the name needs to be converted if the name is T_
 extractNonterminal :: Type -> NontermIdent
-extractNonterminal (NT n _) = n
+extractNonterminal (NT n _) = maybe n id (deforestedNt n)
 
 nontermArgs :: Type -> [String]
 nontermArgs tp

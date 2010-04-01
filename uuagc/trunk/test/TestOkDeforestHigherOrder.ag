@@ -4,6 +4,6 @@ DATA Koe
 ATTR Koe [ | | legs:Int]
 
 SEM Koe
- | Koe inst.koe : Koe
-       inst.koe = Koe_Koe
+ | Koe inst.koe : T_Koe
+       inst.koe = sem_Koe_Koe
        lhs.legs = @koe.legs
