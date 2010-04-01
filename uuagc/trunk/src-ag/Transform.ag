@@ -335,8 +335,10 @@ checkRules attributes fields allinsts allsigs nt con rs
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
          = case lookup field fieldmap
-            of  Just (NT tp _) -> if field == _LOC || field == _INST || field == _FIRST || field == _LAST
-                                     || hasAttrib (if getName field==getName _LHS then snd else fst) tp attr
+            of  Just (NT tp _) -> 
+                  let tp' = maybe tp id (deforestedNt tp)
+                  in              if field == _LOC || field == _INST || field == _FIRST || field == _LAST
+                                     || hasAttrib (if getName field==getName _LHS then snd else fst) tp' attr
                                   then case Map.lookupIndex fa m of
                                            Just ix -> let ((_,attr2),b) = Map.elemAt ix m
                                                        in  if b && not (fa `elem` bs)

@@ -1,9 +1,10 @@
 DATA Koe
  | Koe
 
-ATTR Koe [ | | legs:Int]
+ATTR Koe [ owner:Int | | legs:Int]
 
 SEM Koe
  | Koe inst.koe : T_Koe
        inst.koe = sem_Koe_Koe
+       koe.owner = @lhs.owner
        lhs.legs = @koe.legs
