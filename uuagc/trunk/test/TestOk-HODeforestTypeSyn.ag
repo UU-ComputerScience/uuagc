@@ -1,0 +1,20 @@
+MODULE {Test} {} {}
+
+DATA RawStatement
+| ListCompr RawStatement
+
+SEM RawStatement
+ | ListCompr inst.clones : T_Clones
+             inst.clones = sem_Clones_Cons (sem_Clone_Clone) sem_Clones_Nil
+             clones.body = sem_RawStatement_ListCompr (sem_RawStatement @loc.self)
+
+TYPE Clones = [Clone]
+DATA Clone | Clone
+ATTR Clones Clone [body:T_RawStatement | | x USE {+} {0} : Int ]
+
+SEM RawStatement [ | | x : Int  self : SELF ]
+
+SEM Clone
+  | Clone
+      inst.raw : T_RawStatement
+      inst.raw = @lhs.body
