@@ -1,0 +1,1016 @@
+PRAGMA strictdata
+PRAGMA strictwrap
+
+INCLUDE "ConcreteSyntax.ag"
+INCLUDE "Patterns.ag"
+
+imports
+{
+import Control.Monad(mplus,mzero)
+import List (partition, elem, nub,intersperse)
+import Data.Maybe
+import qualified Data.Map as Map
+import Data.Map (Map)
+import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert)
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq, empty, (><),fromList)
+import Data.Foldable(toList)
+import UU.Scanner.Position(noPos)
+
+import ConcreteSyntax
+import AbstractSyntax
+import ErrorMessages
+import Patterns (Patterns(..),Pattern(..))
+import Expression (Expression(..))
+import HsToken
+
+import Options
+import CommonTypes
+}
+
+
+-------------------------------------------------------------------------------
+--  Main goal
+-------------------------------------------------------------------------------
+
+-- Given some options, we want to construct a Grammar, that is, a structure that conforms to AbstractSyntax
+ATTR AG
+     [ options:{Options} | | output : Grammar ]
+
+-- as a side effect, we generate error messages and Haskell code blocks that need to be embedded in the final code
+ATTR AG Elems Elem SemAlts SemAlt Attrs NontSet ConstructorSet
+     [ | | errors USE {Seq.><}{Seq.empty}:{Seq Error} ]
+ATTR AG Elems Elem
+     [ | | blocks USE {`mapUnionWithPlusPlus`} {Map.empty}: {Blocks} ]
+
+
+-- The output is produced by calling a function that constructs the Grammar,
+-- given various datastructures that are collected from the concrete AG.
+
+SEM AG
+  | AG lhs.output = constructGrammar @loc.allNonterminals
+                                     @elems.paramsCollect
+                                     @loc.allFields
+                                     @loc.allAttrDecls
+                                     @elems.useMap
+                                     @elems.derivings
+                                     (if wrappers @lhs.options then @loc.allNonterminals else @elems.wrappers)
+                                     @loc.checkedRules
+                                     @loc.checkedSigs
+                                     @loc.checkedInsts
+                                     @elems.typeSyns
+                                     @elems.semPragmasCollect
+                                     @elems.attrOrderCollect
+                                     @elems.ctxCollect
+                                     @loc.checkedUniques
+                                     @loc.checkedAugments
+
+
+-------------------------------------------------------------------------------
+--  Main data flow
+-------------------------------------------------------------------------------
+
+{- Information is collected bottom-up (in multiple phases)
+   After checking for consistency, datastructures are createad from it,
+   which are passed down for the other phases.
+-}
+
+
+-- Names that are in use
+
+  -- bottom-up collection
+ATTR Elem Elems          [ | | collectedSetNames USE {`Set.union`} {Set.empty} : {Set Identifier} ]
+ATTR Elem Elems NontSet  [ | | collectedNames    USE {`Set.union`} {Set.empty} : {Set Identifier} ]
+  -- top-down distribution
+ATTR Elem Elems Attrs Alts Alt NontSet [ allNonterminals : {Set NontermIdent} | | ]
+
+
+-- Constructors that are in use
+  -- bottom-up collection
+ATTR Alt Alts ConstructorSet [ | | collectedConstructorNames USE {`Set.union`} {Set.empty} : {Set ConstructorIdent} ]
+ATTR Elem Elems [ | | collectedConstructorsMap USE {`mapUnionWithSetUnion`} {Map.empty} : {Map NontermIdent (Set ConstructorIdent)} ]
+  -- top-down distribution
+ATTR Elem Elems Alts Alt [ allConstructors : {Map NontermIdent (Set ConstructorIdent)} | | ]
+
+
+
+-- Nonterminal sets that are defined
+{type DefinedSets = Map Identifier (Set NontermIdent) }
+  -- bottom-up collection
+ATTR Elem Elems
+     [ | defSets:{Map Identifier (Set NontermIdent,Set Identifier)} | ]
+  -- top-down distribution
+ATTR Elem Elems NontSet
+     [ definedSets:{DefinedSets} | | ]
+     
+     
+     
+-- Interpreting nonterminal sets     
+ATTR NontSet [ | | nontSet   : {Set NontermIdent} ]
+
+
+-- Interpreting constructor sets     
+ATTR ConstructorSet  [ | | constructors : {(Set ConstructorIdent->Set ConstructorIdent)} ]
+
+
+
+-- Contextfree structure
+{type FieldMap  = [(Identifier, Type)] }
+{type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap) }
+  -- bottom-up collection
+ATTR Alt Alts Elem Elems
+     [ | | collectedFields USE {++} {[]} : {[(NontermIdent, ConstructorIdent, FieldMap)]}]
+  -- top-down distribution
+ATTR Elem Elems Attrs SemAlt SemAlts NontSet
+     [  allFields : {DataTypes} | | ]
+
+
+
+-- Attribute declarations
+  -- bottom-up collection
+ATTR Elems Elem Attrs
+     [
+     | attrDecls:{Map NontermIdent (Attributes, Attributes)}
+     | useMap USE {`merge`} {Map.empty}:{Map NontermIdent (Map Identifier (String,String,String))}
+     ]
+
+
+-- Attribute definitions
+{type AttrName   = (Identifier,Identifier) }
+{type RuleInfo   = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
+{type SigInfo    = (Identifier,Type) }
+{type UniqueInfo = (Identifier,Identifier) }
+{type AugmentInfo = (Identifier,Expression)}
+  -- bottom-up collection
+ATTR Elem Elems SemAlt SemAlts
+     [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
+             collectedSigs     USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, SigInfo) ]}
+             collectedInsts    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
+             collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
+             collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
+     ]
+
+
+
+-------------------------------------------------------------------------------
+--         Passing nonterminals
+-------------------------------------------------------------------------------
+
+-- Pass the name of the associated nonterminal to everyone
+ATTR Alt Alts SemAlt SemAlts [ nts:{Set NontermIdent} | | ]
+
+SEM Elem
+  | Data alts.nts = @names.nontSet
+  | Sem  alts.nts = @names.nontSet
+
+
+
+-------------------------------------------------------------------------------
+--         Calculation of code blocks                                        --
+-------------------------------------------------------------------------------
+
+SEM Elem
+  | Txt  loc.blockInfo  = ( let nm = getName @name
+                            in if nm == "imports"
+                               then BlockImport
+                               else if nm == "optpragmas"
+                                    then BlockPragma
+                                    else BlockOther
+                          , @mbNt
+                          )
+         loc.blockValue = [(@lines, @pos)]
+         lhs.blocks     = Map.singleton @loc.blockInfo @loc.blockValue
+
+
+-------------------------------------------------------------------------------
+--         Check for duplicates and report error
+-------------------------------------------------------------------------------
+
+{
+
+checkDuplicate :: (Identifier -> Identifier -> Error)
+               -> Identifier -> val -> Map Identifier val -> (Map Identifier val,Seq Error)
+checkDuplicate dupError key val m
+  = case Map.lookupIndex key m of
+     Just ix -> let (key',_) = Map.elemAt ix m
+                in  (m,Seq.singleton (dupError key key'))
+     Nothing -> (Map.insert key val m,Seq.empty)
+
+checkDuplicates :: (Identifier -> Identifier -> Error)
+                -> [(Identifier, val)] -> Map Identifier val -> (Map Identifier val,Seq Error)
+checkDuplicates dupError new m = foldErrors check m new
+ where  check = uncurry (checkDuplicate dupError)
+
+foldErrors f e xs = foldl g (e,Seq.empty) xs
+  where g ~(e,es) x = let (e',es') = f x e
+                      in (e', es >< es')
+
+
+checkForDuplicates :: (Identifier -> Identifier -> Error)  ->  [Identifier]  ->  [Error]
+checkForDuplicates err [] = []
+checkForDuplicates err (x:xs) = let (same,other) = List.partition (equalId x) xs
+                                in  map (err x) same ++ checkForDuplicates err other
+
+equalId :: Identifier -> Identifier -> Bool
+equalId x y = getName x == getName y
+
+}
+
+-------------------------------------------------------------------------------
+--         Collecting DATA's and type synonyms
+-------------------------------------------------------------------------------
+
+
+SEM Alt
+  | Alt  lhs.collectedFields  =  let fieldTable =
+                                      [ (attr, makeType @lhs.allNonterminals tp)
+                                      | (attr, tp) <- @fields
+                                      ]
+                                 in   [ (nt, con, fieldTable)
+                                      | nt  <- Set.toList @lhs.nts
+                                      , con <- Set.toList (@names.constructors (Map.findWithDefault Set.empty nt @lhs.allConstructors))
+                                      ]
+
+SEM Elem
+  | Type lhs.collectedFields = map (\(x,y)->(@name, x, y)) @loc.expanded
+
+SEM AG
+  | AG   
+
+         loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
+                           in  foldr f (Map.empty) @elems.collectedFields
+
+         loc.allConstrs  = let f (nt,con,_) = Map.insertWith (++) nt [con]
+                           in  foldr f (Map.empty) @elems.collectedFields
+
+         loc.allRules    = let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
+                           in  foldr f (Map.empty) @elems.collectedRules
+
+         loc.allSigs     = let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
+                               typeof nt r = Map.findWithDefault (Haskell "<unknown>") r $ fst $ Map.findWithDefault (Map.empty,Map.empty) nt @loc.allAttrDecls
+                           in  foldr f (Map.empty) ( @elems.collectedSigs
+                                                   ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- @elems.collectedUniques, (ident,ref) <- us ]
+                                                   )
+         
+         loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
+                           in  foldr f (Map.empty) @elems.collectedInsts
+         
+         loc.allUniques  = let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
+                           in foldr f (Map.empty) @elems.collectedUniques
+         loc.allAugments = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                           in foldr f Map.empty @elems.collectedAugments
+         
+         loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
+                              in Map.map (Map.map gen) @loc.allAugments
+
+         loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
+         loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs @allFields   )) @loc.allInsts
+         loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
+         loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
+
+         loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
+         loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
+         loc.checkedInsts    = Map.map (Map.map fst) @loc.allInstsErrs
+         loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
+         loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
+         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.allAttrDecls)) @loc.checkedUniques)
+
+         loc.errs1       = let f = checkForDuplicates (DupSynonym)
+                           in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
+
+         loc.errs2       = let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
+                               f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
+                           in  Seq.fromList . concat . map f . Map.toList $ @allFields    -- forbid duplicate fields
+
+         loc.errs3       = let f (nt,cons) = checkForDuplicates (DupAlt nt) cons
+                           in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
+                             -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
+
+         loc.errs4       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allRulesErrs
+                            
+         loc.errs5       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allSigsErrs
+         
+         loc.errs6       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allInstsErrs
+         
+         loc.errs7       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allUniquesErrs
+
+         loc.errs8       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allAugmentErrs
+
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8
+
+{
+type RulesAndErrors = ([Rule], Seq Error)
+type SigsAndErrors  = ([TypeSig], Seq Error)
+type InstsAndErrors = ([(Identifier, Type)], Seq Error)
+type UniquesAndErrors = (Map Identifier Identifier, Seq Error)
+type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
+type AttrOverwrite  = Map AttrName Bool
+type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
+type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
+
+checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
+              Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
+              NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
+checkRules attributes fields allinsts allsigs nt con rs
+  = let fieldmap :: FieldMap
+        fieldmap = (_LHS,NT nt undefined) : (_LOC,NT undefined undefined) : (_INST, NT undefined undefined) : (_FIRST, NT undefined undefined) : (_LAST, NT undefined undefined)
+                 : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
+                 ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
+        
+        sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allsigs)
+
+        hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
+  
+        checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
+        checkRule (pat,exp,as,owrt,str) ((r1,e1),m1) 
+          = let (e2,m2,u2,b2) = foldr (checkDefi owrt) (e1,m1,[],[]) as
+            in  ( (Rule (pat u2) exp owrt str : r1, e2), m2)
+
+        checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
+        checkDefi owrt fa@(field,attr) (e,m,u,bs)
+         = case lookup field fieldmap
+            of  Just (NT tp _) -> 
+                  let tp' = maybe tp id (deforestedNt tp)
+                  in              if field == _LOC || field == _INST || field == _FIRST || field == _LAST
+                                     || hasAttrib (if getName field==getName _LHS then snd else fst) tp' attr
+                                  then case Map.lookupIndex fa m of
+                                           Just ix -> let ((_,attr2),b) = Map.elemAt ix m
+                                                       in  if b && not (fa `elem` bs)
+                                                           then (                                             e, Map.insert fa owrt m, fa:u, fa:bs)
+                                                           else (((Seq.<|)) (DupRule nt con field attr2 attr)   e,                    m, fa:u,    bs)
+                                           Nothing ->           (                                             e, Map.insert fa owrt m,    u, fa:bs)
+                                  else                          (((Seq.<|)) (SuperfluousRule nt con field attr) e,                    m, fa:u,    bs)
+                _              ->                               (((Seq.<|)) (UndefChild nt con field)           e,                    m, fa:u,    bs )
+
+    in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
+
+checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
+checkSigs nt con sis 
+  = let checkSig (ide,typ) (sigs,errs)
+         = if   ide `elem` map (\(TypeSig n t)-> n) sigs
+           then (sigs, ((Seq.<|)) (DupSig nt con ide) errs)
+           -- else if not (ide `elem` locattrdefs)
+           -- then (sigs, ((Seq.<|)) (SupSig nt con ide) errs)
+           else (TypeSig ide typ:sigs, errs)
+    in  foldr checkSig ([],Seq.empty) sis
+
+checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
+checkInsts allNts sigMap fieldMap nt con
+  = foldr (\inst (insts, errs) ->
+      checkDup inst insts errs $ 
+              maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
+                    (\info@(_, NT nm _) -> case nm `Set.member` allNts of
+                                             True  -> (info : insts, errs)
+                                             False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
+                                                                                    in case nm' `Set.member` allNts of
+                                                                                         True  -> (info : insts, errs)
+                                                                                         False -> (insts, Seq.singleton (UndefNont nm') >< errs)
+                                                   | otherwise                   -> (insts, Seq.singleton (UndefNont nm) >< errs)
+                    ) 
+                  $ findSig inst
+          ) ([], Seq.empty)
+  where
+    sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
+    
+    findSig name
+      = do tp@(NT _ _) <- lookup name sigs
+           return (name, tp)
+    
+    checkDup name insts errs e
+      = let fields = Map.findWithDefault [] con $ Map.findWithDefault Map.empty nt fieldMap
+            walk [] = Nothing
+            walk ((i,_): fs) | i == name = Just name
+                             | otherwise = walk fs
+        in case walk fields of
+             Just occ -> (insts, Seq.singleton (DupChild nt con name occ) >< errs)
+             Nothing  -> e
+
+checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [UniqueInfo] -> UniquesAndErrors
+checkUniques allAttrs nt con uniques
+  = let checkUnique (ident,ref) (us,errs)
+          = if ident `Map.member` us
+            then (us, ((Seq.<|)) (DupUnique nt con ident) errs)
+            else if Map.member ref inhs && Map.member ref syns
+                 then (Map.insert ident ref us, errs)
+                 else (us, ((Seq.<|)) (MissingUnique nt ref) errs)
+
+        (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
+    in foldr checkUnique (Map.empty, Seq.empty) uniques
+
+checkAugments :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [AugmentInfo] -> AugmentsAndErrors
+checkAugments allAttrs nt con augments
+  = let checkAugment (ident,expr) (as,errs)
+          = if ident `Map.member` as
+            then (Map.update (\vs -> Just (vs ++ [expr])) ident as, errs)
+            else if Map.member ident syns
+                 then (Map.insert ident [expr] as, errs)
+                 else (as, ((Seq.<|)) (MissingSyn nt ident) errs)
+
+        (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
+    in foldr checkAugment (Map.empty, Seq.empty) augments
+
+unionunionplusplus = Map.unionWith (Map.unionWith (++))
+}
+
+
+{
+mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
+mkUniqueRules opts allFields allAttrDecls nt con usMap
+  = map apply groups
+  where
+    fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allFields)
+
+    groups = Map.assocs $ Map.foldWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
+    apply (ref,us) = mkRule ref (findOutField ref) us
+    findOutField ref = case [ chld | (chld,NT tp _) <- fields, tp `hasSyn` ref] of
+                         []    -> _LHS
+                         (x:_) -> x
+    hasSyn tp ref = Map.member ref $ snd $ Map.findWithDefault (Map.empty,Map.empty) tp allAttrDecls
+    mkRule ref outFld locAttrs
+      = let pat = Product noPos (attr outFld ref : [attr _LOC u | u <- locAttrs ])
+            rhs = Expression noPos $ wrap ref $ foldr gencase (finalout locAttrs) locAttrs
+                     -- [HsToken ("mkUniques" ++ show (length locAttrs) ++ " ") noPos, AGField _LHS ref noPos Nothing]
+        in Rule pat rhs False "-- generated by the unique rule mechanism."
+    attr fld a = Alias fld a (Underscore noPos) []
+    gencase nm outp
+      = h ("case " ++ uniqueDispenser opts ++ " __cont of { (__cont, " ++ getName nm ++ ") -> ") ++ outp ++ h "}"
+    h s = [HsToken s noPos]
+    finalout us = h ("(__cont, " ++ concat (intersperse "," (map getName us)) ++ ")")
+    wrap ref inp = h "case " ++ [AGField _LHS ref noPos Nothing] ++ h " of { __cont | __cont `seq` True -> " ++ inp ++ h "}"
+}
+
+
+-------------------------------------------------------------------------------
+--         Collecting Set names and Nonterminal names
+-------------------------------------------------------------------------------
+
+
+
+SEM Elem
+  | Set  lhs.collectedSetNames = Set.singleton @name
+
+SEM Elem
+  | Type  lhs.collectedNames = Set.singleton @name
+
+SEM NontSet
+  | NamedSet lhs.collectedNames = Set.singleton @name
+
+SEM AG
+  | AG   loc.allNonterminals = @elems.collectedNames `Set.difference` @elems.collectedSetNames
+ 
+
+
+
+
+
+SEM ConstructorSet
+  | CName lhs.collectedConstructorNames = Set.singleton @name
+
+--SEM Alt
+--  | Alt lhs.collectedConstructorNames = Set.singleton @name
+
+SEM Elem
+  | Data  lhs.collectedConstructorsMap = Map.fromList
+                                         [ (n, @alts.collectedConstructorNames)
+                                         | n <- Set.toList @names.nontSet
+                                         ]
+
+SEM AG
+  | AG elems.allConstructors = @elems.collectedConstructorsMap
+
+
+
+-------------------------------------------------------------------------------
+--          Type synonyms
+-------------------------------------------------------------------------------
+
+{- At the moment type synonyms are only supported for list types
+   This means that only synonyms of the form:
+      TYPE <NT> = [ <TP> ]
+   are allowed
+-}
+
+
+ATTR Elem Elems [ | | typeSyns USE {++} {[]} : {TypeSyns} ]
+
+{- Put this synonym in the typeSyns list and
+   add the implicit Cons and Nil productions for the type synonym
+
+   A synonym of the form:
+        TYPE <NT> = [ <TP> ]
+   is translated into:
+       DATA <NT> | Cons hd:<TP> tl:<NT>
+                 | Nil
+-}
+
+SEM Elem
+  | Type  loc.expanded       = case @argType of
+                                       List tp -> [(Ident "Cons" @pos, [(Ident "hd" @pos, tp)
+                                                                       ,(Ident "tl" @pos, NT @name (map getName @params))
+                                                                       ]
+                                                   )
+                                                  ,(Ident "Nil" @pos,  [])
+                                                  ]
+                                       Maybe tp -> [(Ident "Just" @pos, [(Ident "just" @pos, tp)
+                                                                       ]
+                                                   )
+                                                  ,(Ident "Nothing" @pos,  [])
+                                                  ]
+                                       Either tp1 tp2 -> [
+                                                    (Ident "Left"    @pos,  [(Ident "left"  @pos, tp1) ])
+                                                  , (Ident "Right"   @pos,  [(Ident "right" @pos, tp2) ])
+                                                  ]
+                                       Map tp1 tp2 -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, tp1)
+                                                                             , (Ident "val" @pos, tp2)
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
+                                       IntMap tp   -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, Haskell "Int")
+                                                                             , (Ident "val" @pos, tp)
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
+                                       Tuple xs -> [(Ident "Tuple" @pos, xs)]
+          loc.argType        = case @type of
+                                Maybe tp       -> Maybe  (  makeType @lhs.allNonterminals tp)
+                                Either tp1 tp2 -> Either (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
+                                List tp        -> List   (  makeType @lhs.allNonterminals tp)
+                                Tuple xs       -> Tuple [(f,makeType @lhs.allNonterminals tp) | (f,tp) <- xs]
+                                Map tp1 tp2    -> Map    (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
+                                IntMap tp      -> IntMap (  makeType @lhs.allNonterminals tp)
+          lhs.typeSyns       = [(@name,@argType)]
+
+-------------------------------------------------------------------------------
+--         Interpreting Nonterminal sets
+-------------------------------------------------------------------------------
+
+
+SEM AG
+  | AG 
+       elems.defSets     = Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList @loc.allNonterminals))
+       elems.definedSets = Map.map fst @elems.defSets
+
+
+SEM Elem
+  | Set loc.(defSets2,errs) = let allUsedNames = Set.unions [ maybe (Set.singleton n)
+                                                                    snd
+                                                                    (Map.lookup n @lhs.defSets)
+                                                            | n <- Set.toList @set.collectedNames
+                                                            ]
+                                  (nontSet,e1) | Set.member @name allUsedNames
+                                                           = (Set.empty, Seq.singleton(CyclicSet @name))
+                                               | otherwise = (@set.nontSet, Seq.empty)
+                                  (res, e2) = checkDuplicate DupSet  @name (nontSet,Set.insert @name allUsedNames) @lhs.defSets
+                              in (res, e1 Seq.>< e2)
+        lhs.defSets         = @defSets2
+           .errors          = @errs >< @set.errors
+
+SEM NontSet
+  | All        lhs.nontSet = @lhs.allNonterminals
+  | NamedSet   loc.(nontSet,errors) = case Map.lookup @name @lhs.definedSets of
+                                                   Nothing  -> (Set.empty, Seq.singleton (UndefNont @name))
+                                                   Just set -> (set, Seq.empty)
+  | Union      lhs.nontSet = Set.union         @set1.nontSet @set2.nontSet
+  | Intersect  lhs.nontSet = Set.intersection  @set1.nontSet @set2.nontSet
+  | Difference lhs.nontSet = Set.difference    @set1.nontSet @set2.nontSet
+  | Path       lhs.nontSet = let table = flattenDatas @lhs.allFields
+                             in path table @from @to
+               lhs.errors = let check name | Set.member name @lhs.allNonterminals
+                                                       = Seq.empty
+                                           | otherwise = Seq.singleton (UndefNont name)
+                            in check @from >< check @to
+
+
+{
+flattenDatas :: DataTypes -> Map NontermIdent (Set NontermIdent)
+flattenDatas ds = Map.map flatten ds
+  where flatten cs =  Set.fromList [ nt | (_,NT nt _) <- concatMap snd (Map.toList cs)]
+
+reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
+reachableFrom table nts = reach nts
+  where reach nts = let nts' = Set.unions (nts : [ ns  | nt <- Set.toList nts
+                                                 , let ns = Map.findWithDefault Set.empty nt table ])
+                    in if Set.size nts' > Set.size nts
+                          then reach nts'
+                          else nts
+invert :: Map NontermIdent (Set NontermIdent) -> Map NontermIdent (Set NontermIdent)
+invert m = foldr inv Map.empty (Map.toList m)
+  where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.singleton x) m) m ns
+
+path :: Map NontermIdent (Set NontermIdent) -> NontermIdent -> NontermIdent -> Set NontermIdent
+path table from to = let children = Map.findWithDefault Set.empty from table
+                         forward  = reachableFrom table children
+                         backward = reachableFrom (invert table)
+                                                  (Set.singleton to)
+                     in  Set.intersection forward backward
+}
+
+-------------------------------------------------------------------------------
+--   Interpreting Constructor Sets
+-------------------------------------------------------------------------------
+
+
+SEM ConstructorSet
+  | CName       lhs.constructors = \ds -> Set.singleton @name
+  | CUnion      lhs.constructors = \ds -> @set1.constructors ds `Set.union`      @set2.constructors ds
+  | CDifference lhs.constructors = \ds -> @set1.constructors ds `Set.difference` @set2.constructors ds
+  | CAll        lhs.constructors = \ds -> ds
+
+-------------------------------------------------------------------------------
+--         Collecting wrappers
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | wrappers USE {`Set.union`} {Set.empty} :{Set NontermIdent}]
+
+SEM Elem
+  | Wrapper lhs.wrappers = @set.nontSet
+
+-------------------------------------------------------------------------------
+--         Collecting pragmas
+-------------------------------------------------------------------------------
+
+ATTR AG Elem Elems [ | | pragmas USE {.} {id} :{Options -> Options}]
+
+SEM Elem
+  | Pragma  lhs.pragmas = let mk n o = case getName n of
+                                         "gencatas"     -> o { folds       = True  }
+                                         "nogencatas"   -> o { folds       = False }
+                                         "gendatas"     -> o { dataTypes   = True  }
+                                         "nogendatas"   -> o { dataTypes   = False }
+                                         "gensems"      -> o { semfuns     = True  }
+                                         "nogensems"    -> o { semfuns     = False }
+                                         "gentypesigs"  -> o { typeSigs    = True  }
+                                         "nogentypesigs"-> o { typeSigs    = False }
+                                         "nocycle"      -> o { withCycle   = False }
+                                         "cycle"        -> o { withCycle   = True  }
+                                         "nostrictdata" -> o { strictData  = False }
+                                         "strictdata"   -> o { strictData  = True  }
+                                         "nostrictcase" -> o { strictCases = False }
+                                         "strictcase"   -> o { strictCases = True  }
+                                         "strictercase" -> o { strictCases = True, stricterCases = True }
+                                         "nostrictwrap" -> o { strictWrap  = False }
+                                         "strictwrap"   -> o { strictWrap  = True  }
+                                         "novisit"      -> o { visit       = False }
+                                         "visit"        -> o { visit       = True  }
+                                         "nocase"       -> o { cases       = False }
+                                         "case"         -> o { cases       = True  }
+                                         "noseq"        -> o { withSeq     = False }
+                                         "seq"          -> o { withSeq     = True  }
+                                         "nounbox"      -> o { unbox       = False }
+                                         "unbox"        -> o { unbox       = True  }
+                                         "bangpats"     -> o { bangpats    = True  }
+                                         "nooptimize"   -> o { cases = False , visit = False }
+                                         "optimize"     -> o { cases = True  , visit = True  }
+                                         "strictsem"    -> o { strictSems = True }
+                                         "gentraces"    -> o { genTraces = True }
+                                         "genusetraces" -> o { genUseTraces = True }
+                                         "splitsems"    -> o { splitSems = True }
+                                         "gencostcentres" -> o { genCostCentres = True }
+                                         "sepsemmods"   -> o { sepSemMods = True }
+                                         "genlinepragmas" -> o { genLinePragmas = True }
+                                         "newtypes"       -> o { newtypes = True }
+                                         "nonewtypes"     -> o { newtypes = False }
+                                         _              -> o
+                          in \o -> foldr mk o @names
+
+ATTR Elem Elems SemAlts SemAlt [ | | semPragmasCollect USE {`pragmaMapUnion`} {Map.empty} : {PragmaMap} ]
+
+SEM SemAlt
+  | SemAlt
+      loc.pragmaNames       = Set.fromList @rules.pragmaNamesCollect
+      lhs.semPragmasCollect = foldr pragmaMapUnion Map.empty [ pragmaMapSingle nt con @loc.pragmaNames
+                                                             | (nt, conset, _) <- @loc.coninfo
+                                                             , con <- Set.toList conset
+                                                             ]
+
+ATTR SemDefs SemDef [ | | pragmaNamesCollect USE {++} {[]} : {[Identifier]} ]
+
+SEM SemDef
+  | SemPragma
+      lhs.pragmaNamesCollect = @names
+
+{
+pragmaMapUnion :: PragmaMap -> PragmaMap -> PragmaMap
+pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
+
+pragmaMapSingle :: NontermIdent -> ConstructorIdent -> Set Identifier -> PragmaMap
+pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
+}
+
+-------------------------------------------------------------------------------
+--         Collecting attribute orders
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems SemAlts SemAlt [ | | attrOrderCollect USE {`orderMapUnion`} {Map.empty} : {AttrOrderMap} ]
+ATTR Elem Elems SemAlts SemAlt [ allAttrDecls : {Map NontermIdent (Attributes, Attributes)} | | ]
+
+SEM SemAlt
+  | SemAlt
+      loc.attrOrders
+        = [ orderMapSingle nt con @rules.orderDepsCollect
+          | (nt, conset, _) <- @loc.coninfo
+          , con <- Set.toList conset
+          ]
+
+      lhs.attrOrderCollect = foldr orderMapUnion Map.empty @loc.attrOrders
+
+ATTR SemDefs SemDef [ | | orderDepsCollect USE {`Set.union`} {Set.empty} : {Set Dependency} ]
+
+SEM SemDef
+  | AttrOrderBefore
+      loc.dependency       = [ Dependency b a | b <- @before, a <- @after ]
+      lhs.orderDepsCollect = Set.fromList @loc.dependency
+
+{
+orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap
+orderMapUnion = Map.unionWith (Map.unionWith Set.union)
+
+orderMapSingle :: NontermIdent -> ConstructorIdent -> Set Dependency -> AttrOrderMap
+orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
+}
+
+-------------------------------------------------------------------------------
+--         Collecting nonterminal type parameters
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | paramsCollect USE {`mergeParams`} {Map.empty} : {ParamMap}]
+
+SEM Elem
+  | Data
+      lhs.paramsCollect = if null @params
+                          then Map.empty
+                          else Map.fromList [(nt, @params) | nt <- Set.toList @names.nontSet]
+
+SEM Elem
+  | Type
+      lhs.paramsCollect = if null @params
+                          then Map.empty
+                          else Map.singleton @name @params
+
+{
+mergeParams :: ParamMap -> ParamMap -> ParamMap
+mergeParams = Map.unionWith (++)
+}
+
+-------------------------------------------------------------------------------
+--         Collecting class contexts of semantic functions
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | ctxCollect USE {`mergeCtx`} {Map.empty} : {ContextMap}]
+
+SEM Elem
+  | Sem Data Attr
+      lhs.ctxCollect = if null @ctx
+                       then Map.empty
+                       else Map.fromList [(nt, @ctx) | nt <- Set.toList @names.nontSet]
+
+SEM Elem
+  | Type
+      lhs.ctxCollect = if null @ctx
+                       then Map.empty
+                       else Map.singleton @name @ctx
+
+{
+mergeCtx :: ContextMap -> ContextMap -> ContextMap
+mergeCtx
+  = Map.unionWith nubconcat
+  where nubconcat a b = nub (a ++ b)
+}
+
+-------------------------------------------------------------------------------
+--         Collecting derivings
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | derivings USE {`mergeDerivings`} {Map.empty} :{Derivings}]
+
+{
+mergeDerivings m1 m2 = foldr (\(n,cs) m -> Map.insertWith Set.union n cs m) m2 (Map.toList m1)
+}
+
+SEM Elem
+  | Deriving lhs.derivings = Map.fromList [(nt,Set.fromList @classes) | nt <- Set.toList @set.nontSet]
+
+-------------------------------------------------------------------------------
+--         Collecting ATTR declarations
+-------------------------------------------------------------------------------
+
+{
+merge x y = foldr f y (Map.toList x)
+ where f ~(k,v) m = Map.insertWith (Map.union) k v m
+}
+
+SEM AG
+  | AG elems.attrDecls = Map.empty
+
+SEM Elem
+  | Data attrs.nts = @names.nontSet
+  | Attr attrs.nts = @names.nontSet
+  | Sem  attrs.nts = @names.nontSet
+
+SEM Attrs [ nts:{Set NontermIdent} | | ]
+  | Attrs loc.(attrDecls,errors) = checkAttrs @lhs.allFields (Set.toList @lhs.nts) @inherited @synthesized @lhs.attrDecls
+
+             .(inherited,synthesized,useMap) = let splitAttrs xs = unzip [ ((n,makeType @lhs.allNonterminals t),(n,ud))
+                                                                         | (n,t,ud) <- xs 
+                                                                         ]
+                                                   (inh,_)     = splitAttrs @inh
+                                                   (chn,uses1) = splitAttrs @chn
+                                                   (syn,uses2) = splitAttrs @syn
+                                                   isUse (n,(e1,e2,_)) = not (null e1 || null e2)
+                                               in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
+          lhs.useMap = Map.fromList (zip (Set.toList @lhs.nts) (repeat @useMap))
+
+
+{
+checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nts where
+  check nt decls | not (nt `Map.member` allFields) = (decls,Seq.singleton(UndefNont nt))
+                 | otherwise = let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt decls
+                                   (inh',einh) = checkDuplicates (DupInhAttr nt) inherited   inh
+                                   (syn',esyn) = checkDuplicates (DupSynAttr nt) synthesized syn
+                               in (Map.insert nt (inh',syn') decls,einh >< esyn)
+}
+
+
+-- Add declaration of self-attribute for each nonterminal: ATTR <nt> [ | | self:SELF]
+{
+addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
+                     in  Map.insert name (eInh, Map.insert (Ident "self" noPos) (NT _SELF []) eSyn)atMap
+}
+
+
+SEM AG
+  | AG  loc.allAttrDecls = if withSelf @lhs.options
+                            then foldr addSelf @elems.attrDecls (Set.toList @loc.allNonterminals)
+                            else               @elems.attrDecls
+
+-------------------------------------------------------------------------------
+--         Collecting rules
+-------------------------------------------------------------------------------
+
+
+ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]} 
+                          sigInfos     USE {++} {[]} : {[SigInfo]} 
+                          uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
+                          augmentInfos USE {++} {[]} : {[AugmentInfo]}
+                    ]
+
+
+SEM SemAlt
+  | SemAlt loc.coninfo = [ (nt, conset, conkeys)
+                         | nt  <- Set.toList @lhs.nts
+                         , let conmap = Map.findWithDefault Map.empty nt @lhs.allFields
+                         , let conkeys = Set.fromList (Map.keys conmap)
+                         , let conset  = @constructorSet.constructors conkeys
+                         ]
+  
+           lhs.errors = Seq.fromList
+                           [ UndefAlt nt con
+                           | (nt, conset, conkeys) <- @loc.coninfo
+                           , con <- Set.toList (Set.difference conset conkeys)
+                           ]
+           lhs.collectedRules 
+               =       [ (nt,con,r)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       , r <- @rules.ruleInfos
+                       ]
+           lhs.collectedSigs
+               =       [ (nt,con,ts)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       , ts <- @rules.sigInfos
+                       ]
+           
+           lhs.collectedInsts
+               =       [ (nt,con,@rules.definedInsts)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+           
+           lhs.collectedUniques
+               =       [ (nt,con,@rules.uniqueInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+          
+           lhs.collectedAugments
+              =        [ (nt, con, @rules.augmentInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+
+SEM SemDef
+  | Def  lhs.ruleInfos = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
+
+SEM SemDef
+  | TypeDef  lhs.sigInfos = [ (@ident, @tp) ]
+
+SEM SemDef
+  | UniqueDef  lhs.uniqueInfos = [ (@ident, @ref) ]
+
+SEM SemDef
+  | AugmentDef  lhs.augmentInfos = [ (@ident, @rhs) ]
+
+
+ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
+ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
+ATTR Pattern [ | | patunder : {[AttrName]->Pattern} ]
+ATTR Patterns [ | | patunder : {[AttrName]->Patterns} ]
+
+SEM Pattern
+  | Alias lhs.definedAttrs = (@field, @attr) : @pat.definedAttrs
+          lhs.patunder     = \us -> if ((@field,@attr) `elem` us) then Underscore noPos else @copy
+          lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
+  | Underscore lhs.patunder = \us -> @copy
+  | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
+  | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
+  | Irrefutable lhs.patunder = \us -> Irrefutable (@pat.patunder us)
+
+SEM Patterns
+  | Nil lhs.patunder = \us ->  []
+  | Cons lhs.patunder = \us -> (@hd.patunder us) : (@tl.patunder us)
+
+ATTR Pattern [ | | stpos : Pos ]
+
+SEM Pattern
+  | Constr     lhs.stpos = getPos @name
+  | Product    lhs.stpos = @pos
+  | Alias      lhs.stpos = getPos @field
+  | Underscore lhs.stpos = @pos
+
+-------------------------------------------------------------------------------
+--         Collect module declaration
+-------------------------------------------------------------------------------
+
+ATTR AG Elems Elem [ | | moduleDecl USE {`mplus`} {mzero} : {Maybe (String,String,String)} ]
+
+SEM Elem
+  | Module
+      lhs.moduleDecl = Just (@name, @exports, @imports)
+
+
+-------------------------------------------------------------------------------
+--         Constructing transformed syntax tree
+-------------------------------------------------------------------------------
+{
+makeType :: Set NontermIdent -> Type -> Type
+makeType nts tp@(NT x _) | x == _SELF       = tp
+                         | Set.member x nts = tp
+                         | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
+makeType _   tp                             = tp
+}
+{
+constructGrammar ::    Set NontermIdent
+                    -> ParamMap
+                    -> DataTypes
+                    -> Map NontermIdent (Attributes, Attributes)
+                    -> Map NontermIdent (Map Identifier (String, String, String))
+                    -> Derivings
+                    -> Set NontermIdent
+                    -> Map NontermIdent (Map ConstructorIdent [Rule])
+                    -> Map NontermIdent (Map ConstructorIdent [TypeSig])
+                    -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)])
+                    -> TypeSyns
+                    -> PragmaMap
+                    -> AttrOrderMap
+                    -> ContextMap
+                    -> UniqueMap
+                    -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
+                    -> Grammar
+
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap =
+   let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
+       nonts = map nont gr
+       nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
+                             rmap      = Map.findWithDefault Map.empty             nt allrules
+                             tsmap     = Map.findWithDefault Map.empty             nt tsigs
+                             instsmap  = Map.findWithDefault Map.empty             nt allinsts
+                             params    = Map.findWithDefault []                    nt ntParams
+                             alt (con,flds) =
+                                   let rules = maybe [] id (Map.lookup con rmap)
+                                       tsigs = maybe [] id (Map.lookup con tsmap)
+                                       insts = maybe [] id (Map.lookup con instsmap)
+                                       cldrn = map (child False) flds ++ map (child True) insts
+                                       child isVirtual (nm, tp) =
+                                          let (inh,syn) = case tp of
+                                                 NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
+                                                            in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
+                                                 _       -> (Map.empty,Map.empty)
+                                          in Child nm tp inh syn isVirtual
+                                   in Production con cldrn rules tsigs
+                            in Nonterminal nt params inh syn (map alt alts)
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap
+}
+
+{
+mapUnionWithSetUnion = Map.unionWith Set.union
+mapUnionWithPlusPlus = Map.unionWith (++)
+}

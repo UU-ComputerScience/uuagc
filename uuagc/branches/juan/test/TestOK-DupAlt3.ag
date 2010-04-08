@@ -1,0 +1,13 @@
+-- alternative Twee is defined twice, in different DATA-definitions for the same type Aap
+-- this was an error in v.0.9.1
+-- in v.0.9.3 it is allowed, as long as the childs are different
+
+DATA Aap
+	| Een  a : {Int}
+	| Twee b : {Int}
+
+DATA Noot
+	| One  d : {Int}
+	
+DATA Aap
+	| Drie c : {Int}	

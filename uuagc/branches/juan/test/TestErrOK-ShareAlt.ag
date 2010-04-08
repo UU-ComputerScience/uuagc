@@ -1,0 +1,15 @@
+-- datatypes Aap and Noot share a common basis, and are later extended in different ways
+-- this was an error in v.0.9.1
+-- in v.0.9.3 it is possible
+
+DATA Both
+	| Een  a : {Int}
+	| Twee b : {Int}
+
+SET Both = Aap Noot
+
+DATA Aap
+    | Drie c : {Int}
+    
+DATA Noot
+    | Vier d : {Int}    

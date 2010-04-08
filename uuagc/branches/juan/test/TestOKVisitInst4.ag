@@ -1,0 +1,32 @@
+-- A grammar that requires 3 visits where an inst attribute is first required in the second visit and it's synthesized attributes in the second and third visit
+
+DATA Root
+  | Root a : Aap
+
+DATA Aap
+  | Een
+
+DATA Bab
+  | Twee  t : Int
+
+ATTR Root [ z : Int | | ]
+ATTR Aap [ v : Int x : Int | | y : Int z : Int w : Int ]
+ATTR Bab [ | | p : Int ]
+
+SEM Root
+  | Root a.x = @a.y -- computed in first fisit
+         a.v = @a.z -- computed in second visit
+
+SEM Aap
+  | Een  inst.b : Bab
+         inst.b = Bab_Twee @lhs.x  -- can only be constructed in second visit
+         
+         lhs.z = @lhs.x + @b.p  -- second visit
+         lhs.y = 3              -- first visit
+         
+         lhs.w = @b.p + @lhs.v  -- third visit
+
+SEM Bab
+  | Twee  lhs.p = @t
+
+WRAPPER Root

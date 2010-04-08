@@ -1,0 +1,25 @@
+-- A grammar that requires two visits, and an attribute w
+-- that is needed in both passes
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Aap
+
+
+ATTR Aap [ x : Int | y : Int |  z : Int   w : Int ]
+
+
+SEM Root
+  | Root  a.x = @a.y + @a.w
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t
+         lhs.z = @t + @lhs.x
+         lhs.w = 3
+         
+  | Twee lhs.y = 7
+         lhs.z = @u.w   

@@ -1,0 +1,12 @@
+-- set Noot is also defined as a datatype
+
+DATA Aap
+	| Een a : {Int}
+	
+DATA Aap2
+	| Twee b : {Int}
+	
+DATA Noot
+	| Vier d : {Int}
+
+SET Noot = Aap Aap2

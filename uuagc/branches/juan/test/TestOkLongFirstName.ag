@@ -1,0 +1,9 @@
+DATA Dummy
+  | Dummy  thisisaverylongname : Dummy
+
+ATTR Dummy [ | | x : Int ]
+
+SEM Dummy
+  | Dummy
+      lhs.x = @first.x + let y = 4
+                          in @first.x + y
