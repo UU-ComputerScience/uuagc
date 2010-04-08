@@ -143,7 +143,8 @@ SEM  CRule
                                    else id
            loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
                                   ( let nm = fromJust $ inst `lookup` @loc.instTypes
-                                    in case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
+                                    in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
+                                       $ case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
                                          True  -> App (cataname @lhs.prefix nm)
                                                       [SimpleExpr instLocFieldName]
                                          False -> SimpleExpr instLocFieldName
@@ -189,6 +190,15 @@ SEM  CRule
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
                                   rhs = @loc.addCostCentre $ App (funname @name @nr) (map SimpleExpr rhsVars)
                              in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
+
+{
+unwrapSem :: Bool -> NontermIdent -> Expr -> Expr
+unwrapSem False _ e = e
+unwrapSem True nm e = Case e alts
+  where alts  = [CaseAlt left right]
+        left  = Fun (typeName nm 0) [SimpleExpr "x"]
+        right = SimpleExpr "x"
+}
 
 ATTR Sequence CRule [ higherOrderChildren : {[(Identifier,Type,Bool)]} ||]
 

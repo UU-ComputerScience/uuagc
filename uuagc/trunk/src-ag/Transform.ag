@@ -265,7 +265,7 @@ SEM AG
 
          loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
          loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
-         loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs              )) @loc.allInsts
+         loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs @allFields   )) @loc.allInsts
          loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
 
@@ -360,9 +360,10 @@ checkSigs nt con sis
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
 
-checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
-checkInsts allNts sigMap nt con
+checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
+checkInsts allNts sigMap fieldMap nt con
   = foldr (\inst (insts, errs) ->
+      checkDup inst insts errs $ 
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
                     (\info@(_, NT nm _) -> case nm `Set.member` allNts of
                                              True  -> (info : insts, errs)
@@ -380,6 +381,15 @@ checkInsts allNts sigMap nt con
     findSig name
       = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
+    
+    checkDup name insts errs e
+      = let fields = Map.findWithDefault [] con $ Map.findWithDefault Map.empty nt fieldMap
+            walk [] = Nothing
+            walk ((i,_): fs) | i == name = Just name
+                             | otherwise = walk fs
+        in case walk fields of
+             Just occ -> (insts, Seq.singleton (DupChild nt con name occ) >< errs)
+             Nothing  -> e
 
 checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [UniqueInfo] -> UniquesAndErrors
 checkUniques allAttrs nt con uniques
