@@ -187,6 +187,7 @@ SEM Lhs
   | TupleLhs   lhs.pp      = @loc.addStrictGuard $ ppTuple @lhs.nested (map (@loc.addBang . text) @comps)
   | UnboxedTupleLhs   lhs.pp      = @loc.addStrictGuard $ ppUnboxedTuple @lhs.nested (map (@loc.addBang . text) @comps)
   | Fun        lhs.pp      = @loc.addStrictGuard (@name >#< hv_sp (map @loc.addBang @args.pps))
+  | Unwrap     lhs.pp      = pp_parens (@name >#< @sub.pp)
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2

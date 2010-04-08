@@ -95,6 +95,7 @@ DATA Lhs      | Pattern3    pat3  : Pattern
               | UnboxedTupleLhs  comps : {[String]} -- /
               | Fun              name  : {String} 
                                  args  : Exprs
+              | Unwrap name : {String} sub : Lhs
 
 DERIVING Type : Show
 
