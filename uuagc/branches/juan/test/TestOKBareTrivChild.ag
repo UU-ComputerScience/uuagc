@@ -1,0 +1,11 @@
+-- The child @child is used as a local variable,
+-- which is allowed because its type is not a Nonterminal
+
+DATA Aap 
+	| Een child : Int
+	
+ATTR Aap [ | | synth : Int ]
+
+SEM Aap
+  | Een   lhs.synth = @child
+

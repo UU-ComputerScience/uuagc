@@ -1,0 +1,20 @@
+
+name:          repmin
+version:       0.1
+cabal-version: >=1.6
+build-type:    Simple
+license:       GPL
+license-file:  LICENSE
+copyright:     Copyright: (C) Juan Francisco Cardona McCormick
+author:        Juan Francisco Cardona McCormick
+maintainer:    fcardona@eafit.edu.co
+stability:     experimental
+bug-reports:   mailto: fcardona@eafit.edu.co
+description:   An example of the use of the PPUUAGC preprocesor
+extra-source-files:   uuagc_options,src/RepMax.ag
+
+Executable repmin
+   build-depends:   base
+   hs-source-dirs:  src
+   main-is:         RepMinMain.hs
+   other-modules:   RepMin

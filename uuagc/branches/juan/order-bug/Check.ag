@@ -1,0 +1,69 @@
+DATA AGItf
+  | AGItf  expr : Expr
+
+DATA Expr
+  | Seq         seq             : ExprSeq1
+  | Cast        expr            : Expr
+                bla             : Expr
+
+DATA ExprSeq1
+  | L0LblVal   l0              : Expr
+  | L1Bind     l2              : Expr
+
+DATA Alt
+  | Alt         pat             : Pat
+                expr            : Expr
+
+DATA Pat
+  | Char        ty              : Expr
+
+SET AllNT = Expr ExprSeq1 Alt Pat
+
+
+ATTR AllNT [ env: Env | | ]
+
+SEM AGItf
+  | AGItf      expr . env = bla
+
+ATTR ExprSeq1 Pat Expr [ | | gathEnv USE {`envUnion`} {emptyEnv} : Env ]
+
+SEM ExprSeq1
+  | L1Bind      loc         .   gathEnv             =   @lhs.mlev
+
+SEM Expr
+  | * - Seq Seq1
+                lhs         .   gathEnv             =   emptyEnv
+
+SEM Alt
+  | Alt         loc         .   env                 =   @pat.gathEnv @lhs.env
+
+ATTR AllNT [ mlev: MetaLev | | ]
+
+SEM AGItf
+  | AGItf       loc         .   mlev                =   @expr.t
+
+SEM Expr
+  | Cast
+                bla          .   mlev                =   @lhs.mlev
+-- uncomment the line below for wrong order of CChildVisits
+                -- lhs         .   ty                  =   @bla.gathEnv @bla.ty
+
+SEM ExprSeq1
+   | L1Bind      l2          .   mlev                =   @lhs.mlev
+
+ATTR Expr ExprSeq1 Alt [ | | ty: Ty ]
+
+SEM Expr
+  | Seq         loc         .   ty                  =   bla
+
+SEM Alt
+  | Alt         loc         .   ty                  =   @expr.ty
+
+ATTR ExprSeq1 [ | | tySeq1: ExprSeq1 ]
+
+SEM ExprSeq1
+  | L0LblVal    loc         .   tySeq1              =   @l0.ty
+  | L1Bind      loc         .   tySeq1              =   @l2.t
+
+ATTR AllNT [ | | t: SELF ]
+

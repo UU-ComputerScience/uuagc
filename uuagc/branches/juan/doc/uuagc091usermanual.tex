@@ -1,0 +1,1346 @@
+\documentclass{article}
+\usepackage{a4wide}
+%\usepackage{url}
+%\usepackage{hyperref}
+%\usepackage{AGman}
+\title{UU AG System User Manual}
+\author{Arthur Baars, Doaitse Swierstra and Andres L\"{o}h\\
+Department of Computer Science\\
+Utrecht University\\
+\email{doaitse@cs.uu.nl}
+}
+
+
+
+
+\def\uncatcodespecials{\def\do##1{\catcode`##1=12 }\dospecials}
+
+\def\setupverbatimp{%
+%  \vspace{\parskip}
+  \parskip=0pt
+  \par
+  \small
+  \tt
+%  \def\par{\leavevmode\endgraf}
+%  \let\par=\cr
+  \obeylines 
+  \uncatcodespecials 
+%  \catcode`\@=0
+%  \catcode`\{=1
+%  \catcode`\}=2
+  \parskip=0pt
+  \obeyspaces
+}
+{\obeyspaces\global\let =~}
+
+\def\setupverbatimt{%
+%  \vspace{\parskip}
+  \parskip=0pt
+  \par
+  \small
+  \tt
+%  \def\par{\leavevmode\endgraf}
+%  \let\par=\cr
+  \obeylines 
+  \uncatcodespecials 
+%  \catcode`\@=0
+%  \catcode`\{=1
+%  \catcode`\}=2
+  \parskip=0pt
+  \obeyspaces
+}
+{\obeyspaces\global\let =~}
+
+\def\beginterminal{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimt\doverbatimt}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimt^^M#1\endterminal{#1|end{list}|vspace{-7pt}|endgroup}}
+
+\def\begincode{\par\sloppy\begingroup\begin{list}{}{\leftmargin=1cm\parskip=0pt\topsep=6pt}\item\setupverbatimp\doverbatimp}
+{\catcode`\|=0 \catcode`\\=12 %
+|obeylines|gdef|doverbatimp^^M#1\endcode{#1|end{list}|vspace{-7pt}|endgroup}}
+
+
+\newcounter{enumctr}
+\newenvironment{enumate}{%
+\begin{list}{\arabic{enumctr}}{
+\usecounter{enumctr}
+\parsep  = 0pt
+\parskip = 0pt
+\topsep  = 0pt
+\itemsep = 0pt
+}}{\end{list}}
+\newenvironment{itize}%
+{\begin{list}%
+  {$\bullet$%
+  }%
+  {\parsep  = 0pt%
+   \parskip = 0pt%
+   \topsep  = 0pt%
+   \itemsep = 0pt%
+  }%
+}%
+{\end{list}%
+}
+
+
+\newcommand{\email}[1]{{\texttt{#1}}}
+
+\newcommand{\EBNF}{{\sc ebnf}}
+\newcommand{\AGName}{{\sc uuagc}}
+\newcommand{\UUAG}{{\sc uuag}}
+
+\newcommand{\keyword}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\attr}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\nont}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\type}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\constructor}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\field}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\option}[1]{\texttt{#1}}
+\newcommand{\Haskell}{\texttt{Haskell}}
+\newcommand{\at}{\ensuremath{\mathtt{@}}}
+\newcommand{\varid}[1]{\ensuremath{\mathit{#1}}}
+
+\newcommand{\term}[1]{\ensuremath{\texttt{#1}}}
+\newcommand{\nt}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\qterm}[1]{\ensuremath{\mbox{``}\texttt{#1}\mbox{''}}}
+
+
+\newcommand{\defnt}[1]{\nt{{#1}}}
+\newcommand{\refnt}[1]{\nt{{#1}}}
+
+\newcommand{\Sec}[1]{\section{#1}}
+\newcommand{\SubSec}[1]{\subsection{#1}}
+\newcommand{\SubSubSec}[1]{\subsubsection{#1}}
+
+
+
+\begin{document}
+
+\maketitle
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\parindent=0pt
+\parskip=3pt
+
+
+%\Sec*{Introduction}
+
+The \UUAG{} system is an attribute grammar system developed at the University of Utrecht. 
+
+After the introduction, this document contains a user guide. This guide is divided in two parts, the first consists
+of an example introducing most language features, the second part covers the language constructs and the {\AGName}
+compiler in more detail.
+
+Any bugs (or fixes!) can be reported to the author, Arthur Baars (\email{doaitse@cs.uu.nl}). 
+Any feedback on: 
+\begin{itize}
+\item what modifications you are interested in
+\item what modifications you have made yourself
+\end{itize}
+is greatly appreciated too. Besides that, we are also quite interested in any applications, 
+that are created using this system. 
+
+
+\Sec{Getting Started}
+
+\SubSec{Running the {\AGName} system}
+
+We assume that {\AGName} compiler is installed on your system.
+If you run the compiler without arguments it will show you a short help message, and a list of options.
+\beginterminal
+> uuagc
+Usage info:
+  uuagc options file ...
+
+List of options:
+  -m                        generate default module header
+           --module[=name]  generate module header, specify module name
+  -d       --data           generate data type definitions
+  ...
+\endterminal
+In this user manual all the compiler switches and language features are introduced and explained in
+the examples.
+
+\SubSec{Simple Attribute Grammar}
+
+As a first example we take the well known RepMin problem. 
+The input of the program is a binary tree, and it produces a binary tree of the same shape. 
+In the new tree however all values in the leaves are equal to the minimum of the values 
+in the leaves in the original tree.
+
+A grammar is defined as a collection of \keyword{DATA} declarations. 
+The types correspond to the nonterminals and the constructors to the productions of the grammar.
+The grammar of binary trees is defined as follows:
+\begincode
+DATA Tree 
+ | Node left:Tree right:Tree
+ | Leaf int:Int
+\endcode
+As in Haskell the names of the types and constructors start with an uppercase
+letter. The difference with a Haskell data type definition 
+is that the fields of a constructor are associated with a name, and not only by position.
+
+\SubSec{Adding attributes}
+
+In this section we define attributes to solve the Repmin problem.
+We split the computation to be performed into three different aspects:
+\begin{itize}
+\item computing the minimal value
+\item making the minimal value available at the leaves
+\item constructing the final result
+\end{itize}
+For each of the aspects we introduce an attribute and attribute computation rules. 
+
+Firstly we introduce a synthesized attribute \attr{minval} representing the minimum value of a \nont{Tree} by an
+\keyword{ATTR} declaration.
+\begincode
+ATTR Tree [ | | minval:Int]
+\endcode
+That \attr{minval} is a synthesized attribute follows from the fact 
+that its declaration is located after the second vertical bar.
+In an \keyword{ATTR} declaration there are three places to put attributes declarations. 
+\begin{equation}
+ [\ \nont{inherited}\ {\mid}\ \nont{inherited/synthesized}\ {\mid}\  \nont{synthesized}\ ]
+\end{equation}
+Attributes in the first position are inherited attributes, attributes in the last position are
+synthesized attributes, and attributes in the middle are inherited as well as synthesized.
+
+Next we specify the computation of the minimum value by providing semantic rules. 
+\begincode
+SEM Tree
+  | Leaf lhs.minval = { @int }
+  | Node lhs.minval = { min @left.minval @right.minval }
+\endcode
+To compute the minimum value of a \constructor{Leaf} we simply return the value of the \constructor{Leaf}.
+For a \constructor{Node} the minimum value is the minimum of \field{left}'s \attr{minval} and \field{right}'s \attr{minval}.
+The right-hand side of a semantic rule is a Haskell expression between braces. 
+The references to attribute and field values are all marked with an '\at' symbol. 
+The left-hand side of a semantic rule is a reference to an attribute. In this case the \attr{minval} attribute of \nont{Tree}, which is the left hand side of the productions \constructor{Leaf} and \constructor{Node}, hence the name \field{lhs}.
+
+\SubSec{Compiling an attribute grammar}
+
+The example code developed thusfar is can be found in \file{examples/Repmin1.ag}. 
+This simple attribute grammar is compiled into a {\Haskell} source file as follows: 
+
+\beginterminal
+> uuagc --module --data --semfuns --catas --signatures Repmin1.ag
+
+Repmin1.hs generated
+\endterminal
+
+Using the functions in the generated {\Haskell} program we can compute the minimum of a \nont{Tree} as is shown in the
+following example:
+\beginterminal
+Repmin1> sem_Tree (Node (Node (Leaf 2 )(Leaf 3))(Node (Leaf 1)(Leaf 2)))
+1
+\endterminal
+
+\SubSec{Generated code}
+
+In this section we explain the following compiler options a and take a brief look at the code generated by the {\UUAG} compiler. 
+
+\begin{tabular}{l|l|l}
+  short option& long option              & description\\
+  \hline
+  \option{-m} & \option{--module[=name]} & generate module header, specify module name\\
+  \option{-d} & \option{--data}          & generate data type definitions \\
+  \option{-f} & \option{--semfuns}       & generate semantic functions \\
+  \option{-c} & \option{--catas}         & generate catamorphisms \\
+  \option{-s} & \option{--signatures}    & generate type signatures for semantic functions
+\end{tabular}
+
+The option \option{--module} tells the {\UUAG} compiler to generate a {\Haskell} module header. If a name is specified this
+name is used as the module name. If no name is specified or when the short option (\option{-m}) is used the module name
+is the name of the {\UUAG} source file, without its extension. Hence the generated code for \file{RepMin1.ag}  code contains the
+following module header:
+\begincode
+module Repmin1 where
+\endcode
+
+The option \option{--data} tells the {\UUAG} compiler to generate {\Haskell} data type definitions corresponding to the
+\keyword{DATA} statements in the attribute grammar. The data type definition generated for \file{RepMin1.ag} is:
+\begincode
+data Tree = Leaf Int
+          | Node Tree Tree
+\endcode
+
+The \keyword{SEM} rules are compiled into semantic functions that compute the 
+output attributes from the input attributes. For each nonterminal a type synonym, named {\texttt{T\_}\nont{Type}},is introduced for the type of its 
+semantics. In our example there are no inherited attributes and only a single synthesized attribute, namely \attr{minval} with type
+\type{Int}. Hence the type synonym for the nonterminal \nont{Tree} is:
+\begincode
+type T_Tree = Int
+\endcode
+
+The option \option{semfuns} tells the compiler to generate a semantic function for each constructor.
+They are named as follows: {\texttt{sem\_}\nont{Nonterminal}\texttt{\_}\constructor{Constuctor}}. A semantic 
+function takes the semantics of the constructor's children as argument to compute the semantics of the nonterminal.
+By providing the \option{--catas} the {\UUAG} compiler generates catamorphisms for each data type in the attribute grammar. 
+A catamorphism takes a data type and computes its semantics. This is achieved by and applying the appropriate semantic 
+functions. The generated catamorphisms are named as follows: {\texttt{sem\_}\nont{Type}}.
+The option \option{--signatures} tells the compiler to emit type signatures for all semantic functions and catamorphisms.
+For our example these signatures are:
+\begincode
+sem_Tree_Node :: T_Tree -> T_Tree -> T_Tree
+
+sem_Tree_Leaf :: Int -> T_Tree
+
+sem_Tree :: Tree -> T_Tree
+\endcode
+The semantics of a child with a type that is not defined using a \keyword{DATA} statement is simply its value. Hence
+the type \type{Int} for the semantics of the value in a \constructor{Leaf}. 
+
+The actual code generated for semantics functions and catamorphisms is discussed in section \ref{generatecode}.
+
+\SubSec{RepMin continued}
+
+The attribute grammar developed thusfar computes the minimum of a tree. 
+This computation is done bottom-up using a single attribute \attr{minval}. 
+The global minimum of a tree is the value of \attr{minval} at the root node.
+To solve the ``repmin'' problem we need to distribute the global minimum to all the leaves and, 
+then reconstruct the tree with each value replaced by the global minimum.
+
+\SubSubSec{Distribute global minimum}
+
+The global minimum is the minimum value of the root node of the tree. In order to make the global minimum
+available at all the leaves we need to push the minimum value of the root node down to all the leaves.
+
+Firstly we declare an inherited attribute \attr{gmin} that holds the global minimum. 
+\begincode
+ATTR Tree [ gmin:{Int} | | ]
+\endcode
+At each \constructor{Node} the global minimum is distributed to both children. Their is no rule for the constructor 
+\constructor{Leaf} because it does not have children.
+\begincode
+SEM Tree
+  | Node left.gmin  = { @lhs.gmin }
+         right.gmin = { @lhs.gmin }
+
+\endcode
+The global minimum is passed down from parent nodes to their children. The root node of a \nont{Tree}, however, does
+not have a parent, so we cannot set its inherited attribute \attr{gmin}. We introduce a data type \nont{Root} 
+that serves as the parent of a \nont{Tree}. 
+It uses the synthesized attribute \attr{minval} of the \nont{Tree} to define the inherited attribute \attr{gmin}.
+\begincode
+DATA Root | Root tree:Tree
+
+SEM Root 
+  | Root tree.gmin = { @tree.minval }
+\endcode
+
+\SubSubSec{Construct the result}
+
+Now the global minimum is available everywhere in the tree we can construct the final result, 
+that is a tree with the same structure as the original,
+ but with the value stored in each leaf replaced by the smallest integer
+stored in the entire tree.
+
+First we declare a synthesized attribute \attr{result} for both \nont{Tree} and \nont{Root}.
+\begincode
+ATTR Tree [ | | result:Tree ] 
+ATTR Root [ | | result:Tree ] 
+\endcode
+
+In a \constructor{Node} the resulting trees of both children are combined into a new \constructor{Node}. 
+For a \constructor{Leaf} a new \constructor{Leaf} is returned containing the minimum value. 
+\begincode
+SEM Tree
+  | Node lhs.result  = { Node @left.result @right.result }
+  | Leaf lhs.result  = { Leaf @lhs.gmin }
+\endcode
+At a \nont{Root} the resulting tree is returned.
+\begincode
+SEM Root
+  | Root lhs.result = { @tree.result }
+\endcode
+
+\SubSubSec{Haskell code blocks}
+
+To finish the rep-min example we define a number of {\Haskell} functions. These definitions are written between braces
+and are copied literally into the output of the {\AGName} System. The following code block defines an instance of \type{Show}
+for \nont{Tree}, a sample \nont{Tree} and a \varid{main} function.
+\begincode
+{
+instance Show Tree where
+  show tree = case tree of 
+                Leaf val -> "Leaf " ++ show val
+                Node l r -> "Node (" ++ show l ++ ") (" ++ show r ++ ")" 
+
+example :: Tree
+example =  Node (Leaf 3)(Node (Leaf 6)(Leaf 2))
+
+main :: IO ()
+main = do putStrLn "input tree:"
+          print example
+          putStrLn "result tree:"          
+          print (sem_Root (Root example))
+}
+\endcode
+
+\SubSubSec{Compile and Run}
+
+The example code developed thusfar is can be found in \file{examples/Repmin2.ag}. 
+This attribute grammar is compiled into a {\Haskell} source file as follows: 
+\beginterminal
+> uuagc --module=Main --signatures --data --semfuns --catas Repmin2.ag
+
+Repmin2.hs generated
+\endterminal
+
+The generated code is a module named \nont{Main} containing the \nont{Tree} datatype, 
+semantic functions, catamorphisms, and some additional {\Haskell} definitions. The program can be run using \verb+runhugs+
+ as follows:
+\beginterminal
+> runhugs Repmin2.hs
+input tree:
+Node (Leaf 3) (Node (Leaf 6) (Leaf 2))
+result tree:
+Node (Leaf 2) (Node (Leaf 2) (Leaf 2))
+\endterminal
+
+
+
+
+
+\Sec{Language Constructs}\label{syntax}
+
+This section gives an overview of the {\UUAG} language. 
+Lines printed in bold are grammar rules and show what the language construct looks like in general. 
+ Subscripts and ``\dots''-notation are used in the syntax rules. For example: 
+\begin{displaymath}
+\begin{array}{lr}
+\nt{constructor}~\nt{name_1}\term{:}\nt{type_1} {\dots} \nt{name_n}\term{:}\nt{type_n} & (n \geq 0) 
+\end{array}
+\end{displaymath}
+This means that a constructor has zero or more fields. Valid instantiations are: 
+\begincode
+Leaf val:Int
+Bin left:Tree right:Tree
+Empty
+\endcode
+The  following sections show the syntax of each construct as a grammar rule, followed by an explanation of its semantics and a number of examples. The {\UUAG} language provides many shorthand notations. These abbreviations are explained by example, as including them in the grammar rules would clutter the presentation. A complete reference in {\EBNF} of the {\UUAG} language can be found in Section \ref{grammar}.
+
+\SubSec{DATA declaration}
+\begin{displaymath}
+\begin{array}{ll}
+\term{DATA} & \nt{nonterminal} \\
+            & \term{|} \nt{constructor_1} \nt{field_{1,1}}\term{:}\nt{type_{1,1}} \dots \nt{field_{1,i}}\term{:}\nt{type_{1,i}} \\
+            & \term{|} \vdots \\
+            & \term{|} \nt{constructor_n} \nt{field_{n,1}}\term{:}\nt{type_{n,1}} \dots \nt{field_{n,j}}\term{:}\nt{type_{n,j}} \\
+            & (i \geq 0, j \geq 0, n \geq 0)
+\end{array}
+\end{displaymath}
+
+A \keyword{DATA} declares a number of productions for a nonterminal. Each production is labelled with a constructor name. In contrast to {\Haskell} it is allowed to use the same constructor name for more than one nonterminal. However, the names of all constructors of the same nonterminal must be different. Giving multiple \keyword{DATA} declarations for the same nonterminal is allowed, provided that the constructor names in the declarations do not clash.
+The fields of each production all have a name and a \nt{type}. The type can be a nonterminal or a {\Haskell} type. All fields of the same constructor must have different names. 
+
+Valid \keyword{DATA} declarations:
+\begincode
+DATA Tree | Bin left:Tree right:Tree 
+          | Leaf value:Int           
+
+DATA Decl | Fun name:String args:{[String]} body:Expr
+\endcode
+
+Several abbreviations exist for \keyword{DATA} declarations. Fields with the same type can be declared by listing their names separated by commas. Also the field name can be left out, in which case the name is defaulted to the type name with the first letter converted to lowercase. It is only allowed to leave out the field name if the type is an uppercase type identifier. You also need to make sure that the default name does not clash with the name of another field.
+The following example show correct abbreviations:
+\begincode
+DATA Tree | Bin left,right:Tree -- 'left' & 'right' have type 'Tree'
+          | Leaf Int            -- field name is 'int'
+\endcode
+The following \keyword{DATA} statement is wrong:
+\begincode
+DATA Tree | Bin Tree Tree    -- duplicate field name
+          | Leaf {(Int,Int)} -- type is not a single type identifier
+\endcode
+   
+\SubSec{ATTR declaration}
+\begin{displaymath}
+\begin{array}{ll}
+\term{ATTR} & \nt{nonterminal_1} \dots \nt{nonterminal_n}  \\
+            & \term{[}~ \nt{attr_1}\term{:}\nt{type_1} \dots \nt{attr_i}\term{:}\nt{type_i} \\
+            & \term{|}~ \nt{attr_{(i+1)}}\term{:}\nt{type_{(i+1)}} \dots \nt{attr_j}\term{:}\nt{type_j} \\
+            & \term{|}~ \nt{attr_{(j+1)}}\term{:}\nt{type_{(j+1)}} {\dots} \nt{attr_k}\term{:}\nt{type_k} \\
+            & \term{]} \\
+            & (n \geq 1, 0 \leq i \leq j \leq k)
+\end{array}
+\end{displaymath}
+An \keyword{ATTR} declaration declares attributes for one or more nonterminals. Each attribute has a name and a type. The position of an attribute in the declaration list (left of the bars, between the bars, or right of the bars) determines whether it is inherited, chained, or synthesized, respectivly. 
+A chained attribute is just an abbreviation for an attribute that is both inherited and synthesized. The names of all inherited attributes declared by \keyword{ATTR} statements must be different. The same holds for synthesized attributes. 
+
+Valid \keyword{ATTR} declarations are:
+\begincode
+ATTR Tree [ depth:Int  | minimum:Int | out:{[Bool]} ]
+ATTR Tree [ count:Int  | | count:Int ]
+ATTR Decl [ environment : {[(String,Type)]} | | ]
+ATTR Decl [ | | code:Instructions ] 
+\endcode
+For attribute declarations the same abbreviations are permitted as for field in a \keyword{DATA} declaration. The name of an attribute
+can be left out, and attributes with the same type can be grouped.
+For example:
+\begincode
+ATTR Tree [ | | min,max:Int ] -- 'min' and 'max' both have type 'Int'
+ATTR Decl [ Environment | | ] -- attribute name is 'environment' 
+\endcode
+The following abbreviations are wrong:
+\begincode
+ATTR Tree [ | | Int Int ]           -- duplicate attribute names
+ATTR Decl [ {[(String,Type)]} | | ] -- complex type without name
+\endcode
+
+A \keyword{USE} clause can be added to the declaration of a synthesized or chained attribute, to trigger a special kind 
+of copy rule(see Section \ref{use}). The first expression must be an operator, and the second expression is a default value for the attribute.
+\begin{displaymath}
+\begin{array}{l}
+\nt{attr}~ \term{USE}~ \nt{expr_1} ~ \nt{expr_2}~\term{:}~\nt{type}
+\end{array}
+\end{displaymath}
+For example:
+\begincode
+DATA Tree
+   | Bin left,right:Tree
+   | Leaf value:Int
+ATTR Tree [ | | value USE {+} {0} : Int ] -- compute sum of values
+\endcode
+
+
+An attribute can be declared to be of type \keyword{SELF}. The type \keyword{SELF} is a placeholder for the type of the nonterminal for which the attribute is declared. For example:
+\begincode
+ATTR Tree Expr [ | | copy:SELF ]
+\endcode
+The \keyword{ATTR} statement above declares an attribute \attr{copy} of type \nont{Tree} for nonterminal \nont{Tree}, and an attribute \attr{copy} of type \nont{Expr} for nonterminal \nont{Expr}. Declaring a synthesized attribute of type \keyword{SELF} triggers a special copy-rule, that constructs a copy of the tree. Section \ref{self} explains this type of copy-rule.
+
+Attribute declarations can also be given in \keyword{DATA} or \keyword{SEM} statements after the name of the nonterminal.
+For example:
+\begincode
+DATA Tree | Bin left,right:Tree
+          | Leaf Int
+ATTR Tree [ | | min:Int ]
+\endcode
+can be combined into:
+\begincode
+DATA Tree [ | | min:Int ]
+   | Bin left,right:Tree
+   | Leaf Int
+\endcode
+
+\SubSec{SEM}
+
+In a \keyword{SEM} construct one can specify semantic rules for attributes. 
+For each production the synthesized attributes associated with its corresponding nonterminal and the inherited attributes of its children must be defined. If there is a rule for a certain attribute is missing, the system tries to derive a so called copy-rule. 
+The \keyword{SEM} construct has the following form:
+\begin{displaymath}
+\begin{array}{lll}
+\term{SEM}  & \nt{nonterminal}\\
+            & \term{|} \nt{constructor_1} & \nt{fieldref_{1}}\term{.}\nt{attribute_{1}} \term{=} \nt{expression_{1}} \\
+            &                             & \vdots \\
+            & \term{|} \nt{constructor_n} & \nt{fieldref_{n}}\term{.}\nt{attribute_{n}} \term{=} \nt{expression_{n}} \\
+            & (n \geq 0 ) &
+\end{array}
+\end{displaymath}
+Semantic rules are organised per production. Semantic rules for the same production can be spread between multiple \keyword{SEM} statements. This has the same meaning as they were defined in a single \keyword{SEM} statement. 
+A \nt{fieldref} is \term{lhs}, or \term{loc}, or a \nt{field} name. To refer to a synthesized attribute of the nonterminal associated with a production the special \nt{fieldref} \term{lhs} is used together with the name of the attribute. To refer to an inherited attribute of a child of a production the \nt{field} name of the child is used together with the attribute's name. The special \nt{fieldref} \term{loc} is used to define a variable that is local to the production. It is in the scope of all semantic rules for the production. 
+
+The expressions in semantic rules are code blocks, i.e. {\Haskell} expressions enclosed by \term{\{} and \term{\}}, see Section~\ref{codeblock}. They may contains references to values of attributes and fields. These references are all prefixed with an \term{@}-sign to distinguish them from {\Haskell} identifiers. To refer to the value of a field one uses the name of the field. References to attributes are similar to the ones on the left-hand side of a semantic rule (\nt{fieldref}\term{.}\nt{attribute}). The difference is that they now refer to the synthesized attributes of the children and the inherited attributes of the nonterminal associated with the production. Local variables can be referenced using their name, optionally prefixed with the special \nt{fieldref} \term{loc}.  
+
+Valid definitions:
+\begincode
+ATTR Tree [ gmin:Int | | min:Int result:Tree ] 
+SEM Tree  
+   | Bin  left.gmin  = { @lhs.gmin } 
+     -- "left.gmin" refers to the inherited attribute "gmin"
+     -- of the child "left"
+   | Bin  right.gmin = { @lhs.gmin } 
+     -- "@lhs.gmin" refers to the inherited attribute "gmin" 
+     -- of nonterminal "Tree"
+   | Bin  loc.min    = { min @left.min @right.min } 
+     -- "min" is a new local variable of the constructor "Bin"
+
+SEM Tree
+  | Bin  lhs.result = { Bin @left.result @right.result } 
+    -- "@left.result" refers to the synthesized attribute "result" 
+    -- of child "left"
+  | Bin  lhs.min    = { @min }                           
+    -- "@min" refers to the local variable "min"
+  | Leaf lhs.result = { Leaf @lhs.gmin }                 
+    -- "@lhs.gmin" refers to the inherited attribute "gmin" 
+    -- of nonterminal "Tree"
+  | Leaf lhs.min    = { @int }                           
+    -- "@int" refers to the value of field "int" of "Leaf"
+\endcode
+
+For the \keyword{SEM} construct there exist a number of abbreviations. As for \keyword{DATA} statements one can write attribute declarations after the name of the nonterminal. Furthermore semantic rules for the same production can be grouped, mentioning the name of the production only once.
+For example:
+\begincode
+SEM Tree  
+   | Bin  left.gmin  = { @lhs.gmin }
+          right.gmin = { @lhs.gmin } 
+          loc.min    = { min @left.min @right.min } 
+\endcode
+In a similar way semantic rules for the same \nt{fieldref} can be grouped. For example:
+\begincode
+SEM Tree
+  | Bin  lhs.result = { Bin @left.result @right.result }
+            .min    = { @min }                          
+\endcode
+
+When the same semantic rule is defined for two productions of the same nonterminal they can be combined by writing the names of both productions in front of the rule.
+For example:
+\begincode
+SEM Tree
+  | Node1 lhs.value = { @left.value + @right.value }
+  | Node2 lhs.value = { @left.value + @right.value }
+\endcode
+can be abbreviated as follows:
+\begincode
+SEM Tree
+  | Node1 Node2 lhs.value = { @left.value + @right.value }
+\endcode
+Finally the curly braces around expressions may be left out. The layout of the code is then used to determine the end of the expression as follows. The column of the first non-whitespace symbol after the \term{=}-sign is the reference column. All subsequent lines that are indented the same or further to the right are considered to be part of the expression. The expression ends when a line is indented less than the reference column. 
+An advantage of using layout is that problems with unbalanced braces, as described in Section \ref{codeblock} are avoided.
+
+\SubSec{TYPE}
+
+The \keyword{TYPE} construct is convenient notation for defining list based types. It has the following form:
+\begin{displaymath}
+\term{TYPE}~\nt{nonterminal}~\term{=}~\term{[}~\nt{type}~\term{]} 
+\end{displaymath}
+A \keyword{TYPE} construct is equivalent to:
+\begin{displaymath} 
+\begin{array}{ll}
+\term{DATA} & \nt{nonterminal} \\
+            & \term{|}~\term{Cons}~\term{hd}\term{:}\nt{type}~\term{tl}\term{:}\nt{nonterminal} \\
+            & \term{|}~\term{Nil} \\
+\end{array}
+\end{displaymath}
+Apart from a convenient notation the \keyword{TYPE} construct has effect on the code generated. Instead of generating data constructors 
+\term{Cons} and \term{Nil} {\Haskell}'s list constructors \term{:}, and \term{[]} are used.
+
+Examples of \keyword{TYPE} constructs:
+\begincode
+TYPE IntList = [ Int ]
+TYPE Trees   = [ Tree ]
+\endcode
+
+\SubSec{INCLUDE}
+
+Other {\UUAG} files can be included using the following construct:
+\begin{displaymath}
+{\term{INCLUDE}}\ {\nt{string}}
+\end{displaymath}
+The \nt{string} is a file name, between double quotes. The suffix of the file (\verb+.ag+ , or \verb+.lag+) should not be omitted. The file should contain valid {\UUAG} statements. These statements are inlined in the place of the \term{INCLUDE} statement.
+
+\SubSec{Code Block}\label{codeblock}
+
+A code block is a piece of {\Haskell} code enclosed by curly braces. 
+\begin{displaymath}
+{\term{\{}}~{\nt{haskellcode}}~{\term{\}}}
+\end{displaymath}
+There exist three kinds of code blocks: top-level, type, and expression code blocks. A top-level code block contains {\Haskell} declarations, such as \keyword{import} declarations, and function and type definitions.  A name can be writen before a top-level code block. The code blocks are sorted by their names, and appended to the code generated by the {\UUAG} system. A special name \term{imports} is used to mark code blocks containing \keyword{import} declarations. These are copied to the start of the generated code, as {\Haskell} only allows \keyword{import} declarations at the beginning of a file.
+
+An example of two code blocks, an import declaration and a function definition:
+\begincode
+imports
+{
+import List
+}
+
+quicksort
+{ 
+-- simple implementation of quicksort:
+qsort :: Ord a => [a] -> [a]
+qsort [] = []
+qsort (x:xs) = let (l,r) = partition (<=x) xs 
+               in qsort l ++ [x] ++ qsort r
+}
+\endcode
+
+A type code block contains a {\Haskell} type and may be used as \nt{type}s in \keyword{DATA}, \keyword{TYPE}, and \keyword{ATTR} declarations.
+Examples:
+\begincode
+DATA Module 
+   | Module name:{Maybe String} body:Declarations
+
+TYPE Points = [ {(Int,Int)} ]
+
+ATTR [ env:{[(String,Int)]} | | ]
+\endcode
+
+Finally expression code blocks contain a {\Haskell} expression and occur as the right-hand side of attribute definitions in \keyword{SEM} statements. Apart from normal {\Haskell} code they may contain references to attributes. These references are prefixed with an \term{@}-symbol, to distinguish them from ordinary {\Haskell} identifiers. 
+Examples:
+\begincode
+SEM Tree [ | | min:{Int} ] 
+  | Node lhs.min = { min @left.min @right.min } -- an expression code block
+\endcode
+
+The contents of a block is the plain text between an open and a close brace. The text in a code block is not interpreted by the {\UUAG} system.
+\begin{displaymath}
+\begin{array}{lcll}            
+\nt{any}        & ::= & [ \qterm{${\backslash}0$} .. \qterm{${\backslash}255$} ] & (any~character)       \\
+\nt{codeblock}  & ::= & \qterm{\{} \nt{codeblockcontent}{*} \qterm{\}} &\\
+\nt{codeblockcontent} & ::=   & \nt{any} & except~\term{\{},~and~\term{\}} \\
+                      & |     & \nt{codeblock} & \\
+\end{array}            
+\end{displaymath}
+Curly braces occurring inside the {\Haskell} code must be balanced. This includes curly braces in comments, and in string and character literals.
+
+An example of a code block containing a nested pair of braces:
+\begincode
+{
+f a b c = let { d = b*b - 4*a*c
+              ; result1 = (-b + sqrt d) / 2*a
+              ; result2 = (-b - sqrt d) / 2*a
+              ; result  | d >  0 = [result1, result2]
+                        | d == 0 = [result1]
+                        | d < 0  = []  
+              }
+          in result
+}          
+\endcode
+
+All curly braces {\Haskell} constructs, such as \term{do}, \term{let} must be matched. However, curly braces in string, or character literals may cause problems. 
+The balancing rule forbids code blocks such as:
+\begincode
+{
+openbrace = "{"
+}
+\endcode
+This problem can be fixed by inserting a matching brace in comments. In the following code the curly braces are balanced:
+\begincode
+{
+openbrace = "{"
+-- }, just to balance braces
+}
+\endcode
+
+\SubSec{Comments}
+
+One-line comments start with two dashes (\verb+--+) and end at the end of the line. 
+Multi-line comments start with \verb+{-+ and end with \verb+-}+. As in {\Haskell} comments can be nested.
+\begincode
+{- 
+Definition of a datatype for binary trees
+-}
+DATA Tree
+   | Leaf val:Int
+   | Node left:Tree right:Tree -- a node has two subtrees
+\endcode
+
+
+
+\SubSec{Names} 
+
+Names start with a letter followed by a (possibly empty) sequence of letters, digits, and the symbols \verb+_+ and \verb+'+.
+A name for a \defnt{nonterminal} or \defnt{constructor} must start with an upper-case letter.
+A name of a \defnt{field} or \defnt{attribute} must start with a lower-case letter.
+The following words are reserved and cannot be used as names: \term{DATA}, \term{EXT}, \term{ATTR}, 
+\term{SEM}\term{TYPE}, \term{USE}, \term{loc}, \term{lhs}, and \term{INCLUDE}.
+
+Valid names:
+\begincode
+-- nonterminals or constructors:
+Node 
+Expression  
+Tree_Node 
+-- field names or attributes:
+left
+long_name
+field2
+\endcode
+
+\SubSec{Strings}        
+
+A \defnt{string} in {\AGName} is sequence of characters enclosed by double quotes (\verb+"+). The structure of strings is similar to 
+{\Haskell} strings. The escape character is a backslash (\verb+\+). Below a table with the most common escape sequences:\\
+\begin{tabular}{l|l}
+%\hline 
+\verb+\'+   & single quote (\verb+'+)\\
+%\hline 
+\verb+\"+   & double quote (\verb+"+)\\
+%\hline 
+\verb+\n+   & newline\\
+%\hline 
+\verb+\t+   & tab \\
+\verb+\+$nnn$ & character with ascii-code $nnn$ \\
+\end{tabular} 
+For a more detailed description of string and escape sequences see the Haskell Report\cite{lang:haskell-report}.
+Examples of valid strings:
+\begincode
+"hello world" 
+"line 1\nline 2"
+"hello\32world"
+\endcode
+
+\Sec{Copy Rule}\label{copyrule}
+
+
+When a definition for an attribute is missing, the {\UUAG} can often derive a rule for it.
+These automatic rules, also known as copy rules, are based on name equality of attributes. They save a lot of
+otherwise trivial typing, thus making your programs easier to read by just leaving the essential parts in the code.
+If in the list of rules for a constructor a rule for an attribute \attr{attr_1} is missing 
+then {\UUAG} system tries to derive a rule for this attribute. This is done by looking
+for an attribute \attr{attr_2} with the same name as \attr{attr_1} in the sets of synthesized attributes of the children of the constructor and in the set of inherited attributes of the nonterminal it belongs to. 
+If such an attribute \varid{attr_2} is found then the value of \varid{attr_1}
+is set to the value of \varid{attr_2}.  This section firstly shows two examples and then defines a generalisation that captures both(and others). There are also two special copy rules, the \keyword{USE}, and \keyword{SELF} rules, which are explained at the end of this section.
+
+\SubSec{Examples}
+
+Very often one needs to pass a value from a node to all its children. Consider for example the following code, in which a inherited attribute \attr{gmin} is declared.
+\begincode
+DATA Tree | Bin left,right:Tree
+          | Leaf val:Int
+
+ATTR Tree [ gmin:Int | | ]
+\endcode
+In this example rules for the syntesized attribute \attr{gmin} of children of the constructor \constructor{Bin} are missing. This is however no problem. The nonterminal \nont{Tree} has an inherited attribute with the same name and the {\UUAG} system automatically inserts the following rules:
+\begincode
+SEM Tree 
+  | Bin left.gmin  = @lhs.gmin
+        right.gmin = @lhs.gmin      
+\endcode
+This kind of copy-rule is very convenient for copying an inherited attribute to all nodes in a top-down fashion. 
+
+Another kind of copy-rule is a co-called chain-rule. For a chain rule an attribute that is both inherited as well as synthesized is chained from left to right through all children of a constructor. Consider for example the following code that numbers all leaves in a \nont{Tree} from left to right.
+\begincode
+ATTR Tree [ | label:Int | ]
+
+SEM Tree
+  | Leaf lhs.label = @lhs.label+1
+\endcode
+Because the attribute \attr{label} is declared inherited as well as synthesized the {\UUAG} system derives the following rules for the constructor \constructor{Bin}:
+\begincode
+SEM Tree
+  | Bin left.label  = @lhs.label
+        right.label = @left.label
+        lhs.label   = @right.label
+\endcode  
+
+
+\SubSec{Generalised copy rule}
+
+The {\UUAG} system implements a more general copy rule of which the examples above are instances.
+If a rule is missing for an inherited attribute \attr{n} of a child \field{c} of constructor 
+\constructor{con}, the {\UUAG}  system searches for an attribute with the same name( \attr{n}).
+The {\UUAG}  system searches for a suitable candidate in the following lists:
+\begin{enumate}
+\item local attributes
+\item synthesized attributes of children on the left of \field{c}
+\item inherited attributes
+\item fields
+\end{enumate}
+The search takes place in the order defined above, and the first occurrence of \attr{n} is copied. Thus local attributes have preference over others. When there are multiple occurrences of \attr{n} in the list of synthesized attributes of the children the rightmost is taken.
+
+When a rule for a synthesized attribute is missing the search for a candidate with the same name takes place in a similar fashion. In the second step all children are searched, again taking the rightmost candidate if more than one is found.
+
+\SubSec{\keyword{USE} rules}\label{use}
+
+A \keyword{USE} rule can be derived for a synthesized attribute whose declaration includes a \keyword{USE} clause.
+A \keyword{USE} clause consists of two expressions; the first is an operator, and the second is a default value.
+Suppose \attr{s} is a synthesized attribute of \nont{n}, that is declared with a \keyword{USE} clause.
+If for a constructor \constructor{c} of \nont{n} a definition of \attr{s} is missing, a rule is derived as follows.
+Collect all synthesized attributes of constructor \constructor{c}'s children with the same name as \attr{s}. If this collection is empty the default value declared in the \keyword{USE} clause is taken. If this collection contains only a single attribute, then the value of this attribute is copied. Otherwise the values of the attributes are combined using the operator and the result is used to define \attr{s}.
+
+For example:
+\begincode
+DATA Tree 
+   | Bin left,right:Tree
+   | Single val:Int
+   | Empty
+   
+ATTR Tree [ || sum USE {+} {0} : Int]
+SEM Tree
+  | Single lhs.sum = @val
+\endcode
+The {\UUAG} system derives the following rules:
+\begincode
+SEM Tree
+  | Bin   lhs.sum = @left.sum + @right
+  | Empty lhs.sum = 0
+\endcode
+
+\SubSec{\keyword{SELF} rules}\label{self}
+
+The type \keyword{SELF} in an attribute declaration is equivalent to the type of the nonterminal to which the attribute belongs. A synthesized \keyword{SELF} attribute can for example be used if one wants a local copy of a tree, or wants to transform it. The \keyword{SELF} attribute then holds the transformed version of the tree. 
+A \keyword{SELF} attribute usually holds a copy of the tree, except for a few places where a transformation is done. The semantic rules required for constructing a copy of a tree call for each production the corresponding constructor function on the copies of the children. The {\UUAG} system implements a special copy rule to avoid writing these trivial rules. For each production of a nonterminal with a synthesized \keyword{SELF} attribute \attr{n},  the {\UUAG} system generates a local attribute containing the application of the corresponding constructor to the \keyword{SELF} attributes of the children with the same name as \attr{n}. The value of the synthesized attribute is set to this local attribute.
+
+For example for:
+\begincode
+DATA Tree
+   | Bin left,right:Tree
+   | Leaf val:Int
+
+ATTR Tree [ | | copy : SELF ]
+\endcode
+the following semantic rules are generated:
+\begincode
+SEM Tree
+  | Bin  loc.copy = Bin @left.copy @right.copy
+         lhs.copy = @copy  
+  | Leaf loc.copy = Leaf @val
+         lhs.copy = @copy  
+\endcode
+
+The default definitions for the local and sythesized \keyword{SELF} attributes can be overriden by the programmer.   
+
+The following program is a complete attribute grammer for the rep-min problem using as many copy rules as possible. For constructing the transformed a \keyword{SELF} attribute \attr{result} is used. Note that only for the production \constructor{Leaf} an explicit definition of this attribute is given. The definition for \constructor{Bin} is provided by an automatic rule. 
+\begincode
+DATA Tree 
+   | Bin left,right:Tree
+   | Leaf val:Int
+   
+DATA Root
+   | Root Tree
+
+ATTR Tree [ gmin:Int | | lmin USE {`min`} {0}:Int ] 
+ATTR Root Tree [ | | result:SELF ] 
+
+SEM Tree
+  | Leaf lhs.lmin   = @val
+            .result = Leaf @lhs.gmin
+SEM Root
+  | Root tree.gmin = @tree.lmin
+\endcode
+
+\Sec{Code Generation}\label{generatecode}
+
+
+\SubSec{Module header}
+If the option \option{-m} or \option{--module=[name]} is provided to the \UUAG{} compiler then a module header will be generated. If a name is provided to the \option{--module} flag then this name is used as module name, otherwise the module name will be the filename without the suffix \verb+.ag+ or \verb+.lag+.
+
+\SubSec{Data types} 
+When the flag \option{--data} or \option{-d} is passed to the \UUAG{} compiler, then a data type definition is generated for each nonterminal introduced in a \keyword{DATA} declaration and a type synonym is generated for each nonterminal introduced in a \keyword{TYPE} declaration. The \UUAG{} system allows different nonterminals to have constuctors with the same names. For \Haskell{} data types this is not allowed. To prevent clashes between constuctors of different data types the flag \option{--rename} or \option{-r} can be specified. All constructors will then be prefixed with their corresponding nonterminal(and an underscore). 
+
+For example for this fragment of \UUAG{} code:
+\begincode
+DATA Expr 
+   | Var name:String
+   | Apply fun:Expr arg:Expr
+   | Tuple elems:Exprs
+   | ...
+   
+TYPE Exprs = [Expr]
+   
+DATA Type
+   | Var name:String
+   | Apply fun:Type arg:Type
+   | ...
+\endcode
+the following \Haskell{} code is generated when the flags \option{--data} and \option{--rename} are switched on:
+\begincode
+data Expr 
+   = Expr_Var String
+   | Expr_Apply Expr Expr
+   | ...
+   
+type Exprs = [Expr]   
+
+data Type
+   = Type_Var String
+   | Type_Apply Type Type
+   | ...
+\endcode
+If the \option{--rename} flag is not provided it is the responsibility of the programmer to make sure
+that are constructors are uniquely named.
+
+\SubSec{Semantic functions}
+
+The semantic domain of a nonterminal is a mapping from its inherited to its synthesized attributes.
+When the flag \option{--semfuns} or \option{-f} is switched on, the \UUAG{} compiler generates for each nonterminal a type synonym representing its semantic domain, and for each constructor a semantic function. A semantic function takes the semantics of its children as arguments and returns the semantics of the corresponding nonterminal.
+A semantic function is named as follows:\\ 
+\nt{prefix}\_\nt{nonterminal}\_\nt{constructor}.\\
+The default prefix is \verb+sem+, another prefix can be supplied with the \option{--prefix=name} flag.
+
+Consider the following code fragment:
+\begincode
+DATA Tree 
+   | Bin left,right:Tree
+   | Leaf val:Int
+
+ATTR Tree [ lmin:Int gmin:Int | | lmin:Int result:Tree ]
+
+SEM Tree
+  | Bin  lhs.result = Bin @left.result @right.result
+  | Leaf lhs.lmin   = min @lhs.lmin @val
+         lhs.result = Leaf @lhs.gmin                      
+\endcode                      
+
+The semantic domain of the nonterminal \nt{Tree} is defined as follows:
+\begincode
+type T_Tree = Int -> Int -> (Int,Tree)
+\endcode
+The inherited attributes are arguments and the synthesized attributes are packed together in a tuple as result.
+The \UUAG{} system lexicographically sorts the attributes, hence the first \texttt{Int} stands for the inherited attribute \attr{gmin}, and the second for the inherited attribute \attr{lmin}.
+If the flag \option{--newtypes} is switched on, a \keyword{newtype} declaration is generated for the semantic domain instead of a \keyword{type} synonym.
+
+
+The types of the generated semantic functions for the constructors \constructor{Bin}, and the \constructor{Leaf} are the following:
+\begincode
+sem_Tree_Bin  :: T_Tree -> T_Tree -> T_Tree
+sem_Tree_Leaf :: Int              -> T_Tree
+\endcode
+Note that the semantics of a child that has a \Haskell{} type is simply the value of that child.
+When the flag \option{--signatures} or \option{-s} is switched on then the type signatures of the semantic functions are actually emmited in the generated code.
+
+\SubSec{Catamorphisms}
+When the flag \option{--catas} or \option{-c} is supplied, the the \UUAG{} compiler generates catamorphisms for every nonterminal. A catamorphism is a function that takes a (syntax) tree as argument and computes the semantics of that tree. The catamorphism for a nonterminal \nt{nt} is named as follows:\\ \nt{prefix}\_\nt{nonterminal}.\\
+As for semantic functions the prefix is \verb+sem+ by default, and can be changed with the \option{--prefix=name} flag. For example the type of the catamorphism for the nonterminal \nt{Tree} is:
+\begincode
+sem_Tree :: Tree -> T_Tree
+\endcode
+When the flag \option{--signatures} or \option{-s} is switched on then the type signatures of the catamorphisms  are actually emmited in the generated code.
+
+
+\SubSec{Wrappers}
+The result of a semantic function or a catamorphism is a function from inherited to synthesized attributes. 
+To be able to use such a result, a programmer needs to know the order of all the attributes. Wrapper functions for
+the semantic domains can be generated to provide access to the attributes by their names. 
+When the flag \option{--wrappers} or \option{-w} is switched on the following is generated for each semantic domain:
+\begin{itize}
+\item a record type with named fields for the inherited attributes
+\item a record type with named fields for the synthesized attributes
+\item a wrapper function that transforms a semantic domain in a function from a record of inherited attributes to a record of synthesized attributes
+\end{itize}
+The two record types for a nonterminal $nt$ are called $nt$\verb+_Inh+, and $nt$\verb+_Syn+, for the inherited and synthesized attributes, respectively. The labels of the records are the names of the attributes suffixed with the name of the record type. The generated wrapper function is named \verb+wrap_+$nt$.
+
+For the nonterminal \nt{Tree} in the example above the following record types are generated:
+\begincode
+data Tree_Inh = Tree_Inh{ lmin_Tree_Inh :: Int
+                        , gmin_Tree_Inh :: Int 
+                        } 
+data Tree_Syn = Tree_Syn{ lmin_Tree_Syn   :: Int
+                        , result_Tree_Syn :: Tree 
+                        } 
+\endcode
+The generated wrapper function has the following type:
+\begincode
+wrap_Tree :: T_Tree -> Tree_Inh -> Tree_Syn
+\endcode
+
+Using the generated wrapper code the function $repmin$ can be defined as follows:
+\begincode
+repmin :: Tree -> Tree
+repmin tree = let synthesized = wrap_Tree (sem_Tree tree) inherited
+                  inherited   = 
+                        Tree_Inh 
+                        { lmin_Tree_Inh = infty
+                        , gmin_Tree_Inh = lmin_Tree_Syn synthesized
+                        }
+                  infty       = 1000
+              in result_Tree_Syn synthesized
+\endcode
+
+\Sec{Grammar}\label{grammar}
+
+Normal {\UUAG} system source files have \verb+.ag+ as suffix. The {\UUAG} system also supports literate programming. Literate {\UUAG} files have \verb+.lag+ as suffix. In literate mode all text in a file is considered to be comments, except for those blocks enclosed between: \verb+\begincode+, and \verb+\endcode+. The begin and end commands should be placed at the beginning of a line.
+
+
+The remainder of this section presents the grammar of the {\UUAG} system as {\EBNF} production rules. 
+Parenthesis are used for grouping, nonterminals are printed \nt{boldface}, and terminal symbols are printed between \qterm{quotes}. A rule of form $X*$ means zero or more occurrences of $X$,  $X+$ means one or more occurrences of $X$, and $X?$ is an optional occurrence of $X$. In the lexical syntax character ranges are written between square brackets. For example $[ \qterm{A} .. \qterm{Z} ]$ represents the range of uppercase letters.  
+
+\SubSec{Lexical Syntax}
+
+
+\begin{tabular}{p{3cm}cll}  
+\nt{keywords}   & = & \{ \qterm{DATA}, \qterm{EXT}, \qterm{ATTR}, \qterm{SEM}, \qterm{TYPE}\\
+                & &       , \qterm{USE}, \qterm{loc}, \qterm{lhs}, \qterm{INCLUDE}  \} & \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{uppercase}  & ::= & [ \qterm{A} .. \qterm{Z} ]    &  \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{lowercase}  & ::= & [ \qterm{a} .. \qterm{z} ]    & \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{any}        & ::= & [ \qterm{${\backslash}0$} .. \qterm{${\backslash}255$} ] & (any character)       \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{conid} & ::= & \nt{uppercase} \nt{identletter}{*} & except \nt{keywords}\\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{varid} & ::= & \nt{lowercase} \nt{identletter}{*} & except \nt{keywords}\\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{identletter} & ::=   & \nt{uppercase} & \\
+                 & $\mid$     & \nt{lowercase} & \\
+                 & $\mid$     & \qterm{'}      & \\
+                 & $\mid$     & \qterm{\_}     & \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{string}  & ::= & \qterm{{"}} \nt{stringcontents} \qterm{{"}} &\\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{codeblock}  & ::= & \qterm{\{} \nt{codeblockcontent}{*} \qterm{\}} &\\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{codeblockcontent} & ::=   & \nt{any} & except \qterm{\{}, and \qterm{\}} \\
+                      & $\mid$     & \nt{codeblock} & \\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{layoutcodeblock}  & ::= & \nt{layoutcontent}{*}  &\\
+\end{tabular}
+
+\begin{tabular}{p{3cm}cll}  
+\nt{layoutcontent}    & ::= & \nt{any} & (except letters that are less indented than reference column) \\
+\end{tabular}
+              
+\SubSec{Context-free Grammar}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{ag} & ::= & \nt{elem}{*} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{elem} & ::=   & \qterm{DATA} \nt{conid}  \nt{attrDecls}{?} \nt{dataAlt}{*} \\
+          & $\mid$     & \qterm{ATTR} \nt{conid}{+} \nt{attrDecls} \\
+          & $\mid$     & \qterm{TYPE} \nt{conid}  \qterm{{=}} \qterm{[} \nt{type}{*} \qterm{]} \\
+          & $\mid$     & \qterm{SEM}  \nt{conid}  \nt{attrDecls}{?} \nt{semAlt}{*} \\
+          & $\mid$     & \nt{varid}{?}  \nt{codeblock} \\
+          & $\mid$     & \qterm{INCLUDE} \nt{string} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{attrDecls} & ::= &  \qterm{[} \nt{inhAttrDecl}{*} \qterm{$\mid$} \nt{synAttrDecl}{*} \qterm{$\mid$} \nt{synAttrDecl}{*} \qterm{]}\\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{type} & ::=  & \nt{conid} \\
+          & $\mid$    & \nt{codeBlock} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{inhAttrDecl} & ::= & \nt{varids} \qterm{{:}} \nt{type} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{varids} & ::= & \nt{varid} (\qterm{{,}} \nt{varid}){*} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{synAttrDecl} & ::= & \nt{varids} (\qterm{USE} \nt{codeBlock} \nt{codeBlock}){?} \qterm{{:}} \nt{type} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{dataAlt} & ::= & \qterm{$\mid$} \nt{conid} \nt{field}{*} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{field} & ::=  & \nt{varids} \qterm{{:}} \nt{type} \\
+           & $\mid$    & \nt{conid} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{semAlt} & ::= & \qterm{$\mid$} \nt{conid}{+} \nt{semDef}{*} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{semDef} & ::=  & (\nt{varid} $\mid$    \qterm{lhs}) \nt{attrDef}{+} \\
+            & $\mid$    & \qterm{loc} \nt{locDef}{+} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{attrDef} & ::= & \qterm{{.}} \nt{varid} \nt{assign} \nt{expr}  \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{locDef} & ::= & \qterm{{.}} \nt{pattern} \nt{assign} \nt{expr}  \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{expr} & ::=  & \nt{codeBlock} \\
+          & $\mid$    & \nt{layoutCodeBlock} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{assign} & ::=  & \qterm{{=}} \\
+            & $\mid$    & \qterm{{:=}} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{pattern} & ::=  & \nt{conid} \nt{pattern_1}{*} \\
+             & $\mid$    & \nt{pattern_1} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{pattern_1} & ::=  & \nt{varid} (\qterm{@} \nt{pattern_1}){?} \\
+               & $\mid$    & \qterm{(} \nt{patterns}{?} \qterm{)} \\
+               & $\mid$    & \qterm{\_} \\
+\end{tabular}
+
+\begin{tabular}{p{2cm}cl}  
+\nt{patterns} & ::=  & \nt{pattern} (\qterm{,} \nt{pattern}){*} \\
+\end{tabular}
+
+\Sec{Compiler flags}\label{flags}
+\begin{tabular}{l|l|l}
+  short option& long option              & description\\
+  \hline
+  \option{-m}               & \option{--module[=name]} & generate module header, specify module name\\
+  \option{-d}               & \option{--data}          & generate data type definitions \\
+  \option{-f}               & \option{--semfuns}       & generate semantic functions \\
+  \option{-c}               & \option{--catas}         & generate catamorphisms \\
+  \option{-s}               & \option{--signatures}    & generate type signatures for semantic functions\\
+                            & \option{--newtypes}      & use newtypes instead of type synonyms\\
+  \option{-p}               & \option{--pretty}        & generate pretty printed list of attributes\\
+  \option{-w}               & \option{--wrappers}      & generate wappers for semantic domains\\
+  \option{-r}               & \option{--rename}        & prefix data constructors with the name of corresponding type\\
+                            & \option{--nest}          & use nested pairs, instead of large tuples\\
+  \option{-o file}          & \option{--output=file}   & specify output file\\
+  \option{-v}               & \option{--verbose}       & verbose error message format\\
+  \option{-h},\option{-?}   & \option{--help}          & get usage information\\
+  \option{-a}               & \option{--all}           & do everything (-dcfsprm)\\
+                            & \option{--prefix=prefix} & set prefix for semantic functions, default is \verb+sem_+\\
+                            & \option{--self}          & generate self attribute for all nonterminals\\
+                            & \option{--cycle}         & check for cyclic attribute definitions\\
+                            & \option{--version}       & get version information\\
+\end{tabular}
+
+%Not explained:
+%:=
+%patterns in LocDef
+%literate mode
+
+
+%DATA Error  | DupAlt          occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%
+%            | DupSynonym      occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%
+%            | DupInhAttr      occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              attr  : {Name}
+%
+%            | DupSynAttr      occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              attr  : {Name}
+%
+%            | DupChild        occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              name  : {Name}
+%
+%            | DupLocal        occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              name  : {Name}
+%
+%            | DupRule         occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              field : {Name}
+%                              attr  : {Name}
+%
+%            | NameClash       occ1,occ2 : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              var   : {Name}
+%
+%            | UndefNont       pos   : {Pos}
+%                              nt    : {Nonterminal}
+%
+%            | UndefAlt        pos   : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%
+%            | UndefChild      pos   : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              name  : {Name}
+%
+%            | MissingRule     --pos : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              field : {Name}
+%                              attr  : {Name}
+%
+%            | SuperfluousRule pos   : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              field : {Name}
+%                              attr  : {Name}
+%
+%            | UndefLocal      pos   : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              var   : {String}
+%
+%            | UndefAttr       pos   : {Pos}
+%                              nt    : {Nonterminal}
+%                              con   : {Constructor}
+%                              field : {Name}
+%                              attr  : {String}
+%
+%            | CustomError     mesg  : {PP_Doc}
+%
+%            | CircGrammar     nt      : {Nonterminal}
+%                              inh     : {Name}
+%                              siTrace : {Trace}
+%                              syn     : {Name}
+%                              isTrace : {Trace}
+
+%\bibliographystyle{plain}
+%\bibliography{bibfile}
+%
+%\end{document}
+%
+%
+
+\clearpage
+\appendix
+\section*{The ``Artistic License''}
+
+Preamble
+
+The intent of this document is to state the conditions under which a Package may be copied, such that the Copyright Holder maintains some semblance of artistic control over the development of the package, while giving the users of the package the right to use and distribute the Package in a more-or-less customary fashion, plus the right to make reasonable modifications.
+
+Definitions
+
+\begin{itize}
+\item  ``Package'' refers to the collection of files distributed by the Copyright Holder, and derivatives of that collection of files created through textual modification.
+\item  ``Standard Version'' refers to such a Package if it has not been modified, or has been modified in accordance with the wishes of the Copyright Holder as specified below.
+\item  ``Copyright Holder'' is whoever is named in the copyright or copyrights for the package.
+\item  ``You'' is you, if you're thinking about copying or distributing this Package.
+\item  ``Reasonable copying fee'' is whatever you can justify on the basis of media cost, duplication charges, time of people involved, and so on. (You will not be required to justify it to the Copyright Holder, but only to the computing community at large as a market that must bear the fee.)
+\item  ``Freely Available'' means that no fee is charged for the item  itself, though there may be fees involved in handling the item . It also means that recipients of the item  may redistribute it under the same conditions they received it.
+\end{itize}
+
+\begin{enumate}
+\item  You may make and give away verbatim copies of the source form of the Standard Version of this Package without restriction, provided that you duplicate all of the original copyright notices and associated disclaimers.
+\item  You may apply bug fixes, portability fixes and other modifications derived from the Public Domain or from the Copyright Holder. A Package modified in such a way shall still be considered the Standard Version.
+\item  You may otherwise modify your copy of this Package in any way, provided that you insert a prominent notice in each changed file stating how and when you changed that file, and provided that you do at least ONE of the following: 
+	\begin{itize}
+	\item  place your modifications in the Public Domain or otherwise make them Freely Available, such as by posting said modifications to Usenet or an equivalent medium, or placing the modifications on a major archive site such as uunet.uu.net, or by allowing the Copyright Holder to include your modifications in the Standard Version of the Package.
+	\item  use the modified Package only within your corporation or organization.
+	\item  rename any non-standard executables so the names do not conflict with standard executables, which must also be provided, and provide a separate manual page for each non-standard executable that clearly documents how it differs from the Standard Version.
+	\item  make other distribution arrangements with the Copyright Holder.
+	\end{itize}
+\item  You may distribute the programs of this Package in object code or executable form, provided that you do at least ONE of the following: 
+	\begin{itize}
+	\item  distribute a Standard Version of the executables and library files together with instructions (in the manual page or equivalent) on where to get the Standard Version.
+	\item  accompany the distribution with the machine-readable source or the Package with your modifications.
+	\item  give non-standard executables non-standard names, and clearly document the differences in manual pages (or equivalent), together with instructions on where to get the Standard Version.
+	\item  make other distribution arrangements with the Copyright Holder.
+	\end{itize}
+\item  You may charge a reasonable copying fee for any distribution of this Package. You may charge any fee you choose for support of this Package. You may not charge a fee for this Package itself. However, you may distribute this Package in aggregate with other (possibly commercial) programs as part of a larger (possibly commercial) software distribution provided that you do not advertise this Package as a product of your own. You may embed this Package's code within an executable of yours (by linking); this shall be construed as a mere form of aggregation, provided that the complete Standard Version is so embedded.
+\item  Aggregation of this Package with a commercial distribution is always permitted provided that the use of this Package is embedded; that is, when no overt attempt is made to make this Package's interfaces visible to the end user of the commercial distribution. Such use shall not be construed as a distribution of this Package
+\item  The name of the Copyright Holder may not be used to endorse or promote products derived from this software without specific prior written permission.
+\item  THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+\end{enumate}
+
+
+\end{document}

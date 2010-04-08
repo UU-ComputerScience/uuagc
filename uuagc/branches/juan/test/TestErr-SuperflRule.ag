@@ -1,0 +1,10 @@
+-- the attribute y is declared but not defined
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ | | y : {Int} ]
+	
+SEM Aap
+	| Een lhs.y = 3
+	      lhs.z = 4
