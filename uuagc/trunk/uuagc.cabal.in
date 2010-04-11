@@ -28,7 +28,7 @@ executable uuagc
   else
     build-depends: base < 3
 
-  build-depends: haskell98, uulib
+  build-depends: haskell98, uulib>=0.9.12
   main-is: Ag.hs
   other-modules: Ag
     , CommonTypes
@@ -76,7 +76,7 @@ executable uuagc
   hs-source-dirs: src, src-derived
 
 Library
-   build-depends:   base >= 4, base < 5, Cabal, directory, process, uulib, filepath
+   build-depends:   base >= 4, base < 5, Cabal, directory, process, uulib>=0.9.12, filepath
    hs-source-dirs:  cabal-plugin/src
    exposed-modules: Distribution.Simple.UUAGC
    other-modules:   Distribution.Simple.UUAGC.UUAGC,
