@@ -195,6 +195,10 @@ pElem opts
               <*> pCodescrap'
               <*> pCodescrap'
               <*> pCodescrap'
+     <|> Fixed 
+              <$> pFIXEDPOINT
+              <*> pNontSet
+              <*> pAttrValues opts
      <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> ((Just <$ pATTACH <*> pIdentifierU) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
            where codeBlock nm mbNt (txt,pos) = Txt pos nm mbNt (lines txt)
 
@@ -212,6 +216,10 @@ pOptClassContext
 pClassContext :: AGParser ClassContext
 pClassContext
   = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
+
+pAttrValues :: Options -> AGParser Fields
+pAttrValues opts 
+    = (concat <$> pList (pFixedAttrValues opts) <?> "fixed point values declaration")
 
 pAttrs :: Options -> AGParser Attrs
 pAttrs opts
@@ -264,6 +272,10 @@ pType :: AGParser Type
 pType =  pTypeNt
      <|> pTypePrimitive
 
+pFixedAttrValues :: Options -> AGParser Fields
+pFixedAttrValues opts 
+                 = (\vs tp -> map (\v -> (v,tp)) vs)
+                   <$> pIdentifiers <* pEquals <*> pType <?> "fixed point declarations"
 
 pInhAttrNames :: Options -> AGParser AttrNames
 pInhAttrNames opts
@@ -413,7 +425,7 @@ pTypeColon opts
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pFIXEDPOINT
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -456,3 +468,4 @@ pSmaller     = pCostReserved 5  "<"       <?> "<"
 pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
 pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
 pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
+pFIXEDPOINT  = pCostReserved 90 "FIXEDPOINT" <?> "FIXEDPOINT"
