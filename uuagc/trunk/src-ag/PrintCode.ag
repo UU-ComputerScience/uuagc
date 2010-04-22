@@ -149,7 +149,7 @@ SEM Expr
                                  rightOp x y = if @onLeftSide
                                                then x
                                                else x `op` y
-                             in pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc
+                             in pp_parens (pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc)
   | LineExpr   lhs.pp      = @expr.pp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show @lhs.outputfile >#< "#-}"
   | TypedExpr  lhs.pp      = pp_parens (@expr.pp >#< "::" >#< @tp.pp)
 
