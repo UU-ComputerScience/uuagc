@@ -86,6 +86,8 @@ DATA SemDef    | Def    pattern: Pattern
                            ref   : {Identifier}
                | AugmentDef ident : {Identifier}
                             rhs   : {Expression}
+               | AroundDef ident : {Identifier}
+                           rhs    : {Expression}
                | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {[(Identifier,Identifier)]}
                                   after  : {[(Identifier,Identifier)]}

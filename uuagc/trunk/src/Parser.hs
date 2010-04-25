@@ -332,6 +332,7 @@ pSemDef opts
       <|>                            pINST             *> pList1 (pInstDecl opts)
       <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
       <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pIdentifier <* pAssign <*> pExpr opts
+      <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr opts
       <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
       <|> (\pat owrt exp -> [Def (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssign <*> pExpr opts
 
@@ -456,3 +457,4 @@ pSmaller     = pCostReserved 5  "<"       <?> "<"
 pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
 pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
 pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
+pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"

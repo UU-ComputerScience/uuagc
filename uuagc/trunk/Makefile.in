@@ -111,20 +111,20 @@ $(SRC_HS_SYN_L) $(SRC_HS_SEM_L): $(SRC_DERIVED_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
 else
 $(SRC_HS_SYN): $(SRC_DERIVED_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
-	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) $*.ag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
+	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) --genlinepragmas $*.ag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
 	cd ..
 $(SRC_HS_SYN_L): $(SRC_DERIVED_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
 	cd $(SRC_AG_DIR) && \
-	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) $*.lag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
+	$(AG) $(FLAGS_AG_SYN) $(FLAGS_AG_$@) --genlinepragmas $*.lag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
 	cd ..
 
 $(SRC_HS_SEM): $(SRC_DERIVED_DIR)/%.hs: $(SRC_AG_DIR)/%.ag
 	cd $(SRC_AG_DIR) && \
-	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) $*.ag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
+	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) --genlinepragmas $*.ag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
 	cd ..
 $(SRC_HS_SEM_L): $(SRC_DERIVED_DIR)/%.hs: $(SRC_AG_DIR)/%.lag
 	cd $(SRC_AG_DIR) && \
-	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) $*.lag -o ../$(SRC_DERIVED_DIR)/$*.hs && \
+	$(AG) $(FLAGS_AG_SEM) $(FLAGS_AG_$@) $*.lag --genlinepragmas -o ../$(SRC_DERIVED_DIR)/$*.hs && \
 	cd ..
 endif
 
