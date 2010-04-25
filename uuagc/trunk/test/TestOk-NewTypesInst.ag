@@ -1,0 +1,15 @@
+MODULE {Test} {} {}
+
+DATA A
+| A b:{T_B}
+
+SEM A
+ | A inst.b : T_B
+     inst.b = @b
+
+DATA B | B
+ATTR A B [ | | x:Int ]
+
+SEM B
+ | B
+   lhs.x = 12

@@ -165,7 +165,7 @@ SEM  Pattern
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Production
-  |  Production rules.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
+  |  Production loc.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
 
 -- Information passed to Pattern
 ATTR  Children Child 
@@ -296,7 +296,7 @@ ATTR Nonterminals Nonterminal
      Rules Rule [ | | instDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM Rule
   | Rule
-      lhs.instDep
+     loc.instDep1
         = Seq.fromList $
             [ (instVert, synVert)
             | (field,instNm,_) <- Map.elems @defines
@@ -307,14 +307,77 @@ SEM Rule
                   instVert = findWithErr2 instAttr @lhs.altAttrs
                   synVert  = findWithErr2 synAttr @lhs.altAttrs
             ]
+     loc.instDep2
+        = Seq.fromList $
+            [ (instVert, inhVert)
+            | (field,instNm,_) <- Map.elems @defines
+            , field == _INST
+            , inhNm <- Map.keys (findWithErr2 instNm @lhs.inhsOfChildren)
+            , let instAttr = AltAttr _INST instNm True
+                  inhAttr  = AltAttr instNm inhNm False
+                  instVert = findWithErr2 instAttr @lhs.altAttrs
+                  inhVert  = findWithErr2 inhAttr @lhs.altAttrs
+            ]
+     lhs.instDep = @loc.instDep1 Seq.>< @loc.instDep2
 
-ATTR Rules Rule [ synsOfChildren : {Map Identifier Attributes} | | ]
+ATTR Rules Rule [ synsOfChildren, inhsOfChildren : {Map Identifier Attributes} | | ]
 SEM Production
   | Production  rules.synsOfChildren = @children.collectChildrenSyns
+                rules.inhsOfChildren = @children.collectChildrenInhs
 
-ATTR Children Child [ | | collectChildrenSyns USE {`Map.union`} {Map.empty} : {Map Identifier Attributes } ]
+ATTR Children Child [ | | collectChildrenSyns, collectChildrenInhs USE {`Map.union`} {Map.empty} : {Map Identifier Attributes } ]
 SEM Child
   | Child  lhs.collectChildrenSyns = Map.singleton @name @syn
+           lhs.collectChildrenInhs = Map.singleton @name @inh
+
+
+-- Around dependencies
+--
+-- For each around x_around on x of nt N, add the dependency
+-- (x_around, x.y) for each synthesized attribute y of N
+--
+
+ATTR Nonterminals Nonterminal 
+     Productions Production 
+       [ | | aroundDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
+
+ATTR Nonterminals Nonterminal
+  [ aroundMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} || ]
+
+ATTR Productions Production
+  [ aroundMap : {Map ConstructorIdent (Map Identifier [Expression])} || ]
+
+SEM Nonterminal | Nonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
+SEM Production | Production    loc.aroundMap = Map.findWithDefault Map.empty @con @lhs.aroundMap
+
+SEM Grammar
+  | Grammar  nonts.aroundMap = @aroundsMap
+
+SEM Production
+ | Production
+     loc.aroundDep1
+       = Seq.fromList $
+           [ (childVert, synVert)
+           | childNm <- Map.keys @loc.aroundMap
+           , synNm <- Map.keys (findWithErr2 childNm @children.collectChildrenSyns)
+           , let childNm' = Ident (show childNm ++ "_around") (getPos childNm)
+                 childAttr = AltAttr _LOC childNm' True
+                 synAttr  = AltAttr childNm synNm True
+                 childVert = findWithErr2 childAttr @loc.altAttrs
+                 synVert  = findWithErr2 synAttr @loc.altAttrs
+           ]
+     loc.aroundDep2
+        = Seq.fromList $
+            [ (childVert, inhVert)
+            | childNm <- Map.keys @loc.aroundMap
+            , inhNm <- Map.keys (findWithErr2 childNm @children.collectChildrenInhs)
+            , let childNm'  = Ident (show childNm ++ "_around") (getPos childNm)
+                  childAttr = AltAttr _LOC childNm' True
+                  inhAttr   = AltAttr childNm inhNm False
+                  childVert = findWithErr2 childAttr @loc.altAttrs
+                  inhVert   = findWithErr2 inhAttr @loc.altAttrs
+            ]
+     lhs.aroundDep = @loc.aroundDep1 Seq.>< @loc.aroundDep2
 
 
 -- Wrapping an Expression
@@ -415,6 +478,7 @@ SEM Grammar
                              in mapMaybe conv (eqClasses eq @tdpToTds)
             loc.directDep = toList (@nonts.directDep Seq.>< @nonts.additionalDep)
             loc.instDep   = toList @nonts.instDep
+            loc.aroundDep = toList @nonts.aroundDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@nonts.acount-1) @tdsToTdp
@@ -427,7 +491,7 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential @info @directDep @instDep of
+                              case computeSequential @info @directDep (@instDep ++ @aroundDep) of
                                            CycleFree    cim cvm   -> ( cim
                                                                      , cvm
                                                                      , []
@@ -480,7 +544,7 @@ SEM Child
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
-  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap @loc.aroundMap
 SEM  Nonterminals [ | | cNonterminals : CNonterminals ]
   |  Cons  lhs.cNonterminals = @hd.cNonterminal : @tl.cNonterminals
   |  Nil   lhs.cNonterminals = []
@@ -491,6 +555,9 @@ SEM  Productions [ | | cProductions : CProductions ]
   |  Nil   lhs.cProductions = []
 SEM  Production [ | | cProduction : CProduction ]
   |  Production  lhs.cProduction = CProduction @con @cVisits @children.fields @children.terminals
+
+SEM Grammar
+  | Grammar  loc.aroundMap = Map.map (Map.map Map.keysSet) @aroundsMap
 
 -- Collect terminals
 ATTR Children Child  [ | | terminals USE {++} {[]} : {[Identifier]} ]

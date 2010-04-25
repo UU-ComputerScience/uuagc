@@ -425,6 +425,20 @@ addAugments (syn, exprs) rules
       | field == _LHS && attr == syn = Alias _LOC substSyn (modifyPat pat) (map modifyPat parts)
       | otherwise                    = Alias field attr (modifyPat pat) (map modifyPat parts)
     modifyPat p = p
+
+addArounds :: (Identifier, [Expression]) -> [Rule] -> [Rule]
+addArounds (_, exprs) rules | null exprs = rules
+addArounds (child, exprs) rules
+  = [rule] ++ funRules ++ rules
+  where
+    rule = Rule (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule"
+    rhs  = Expression noPos tks
+    tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
+    funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
+
+    childLoc = Ident (show child ++ "_around") (getPos child)
+    funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
+    funRules = zipWith (\name expr -> Rule (Alias _LOC name (Underscore noPos) []) expr False "around function") funNames exprs
 }
    
    
@@ -473,8 +487,9 @@ ATTR Rule [ | | outputs:Rules ]
 
 SEM Production
   | Production
-      loc.extra  = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
-      lhs.output = Production @con @children.output @loc.extra @typeSigs.output
+      loc.extra1 = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
+      loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
+      lhs.output = Production @con @children.output @loc.extra2 @typeSigs.output
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
@@ -597,3 +612,10 @@ ATTR Productions Production [ augmentsIn : {Map ConstructorIdent (Map Identifier
 SEM Grammar     | Grammar      nonts.augmentsIn = @augmentsMap
 SEM Nonterminal | Nonterminal  loc.augmentsIn = Map.findWithDefault Map.empty @nt @lhs.augmentsIn
 SEM Production  | Production   loc.augmentsIn = Map.findWithDefault Map.empty @con @lhs.augmentsIn
+
+ATTR Nonterminals Nonterminal [ aroundsIn : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} | | ]
+ATTR Productions Production [ aroundsIn : {Map ConstructorIdent (Map Identifier [Expression])} | | ]
+
+SEM Grammar     | Grammar      nonts.aroundsIn = @aroundsMap
+SEM Nonterminal | Nonterminal  loc.aroundsIn   = Map.findWithDefault Map.empty @nt @lhs.aroundsIn
+SEM Production  | Production   loc.aroundsIn   = Map.findWithDefault Map.empty @con @lhs.aroundsIn

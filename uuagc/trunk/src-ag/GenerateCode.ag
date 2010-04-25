@@ -188,7 +188,10 @@ SEM  CRule
                                   rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
-                                  rhs = @loc.addCostCentre $ App (funname @name @nr) (map SimpleExpr rhsVars)
+                                  rhs = @loc.addCostCentre $ App fun (map SimpleExpr rhsVars)
+                                  fun | @nr == 0 && Set.member @name @lhs.aroundMap
+                                                  = locname @name ++ "_around " ++ funname @name 0
+                                      | otherwise = funname @name @nr
                              in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
 
 {
@@ -462,6 +465,22 @@ SEM CProduction
 SEM CVisit
   | CVisit
       lhs.gatherInstVisitNrs = Map.fromList [(i,@lhs.nr) | i <- @vss.definedInsts]
+
+-------------------------------------------------------------------------------
+-- Push aroundsMap downward
+-------------------------------------------------------------------------------
+
+ATTR CNonterminals CNonterminal
+  [ aroundMap : {Map NontermIdent (Map ConstructorIdent (Set Identifier))} || ]
+
+ATTR CProductions CProduction
+  [ aroundMap : {Map ConstructorIdent (Set Identifier)} || ]
+
+ATTR CVisits CVisit Sequence CRule [ aroundMap : {Set Identifier} | | ]
+
+SEM CGrammar | CGrammar          loc.aroundMap = @aroundsMap
+SEM CNonterminal | CNonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
+SEM CProduction | CProduction    loc.aroundMap = Map.findWithDefault Set.empty @con @lhs.aroundMap
 
 -------------------------------------------------------------------------------
 -- Generate a partitioned version of the sequence of rules

@@ -14,6 +14,7 @@ DATA  CGrammar
                 pragmas   : {PragmaMap}
                 paramMap  : {ParamMap}
                 contextMap: {ContextMap}
+                aroundsMap: {Map NontermIdent (Map ConstructorIdent (Set Identifier))}
 
 TYPE CNonterminals = [CNonterminal]
 
