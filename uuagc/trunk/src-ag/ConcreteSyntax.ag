@@ -77,7 +77,8 @@ DATA SemAlt    | SemAlt pos    : {Pos}
                         constructorSet   : ConstructorSet
                         rules  : SemDefs
 
-DATA SemDef    | Def    pattern: Pattern
+DATA SemDef    | Def    pos    : Pos
+                        pattern: Pattern
                         rhs    : {Expression}
                         owrt   : {Bool}
                | TypeDef ident : {Identifier}
