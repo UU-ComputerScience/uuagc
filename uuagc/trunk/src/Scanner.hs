@@ -132,7 +132,7 @@ lowercaseKeywords = ["loc","lhs", "inst"]
 keywords = lowercaseKeywords ++
            [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "SET","DERIVING","FOR", "WRAPPER", "MAYBE", "EITHER", "MAP", "INTMAP"
-           , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN"
+           , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
            , "AUGMENT", "AROUND"
            ]
 
