@@ -98,6 +98,8 @@ SEM Chunk
 SEM Decl
   | Decl       lhs.pp      = @left.pp >#< "="
                              >-< indent 4 @rhs.pp
+  | Bind       lhs.pp      = @left.pp >#< "<-" >#< @rhs.pp
+  | BindLet    lhs.pp      = "let" >#< @left.pp >#< "=" >#< @rhs.pp
   | Data       lhs.pp      = "data" >#< hv_sp (@name : @params)
                              >#<  ( case @alts.pps of
                                           [] -> empty
@@ -121,6 +123,9 @@ SEM Expr
                                        )
   | Case       lhs.pp      = pp_parens (    "case" >#< pp_parens @expr.pp >#< "of"
                                        >-< (vlist @alts.pps)
+                                       )
+  | Do         lhs.pp      = pp_parens ( "do" >#< (   vlist @stmts.pps
+                                                  >-< ("return" >#< @body.pp))
                                        )
   | Lambda     loc.strictParams = if strictSems @lhs.options
                                   then @args.pps
@@ -328,6 +333,8 @@ SEM Program
 SEM Expr
   | Let
       decls.isDeclOfLet = True
+  | Do
+      stmts.isDeclOfLet = False
 
 SEM CaseAlt
   | CaseAlt

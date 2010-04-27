@@ -211,7 +211,7 @@ SEM  Rule
                                           , let aa = AltAttr field attr isLocalOrInst
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars
+                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars @explicit @mbName
                                             | (field,attr,tp) <- Map.elems @defines 
                                             ]
 
@@ -260,30 +260,26 @@ SEM  Rule
 -- the edge (vertex(f1.a1), vertex(f2.a2))
 ATTR Nonterminals Nonterminal
      Productions Production
-     Rules Rule [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
+     [ manualAttrDepMap : {AttrOrderMap} | | additionalDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
+
 SEM Grammar
   | Grammar
       nonts.manualAttrDepMap = @manualAttrOrderMap
-SEM Rule
-  | Rule
-      loc.manualDeps
-        = Set.toList $ Map.findWithDefault Set.empty @lhs.con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrDepMap
-      lhs.additionalDep
-        = Seq.fromList [ (vertexA, vertexB)
-                       | Dependency (fldA,nmA) (fldB,nmB) <- @loc.manualDeps
-                       , let vertexA = findWithErr2 (AltAttr fldA nmA True) @lhs.altAttrs
-                       , vertexB <- lookupVertices fldB nmB @lhs.altAttrs
-                       ]
 
-{
-lookupVertices :: Identifier -> Identifier -> Map AltAttr Int -> [Int]
-lookupVertices fld nm attrs
-  = catMaybes (  [Map.lookup (AltAttr fld nm False) attrs]  -- look for all "out" attributes
-              ++ if fld == _LOC
-                 then [Map.lookup (AltAttr fld nm True) attrs]
-                 else []
-              )
-}
+SEM Production
+  | Production
+      loc.manualDeps
+        = Set.toList $ Map.findWithDefault Set.empty @con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrDepMap
+
+      lhs.additionalDep
+        = Seq.fromList [ (vertex True occA, vertex False occB)
+                       | Dependency occA occB <- @loc.manualDeps
+                       , let vertex inout (OccAttr child nm)
+                               | child == _LOC = findWithErr2 (AltAttr _LOC nm True) @loc.altAttrs
+                               | otherwise     = findWithErr2 (AltAttr child nm inout) @loc.altAttrs
+                             vertex _ (OccRule nm)
+                               = findWithErr2 (AltAttr _LOC (Ident ("_rule_" ++ show nm) (getPos nm)) True) @loc.altAttrs
+                       ]
 
 -- Inst dependencies
 --

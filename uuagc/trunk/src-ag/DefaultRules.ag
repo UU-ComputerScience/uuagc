@@ -207,10 +207,12 @@ missingRuleErrorExpr nt con fld a
 	
 makeRule :: (Identifier,Identifier) -> Expression -> String -> Rule
 makeRule (f1,a1) expr origin 
- = Rule (Alias f1 a1 (Underscore noPos) []) 
+ = Rule Nothing
+        (Alias f1 a1 (Underscore noPos) []) 
         expr 
         False 
         origin
+        False
 
 
 useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
@@ -399,17 +401,17 @@ addAugments (_, exprs) rules
 addAugments (syn, exprs) rules
   = [rule] ++ funRules ++ map modify rules
   where
-    rule = Rule (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule"
+    rule = Rule Nothing (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule" False
     rhs  = Expression noPos tks
     tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule (Alias _LOC name (Underscore noPos) []) expr False "augment function") funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "augment function" False) funNames exprs
 
-    modify (Rule pat rhs owrt origin)
-      | containsSyn pat = Rule (modifyPat pat) rhs owrt origin
+    modify (Rule mbNm pat rhs owrt origin expl)
+      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl
     modify r = r
 
     containsSyn (Constr _ pats)   = any containsSyn pats
@@ -431,14 +433,14 @@ addArounds (_, exprs) rules | null exprs = rules
 addArounds (child, exprs) rules
   = [rule] ++ funRules ++ rules
   where
-    rule = Rule (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule"
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule" False
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule (Alias _LOC name (Underscore noPos) []) expr False "around function") funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "around function" False) funNames exprs
 }
    
    
@@ -519,10 +521,18 @@ becomes
   loc.(_,c)     = @loc.tup2
 -}
 
-multiRule :: Rule -> Int -> ([Rule], Int)	
-multiRule (Rule pat expr owrt origin) uniq
-  =  let f :: (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
-         f w e (Product pos pats) n 
+multiRule :: Rule -> Int -> ([Rule], Int)
+multiRule (Rule (Just nm) pat expr owrt origin expl) uniq
+  = let pos = getPos nm
+        r = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos) []) expr owrt origin expl
+        expr' = Expression pos tks
+        tks = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
+        (rs,uniq') = multiRule (Rule Nothing pat expr' owrt origin False) uniq
+    in (r:rs, uniq')
+
+multiRule (Rule Nothing pat expr owrt origin expl) uniq
+  =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
+         f expl' w e (Product pos pats) n 
            = let freshName = Ident ("_tup" ++ show n) pos 
                  freshExpr = Expression pos freshTks
                  freshTks  = [AGField _LOC freshName pos Nothing]
@@ -530,21 +540,21 @@ multiRule (Rule pat expr owrt origin) uniq
                  a = length pats - 1
                  us b p = Product pos (replicate (a-b) (Underscore pos) ++ [p] ++ replicate b (Underscore pos))
                  g :: Pattern -> ([Pattern],[Rule],Int) -> ([Pattern],[Rule],Int)
-                 g p (xs1,rs1,n1)   = let (x2,(rs2,n2)) = f (us (length xs1)) freshExpr p n1
+                 g p (xs1,rs1,n1)   = let (x2,(rs2,n2)) = f False (us (length xs1)) freshExpr p n1
                                       in  (x2:xs1, rs2++rs1, n2)
                  (xs9,rs9,n9) = foldr g ([], [], n+1) pats
              in  ( freshPat
-                 , ( Rule (w freshPat) e owrt origin : rs9
+                 , ( Rule Nothing (w freshPat) e owrt origin expl' : rs9
                    , n9
                    )
                  )
-         f w e p n 
+         f expl' w e p n 
            = ( p
-             , ( [Rule (w p) e owrt origin]
+             , ( [Rule Nothing (w p) e owrt origin expl']
                , n
                )
              )
-     in snd (f id expr pat uniq)
+     in snd (f expl id expr pat uniq)
 
 }
 
@@ -557,7 +567,12 @@ ATTR Nonterminals Nonterminal Productions Production [ manualAttrOrderMap : {Att
 SEM Grammar
   | Grammar
       nonts.manualAttrOrderMap = @manualAttrOrderMap
-      
+
+ATTR Rules Rule [ | | ruleNames USE {`Set.union`} {Set.empty} : {Set Identifier} ]
+
+SEM Rule | Rule  lhs.ruleNames = case @mbName of
+                                   Nothing -> Set.empty
+                                   Just nm -> Set.singleton nm
 
 SEM Production
   | Production
@@ -566,7 +581,7 @@ SEM Production
       loc.orderErrs
         = let chldOutMap = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.outputs ]
               chldInMap  = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.inputs ]
-        
+
               -- a local attribute
               -- or an inherited attribute of the production
               -- or an out-attribute of a child
@@ -581,7 +596,7 @@ SEM Production
                  | otherwise   = if nm `Set.member` (Map.findWithDefault Set.empty fld chldOutMap)
                                  then []
                                  else [UndefAttr @lhs.nt @con fld nm False]
-              
+
               -- a local attribute
               -- or a synthesized attribute of the production
               -- or an in-attribute of a child
@@ -596,11 +611,19 @@ SEM Production
                  | otherwise   = if nm `Set.member` (Map.findWithDefault Set.empty fld chldInMap)
                                  then []
                                  else [UndefAttr @lhs.nt @con fld nm True]
-          in Seq.fromList . concat $
-             [ isInAttribute fldA nmA ++ isOutAttribute fldB nmB
-             | dep@(Dependency (fldA,nmA) (fldB,nmB)) <- @loc.orderDeps
-             ]
+              
+              existsRule nm = if nm `Set.member` @rules.ruleNames
+                              then []
+                              else [MissingNamedRule @lhs.nt @con nm]
 
+              checkIn (OccAttr fld nm)  = isInAttribute fld nm
+              checkIn (OccRule nm)      = existsRule nm
+              checkOut (OccAttr fld nm) = isOutAttribute fld nm
+              checkOut (OccRule nm)     = existsRule nm
+          in Seq.fromList . concat $
+             [ checkIn occA ++ checkOut occB
+             | (Dependency occA occB) <- @loc.orderDeps
+             ]
 
 -------------------------------------------------------------------------------
 --         Decompose augment

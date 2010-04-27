@@ -32,6 +32,8 @@ DATA Expr     | Let              decls : Decls
                                  body  : Expr
               | Case             expr  : Expr
                                  alts  : CaseAlts
+              | Do               stmts : Decls
+                                 body  : Expr
               | Lambda           args :  Exprs
                                  body : Expr
               | TupleExpr        exprs : Exprs
@@ -57,6 +59,10 @@ DATA Decl     | Decl             left  : Lhs
                                  rhs   : Expr
                                  binds : {Set String}  -- set of variable names bound by the left-hand side
                                  uses  : {Set String}  -- set of variable names used by the right-hand side
+              | Bind             left  : Lhs
+                                 rhs   : Expr
+              | BindLet          left  : Lhs
+                                 rhs   : Expr
               | Data             name  : {String}
                                  params: {[String]}
                                  alts  : DataAlts
