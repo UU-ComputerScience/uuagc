@@ -78,6 +78,7 @@ DATA SemAlt    | SemAlt pos    : {Pos}
                         rules  : SemDefs
 
 DATA SemDef    | Def    pos    : Pos
+                        mbName : {Maybe Identifier}
                         pattern: Pattern
                         rhs    : {Expression}
                         owrt   : {Bool}
@@ -90,8 +91,8 @@ DATA SemDef    | Def    pos    : Pos
                | AroundDef ident : {Identifier}
                            rhs    : {Expression}
                | SemPragma  names : {[NontermIdent]}
-               | AttrOrderBefore  before : {[(Identifier,Identifier)]}
-                                  after  : {[(Identifier,Identifier)]}
+               | AttrOrderBefore  before : {[Occurrence]}
+                                  after  : {[Occurrence]}
 
 DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet

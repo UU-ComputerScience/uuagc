@@ -48,10 +48,12 @@ DATA Child        | Child   name        : {Identifier}
                             syn         : {Attributes}
                             higherOrder : {Bool}
 
-DATA Rule         | Rule    pattern : Pattern 
+DATA Rule         | Rule    mbName  : {Maybe Identifier}
+                            pattern : Pattern 
                             rhs     : Expression
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)
+                            explicit : Bool  -- True if this rule defined in the source code
 
 DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}

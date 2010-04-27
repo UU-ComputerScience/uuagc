@@ -82,14 +82,18 @@ compile flags input output
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
 
           parseErrorList   = map message2error parseErrors
+          mainErrors       = toList ( Pass1.errors_Syn_AG       output1
+                               Seq.>< Pass1a.errors_Syn_Grammar output1a
+                               Seq.>< Pass2.errors_Syn_Grammar  output2 )
+          furtherErrors    = toList ( Pass3.errors_Syn_Grammar  output3
+                               Seq.>< Pass4.errors_Syn_CGrammar output4)
+          
           errorList        = parseErrorList
-                             ++ toList ( Pass1.errors_Syn_AG       output1
-                                         Seq.>< Pass1a.errors_Syn_Grammar output1a
-                                         Seq.>< Pass2.errors_Syn_Grammar  output2
-                                         Seq.>< Pass3.errors_Syn_Grammar  output3
-                                         Seq.>< Pass4.errors_Syn_CGrammar output4
-                                       )
-                                           
+                             ++ mainErrors
+                             ++ if null mainErrors || null (filter (PrErr.isError flags') mainErrors)
+                                then furtherErrors
+                                else []
+     
           fatalErrorList = filter (PrErr.isError flags') errorList
           
           allErrors = if null parseErrors

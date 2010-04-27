@@ -56,6 +56,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["lckeywords"]      (NoArg lcKeywordsOpt) "Use lowercase keywords (sem, attr) instead of the uppercase ones (SEM, ATTR)"
                , Option []        ["doublecolons"]    (NoArg doubleColonsOpt) "Use double colons for type signatures instead of single colons"
                , Option ['H']     ["haskellsyntax"]   (NoArg haskellSyntaxOpt) "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
+               , Option []        ["monadic"]         (NoArg monadicOpt) "Experimental: generate monadic code"
                ]
 
 allc = "dcfsprm"
@@ -109,6 +110,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , uniqueDispenser :: String
                       , lcKeywords :: Bool
                       , doubleColons :: Bool
+                      , monadic :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -159,6 +161,7 @@ noOptions = Options { moduleName    = NoName
                     , uniqueDispenser = "nextUnique"
                     , lcKeywords      = False
                     , doubleColons    = False
+                    , monadic         = False
                     }
 
 
@@ -210,6 +213,7 @@ uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
 lcKeywordsOpt opts = opts { lcKeywords = True }
 doubleColonsOpt opts = opts { doubleColons = True }
 haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
+monadicOpt opts = opts { monadic = True }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

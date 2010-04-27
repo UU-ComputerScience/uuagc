@@ -42,26 +42,27 @@ ATTR CNonterminals CNonterminal
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas,o_monadic : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
 SEM CGrammar [ options : Options | | ]
-  | CGrammar    nonts.o_sig         = typeSigs      @lhs.options
-                     .o_cata        = folds         @lhs.options
-                     .o_sem         = semfuns       @lhs.options
-                     .o_newtypes    = newtypes      @lhs.options
-                     .o_unbox       = unbox         @lhs.options
-                     .o_case        = cases         @lhs.options
-                     .o_pretty      = attrInfo      @lhs.options
-                     .o_rename      = rename        @lhs.options
-                     .o_strictwrap  = strictWrap    @lhs.options
-                     .o_splitsems   = splitSems     @lhs.options
+  | CGrammar    nonts.o_sig         = typeSigs       @lhs.options
+                     .o_cata        = folds          @lhs.options
+                     .o_sem         = semfuns        @lhs.options
+                     .o_newtypes    = newtypes       @lhs.options
+                     .o_unbox       = unbox          @lhs.options
+                     .o_case        = cases          @lhs.options
+                     .o_pretty      = attrInfo       @lhs.options
+                     .o_rename      = rename         @lhs.options
+                     .o_strictwrap  = strictWrap     @lhs.options
+                     .o_splitsems   = splitSems      @lhs.options
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
-                     .prefix        = prefix        @lhs.options
-                     .o_traces      = genTraces     @lhs.options
+                     .prefix        = prefix         @lhs.options
+                     .o_traces      = genTraces      @lhs.options
                      .o_costcentre  = genCostCentres @lhs.options
                      .o_linePragmas = genLinePragmas @lhs.options
+                     .o_monadic     = monadic        @lhs.options
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -141,7 +142,7 @@ SEM  CRule
            loc.originComment = if  @lhs.o_pretty
                                    then (Comment @origin:)
                                    else id
-           loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
+           loc.instDecls = [ mkDecl @lhs.o_monadic (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
                                   ( let nm = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
                                        $ case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
@@ -157,8 +158,8 @@ SEM  CRule
            loc.patDescr = if @isIn
                           then "_"
                           else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
-           loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++ @loc.patDescr
-                              
+           loc.traceDescr = (maybe "" (\nm -> show nm ++ ":") @mbNamed) ++ show @nt ++ " :: " ++ show @con ++ " :: " ++ @loc.patDescr
+
            loc.addTrace = \v -> if @lhs.o_traces
                                 then Trace @loc.traceDescr v
                                 else v
@@ -174,7 +175,7 @@ SEM  CRule
                                              $ v
                                         else v
            loc.decls = if @hasCode
-                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ @loc.addLinePragma $ (TextExpr @rhs))
+                       then @originComment ( mkDecl (@lhs.o_monadic && @explicit) (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ @loc.addLinePragma $ (TextExpr @rhs))
                                                   (Set.fromList [attrname False fld nm | (fld,nm,_) <- Map.elems @defines])
                                                   (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList @uses])
                                            : @loc.instDecls)
@@ -192,9 +193,12 @@ SEM  CRule
                                   fun | @nr == 0 && Set.member @name @lhs.aroundMap
                                                   = locname @name ++ "_around " ++ funname @name 0
                                       | otherwise = funname @name @nr
-                             in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
+                             in [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
 
 {
+mkDecl True  lhs rhs _ _   = Bind lhs rhs
+mkDecl False lhs rhs s1 s2 = Decl lhs rhs s1 s2
+
 unwrapSem :: Bool -> NontermIdent -> Expr -> Expr
 unwrapSem False _ e = e
 unwrapSem True nm e = Case e alts
@@ -411,7 +415,7 @@ SEM  CVisit
                                   $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
-                                    else mkLet @o_case @decls
+                                    else mkDecls @loc.declsType @decls
                                          . mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh)
                                          $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes
@@ -441,7 +445,13 @@ SEM  CVisit
             loc.typeSigs =  if  @lhs.o_sig && not @o_case
                                 then  @vss.tSigs
                                 else  []
-            loc.o_case = @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
+            loc.o_do   = @ordered && @lhs.o_monadic
+            loc.o_case = not @loc.o_do && @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
+            loc.declsType = if @loc.o_do
+                            then DeclsDo
+                            else if @loc.o_case
+                                 then DeclsCase
+                                 else DeclsLet
             loc.o_splitsems = @ordered && @lhs.o_splitsems
 
 {
@@ -514,34 +524,6 @@ SEM CRule
       lhs.bldBlocksFun = DeclBlock @lhs.declsAbove (head @loc.decls)
 
 {
--- dead code - replaced by mkPartitionedFunction
-{-
-localCpsToExpr :: Bool -> [Decl] -> DeclBlocks -> Expr
-localCpsToExpr o_case nextVisitDecl
-  = r
-  where
-    r cps
-      = case cps of
-          DeclTerminator decls expr
-            -> mkLet o_case (decls ++ nextVisitDecl) expr
-          DeclBlock decls (Decl lhs rhs _ _) remainder
-            -> let inDecls = [ PragmaDecl ("NOINLINE " ++ internalCpsName)
-                             , Decl (Fun internalCpsName [SimpleExpr internalCpsVarName])
-                                    (mkLet o_case [Decl lhs (SimpleExpr internalCpsVarName) Set.empty Set.empty] (rec remainder))
-                                    Set.empty Set.empty
-                             ]
-                   inBody = App "head" [App "(:)" [App internalCpsName [rhs], App "(:)" [App internalCpsName [rhs], SimpleExpr "[]"]]]
-                   outerBody = Let inDecls inBody
-                   block = mkLet o_case decls outerBody
-               in block
-
-internalCpsName :: String
-internalCpsName = "internalCps_"
-
-internalCpsVarName :: String
-internalCpsVarName = "internalCps_var_"
--}
-
 mkPartitionedFunction :: String -> Bool -> [Decl] -> [String] -> DeclBlocks -> ([Decl], Expr)
 mkPartitionedFunction prefix optCase nextVisitDecls lastExprVars cpsTree
   = let inh = Inh_DeclBlocksRoot { prefix_Inh_DeclBlocksRoot = prefix
@@ -827,6 +809,17 @@ SEM CNonterminal
 
 {
 -- Lets or nested Cases?
+-- or even a do-expression?
+
+data DeclsType = DeclsLet | DeclsCase | DeclsDo
+
+mkDecls :: DeclsType -> Decls -> Expr -> Expr
+mkDecls DeclsLet  = mkLet False
+mkDecls DeclsCase = mkLet True
+mkDecls DeclsDo   = \decls -> Do (map toBind decls)
+  where toBind (Decl lhs rhs _ _) = BindLet lhs rhs
+        toBind d                  = d
+
 mkLet :: Bool -> Decls -> Expr -> Expr
 mkLet False decls body = Let decls body
 mkLet True decls body = foldr oneCase body decls

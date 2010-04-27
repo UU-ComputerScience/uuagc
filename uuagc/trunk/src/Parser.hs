@@ -213,18 +213,23 @@ parseFile opts searchPath file
 
     pSemDef :: AGParser [SemDef]
     pSemDef
-          =   (\x fs -> map ($ x) fs)<$> pFieldIdentifier <*> pList1 pAttrDef
+          =   (\x y fs -> map (\f -> f x y) fs) <$> pMaybeRuleName <*> pFieldIdentifier <*> pList1 pAttrDef
           <|>                            pLOC              *> pList1 pLocDecl
           <|>                            pINST             *> pList1 pInstDecl
           <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
           <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pIdentifier <* pAssign <*> pExpr
           <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr
-          <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttr <* pSmaller <*> pAttr
-          <|> (\pat (owrt,pos) exp -> [Def pos (pat ()) exp owrt]) <$> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
+          <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
+          <|> (\mbNm pat (owrt,pos) exp -> [Def pos mbNm (pat ()) exp owrt]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
 
-    pAttrDef :: AGParser (Identifier -> SemDef)
+    pMaybeRuleName :: AGParser (Maybe Identifier)
+    pMaybeRuleName
+      =   (Just <$> pIdentifier <* pColon <?> "rule name")
+      <|> pSucceed Nothing
+
+    pAttrDef :: AGParser (Maybe Identifier -> Identifier -> SemDef)
     pAttrDef
-      = (\pat (owrt,pos) exp fld -> Def pos (pat fld) exp owrt)
+      = (\pat (owrt,pos) exp mbNm fld -> Def pos mbNm (pat fld) exp owrt)
                <$ pDot <*> pattern <*> pAssignPos <*> pExpr
       where pattern =  pPattern pVar
                    <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
@@ -382,6 +387,10 @@ pAugmentToken = () <$ (pAUGMENT <|> pPlus)
 
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
 
+pAttrOrIdent
+  = OccAttr <$> pFieldIdentifier <* pDot <*> pIdentifier
+  <|> OccRule <$> pIdentifier
+
 nl2sp :: Char -> Char
 nl2sp '\n' = ' '
 nl2sp '\r' = ' '
@@ -426,7 +435,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
