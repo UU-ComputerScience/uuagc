@@ -57,6 +57,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["doublecolons"]    (NoArg doubleColonsOpt) "Use double colons for type signatures instead of single colons"
                , Option ['H']     ["haskellsyntax"]   (NoArg haskellSyntaxOpt) "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
                , Option []        ["monadic"]         (NoArg monadicOpt) "Experimental: generate monadic code"
+               , Option []        ["ocaml"]           (NoArg ocamlOpt) "Experimental: generate Ocaml code"
                ]
 
 allc = "dcfsprm"
@@ -111,6 +112,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , lcKeywords :: Bool
                       , doubleColons :: Bool
                       , monadic :: Bool
+                      , ocaml :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -162,6 +164,7 @@ noOptions = Options { moduleName    = NoName
                     , lcKeywords      = False
                     , doubleColons    = False
                     , monadic         = False
+                    , ocaml           = False
                     }
 
 
@@ -214,6 +217,7 @@ lcKeywordsOpt opts = opts { lcKeywords = True }
 doubleColonsOpt opts = opts { doubleColons = True }
 haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
 monadicOpt opts = opts { monadic = True }
+ocamlOpt opts = opts { ocaml = True }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

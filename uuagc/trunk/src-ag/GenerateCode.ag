@@ -313,7 +313,7 @@ SEM CRule
 
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
-  |  CRule        loc.mkTp = SimpleType . typeToHaskellString (Just @lhs.nt) @loc.orgParams
+  |  CRule        loc.mkTp = typeToCodeType (Just @lhs.nt) @loc.orgParams
                   lhs.tSigs = [ TSig (attrname False field attr) (@loc.evalTp field $ @mkTp (fromJust tp)) 
                               |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
 
@@ -329,7 +329,7 @@ SEM  CRule
                                          else idEvalType tp
                                     else evalType replace tp
 
-  |  CChildVisit  loc.mkTp = @loc.evalTp . SimpleType . typeToHaskellString (Just @nt) @loc.orgParams
+  |  CChildVisit  loc.mkTp = @loc.evalTp . typeToCodeType (Just @nt) @loc.orgParams
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (TypeApp (SimpleType @nextTp) (map SimpleType @loc.instParams)) :)) @definedTps
@@ -405,13 +405,13 @@ SEM  CVisit
                               field (name,tp,_)        = let expr = SimpleExpr (funname name 0)
                                                          in if null @loc.params
                                                             then expr
-                                                            else TypedExpr expr (idEvalType $ SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp))
+                                                            else TypedExpr expr (idEvalType $ typeToCodeType (Just @lhs.nt) @loc.params tp)
                               
                               mbEvalTp | null @loc.params = const Nothing
                                        | otherwise        = Just . idEvalType
 
                               rhs = wrap
-                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ SimpleType $ typeToHaskellString (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
+                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ typeToCodeType (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
                                   $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
@@ -606,8 +606,8 @@ SEM  CInterface
 
 SEM  CSegment
   |  CSegment loc.tp = foldr Arr @loc.synTps @loc.inhTps
-              loc.inhTps = [SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp) |  tp <- Map.elems @inh]
-              loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp) |  tp <- Map.elems @syn] ++ @loc.continuation)
+              loc.inhTps = [typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @inh]
+              loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @syn] ++ @loc.continuation)
               loc.continuation = if  @lhs.isLast
                                  then []
                                  else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map (SimpleType . ('@':)) @loc.params)]
@@ -637,6 +637,13 @@ SEM CGrammar
         in evalType replace tp
 
 {
+typeToCodeType :: Maybe NontermIdent -> [String] -> Type -> Code.Type
+typeToCodeType mbNt params tp
+  = case tp of
+      NT nt tps | nt == _SELF -> NontermType (maybe "Unknown" getName mbNt) params
+                | otherwise   -> NontermType (getName nt) tps
+      Haskell t               -> SimpleType t
+
 evalType :: (String -> String) -> Code.Type -> Code.Type
 evalType replf t
   = chase t
@@ -652,6 +659,11 @@ evalType replf t
                                       tks' = map replaceTok tks
                                       txt' = unlines . showTokens . tokensToStrings $ tks'
                                   in SimpleType txt'
+          TMaybe m             -> TMaybe (chase m)
+          TEither l r          -> TEither (chase l) (chase r)
+          TMap k v             -> TMap (chase k) (chase v)
+          TIntMap v            -> TIntMap (chase v)
+          _                    -> t
 
     replaceTok t
       = case t of
@@ -682,12 +694,10 @@ SEM CNonterminal
                                       
                                       evalTp | null params' = id
                                              | otherwise    = idEvalType
-                                      evalTpCommon t | null params' = t
-                                                     | otherwise    = case (evalTp (SimpleType t)) of SimpleType t' -> t'
                                       appParams nm = TypeApp (SimpleType nm) (map SimpleType params')
                                       typeSig = TSig wrapNT (evalTp $ appParams (sdtype @nt) `Arr` (appParams inhNT `Arr` appParams synNT))
-                                      mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
-                                      mkdata n attrs = Data n params' [Record n [(getName f++"_"++n,mkstrict $ evalTpCommon $ typeToHaskellString (Just @nt) params' t) | (f,t) <- attrs]] False []
+                                      mkstrict = Named @lhs.o_strictwrap
+                                      mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just @nt) params' t | (f,t) <- attrs]] False []
                                       datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                   in datas ++ [ typeSig
                                               , Decl (Fun wrapNT [varPat, App inhNT inhVars])
@@ -865,14 +875,12 @@ SEM CNonterminal
   | CNonterminal loc.dataDef = let params' = map getName @params
                                    typeSyn tp = let theType = 
                                                       case tp of
-                                                        CommonTypes.Maybe t      -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) params' t ++")")
-                                                        CommonTypes.Either t1 t2 -> SimpleType ("Either (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
-                                                                                                           ++ typeToHaskellString (Just @nt) params' t2 ++")")
-                                                        CommonTypes.Map t1 t2    -> SimpleType ("Map (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
-                                                                                                        ++ typeToHaskellString (Just @nt) params' t2 ++")")
-                                                        CommonTypes.IntMap t     -> SimpleType ("IntMap (" ++ typeToHaskellString (Just @nt) params' t ++")")
-                                                        CommonTypes.List t       -> Code.List $ SimpleType (typeToHaskellString (Just @nt) params' t)
-                                                        CommonTypes.Tuple ts     -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) params' t) 
+                                                        CommonTypes.Maybe t      -> TMaybe $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.Either t1 t2 -> TEither (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
+                                                        CommonTypes.Map t1 t2    -> TMap (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
+                                                        CommonTypes.IntMap t     -> TIntMap $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.List t       -> Code.List $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.Tuple ts     -> Code.TupleType [typeToCodeType (Just @nt) params' t
                                                                                                | (_,t) <- ts
                                                                                                ]
                                                  in Code.Type (getName @nt) params' (idEvalType theType)
@@ -889,7 +897,7 @@ SEM CProductions
 
 SEM CProduction
   | CProduction loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
-                lhs.dataAlt = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToHaskellString (Just @lhs.nt) @loc.params t) @loc.firstOrderChildren)
+                lhs.dataAlt = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToCodeType (Just @lhs.nt) @loc.params t) @loc.firstOrderChildren)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present

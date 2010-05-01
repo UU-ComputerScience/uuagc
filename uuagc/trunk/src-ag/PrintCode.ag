@@ -48,9 +48,9 @@ ATTR Program                            [ options:{Options} | | output:{PP_Docs}
 
 ATTR Expr Exprs Decl Decls Chunk Chunks CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
 
-ATTR Expr Decl DataAlt Type Lhs         [ nested:{Bool} | | pp:{PP_Doc} ]
+ATTR Expr Decl DataAlt Type NamedType Lhs [ nested:{Bool} | | pp:{PP_Doc} ]
 
-ATTR Exprs DataAlts Types  Decls Chunk Chunks [ nested:{Bool} | | pps : {PP_Docs} ]
+ATTR Exprs DataAlts Types NamedTypes Decls Chunk Chunks [ nested:{Bool} | | pps : {PP_Docs} ]
 
 ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
 
@@ -70,6 +70,10 @@ SEM DataAlts
   | Nil  lhs.pps = []
 
 SEM Types
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM NamedTypes
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
@@ -162,9 +166,14 @@ SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
 
 SEM DataAlt
-  | DataAlt    lhs.pp      = @name >#< hv_sp (map ((@lhs.strictPre >|<) . pp_parens . text) @args)
-  | Record     lhs.pp      = @name >#< pp_block "{" "}" "," 
-                                                [ f >#< "::" >#< t | (f,t) <- @args ]
+  | DataAlt    lhs.pp      = @name >#< hv_sp (map ((@lhs.strictPre >|<) . pp_parens) @args.pps)
+  | Record     lhs.pp      = @name >#< pp_block "{" "}" "," @args.pps
+
+SEM NamedType
+  | Named      lhs.pp      = if @strict
+                             then "!" >|< @name >#< "::" >#< @tp.pp
+                             else @name >#< "::" >#< @tp.pp
+
 SEM Lhs
   | Pattern3 TupleLhs UnboxedTupleLhs
       loc.addStrictGuard = if strictCases @lhs.options && @loc.hasStrictVars then \v -> v >#< "|" >#< @loc.strictGuard else id
@@ -217,6 +226,18 @@ SEM Type  [ | | prec:Int ]
 
   | SimpleType lhs.prec    = 5
                   .pp      = if reallySimple @txt then text @txt else pp_parens (text @txt)
+  
+  | NontermType  lhs.prec  = 5
+                 lhs.pp    = text @name >#< hv_sp @params
+  | TMaybe       lhs.prec  = 5
+                 lhs.pp    = text "Maybe" >#< @tp.pp
+  | TEither      lhs.prec  = 5
+                 lhs.pp    = text "Either" >#< pp_parens @left.pp >#< pp_parens @right.pp
+  | TMap         lhs.prec  = 5
+                 lhs.pp    = text "Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
+  | TIntMap      lhs.prec  = 5
+                 lhs.pp    = text "IntMap" >#< pp_parens @value.pp
+
 
 {
 

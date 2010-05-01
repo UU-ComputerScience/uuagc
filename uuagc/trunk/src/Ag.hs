@@ -22,6 +22,7 @@ import qualified DefaultRules       as Pass2 (sem_Grammar,  wrap_Grammar,  Syn_G
 import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintOcamlCode     as Pass5a (sem_Program, wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
 import qualified TfmToVisage        as PassV (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
@@ -72,7 +73,8 @@ compile flags input output
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
-          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+          output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
+          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'}
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
@@ -171,15 +173,21 @@ compile flags input output
                     Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
-                    let doc = vlist [ pp optionsLine
-                                    , pp pragmaBlocksTxt
-                                    , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
-                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                           then moduleHeader flags' mainName
-                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                    let doc = vlist [ vlist ( if not (ocaml flags')
+                                              then [ pp optionsLine
+                                                   , pp pragmaBlocksTxt
+                                                   , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
+                                                   , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                                          then moduleHeader flags' mainName
+                                                          else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                                   ]
+                                              else []
+                                            )
                                     , pp importBlocksTxt
                                     , textBlocksDoc
-                                    , vlist $ Pass5.output_Syn_Program output5
+                                    , vlist $ if not (ocaml flags')
+                                              then Pass5.output_Syn_Program  output5
+                                              else Pass5a.output_Syn_Program output5a
                                     , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar without default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump1

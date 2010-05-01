@@ -63,6 +63,7 @@ executable uuagc
     , Order
     , Patterns
     , PrintCode
+    , PrintOcamlCode
     , PrintErrorMessages
     , SemHsTokens
     , Transform
