@@ -15,6 +15,7 @@ TYPE Chunks   = [Chunk]
 TYPE DataAlts = [DataAlt]
 TYPE CaseAlts = [CaseAlt]
 TYPE Types    = [Type]
+TYPE NamedTypes = [NamedType]
 
 DATA Program  | Program          chunks : Chunks
 
@@ -81,9 +82,14 @@ DATA Decl     | Decl             left  : Lhs
               | PragmaDecl       txt   : {String}
 
 DATA DataAlt  | DataAlt          name  : {String} 
-                                 args  : {[String]}
+                                 args  : Types
               | Record           name  : {String} 
-                                 args  : {[(String,String)]}
+                                 args  : NamedTypes
+
+DATA NamedType | Named           strict: {Bool}
+                                 name  : {String}
+                                 tp    : Type
+
 DATA Type     | Arr              left  : Type
                                  right : Type
               | CtxApp           left  : {[(String, [String])]}
@@ -94,6 +100,14 @@ DATA Type     | Arr              left  : Type
 	          | UnboxedTupleType tps   : Types
               | List             tp    : Type
               | SimpleType       txt   : {String}
+              | NontermType      name   : String
+                                 params : {[String]}
+              | TMaybe           tp    : Type
+              | TEither          left  : Type
+                                 right : Type
+              | TMap             key   : Type
+                                 value : Type
+              | TIntMap          value : Type
 
 DATA Lhs      | Pattern3    pat3  : Pattern
               | Pattern3SM  pat3  : Pattern

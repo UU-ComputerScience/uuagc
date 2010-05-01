@@ -56,7 +56,7 @@ SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
 SRC_LAG_SYN_NAMES =
 
 # And semantic functions from these AG files.
-SRC_AG_SEM_NAMES = Desugar.ag DefaultRules.ag GenerateCode.ag PrintCode.ag \
+SRC_AG_SEM_NAMES = Desugar.ag DefaultRules.ag GenerateCode.ag PrintOcamlCode.ag PrintCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag \
 	 Transform.ag Order.ag \
 	 AbstractSyntaxDump.ag CodeSyntaxDump.ag \
