@@ -171,7 +171,7 @@ SEM DataAlt
 
 SEM NamedType
   | Named      lhs.pp      = if @strict
-                             then "!" >|< @name >#< "::" >#< @tp.pp
+                             then @name >#< "::" >#< "!" >|< pp_parens @tp.pp
                              else @name >#< "::" >#< @tp.pp
 
 SEM Lhs
