@@ -379,7 +379,7 @@ SEM Production
 -- Wrapping an Expression
 
 ATTR Expression [ nt,con   :{Identifier}
-                  allfields:{[(Identifier,Type,Bool)]}
+                  allfields:{[(Identifier,Type,Maybe (Maybe Type))]}
                   allnts   :{[Identifier]}
                   attrs    :{[(Identifier,Identifier)]}
                 ||
@@ -574,7 +574,7 @@ SEM Grammar
 
 -- Collecting fields
 ATTR Rule Rules 
-     Child Children [allfields:{[(Identifier,Type,Bool)]} attrs:{[(Identifier,Identifier)]} | | ]
+     Child Children [allfields:{[(Identifier,Type,Maybe (Maybe Type))]} attrs:{[(Identifier,Identifier)]} | | ]
 
 SEM Production
   | Production loc.allfields  = @children.fields
@@ -590,10 +590,10 @@ SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
   | Child lhs.attributes = [(@name, @inh, @syn)]
 
 
-SEM Child [ | | field : {(Identifier,Type,Bool)} ]
-  | Child lhs.field = (@name, @tp, @higherOrder)
+SEM Child [ | | field : {(Identifier,Type,Maybe (Maybe Type))} ]
+  | Child lhs.field = (@name, @tp, @virtual)
 
-SEM Children [ | | fields : {[(Identifier,Type,Bool)]} ]
+SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 

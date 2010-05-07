@@ -46,7 +46,7 @@ DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
                             inh         : {Attributes}
                             syn         : {Attributes}
-                            higherOrder : {Bool}
+                            virtual     : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
 DATA Rule         | Rule    mbName  : {Maybe Identifier}
                             pattern : Pattern 

@@ -27,7 +27,7 @@ ATTR HsTokensRoot
 -------------------------------------------------------------------------------
 ATTR HsTokensRoot
      HsTokens HsToken [ nt,con    : {Identifier}
-                        allfields : {[(Identifier,Type,Bool)]}
+                        allfields : {[(Identifier,Type,Maybe (Maybe Type))]}
                         allnts    : {[Identifier]}
                         attrs     : {[(Identifier,Identifier)]}
                       ||

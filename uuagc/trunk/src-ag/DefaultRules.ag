@@ -365,7 +365,7 @@ SEM Production
           = map (useRule locals @children.outputs) useAttrs
    
         selfLocRules  
-          =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp,ho) <- @children.fields, not ho])
+          =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp,virt) <- @children.fields, childExists virt])
              | attr <- Map.keys selfAttrs
              , not (Set.member attr locals)
              ]
@@ -378,7 +378,11 @@ SEM Production
                 | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns 
                   = "(" ++ concat (List.intersperse "," fs) ++ ")"
                 | otherwise 
-                  = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs                                 
+                  = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs
+              
+               childExists Nothing         = True
+               childExists (Just (Just _)) = True
+               childExists (Just Nothing)  = False
 
         selfRules
           = [ selfRule True attr undefined
@@ -456,12 +460,12 @@ SEM Pattern
                                 then Set.insert @attr @pat.locals
                                 else @pat.locals
 
-SEM Children [ | | fields : {[(Identifier,Type,Bool)]} ]
+SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
   | Cons lhs.fields = @hd.field : @tl.fields
   | Nil  lhs.fields = []
   
-SEM Child    [ | | field  : { (Identifier,Type,Bool) } ]
-  | Child lhs.field = (@name,@tp,@higherOrder)
+SEM Child    [ | | field  : { (Identifier,Type,Maybe (Maybe Type)) } ]
+  | Child lhs.field = (@name,@tp,@virtual)
 
 -------------------------------------------------------------------------------
 --
