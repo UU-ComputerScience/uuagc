@@ -83,29 +83,36 @@ ATTR Pattern [ || vpat:{VisagePattern} ]
 ATTR Patterns [ || vpats: {[VisagePattern]} ]
 
 SEM Grammar
-  | Grammar     lhs.visage = VGrammar @nonts.vnonts
+  | Grammar
+      lhs.visage = VGrammar @nonts.vnonts
 
 SEM Nonterminals
-  | Cons 	lhs.vnonts = @hd.vnont : @tl.vnonts
-  | Nil		lhs.vnonts = []
+  | Cons
+      lhs.vnonts = @hd.vnont : @tl.vnonts
+  | Nil
+      lhs.vnonts = []
 
 SEM Nonterminal
-  | Nonterminal  lhs.vnont = VNonterminal @nt @inh @syn @prods.vprods
-  
+  | Nonterminal
+      lhs.vnont = VNonterminal @nt @inh @syn @prods.vprods
+
 SEM Productions
-  | Cons	lhs.vprods = @hd.vprod : @tl.vprods
-  | Nil		lhs.vprods = []
+  | Cons
+      lhs.vprods = @hd.vprod : @tl.vprods
+  | Nil
+      lhs.vprods = []
 
 SEM Production
-  | Production  lhs.vprod        = VProduction @con @children.vchildren @lhsrules @locrules                 
-                loc.splitVRules  = splitVRules @rules.vrules
-                loc.locrules     = getForField "loc" @splitVRules
-                loc.lhsrules     = getForField "lhs" @splitVRules
-                children.rulemap = @splitVRules
-                
+  | Production
+      lhs.vprod        = VProduction @con @children.vchildren @lhsrules @locrules
+      loc.splitVRules  = splitVRules @rules.vrules
+      loc.locrules     = getForField "loc" @splitVRules
+      loc.lhsrules     = getForField "lhs" @splitVRules
+      children.rulemap = @splitVRules
+
 SEM Children
   | Cons	lhs.vchildren = @hd.vchild : @tl.vchildren
-  | Nil		lhs.vchildren = []	
+  | Nil		lhs.vchildren = []
 
 SEM Child
   | Child lhs.vchild = VChild @name @tp @inh @syn (getForField (getName @name) @lhs.rulemap)
@@ -117,7 +124,7 @@ SEM Rules
 -- The undefined may seem strange, but it really belongs there.
 SEM Rule
   | Rule  lhs.vrule  = VRule @pattern.fieldattrs undefined @pattern.vpat @rhs.self @owrt
-  
+
 SEM Patterns
   | Cons	lhs.vpats = @hd.vpat : @tl.vpats
   | Nil		lhs.vpats = []
