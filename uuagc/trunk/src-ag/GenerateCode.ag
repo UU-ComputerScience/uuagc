@@ -138,23 +138,27 @@ SEM CNonterminal
 
 ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CRule
-  |  CRule loc.instTypes = map (\(n,NT t _,_) -> (n,t)) @lhs.higherOrderChildren
+  |  CRule loc.instTypes = [ (n, (t, mb)) | (n, NT t _, mb) <- @lhs.children ]
            loc.originComment = if  @lhs.o_pretty
                                    then (Comment @origin:)
                                    else id
            loc.instDecls = [ mkDecl @lhs.o_monadic (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
-                                  ( let nm = fromJust $ inst `lookup` @loc.instTypes
+                                  ( let (nm,mb) = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
-                                       $ case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
-                                         True  -> App (cataname @lhs.prefix nm)
-                                                      [SimpleExpr instLocFieldName]
-                                         False -> SimpleExpr instLocFieldName
+                                       $ case mb of
+                                           Just (Just tp') -> App instLocFieldName [SimpleExpr $ fieldname inst]
+                                           _               -> 
+                                              case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
+                                                True  -> App (cataname @lhs.prefix nm)
+                                                             [SimpleExpr instLocFieldName]
+                                                False -> SimpleExpr instLocFieldName
                                   )    
                                   (Set.singleton instSemFieldName)
                                   (Set.singleton instLocFieldName)
                            | inst <- @loc.definedInsts
                            , let instLocFieldName = attrname True _INST inst
-                           , let instSemFieldName = attrname False _INST' inst ]
+                                 instSemFieldName = attrname False _INST' inst
+                           ]
            loc.patDescr = if @isIn
                           then "_"
                           else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
@@ -190,10 +194,17 @@ SEM  CRule
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
                                   rhs = @loc.addCostCentre $ App fun (map SimpleExpr rhsVars)
+                                  isVirtual _ [] = False
+                                  isVirtual nm ((n,t,mb) : r)
+                                    | nm == n   = isJust mb
+                                    | otherwise = isVirtual nm r
+                                  baseNm = if @nr == 0 && isVirtual @name @lhs.children
+                                           then Ident (getName @name ++ "_inst") (getPos @name)
+                                           else @name
                                   fun | @nr == 0 && Set.member @name @lhs.aroundMap
-                                                  = locname @name ++ "_around " ++ funname @name 0
-                                      | otherwise = funname @name @nr
-                             in [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
+                                                  = locname @name ++ "_around " ++ funname baseNm 0
+                                      | otherwise = funname baseNm @nr
+                             in [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname baseNm @nr : rhsVars))]
 
 {
 mkDecl True  lhs rhs _ _   = Bind lhs rhs
@@ -207,7 +218,7 @@ unwrapSem True nm e = Case e alts
         right = SimpleExpr "x"
 }
 
-ATTR Sequence CRule [ higherOrderChildren : {[(Identifier,Type,Bool)]} ||]
+ATTR Sequence CRule [ children : {[(Identifier,Type,Maybe (Maybe Type))]} ||]
 
 ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
@@ -314,8 +325,23 @@ SEM CRule
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
   |  CRule        loc.mkTp = typeToCodeType (Just @lhs.nt) @loc.orgParams
-                  lhs.tSigs = [ TSig (attrname False field attr) (@loc.evalTp field $ @mkTp (fromJust tp)) 
-                              |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
+                  lhs.tSigs = [ TSig (attrname False field attr) tp'
+                              |  (field,attr,tp) <- Map.elems @defines, isJust tp
+                              , let tp1 = @loc.evalTp field $ @mkTp (fromJust tp)
+                                    tp' = case findOrigType attr @lhs.children of
+                                           Just tp' -> let tp'' = case tp' of
+                                                                    NT n params -> NT (Ident ("T_" ++ show n) (getPos n)) params
+                                                                    _ -> tp'
+                                                           tp2 = @loc.evalTp field $ @mkTp tp''
+                                                       in Arr tp2 tp1
+                                           Nothing -> tp1
+                                    findOrigType nm [] = Nothing
+                                    findOrigType nm ((n,_,mb) : r)
+                                      | nm == n = case mb of
+                                                    Just (Just orig) -> Just orig
+                                                    _                -> Nothing
+                                      | otherwise = findOrigType nm r
+                              ]
 
                   loc.orgParams = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
                   loc.evalTp =
@@ -352,7 +378,7 @@ substSelf nt tp = case tp of
                     _                     -> tp
 }
 
-ATTR CVisits CVisit Sequence CRule [ children : {[(Identifier,Type,Bool)]} | | ]
+ATTR CVisits CVisit [ children : {[(Identifier,Type, Maybe (Maybe Type))]} | | ]
 SEM  CProduction
   |  CProduction visits.children = @children
 
@@ -371,7 +397,8 @@ SEM  CRule
 
 ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CVisit
-  |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,ho) -> ho) @lhs.children
+  |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,virt) -> isHigherOrder virt) @lhs.children
+            loc.firstOrderOrig = map pickOrigType @loc.firstOrderChildren
             loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
             loc.nextVisitName = if @lhs.isLast then [] else [visitname @lhs.prefix @lhs.nt (@lhs.nr+1)]
             loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
@@ -393,7 +420,7 @@ SEM  CVisit
             
             loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
             loc.semFun = let  lhs = Fun @funcname lhs_args
-                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
+                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderOrig else @intra.exprs
 
                               field (name,NT tp tps,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                                     | otherwise       = id
@@ -432,7 +459,7 @@ SEM  CVisit
                               
                           in appContext @lhs.contextMap @lhs.nt $ evalTp $
                              if  @lhs.nr == 0  
-                                 then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
+                                 then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderOrig)
                                  else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) @intra.tps
             lhs.decls =  ( if  @lhs.with_sig 
                            then [@tsig, @semFun]
@@ -464,6 +491,14 @@ mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 
 typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
+
+isHigherOrder :: Maybe (Maybe Type) -> Bool
+isHigherOrder (Just Nothing) = True
+isHigherOrder _              = False
+
+pickOrigType :: (Identifier, Type, Maybe (Maybe Type)) -> (Identifier, Type, Maybe (Maybe Type))
+pickOrigType (nm, tp, virt@(Just (Just x))) = (nm, x, virt)
+pickOrigType x = x
 }
 
 ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
@@ -767,11 +802,18 @@ SEM CSegment
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
 
 SEM CProduction 
-  | CProduction loc.firstOrderChildren = filter (\(_,_,ho) -> not ho) @children
+  | CProduction  loc.firstOrderChildren = [ (nm,fromJust mb,virt) | (nm,tp,virt) <- @children, let mb = isFirstOrder virt tp, isJust mb ]
                  lhs.comments =  ("alternative " ++ getName @con ++ ":")
                                  : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @loc.firstOrderChildren
                                            ++ @visits.comments
                                            )
+
+{
+-- for a virtual child that already existed as a child, returns 
+isFirstOrder :: Maybe (Maybe Type) -> Type -> Maybe Type
+isFirstOrder Nothing tp = Just tp
+isFirstOrder (Just x) _ = x
+}
 
 SEM CVisit
   | CVisit       lhs.comments =  let body = map ind (@vss.comments ++ @intra.comments)

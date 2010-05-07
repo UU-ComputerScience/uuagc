@@ -40,7 +40,7 @@ TYPE CProductions = [CProduction]
 DATA  CProduction
    |  CProduction   con        : ConstructorIdent
                     visits     : CVisits
-                    children   : {[(Identifier,Type,Bool)]}
+                    children   : {[(Identifier,Type,Maybe (Maybe Type))]}
                     terminals  : {[Identifier]}
 
 TYPE CVisits = [CVisit]

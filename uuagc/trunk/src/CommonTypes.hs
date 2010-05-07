@@ -115,7 +115,7 @@ attrname isIn field attr | field == _LOC   = locname attr
                                
 locname v   = '_' : getName v
 instname v  = getName v ++ "_val_"
-inst'name v = getName v ++ "_"
+inst'name v = getName v ++ "_inst_"
 fieldname v =  getName v++"_"
 
 typeToAGString :: Type -> String

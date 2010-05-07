@@ -387,9 +387,11 @@ checkSigs nt con sis
 checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
 checkInsts allNts sigMap fieldMap nt con
   = foldr (\inst (insts, errs) ->
-      checkDup inst insts errs $ 
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
-                    (\info@(_, NT nm _) -> case nm `Set.member` allNts of
+                    (\info@(k, NT nm _) ->
+                      case findInst k insts of
+                        Just k' -> (insts, Seq.singleton (DupChild nt con k k') >< errs)
+                        Nothing -> case nm `Set.member` allNts of
                                              True  -> (info : insts, errs)
                                              False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
                                                                                     in case nm' `Set.member` allNts of
@@ -406,14 +408,10 @@ checkInsts allNts sigMap fieldMap nt con
       = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
     
-    checkDup name insts errs e
-      = let fields = Map.findWithDefault [] con $ Map.findWithDefault Map.empty nt fieldMap
-            walk [] = Nothing
-            walk ((i,_): fs) | i == name = Just name
-                             | otherwise = walk fs
-        in case walk fields of
-             Just occ -> (insts, Seq.singleton (DupChild nt con name occ) >< errs)
-             Nothing  -> e
+    findInst _ [] = Nothing
+    findInst k ((k', _): r)
+      | k == k'   = Just k'
+      | otherwise = findInst k r
 
 checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [UniqueInfo] -> UniquesAndErrors
 checkUniques allAttrs nt con uniques
@@ -1044,13 +1042,19 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
-                                       cldrn = map (child False) flds ++ map (child True) insts
+                                       cldrn = map (child False) (filter (not . existsAsInst) flds) ++ map (child True) insts
                                        child isVirtual (nm, tp) =
                                           let (inh,syn) = case tp of
                                                  NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
                                                             in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
                                                  _       -> (Map.empty,Map.empty)
-                                          in Child nm tp inh syn isVirtual
+                                              virt = if isVirtual
+                                                     then case lookup nm flds of
+                                                            Just tp' -> Just (Just tp')
+                                                            Nothing  -> Just Nothing
+                                                     else Nothing
+                                          in Child nm tp inh syn virt
+                                       existsAsInst (nm,_) = maybe False (const True) (lookup nm insts)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap
