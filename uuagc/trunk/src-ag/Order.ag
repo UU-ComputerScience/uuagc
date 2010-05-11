@@ -54,6 +54,26 @@ findWithErr2 k m
   = Map.findWithDefault (error ("findWithErr2: key " ++ show k ++ " not in map: " ++ show m)) k m
 }
 
+--
+-- Some statistics, count number of attributes
+--
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Rules Rule [ | | nAutoRules,nExplicitRules USE {+} {0} : {Int} ]
+
+SEM Rule
+  | Rule  lhs.nExplicitRules = if @explicit
+                               then 1
+                               else 0
+          lhs.nAutoRules = if startsWith "use rule" @origin || startsWith "copy rule" @origin
+                           then 1
+                           else 0
+
+{
+startsWith :: String -> String -> Bool
+startsWith k h = k == take (length k) h
+}
+
+
 -------------------------------------------------------------------------------
 --         Errors
 -------------------------------------------------------------------------------

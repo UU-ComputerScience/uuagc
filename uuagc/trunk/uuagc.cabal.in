@@ -64,6 +64,7 @@ executable uuagc
     , Patterns
     , PrintCode
     , PrintOcamlCode
+    , PrintVisitCode
     , PrintErrorMessages
     , SemHsTokens
     , Transform
