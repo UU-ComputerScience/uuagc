@@ -395,14 +395,27 @@ SEM  CRule
 -- Each visit has its semantic function
 -------------------------------------------------------------------------------
 
-ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
+ATTR CVisits [ | | decls : {Decls} ]
+ATTR CVisit [ | decls : {Decls} | ]
+SEM CVisits
+  | Nil   lhs.decls = []
+  | Cons  lhs.decls = @hd.decls
+          hd.decls  = @tl.decls
+
+-- Note: lhs.decls are the decls related to the next visit function. We pass it
+-- chained from right to left in order to build the next visit function inside
+-- the previous one.
+-- Note: intra decls are ignored. The intra-visit variables are not passed on
+-- explicitly, but handled automatically due to nesting level.
+
 SEM  CVisit
   |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,virt) -> isHigherOrder virt) @lhs.children
             loc.firstOrderOrig = map pickOrigType @loc.firstOrderChildren
             loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
             loc.nextVisitName = if @lhs.isLast then [] else [visitname @lhs.prefix @lhs.nt (@lhs.nr+1)]
             loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
-                                     rhs = App fun @lhs.nextIntra
+                                     -- rhs = App fun @lhs.nextIntra
+                                     rhs = Let @lhs.decls (SimpleExpr fun)
                                      fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
                                 in if @lhs.isLast
                                    then []
@@ -420,7 +433,7 @@ SEM  CVisit
             
             loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
             loc.semFun = let  lhs = Fun @funcname lhs_args
-                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderOrig else @intra.exprs
+                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderOrig else [] -- @intra.exprs
 
                               field (name,NT tp tps,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                                     | otherwise       = id
@@ -460,7 +473,7 @@ SEM  CVisit
                           in appContext @lhs.contextMap @lhs.nt $ evalTp $
                              if  @lhs.nr == 0  
                                  then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderOrig)
-                                 else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) @intra.tps
+                                 else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) [] -- @intra.tps
             lhs.decls =  ( if  @lhs.with_sig 
                            then [@tsig, @semFun]
                            else [@semFun]
@@ -755,32 +768,18 @@ SEM  CSegment
 -------------------------------------------------------------------------------
 -- Errors for missing type signatures. It's an error when one of the
 -- attributes in the intra-visit dependencies does not have a type.
+-- UPDATE: it is not an error anymore...
 -------------------------------------------------------------------------------
 
 ATTR CNonterminals CNonterminal
      CProductions CProduction
-     CVisits CVisit [ | | allTpsFound USE {&&} {True} : Bool ]
-ATTR CNonterminals CNonterminal
-     CProductions CProduction
      CVisits CVisit [ with_sig : Bool | | ]
 
-SEM  CVisit
-  |  CVisit lhs.allTpsFound = @intra.allTpsFound
 SEM CGrammar
-  | CGrammar nonts.with_sig = typeSigs @lhs.options && @nonts.allTpsFound
+  | CGrammar nonts.with_sig = typeSigs @lhs.options
 
-ATTR CNonterminals CNonterminal
-     CProductions CProduction
-     CVisits CVisit
-     Sequence CRule [ | errors USE {Seq.><} {Seq.empty} : {Seq Error} | ]
 SEM  CGrammar [ | | errors : {Seq Error} ]
-  |  CGrammar nonts.errors = Seq.empty 
-SEM  CVisit
-  |  CVisit lhs.errors = @intra.errors
-SEM  CRule
-  |  CRule lhs.errors = let nameOf (Alias _ _ _ pats@(_:_)) = Ident (show (map (\(Alias _ a _ _)->a) pats)) (getPos @name)
-                            nameOf _ = @name
-                        in  maybe (Seq.singleton (MissingTypeSig @lhs.nt @lhs.con (nameOf @pattern.copy))) (const Seq.empty) @tp
+  |  CGrammar lhs.errors = Seq.empty
 
 -------------------------------------------------------------------------------
 -- Provide a description of the interfaces as comments
