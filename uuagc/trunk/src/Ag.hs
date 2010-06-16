@@ -91,28 +91,26 @@ compile flags input output
                                Seq.>< Pass2.errors_Syn_Grammar  output2 )
           furtherErrors    = toList ( Pass3.errors_Syn_Grammar  output3
                                Seq.>< Pass4.errors_Syn_CGrammar output4)
-          
-          errorList        = parseErrorList
-                             ++ mainErrors
-                             ++ if null mainErrors || null (filter (PrErr.isError flags') mainErrors)
-                                then furtherErrors
-                                else []
+
+          errorList        = if null parseErrorList
+                             then mainErrors
+                                  ++ if null mainErrors || null (filter (PrErr.isError flags') mainErrors)
+                                     then furtherErrors
+                                     else []
+                             else [head parseErrorList]
      
           fatalErrorList = filter (PrErr.isError flags') errorList
           
-          allErrors = if null parseErrors
-                      then if wignore flags'
-                           then fatalErrorList
-                           else errorsToFront flags' errorList
-                      else take 1 parseErrorList
-                      -- the other 1000 or so parse errors are usually not that informative
-                      
+          allErrors = if wignore flags'
+                      then fatalErrorList
+                      else errorsToFront flags' errorList
+
           errorsToReport = take (wmaxerrs flags') allErrors
           
           errorsToStopOn = if werrors flags'
                             then errorList
                             else fatalErrorList
-          
+
           blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\(k, at) _->k==BlockPragma && at == Nothing) blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\(k, at) _->k==BlockImport && at == Nothing) blocks2
@@ -299,7 +297,7 @@ reportDeps :: Options -> [String] -> IO ()
 reportDeps flags files
   = do results <- mapM (depsAG flags (searchPath flags)) files
        let (fs, mesgs) = foldr combine ([],[]) results
-       let errs = take (wmaxerrs flags) (map message2error mesgs)
+       let errs = take (min 1 (wmaxerrs flags)) (map message2error mesgs)
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}
        if null errs
         then mapM_ putStrLn fs
