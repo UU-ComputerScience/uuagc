@@ -1042,19 +1042,25 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
-                                       cldrn = map (child False) (filter (not . existsAsInst) flds) ++ map (child True) insts
-                                       child isVirtual (nm, tp) =
-                                          let (inh,syn) = case tp of
+
+                                       -- important: keep order of children
+                                       cldrn = map child (flds ++ filter (not . existsAsField) insts)
+                                       child (nm, tp) =
+                                          let tpI = if existsAsInst nm
+                                                    then fromJust $ lookup nm insts
+                                                    else tp
+                                              (inh,syn) = case tpI of
                                                  NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
                                                             in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
                                                  _       -> (Map.empty,Map.empty)
-                                              virt = if isVirtual
+                                              virt = if existsAsInst nm
                                                      then case lookup nm flds of
                                                             Just tp' -> Just (Just tp')
                                                             Nothing  -> Just Nothing
                                                      else Nothing
-                                          in Child nm tp inh syn virt
-                                       existsAsInst (nm,_) = maybe False (const True) (lookup nm insts)
+                                          in Child nm tpI inh syn virt
+                                       existsAsInst nm = maybe False (const True) (lookup nm insts)
+                                       existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap
