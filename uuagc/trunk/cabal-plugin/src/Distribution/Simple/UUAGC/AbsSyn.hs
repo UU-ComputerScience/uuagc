@@ -126,6 +126,9 @@ fromUUAGCOtoArgs UGenAttrList           = toLOp ogenattrlist
 fromUUAGCOtoArgs (UForceIrrefutable fp) = toLEOpA oforceirrefutable fp
 fromUUAGCOtoArgs UOptimize              = toLOp ooptimize
 fromUUAGCOtoArgs UModuleDefault         = toLOp omodule
+fromUUAGCOtoArgs UHaskellSyntax         = toLOp ohaskellsyntax
+fromUUAGCOtoArgs UDoubleColons          = toLOp odoublecolons
+fromUUAGCOtoArgs ULCKeyWords            = toLOp olckeywords
 
 fromUUAGCOstoArgs :: UUAGCOptions -> [String]
 fromUUAGCOstoArgs = map fromUUAGCOtoArgs
