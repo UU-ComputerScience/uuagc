@@ -17,7 +17,7 @@ uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,owerrors, owignore, odumpgrammar, odumpcgrammar, ogentraces
          ,ogenusetraces, ogencostcentres, ogenlinepragmas, osepsemmods
          ,ogenfiledeps, ogenvisage, ogenattrlist, olckeywords
-         ,odoublecolons ]
+         ,odoublecolons, oself ]
 
 uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UNewTypes, UPretty
@@ -27,7 +27,7 @@ uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UWErrors, UWIgnore, UDumpGrammar, UDumpCGrammar, UGenTraces
             ,UGenUseTraces, UGenCostCentres, UGenLinePragmas, USepSemMods
             ,UGenFileDeps, UGenVisage, UGenAttrList, ULCKeyWords
-            ,UDoubleColons ]
+            ,UDoubleColons, USelf ]
 
 gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
          ,(ooptimize, [ovisit,ocase])

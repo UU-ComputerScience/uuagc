@@ -72,13 +72,22 @@ updateFile f = do h <- openFile f AppendMode
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
-updateAGFile :: FilePath -> [String] -> IO ()
-updateAGFile f sp = do
+updateAGFile :: UUAGCOptions -> FilePath -> [String] -> IO ()
+updateAGFile opts f sp = do
+  let modeOpts = filter isModeOption opts
+      isModeOption UHaskellSyntax = True
+      isModeOption ULCKeyWords    = True
+      isModeOption UDoubleColons  = True
+      isModeOption _              = False
+  
+      args = fromUUAGCOstoArgs modeOpts ++
+             [ "--genfiledeps"
+             , "--="++(intercalate ":" sp)
+             , f
+             ]
+  -- putStrLn ("Generating deps: " ++ unwords args)
   (_,(Just ppOutput), (Just ppError),ph) <- createProcess
-                                            $ (proc uuagcn ["--genfiledeps"
-                                                           ,"--="++(intercalate ":" sp)
-                                                           ,f
-                                                           ])
+                                            $ (proc uuagcn args)
                                                   { std_in  = Inherit
                                                   , std_out = CreatePipe
                                                   , std_err = CreatePipe
@@ -100,12 +109,12 @@ uuagcPreBuild :: Args -> BuildFlags -> IO HookedBuildInfo
 uuagcPreBuild args buildF = do
   uuagcOpts <- parserAG defUUAGCOptions
   let agfls  = getAGFileList uuagcOpts
-      agflSP = map (\f -> (f,[searchPath f])) agfls
-  mapM_ (uncurry updateAGFile) agflSP
+      agflSP = map (\(f,opts) -> (f,opts,[searchPath f])) agfls
+  mapM_ (\(f,opts,s) -> updateAGFile opts f s) agflSP
   originalPreBuild args buildF
 
-getAGFileList :: AGFileOptions -> [FilePath]
-getAGFileList = map (\(AGFileOption s _) -> (normalise s))
+getAGFileList :: AGFileOptions -> [(FilePath, UUAGCOptions)]
+getAGFileList = map (\(AGFileOption s opts) -> (normalise s, opts))
 
 
 searchPath :: FilePath -> FilePath
