@@ -282,7 +282,7 @@ SEM AG
          loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
          loc.checkedArounds  = Map.map (Map.map fst) @loc.allAroundsErrs
-         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.allAttrDecls)) @loc.checkedUniques)
+         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.checkedInsts @loc.allAttrDecls)) @loc.checkedUniques)
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
@@ -453,11 +453,13 @@ unionunionplusplus = Map.unionWith (Map.unionWith (++))
 
 
 {
-mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
-mkUniqueRules opts allFields allAttrDecls nt con usMap
+mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
+mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
   = map apply groups
   where
     fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allFields)
+             ++ Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
+             -- may have duplicates
 
     groups = Map.assocs $ Map.foldWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
     apply (ref,us) = mkRule ref (findOutField ref) us
