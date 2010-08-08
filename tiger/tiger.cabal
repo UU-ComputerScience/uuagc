@@ -16,7 +16,7 @@ extra-source-files: INSTALL, LICENSE
 executable tiger
   build-depends: base >= 3
   build-depends: haskell98, array
-  build-depends: uulib
+  build-depends: uulib, containers
   main-is: Tiger.hs
   hs-source-dirs: src, derived
   other-modules: TigerAS, TigerSem, TigerError, TigerScanner, TigerTypes

@@ -4,7 +4,7 @@ module TigerScanner(scanFile) where
 import UU.Scanner.Token
 import UU.Scanner.TokenShow
 import UU.Scanner.Position
-import qualified UU.DData.Set as Set
+import qualified Data.Set as Set
 }
 %wrapper "gscan"
 
