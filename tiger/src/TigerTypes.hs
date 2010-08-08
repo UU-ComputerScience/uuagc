@@ -1,6 +1,6 @@
 module TigerTypes where
 
-import UU.DData.Map(Map)
+import Data.Map(Map)
 import UU.Scanner.Position
 
 data Ident = Id {getName :: String, getPos :: Pos}  
