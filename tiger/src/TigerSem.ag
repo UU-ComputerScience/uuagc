@@ -1,6 +1,6 @@
 MODULE {TigerSem} {} {}
 
-INCLUDE "src/TigerAS.ag"
+INCLUDE "TigerAS.ag"
 
 imports
 {

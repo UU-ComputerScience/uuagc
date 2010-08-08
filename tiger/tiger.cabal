@@ -11,12 +11,13 @@ synopsis: Tiger Compiler of Universiteit Utrecht
 category: Compiler
 stability: Experimental
 copyright: Universiteit Utrecht
-extra-source-files: INSTALL, LICENSE
+extra-source-files: INSTALL, LICENSE, uuagc_options, src/TigerAS.ag, src/TigerError.ag, src/TigerSem.ag
 
 executable tiger
   build-depends: base >= 3
   build-depends: haskell98, array
   build-depends: uulib, containers
+  build-depends: uuagc >= 0.9.29
   main-is: Tiger.hs
-  hs-source-dirs: src, derived
+  hs-source-dirs: src
   other-modules: TigerAS, TigerSem, TigerError, TigerScanner, TigerTypes
