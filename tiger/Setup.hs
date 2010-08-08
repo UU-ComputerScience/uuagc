@@ -1,6 +1,6 @@
 module Main where
 
 import Distribution.Simple
+import Distribution.Simple.UUAGC
 
-main :: IO ()
-main = defaultMain
+main = defaultMainWithHooks uuagcUserHook
