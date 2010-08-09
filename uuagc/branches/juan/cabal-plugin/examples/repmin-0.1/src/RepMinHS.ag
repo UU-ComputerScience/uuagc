@@ -1,0 +1,41 @@
+data Tree 
+   | Leaf int :: {Int}
+   | Bin  lt  :: Tree
+          rt  :: Tree
+
+attr Tree 
+     syn min :: Int
+
+sem Tree 
+  | Leaf lhs.min = @int
+  | Bin  lhs.min = @lt.min `min` @rt.min
+
+attr Tree 
+     inh rmin :: Int
+
+sem Tree
+  | Bin  lt.rmin = @lhs.rmin
+         rt.rmin = @lhs.rmin
+
+data Root
+  | Root tree :: Tree
+
+sem Root
+  | Root tree.rmin = @tree.min 
+
+attr Root Tree 
+     syn tree :: Tree
+
+attr Root 
+     syn min :: Int 
+
+sem Tree
+  | Leaf lhs.tree = Tree_Leaf @lhs.rmin
+  | Bin  lhs.tree = Tree_Bin  @lt.tree @rt.tree
+
+sem Root
+  | Root lhs.tree = @tree.tree
+
+deriving Tree:Show
+
+include "RepMaxHS.ag"

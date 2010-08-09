@@ -120,7 +120,16 @@ tmpFile buildTmp = (buildTmp </>)
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
 updateAGFile pkgDescr lbi (f, sp) = do
-  (_, Just ppOutput, Just ppError, ph) <- newProcess
+  fileOpts <- readFileOptions
+  let opts = case lookup f fileOpts of
+               Nothing -> []
+               Just x -> x
+      modeOpts = filter isModeOption opts
+      isModeOption UHaskellSyntax = True
+      isModeOption ULCKeyWords    = True
+      isModeOption UDoubleColons  = True
+      isModeOption _              = False
+  (_, Just ppOutput, Just ppError, ph) <- newProcess modeOpts
   ec <- waitForProcess ph
   case ec of
     ExitSuccess ->
@@ -138,13 +147,16 @@ updateAGFile pkgDescr lbi (f, sp) = do
       do putErrorInfo ppOutput
          putErrorInfo ppError
          throwFailure
-  where newProcess = createProcess $ (proc uuagcn ["--genfiledeps"
-                                                   ,"--=" ++ intercalate ":" [sp]
-                                                   ,f ])
-                                                  { std_in  = Inherit
-                                                  , std_out = CreatePipe
-                                                  , std_err = CreatePipe
-                                                  }
+  where newProcess mopts = createProcess $ (proc uuagcn (fromUUAGCOstoArgs mopts ++ ["--genfiledeps"
+                                                                                    ,"--=" ++ intercalate ":" [sp]
+                                                                                    ,f
+                                                                                    ]
+                                                        )
+                                           )
+                                    { std_in  = Inherit
+                                    , std_out = CreatePipe
+                                    , std_err = CreatePipe
+                                    }
 
 getAGFileOptions :: [(String, String)] -> IO AGFileOptions
 getAGFileOptions extra = do
