@@ -1,0 +1,11 @@
+to conveniently install prerequisites, run:
+cabal build
+in the directory with the tiger.cabal file.
+
+The above process fails when building "tiger" itself. Instead, run:
+ghc --make Setup.hs -o setup
+./setup configure --user
+./setup build
+
+then to install tiger:
+./setup install

@@ -1,0 +1,11 @@
+let
+/* comment /**/ */
+var singleton := 
+   let type single = array of int
+   in single[1] of 10
+   end
+function get (x:int):int = singleton[0]
+function set (x:int) = singleton[0] := x
+in
+for i:=1 to 3 do (i+1;()) 
+end
