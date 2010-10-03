@@ -11,24 +11,20 @@ import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.Utils
 import Distribution.Simple.Setup
 import Distribution.PackageDescription
-import Distribution.Verbosity(silent)
 import Distribution.Simple.UUAGC.AbsSyn( AGFileOption(..)
-                                       , AGFileOptions
-                                       , AGOptionsClass(..)
-                                       , UUAGCOption(..)
-                                       , UUAGCOptions
-                                       , defaultUUAGCOptions
-                                       , fromUUAGCOtoArgs
-                                       , fromUUAGCOstoArgs
-                                       , lookupFileOptions
-                                       , fileClasses
-                                       )
+                                         , AGFileOptions
+                                         , AGOptionsClass(..)
+                                         , UUAGCOption(..)
+                                         , UUAGCOptions
+                                         , defaultUUAGCOptions
+                                         , fromUUAGCOtoArgs
+                                         , fromUUAGCOstoArgs
+                                         , lookupFileOptions
+                                         , fileClasses
+                                         )
 import Distribution.Simple.UUAGC.Parser
-import System.Process( CreateProcess(..)
-                     , createProcess, CmdSpec(..)
-                     , StdStream(..)
-                     , runProcess
-                     , waitForProcess
+import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
+                     , StdStream(..), runProcess, waitForProcess
                      , proc)
 
 import System.Directory
@@ -41,17 +37,13 @@ import System.FilePath(pathSeparators,
                        dropExtension)
 
 import System.Exit (ExitCode(..))
-import System.IO( openFile
-                , IOMode(..)
-                , hFileSize
-                , hSetFileSize
-                , hClose
-                , hGetContents
-                , hFlush
-                , Handle(..)
-                , stderr
-                , hPutStr
-                , hPutStrLn)
+import System.IO( openFile, IOMode(..),
+                  hFileSize,
+                  hSetFileSize,
+                  hClose,
+                  hGetContents,
+                  hFlush,
+                  Handle(..), stderr, hPutStr, hPutStrLn)
 
 import Control.Exception (throwIO)
 import Control.Monad (liftM, when, guard, forM_, forM)
@@ -77,16 +69,11 @@ agClass  = "x-agclass"
 
 uuagcUserHook :: UserHooks
 uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("ag", uuagc):knownSuffixHandlers,
-                                 buildHook           = uuagcBuildHook,
-                                 postBuild           = uuagcPostBuild,
-                                 sDistHook           = uuagcSDistHook,
-                                 postSDist           = uuagcPostSDist
-                                }
+                                 buildHook = uuagcBuildHook,
+                                 postBuild = uuagcPostBuild}
 
 originalPreBuild  = preBuild simpleUserHooks
 originalBuildHook = buildHook simpleUserHooks
-
-originalSDistHook = sDistHook simpleUserHooks
 
 processContent :: Handle -> IO [String]
 processContent = liftM words . hGetContents
@@ -132,26 +119,17 @@ tmpFile buildTmp = (buildTmp </>)
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
-updateAGFile :: UUAGCOptions -> FilePath -> [String] -> IO ()
-updateAGFile opts f sp = do
-  let modeOpts = filter isModeOption opts
+updateAGFile pkgDescr lbi (f, sp) = do
+  fileOpts <- readFileOptions
+  let opts = case lookup f fileOpts of
+               Nothing -> []
+               Just x -> x
+      modeOpts = filter isModeOption opts
       isModeOption UHaskellSyntax = True
       isModeOption ULCKeyWords    = True
       isModeOption UDoubleColons  = True
       isModeOption _              = False
-  
-      args = fromUUAGCOstoArgs modeOpts ++
-             [ "--genfiledeps"
-             , "--="++(intercalate ":" sp)
-             , f
-             ]
-  -- putStrLn ("Generating deps: " ++ unwords args)
-  (_,(Just ppOutput), (Just ppError),ph) <- createProcess
-                                            $ (proc uuagcn args)
-                                                  { std_in  = Inherit
-                                                  , std_out = CreatePipe
-                                                  , std_err = CreatePipe
-                                                  }
+  (_, Just ppOutput, Just ppError, ph) <- newProcess modeOpts
   ec <- waitForProcess ph
   case ec of
     ExitSuccess ->
@@ -163,8 +141,7 @@ updateAGFile opts f sp = do
                  exists <- doesFileExist f
                  when exists $ do
                      fmt <- getModificationTime f
-                     when ((not.null) flsmt && 
-                           maxModified > fmt) $ removeFile f
+                     when (maxModified > fmt) $ removeFile f
          withBuildTmpDir pkgDescr lbi $ removeTmpFile . (`tmpFile` f)
     (ExitFailure exc) ->
       do putErrorInfo ppOutput
@@ -181,16 +158,16 @@ updateAGFile opts f sp = do
                                     , std_err = CreatePipe
                                     }
 
-uuagcPreBuild :: Args -> BuildFlags -> IO HookedBuildInfo
-uuagcPreBuild args buildF = do
-  uuagcOpts <- parserAG defUUAGCOptions
-  let agfls  = getAGFileList uuagcOpts
-      agflSP = map (\(f,opts) -> (f,opts,[searchPath f])) agfls
-  mapM_ (\(f,opts,s) -> updateAGFile opts f s) agflSP
-  originalPreBuild args buildF
+getAGFileOptions :: [(String, String)] -> IO AGFileOptions
+getAGFileOptions extra = do
+  usesOptionsFile <- doesFileExist defUUAGCOptions
+  if usesOptionsFile
+       then parserAG defUUAGCOptions
+       else mapM (parseOptionAG . snd)
+            $ filter ((== agModule) . fst) extra
 
-getAGFileList :: AGFileOptions -> [(FilePath, UUAGCOptions)]
-getAGFileList = map (\(AGFileOption s opts) -> (normalise s, opts))
+getAGClasses :: [(String, String)] -> IO [AGOptionsClass]
+getAGClasses = mapM (parseClassAG . snd) . filter ((== agClass) . fst)
 
 writeFileOptions :: [(String, [UUAGCOption])] -> IO ()
 writeFileOptions opts  = do
@@ -249,54 +226,23 @@ uuagc :: BuildInfo
         -> LocalBuildInfo
         -> PreProcessor
 uuagc build local  =
-   PreProcessor 
-   {
+   PreProcessor {
      platformIndependent = True,
-     runPreProcessor = mkSimplePreProcessor 
-                       $ \ inFile outFile verbosity ->
-                       do 
-                         print "Starting uuagc"
-                         print "version: 0.9.18.2"
-                         info verbosity $ concat [inFile, " has been preprocessed into ", outFile]
-                         print $ "processing: " ++ inFile
-                       --                          opts <- getAGFileOptions $ customFieldsBI build
-                         fileOpts <- readFileOptions
-                         let opts = case lookup inFile fileOpts of
-                                      Nothing -> []
-                                      Just x -> x
-                             -- search  = dropFileName inFile
-                             search = map ("-P"++) $ hsSourceDirs build
-                             options = fromUUAGCOstoArgs opts
-                                       ++ search ++ ["--output="++outFile, inFile] -- ["-P" ++ search, "--output=" ++ outFile, inFile]
-                         (_,_,_,ph) <- createProcess (proc uuagcn options)
-                         eCode <- waitForProcess ph
-                         case eCode of
-                           ExitSuccess   -> return ()
-                           ExitFailure _ -> throwFailure
-   }
+     runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
+                       do info verbosity $ concat [inFile, " has been preprocessed into ", outFile]
+                          print $ "processing: " ++ inFile
+--                          opts <- getAGFileOptions $ customFieldsBI build
+                          fileOpts <- readFileOptions
+                          let opts = case lookup inFile fileOpts of
+                                       Nothing -> []
+                                       Just x -> x
+                              search  = dropFileName inFile
+                              options = fromUUAGCOstoArgs opts
+                                        ++ ["-P" ++ search, "--output=" ++ outFile, inFile]
+                          (_,_,_,ph) <- createProcess (proc uuagcn options)
+                          eCode <- waitForProcess ph
+                          case eCode of
+                            ExitSuccess   -> return ()
+                            ExitFailure _ -> throwFailure
+                }
 
-
-uuagcSDistHook :: PackageDescription -> Maybe LocalBuildInfo 
-               -> UserHooks -> SDistFlags -> IO ()
-uuagcSDistHook pd (Just lbi) uh sdf = do
-  let bf = fromSDFToBF sdf 
-  print "SdistHook"
-  uuagcBuildHook pd lbi uh bf
-  originalSDistHook pd (Just lbi) uh sdf 
-uuagcSDistHook pd Nothing    uh sdf = do 
-  hPutStrLn stderr "Error"
-  return ()
-
-uuagcPostSDist ::  Args -> SDistFlags -> PackageDescription 
-               -> Maybe LocalBuildInfo -> IO ()
-uuagcPostSDist _ _ _ _ = do
-               exists <- doesFileExist agClassesFile
-               when exists $ removeFile agClassesFile
-
-fromSDFToBF :: SDistFlags -> BuildFlags
-fromSDFToBF _  = BuildFlags { 
-                   buildProgramPaths = []
-                 , buildProgramArgs  = []
-                 , buildDistPref     = toFlag ""
-                 , buildVerbosity    = toFlag silent
-                 }
