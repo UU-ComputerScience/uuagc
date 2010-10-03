@@ -67,7 +67,11 @@ type Strings     = [String]
 type NontermIdent     = Identifier
 type ConstructorIdent = Identifier
 type AttrOrderMap = Map NontermIdent (Map ConstructorIdent (Set Dependency))
-data Dependency = Dependency (Identifier,Identifier) (Identifier,Identifier) deriving (Eq,Ord,Show)
+data Dependency = Dependency Occurrence Occurrence deriving (Eq,Ord,Show)
+data Occurrence
+  = OccAttr Identifier Identifier
+  | OccRule Identifier
+  deriving (Eq,Ord,Show)
 
 type AttrEnv = ( [Identifier]
                , [(Identifier,Identifier)]
@@ -111,7 +115,7 @@ attrname isIn field attr | field == _LOC   = locname attr
                                
 locname v   = '_' : getName v
 instname v  = getName v ++ "_val_"
-inst'name v = getName v ++ "_"
+inst'name v = getName v ++ "_inst_"
 fieldname v =  getName v++"_"
 
 typeToAGString :: Type -> String

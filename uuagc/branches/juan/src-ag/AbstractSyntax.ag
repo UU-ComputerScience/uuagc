@@ -19,6 +19,7 @@ DATA Grammar      | Grammar typeSyns  : {TypeSyns}
                             contextMap : {ContextMap}
                             uniqueMap  : {UniqueMap}
                             augmentsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
+                            aroundsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
 
 TYPE Nonterminals = [Nonterminal]
 
@@ -45,12 +46,14 @@ DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
                             inh         : {Attributes}
                             syn         : {Attributes}
-                            higherOrder : {Bool}
+                            virtual     : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
-DATA Rule         | Rule    pattern : Pattern 
+DATA Rule         | Rule    mbName  : {Maybe Identifier}
+                            pattern : Pattern 
                             rhs     : Expression
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)
+                            explicit : Bool  -- True if this rule defined in the source code
 
 DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}
