@@ -16,14 +16,16 @@ import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos, line, file)
 import UU.Scanner.Token              (Token)
 
-import qualified Transform          as Pass1 (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
-import qualified Desugar            as Pass1a (sem_Grammar, wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified DefaultRules       as Pass2 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified Order              as Pass3 (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified GenerateCode       as Pass4 (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified PrintCode          as Pass5 (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintErrorMessages as PrErr (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
-import qualified TfmToVisage        as PassV (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
+import qualified Desugar            as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
+import qualified TfmToVisage        as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
@@ -71,8 +73,10 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
+          output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
-          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'} 
+          output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
+          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'}
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
@@ -82,29 +86,31 @@ compile flags input output
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
 
           parseErrorList   = map message2error parseErrors
-          errorList        = parseErrorList
-                             ++ toList ( Pass1.errors_Syn_AG       output1
-                                         Seq.>< Pass1a.errors_Syn_Grammar output1a
-                                         Seq.>< Pass2.errors_Syn_Grammar  output2
-                                         Seq.>< Pass3.errors_Syn_Grammar  output3
-                                         Seq.>< Pass4.errors_Syn_CGrammar output4
-                                       )
-                                           
+          mainErrors       = toList ( Pass1.errors_Syn_AG       output1
+                               Seq.>< Pass1a.errors_Syn_Grammar output1a
+                               Seq.>< Pass2.errors_Syn_Grammar  output2 )
+          furtherErrors    = toList ( Pass3.errors_Syn_Grammar  output3
+                               Seq.>< Pass4.errors_Syn_CGrammar output4)
+
+          errorList        = if null parseErrorList
+                             then mainErrors
+                                  ++ if null mainErrors || null (filter (PrErr.isError flags') mainErrors)
+                                     then furtherErrors
+                                     else []
+                             else [head parseErrorList]
+     
           fatalErrorList = filter (PrErr.isError flags') errorList
           
-          allErrors = if null parseErrors
-                      then if wignore flags'
-                           then fatalErrorList
-                           else errorsToFront flags' errorList
-                      else take 1 parseErrorList
-                      -- the other 1000 or so parse errors are usually not that informative
-                      
+          allErrors = if wignore flags'
+                      then fatalErrorList
+                      else errorsToFront flags' errorList
+
           errorsToReport = take (wmaxerrs flags') allErrors
           
           errorsToStopOn = if werrors flags'
                             then errorList
                             else fatalErrorList
-          
+
           blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\(k, at) _->k==BlockPragma && at == Nothing) blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\(k, at) _->k==BlockImport && at == Nothing) blocks2
@@ -167,15 +173,28 @@ compile flags input output
                     Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
-                    let doc = vlist [ pp optionsLine
-                                    , pp pragmaBlocksTxt
-                                    , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
-                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                           then moduleHeader flags' mainName
-                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                    let doc
+                         | visitorsOutput flags'
+                            = vlist [ pp_braces importBlocksTxt
+                                    , pp_braces textBlocksDoc
+                                    , vlist $ Pass4a.output_Syn_CGrammar output4a
+                                    ]
+                         | otherwise
+                            = vlist [ vlist ( if not (ocaml flags')
+                                              then [ pp optionsLine
+                                                   , pp pragmaBlocksTxt
+                                                   , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
+                                                   , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                                          then moduleHeader flags' mainName
+                                                          else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                                   ]
+                                              else []
+                                            )
                                     , pp importBlocksTxt
                                     , textBlocksDoc
-                                    , vlist $ Pass5.output_Syn_Program output5
+                                    , vlist $ if not (ocaml flags')
+                                              then Pass5.output_Syn_Program  output5
+                                              else Pass5a.output_Syn_Program output5a
                                     , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar without default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump1
@@ -195,6 +214,13 @@ compile flags input output
 
                     let docTxt = disp doc 50000 ""
                     writeFile outputfile docTxt
+                    -- HACK: write statistics
+                    let nAuto = Pass3.nAutoRules_Syn_Grammar output3
+                        nExpl = Pass3.nExplicitRules_Syn_Grammar output3
+                        line  = input ++ "," ++ show nAuto ++ "," ++ show nExpl ++ "\r\n"
+                    case statsFile flags' of
+                      Nothing   -> return ()
+                      Just file -> appendFile file line
                     if not (null errorsToStopOn) then exitFailure else return ()
 
 
@@ -271,7 +297,7 @@ reportDeps :: Options -> [String] -> IO ()
 reportDeps flags files
   = do results <- mapM (depsAG flags (searchPath flags)) files
        let (fs, mesgs) = foldr combine ([],[]) results
-       let errs = take (wmaxerrs flags) (map message2error mesgs)
+       let errs = take (min 1 (wmaxerrs flags)) (map message2error mesgs)
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}
        if null errs
         then mapM_ putStrLn fs

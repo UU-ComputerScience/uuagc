@@ -64,6 +64,7 @@ SEM AG
                                      @elems.ctxCollect
                                      @loc.checkedUniques
                                      @loc.checkedAugments
+                                     @loc.checkedArounds
 
 
 -------------------------------------------------------------------------------
@@ -137,10 +138,11 @@ ATTR Elems Elem Attrs
 
 -- Attribute definitions
 {type AttrName   = (Identifier,Identifier) }
-{type RuleInfo   = ([AttrName]->Pattern, Expression, [AttrName], Bool, String) }
+{type RuleInfo   = (Maybe Identifier, [AttrName]->Pattern, Expression, [AttrName], Bool, String) }
 {type SigInfo    = (Identifier,Type) }
 {type UniqueInfo = (Identifier,Identifier) }
 {type AugmentInfo = (Identifier,Expression)}
+{type AroundInfo  = (Identifier,Expression)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -148,6 +150,7 @@ ATTR Elem Elems SemAlt SemAlts
              collectedInsts    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
              collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
              collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
+             collectedArounds  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AroundInfo])  ]}
      ]
 
 
@@ -259,22 +262,27 @@ SEM AG
                            in foldr f (Map.empty) @elems.collectedUniques
          loc.allAugments = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                            in foldr f Map.empty @elems.collectedAugments
+         loc.allArounds  =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                            in foldr f Map.empty @elems.collectedArounds
          
          loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
 
          loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allNamesErrs   = Map.mapWithKey (Map.mapWithKey . checkRuleNames) @loc.allRules
          loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
          loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs @allFields   )) @loc.allInsts
          loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
+         loc.allAroundsErrs = Map.mapWithKey (Map.mapWithKey . (checkArounds @loc.allFields)) @loc.allArounds
 
          loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
          loc.checkedInsts    = Map.map (Map.map fst) @loc.allInstsErrs
          loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
-         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.allAttrDecls)) @loc.checkedUniques)
+         loc.checkedArounds  = Map.map (Map.map fst) @loc.allAroundsErrs
+         loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.checkedInsts @loc.allAttrDecls)) @loc.checkedUniques)
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
@@ -302,7 +310,13 @@ SEM AG
          loc.errs8       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allAugmentErrs
 
-         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8
+         loc.errs9       = let  f m s = Map.fold ((><) . snd) s m
+                           in Map.fold f Seq.empty @loc.allAroundsErrs
+
+         loc.errs10      =  let  f m s = Map.fold ((><)) s m
+                            in Map.fold f Seq.empty @loc.allNamesErrs
+
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -310,6 +324,7 @@ type SigsAndErrors  = ([TypeSig], Seq Error)
 type InstsAndErrors = ([(Identifier, Type)], Seq Error)
 type UniquesAndErrors = (Map Identifier Identifier, Seq Error)
 type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
+type AroundsAndErrors = (Map Identifier [Expression], Seq Error)
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
@@ -328,9 +343,9 @@ checkRules attributes fields allinsts allsigs nt con rs
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
   
         checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
-        checkRule (pat,exp,as,owrt,str) ((r1,e1),m1) 
+        checkRule (mbNm, pat,exp,as,owrt,str) ((r1,e1),m1) 
           = let (e2,m2,u2,b2) = foldr (checkDefi owrt) (e1,m1,[],[]) as
-            in  ( (Rule (pat u2) exp owrt str : r1, e2), m2)
+            in  ( (Rule mbNm (pat u2) exp owrt str True : r1, e2), m2)
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
@@ -350,6 +365,15 @@ checkRules attributes fields allinsts allsigs nt con rs
 
     in  fst (foldr checkRule (([],Seq.empty),Map.empty) rs)
 
+checkRuleNames :: NontermIdent -> ConstructorIdent -> [RuleInfo] -> Seq Error
+checkRuleNames nt con
+  = fst . foldr checkRule (Seq.empty, Set.empty)
+  where
+    checkRule (Just nm,_,_,_,_,_) (errs, nms)
+      | nm `Set.member` nms = (DupRuleName nt con nm Seq.<| errs, nms)
+      | otherwise           = (errs, Set.insert nm nms)
+    checkRule (Nothing,_,_,_,_,_) inp = inp
+
 checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis 
   = let checkSig (ide,typ) (sigs,errs)
@@ -363,9 +387,11 @@ checkSigs nt con sis
 checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
 checkInsts allNts sigMap fieldMap nt con
   = foldr (\inst (insts, errs) ->
-      checkDup inst insts errs $ 
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
-                    (\info@(_, NT nm _) -> case nm `Set.member` allNts of
+                    (\info@(k, NT nm _) ->
+                      case findInst k insts of
+                        Just k' -> (insts, Seq.singleton (DupChild nt con k k') >< errs)
+                        Nothing -> case nm `Set.member` allNts of
                                              True  -> (info : insts, errs)
                                              False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
                                                                                     in case nm' `Set.member` allNts of
@@ -382,14 +408,10 @@ checkInsts allNts sigMap fieldMap nt con
       = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
     
-    checkDup name insts errs e
-      = let fields = Map.findWithDefault [] con $ Map.findWithDefault Map.empty nt fieldMap
-            walk [] = Nothing
-            walk ((i,_): fs) | i == name = Just name
-                             | otherwise = walk fs
-        in case walk fields of
-             Just occ -> (insts, Seq.singleton (DupChild nt con name occ) >< errs)
-             Nothing  -> e
+    findInst _ [] = Nothing
+    findInst k ((k', _): r)
+      | k == k'   = Just k'
+      | otherwise = findInst k r
 
 checkUniques :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [UniqueInfo] -> UniquesAndErrors
 checkUniques allAttrs nt con uniques
@@ -415,16 +437,29 @@ checkAugments allAttrs nt con augments
         (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkAugment (Map.empty, Seq.empty) augments
 
+checkArounds :: Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [AroundInfo] -> AroundsAndErrors
+checkArounds fieldMap nt con arounds
+  = let checkAround (ident,expr) (as,errs)
+          = if ident `Map.member` as
+            then (Map.update (\vs -> Just (vs ++ [expr])) ident as, errs)
+            else case lookup ident fields of
+                   Just (NT _ _) -> (Map.insert ident [expr] as, errs)
+                   _             -> (as, ((Seq.<|)) (UndefChild nt con ident) errs)
+        fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
+    in foldr checkAround (Map.empty, Seq.empty) arounds
+
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 }
 
 
 {
-mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
-mkUniqueRules opts allFields allAttrDecls nt con usMap
+mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
+mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
   = map apply groups
   where
     fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allFields)
+             ++ Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
+             -- may have duplicates
 
     groups = Map.assocs $ Map.foldWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
     apply (ref,us) = mkRule ref (findOutField ref) us
@@ -436,7 +471,7 @@ mkUniqueRules opts allFields allAttrDecls nt con usMap
       = let pat = Product noPos (attr outFld ref : [attr _LOC u | u <- locAttrs ])
             rhs = Expression noPos $ wrap ref $ foldr gencase (finalout locAttrs) locAttrs
                      -- [HsToken ("mkUniques" ++ show (length locAttrs) ++ " ") noPos, AGField _LHS ref noPos Nothing]
-        in Rule pat rhs False "-- generated by the unique rule mechanism."
+        in Rule Nothing pat rhs False "-- generated by the unique rule mechanism." False
     attr fld a = Alias fld a (Underscore noPos) []
     gencase nm outp
       = h ("case " ++ uniqueDispenser opts ++ " __cont of { (__cont, " ++ getName nm ++ ") -> ") ++ outp ++ h "}"
@@ -860,6 +895,7 @@ ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
                           sigInfos     USE {++} {[]} : {[SigInfo]} 
                           uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
+                          aroundInfos  USE {++} {[]} : {[AroundInfo]}
                     ]
 
 
@@ -906,9 +942,15 @@ SEM SemAlt
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
+          
+           lhs.collectedArounds
+              =        [ (nt, con, @rules.aroundInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
 
 SEM SemDef
-  | Def  lhs.ruleInfos = [ (@pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
+  | Def  lhs.ruleInfos = [ (@mbName, @pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
 
 SEM SemDef
   | TypeDef  lhs.sigInfos = [ (@ident, @tp) ]
@@ -918,6 +960,9 @@ SEM SemDef
 
 SEM SemDef
   | AugmentDef  lhs.augmentInfos = [ (@ident, @rhs) ]
+
+SEM SemDef
+  | AroundDef   lhs.aroundInfos = [ (@ident, @rhs) ]
 
 
 ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
@@ -984,9 +1029,10 @@ constructGrammar ::    Set NontermIdent
                     -> ContextMap
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
+                    -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -998,16 +1044,28 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
-                                       cldrn = map (child False) flds ++ map (child True) insts
-                                       child isVirtual (nm, tp) =
-                                          let (inh,syn) = case tp of
+
+                                       -- important: keep order of children
+                                       cldrn = map child (flds ++ filter (not . existsAsField) insts)
+                                       child (nm, tp) =
+                                          let tpI = if existsAsInst nm
+                                                    then fromJust $ lookup nm insts
+                                                    else tp
+                                              (inh,syn) = case tpI of
                                                  NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
                                                             in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
                                                  _       -> (Map.empty,Map.empty)
-                                          in Child nm tp inh syn isVirtual
+                                              virt = if existsAsInst nm
+                                                     then case lookup nm flds of
+                                                            Just tp' -> Just (Just tp')
+                                                            Nothing  -> Just Nothing
+                                                     else Nothing
+                                          in Child nm tpI inh syn virt
+                                       existsAsInst nm = maybe False (const True) (lookup nm insts)
+                                       existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap
 }
 
 {

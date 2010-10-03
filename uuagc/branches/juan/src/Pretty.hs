@@ -17,6 +17,7 @@ module Pretty
   , pp_block
   , vlist_sep
   , pp_parens
+  , pp_braces
   , hv_sp
 
   , empty, text
@@ -95,6 +96,9 @@ pp_block o c s as = pp o >|< hlist (intersperse (pp s) as) >|< pp c
 
 pp_parens :: PP a => a -> PP_Doc
 pp_parens p = '(' >|< p >|< ')'
+
+pp_braces :: PP a => a -> PP_Doc
+pp_braces p = '{' >-< p >-< '}'
 
 vlist_sep :: (PP a, PP b) => a -> [b] -> PP_Doc
 vlist_sep sep lst

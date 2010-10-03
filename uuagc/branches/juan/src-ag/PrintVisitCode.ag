@@ -1,0 +1,53 @@
+PRAGMA strictwrap
+PRAGMA strictdata
+PRAGMA optimize
+
+INCLUDE "CodeSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "DeclBlocks.ag"
+
+imports
+{
+import CommonTypes
+import SequentialTypes
+import Options
+import CodeSyntax
+import ErrorMessages
+import GrammarInfo
+import DeclBlocks
+import Pretty
+
+import qualified Data.Map as Map
+import Data.Map(Map) 
+import qualified Data.Set as Set
+import Data.Set(Set) 
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq)
+import UU.Scanner.Position
+
+import Data.List(partition,intersperse,intersect,(\\))
+import Maybe(fromJust,isJust)
+}
+
+{
+type PP_Docs = [PP_Doc]
+
+ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqH = ppMultiSeq' (>#<)
+
+ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqV = ppMultiSeq' (>-<)
+
+ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq' next strictArgs expr
+  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
+}
+
+
+WRAPPER CGrammar
+
+ATTR CGrammar [ options:{Options} | | output:{PP_Docs} ]
+
+SEM CGrammar
+  | CGrammar
+      lhs.output = []

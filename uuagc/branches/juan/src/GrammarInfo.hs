@@ -21,7 +21,7 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   deriving Show
 
 instance Show CRule
- where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin uses) 
+ where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin uses _ _)
          = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
          ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
 

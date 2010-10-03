@@ -1,3 +1,5 @@
+MODULE {TestOkVisit4} {} {}
+
 -- A grammar that requires two visits, and an attribute w
 -- that is needed in both passes
 

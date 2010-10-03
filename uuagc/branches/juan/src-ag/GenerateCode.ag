@@ -42,26 +42,27 @@ ATTR CNonterminals CNonterminal
      CVisits CVisit
      Sequence CRule
      CInterface CSegments CSegment
-       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas : Bool
+       [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas,o_monadic : Bool
          o_data : {Maybe Bool}
          prefix : String
        | | ]
 SEM CGrammar [ options : Options | | ]
-  | CGrammar    nonts.o_sig         = typeSigs      @lhs.options
-                     .o_cata        = folds         @lhs.options
-                     .o_sem         = semfuns       @lhs.options
-                     .o_newtypes    = newtypes      @lhs.options
-                     .o_unbox       = unbox         @lhs.options
-                     .o_case        = cases         @lhs.options
-                     .o_pretty      = attrInfo      @lhs.options
-                     .o_rename      = rename        @lhs.options
-                     .o_strictwrap  = strictWrap    @lhs.options
-                     .o_splitsems   = splitSems     @lhs.options
+  | CGrammar    nonts.o_sig         = typeSigs       @lhs.options
+                     .o_cata        = folds          @lhs.options
+                     .o_sem         = semfuns        @lhs.options
+                     .o_newtypes    = newtypes       @lhs.options
+                     .o_unbox       = unbox          @lhs.options
+                     .o_case        = cases          @lhs.options
+                     .o_pretty      = attrInfo       @lhs.options
+                     .o_rename      = rename         @lhs.options
+                     .o_strictwrap  = strictWrap     @lhs.options
+                     .o_splitsems   = splitSems      @lhs.options
                      .o_data        = if dataTypes @lhs.options then Just (strictData @lhs.options) else Nothing
-                     .prefix        = prefix        @lhs.options
-                     .o_traces      = genTraces     @lhs.options
+                     .prefix        = prefix         @lhs.options
+                     .o_traces      = genTraces      @lhs.options
                      .o_costcentre  = genCostCentres @lhs.options
                      .o_linePragmas = genLinePragmas @lhs.options
+                     .o_monadic     = monadic        @lhs.options
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -137,28 +138,32 @@ SEM CNonterminal
 
 ATTR  Sequence CRule [ | | decls USE {++} {[]} : {Decls} ]
 SEM  CRule
-  |  CRule loc.instTypes = map (\(n,NT t _,_) -> (n,t)) @lhs.higherOrderChildren
+  |  CRule loc.instTypes = [ (n, (t, mb)) | (n, NT t _, mb) <- @lhs.children ]
            loc.originComment = if  @lhs.o_pretty
                                    then (Comment @origin:)
                                    else id
-           loc.instDecls = [ Decl (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
-                                  ( let nm = fromJust $ inst `lookup` @loc.instTypes
+           loc.instDecls = [ mkDecl @lhs.o_monadic (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
+                                  ( let (nm,mb) = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
-                                       $ case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
-                                         True  -> App (cataname @lhs.prefix nm)
-                                                      [SimpleExpr instLocFieldName]
-                                         False -> SimpleExpr instLocFieldName
+                                       $ case mb of
+                                           Just (Just tp') -> App instLocFieldName [SimpleExpr $ fieldname inst]
+                                           _               -> 
+                                              case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
+                                                True  -> App (cataname @lhs.prefix nm)
+                                                             [SimpleExpr instLocFieldName]
+                                                False -> SimpleExpr instLocFieldName
                                   )    
                                   (Set.singleton instSemFieldName)
                                   (Set.singleton instLocFieldName)
                            | inst <- @loc.definedInsts
                            , let instLocFieldName = attrname True _INST inst
-                           , let instSemFieldName = attrname False _INST' inst ]
+                                 instSemFieldName = attrname False _INST' inst
+                           ]
            loc.patDescr = if @isIn
                           then "_"
                           else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) @pattern.patternAttributes)
-           loc.traceDescr = show @nt ++ " :: " ++ show @con ++ " :: " ++ @loc.patDescr
-                              
+           loc.traceDescr = (maybe "" (\nm -> show nm ++ ":") @mbNamed) ++ show @nt ++ " :: " ++ show @con ++ " :: " ++ @loc.patDescr
+
            loc.addTrace = \v -> if @lhs.o_traces
                                 then Trace @loc.traceDescr v
                                 else v
@@ -174,7 +179,7 @@ SEM  CRule
                                              $ v
                                         else v
            loc.decls = if @hasCode
-                       then @originComment ( Decl (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ @loc.addLinePragma $ (TextExpr @rhs))
+                       then @originComment ( mkDecl (@lhs.o_monadic && @explicit) (Pattern3 @pattern.copy) (@loc.addTrace $ @loc.addCostCentre $ @loc.addLinePragma $ (TextExpr @rhs))
                                                   (Set.fromList [attrname False fld nm | (fld,nm,_) <- Map.elems @defines])
                                                   (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList @uses])
                                            : @loc.instDecls)
@@ -188,10 +193,23 @@ SEM  CRule
                                   rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
                                   tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
-                                  rhs = @loc.addCostCentre $ App (funname @name @nr) (map SimpleExpr rhsVars)
-                             in [Decl tuple rhs (Set.fromList lhsVars) (Set.fromList (funname @name @nr : rhsVars))]
+                                  rhs = @loc.addCostCentre $ App fun (map SimpleExpr rhsVars)
+                                  isVirtual _ [] = False
+                                  isVirtual nm ((n,t,mb) : r)
+                                    | nm == n   = isJust mb
+                                    | otherwise = isVirtual nm r
+                                  baseNm = if @nr == 0 && isVirtual @name @lhs.children
+                                           then Ident (getName @name ++ "_inst") (getPos @name)
+                                           else @name
+                                  fun | @nr == 0 && Set.member @name @lhs.aroundMap
+                                                  = locname @name ++ "_around " ++ funname baseNm 0
+                                      | otherwise = funname baseNm @nr
+                             in [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname baseNm @nr : rhsVars))]
 
 {
+mkDecl True  lhs rhs _ _   = Bind lhs rhs
+mkDecl False lhs rhs s1 s2 = Decl lhs rhs s1 s2
+
 unwrapSem :: Bool -> NontermIdent -> Expr -> Expr
 unwrapSem False _ e = e
 unwrapSem True nm e = Case e alts
@@ -200,7 +218,7 @@ unwrapSem True nm e = Case e alts
         right = SimpleExpr "x"
 }
 
-ATTR Sequence CRule [ higherOrderChildren : {[(Identifier,Type,Bool)]} ||]
+ATTR Sequence CRule [ children : {[(Identifier,Type,Maybe (Maybe Type))]} ||]
 
 ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
@@ -306,9 +324,24 @@ SEM CRule
 
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
 SEM  CRule
-  |  CRule        loc.mkTp = SimpleType . typeToHaskellString (Just @lhs.nt) @loc.orgParams
-                  lhs.tSigs = [ TSig (attrname False field attr) (@loc.evalTp field $ @mkTp (fromJust tp)) 
-                              |  (field,attr,tp) <- Map.elems @defines, isJust tp ]
+  |  CRule        loc.mkTp = typeToCodeType (Just @lhs.nt) @loc.orgParams
+                  lhs.tSigs = [ TSig (attrname False field attr) tp'
+                              |  (field,attr,tp) <- Map.elems @defines, isJust tp
+                              , let tp1 = @loc.evalTp field $ @mkTp (fromJust tp)
+                                    tp' = case findOrigType attr @lhs.children of
+                                           Just tp' -> let tp'' = case tp' of
+                                                                    NT n params -> NT (Ident ("T_" ++ show n) (getPos n)) params
+                                                                    _ -> tp'
+                                                           tp2 = @loc.evalTp field $ @mkTp tp''
+                                                       in Arr tp2 tp1
+                                           Nothing -> tp1
+                                    findOrigType nm [] = Nothing
+                                    findOrigType nm ((n,_,mb) : r)
+                                      | nm == n = case mb of
+                                                    Just (Just orig) -> Just orig
+                                                    _                -> Nothing
+                                      | otherwise = findOrigType nm r
+                              ]
 
                   loc.orgParams = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
                   loc.evalTp =
@@ -322,7 +355,7 @@ SEM  CRule
                                          else idEvalType tp
                                     else evalType replace tp
 
-  |  CChildVisit  loc.mkTp = @loc.evalTp . SimpleType . typeToHaskellString (Just @nt) @loc.orgParams
+  |  CChildVisit  loc.mkTp = @loc.evalTp . typeToCodeType (Just @nt) @loc.orgParams
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (TypeApp (SimpleType @nextTp) (map SimpleType @loc.instParams)) :)) @definedTps
@@ -345,7 +378,7 @@ substSelf nt tp = case tp of
                     _                     -> tp
 }
 
-ATTR CVisits CVisit Sequence CRule [ children : {[(Identifier,Type,Bool)]} | | ]
+ATTR CVisits CVisit [ children : {[(Identifier,Type, Maybe (Maybe Type))]} | | ]
 SEM  CProduction
   |  CProduction visits.children = @children
 
@@ -362,13 +395,27 @@ SEM  CRule
 -- Each visit has its semantic function
 -------------------------------------------------------------------------------
 
-ATTR CVisits CVisit [ | | decls USE {++} {[]} : {Decls} ]
+ATTR CVisits [ | | decls : {Decls} ]
+ATTR CVisit [ | decls : {Decls} | ]
+SEM CVisits
+  | Nil   lhs.decls = []
+  | Cons  lhs.decls = @hd.decls
+          hd.decls  = @tl.decls
+
+-- Note: lhs.decls are the decls related to the next visit function. We pass it
+-- chained from right to left in order to build the next visit function inside
+-- the previous one.
+-- Note: intra decls are ignored. The intra-visit variables are not passed on
+-- explicitly, but handled automatically due to nesting level.
+
 SEM  CVisit
-  |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,ho) -> ho) @lhs.children
+  |  CVisit (loc.higherOrderChildren,loc.firstOrderChildren) = partition (\(_,_,virt) -> isHigherOrder virt) @lhs.children
+            loc.firstOrderOrig = map pickOrigType @loc.firstOrderChildren
             loc.funcname = seqSemname @lhs.prefix @lhs.nt @lhs.con @lhs.nr
             loc.nextVisitName = if @lhs.isLast then [] else [visitname @lhs.prefix @lhs.nt (@lhs.nr+1)]
             loc.nextVisitDecl = let  lhs = TupleLhs @nextVisitName
-                                     rhs = App fun @lhs.nextIntra
+                                     -- rhs = App fun @lhs.nextIntra
+                                     rhs = Let @lhs.decls (SimpleExpr fun)
                                      fun = seqSemname @lhs.prefix @lhs.nt @lhs.con (@lhs.nr+1)
                                 in if @lhs.isLast
                                    then []
@@ -386,7 +433,7 @@ SEM  CVisit
             
             loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
             loc.semFun = let  lhs = Fun @funcname lhs_args
-                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderChildren else @intra.exprs
+                              lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderOrig else [] -- @intra.exprs
 
                               field (name,NT tp tps,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                                     | otherwise       = id
@@ -398,17 +445,17 @@ SEM  CVisit
                               field (name,tp,_)        = let expr = SimpleExpr (funname name 0)
                                                          in if null @loc.params
                                                             then expr
-                                                            else TypedExpr expr (idEvalType $ SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp))
+                                                            else TypedExpr expr (idEvalType $ typeToCodeType (Just @lhs.nt) @loc.params tp)
                               
                               mbEvalTp | null @loc.params = const Nothing
                                        | otherwise        = Just . idEvalType
 
                               rhs = wrap
-                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ SimpleType $ typeToHaskellString (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
+                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ typeToCodeType (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
                                   $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
-                                    else mkLet @o_case @decls
+                                    else mkDecls @loc.declsType @decls
                                          . mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh)
                                          $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes
@@ -425,8 +472,8 @@ SEM  CVisit
                               
                           in appContext @lhs.contextMap @lhs.nt $ evalTp $
                              if  @lhs.nr == 0  
-                                 then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderChildren)
-                                 else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) @intra.tps
+                                 then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderOrig)
+                                 else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) [] -- @intra.tps
             lhs.decls =  ( if  @lhs.with_sig 
                            then [@tsig, @semFun]
                            else [@semFun]
@@ -438,7 +485,13 @@ SEM  CVisit
             loc.typeSigs =  if  @lhs.o_sig && not @o_case
                                 then  @vss.tSigs
                                 else  []
-            loc.o_case = @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
+            loc.o_do   = @ordered && @lhs.o_monadic
+            loc.o_case = not @loc.o_do && @lhs.o_case && @ordered && not (hasPragma @lhs.allPragmas @lhs.nt @lhs.con _NOCASE)
+            loc.declsType = if @loc.o_do
+                            then DeclsDo
+                            else if @loc.o_case
+                                 then DeclsCase
+                                 else DeclsLet
             loc.o_splitsems = @ordered && @lhs.o_splitsems
 
 {
@@ -451,6 +504,14 @@ mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 
 typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
+
+isHigherOrder :: Maybe (Maybe Type) -> Bool
+isHigherOrder (Just Nothing) = True
+isHigherOrder _              = False
+
+pickOrigType :: (Identifier, Type, Maybe (Maybe Type)) -> (Identifier, Type, Maybe (Maybe Type))
+pickOrigType (nm, tp, virt@(Just (Just x))) = (nm, x, virt)
+pickOrigType x = x
 }
 
 ATTR CVisits CVisit Sequence CRule [ instVisitNrs : {Map Identifier Int} || ]
@@ -462,6 +523,22 @@ SEM CProduction
 SEM CVisit
   | CVisit
       lhs.gatherInstVisitNrs = Map.fromList [(i,@lhs.nr) | i <- @vss.definedInsts]
+
+-------------------------------------------------------------------------------
+-- Push aroundsMap downward
+-------------------------------------------------------------------------------
+
+ATTR CNonterminals CNonterminal
+  [ aroundMap : {Map NontermIdent (Map ConstructorIdent (Set Identifier))} || ]
+
+ATTR CProductions CProduction
+  [ aroundMap : {Map ConstructorIdent (Set Identifier)} || ]
+
+ATTR CVisits CVisit Sequence CRule [ aroundMap : {Set Identifier} | | ]
+
+SEM CGrammar | CGrammar          loc.aroundMap = @aroundsMap
+SEM CNonterminal | CNonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
+SEM CProduction | CProduction    loc.aroundMap = Map.findWithDefault Set.empty @con @lhs.aroundMap
 
 -------------------------------------------------------------------------------
 -- Generate a partitioned version of the sequence of rules
@@ -495,34 +572,6 @@ SEM CRule
       lhs.bldBlocksFun = DeclBlock @lhs.declsAbove (head @loc.decls)
 
 {
--- dead code - replaced by mkPartitionedFunction
-{-
-localCpsToExpr :: Bool -> [Decl] -> DeclBlocks -> Expr
-localCpsToExpr o_case nextVisitDecl
-  = r
-  where
-    r cps
-      = case cps of
-          DeclTerminator decls expr
-            -> mkLet o_case (decls ++ nextVisitDecl) expr
-          DeclBlock decls (Decl lhs rhs _ _) remainder
-            -> let inDecls = [ PragmaDecl ("NOINLINE " ++ internalCpsName)
-                             , Decl (Fun internalCpsName [SimpleExpr internalCpsVarName])
-                                    (mkLet o_case [Decl lhs (SimpleExpr internalCpsVarName) Set.empty Set.empty] (rec remainder))
-                                    Set.empty Set.empty
-                             ]
-                   inBody = App "head" [App "(:)" [App internalCpsName [rhs], App "(:)" [App internalCpsName [rhs], SimpleExpr "[]"]]]
-                   outerBody = Let inDecls inBody
-                   block = mkLet o_case decls outerBody
-               in block
-
-internalCpsName :: String
-internalCpsName = "internalCps_"
-
-internalCpsVarName :: String
-internalCpsVarName = "internalCps_var_"
--}
-
 mkPartitionedFunction :: String -> Bool -> [Decl] -> [String] -> DeclBlocks -> ([Decl], Expr)
 mkPartitionedFunction prefix optCase nextVisitDecls lastExprVars cpsTree
   = let inh = Inh_DeclBlocksRoot { prefix_Inh_DeclBlocksRoot = prefix
@@ -605,8 +654,8 @@ SEM  CInterface
 
 SEM  CSegment
   |  CSegment loc.tp = foldr Arr @loc.synTps @loc.inhTps
-              loc.inhTps = [SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp) |  tp <- Map.elems @inh]
-              loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([SimpleType (typeToHaskellString (Just @lhs.nt) @loc.params tp) |  tp <- Map.elems @syn] ++ @loc.continuation)
+              loc.inhTps = [typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @inh]
+              loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @syn] ++ @loc.continuation)
               loc.continuation = if  @lhs.isLast
                                  then []
                                  else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map (SimpleType . ('@':)) @loc.params)]
@@ -636,6 +685,13 @@ SEM CGrammar
         in evalType replace tp
 
 {
+typeToCodeType :: Maybe NontermIdent -> [String] -> Type -> Code.Type
+typeToCodeType mbNt params tp
+  = case tp of
+      NT nt tps | nt == _SELF -> NontermType (maybe "Unknown" getName mbNt) params
+                | otherwise   -> NontermType (getName nt) tps
+      Haskell t               -> SimpleType t
+
 evalType :: (String -> String) -> Code.Type -> Code.Type
 evalType replf t
   = chase t
@@ -651,6 +707,11 @@ evalType replf t
                                       tks' = map replaceTok tks
                                       txt' = unlines . showTokens . tokensToStrings $ tks'
                                   in SimpleType txt'
+          TMaybe m             -> TMaybe (chase m)
+          TEither l r          -> TEither (chase l) (chase r)
+          TMap k v             -> TMap (chase k) (chase v)
+          TIntMap v            -> TIntMap (chase v)
+          _                    -> t
 
     replaceTok t
       = case t of
@@ -681,12 +742,10 @@ SEM CNonterminal
                                       
                                       evalTp | null params' = id
                                              | otherwise    = idEvalType
-                                      evalTpCommon t | null params' = t
-                                                     | otherwise    = case (evalTp (SimpleType t)) of SimpleType t' -> t'
                                       appParams nm = TypeApp (SimpleType nm) (map SimpleType params')
                                       typeSig = TSig wrapNT (evalTp $ appParams (sdtype @nt) `Arr` (appParams inhNT `Arr` appParams synNT))
-                                      mkstrict = if @lhs.o_strictwrap then (\x -> "!(" ++ x ++ ")") else id
-                                      mkdata n attrs = Data n params' [Record n [(getName f++"_"++n,mkstrict $ evalTpCommon $ typeToHaskellString (Just @nt) params' t) | (f,t) <- attrs]] False []
+                                      mkstrict = Named @lhs.o_strictwrap
+                                      mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just @nt) params' t | (f,t) <- attrs]] False []
                                       datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                   in datas ++ [ typeSig
                                               , Decl (Fun wrapNT [varPat, App inhNT inhVars])
@@ -709,32 +768,18 @@ SEM  CSegment
 -------------------------------------------------------------------------------
 -- Errors for missing type signatures. It's an error when one of the
 -- attributes in the intra-visit dependencies does not have a type.
+-- UPDATE: it is not an error anymore...
 -------------------------------------------------------------------------------
 
 ATTR CNonterminals CNonterminal
      CProductions CProduction
-     CVisits CVisit [ | | allTpsFound USE {&&} {True} : Bool ]
-ATTR CNonterminals CNonterminal
-     CProductions CProduction
      CVisits CVisit [ with_sig : Bool | | ]
 
-SEM  CVisit
-  |  CVisit lhs.allTpsFound = @intra.allTpsFound
 SEM CGrammar
-  | CGrammar nonts.with_sig = typeSigs @lhs.options && @nonts.allTpsFound
+  | CGrammar nonts.with_sig = typeSigs @lhs.options
 
-ATTR CNonterminals CNonterminal
-     CProductions CProduction
-     CVisits CVisit
-     Sequence CRule [ | errors USE {Seq.><} {Seq.empty} : {Seq Error} | ]
 SEM  CGrammar [ | | errors : {Seq Error} ]
-  |  CGrammar nonts.errors = Seq.empty 
-SEM  CVisit
-  |  CVisit lhs.errors = @intra.errors
-SEM  CRule
-  |  CRule lhs.errors = let nameOf (Alias _ _ _ pats@(_:_)) = Ident (show (map (\(Alias _ a _ _)->a) pats)) (getPos @name)
-                            nameOf _ = @name
-                        in  maybe (Seq.singleton (MissingTypeSig @lhs.nt @lhs.con (nameOf @pattern.copy))) (const Seq.empty) @tp
+  |  CGrammar lhs.errors = Seq.empty
 
 -------------------------------------------------------------------------------
 -- Provide a description of the interfaces as comments
@@ -756,11 +801,18 @@ SEM CSegment
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
 
 SEM CProduction 
-  | CProduction loc.firstOrderChildren = filter (\(_,_,ho) -> not ho) @children
+  | CProduction  loc.firstOrderChildren = [ (nm,fromJust mb,virt) | (nm,tp,virt) <- @children, let mb = isFirstOrder virt tp, isJust mb ]
                  lhs.comments =  ("alternative " ++ getName @con ++ ":")
                                  : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @loc.firstOrderChildren
                                            ++ @visits.comments
                                            )
+
+{
+-- for a virtual child that already existed as a child, returns 
+isFirstOrder :: Maybe (Maybe Type) -> Type -> Maybe Type
+isFirstOrder Nothing tp = Just tp
+isFirstOrder (Just x) _ = x
+}
 
 SEM CVisit
   | CVisit       lhs.comments =  let body = map ind (@vss.comments ++ @intra.comments)
@@ -808,6 +860,17 @@ SEM CNonterminal
 
 {
 -- Lets or nested Cases?
+-- or even a do-expression?
+
+data DeclsType = DeclsLet | DeclsCase | DeclsDo
+
+mkDecls :: DeclsType -> Decls -> Expr -> Expr
+mkDecls DeclsLet  = mkLet False
+mkDecls DeclsCase = mkLet True
+mkDecls DeclsDo   = \decls -> Do (map toBind decls)
+  where toBind (Decl lhs rhs _ _) = BindLet lhs rhs
+        toBind d                  = d
+
 mkLet :: Bool -> Decls -> Expr -> Expr
 mkLet False decls body = Let decls body
 mkLet True decls body = foldr oneCase body decls
@@ -853,14 +916,12 @@ SEM CNonterminal
   | CNonterminal loc.dataDef = let params' = map getName @params
                                    typeSyn tp = let theType = 
                                                       case tp of
-                                                        CommonTypes.Maybe t      -> SimpleType ("Maybe (" ++ typeToHaskellString (Just @nt) params' t ++")")
-                                                        CommonTypes.Either t1 t2 -> SimpleType ("Either (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
-                                                                                                           ++ typeToHaskellString (Just @nt) params' t2 ++")")
-                                                        CommonTypes.Map t1 t2    -> SimpleType ("Map (" ++ typeToHaskellString (Just @nt) params' t1 ++") ("
-                                                                                                        ++ typeToHaskellString (Just @nt) params' t2 ++")")
-                                                        CommonTypes.IntMap t     -> SimpleType ("IntMap (" ++ typeToHaskellString (Just @nt) params' t ++")")
-                                                        CommonTypes.List t       -> Code.List $ SimpleType (typeToHaskellString (Just @nt) params' t)
-                                                        CommonTypes.Tuple ts     -> Code.TupleType [SimpleType (typeToHaskellString (Just @nt) params' t) 
+                                                        CommonTypes.Maybe t      -> TMaybe $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.Either t1 t2 -> TEither (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
+                                                        CommonTypes.Map t1 t2    -> TMap (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
+                                                        CommonTypes.IntMap t     -> TIntMap $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.List t       -> Code.List $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.Tuple ts     -> Code.TupleType [typeToCodeType (Just @nt) params' t
                                                                                                | (_,t) <- ts
                                                                                                ]
                                                  in Code.Type (getName @nt) params' (idEvalType theType)
@@ -877,7 +938,7 @@ SEM CProductions
 
 SEM CProduction
   | CProduction loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
-                lhs.dataAlt = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToHaskellString (Just @lhs.nt) @loc.params t) @loc.firstOrderChildren)
+                lhs.dataAlt = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToCodeType (Just @lhs.nt) @loc.params t) @loc.firstOrderChildren)
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present

@@ -56,6 +56,10 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["lckeywords"]      (NoArg lcKeywordsOpt) "Use lowercase keywords (sem, attr) instead of the uppercase ones (SEM, ATTR)"
                , Option []        ["doublecolons"]    (NoArg doubleColonsOpt) "Use double colons for type signatures instead of single colons"
                , Option ['H']     ["haskellsyntax"]   (NoArg haskellSyntaxOpt) "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
+               , Option []        ["monadic"]         (NoArg monadicOpt) "Experimental: generate monadic code"
+               , Option []        ["ocaml"]           (NoArg ocamlOpt) "Experimental: generate Ocaml code"
+               , Option []        ["visitcode"]        (NoArg visitorsOutputOpt) "Experimental: generate visitors code"
+               , Option []        ["statistics"]      (ReqArg statisticsOpt "FILE to append to") "Append statistics to FILE"
                ]
 
 allc = "dcfsprm"
@@ -109,6 +113,10 @@ data Options = Options{ moduleName :: ModuleHeader
                       , uniqueDispenser :: String
                       , lcKeywords :: Bool
                       , doubleColons :: Bool
+                      , monadic :: Bool
+                      , ocaml :: Bool
+                      , visitorsOutput :: Bool
+                      , statsFile :: Maybe String
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -159,6 +167,10 @@ noOptions = Options { moduleName    = NoName
                     , uniqueDispenser = "nextUnique"
                     , lcKeywords      = False
                     , doubleColons    = False
+                    , monadic         = False
+                    , ocaml           = False
+                    , visitorsOutput  = False
+                    , statsFile       = Nothing
                     }
 
 
@@ -210,6 +222,10 @@ uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
 lcKeywordsOpt opts = opts { lcKeywords = True }
 doubleColonsOpt opts = opts { doubleColons = True }
 haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
+monadicOpt opts = opts { monadic = True }
+ocamlOpt opts = opts { ocaml = True }
+visitorsOutputOpt opts = opts { visitorsOutput = True }
+statisticsOpt nm opts = opts { statsFile = Just nm }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
@@ -224,4 +240,3 @@ getOptions args = let (flags,files,errors) = getOpt Permute options args
 data ModuleHeader  = NoName
                    | Name String
                    | Default deriving Show
-

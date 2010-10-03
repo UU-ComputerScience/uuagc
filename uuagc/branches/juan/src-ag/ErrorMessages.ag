@@ -35,6 +35,10 @@ DATA Error  | ParserError     pos     : {Pos}
                               con   : {ConstructorIdent}
                               field : {Identifier}
                               attr,occ1 : {Identifier}
+            
+            | DupRuleName     nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              nm    : {Identifier}
 
             | DupSig          nt    : {NontermIdent}
                               con   : {ConstructorIdent}
@@ -54,6 +58,10 @@ DATA Error  | ParserError     pos     : {Pos}
                               con   : {ConstructorIdent}
                               field : {Identifier}
                               attr  : {Identifier}
+            
+            | MissingNamedRule  nt   : {NontermIdent}
+                                con  : {Identifier}
+                                name : {Identifier}
 
             | SuperfluousRule nt    : {NontermIdent}
                               con   : {ConstructorIdent}

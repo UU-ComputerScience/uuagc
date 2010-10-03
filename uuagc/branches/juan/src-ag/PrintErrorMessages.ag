@@ -43,6 +43,8 @@ isError opts (MissingInstSig  _ _ _    ) = True
 isError opts (DupUnique       _ _ _    ) = False
 isError opts (MissingUnique   _ _      ) = True
 isError opts (MissingSyn      _ _      ) = True
+isError opts (MissingNamedRule _ _ _)    = True
+isError opts (DupRuleName _ _ _)         = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -204,6 +206,21 @@ SEM Error
                                  act  = wfill ["The last rule given is considered valid. All others have been discarded."]
                              in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
 
+  | DupRuleName     lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more rule names for"
+                                               ,show @nm,"."
+                                               ]
+
+                                 pat   =   "SEM" >#< getName @nt
+                                       >-< indent 2 ("|" >#< getName @con >#< show @nm >#< ": ... = ...")
+                                       >-< indent 2 ("|" >#< getName @con >#< show @nm >#< ": ... = ...")
+
+                                 help =  wfill ["In the rules for alternative" , getName @con , "of nonterminal" , getName @nt
+                                                       ,", there is more than one rule name " , show @nm
+                                                       ,". You should either rename or remove enough of them."
+                                                       ]
+                                 act  = wfill ["Compilation cannot continue."]
+                             in ppError (isError @lhs.options @me) (getPos @nm) mesg pat help act @lhs.verbose
+
   | DupSig          lhs.pp = let mesg  = wfill ["At constructor",getName @con, "of nonterminal", getName @nt, "there are two or more typesignatures for"
                                                ,showAttrDef _LOC @attr,"."
                                                ]  >-<
@@ -270,6 +287,18 @@ SEM Error
                                                ]
                                  act  = wfill ["The value of the attribute has been set to undefined."]
                              in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+  
+  | MissingNamedRule  lhs.pp =  let mesg  = wfill ["Missing rule name ", show @name , "in alternative"
+                                                  , getName @con , "of nonterminal",getName @nt ,"."
+                                                  ]
+                                    pat   =   "SEM" >#< @nt
+                                          >-< indent 2 ("|" >#< getName @con >#< show @name >#< ": ... = ...")
+
+                                    help  = wfill ["There is a dependency on a rule with name ", show @name , "in alternative"
+                                                  , getName @con , "of nonterminal",getName @nt ,", but no rule has been defined with this name. Maybe you misspelled it?"
+                                                  ]
+                                    act  = wfill ["Compilation cannot continue."]
+                                in ppError (isError @lhs.options @me) (getPos @name) mesg pat help act @lhs.verbose
 
   | SuperfluousRule lhs.pp = let mesg  = wfill ["Rule for non-existing", showAttrDef @field @attr , "at alternative"
                                                , getName @con , "of nonterminal",getName @nt, "."
