@@ -120,14 +120,14 @@ ATTR Nonterminals Nonterminal Productions Production Children Child [ o_unbox:{B
 ATTR Nonterminals Nonterminal [ o_data:{Bool} | | ]
 
 SEM Grammar
-  | Grammar     nonts.o_cata    = folds     @lhs.options
+  | Grammar     loc.o_dovisit   = visit     @lhs.options && null @cyclesErrors
+                nonts.o_cata    = folds     @lhs.options
                      .o_data    = dataTypes @lhs.options
                      .o_sig     = typeSigs  @lhs.options
                      .o_sem     = semfuns   @lhs.options
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
                      .o_wantvisit = visit   @lhs.options
-                     .o_dovisit = visit     @lhs.options && null @cyclesErrors
                      .o_unbox   = unbox     @lhs.options
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
@@ -346,6 +346,52 @@ SEM Child
   | Child  lhs.collectChildrenSyns = Map.singleton @name @syn
            lhs.collectChildrenInhs = Map.singleton @name @inh
 
+--
+-- Merge stuff
+--
+
+ATTR Nonterminals Nonterminal
+  [ mergeMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))} | | ]
+
+ATTR Productions Production
+  [ mergeMap : {Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))} | | ]
+
+SEM Nonterminal | Nonterminal  loc.mergeMap = Map.findWithDefault Map.empty @nt @lhs.mergeMap
+SEM Production  | Production   loc.mergeMap = Map.findWithDefault Map.empty @con @lhs.mergeMap
+
+ATTR Rules Rule Children Child Expression [ mergeMap : {Map Identifier (Identifier,[Identifier])} | | ]
+
+-- for a child c : N, with merged children cs, add dependencies between synthesized attrs of
+-- c to synthesized attrs of cs, and to the merge-attribute
+ATTR Nonterminals Nonterminal Productions Production
+  [ | | mergeDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
+
+SEM Production
+  | Production
+      lhs.mergeDep = @loc.mergeDep1 Seq.>< @loc.mergeDep2
+      loc.mergeDep1
+        = Seq.fromList $
+             [ (childVert, synVert)
+             | childNm <- Map.keys @loc.mergeMap
+             , synNm <- Map.keys (findWithErr2 childNm @children.collectChildrenSyns)
+             , let childNm' = Ident (show childNm ++ "_merge") (getPos childNm)
+                   childAttr = AltAttr _LOC childNm' True
+                   synAttr  = AltAttr childNm synNm True
+                   childVert = findWithErr2 childAttr @loc.altAttrs
+                   synVert  = findWithErr2 synAttr @loc.altAttrs
+             ]
+      loc.mergeDep2
+        = Seq.fromList $
+             [ (mergedVert, sourceVert)
+             | (childNm, (_,cs)) <- Map.assocs @loc.mergeMap
+             , c <- cs
+             , synNm <- Map.keys (findWithErr2 childNm @children.collectChildrenSyns)
+             , let sourceAttr = AltAttr childNm synNm True
+                   mergedAttr = AltAttr c synNm True
+                   sourceVert = findWithErr2 sourceAttr @loc.altAttrs
+                   mergedVert = findWithErr2 mergedAttr @loc.altAttrs
+             ]
+
 
 -- Around dependencies
 --
@@ -412,10 +458,14 @@ ATTR Expression [ nt,con   :{Identifier}
                   allRhsVars : {Set (Identifier,Identifier)}
                 ]
 
+-- appendum: filter out the syn attrs of merged children in the input attr list.
+--           add the merged children to the used attr list
 SEM Expression
   | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
-                            = let inherited = Inh_HsTokensRoot
-                                              { attrs_Inh_HsTokensRoot      = @lhs.attrs
+                            = let mergedChildren = [ x | (_,xs) <- Map.elems @lhs.mergeMap, x <- xs ]
+                                  attrsIn = filter (\(fld,_) -> not (fld `elem` mergedChildren)) @lhs.attrs
+                                  inherited = Inh_HsTokensRoot
+                                              { attrs_Inh_HsTokensRoot      = attrsIn
                                               , con_Inh_HsTokensRoot        = @lhs.con
                                               , allfields_Inh_HsTokensRoot  = @lhs.allfields
                                               , allnts_Inh_HsTokensRoot     = @lhs.allnts
@@ -429,13 +479,18 @@ SEM Expression
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
                                     , usedFields_Syn_HsTokensRoot = usedFields
-                                    }  -> (errors,textLines,usedAttrs,usedLocals,usedFields)
+                                    }  -> let extraAttrs = [ (src,attr)
+                                                           | (fld,attr) <- usedAttrs, let mbMerged = Map.lookup fld @lhs.mergeMap, isJust mbMerged
+                                                           , let (Just (_, srcs)) = mbMerged, src <- srcs ]
+                                              usedAttrs' = usedAttrs ++ extraAttrs
+                                          in (errors,textLines,usedAttrs',usedLocals,usedFields)
 
                 lhs.allRhsVars = Set.fromList @loc.usedAttrs
                                  `Set.union`
                                  Set.fromList [ (_LOC, l) | l <- @loc.usedLocals]
                                  `Set.union`
                                  Set.fromList [ (_FIELD, fld) | fld <- @loc.usedFields]
+
 
 -------------------------------------
 -- NT-Attributes
@@ -495,6 +550,7 @@ SEM Grammar
             loc.directDep = toList (@nonts.directDep Seq.>< @nonts.additionalDep)
             loc.instDep   = toList @nonts.instDep
             loc.aroundDep = toList @nonts.aroundDep
+            loc.mergeDep  = toList @nonts.mergeDep
             loc.info      = let def [] = -1
                                 def (v:vs) = v
                              in Info { tdsToTdp   = Array.array (0,@nonts.acount-1) @tdsToTdp
@@ -507,7 +563,7 @@ SEM Grammar
                                      }
 
             loc.(cInterfaceMap,cVisitsMap,cyclesErrors) =
-                              case computeSequential @info @directDep (@instDep ++ @aroundDep) of
+                              case computeSequential @info @directDep (@instDep ++ @aroundDep ++ @loc.mergeDep) of
                                            CycleFree    cim cvm   -> ( cim
                                                                      , cvm
                                                                      , []
@@ -560,7 +616,7 @@ SEM Child
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
-  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap @loc.aroundMap
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap @loc.aroundMap @loc.mergeMap @loc.o_dovisit
 SEM  Nonterminals [ | | cNonterminals : CNonterminals ]
   |  Cons  lhs.cNonterminals = @hd.cNonterminal : @tl.cNonterminals
   |  Nil   lhs.cNonterminals = []
@@ -574,6 +630,7 @@ SEM  Production [ | | cProduction : CProduction ]
 
 SEM Grammar
   | Grammar  loc.aroundMap = Map.map (Map.map Map.keysSet) @aroundsMap
+             loc.mergeMap  = Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) @mergeMap
 
 -- Collect terminals
 ATTR Children Child  [ | | terminals USE {++} {[]} : {[Identifier]} ]

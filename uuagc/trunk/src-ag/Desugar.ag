@@ -299,3 +299,4 @@ SEM Grammar
                            @uniqueMap
                            @nonts.augmentsOut
                            @aroundsMap
+                           @mergeMap

@@ -15,6 +15,8 @@ DATA  CGrammar
                 paramMap  : {ParamMap}
                 contextMap: {ContextMap}
                 aroundsMap: {Map NontermIdent (Map ConstructorIdent (Set Identifier))}
+                mergeMap  : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))}
+                multivisit : {Bool}
 
 TYPE CNonterminals = [CNonterminal]
 

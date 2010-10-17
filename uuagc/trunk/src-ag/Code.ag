@@ -18,6 +18,7 @@ TYPE Types    = [Type]
 TYPE NamedTypes = [NamedType]
 
 DATA Program  | Program          chunks : Chunks
+                                 ordered : Bool
 
 DATA Chunk    | Chunk            name         : String
                                  comment      : Decl
@@ -52,6 +53,18 @@ DATA Expr     | Let              decls : Decls
               | LineExpr         expr  : Expr
               | TypedExpr        expr  : Expr
                                  tp    : Type
+              | ResultExpr       nt    : String
+                                 expr  : Expr
+              | InvokeExpr       nt    : String
+                                 expr  : Expr
+                                 args  : Exprs
+              | ResumeExpr       nt    : String
+                                 expr  : Expr
+                                 left  : Lhs
+                                 rhs   : Expr
+              | SemFun           nt    : {String}
+                                 args  : Exprs
+                                 body  : Expr
 
 DATA CaseAlt  | CaseAlt          left  : Lhs
                                  expr  : Expr
@@ -80,6 +93,14 @@ DATA Decl     | Decl             left  : Lhs
                                  tp    : Type
               | Comment          txt   : {String}
               | PragmaDecl       txt   : {String}
+
+              | Resume           monadic : {Bool}
+                                 nt    : String
+                                 left  : Lhs
+                                 rhs   : Expr
+              | EvalDecl         nt    : String
+                                 left  : Lhs
+                                 rhs   : Expr
 
 DATA DataAlt  | DataAlt          name  : {String} 
                                  args  : Types

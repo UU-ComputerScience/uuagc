@@ -220,6 +220,7 @@ parseFile opts searchPath file
           <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pIdentifier <* pAssign <*> pExpr
           <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr
           <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
+          <|> (\sources target nt expr -> [MergeDef target nt sources expr]) <$ pMERGE <*> (pList1_ng pIdentifier <* pAS <|> pSucceed []) <*> pIdentifier <* pTypeColon <*> pIdentifierU <* pAssign <*> pExpr
           <|> (\mbNm pat (owrt,pos) exp -> [Def pos mbNm (pat ()) exp owrt]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
@@ -435,7 +436,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -480,3 +481,5 @@ pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
 pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
 pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
 pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"
+pMERGE       = pCostReserved 5  "MERGE" <?> "MERGE"
+pAS          = pCostReserved 5  "AS" <?> "AS"

@@ -54,6 +54,9 @@ ATTR Exprs DataAlts Types NamedTypes Decls Chunk Chunks [ nested:{Bool} | | pps 
 
 ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
 
+SEM Program | Program
+  loc.options = @lhs.options { breadthFirst = breadthFirst @lhs.options && visit @lhs.options && cases @lhs.options && @ordered }
+
 SEM Program
   | Program chunks.nested = nest @lhs.options 
 
@@ -112,7 +115,7 @@ SEM Decl
                                      >-< if null @derivings
                                             then empty
                                             else "deriving" >#< ppTuple False (map text @derivings)  
-                                  )                                            
+                                  )
   | NewType    lhs.pp      = "newtype" >#< hv_sp (@name : @params) >#< "=" >#< @con >#< pp_parens @tp.pp
   | Type       lhs.pp      = "type" >#< hv_sp (@name : @params) >#< "=" >#<  @tp.pp
   | TSig       lhs.pp      = @name >#< "::" >#< @tp.pp
@@ -120,6 +123,15 @@ SEM Decl
                                then "{-" >-< vlist (lines @txt) >-< "-}"
                                else "--" >#< @txt
   | PragmaDecl lhs.pp      = "{-#" >#< text @txt >#< "#-}"
+  | Resume     lhs.pp      = if @monadic
+                             then @left.pp >#< "<-" >#< @rhs.pp
+                             else @left.pp >#< "=" >-< indent 4 @rhs.pp
+  | EvalDecl   lhs.pp      = if breadthFirst @lhs.options
+                             then @left.pp >#< "=" >#< "case" >#< "lazyEval" >#< pp_parens @rhs.pp >#< "of"
+                                  >-< indent 4 (
+                                    pp_parens (@nt >|< "_Syn" >#< "_val") >#< "-> _val"
+                                  )
+                             else @left.pp >#< "=" >#< @rhs.pp
 
 SEM Expr
   | Let        lhs.pp      = pp_parens (    "let" >#< (vlist @decls.pps)
@@ -161,6 +173,42 @@ SEM Expr
                              in pp_parens (pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc)
   | LineExpr   lhs.pp      = @expr.pp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show @lhs.outputfile >#< "#-}"
   | TypedExpr  lhs.pp      = pp_parens (@expr.pp >#< "::" >#< @tp.pp)
+  | ResultExpr lhs.pp      = if breadthFirst @lhs.options
+                             then "final" >#<
+                                  pp_parens (@nt >|< "_Syn" >#< pp_parens @expr.pp)
+                             else @expr.pp
+  | InvokeExpr lhs.pp      = if breadthFirst @lhs.options
+                             then "invoke" >#< pp_parens @expr.pp >#< pp_parens (
+                                   @nt >|< "_Inh" >#< pp_parens (ppTuple False @args.pps))
+                             else @expr.pp >#< hv_sp @args.pps
+  | ResumeExpr lhs.pp      = if breadthFirst @lhs.options
+                             then pp_parens ("resume" >#< pp_parens @expr.pp
+                                            >-< indent 2 (pp_parens ( "\\" >|< 
+                                                  pp_parens ("~" >|< pp_parens (@nt >|< "_Syn" >#< "_inh_arg"))
+                                                    >#< "->"
+                                            >-< indent 2 ( "let" >#< @left.pp >#< "= _inh_arg"
+                                            >-< indent 2 ("in" >#< @rhs.pp)
+                                            ))))
+                             else pp_parens ( "case" >#< pp_parens @expr.pp >#< "of"
+                                            >-< ("{" >#< @left.pp >#< "->")
+                                            >-< indent 4 (@rhs.pp >#< "}")
+                                            )
+  | SemFun     loc.strictParams = if strictSems @lhs.options
+                                  then @args.pps
+                                  else []
+               loc.addBang = if bangpats @lhs.options
+                             then \p -> pp_parens ("!" >|< p)
+                             else id
+               lhs.pp      = if breadthFirst @lhs.options
+                             then "Child" >#< pp_parens ( "\\" >|<
+                                      pp_parens (@nt >|< "_Inh" >#<
+                                        ppTuple False (map @loc.addBang @args.pps)) >#< "->"
+                                  >-< indent 2 (@loc.strictParams `ppMultiSeqV` @body.pp))
+                             else if null @args.pps
+                                  then @body.pp
+                                  else pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->" 
+                                                 >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
+                                                 )
 
 SEM CaseAlt
   | CaseAlt    lhs.pps     = ["{" >#< @left.pp >#< "->", @expr.pp >#< "}"]
@@ -356,6 +404,8 @@ SEM Expr
       decls.isDeclOfLet = True
   | Do
       stmts.isDeclOfLet = False
+  | ResumeExpr
+      left.isDeclOfLet = False
 
 SEM CaseAlt
   | CaseAlt
