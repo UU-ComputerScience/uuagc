@@ -30,6 +30,8 @@ import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Maybe(fromJust,isJust)
+
+import Debug.Trace
 }
 
 
@@ -45,6 +47,7 @@ ATTR CNonterminals CNonterminal
        [ o_unbox,o_sig,o_sem,o_newtypes,o_case,o_pretty,o_rename,o_cata,o_strictwrap,o_splitsems,o_traces,o_costcentre,o_linePragmas,o_monadic : Bool
          o_data : {Maybe Bool}
          prefix : String
+         options : Options
        | | ]
 SEM CGrammar [ options : Options | | ]
   | CGrammar    nonts.o_sig         = typeSigs       @lhs.options
@@ -63,6 +66,9 @@ SEM CGrammar [ options : Options | | ]
                      .o_costcentre  = genCostCentres @lhs.options
                      .o_linePragmas = genLinePragmas @lhs.options
                      .o_monadic     = monadic        @lhs.options
+
+SEM CGrammar | CGrammar
+  loc.options = @lhs.options { breadthFirst = breadthFirst @lhs.options && visit @lhs.options && cases @lhs.options && @multivisit }
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ allPragmas : PragmaMap | | ]
 
@@ -130,6 +136,11 @@ SEM CNonterminal
   | CNonterminal
       lhs.gathNts = Set.singleton @nt
 
+-- keep track of which children have had their first visit
+ATTR CVisits CVisit Sequence CRule [ | visitedSet : {Set Identifier} | ]
+SEM CProduction | CProduction  visits.visitedSet = Set.empty
+SEM CRule | CChildVisit  loc.visitedSet = Set.insert @name @lhs.visitedSet
+
 -------------------------------------------------------------------------------
 -- Generating declarations from the sequence. We generate the origin
 -- comment if pretty printing is requested. A childvisit takes inherited
@@ -192,19 +203,39 @@ SEM  CRule
                                              ++ if @isLast then [] else [unwrap ++ funname @name (@nr+1)]
                                   rhsVars = map (attrname False @name) (Map.keys @inh)
                                   unwrap = if @lhs.o_newtypes then typeName @nt (@nr + 1) ++ " " else ""
-                                  tuple = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
-                                  rhs = @loc.addCostCentre $ App fun (map SimpleExpr rhsVars)
+                                  tuple | isMerging = TupleLhs [locname @name ++ "_comp"]
+                                        | otherwise = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
+                                  rhs = @loc.addCostCentre $ Code.InvokeExpr (typeName @nt @nr) (SimpleExpr fun) (map SimpleExpr rhsVars)
                                   isVirtual _ [] = False
                                   isVirtual nm ((n,t,mb) : r)
                                     | nm == n   = isJust mb
                                     | otherwise = isVirtual nm r
+                                  isMerged = @name `Map.member` @lhs.mergeMap
+                                  isMerging = @name `elem` concatMap (\(_,cs) -> cs) (Map.elems @lhs.mergeMap)
+                                  merges = [ (c,cs) | (c,(_,cs)) <- Map.assocs @lhs.mergeMap, all (`Set.member` @loc.visitedSet) cs, @name `elem` (c:cs) ]
+
                                   baseNm = if @nr == 0 && isVirtual @name @lhs.children
                                            then Ident (getName @name ++ "_inst") (getPos @name)
                                            else @name
                                   fun | @nr == 0 && Set.member @name @lhs.aroundMap
                                                   = locname @name ++ "_around " ++ funname baseNm 0
                                       | otherwise = funname baseNm @nr
-                             in [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname baseNm @nr : rhsVars))]
+                                  outDecls | isMerged  = []  -- merged variant is only produced after the last visit of the merged children
+                                           | otherwise = -- [mkDecl @lhs.o_monadic tuple rhs (Set.fromList lhsVars) (Set.fromList (funname baseNm @nr : rhsVars))]
+                                                         if isMerging
+                                                         then [mkDecl @lhs.o_monadic tuple rhs Set.empty Set.empty]
+                                                         else [Resume @lhs.o_monadic (typeName @nt @nr) tuple rhs]
+                                  outMerged | null merges || @nr /= 0 = []  -- no merged child to produce
+                                            | otherwise = let (c,cs) = head merges
+                                                              tuple' = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars'
+                                                              lhsVars' = map (attrname True c) (Map.keys @syn)
+                                                                         ++ if @isLast then [] else [unwrap ++ funname c (@nr+1)]
+                                                              rhsVars = [ locname c ++ "_comp" | c <- cs ]
+                                                              fun     = locname c ++ "_merge"
+                                                              rhs' = App fun (map SimpleExpr rhsVars)
+                                                          in [Resume @lhs.o_monadic (typeName @nt @nr) tuple' rhs']
+                             in -- trace (show @name ++ " # " ++ show @loc.visitedSet ++ " # " ++ show (Map.assocs @lhs.mergeMap) ++ " # " ++ show merges ++ " # " ++ show @nr ++ " # " ++ show (length outMerged)) $
+                                (outDecls ++ outMerged)
 
 {
 mkDecl True  lhs rhs _ _   = Bind lhs rhs
@@ -451,11 +482,12 @@ SEM  CVisit
                                        | otherwise        = Just . idEvalType
 
                               rhs = wrap
-                                  . mkLambda [mkLambdaArg (lhsname True nm) (mbEvalTp $ typeToCodeType (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
+                                  . mkSemFun @lhs.nt @lhs.nr [mkLambdaArg (lhsname True nm) (mbEvalTp $ typeToCodeType (Just @lhs.nt) @loc.params tp) | (nm,tp) <- Map.assocs @inh]
                                   $ @loc.addCostCentre
                                   $ if @ordered && @loc.o_splitsems
                                     then @loc.blockFirstFunCall
                                     else mkDecls @loc.declsType @decls
+                                         . ResultExpr (typeName @lhs.nt @lhs.nr)
                                          . mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh)
                                          $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes
@@ -503,6 +535,9 @@ mkLambda :: Exprs -> Expr -> Expr
 mkLambda [] e = e
 mkLambda xs e = Lambda xs e
 
+mkSemFun :: Identifier -> Int -> Exprs -> Expr -> Expr
+mkSemFun nt nr xs e = SemFun (typeName nt nr) xs e
+
 typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
 
 isHigherOrder :: Maybe (Maybe Type) -> Bool
@@ -539,6 +574,22 @@ ATTR CVisits CVisit Sequence CRule [ aroundMap : {Set Identifier} | | ]
 SEM CGrammar | CGrammar          loc.aroundMap = @aroundsMap
 SEM CNonterminal | CNonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
 SEM CProduction | CProduction    loc.aroundMap = Map.findWithDefault Set.empty @con @lhs.aroundMap
+
+-------------------------------------------------------------------------------
+-- Push mergeMap downward
+-------------------------------------------------------------------------------
+
+ATTR CNonterminals CNonterminal
+  [ mergeMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier])))} || ]
+
+ATTR CProductions CProduction
+  [ mergeMap : {Map ConstructorIdent (Map Identifier (Identifier, [Identifier]))} || ]
+
+ATTR CVisits CVisit Sequence CRule [ mergeMap : {Map Identifier (Identifier, [Identifier])} | | ]
+
+SEM CGrammar | CGrammar          loc.mergeMap = @mergeMap
+SEM CNonterminal | CNonterminal  loc.mergeMap = Map.findWithDefault Map.empty @nt @lhs.mergeMap
+SEM CProduction | CProduction    loc.mergeMap = Map.findWithDefault Map.empty @con @lhs.mergeMap
 
 -------------------------------------------------------------------------------
 -- Generate a partitioned version of the sequence of rules
@@ -653,19 +704,34 @@ SEM  CInterface
   |  CInterface  lhs.semDom = Comment "semantic domain" : @seg.semDom
 
 SEM  CSegment
-  |  CSegment loc.tp = foldr Arr @loc.synTps @loc.inhTps
+  |  CSegment loc.altSemForm = breadthFirst @lhs.options
+              loc.tp = if @loc.altSemForm
+                       then TypeApp (SimpleType "Child") [SimpleType "EvalInfo", @loc.indexExpr ]
+                       else foldr Arr @loc.synTps @loc.inhTps
               loc.inhTps = [typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @inh]
+              loc.inhTup = mkTupleType @lhs.o_unbox (null @loc.inhTps) @loc.inhTps
               loc.synTps = mkTupleType @lhs.o_unbox (null @loc.inhTps) ([typeToCodeType (Just @lhs.nt) @loc.params tp |  tp <- Map.elems @syn] ++ @loc.continuation)
+              loc.curTypeName  = typeName @lhs.nt @lhs.nr
+              loc.nextTypeName = typeName @lhs.nt (@lhs.nr + 1)
+              loc.indexName    = "I_" ++ @loc.curTypeName
+              loc.dataIndex = Code.Data @loc.indexName @loc.params [DataAlt @loc.indexName []] False []
+              loc.indexExpr = TypeApp (SimpleType @loc.indexName) (map (SimpleType . ('@':)) @loc.params)
+              loc.indexStr  = "(" ++ @loc.indexName ++ concatMap (\p -> " " ++ p) @loc.params ++ ")"
+              loc.inhInstance = Code.Data "instance Inh" [@loc.indexStr] [DataAlt (typeName @lhs.nt @lhs.nr ++ "_Inh") [@loc.inhTup] ] False []
+              loc.synInstance = Code.Data "instance Syn" [@loc.indexStr] [DataAlt (typeName @lhs.nt @lhs.nr ++ "_Syn") [@loc.synTps] ] False []
               loc.continuation = if  @lhs.isLast
                                  then []
-                                 else [TypeApp (SimpleType (typeName @lhs.nt (@lhs.nr + 1))) (map (SimpleType . ('@':)) @loc.params)]
+                                 else [TypeApp (SimpleType @loc.nextTypeName) (map (SimpleType . ('@':)) @loc.params)]
               loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
               lhs.semDom = let name = typeName @lhs.nt @lhs.nr
                                evalTp | null @loc.params = id
                                       | otherwise        = idEvalType
-                           in if @lhs.o_newtypes
-                              then [ Code.NewType name @loc.params name (evalTp @loc.tp) ]
-                              else [ Code.Type name @loc.params (evalTp @loc.tp) ]
+                           in ( if @lhs.o_newtypes
+                                then [ Code.NewType name @loc.params name (evalTp @loc.tp) ]
+                                else [ Code.Type name @loc.params (evalTp @loc.tp) ] )
+                              ++ ( if @loc.altSemForm
+                                   then [@loc.dataIndex, @loc.inhInstance, @loc.synInstance]
+                                   else [] )
 
 ATTR CNonterminals CNonterminal CInterface CSegments CSegment [ | | semDomUnfoldGath USE {`Map.union`} {Map.empty} : {Map (NontermIdent, Int) ([String], Code.Type)} ]
 
@@ -760,10 +826,12 @@ SEM  CSegment
                                    rhsVars = map (lhsname True) (Map.keys @inh)
                                    rhs = map SimpleExpr rhsVars
                                    unwrap = if @lhs.o_newtypes then typeName @lhs.nt (@lhs.nr + 1) ++ " " else ""
-                                   var = "sem"
+                                   var   = "sem"
                                    sem 0 = var
                                    sem n = var ++ "_" ++ show n
-                               in [ Decl (mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars) (App (sem @lhs.nr) rhs) (Set.fromList lhsVars) (Set.fromList rhsVars) ]
+                                   ntt   = typeName @lhs.nt @lhs.nr
+                               in [ EvalDecl ntt (mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars) (InvokeExpr ntt (SimpleExpr $ sem @lhs.nr) rhs) ]
+                                  -- [ Decl (mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars) (App (sem @lhs.nr) rhs) (Set.fromList lhsVars) (Set.fromList rhsVars) ]
 
 -------------------------------------------------------------------------------
 -- Errors for missing type signatures. It's an error when one of the
@@ -844,7 +912,7 @@ ATTR CProductions CProduction  [ | | decls USE {++} {[]} : {Decls} ]
 ATTR CGrammar [ | | output : Program ]
 
 SEM CGrammar
-  | CGrammar    lhs.output = Program @nonts.chunks
+  | CGrammar    lhs.output = Program @nonts.chunks @multivisit
 
 SEM CNonterminal
   | CNonterminal  lhs.chunks = [ Chunk (getName @nt)
@@ -876,8 +944,9 @@ mkLet False decls body = Let decls body
 mkLet True decls body = foldr oneCase body decls
 
 oneCase :: Decl -> Expr -> Expr
-oneCase (Decl left rhs _ _) exp = Case rhs [CaseAlt left exp]
-oneCase _                   exp = exp
+oneCase (Decl left rhs _ _)      exp = Case rhs [CaseAlt left exp]
+oneCase (Resume _ nt left rhs)   exp = ResumeExpr nt rhs left exp
+oneCase _                        exp = exp
 
 -- Gives the name of the visit function
 funname field 0  = show field ++ "_"

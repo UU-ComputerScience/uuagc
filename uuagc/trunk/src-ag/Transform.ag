@@ -65,6 +65,7 @@ SEM AG
                                      @loc.checkedUniques
                                      @loc.checkedAugments
                                      @loc.checkedArounds
+                                     @loc.checkedMerges
 
 
 -------------------------------------------------------------------------------
@@ -143,6 +144,7 @@ ATTR Elems Elem Attrs
 {type UniqueInfo = (Identifier,Identifier) }
 {type AugmentInfo = (Identifier,Expression)}
 {type AroundInfo  = (Identifier,Expression)}
+{type MergeInfo   = (Identifier, Identifier, [Identifier], Expression)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -151,6 +153,7 @@ ATTR Elem Elems SemAlt SemAlts
              collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
              collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
              collectedArounds  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AroundInfo])  ]}
+             collectedMerges   USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [MergeInfo])   ]}
      ]
 
 
@@ -264,17 +267,20 @@ SEM AG
                            in foldr f Map.empty @elems.collectedAugments
          loc.allArounds  =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                             in foldr f Map.empty @elems.collectedArounds
+         loc.allMerges   =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                             in foldr f Map.empty @elems.collectedMerges
          
          loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
 
-         loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs)) @loc.allRules
+         loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs @loc.allMerges)) @loc.allRules
          loc.allNamesErrs   = Map.mapWithKey (Map.mapWithKey . checkRuleNames) @loc.allRules
          loc.allSigsErrs    = Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) @loc.allSigs
          loc.allInstsErrs   = Map.mapWithKey (Map.mapWithKey . (checkInsts @loc.allNonterminals @loc.allSigs @allFields   )) @loc.allInsts
          loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
          loc.allAroundsErrs = Map.mapWithKey (Map.mapWithKey . (checkArounds @loc.allFields)) @loc.allArounds
+         loc.allMergesErrs  = Map.mapWithKey (Map.mapWithKey . (checkMerges @loc.allNonterminals @loc.allInsts @loc.allFields)) @loc.allMerges
 
          loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
@@ -283,6 +289,7 @@ SEM AG
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
          loc.checkedArounds  = Map.map (Map.map fst) @loc.allAroundsErrs
          loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.checkedInsts @loc.allAttrDecls)) @loc.checkedUniques)
+         loc.checkedMerges   = Map.map (Map.map fst) @loc.allMergesErrs
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
                            in  Seq.fromList . f . map fst $ @elems.typeSyns  -- forbid duplicate type synonyms
@@ -315,8 +322,11 @@ SEM AG
 
          loc.errs10      =  let  f m s = Map.fold ((><)) s m
                             in Map.fold f Seq.empty @loc.allNamesErrs
+         
+         loc.errs11      =  let f m s = Map.fold ((><) . snd) s m
+                            in Map.fold f Seq.empty @loc.allMergesErrs
 
-         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10 >< @errs11
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -325,18 +335,21 @@ type InstsAndErrors = ([(Identifier, Type)], Seq Error)
 type UniquesAndErrors = (Map Identifier Identifier, Seq Error)
 type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
 type AroundsAndErrors = (Map Identifier [Expression], Seq Error)
+type MergesAndErrors  = (Map Identifier (Identifier, [Identifier], Expression), Seq Error)
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
 checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
+              Map NontermIdent (Map ConstructorIdent [MergeInfo]) ->
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
-checkRules attributes fields allinsts allsigs nt con rs
+checkRules attributes fields allinsts allsigs allmerges nt con rs
   = let fieldmap :: FieldMap
         fieldmap = (_LHS,NT nt undefined) : (_LOC,NT undefined undefined) : (_INST, NT undefined undefined) : (_FIRST, NT undefined undefined) : (_LAST, NT undefined undefined)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
                  ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
+                 --   merged children are not allowed to have any inherited attrs defined: do not include
         
         sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allsigs)
 
@@ -447,6 +460,24 @@ checkArounds fieldMap nt con arounds
                    _             -> (as, ((Seq.<|)) (UndefChild nt con ident) errs)
         fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
     in foldr checkAround (Map.empty, Seq.empty) arounds
+
+checkMerges :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [MergeInfo] -> MergesAndErrors
+checkMerges allNts allInsts fieldMap nt con merges
+  = let checkMerge (target,nt,sources,expr) (m,errs)
+          = let fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
+                insts  = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
+                allFields = insts ++ map fst fields   -- note: sources of merge may not contain a target (for simplicity)
+            in if target `Map.member` m   -- check for duplicate with self
+               then (m, DupChild nt con target (fst $ Map.elemAt (Map.findIndex target m) m) Seq.<| errs)
+               else if target `elem` allFields
+                     then (m, DupChild nt con target (head $ filter (== target) allFields) Seq.<| errs)
+                     else let missing = filter (\s -> not (s `elem` allFields)) sources
+                          in if null missing
+                             then if nt `Set.member` allNts   -- check if the nonterm is defined
+                                  then (Map.insert target (nt, sources, expr) m, errs) -- all ok..
+                                  else (m, UndefNont nt Seq.<| errs)
+                             else (m, (Seq.fromList $ map (UndefChild nt con) missing) Seq.>< errs)
+    in foldr checkMerge (Map.empty, Seq.empty) merges
 
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 }
@@ -896,6 +927,7 @@ ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
                           uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
                           aroundInfos  USE {++} {[]} : {[AroundInfo]}
+                          mergeInfos   USE {++} {[]} : {[MergeInfo]}
                     ]
 
 
@@ -948,6 +980,12 @@ SEM SemAlt
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
+           
+           lhs.collectedMerges
+             =         [ (nt, con, @rules.mergeInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
 
 SEM SemDef
   | Def  lhs.ruleInfos = [ (@mbName, @pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
@@ -963,6 +1001,9 @@ SEM SemDef
 
 SEM SemDef
   | AroundDef   lhs.aroundInfos = [ (@ident, @rhs) ]
+
+SEM SemDef
+  | MergeDef    lhs.mergeInfos = [ (@target, @nt, @sources, @rhs) ]
 
 
 ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
@@ -1030,9 +1071,10 @@ constructGrammar ::    Set NontermIdent
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
+                    -> Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap mergeMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1040,13 +1082,15 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                              tsmap     = Map.findWithDefault Map.empty             nt tsigs
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              params    = Map.findWithDefault []                    nt ntParams
+                             mergemap  = Map.findWithDefault Map.empty             nt mergeMap
                              alt (con,flds) =
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
+                                       merges = [ (n, NT t []) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
 
                                        -- important: keep order of children
-                                       cldrn = map child (flds ++ filter (not . existsAsField) insts)
+                                       cldrn = map child (flds ++ filter (not . existsAsField) insts ++ merges)
                                        child (nm, tp) =
                                           let tpI = if existsAsInst nm
                                                     then fromJust $ lookup nm insts
@@ -1059,13 +1103,16 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                                      then case lookup nm flds of
                                                             Just tp' -> Just (Just tp')
                                                             Nothing  -> Just Nothing
-                                                     else Nothing
+                                                     else if existsAsMerge nm
+                                                          then (Just Nothing)
+                                                          else Nothing
                                           in Child nm tpI inh syn virt
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
+                                       existsAsMerge nm = maybe False (const True) (lookup nm merges)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap mergeMap
 }
 
 {

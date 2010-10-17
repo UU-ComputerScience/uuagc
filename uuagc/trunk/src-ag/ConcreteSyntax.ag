@@ -90,6 +90,10 @@ DATA SemDef    | Def    pos    : Pos
                             rhs   : {Expression}
                | AroundDef ident : {Identifier}
                            rhs    : {Expression}
+               | MergeDef  target  : {Identifier}
+                           nt      : {Identifier}
+                           sources : {[Identifier]}
+                           rhs     : {Expression}
                | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {[Occurrence]}
                                   after  : {[Occurrence]}

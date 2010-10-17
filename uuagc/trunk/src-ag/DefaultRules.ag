@@ -153,7 +153,9 @@ SEM Nonterminal
 
 SEM Child [ | | name:{Identifier} inherited,synthesized:{Attributes} ]
   | Child lhs.inherited = @inh
-          lhs.synthesized = @syn
+          lhs.synthesized = if @name `Set.member` @lhs.merged
+                            then Map.empty
+                            else @syn
           
 SEM Children [ | | inputs,outputs:{[(Identifier, Attributes)]} ]
   | Cons lhs.inputs  = (@hd.name, @hd.inherited) : @tl.inputs
@@ -445,6 +447,13 @@ addArounds (child, exprs) rules
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
     funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "around function" False) funNames exprs
+
+addMerges :: (Identifier, (Identifier,[Identifier],Expression)) -> [Rule] -> [Rule]
+addMerges (target,(_,_,expr)) rules
+  = rule : rules
+  where
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) expr False "merge rule" False
+    childLoc = Ident (show target ++ "_merge") (getPos target)
 }
    
    
@@ -495,7 +504,8 @@ SEM Production
   | Production
       loc.extra1 = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
       loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
-      lhs.output = Production @con @children.output @loc.extra2 @typeSigs.output
+      loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
+      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
@@ -646,3 +656,12 @@ ATTR Productions Production [ aroundsIn : {Map ConstructorIdent (Map Identifier 
 SEM Grammar     | Grammar      nonts.aroundsIn = @aroundsMap
 SEM Nonterminal | Nonterminal  loc.aroundsIn   = Map.findWithDefault Map.empty @nt @lhs.aroundsIn
 SEM Production  | Production   loc.aroundsIn   = Map.findWithDefault Map.empty @con @lhs.aroundsIn
+
+ATTR Nonterminals Nonterminal [ mergesIn : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))} | | ]
+ATTR Productions Production [ mergesIn : {Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))} | | ]
+ATTR Children Child [ merged : {Set Identifier} | | ]
+
+SEM Grammar     | Grammar      nonts.mergesIn = @mergeMap
+SEM Nonterminal | Nonterminal  loc.mergesIn   = Map.findWithDefault Map.empty @nt @lhs.mergesIn
+SEM Production  | Production   loc.mergesIn   = Map.findWithDefault Map.empty @con @lhs.mergesIn
+                               loc.merged     = Set.fromList [ c | (_,cs,_) <- Map.elems @loc.mergesIn, c <- cs ]

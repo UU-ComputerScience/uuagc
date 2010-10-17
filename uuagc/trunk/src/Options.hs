@@ -58,6 +58,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option ['H']     ["haskellsyntax"]   (NoArg haskellSyntaxOpt) "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
                , Option []        ["monadic"]         (NoArg monadicOpt) "Experimental: generate monadic code"
                , Option []        ["ocaml"]           (NoArg ocamlOpt) "Experimental: generate Ocaml code"
+               , Option []        ["breadthfirst"]      (NoArg breadthfirstOpt) "Experimental: generate breadth-first code"
                , Option []        ["visitcode"]        (NoArg visitorsOutputOpt) "Experimental: generate visitors code"
                , Option []        ["statistics"]      (ReqArg statisticsOpt "FILE to append to") "Append statistics to FILE"
                ]
@@ -117,6 +118,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , ocaml :: Bool
                       , visitorsOutput :: Bool
                       , statsFile :: Maybe String
+                      , breadthFirst :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -171,6 +173,7 @@ noOptions = Options { moduleName    = NoName
                     , ocaml           = False
                     , visitorsOutput  = False
                     , statsFile       = Nothing
+                    , breadthFirst     = False
                     }
 
 
@@ -226,6 +229,7 @@ monadicOpt opts = opts { monadic = True }
 ocamlOpt opts = opts { ocaml = True }
 visitorsOutputOpt opts = opts { visitorsOutput = True }
 statisticsOpt nm opts = opts { statsFile = Just nm }
+breadthfirstOpt opts = opts { breadthFirst = True }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

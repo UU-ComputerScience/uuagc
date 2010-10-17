@@ -1,0 +1,80 @@
+MODULE {TestOkMerge} {} {}
+
+optpragmas
+{
+{-# LANGUAGE TypeFamilies #-}
+}
+
+imports
+{
+import Data.BreadthFirstCata.Cata
+import Data.Map
+}
+
+{
+type Env = Map String Bool
+}
+
+DATA Root
+  | Root  prop : Prop
+
+DATA Prop
+  | Con  bool  : Bool            -- constants |True| and |False|
+  | Ext  fun   : {Env -> Prop}   -- external function
+  | Let  nm    : String          -- binding a (non-recursive)
+         expr  : Prop            -- name to a prop
+         body  : Prop
+  | And  left  : Prop            -- the logical and of two props
+         right : Prop
+  | Or   left  : Prop            -- the logical or of two props
+         right : Prop
+
+ATTR Root Prop [ env : Env | | outcome : Bool ]
+
+SEM Prop
+  | Con  loc.effect = if @bool then Work else Fail
+         lhs.outcome = @result.outcome
+  | Ext  inst.k : Prop
+         inst.k = @fun @lhs.env         
+  | Let  body.env    = insert @nm @expr.outcome @lhs.env
+  | And  lhs.outcome = @left.outcome && @right.outcome
+  | Or   lhs.outcome = @result.outcome
+
+{
+var :: String -> Prop
+var nm = Prop_Ext (\env -> Prop_Con (findWithDefault (error "not found") nm env))
+}
+
+SEM Prop
+  | Con MERGE result : Prop = info @loc.effect $ final $ T_Prop_Syn @bool
+  | Or  MERGE left right AS result : Prop = best
+
+
+{
+data EvalInfo = Fail | Work
+
+best :: Comp EvalInfo t -> Comp EvalInfo t -> Comp EvalInfo t
+best l r = best' (oneStep l) (oneStep r)
+
+best' :: Outcome EvalInfo t -> Outcome EvalInfo t -> Comp EvalInfo t
+best' (Fin l) _ = final l
+best' _ (Fin r) = final r
+best' (Step Fail _) (Step i r) = info i r
+best' (Step i l) (Step Fail _) = info i l
+best' (Step Work l) (Step Work r) = info Work (best l r)
+}
+
+
+WRAPPER Root
+
+{
+main :: IO ()
+main = putStrLn (show res)
+  where
+    tree = Root_Root $ Prop_Or (Prop_And big $ var "f") (var "f")
+    big  = Prop_And (var "t") big
+    inh = Inh_Root { env_Inh_Root = fromList [ ("t", True), ("f", False) ] }
+    sem = sem_Root tree
+    syn = wrap_Root sem inh
+    res = outcome_Syn_Root syn
+}
