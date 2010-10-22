@@ -22,7 +22,7 @@ import UU.Scanner.TokenShow()
 import System.Directory
 import HsTokenScanner
 import Options
-
+import Control.Applicative(pure)
 
 type AGParser = AnaParser Input  Pair Token Pos
 
@@ -221,6 +221,16 @@ parseFile opts searchPath file
           <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr
           <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
           <|> (\mbNm pat (owrt,pos) exp -> [Def pos mbNm (pat ()) exp owrt]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
+          <|> pure <$> (pFP *> pFPSemAlt)
+
+    pFPSemAlt :: AGParser SemDef
+    pFPSemAlt = FixedPoint  <$> pOBrackPos <*> pFPElem <* pCBrack
+
+    pFPElem :: AGParser [((Identifier,Identifier),Expression)]
+    pFPElem = pListSep pComma pFPElem'
+
+    pFPElem' :: AGParser ((Identifier,Identifier),Expression)
+    pFPElem' = (,) <$> pAttr <* pAssign <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -435,7 +445,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pFP
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -452,6 +462,7 @@ pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pINH         = pCostReserved 90 "INH"     <?> "INH"
 pSYN         = pCostReserved 90 "SYN"     <?> "SYN"
 pCHN         = pCostReserved 90 "CHN"     <?> "CHN"
+pFP          = pCostReserved 5  "FP"      <?> "FP"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
@@ -480,3 +491,4 @@ pMODULE      = pCostReserved 5  "MODULE"  <?> "MODULE"
 pUNIQUEREF   = pCostReserved 5  "UNIQUEREF" <?> "UNIQUEREF"
 pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
 pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"
+

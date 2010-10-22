@@ -26,8 +26,9 @@ import Distribution.Simple.UUAGC.Parser
 import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
                      , StdStream(..), runProcess, waitForProcess
                      , proc)
-
-import System.Directory
+import System.Directory(getModificationTime
+                       ,doesFileExist
+                       ,removeFile)
 import System.FilePath(pathSeparators,
                        (</>),
                        takeFileName,
@@ -44,7 +45,7 @@ import System.IO( openFile, IOMode(..),
                   hGetContents,
                   hFlush,
                   Handle(..), stderr, hPutStr, hPutStrLn)
-
+import System(exitFailure)
 import Control.Exception (throwIO)
 import Control.Monad (liftM, when, guard, forM_, forM)
 import Control.Arrow ((&&&), second)
@@ -119,6 +120,10 @@ tmpFile buildTmp = (buildTmp </>)
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
+updateAGFile :: PackageDescription 
+             -> LocalBuildInfo 
+             -> (FilePath, String)
+             -> IO ()
 updateAGFile pkgDescr lbi (f, sp) = do
   fileOpts <- readFileOptions
   let opts = case lookup f fileOpts of
@@ -135,14 +140,15 @@ updateAGFile pkgDescr lbi (f, sp) = do
     ExitSuccess ->
       do fls <- processContent ppOutput
          let flsC = addSearch sp fls
-         flsmt <- mapM getModificationTime flsC
-         let maxModified = maximum flsmt
-             removeTmpFile f = do
-                 exists <- doesFileExist f
-                 when exists $ do
-                     fmt <- getModificationTime f
-                     when (maxModified > fmt) $ removeFile f
-         withBuildTmpDir pkgDescr lbi $ removeTmpFile . (`tmpFile` f)
+         when ((not.null) flsC) $ do
+            flsmt <- mapM getModificationTime flsC
+            let maxModified = maximum flsmt
+                removeTmpFile f = do
+                                  exists <- doesFileExist f
+                                  when exists $ do
+                                      fmt <- getModificationTime f
+                                      when (maxModified > fmt) $ removeFile f
+            withBuildTmpDir pkgDescr lbi $ removeTmpFile . (`tmpFile` f)
     (ExitFailure exc) ->
       do putErrorInfo ppOutput
          putErrorInfo ppError
@@ -162,7 +168,10 @@ getAGFileOptions :: [(String, String)] -> IO AGFileOptions
 getAGFileOptions extra = do
   usesOptionsFile <- doesFileExist defUUAGCOptions
   if usesOptionsFile
-       then parserAG defUUAGCOptions
+       then do r <- parserAG' defUUAGCOptions
+               case r of
+                 Left e -> print e >> exitFailure
+                 Right a -> return a
        else mapM (parseOptionAG . snd)
             $ filter ((== agModule) . fst) extra
 

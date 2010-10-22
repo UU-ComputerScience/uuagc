@@ -65,9 +65,6 @@ DATA Elem      | Data   pos    : {Pos}
                           name    : {String}  -- name of the haskell module
                           exports : {String}  -- exports of the haskell module
                           imports : {String}  -- imports to replicate to generated haskell modules
-               | Fixed    pos     : {Pos}
-                          names   : NontSet
-                          fields  : {Fields}
 
 DATA Attrs     | Attrs  pos    : {Pos}
                         inh,chn,syn : {AttrNames}
@@ -96,6 +93,8 @@ DATA SemDef    | Def    pos    : Pos
                | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {[Occurrence]}
                                   after  : {[Occurrence]}
+               | FixedPoint pos : Pos
+                            bottoms : {[((Identifier,Identifier),Expression)]}
 
 DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet

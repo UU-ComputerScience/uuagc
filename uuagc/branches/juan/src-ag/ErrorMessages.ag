@@ -90,7 +90,7 @@ DATA Error  | ParserError     pos     : {Pos}
 
             | CustomError     isWarning : {Bool}
                               pos   : {Pos}
-                              mesg  : {PP_Doc}
+                               mesg  : {PP_Doc}
 
             | LocalCirc       nt      : {NontermIdent}
                               con     : {ConstructorIdent}
@@ -128,4 +128,13 @@ DATA Error  | ParserError     pos     : {Pos}
                               attr    : {Identifier}
             
             | MissingSyn      nt      : {NontermIdent}
+                              attr    : {Identifier}
+
+            | InvalidField    nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
+
+            | NotUniqueAttrFP nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
                               attr    : {Identifier}

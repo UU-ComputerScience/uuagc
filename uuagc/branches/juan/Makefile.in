@@ -47,7 +47,7 @@ CABAL_CONFIGURE = $(CABAL_SCRIPT) configure $(USER_PCKG)
 # Generated after running ./Setup . May change!
 CABAL_CONFIG = .setup-config
 CABAL_SOURCE = Setup.hs
-CABAL_SCRIPT = ./Setup
+CABAL_SCRIPT = runhaskell $(CABAL_SOURCE)
 
 # We generate datatype definitions for these AG files.
 SRC_AG_SYN_NAMES = AbstractSyntax.ag ConcreteSyntax.ag ErrorMessages.ag\
@@ -142,16 +142,16 @@ $(AG_BINARY): derived $(CABAL_CONFIG)
 	@echo "* Compiling hs sources..."
 	$(CABAL_BUILD)
 
-$(CABAL_CONFIG): $(CABAL_SCRIPT)
+$(CABAL_CONFIG):  # $(CABAL_SCRIPT)
 	@echo "* Configuring Cabal"
 	$(CABAL_CONFIGURE) --user
 
 # AM: ignore the prefix; instead install as user command
 # --prefix=$(prefix)
 
-$(CABAL_SCRIPT): $(CABAL_SOURCE)
-	@echo "* Building Cabal script"
-	$(HC) $< -o $@ -package Cabal
+# $(CABAL_SCRIPT): $(CABAL_SOURCE)
+# 	@echo "* Building Cabal script"
+# 	$(HC) $< -o $@ -package Cabal
 
 
 #
@@ -237,7 +237,6 @@ source_tarball_pack: dist_copy
 	touch svn-revision
 	$(MV) $(DLABEL) $(XLABEL)
 	$(TARCZVF) $(XTLABEL)$(TAREXT) $(XLABEL)
-	
 
 #
 # Clean (only stuff built using uuagc)

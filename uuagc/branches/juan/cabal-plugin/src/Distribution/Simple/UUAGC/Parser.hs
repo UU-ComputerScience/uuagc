@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -XScopedTypeVariables #-}
 module Distribution.Simple.UUAGC.Parser(parserAG,
+                                        parserAG',
                                         scanner,
                                         parseIOAction,
                                         parseClassAG,
@@ -11,7 +12,16 @@ import Distribution.Simple.UUAGC.AbsSyn
 import Distribution.Simple.UUAGC.Options
 import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
-import Control.Exception
+import Control.Monad.Error
+
+data (Show a) => ParserError a = ParserError a
+                               | DefParserError String
+                 deriving (Show, Eq, Read)
+
+instance Error (ParserError a) where
+    strMsg x = DefParserError x
+
+-- import Control.Exception
 
 uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,onewtypes, opretty
@@ -58,6 +68,7 @@ posTxt = Pos 0 0 ""
 puFlag :: UUAGCOption -> String -> Parser Token UUAGCOption
 puFlag opt sopt = opt <$ pKey sopt
 
+
 pugFlags :: [Parser Token UUAGCOption]
 pugFlags = zipWith puFlag ugabsFlags ugFlags
 
@@ -92,6 +103,7 @@ pFileClasses :: Parser Token [String]
 pFileClasses = pKey "with" *> (pCommas pString)
              <|> pSucceed []
 
+pLiftOptions :: (String -> [UUAGCOption] -> a) -> String ->  Parser Token a
 pLiftOptions f n = f <$> (pKey n *> pSep *> pString)
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
@@ -109,6 +121,22 @@ pAGFileOptions = pList pAGFileOption
 parserAG :: FilePath -> IO AGFileOptions
 parserAG fp = do s <- readFile fp
                  parseIOAction action pAGFileOptions (scanner fp s)
+
+parserAG' :: FilePath -> IO (Either (ParserError String) AGFileOptions)
+parserAG' fp = do s <- readFile fp
+                  let steps = parse pAGFileOptions (scanner fp s)
+                  let (Pair res _, mesg) = evalStepsMessages steps
+                  if null mesg
+                     then return $ Right res
+                     else do let err = foldr (++) [] $ map message2error mesg
+                             return (Left $ ParserError err) 
+
+message2error :: Message Token (Maybe Token) -> String
+message2error (Msg e p a) = "Expecting: " ++ (show e) ++ " at " ++ action
+    where action = case a of
+                     Insert s -> " Inserting: " ++ (show s)
+                     Delete s -> " Deleting: " ++ (show s)
+                     Other s  -> s
 
 liftParse p text = parseIOAction action p (scanner text text)
 
@@ -142,6 +170,7 @@ evalStepsIOAction :: (Message s p -> IO ())
                   -> IO b
 evalStepsIOAction showMessage = evalStepsIOAction' showMessage (-1)
 
+
 evalStepsIOAction' :: (Message s p -> IO ())
                    -> Int
                    ->  Steps b s p
@@ -160,3 +189,13 @@ evalStepsIOAction' showMessage n (steps :: Steps b s p) = eval n steps
           NoMoreSteps v       -> return v
 
 
+evalStepsMessages :: (Eq s, Show s, Show p) => Steps a s p -> (a,[Message s p])
+evalStepsMessages steps = case steps of
+     OkVal v             rest -> let (arg, ms) = evalStepsMessages rest
+                                 in (v arg, ms)
+     Ok                  rest -> evalStepsMessages rest
+     Cost _              rest -> evalStepsMessages rest
+     StRepair _    msg   rest -> let (v, ms) = evalStepsMessages rest
+                                 in (v, msg:ms)
+     Best _        rest  _    -> evalStepsMessages rest
+     NoMoreSteps v            -> (v,[])
