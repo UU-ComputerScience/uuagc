@@ -55,6 +55,18 @@ SEM Expression
                                    sem = sem_HsTokensRoot (HsTokensRoot @tks)
                                    syn = wrap_HsTokensRoot sem inh
                                in (tks_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
+      -- The below code could be added insted of the previous code.
+      -- inst.hstokenroot : HsTokensRoot
+      -- inst.hstokenroot = HsTokensRoot @tks
+      -- hstokenroot.childInhs = @lhs.childInhs
+      -- hstokenroot.childSyns = @lhs.childSyns
+      -- hstokenroot.nt        = @lhs.nt
+      -- hstokenroot.con       = @lhs.con
+      -- hstokenroot.ruleDescr = @lhs.ruleDescr
+      -- hstokenroot.useFiledIdent = genUseTraces @lhs.options
+      -- loc.tks'                   = @hstokenroot.tks
+      -- lhs.errors                 = @hstokenroot.errors
+ 
       lhs.output = Expression @pos @tks'
 
 
@@ -299,3 +311,4 @@ SEM Grammar
                            @uniqueMap
                            @nonts.augmentsOut
                            @aroundsMap
+                           @fpsMap

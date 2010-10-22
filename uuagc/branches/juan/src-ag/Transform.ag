@@ -65,6 +65,7 @@ SEM AG
                                      @loc.checkedUniques
                                      @loc.checkedAugments
                                      @loc.checkedArounds
+                                     @loc.checkedFPs
 
 
 -------------------------------------------------------------------------------
@@ -96,7 +97,7 @@ ATTR Elem Elems Alts Alt [ allConstructors : {Map NontermIdent (Set ConstructorI
 
 
 -- Nonterminal sets that are defined
-{type DefinedSets = Map Identifier (Set NontermIdent) }
+h{type DefinedSets = Map Identifier (Set NontermIdent) }
   -- bottom-up collection
 ATTR Elem Elems
      [ | defSets:{Map Identifier (Set NontermIdent,Set Identifier)} | ]
@@ -143,6 +144,7 @@ ATTR Elems Elem Attrs
 {type UniqueInfo = (Identifier,Identifier) }
 {type AugmentInfo = (Identifier,Expression)}
 {type AroundInfo  = (Identifier,Expression)}
+{type FPInfo      = (AttrName,Expression)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -151,6 +153,7 @@ ATTR Elem Elems SemAlt SemAlts
              collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
              collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
              collectedArounds  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AroundInfo])  ]}
+             collectedFPs      USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [[FPInfo]]) ]}
      ]
 
 
@@ -262,8 +265,10 @@ SEM AG
                            in foldr f (Map.empty) @elems.collectedUniques
          loc.allAugments = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                            in foldr f Map.empty @elems.collectedAugments
-         loc.allArounds  =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
-                            in foldr f Map.empty @elems.collectedArounds
+         loc.allArounds  = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                           in foldr f Map.empty @elems.collectedArounds
+         loc.allFPs      = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                           in foldr f Map.empty @elems.collectedFPs
          
          loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
@@ -275,6 +280,7 @@ SEM AG
          loc.allUniquesErrs = Map.mapWithKey (Map.mapWithKey . (checkUniques @allAttrDecls                                )) @loc.allUniques
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
          loc.allAroundsErrs = Map.mapWithKey (Map.mapWithKey . (checkArounds @loc.allFields)) @loc.allArounds
+         loc.allFPsErrs     = Map.mapWithKey (Map.mapWithKey . (checkFPs @allAttrDecls @allFields)) @allFPs 
 
          loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
@@ -282,6 +288,7 @@ SEM AG
          loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
          loc.checkedArounds  = Map.map (Map.map fst) @loc.allAroundsErrs
+         loc.checkedFPs      = Map.map (Map.map fst) @loc.allFPsErrs
          loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.checkedInsts @loc.allAttrDecls)) @loc.checkedUniques)
 
          loc.errs1       = let f = checkForDuplicates (DupSynonym)
@@ -316,18 +323,23 @@ SEM AG
          loc.errs10      =  let  f m s = Map.fold ((><)) s m
                             in Map.fold f Seq.empty @loc.allNamesErrs
 
-         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10
+         loc.errs11      =  let  f m s = Map.fold ((><) . snd) s m
+                            in Map.fold f Seq.empty @loc.allFPsErrs
+
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10 >< @errs11
 
 {
-type RulesAndErrors = ([Rule], Seq Error)
-type SigsAndErrors  = ([TypeSig], Seq Error)
-type InstsAndErrors = ([(Identifier, Type)], Seq Error)
-type UniquesAndErrors = (Map Identifier Identifier, Seq Error)
+type RulesAndErrors    = ([Rule], Seq Error)
+type SigsAndErrors     = ([TypeSig], Seq Error)
+type InstsAndErrors    = ([(Identifier, Type)], Seq Error)
+type UniquesAndErrors  = (Map Identifier Identifier, Seq Error)
 type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
-type AroundsAndErrors = (Map Identifier [Expression], Seq Error)
-type AttrOverwrite  = Map AttrName Bool
-type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
-type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
+type AroundsAndErrors  = (Map Identifier [Expression], Seq Error)
+type FPsAndErrors      = ([[FPInfo]],Seq Error)
+type AttrOverwrite     = Map AttrName Bool
+type AccumRuleCheck    = (RulesAndErrors, AttrOverwrite)
+type AccumDefiCheck    = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
+
 
 checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
@@ -447,6 +459,32 @@ checkArounds fieldMap nt con arounds
                    _             -> (as, ((Seq.<|)) (UndefChild nt con ident) errs)
         fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
     in foldr checkAround (Map.empty, Seq.empty) arounds
+
+checkFPs :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) 
+         -> NontermIdent ->  ConstructorIdent -> [[FPInfo]] -> FPsAndErrors
+checkFPs attributes fieldMap nt con fps 
+  = let checkFPl mm (m,errs,aac)                            = let (res,errs', aac') = foldr checkFPe ([],errs,aac) mm
+                                                              in ([res] ++ m, errs', aac')
+        checkFPe afae@((field,attr),exp) pai@(fae,errs,aac) = if getName field == getName _LHS
+                                                              then (fae,(Seq.<|) (InvalidField nt con field) errs,aac)
+                                                              else checkDefi afae pai
+        checkDefi afae@((field,attr),exp) pai@(fae,errs,aac) = 
+                 case lookup field fields of
+                     Just (NT nt' _) -> case Map.lookup nt' attributes of 
+                                            Just (inha,syna)  -> if maybe False (\_ -> True) (Map.lookup attr inha) || 
+                                                                    maybe False (\_ -> True) (Map.lookup attr syna)
+                                                                 then checkAlUsed afae pai
+                                                                 else (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
+                     _               -> (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
+        checkAlUsed afae@((field,attr),exp) pai@(fae,errs,aac) = 
+               let idName = getName field ++ "." ++ getName attr 
+               in if idName `Set.member` aac 
+                  then (fae,(Seq.<|) (NotUniqueAttrFP nt con field attr) errs, aac)
+                  else (afae:fae, errs, Set.insert idName aac)
+        fields                                    = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
+        (out,errs,_)                              = foldr checkFPl ([],Seq.empty,Set.empty) fps
+    in (out,errs)
+
 
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 }
@@ -668,10 +706,28 @@ ATTR Elem Elems [ | | wrappers USE {`Set.union`} {Set.empty} :{Set NontermIdent}
 SEM Elem
   | Wrapper lhs.wrappers = @set.nontSet
 
+
+-------------------------------------------------------------------------------
+--         Checking if fixed-point evaluator appears
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems SemAlt SemDef [ | | cyclePrAdd  USE {||} { False } : {Bool} ]
+
+SEM AG
+  |  AG loc.pragmas = if @elems.cyclePrAdd 
+                      then \o -> @elems.pragmas o { withCycle = True }
+                      else id . @elems.pragmas
+
+SEM Elem
+  |  * - Sem         lhs.cyclePrAdd = False 
+
+SEM SemDef
+  |  * - FixedPoint  lhs.cyclePrAdd = False
+  |  FixedPoint      lhs.cyclePrAdd = True
+
 -------------------------------------------------------------------------------
 --         Collecting pragmas
 -------------------------------------------------------------------------------
-
 ATTR AG Elem Elems [ | | pragmas USE {.} {id} :{Options -> Options}]
 
 SEM Elem
@@ -896,6 +952,7 @@ ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
                           uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
                           aroundInfos  USE {++} {[]} : {[AroundInfo]}
+                          fpInfos      USE {++} {[]} : {[[FPInfo]]}
                     ]
 
 
@@ -949,6 +1006,12 @@ SEM SemAlt
                        , con <- Set.toList conset
                        ]
 
+           lhs.collectedFPs 
+              =        [ (nt, con, @rules.fpInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+
 SEM SemDef
   | Def  lhs.ruleInfos = [ (@mbName, @pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
 
@@ -963,6 +1026,9 @@ SEM SemDef
 
 SEM SemDef
   | AroundDef   lhs.aroundInfos = [ (@ident, @rhs) ]
+
+SEM SemDef
+  | FixedPoint  lhs.fpInfos     = [ @bottoms ]
 
 
 ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
@@ -1030,9 +1096,10 @@ constructGrammar ::    Set NontermIdent
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
+                    -> Map NontermIdent (Map ConstructorIdent ([[((Identifier,Identifier),Expression)]]))
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap fpsMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1065,10 +1132,14 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap 
+              aroundsMap fpsMap
 }
 
-{
+ {
 mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus = Map.unionWith (++)
 }
+
+
+
