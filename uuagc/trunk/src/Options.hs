@@ -50,6 +50,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
                , Option ['M']     ["genfiledeps"] (NoArg genFileDepsOpt) "Generate a list of dependencies on the input AG files"
                , Option []        ["genvisage"] (NoArg genVisageOpt)  "Generate output for the AG visualizer Visage"
+               , Option []        ["genAspectAG"] (NoArg genAspectAGOpt)  "Generate AspectAG file"
                , Option []        ["genattrlist"] (NoArg genAttrListOpt) "Generate a list of all explicitly defined attributes (outside irrefutable patterns)"
                , Option []        ["forceirrefutable"] (OptArg forceIrrefutableOpt "file") "Force a set of explicitly defined attributes to be irrefutable, specify file containing the attribute set"
                , Option []        ["uniquedispenser"] (ReqArg uniqueDispenserOpt "name") "The Haskell function to call in the generated code"
@@ -109,6 +110,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genFileDeps :: Bool
                       , genLinePragmas :: Bool
                       , genvisage :: Bool
+                      , genAspectAG :: Bool
                       , genAttributeList :: Bool
                       , forceIrrefutables :: Maybe String
                       , uniqueDispenser :: String
@@ -164,6 +166,7 @@ noOptions = Options { moduleName    = NoName
                     , genFileDeps    = False
                     , genLinePragmas = False
                     , genvisage      = False
+                    , genAspectAG    = False
                     , genAttributeList = False
                     , forceIrrefutables = Nothing
                     , uniqueDispenser = "nextUnique"
@@ -219,6 +222,7 @@ sepSemModsOpt opts = opts{sepSemMods = True}
 genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
+genAspectAGOpt opts = opts{genAspectAG = True}
 genAttrListOpt opts = opts { genAttributeList = True }
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
 uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }

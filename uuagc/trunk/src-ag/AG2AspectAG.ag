@@ -1,0 +1,410 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+INCLUDE "HsToken.ag"
+
+imports
+{
+import Data.Char
+import Data.List
+import qualified Data.Map as Map
+import qualified Data.Set as Set
+import Data.Maybe
+
+import Pretty
+import PPUtil
+
+import AbstractSyntax
+import TokenDef
+import CommonTypes
+}
+
+{
+pragmaAspectAG =  pp  "{-# LANGUAGE EmptyDataDecls, NoMonomorphismRestriction , TypeSynonymInstances, MultiParamTypeClasses, FlexibleContexts #-}"
+
+importAspectAG =  pp  "import Language.Grammars.AspectAG" >-<
+                  pp  "import Language.Grammars.AspectAG.Derive" >-<
+                  pp  "import Data.HList.Label4" >-<
+                  pp  "import Data.HList.TypeEqGeneric1" >-<
+                  pp  "import Data.HList.TypeCastGeneric1"
+
+}
+
+ATTR Grammar [ | | pp USE {>-<} {empty} : PP_Doc ]
+
+SEM Grammar
+  | Grammar  		lhs     .  	pp    	=  pp "-- datatypes"               >-< @nonts.ppD >-< 
+                                                   pp "-- labels"                  >-< @nonts.ppL >-<
+                                                   pp "-- attributes"              >-< defAtts >-< @nonts.ppA >-<
+                                                   pp "-- rules"                   >-< pp "listNt = " >|< @nonts.ppNtL >-< @nonts.ppR >-<
+                                                   pp "-- semantic functions"      >-< @nonts.ppS >-<
+                                                   pp "-- wrappers"                >-< @nonts.ppW
+                                                
+
+
+-- data definitions
+
+ATTR Productions Production Rules Rule Children Child Expression [ ppNt : PP_Doc | |  ]
+
+SEM Nonterminal
+  | Nonterminal		prods     .  	ppNt   	=  pp @nt
+
+
+ATTR Rules Rule Children Child Expression [ ppProd : PP_Doc | |  ]
+
+SEM Production
+  | Production		children  .  	ppProd 	=  pp @con
+		        rules     .  	ppProd 	=  pp @con
+
+
+ATTR Nonterminals Nonterminal [ derivs : {Derivings} | |  ]
+
+SEM Grammar
+  | Grammar             nonts     .     derivs  =  @derivings 
+
+
+ATTR Nonterminals Nonterminal Production [ | | ppD USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .  	ppD    	=  case (lookup @nt @lhs.tSyns) of
+                                                    Nothing ->  pp "data " >|< pp @nt >|< " = " >|< vlist_sep " | " @prods.ppDL >-< 
+                                                                case (Map.lookup @nt @lhs.derivs) of
+                                                                 Just ntds -> pp "  deriving " >|<  (ppListSep "(" ")" ", " $ Set.elems ntds)
+                                                                 Nothing   -> empty
+                                                    Just tp ->  pp "type " >|< pp @nt >|< " = " >|< ppShow tp
+
+
+SEM Production
+  | Production		lhs     .  	ppD    	= let prodName = ppListSep "" "" "_" [@lhs.ppNt, pp @con]
+                                                  in  prodName >|< ppListSep " {" "}" ", " @children.ppDL 
+
+
+ATTR Productions Children Child  [ | | ppDL : {[PP_Doc]} ]
+
+SEM Productions
+  | Cons			lhs		.	ppDL		=	@hd.ppD : @tl.ppDL
+  | Nil				lhs		.	ppDL		=	[]
+
+SEM Children
+  | Cons			lhs		.	ppDL		=	@hd.ppDL ++ @tl.ppDL
+  | Nil				lhs		.	ppDL		=	[]
+
+SEM Child
+  | Child	        lhs     .  	ppDL   	= case @virtual of 
+                                                   Nothing    ->  let chName = ppListSep "" "" "_" [pp @name, @lhs.ppNt, @lhs.ppProd] 
+                                                                  in  [ chName >|< pp " :: " >|< ppShow @tp ]
+                                                   otherwise  ->  []
+
+
+ATTR Nonterminals Nonterminal  [ tSyns : {TypeSyns} | |  ]
+
+SEM Grammar
+  | Grammar                      nonts          .       tSyns           =       @typeSyns
+
+
+
+
+-- grammar labels
+
+
+ATTR Nonterminals Nonterminal Productions Production Children Child [ | | ppL USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .  	ppL    	=  pp "nt_" >|< pp @nt >|< " = proxy :: Proxy " >|< pp @nt >-<
+                                                   @prods.ppL
+
+
+SEM Child
+  | Child	        lhs     .  	ppL    	= 
+                                            let   chName = ppListSep "" "" "_" [pp @name, @lhs.ppNt, @lhs.ppProd] 
+                                            in    pp "data Ch_" >|< chName >|< pp "; " >|< 
+                                                  pp "ch_" >|< chName >|< pp " = proxy :: " >|<
+                                                  case @virtual of 
+                                                   Nothing    ->  pp "Proxy " >|< pp "(Ch_" >|< chName >|< ", " >|< ppShow @tp >|< pp ")"
+                                                   otherwise  ->  pp "SemType " >|< ppShow @tp >|< pp " nt =>  Proxy " >|< 
+                                                                  pp "(Ch_" >|< chName >|< pp ", nt)"
+                                                  
+
+
+-- attributes
+
+
+ATTR Nonterminals Nonterminal Productions Production [ | | ppA USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .  	ppA    	=  defTAtt "inh" (pp @nt) @inh >-<
+                                                   defTAtt "syn" (pp @nt) @syn >-<
+                                                   @prods.ppA
+ 
+SEM Production
+  | Production		lhs     .  	ppA    	=  defLocalAtts @lhs.ppNt (pp @con) (length @rules.locals) 1 $ sort @rules.locals
+
+{
+
+defAtts =  pp "data Att_inh; att_inh = proxy :: Proxy Att_inh" >-<
+           pp "data Att_syn; att_syn = proxy :: Proxy Att_syn" >-<
+           pp "data Att_loc; att_loc = proxy :: Proxy Att_loc" 
+
+
+defTAtt t@(f:r) ppN atts = 
+           let     tT = (toUpper f) : r
+                   fields = ppCommas (map (\(a,t) -> ppListSep "" "" "_" [pp a, pp tT, ppN ] >|< pp " ::" >|< ppShow t) $ Map.assocs atts)
+           in
+                   pp ("data " ++ tT ++ "_") >|< ppN >|< pp (" = " ++ tT ++ "_") >|< ppN >|<
+                   pp " { " >|<   fields  >|< pp " }"
+
+
+defLocalAtts ppNt ppProd total actual (l:ls) = ppListSep "" "" "_" [pp l, ppNt, ppProd] >|< 
+                                               ppListSep "(" ")" ","  (replicate (actual-1) "_" ++ "x" : replicate (total-actual) "_") >|<
+                                               pp " = x" >-< 
+                                               defLocalAtts ppNt ppProd total (actual+1) ls
+defLocalAtts _ _ _ _ [] = empty
+
+}
+
+
+ATTR Rules Rule [ | | locals USE {++} {[]} : {[Identifier]}  ]
+
+
+SEM Rule
+  | Rule	        lhs     .  	locals    =  if (show (fst @pattern.info) == "loc")
+                                                      then [ snd @pattern.info ]
+                                                      else [ ]
+                                                                            
+
+-- rules
+
+ATTR Nonterminals Nonterminal  [ | | ppNtL USE {>|<} {pp "hNil"} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .  	ppNtL  	=  pp "nt_" >|< pp @nt >|< pp " .*. "
+
+
+
+ATTR Nonterminals Nonterminal Productions Production Children Child [ | | ppR USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .       ppR     =  pp "----" >|< pp @nt >-< @prods.ppR
+
+SEM Production
+  | Production		lhs     .  	ppR    	=  defInstRules @lhs.ppNt @con @children.ppR @rules.ppRL @children.idCL @rules.locals >-<
+                                                   defLocRule   @lhs.ppNt @con @children.ppR @rules.ppRL @children.idCL @rules.locals >-<
+                                                   defInhRule   @lhs.ppNt @con @children.ppR @rules.ppRL @children.idCL @rules.locals >-<
+                                                   defSynRule   @lhs.ppNt @con @children.ppR @rules.ppRL @children.idCL @rules.locals
+
+SEM Child
+  | Child	        lhs     .  	ppR    	=  let chName = ppListSep "" "" "_" [pp @name, @lhs.ppNt, @lhs.ppProd] 
+                                                   in  pp @name >|< " <- at ch_" >|< chName
+
+
+
+
+ATTR Pattern [ || info : {(Identifier, Identifier)} ] 
+SEM Pattern
+  | Alias               lhs     .       info    = (@field, @attr)
+  | Constr              lhs     .       info    = error "Pattern Constr undefined!!"
+  | Product             lhs     .       info    = error "Pattern Product undefined!!"
+  | Underscore          lhs     .       info    = error "Pattern Underscore undefined!!"
+
+
+ATTR Rules Rule [ | | ppRL  : {[((Identifier,Identifier),[(Identifier,Type)] -> [Identifier] -> PP_Doc)]} ]
+
+SEM Rules
+  | Cons			lhs		.	ppRL		=	@hd.ppRL ++ @tl.ppRL
+  | Nil				lhs		.	ppRL		=	[]
+
+SEM Rule
+  | Rule	                lhs             .  	ppRL    	=  [ (@pattern.info, defRule @lhs.ppNt @pattern.info @rhs.ppRE) ]
+
+ATTR Expression [ | | ppRE : {Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc} ]
+SEM Expression
+   | Expression         lhs     .       ppRE     =  rhsRule @lhs.ppNt @lhs.ppProd @tks
+
+
+
+ATTR Children Child [ || idCL USE {++} {[]} : {[(Identifier,Type)]} ] 
+SEM Child
+ | Child                lhs     .        idCL   = [ (@name, case (stripPrefix "T_" (show @tp)) of  -- harcoded => higher order atts of type T_
+                                                              Nothing -> @tp
+                                                              Just t  -> NT (Ident t undefined) []
+                                                  ) ]
+
+
+
+
+{
+
+defInhRule ppNt prod ch rules chids locals =  
+                       let  ppAtt = ppListSep "" "" "_" [pp "inh", ppNt, pp prod] 
+                       in   ppAtt >|< pp " = inhdefM att_inh listNt $" >-< 
+                            indent 4  "do " >-< 
+                            indent 5  "loc <- at loc" >-<
+                            indent 5  "lhs <- at lhs" >-<
+                            indent 5  ch >-<
+                            indent 5  "return $"  >-<
+                            indent 6  (foldr (>-<) (pp "emptyRecord") (map (chRule ppNt prod rules chids locals) chids))
+
+chRule ppNt prod rules chids locals (idCh,tp) =    
+                       let  chName = ppListSep "" "" "_" [pp "ch", pp idCh, ppNt, pp prod] 
+                            ppTp   = ppShow tp
+                            chRules = ppCommas $ mapRuleDefs (== idCh)  rules chids locals
+                       in   if (isNonterminal tp)
+                             then   chName >|< ".=." >-<
+                                    indent 1 "Inh_" >|< ppShow tp >|< pp " {"  >-< 
+                                    indent 2 chRules >-<
+                                    indent 1 "} .*. " 
+                             else   empty
+
+
+defSynRule ppNt prod ch rules chids locals =  
+                       let  ppAtt = ppListSep "" "" "_" [pp "syn", ppNt, pp prod] 
+                            ppTAtt = "Syn_" >|< ppNt
+                       in   ppAtt >|< pp " = syndefM att_syn $" >-< 
+                            indent 4  "do " >-< 
+                            indent 5  "loc <- at loc" >-<
+                            indent 5  "lhs <- at lhs" >-<
+                            indent 5  ch >-<
+                            indent 5  "return $"  >-<
+                            indent 6  ppTAtt >|< pp " {"  >-< 
+                            indent 7  (ppCommas $ mapRuleDefs ((== "lhs") . show)  rules chids locals) >-<
+                            indent 6  "}" 
+
+defLocRule ppNt prod ch rules chids locals =  
+                       let  ppAtt  = ppListSep "" "" "_" [pp "loc", ppNt, pp prod] 
+                            ppTAtt = ppListSep "" "" "_" [pp "Loc", ppNt, pp prod] 
+                       in   ppAtt >|< pp " = locdefM att_loc $" >-< 
+                            indent 4  "do " >-< 
+                            indent 5  "loc <- at loc" >-<
+                            indent 5  "lhs <- at lhs" >-<
+                            indent 5  ch >-<
+                            indent 5  "return $"  >-<
+                            indent 6  (ppListSep "(" ")" "," $ mapRuleDefs ((== "loc") . show)  rules chids locals)
+
+defInstRules ppNt prod ch rules chids locals = let  ppAsp     = ppListSep "" "" "_" [pp "inst", ppNt, pp prod] 
+                                                    instRules = filter ((=="inst") . show . fst . fst) rules
+                                                    ppAtt att = ppListSep "`ext` " "" "_" [pp "inst_ch", pp att, ppNt, pp prod] 
+                                               in   ppAsp >|< pp " = emptyRule " >|< (map (ppAtt . snd . fst) instRules) >-<
+                                                    (vlist $ map (defInstRule  ppNt prod ch chids locals) instRules)
+                                                     
+
+defInstRule  ppNt prod ch chids locals ((_,att),rule) =
+                       let  ppAtt  = ppListSep "" "" "_" [pp "ch", pp att, ppNt, pp prod] 
+                       in   pp "inst_" >|< ppAtt >|< pp " = instdefM " >|< ppAtt >|< pp " $" >-< 
+                            indent 4  "do " >-< 
+                            indent 5  "loc <- at loc" >-<
+                            indent 5  "lhs <- at lhs" >-<
+                            indent 5  ch >-<
+                            indent 5  "return $"  >-<
+                            indent 6  (rule chids locals) 
+
+
+mapRuleDefs filt rules chids locals = map appSnd $ sortBy cmpFst $ filter ( filt . fst . fst)  rules
+                                      where cmpFst (a,_) (b,_) = compare a b
+                                            appSnd rule = (snd rule)  chids locals
+ 
+defRule ppNt (field,att) rhs = \chids locals -> 
+                                     let ppAtt = case (show field) of
+                                                 "lhs"     -> att >|< "_" >|< pp "Syn" >|< pp "_" >|< ppNt  >|< " = "
+                                                 "loc"     -> empty
+                                                 "inst"    -> empty
+                                                 otherwise -> att >|< "_" >|< pp "Inh" >|< pp "_" >|< 
+                                                              (maybe (error $ "lhs field " ++ show field ++" is not a child") ppShow (lookup field chids))  
+                                                              >|< " = "
+                                     in  ppAtt >|< (rhs field chids locals)
+
+         
+rhsRule ppNt ppProd tks field chids locals =  hv_sp $ map (token2PP ppNt ppProd field chids locals) tks 
+
+token2PP ppNt ppProd field chids locals tk
+  = case tk of
+      AGLocal var _ _        -> if (elem var locals)
+                                 then  (ppListSep "(" "" "_" [pp var, ppNt, ppProd]) >|< pp " (loc # att_loc))" 
+                                 else  pp var
+      AGField field attr _ _ -> let ppChT =    maybe (error $ "rhs field " ++ show field ++ " is not a child") ppShow (lookup field chids)
+                                    ppAtt =    case (show field) of
+                                               "lhs"      ->  pp "att_inh"
+                                               "loc"      ->  pp "att_loc"
+                                               otherwise  ->  pp "att_syn"
+                                    ppSubAtt = case (show field) of
+                                               "lhs"      -> ppListSep "" "" "_" [pp (getName attr), pp "Inh", ppNt]
+                                               "loc"      -> ppListSep "" "" "_" [pp (getName attr), ppNt, ppProd]
+                                               otherwise  -> ppListSep "" "" "_" [pp (getName attr), pp "Syn", ppChT]
+                                in  pp "(" >|< ppSubAtt >|< " (" >|< pp (getName field) >|< " # " >|< ppAtt >|< "))"
+      HsToken value _        -> pp value
+      CharToken value _      -> pp $ show value
+      StrToken value _       -> pp $ show value
+      Err mesg _             -> pp $ " ***" ++ mesg ++ "*** "
+
+}
+
+
+
+-- semantic functions
+
+ATTR Nonterminals Nonterminal Productions Production [ | | ppS USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .      ppS    	=  
+                                      let   ppNt = pp @nt
+                                      in    pp "----" >|< ppNt >-< 
+                                            pp "type T_" >|< ppNt >|< pp " = " >|< 
+                                            pp "(Record (HCons (LVPair (Proxy Att_inh) Inh_" >|< ppNt >|< pp ") HNil)) -> " >|<
+                                            pp "(Record (HCons (LVPair (Proxy Att_syn) Syn_" >|< ppNt >|< pp ") HNil))"     >-<
+                                            pp "instance SemType T_" >|< ppNt >|< pp " " >|< ppNt >-<
+                                            @prods.ppS >-<
+                                            pp "-- sem_" >|< ppNt >|< pp " :: " >|< ppNt >|< pp " -> T_" >|<  ppNt >-<
+                                            @prods.ppSF
+
+SEM Production
+  | Production		lhs     .  	ppS    	= 
+                                            let  ppProd = ppListSep "" "" "_" [@lhs.ppNt, pp @con]
+                                            in   pp "asp_" >|< ppProd >|< pp " = inh_" >|< ppProd >|<
+                                                                          pp " `ext` syn_"  >|< ppProd >|<
+                                                                          pp " `ext` loc_"  >|< ppProd >|<
+                                                                          pp " `ext` inst_" >|< ppProd >-<
+                                                 pp "sem_" >|< ppProd >|< pp " = knit asp_" >|< ppProd
+
+
+ATTR Productions Production  [ | | ppSF USE {>-<} {empty} : PP_Doc ]
+SEM Production
+  | Production		lhs     .  	ppSF    	= 
+                                            let  chi = @children.ppCSF
+                                                 ppProd = ppListSep "" "" "_" [@lhs.ppNt,pp @con]
+                                                 ppPattern = case (show @con) of
+                                                              -- hardcoded list support
+                                                              "Cons"    -> ppParams (ppListSep "" "" " : ")
+                                                              "Nil"     -> pp "[]"
+                                                              -- general case
+                                                              otherwise -> ppProd >|< pp " " >|< (ppParams ppSpaced)
+
+                                                 ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
+                                            in   pp "sem_" >|< @lhs.ppNt >|< pp " (" >|< ppPattern >|< ") = sem_" >|< ppProd >|<
+                                                 pp " (" >|< map snd chi >|< pp "emptyRecord)"
+
+
+ATTR Children Child  [ | | ppCSF USE {++} {[]} : {[(Identifier,PP_Doc)]} ]
+
+
+SEM Child
+  | Child	        lhs     .  	ppCSF    	= 
+                                            let   
+                                                 ppProd = ppListSep "" "" "_" [@lhs.ppNt,@lhs.ppProd]
+                                                 ppChi  = ppListSep "" "" "_" [pp "ch", pp @name, ppProd] 
+                                                 semC   = if (isNonterminal @tp)
+                                                           then pp "sem_" >|< ppShow @tp >|<  pp " _" >|< pp @name
+                                                           else pp "sem_Lit _" >|< pp @name
+                                            in   case @virtual of 
+                                                      Nothing    ->  [(@name, ppChi >|< pp " .=. (" >|< semC >|< pp ") .*. ")]
+                                                      otherwise  ->  []
+
+
+-- wrappers
+
+ATTR Nonterminals Nonterminal  [ | | ppW USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal		lhs     .  	ppW    	=  
+                                            pp "wrap_" >|< pp @nt >|< pp " sem _inh = " >-< 
+                                            pp "  let (Record (HCons _syn HNil)) = sem (att_inh .=. _inh .*. emptyRecord)" >|< 
+                                            pp "  in  (valueLVPair _syn)"
+
