@@ -30,6 +30,7 @@ import qualified TfmToVisage        as PassV  (sem_Grammar,  wrap_Grammar,  Syn_
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
 import qualified Visage as VisageDump (sem_VisageGrammar, wrap_VisageGrammar, Syn_VisageGrammar(..), Inh_VisageGrammar(..))
+import qualified AG2AspectAG as AspectAGDump (pragmaAspectAG, importAspectAG, sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..)) --marcos
 
 import Options
 import Version       (banner)
@@ -81,7 +82,9 @@ compile flags input output
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
           dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
-          
+
+          aspectAG  = AspectAGDump.wrap_Grammar   (AspectAGDump.sem_Grammar grammar2                     ) AspectAGDump.Inh_Grammar --marcos
+
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
 
@@ -160,7 +163,8 @@ compile flags input output
       if not (null fatalErrorList) 
        then exitFailure
        else 
-        do if genvisage flags'
+        do
+           if genvisage flags'
             then writeFile (outputfile++".visage") (writeATerm aterm)
             else return ()
             
@@ -178,6 +182,24 @@ compile flags input output
                             = vlist [ pp_braces importBlocksTxt
                                     , pp_braces textBlocksDoc
                                     , vlist $ Pass4a.output_Syn_CGrammar output4a
+                                    ]
+                         -- marcos AspectAG gen
+                         | genAspectAG flags'
+                            = vlist [ AspectAGDump.pragmaAspectAG
+                                    , vlist (      [ pp optionsLine
+                                                   , pp pragmaBlocksTxt
+                                                   , pp $ take 70 ("-- UUAGC2AspectAG " ++ drop 50 banner ++ " (" ++ input) ++ ")"
+                                                   , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                                          then moduleHeader flags' mainName
+                                                          else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                                   ]
+                                            )
+                                    , pp importBlocksTxt
+                                    , AspectAGDump.importAspectAG
+                                    , textBlocksDoc
+                                    , pp "\n\n{-- AspectAG Code --}\n\n"
+                                    
+                                    , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
                          | otherwise
                             = vlist [ vlist ( if not (ocaml flags')
