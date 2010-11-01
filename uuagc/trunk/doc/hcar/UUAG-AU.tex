@@ -1,38 +1,37 @@
 \begin{hcarentry}[updated]{UUAG}
 \label{uuag}
-\report{Arie Middelkoop}%11/09
+\report{Arie Middelkoop}%05/10
 \status{stable, maintained}
 \participants{ST Group of Utrecht University}
 \makeheader
 
-UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell which makes it easy to write \emph{catamorphisms}. I.e. functions that do to any datatype what \emph{foldr} does to lists. You define tree walks using the intuitive concepts of \emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power of Haskell. The generated tree walks are \emph{efficient} in both space and time.
+UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell which makes it easy to write \emph{catamorphisms} (i.e., functions that do to any data type what \emph{foldr} does to lists). You define tree walks using the intuitive concepts of \emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power of Haskell. The generated tree walks are \emph{efficient} in both space and time.
 
 An AG program is a collection of rules, which are pure Haskell functions between attributes.
 Idiomatic tree computations are neatly expressed in terms of copy, default, and collection rules. Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute). The order in which to visit the tree is derived automatically from the attribute computations. The tree walk is a single traversal from the perspective of the programmer.
 
-Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. Recently, we enhanced these aspect-oriented programming features. It is now possible to add rules that transform a value of a synthesized attribute, or to transform a child and its inherited and synthesized attributes.
+Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. These aspect-oriented programming features make AGs convenient to use in large projects.
 
-The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents, the Helium compiler~\cref{helium}, the Generic Haskell compiler, UUAG itself, and many master student projects. The current version is 0.9.19 (April 2010), is extensively tested, and is available on Hackage.
+The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents~\cref{proxima}, the Helium compiler~\cref{helium}, the Generic Haskell compiler, UUAG itself, and many master student projects. The current version is 0.9.29 (July 2010), is extensively tested, and is available on Hackage.
 
-We are working on the following enhancements of the UUAG system, building on attribute grammar research of the past in a modern setting:
+We are working on the following enhancements of the UUAG system:
 \begin{description}
-\item[Parallel evaluation]
-  We aim to evaluate attributes in parallel to take advantage of current multi-core processors.
-  The static dependencies between attributes, allow us to identify
-  parts that are independent and schedule them simultaneously in a safe and efficient way.
-\item[Incremental evaluation]
-  We generate code that adapts incrementally to changes in the input data. The goal is to reuse
-  the outcome of previous computations, by recomputing only those parts of the computation that
-  are affected by the changes.
+\item[First-class AGs]
+  We provide a translation from UUAG to AspectAG~\cref{aspectag}.
+  AspectAG is a library of strongly typed Attribute Grammars
+  implemented using type-level programming. With this extension, we can write the main part of
+  an AG conveniently with UUAG, and use AspectAG for (dynamic) extensions. Our goal is to have
+  an extensible version of the UHC.
 \item[Fixpoint evaluation]
-  When static dependencies between attributes are circular, results can still be computed through
-  lazy evaluation when the dynamic dependencies are not. We are now incorporating a fixed-point
-  evaluation scheme that computes a result even in case of a dynamic cycle.
+    We incorporated a fixed-point evaluation scheme for circular grammars.
+    A cycle is broken by specifying an initial value for an attribute on the
+    cycle, and repeating the evaluation with an updated value until it converges.
+\item[Step-wise evaluation]
+  We provide the possibility to evaluate AGs step-wise. The evaluation for a nonterminal may
+  yield user-defined progress reports, and we can direct the evaluation until the next
+  progress report. With this mechanism, we can resolve non-determinism and encode breadth-first
+  search strategies.
 \end{description}
-Furthermore, we investigate extensions of the AG formalism to make AGs more suitable to express
-type inferencing. We made prototype implementations that facilitates
-the dynamic construction of inference trees, to use AGs for bidirectional
-type rules and constraint solving.
 
 \FurtherReading
 \begin{compactitem}
