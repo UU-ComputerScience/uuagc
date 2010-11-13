@@ -23,7 +23,7 @@ import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
                      , proc
                      )
 import System.Directory
-import System.FilePath(pathSeparators,normalise)
+import System.FilePath(pathSeparator, normalise, joinPath, dropFileName)
 import System.Exit (ExitCode(..))
 import System.IO( openFile, IOMode(..), hFileSize
                 , hSetFileSize, hClose, hGetContents
@@ -53,8 +53,7 @@ putErrorInfo h = do s <- hGetContents h
                     hPutStr stderr s
 
 addSearch :: [String] -> [String] -> [String]
-addSearch spl fl = let sf = [head pathSeparators]
-                   in [ normalise (sp ++ sf ++ f)  | sp <- spl, f  <- fl]
+addSearch spl fl = [ normalise (joinPath [sp, f]) | sp <- spl, f  <- fl]
 
 throwFailure :: IO ()
 throwFailure = do throwIO $ ExitFailure 1
@@ -109,23 +108,12 @@ uuagcPreBuild :: Args -> BuildFlags -> IO HookedBuildInfo
 uuagcPreBuild args buildF = do
   uuagcOpts <- parserAG defUUAGCOptions
   let agfls  = getAGFileList uuagcOpts
-      agflSP = map (\(f,opts) -> (f,opts,[searchPath f])) agfls
+      agflSP = map (\(f,opts) -> (f,opts,[dropFileName f])) agfls
   mapM_ (\(f,opts,s) -> updateAGFile opts f s) agflSP
   originalPreBuild args buildF
 
 getAGFileList :: AGFileOptions -> [(FilePath, UUAGCOptions)]
 getAGFileList = map (\(AGFileOption s opts) -> (normalise s, opts))
-
-
-searchPath :: FilePath -> FilePath
-searchPath fp = let pf = reverse fp
-                    sp = head pathSeparators
-                    rl = searchPath' sp  pf
-                in (reverse rl)
-    where searchPath' y []     = []
-          searchPath' y sp@(x:xs)
-              | x == y         = sp
-              | otherwise      = searchPath' y xs
 
 uuagc :: BuildInfo
         -> LocalBuildInfo
@@ -137,7 +125,7 @@ uuagc build local  =
                        do info verbosity (inFile++" has been preprocessed into "++outFile)
                           print $ "processing: " ++ inFile
                           opts <- parserAG defUUAGCOptions
-                          let search  = searchPath inFile
+                          let search  = dropFileName inFile
                               options = (fromUUAGCOstoArgs (lookupFileOptions inFile opts))
                                         ++ ["-P"++search,"--output="++outFile,inFile]
                           (_,_,_,ph) <- createProcess (proc uuagcn options)
