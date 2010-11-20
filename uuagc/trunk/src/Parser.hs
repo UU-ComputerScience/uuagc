@@ -20,6 +20,7 @@ import UU.Scanner.GenTokenParser
 import UU.Scanner.Position
 import UU.Scanner.TokenShow()
 import System.Directory
+import System.FilePath
 import HsTokenScanner
 import Options
 
@@ -262,14 +263,11 @@ parseFile opts searchPath file
 
 resolveFile :: [FilePath] -> FilePath -> IO FilePath
 resolveFile path fname = search (path ++ ["."])                                                  
- where search (p:ps) = do dExists <- doesDirectoryExist p
-                          if dExists
-                             then do let filename = p++pathSeparator++fname
-                                     fExists <- doesFileExist filename
-                                     if fExists
-                                        then return filename
-                                        else search ps      
-                             else search ps
+ where search (p:ps) = do let filename = joinPath [p, fname]
+                          fExists <- doesFileExist filename
+                          if fExists
+                            then return filename
+                            else search ps
        search []     = error ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) )                      
 
 pathSeparator = "/"
