@@ -1,0 +1,140 @@
+imports
+{
+import UU.Scanner.Position(Pos)
+import Pretty
+import DepTypes(Trace)
+import CodeSyntax
+import CommonTypes
+}
+
+TYPE Errors = [Error]
+
+
+DATA Error  | ParserError     pos     : {Pos}
+                              problem : {String}
+                              action  : {String}
+
+            | DupAlt          nt    : {NontermIdent}
+                              con,occ1 : {ConstructorIdent}
+
+            | DupSynonym      nt,occ1 : {NontermIdent}
+
+            | DupSet          name,occ1 : {NontermIdent}
+
+            | DupInhAttr      nt    : {NontermIdent}
+                              attr,occ1 :{Identifier}
+
+            | DupSynAttr      nt    : {NontermIdent}
+                              attr,occ1 : {Identifier}
+
+            | DupChild        nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              name,occ1 : {Identifier}
+
+            | DupRule         nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr,occ1 : {Identifier}
+            
+            | DupRuleName     nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              nm    : {Identifier}
+
+            | DupSig          nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              attr  : {Identifier}
+
+            | UndefNont       nt    : {NontermIdent}
+
+            | UndefAlt        nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+
+            | UndefChild      nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              name  : {Identifier}
+
+            | MissingRule     --pos : {Pos}
+                              nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
+            
+            | MissingNamedRule  nt   : {NontermIdent}
+                                con  : {Identifier}
+                                name : {Identifier}
+
+            | SuperfluousRule nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
+
+--            | SuperfluousSig  nt    : {NontermIdent}
+--                              con   : {ConstructorIdent}
+--                              attr  : {Identifier}
+
+            | UndefLocal      nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              var   : {Identifier}
+
+            | ChildAsLocal    nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              var   : {Identifier}
+
+            | UndefAttr       nt    : {NontermIdent}
+                              con   : {ConstructorIdent}
+                              field : {Identifier}
+                              attr  : {Identifier}
+                              isOut : {Bool}
+
+            | CyclicSet       name:{Identifier}
+
+            | CustomError     isWarning : {Bool}
+                              pos   : {Pos}
+                               mesg  : {PP_Doc}
+
+            | LocalCirc       nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+                              o_visit : {Bool}
+                              path    : {[String]}
+            
+            | InstCirc        nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+                              o_visit : {Bool}
+                              path    : {[String]}
+
+            | DirectCirc      nt      : {NontermIdent}
+                              o_visit : {Bool}
+                              cyclic  : {[((Identifier,Identifier),[String],[String])]}
+
+            | InducedCirc     nt      : {NontermIdent}
+                              cinter  : {CInterface}
+                              cyclic  : {[((Identifier,Identifier),[String],[String])]}
+
+            | MissingTypeSig  nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+            
+            | MissingInstSig  nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+            
+            | DupUnique       nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              attr    : {Identifier}
+            
+            | MissingUnique   nt      : {NontermIdent}
+                              attr    : {Identifier}
+            
+            | MissingSyn      nt      : {NontermIdent}
+                              attr    : {Identifier}
+
+            | InvalidField    nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
+
+            | NotUniqueAttrFP nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
+                              attr    : {Identifier}
