@@ -88,6 +88,9 @@ _FIELD = identifier "field"
 _FIRST = identifier "first__"
 _LAST  = identifier "last__"
 
+isReservedIdentifier :: Identifier -> Bool
+isReservedIdentifier = flip elem [_LHS,_SELF, _LOC, _INST, _INST', _FIELD, _FIRST, _LAST]
+
 sdtype :: NontermIdent -> String
 sdtype nt = "T_"++getName nt
 

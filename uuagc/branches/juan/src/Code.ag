@@ -1,0 +1,139 @@
+imports
+{
+import Pretty
+import Patterns
+import Data.List(partition)
+import Data.Set(Set)
+import qualified Data.Set as Set
+import Data.Map(Map)
+import qualified Data.Map as Map
+}
+
+TYPE Exprs    = [Expr]
+TYPE Decls    = [Decl]
+TYPE Chunks   = [Chunk]
+TYPE DataAlts = [DataAlt]
+TYPE CaseAlts = [CaseAlt]
+TYPE Types    = [Type]
+TYPE NamedTypes = [NamedType]
+
+DATA Program  | Program          chunks : Chunks
+
+DATA Chunk    | Chunk            name         : String
+                                 comment      : Decl
+                                 info         : Decls
+                                 dataDef      : Decls
+                                 cataFun      : Decls
+                                 semDom       : Decls
+                                 semWrapper   : Decls
+                                 semFunctions : Decls
+                                 semNames     : {[String]}
+
+DATA Expr     | Let              decls : Decls   
+                                 body  : Expr
+              | Case             expr  : Expr
+                                 alts  : CaseAlts
+              | Do               stmts : Decls
+                                 body  : Expr
+              | Lambda           args :  Exprs
+                                 body : Expr
+              | TupleExpr        exprs : Exprs
+	          | UnboxedTupleExpr exprs : Exprs
+              | App              name  : {String} 
+                                 args  : Exprs
+              | SimpleExpr       txt   : {String}
+              | TextExpr         lns   : {[String]}
+              | Trace            txt   : {String}
+                                 expr  : Expr
+              | PragmaExpr       onLeftSide : {Bool}
+                                 onNewLine  : {Bool}
+                                 txt   : {String}
+                                 expr  : Expr
+              | LineExpr         expr  : Expr
+              | TypedExpr        expr  : Expr
+                                 tp    : Type
+
+DATA CaseAlt  | CaseAlt          left  : Lhs
+                                 expr  : Expr
+
+DATA Decl     | Decl             left  : Lhs
+                                 rhs   : Expr
+                                 binds : {Set String}  -- set of variable names bound by the left-hand side
+                                 uses  : {Set String}  -- set of variable names used by the right-hand side
+              | Bind             left  : Lhs
+                                 rhs   : Expr
+              | BindLet          left  : Lhs
+                                 rhs   : Expr
+              | Data             name  : {String}
+                                 params: {[String]}
+                                 alts  : DataAlts
+                                 strict: Bool
+                                 derivings : {[String]}
+              | NewType          name  : {String}
+                                 params: {[String]}
+                                 con   : {String} 
+                                 tp    : Type
+              | Type             name  : {String}
+                                 params: {[String]}
+                                 tp    : Type
+              | TSig             name  : {String} 
+                                 tp    : Type
+              | Comment          txt   : {String}
+              | PragmaDecl       txt   : {String}
+
+DATA DataAlt  | DataAlt          name  : {String} 
+                                 args  : Types
+              | Record           name  : {String} 
+                                 args  : NamedTypes
+
+DATA NamedType | Named           strict: {Bool}
+                                 name  : {String}
+                                 tp    : Type
+
+DATA Type     | Arr              left  : Type
+                                 right : Type
+              | CtxApp           left  : {[(String, [String])]}
+                                 right : Type
+              | TypeApp          func  : Type
+                                 args  : Types
+              | TupleType        tps   : Types
+	          | UnboxedTupleType tps   : Types
+              | List             tp    : Type
+              | SimpleType       txt   : {String}
+              | NontermType      name   : String
+                                 params : {[String]}
+              | TMaybe           tp    : Type
+              | TEither          left  : Type
+                                 right : Type
+              | TMap             key   : Type
+                                 value : Type
+              | TIntMap          value : Type
+
+DATA Lhs      | Pattern3    pat3  : Pattern
+              | Pattern3SM  pat3  : Pattern
+              | TupleLhs         comps : {[String]} -- \ [Lhs] appears to be more sensible
+              | UnboxedTupleLhs  comps : {[String]} -- /
+              | Fun              name  : {String} 
+                                 args  : Exprs
+              | Unwrap name : {String} sub : Lhs
+
+DERIVING Type : Show
+
+{
+-- Unboxed tuples
+--   unbox  Whether unboxed tuples are wanted or not
+--   inh    The inherited attributes. 
+--          If there are none, no unboxing can take place, 
+--          because in that case the semantic function (a top-level identifier) would have an unboxed type.
+-- Of course we can't have an unboxed 1-tuple
+mkTupleExpr :: Bool -> Bool -> Exprs -> Expr
+mkTupleExpr unbox noInh exprs | not unbox || noInh || length exprs == 1 = TupleExpr exprs
+                              | otherwise                               = UnboxedTupleExpr exprs
+mkTupleType :: Bool -> Bool -> Types -> Type
+mkTupleType unbox noInh tps | not unbox || noInh || length tps == 1 = TupleType tps
+                            | otherwise                             = UnboxedTupleType tps
+mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
+mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleLhs comps
+                              | otherwise                               = UnboxedTupleLhs comps
+}
+

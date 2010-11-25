@@ -16,16 +16,17 @@ import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos, line, file)
 import UU.Scanner.Token              (Token)
 
-import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
-import qualified Desugar            as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
-import qualified TfmToVisage        as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Transform           as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
+import qualified Desugar             as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified FixedPointTransform as Pass1b (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified DefaultRules        as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Order               as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified GenerateCode        as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintVisitCode      as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintCode           as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintOcamlCode      as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintErrorMessages  as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
+import qualified TfmToVisage         as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
@@ -65,8 +66,10 @@ compile flags input output
           flags'    = Pass1.pragmas_Syn_AG       output1 $ flags
           grammar1  = Pass1.output_Syn_AG        output1
           output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags', Pass1a.forcedIrrefutables_Inh_Grammar = irrefutableMap }
-          grammar1a =Pass1a.output_Syn_Grammar   output1a
-          output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
+          grammar1a = Pass1a.output_Syn_Grammar  output1a
+          output1b  = Pass1b.wrap_Grammar        (Pass1b.sem_Grammar grammar1a                         ) Pass1b.Inh_Grammar {Pass1b.options_Inh_Grammar = flags'}
+          grammar1b = Pass1b.output_Syn_Grammar  output1b
+          output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1b                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
           grammar2  = Pass2.output_Syn_Grammar   output2
           outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
           grammarV  = PassV.visage_Syn_Grammar   outputV
@@ -88,6 +91,7 @@ compile flags input output
           parseErrorList   = map message2error parseErrors
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
                                Seq.>< Pass1a.errors_Syn_Grammar output1a
+                               Seq.>< Pass1b.errors_Syn_Grammar output1b 
                                Seq.>< Pass2.errors_Syn_Grammar  output2 )
           furtherErrors    = toList ( Pass3.errors_Syn_Grammar  output3
                                Seq.>< Pass4.errors_Syn_CGrammar output4)
