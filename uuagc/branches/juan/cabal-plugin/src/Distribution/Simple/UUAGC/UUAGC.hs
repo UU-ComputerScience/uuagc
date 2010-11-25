@@ -69,9 +69,10 @@ agModule = "x-agmodule"
 agClass  = "x-agclass"
 
 uuagcUserHook :: UserHooks
-uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("ag", uuagc):knownSuffixHandlers,
-                                 buildHook = uuagcBuildHook,
-                                 postBuild = uuagcPostBuild}
+uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("lag",uuagc):("ag", uuagc):knownSuffixHandlers
+                                ,buildHook = uuagcBuildHook
+                                ,postBuild = uuagcPostBuild
+                                }
 
 originalPreBuild  = preBuild simpleUserHooks
 originalBuildHook = buildHook simpleUserHooks
@@ -239,7 +240,7 @@ uuagc build local  =
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
                        do info verbosity $ concat [inFile, " has been preprocessed into ", outFile]
-                          print $ "processing: " ++ inFile
+                          print $ "processing: " ++ inFile ++ " generating: " ++ outFile
 --                          opts <- getAGFileOptions $ customFieldsBI build
                           fileOpts <- readFileOptions
                           let opts = case lookup inFile fileOpts of
