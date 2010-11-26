@@ -56,6 +56,7 @@ executable uuagc
     , Desugar
     , ErrorMessages
     , Expression
+    , FixedPointTransform
     , GenerateCode
     , HsToken
     , Interfaces
@@ -75,7 +76,7 @@ executable uuagc
     , VisageSyntax
     , VisagePatterns
   extensions: TypeSynonymInstances, MultiParamTypeClasses
-  hs-source-dirs: src, src-derived
+  hs-source-dirs: src
 
 Library
    build-depends:   base >= 4, base < 5, Cabal, directory, process, uulib>=0.9.12, filepath, mtl

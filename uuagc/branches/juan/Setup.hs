@@ -1,3 +1,6 @@
+-- #!/bin/env runhaskell
 
 import Distribution.Simple
-main = defaultMain
+import Distribution.Simple.UUAGC
+
+main = defaultMainWithHooks uuagcUserHook 
