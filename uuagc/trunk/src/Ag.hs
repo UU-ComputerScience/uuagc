@@ -83,7 +83,7 @@ compile flags input output
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
           dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
 
-          aspectAG  = AspectAGDump.wrap_Grammar   (AspectAGDump.sem_Grammar grammar2                     ) AspectAGDump.Inh_Grammar --marcos
+          aspectAG  = AspectAGDump.wrap_Grammar   (AspectAGDump.sem_Grammar grammar2                     ) AspectAGDump.Inh_Grammar {AspectAGDump.options_Inh_Grammar = flags'} --marcos
 
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
