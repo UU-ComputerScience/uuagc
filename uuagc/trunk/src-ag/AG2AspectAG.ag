@@ -5,6 +5,8 @@ INCLUDE "HsToken.ag"
 
 imports
 {
+import Options
+
 import Data.Char
 import Data.List
 import qualified Data.Map as Map
@@ -30,15 +32,41 @@ importAspectAG =  pp  "import Language.Grammars.AspectAG" >-<
 
 }
 
+ATTR Grammar [ options : Options | | ]
+
+ATTR Nonterminals Nonterminal Productions Production Children Child [ o_rename : Bool | | ]
+SEM Grammar
+  | Grammar  nonts.o_rename    = rename    @lhs.options
+
+
+
 ATTR Grammar [ | | pp USE {>-<} {empty} : PP_Doc ]
 
 SEM Grammar
-  | Grammar  		lhs     .  	pp    	=  pp "-- datatypes"               >-< @nonts.ppD >-< 
-                                                   pp "-- labels"                  >-< @nonts.ppL >-<
-                                                   pp "-- attributes"              >-< defAtts >-< @nonts.ppA >-<
-                                                   pp "-- rules"                   >-< pp "listNt = " >|< @nonts.ppNtL >-< @nonts.ppR >-<
-                                                   pp "-- semantic functions"      >-< @nonts.ppS >-<
-                                                   pp "-- wrappers"                >-< @nonts.ppW
+  | Grammar  		lhs     .  	pp    	=  (if dataTypes @lhs.options
+                                                   then  pp "-- datatypes"               >-< @nonts.ppD >-< 
+                                                         pp "-- labels"                  >-< @nonts.ppL 
+                                                   else  empty)
+
+                                                   >-<
+
+                                                   (if folds @lhs.options
+                                                   then  pp "-- attributes"              >-< defAtts >-< @nonts.ppA >-<
+                                                         pp "-- rules"                   >-< pp "listNt = " >|< @nonts.ppNtL >-< @nonts.ppR >-<
+                                                         pp "-- catas"                   >-< @nonts.ppCata 
+                                                   else  empty)
+
+                                                   >-<
+
+                                                   (if semfuns @lhs.options
+                                                   then  pp "-- semantic functions"      >-< @nonts.ppSF 
+                                                   else  empty)
+
+                                                   >-<
+
+                                                   (if wrappers @lhs.options
+                                                   then  pp "-- wrappers"    >-< @nonts.ppW
+                                                   else  empty)
                                                 
 
 
@@ -75,9 +103,16 @@ SEM Nonterminal
 
 
 SEM Production
-  | Production		lhs     .  	ppD    	= let prodName = ppListSep "" "" "_" [@lhs.ppNt, pp @con]
-                                                  in  prodName >|< ppListSep " {" "}" ", " @children.ppDL 
+  | Production		lhs     .  	ppD    	= let ppProd = prodName @lhs.o_rename @lhs.ppNt (pp @con)
+                                                  in  ppProd >|< ppListSep " {" "}" ", " @children.ppDL 
+{
 
+prodName :: Bool -> PP_Doc -> PP_Doc -> PP_Doc
+prodName rename ppNt ppCon | rename     = ppCon
+                           | otherwise  = ppListSep "" "" "_" [ppNt, ppCon] 
+
+
+}
 
 ATTR Productions Children Child  [ | | ppDL : {[PP_Doc]} ]
 
@@ -339,24 +374,19 @@ token2PP ppNt ppProd field chids locals tk
 
 
 
--- semantic functions
+-- catamorphisms
 
-ATTR Nonterminals Nonterminal Productions Production [ | | ppS USE {>-<} {empty} : PP_Doc ]
+ATTR Nonterminals Nonterminal Productions Production [ | | ppCata USE {>-<} {empty} : PP_Doc ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .      ppS    	=  
+  | Nonterminal		lhs     .      ppCata    	=  
                                       let   ppNt = pp @nt
                                       in    pp "----" >|< ppNt >-< 
-                                            pp "type T_" >|< ppNt >|< pp " = " >|< 
-                                            pp "(Record (HCons (LVPair (Proxy Att_inh) Inh_" >|< ppNt >|< pp ") HNil)) -> " >|<
-                                            pp "(Record (HCons (LVPair (Proxy Att_syn) Syn_" >|< ppNt >|< pp ") HNil))"     >-<
-                                            pp "instance SemType T_" >|< ppNt >|< pp " " >|< ppNt >-<
-                                            @prods.ppS >-<
-                                            pp "-- sem_" >|< ppNt >|< pp " :: " >|< ppNt >|< pp " -> T_" >|<  ppNt >-<
-                                            @prods.ppSF
+                                            @prods.ppCata 
+
 
 SEM Production
-  | Production		lhs     .  	ppS    	= 
+  | Production		lhs     .  	ppCata    	= 
                                             let  ppProd = ppListSep "" "" "_" [@lhs.ppNt, pp @con]
                                             in   pp "asp_" >|< ppProd >|< pp " = inh_" >|< ppProd >|<
                                                                           pp " `ext` syn_"  >|< ppProd >|<
@@ -365,7 +395,21 @@ SEM Production
                                                  pp "sem_" >|< ppProd >|< pp " = knit asp_" >|< ppProd
 
 
-ATTR Productions Production  [ | | ppSF USE {>-<} {empty} : PP_Doc ]
+-- semantic functions
+
+ATTR Nonterminals Nonterminal Productions Production  [ | | ppSF USE {>-<} {empty} : PP_Doc ]
+
+SEM Nonterminal
+  | Nonterminal  	lhs     .  	ppSF    	= 
+                                            let   ppNt = pp @nt
+                                            in    pp "----" >|< ppNt >-< 
+                                                  pp "type T_" >|< ppNt >|< pp " = " >|< 
+                                                  pp "(Record (HCons (LVPair (Proxy Att_inh) Inh_" >|< ppNt >|< pp ") HNil)) -> " >|<
+                                                  pp "(Record (HCons (LVPair (Proxy Att_syn) Syn_" >|< ppNt >|< pp ") HNil))"     >-<
+                                                  pp "instance SemType T_" >|< ppNt >|< pp " " >|< ppNt >-<
+                                                  pp "-- sem_" >|< ppNt >|< pp " :: " >|< ppNt >|< pp " -> T_" >|<  ppNt >-<
+                                                  @prods.ppSF
+
 SEM Production
   | Production		lhs     .  	ppSF    	= 
                                             let  chi = @children.ppCSF
@@ -375,7 +419,7 @@ SEM Production
                                                               "Cons"    -> ppParams (ppListSep "" "" " : ")
                                                               "Nil"     -> pp "[]"
                                                               -- general case
-                                                              otherwise -> ppProd >|< pp " " >|< (ppParams ppSpaced)
+                                                              otherwise -> prodName @lhs.o_rename @lhs.ppNt (pp @con) >|< pp " " >|< (ppParams ppSpaced)
 
                                                  ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
                                             in   pp "sem_" >|< @lhs.ppNt >|< pp " (" >|< ppPattern >|< ") = sem_" >|< ppProd >|<
