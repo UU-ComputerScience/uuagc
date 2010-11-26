@@ -50,7 +50,8 @@ scan opts
   
     scan :: Lexer Token
     scan p []                        = Nothing
-    scan p ('-':'-':xs)              = let (com,rest) = span (/= '\n') xs
+    scan p ('-':'-':xs) | null xs || not (head xs `elem` "<>!?#@:%$^&")    
+                                     = let (com,rest) = span (/= '\n') xs
                                        in advc' (2+length com) p scan rest
     scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
     scan p ('{'    :xs)              = advc' 1 p codescrap xs
