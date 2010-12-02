@@ -87,6 +87,7 @@ _INST' = identifier "inst'"
 _FIELD = identifier "field"
 _FIRST = identifier "first__"
 _LAST  = identifier "last__"
+_FP    = identifier "fp"
 
 isReservedIdentifier :: Identifier -> Bool
 isReservedIdentifier = flip elem [_LHS,_SELF, _LOC, _INST, _INST', _FIELD, _FIRST, _LAST]

@@ -69,6 +69,7 @@ compile flags input output
           grammar1a = Pass1a.output_Syn_Grammar  output1a
           output1b  = Pass1b.wrap_Grammar        (Pass1b.sem_Grammar grammar1a                         ) Pass1b.Inh_Grammar {Pass1b.options_Inh_Grammar = flags'}
           grammar1b = Pass1b.output_Syn_Grammar  output1b
+          fixedBlock = Pass1b.fixedBlock_Syn_Grammar output1b
           output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1b                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
           grammar2  = Pass2.output_Syn_Grammar   output2
           outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
@@ -120,7 +121,7 @@ compile flags input output
           (importBlocks, textBlocks) = Map.partitionWithKey (\(k, at) _->k==BlockImport && at == Nothing) blocks2
           
           importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
-          textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockOther, Nothing) $ textBlocks
+          textBlocksDoc   = (vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockOther, Nothing) $ textBlocks) >-< fixedBlock
           pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
           textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
           
@@ -149,6 +150,9 @@ compile flags input output
           additionalErrors = totalNrOfErrors - nrOfErrorsToReport
           additionalWarnings = totalNrOfWarnings - nrOfWarningsToReport
           pluralS n = if n == 1 then "" else "s"
+
+      catch (putStrLn (seq (Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}) "Salida")) (\_ -> putStrLn "Error ****")
+      -- catch (putStrLn (seq (flags') "Salida")) (\_ -> putStrLn "Error ****")
 
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
       

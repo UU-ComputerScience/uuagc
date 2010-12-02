@@ -50,6 +50,8 @@ getDefines  (CRule name ii hc nt con field childnt tp pattern rhs defines owrt o
 getUses     (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses expl _) = uses
 getExplicit (CRule name ii hc nt con field childnt tp pattern rhs defines owrt origin uses expl _) = expl
 
+
+isFP    = (_FP==)  . getField
 isLocal = (_LOC==) . getField
 isInst = (_INST==) . getField
 isLhs = (_LHS==) . getField
@@ -72,6 +74,7 @@ isInhAttr = not . isSynAttr
 ntattr :: CRule -> Maybe NTAttr
 ntattr cr  | isLocal cr =  Nothing
            | isInst  cr =  Nothing -- an inst definition is just considered as a local attribute definition
+           | isFP    cr =  Nothing
            | otherwise  =  let  at = if isSyn cr then NTASyn else NTAInh
                                 getNt cr = if isRhs cr then fromJust (getRhsNt cr) else getLhsNt cr
                            in Just (at (getNt cr) (getAttr cr) (fromJust (getType cr)))

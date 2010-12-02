@@ -30,6 +30,7 @@ import qualified Data.Sequence as Seq
 import Data.Map(Map) 
 import Data.Set(Set)
 import Data.Sequence(Seq, (><))
+import qualified List as List
 import UU.Util.Utils
 import UU.Scanner.Position(Pos(..),initPos)
 import Data.Foldable(toList)
@@ -41,6 +42,9 @@ import Data.Array((!),bounds,inRange)
 import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy,transpose)
 import qualified Data.Tree as Tree
 import Maybe
+import FixedPointHelper(testGenFP)
+import UU.Scanner.Position(noPos)
+import Control.Monad(mplus)
 }
 
 {
@@ -64,7 +68,9 @@ SEM Rule
   | Rule  lhs.nExplicitRules = if @explicit
                                then 1
                                else 0
-          lhs.nAutoRules = if startsWith "use rule" @origin || startsWith "copy rule" @origin
+          lhs.nAutoRules = if startsWith    "use rule" @origin 
+                              || startsWith "copy rule" @origin
+                              || startsWith "Fixed Point" @origin
                            then 1
                            else 0
 
@@ -119,6 +125,7 @@ ATTR Nonterminals Nonterminal Productions Production Rules Rule
    , o_dovisit   -- True if o_wantvisit and it is possible to generate visit functions (no cycles)
    , o_case:{Bool}  
    prefix : {String} | | ]
+
 ATTR Nonterminals Nonterminal Productions Production Children Child [ o_unbox:{Bool} | | ]
 ATTR Nonterminals Nonterminal [ o_data:{Bool} | | ]
 
@@ -130,12 +137,36 @@ SEM Grammar
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
                      .o_wantvisit = visit   @lhs.options
-                     .o_dovisit = visit     @lhs.options && null @cyclesErrors
+                     .o_dovisit = (visit    @lhs.options  || @fpEval) && null @cyclesErrors  -- visit     @lhs.options && null @cyclesErrors  -- (visit    @lhs.options  || @fpEval) && null @cyclesErrors 
                      .o_unbox   = unbox     @lhs.options
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
-                loc.fpEval      = Map.fold ((||).Map.fold ((||).Map.fold ((||).not.Map.null) False) False) False @fpsMap
+                loc.fpEval      = testGenFP @fpsMap
+                nonts.fpInfo    = @fpsMap
 
+------------------------------------------------------------------
+-- Pass fixed point information down
+------------------------------------------------------------------
+ATTR Nonterminals Nonterminal [ fpInfo : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))} | | ]
+
+ATTR Productions Production [ fpInfo : {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression))} | | ]
+
+ATTR Children Child [ fpInfo : {Map Int (Map (Identifier,Identifier) Expression)} | | ]
+
+ATTR Rules Rule [ fpInfo : {Map (Identifier,Identifier) Expression} | | ]
+
+ATTR Patterns Pattern [ fpInfo : {Map (Identifier,Identifier) Expression} | | ]
+
+SEM Nonterminal
+  | Nonterminal prods.fpInfo = maybe Map.empty id (Map.lookup @nt @lhs.fpInfo)
+
+SEM Production
+  |  Production loc.fpInfo = maybe Map.empty id (Map.lookup @con @lhs.fpInfo)
+                rules.fpInfo    = Map.fold (Map.union) Map.empty  @fpInfo
+
+SEM Child
+  |  Child loc.fpSynAttrs = Map.fold (List.union.map snd.Map.keys.Map.filterWithKey (\ (f,_) v -> f == @name)) [] @lhs.fpInfo 
+ 
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
 ------------------------------------------------------------------
@@ -177,15 +208,28 @@ SEM  Production
                                       ++ @children.gathAltAttrs                              -- sublist 2
                                       ++ @rules.gathAltAttrs                                 -- sublist 3
 
+ATTR Patterns Pattern [ isFPRule : {Bool} | | ]
+
+SEM Rule
+  |  Rule loc.isFPRule = startsWith "Fixed Point" @origin 
+
 SEM  Child
   |  Child  loc.maptolocal =  case @tp of
-                                NT nt _ -> Map.null @syn
+                                NT nt _ -> Map.null @syn 
                                 _       -> True
             lhs.gathAltAttrs = if  @maptolocal
                                    then [ AltAttr _LOC @name True ]                          -- sublist 2b
                                    else [ AltAttr @name syn True | syn <- Map.keys @syn ]    -- sublist 2a
 SEM  Pattern
-  |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC || @field == _INST)]     -- sublist 3
+  |  Alias lhs.gathAltAttrs = if not @lhs.isFPRule
+                              then [AltAttr @field @attr (@field == _LOC || @field == _INST)]     -- sublist 3
+                              else if @field == _LOC
+                                      || @field == _LHS
+                                      || @field == _INST 
+                                    then [AltAttr @field @attr (@field == _LOC || @field == _INST)]
+                                    else if Map.member (@field,@attr) @lhs.fpInfo
+                                         then maybe  [AltAttr @field @attr (@field == _LOC || @field == _INST)] (const [AltAttr _FP (Ident (getName @field ++ "_" ++ getName @attr) noPos) True]) $ lookupMaps @field @attr @lhs.childSyns 
+                                         else [AltAttr @field @attr (@field == _LOC || @field == _INST)]
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Production
@@ -193,17 +237,24 @@ SEM  Production
 
 -- Information passed to Pattern
 ATTR  Children Child 
-      [  | |  nts USE {Seq.><} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
-              inhs USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)} ]
+      [  | |  nts  USE {Seq.><} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
+              inhs USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)} 
+              syns USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)}]
+
 SEM  Child
-  |  Child  lhs.nts = Seq.singleton (@name,getNtName @tp)
+  |  Child  lhs.nts  = Seq.singleton (@name,getNtName @tp)
             lhs.inhs = Seq.singleton (@name,@inh)
-ATTR  Rules Rule
-      [  childNts : {Map Identifier NontermIdent} 
-         childInhs : {Map Identifier Attributes} | | ]
+            lhs.syns = Seq.singleton (@name,@syn)
+
+ATTR Patterns Pattern Rules Rule
+      [  childNts  : {Map Identifier NontermIdent} 
+         childInhs : {Map Identifier Attributes} 
+         childSyns : {Map Identifier Attributes} | | ] -- To manage Fix Point Evaluation
+
 SEM  Production
-  |  Production  rules.childNts = Map.fromList (toList @children.nts)
-                  rules.childInhs = Map.fromList (toList @children.inhs)
+  |  Production  rules.childNts   = Map.fromList (toList @children.nts)
+                 rules.childInhs  = Map.fromList (toList @children.inhs)
+                 rules.childSyns  = Map.fromList (toList @children.syns) 
 
 -- Collect CRules
 ATTR  Children Child Rules Rule
@@ -215,7 +266,7 @@ SEM  Production
 SEM  Child
   |  Child  loc.gathRules = if  @maptolocal
                                 then Seq.singleton (cRuleTerminal @name @lhs.nt @lhs.con @tp)
-                                else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
+                                else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn] -- (Map.filterWithKey (\k _ -> not.elem k $ @fpSynAttrs) @syn)]
 
 SEM  Rule
   |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
@@ -223,21 +274,45 @@ SEM  Rule
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
-                                                  | otherwise     = Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
+                                                  | otherwise     = if not @isFPRule 
+                                                                    then Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
+                                                                    else (lookupMaps field attr @lhs.childInhs)
+                                                                         `mplus` 
+                                                                         (lookupMaps field attr @lhs.childSyns)
+                                                                         `mplus` (error $ "Rule.defines.tp " ++ show field ++ " " ++ show attr)
+
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
                               typ (Product _ pats)           = tp _LOC undefined pats
                               typ _                          = Nothing
-                              
-                         in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
-                                          | (field,attr,isLocalOrInst,parts) <- @pattern.patternAttrs
-                                          , let aa = AltAttr field attr isLocalOrInst
+
+                         in Map.fromList  [ (findWithErr1 ("Rule.defines.in " ++ show field ++ " " ++ show attr ++ " " ++ show @lhs.altAttrs) aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
+                                          | (field,attr,isLocalOrInst,parts) <- @pattern.patternAttrs'
+                                          , let aa = if field    == _LHS
+                                                        || field == _LOC
+                                                        || field == _INST
+                                                     then AltAttr field attr isLocalOrInst
+                                                     else if not @isFPRule
+                                                          then AltAttr field attr isLocalOrInst
+                                                          else maybe (AltAttr field attr isLocalOrInst) (const (AltAttr _FP  (Ident (getName field ++ "_" ++ getName attr) noPos) True)) $ lookupMaps field attr @lhs.childSyns
                                           ]
-           loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
-                            in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars @explicit @mbName
+           loc.gathRules =  let childnt field  = Map.lookup field @lhs.childNts 
+                            in Seq.fromList [ CRule attr' isIn' True @lhs.nt @lhs.con field' childnt' tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars @explicit @mbName
                                             | (field,attr,tp) <- Map.elems @defines 
+                                            , let (field',attr',childnt',isIn') = if not @isFPRule
+                                                                                  then (field, attr, childnt field, False)
+                                                                                  else if Map.member (field,attr) @lhs.fpInfo
+                                                                                       then maybe (field, attr, childnt field, False) (const (_FP,(Ident (getName field ++ "_" ++ getName attr) noPos),Nothing,True)) $ lookupMaps field attr @lhs.childSyns
+                                                                                       else (field, attr, childnt field, False)
                                             ]
+
+{
+lookupMaps :: (Ord k1, Ord k2) => 
+              k1 -> k2 -> Map k1 (Map k2 c) -> Maybe c
+lookupMaps k k' m = do m' <- Map.lookup k m
+                       Map.lookup k' m'
+}
 
 {
 substSelf nt tp
@@ -250,10 +325,22 @@ haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts)
 }
 
 
-ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Identifier,Identifier,Bool,Patterns)]} ]
+ATTR Patterns Pattern 
+     [ | | patternAttrs  USE {++} {[]} : {[(Identifier,Identifier,Bool,Patterns)]}
+           patternAttrs' USE {++} {[]} : {[(Identifier,Identifier,Bool,Patterns)]} ]
 
 SEM  Pattern
-  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
+  |  Alias lhs.patternAttrs' = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
+           lhs.patternAttrs  = if @lhs.isFPRule
+                               then if (  @field == _LOC
+                                       || @field == _LHS
+                                       || @field == _INST
+                                       )
+                                    then [(@field,@attr, (@field == _LOC || @field == _INST),@parts.copy)]
+                                    else if Map.member (@field,@attr) @lhs.fpInfo
+                                         then maybe [(@field,@attr, (@field == _LOC || @field == _INST),@parts.copy)]  (const [(_FP,(Ident (getName @field ++ "_" ++ getName @attr) noPos), True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
+                                         else [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
+                               else [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
 
 
 
@@ -490,7 +577,7 @@ SEM Grammar
   | Grammar loc.ruleTable = Array.array (0,@nonts.vcount-1) (toList @nonts.rules)
             loc.attrTable = Array.array (0,@nonts.acount-1) (toList @nonts.ntattrs)
             loc.attrVertex = Map.fromList (map swap (toList @nonts.ntattrs))
-            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v @attrVertex) (ntattr cr))
+            loc.tdpToTds  = [ (s, maybe (-1) (\v -> findWithErr1 ("Grammar.tdpToTds "++(show v) ++ " " ++ (show @attrVertex)) v @attrVertex) (ntattr cr))
                             | (s,cr) <- toList @nonts.rules]
             loc.tdsToTdp  =  let  eq (_,v) (_,v') = v == v'
                                   conv ((s,v):svs)  | v == -1 = Nothing
