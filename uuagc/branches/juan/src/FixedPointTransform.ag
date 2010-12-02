@@ -22,6 +22,7 @@ import AbstractSyntax
 import ErrorMessages
 import Options(Options,modcopy,rename)
 import HsTokenWriter
+import FixedPointHelper(testGenFP)
 }
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression  [ options : {Options} | | ]
@@ -31,6 +32,8 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern 
 ATTR Nonterminals Nonterminal Productions Production Rule Rules Expression [ fpsMap : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rules Rule Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
+
+ATTR Grammar [ | | fixedBlock : { PP_Doc } ]
 
 ATTR Rule [ | | outputs : Rules ]
 
@@ -100,10 +103,25 @@ SEM Grammar | Grammar loc.output = Grammar @typeSyns
                                            @augmentsMap
                                            @aroundsMap
                                            @fpsMap
+                      loc.fpEval     = testGenFP @fpsMap
+                      loc.fixedBlock = if @fpEval 
+                                       then genFixedPointEval
+                                       else empty
 
 {
 (>|-|<) :: Map Int Rules -> Map Int Rules -> Map Int Rules
 m >|-|< m' = Map.unionWith (++) m m'
+
+genFixedPointEval :: PP_Doc 
+genFixedPointEval = let fun = [""
+                              ,"drop_until_equal :: (Eq b) => (a -> a) -> (a -> b) -> a -> a"
+                              ,"drop_until_equal f p a = let fa = f a"
+                              ,"                         in if p fa == p a"
+                              ,"                            then fa"
+                              ,"                            else drop_until_equal f p fa"
+                              ,""
+                              ]
+                    in vlist (map pp fun)
 
 
 fixruletoRule :: (Rules,Set Identifier) -> Map (Identifier,Identifier) Expression -> Rule
@@ -160,7 +178,16 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
         collectedNts                       = filter (not.isReservedIdentifier) $ Map.keys $ Map.fromList cattrs `Map.union` Map.fromList attrDefPats
         attrToPat (f,a)                    = Alias f a (Underscore noPos) []
         allPats                            = pats ++ map attrToPat missingAttrAtPats
-        allPatsP                           = Product noPos allPats
+        allPatsP                           = Product noPos allPats -- (subFPAttrsLoc allPats)
+        subFPAttrsLoc                      = map subFPAttrLoc
+        subFPAttrLoc (Constr name ps)      = Constr name (subFPAttrsLoc ps)
+        subFPAttrLoc (Product p  ps)       = Product p  (subFPAttrsLoc ps)
+        subFPAttrLoc (Alias f a p ps)      = let (f',a') = realSubFPAttrLoc f a
+                                             in Alias f' a' (subFPAttrLoc p) (subFPAttrsLoc ps)
+        subFPAttrLoc (Irrefutable p)       = Irrefutable (subFPAttrLoc p)
+        subFPAttrLoc pat                   = pat
+        realSubFPAttrLoc f a               = maybe (f,a) (const (_LOC,Ident (getName f ++ getName a) (getPos f)))  $ Map.lookup (f,a) fpInfo
+        
         lookupAttr'                        :: (Identifier -> Identifier -> String)
                                            -> (String -> Pos -> Expression -> HsToken)
                                            -> Identifier
@@ -202,22 +229,16 @@ getRules nt ct mfp m = do m'  <- Map.lookup nt m
                           return r
 
 checkRuleFP :: Rule -> Map Int [(Identifier, Identifier)] -> Maybe Int
-checkRuleFP (Rule _ pat expr _ _ _) fpAttrs = let attrsPat   = getAttrsPat pat
-                                                  attrsExpr  = getAttrsExpr expr
-                                                  inter  = Map.keys. Map.filter (id) . Map.map (interCheck attrsPat attrsExpr) $ fpAttrs
-                                                  interCheck p e y = interCheckE p y && interCheckE e y
-                                                  interCheckE :: [(Identifier,Identifier)] -> [(Identifier,Identifier)] -> Bool
-                                                  interCheckE e y = not.null.intersect e $ y
-                                              in if null inter
-                                                 then Nothing
-                                                 else return.head $ inter
-
--- checkRuleFP :: Rule -> [(Identifier, Identifier)] -> (Bool,[(Identifier,Identifier)])
--- checkRuleFP (Rule _ pat expr _ _ _) fpAttrs = let (bPat, inPat)   = apply getAttrsPat pat 
---                                                   (bExpr, inExpr) = apply getAttrsExpr expr
---                                               in (bPat && bExpr, inPat ++ inExpr)
---   where apply f a = let inter = f a `intersect` fpAttrs 
---                     in (not.null $ inter, inter)
+checkRuleFP (Rule _ pat expr _ _ _) fpAttrs = 
+   let attrsPat   = getAttrsPat pat
+       attrsExpr  = getAttrsExpr expr
+       inter  = Map.keys. Map.filter (id) . Map.map (interCheck attrsPat attrsExpr) $ fpAttrs
+       interCheck p e y = interCheckE p y && interCheckE e y
+       interCheckE :: [(Identifier,Identifier)] -> [(Identifier,Identifier)] -> Bool
+       interCheckE e y = not.null.intersect e $ y
+   in if null inter
+      then Nothing
+      else return.head $ inter
 
 getAttrsPat :: Pattern -> [(Identifier,Identifier)]
 getAttrsPat (Constr _ pats)      = concatMap getAttrsPat pats
