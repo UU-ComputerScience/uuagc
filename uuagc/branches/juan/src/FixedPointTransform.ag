@@ -178,16 +178,7 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
         collectedNts                       = filter (not.isReservedIdentifier) $ Map.keys $ Map.fromList cattrs `Map.union` Map.fromList attrDefPats
         attrToPat (f,a)                    = Alias f a (Underscore noPos) []
         allPats                            = pats ++ map attrToPat missingAttrAtPats
-        allPatsP                           = Product noPos allPats -- (subFPAttrsLoc allPats)
-        subFPAttrsLoc                      = map subFPAttrLoc
-        subFPAttrLoc (Constr name ps)      = Constr name (subFPAttrsLoc ps)
-        subFPAttrLoc (Product p  ps)       = Product p  (subFPAttrsLoc ps)
-        subFPAttrLoc (Alias f a p ps)      = let (f',a') = realSubFPAttrLoc f a
-                                             in Alias f' a' (subFPAttrLoc p) (subFPAttrsLoc ps)
-        subFPAttrLoc (Irrefutable p)       = Irrefutable (subFPAttrLoc p)
-        subFPAttrLoc pat                   = pat
-        realSubFPAttrLoc f a               = maybe (f,a) (const (_LOC,Ident (getName f ++ getName a) (getPos f)))  $ Map.lookup (f,a) fpInfo
-        
+        allPatsP                           = Product noPos allPats 
         lookupAttr'                        :: (Identifier -> Identifier -> String)
                                            -> (String -> Pos -> Expression -> HsToken)
                                            -> Identifier

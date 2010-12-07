@@ -11,7 +11,7 @@ sixpass : SixPass.ag
 
 fixpoint : TestFP1.ag
 	rm -f TestFP1.hs
-	../dist/build/uuagc/uuagc -a --dumpcgrammar $<
+	../dist/build/uuagc/uuagc -a --dumpgrammar $<
 	ghc -c TestFP1.hs
 
 fixpointf : TestFPf1.ag

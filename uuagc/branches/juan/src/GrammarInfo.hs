@@ -24,6 +24,7 @@ instance Show CRule
  where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin uses _ _)
          = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
          ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
+       show (CChildVisit name nt nr inh syn isLast) = "CChildVisit " ++ show name ++ " nt: " ++ show nt ++ " nr: " ++ show nr ++ " inh: " ++ show inh ++ " syn: " ++ show syn ++ " isLast: " ++ show isLast
 
 type CInterfaceMap = Map NontermIdent CInterface
 type CVisitsMap = Map NontermIdent (Map ConstructorIdent CVisits)
