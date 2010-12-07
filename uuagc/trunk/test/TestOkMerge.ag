@@ -7,13 +7,17 @@ optpragmas
 
 imports
 {
-import Data.BreadthFirstCata.Cata
+import Control.Monad.Stepwise.AG
 import Data.Map
+import Data.Monoid
+import Control.Applicative
 }
 
 {
 type Env = Map String Bool
 }
+
+PRAGMA breadthfirst
 
 DATA Root
   | Root  prop : Prop
@@ -32,7 +36,7 @@ DATA Prop
 ATTR Root Prop [ env : Env | | outcome : Bool ]
 
 SEM Prop
-  | Con  loc.effect = if @bool then Work else Fail
+  | Con  loc.effect = if @bool then (emit Work >>) else (fail "false" >>)
          lhs.outcome = @result.outcome
   | Ext  inst.k : Prop
          inst.k = @fun @lhs.env         
@@ -46,26 +50,18 @@ var nm = Prop_Ext (\env -> Prop_Con (findWithDefault (error "not found") nm env)
 }
 
 SEM Prop
-  | Con MERGE result : Prop = info @loc.effect $ final $ T_Prop_Syn @bool
+  | Con MERGE result : Prop = @loc.effect $ return $ T_Prop_Syn @bool
   | Or  MERGE left right AS result : Prop = best
 
 
-{
-data EvalInfo = Fail | Work
-
-best :: Comp EvalInfo t -> Comp EvalInfo t -> Comp EvalInfo t
-best l r = best' (oneStep l) (oneStep r)
-
-best' :: Outcome EvalInfo t -> Outcome EvalInfo t -> Comp EvalInfo t
-best' (Fin l) _ = final l
-best' _ (Fin r) = final r
-best' (Step Fail _) (Step i r) = info i r
-best' (Step i l) (Step Fail _) = info i l
-best' (Step Work l) (Step Work r) = info Work (best l r)
-}
-
-
 WRAPPER Root
+
+{
+data EvalInfo t = Work
+
+best :: Comp EvalInfo I_T_Prop -> Comp EvalInfo I_T_Prop -> Comp EvalInfo I_T_Prop
+best l r = globalChoice (unsafeTranslate l) (unsafeTranslate r)
+}
 
 {
 main :: IO ()
