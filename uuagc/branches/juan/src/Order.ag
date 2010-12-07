@@ -42,9 +42,11 @@ import Data.Array((!),bounds,inRange)
 import Data.List(elemIndex,partition,sort,mapAccumL,find,nubBy,intersperse,groupBy,transpose)
 import qualified Data.Tree as Tree
 import Maybe
-import FixedPointHelper(testGenFP)
+-- For Fixed Point 
+import FixedPointHelper(testGenFP,toFPIdentifier)
 import UU.Scanner.Position(noPos)
 import Control.Monad(mplus)
+import SemFPCSegments
 }
 
 {
@@ -137,7 +139,7 @@ SEM Grammar
                      .o_rename  = rename    @lhs.options
                      .o_newtypes= newtypes  @lhs.options
                      .o_wantvisit = visit   @lhs.options
-                     .o_dovisit = (visit    @lhs.options  || @fpEval) && null @cyclesErrors  -- visit     @lhs.options && null @cyclesErrors  -- (visit    @lhs.options  || @fpEval) && null @cyclesErrors 
+                     .o_dovisit = visit    @lhs.options  && null @cyclesErrors  -- visit     
                      .o_unbox   = unbox     @lhs.options
                      .o_case    = cases     @lhs.options
                      .prefix    = prefix    @lhs.options
@@ -269,17 +271,16 @@ SEM  Child
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn] -- (Map.filterWithKey (\k _ -> not.elem k $ @fpSynAttrs) @syn)]
 
 SEM  Rule
-  |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
-                                                                  = case parts of 
-                                                                      [] -> Map.lookup attr @lhs.allTypeSigs
-                                                                      _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
-                                                  | field == _LHS = Map.lookup attr @lhs.syn
-                                                  | otherwise     = if not @isFPRule 
-                                                                    then Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
-                                                                    else (lookupMaps field attr @lhs.childInhs)
-                                                                         `mplus` 
-                                                                         (lookupMaps field attr @lhs.childSyns)
-                                                                         `mplus` (error $ "Rule.defines.tp " ++ show field ++ " " ++ show attr)
+  |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST = case parts of 
+                                                                                         [] -> Map.lookup attr @lhs.allTypeSigs
+                                                                                         _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
+                                                  | field == _LHS                                          = Map.lookup attr @lhs.syn
+                                                  | otherwise                       = if not @isFPRule 
+                                                                                      then Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
+                                                                                      else (lookupMaps field attr @lhs.childInhs)
+                                                                                           `mplus` 
+                                                                                           (lookupMaps field attr @lhs.childSyns)
+                                                                                           `mplus` (error $ "Rule.defines.tp " ++ show field ++ " " ++ show attr)
 
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
@@ -305,7 +306,7 @@ SEM  Rule
                                                                                   else if Map.member (field,attr) @lhs.fpInfo
                                                                                        then maybe (field, attr, childnt field, False) (const (_FP,(Ident (getName field ++ "_" ++ getName attr) noPos),Nothing,True)) $ lookupMaps field attr @lhs.childSyns
                                                                                        else (field, attr, childnt field, False)
-                                            ]
+                                            ] 
 
 {
 lookupMaps :: (Ord k1, Ord k2) => 
@@ -331,18 +332,20 @@ ATTR Patterns Pattern
 
 SEM  Pattern
   |  Alias lhs.patternAttrs' = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
-           lhs.patternAttrs  = if @lhs.isFPRule
-                               then if (  @field == _LOC
-                                       || @field == _LHS
-                                       || @field == _INST
-                                       )
-                                    then [(@field,@attr, (@field == _LOC || @field == _INST),@parts.copy)]
-                                    else if Map.member (@field,@attr) @lhs.fpInfo
-                                         then maybe [(@field,@attr, (@field == _LOC || @field == _INST),@parts.copy)]  (const [(_FP,(Ident (getName @field ++ "_" ++ getName @attr) noPos), True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
-                                         else [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
-                               else [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
-
-
+           lhs.patternAttrs  = let defaultRes = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)] 
+                               in if not @lhs.isFPRule
+                                  then defaultRes
+                                  else if @field    == _LOC
+                                          || @field == _LHS
+                                          || @field == _INST
+                                       then defaultRes
+                                       else if Map.member (@field,@attr) @lhs.fpInfo
+                                            then maybe defaultRes  (const [(_FP,toFPIdentifier @field @attr, True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
+                                            else defaultRes
+{
+const' :: (Show a) => a -> b -> a
+const' a = error $ "He recibido " ++ show a
+}
 
 -- Giving them a number
 ATTR  Nonterminals Nonterminal Productions Production
@@ -626,7 +629,7 @@ SEM Grammar
 -- Generate CGrammar
 ------------------------------------------------------------------
 -- Pass InterfaceMap down and select the Interface in the Nonterminal
-ATTR Nonterminals Nonterminal [ cInterfaceMap : CInterfaceMap | | ]
+ATTR Nonterminals Nonterminal Productions Production [ cInterfaceMap : CInterfaceMap | | ]
 SEM  Nonterminal
   |  Nonterminal  loc.cInter = if  @lhs.o_dovisit
                                       then findWithErr1 "Nonterminal.cInter" @nt @lhs.cInterfaceMap
@@ -638,9 +641,9 @@ SEM  Production
   |  Production loc.cVisits = if  @lhs.o_dovisit
                                    then let prodsVisitsMap = findWithErr1 "Production.cVisits.nt" @lhs.nt @lhs.cVisitsMap
                                             visits = findWithErr1 "Production.cVisits.con" @con prodsVisitsMap
-                                         in visits
-                                   else  let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
-                                         in  [CVisit @lhs.inh @lhs.syn vss [] False]
+                                        in visits
+                                   else let  vss = nubBy eqCRuleDefines @gathRules ++ @children.singlevisits
+                                        in  [CVisit @lhs.inh @lhs.syn vss [] False]
 
 -- Declarations for single visits
 ATTR Child Children [ | | singlevisits USE {++} {[]}: {[CRule]}]
