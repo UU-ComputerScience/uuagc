@@ -16,7 +16,7 @@ extra-source-files: INSTALL, LICENSE, uuagc_options, src/TigerAS.ag, src/TigerEr
 executable tiger
   build-depends: base >= 3
   build-depends: haskell98, array
-  build-depends: uulib, containers
+  build-depends: uu-parsinglib >=2.5, uulib, containers
   build-depends: uuagc >= 0.9.29
   main-is: Tiger.hs
   hs-source-dirs: src

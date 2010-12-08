@@ -492,7 +492,7 @@ mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
              ++ Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
              -- may have duplicates
 
-    groups = Map.assocs $ Map.foldWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
+    groups = Map.assocs $ Map.foldrWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
     apply (ref,us) = mkRule ref (findOutField ref) us
     findOutField ref = case [ chld | (chld,NT tp _) <- fields, tp `hasSyn` ref] of
                          []    -> _LHS

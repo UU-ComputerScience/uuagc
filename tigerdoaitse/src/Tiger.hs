@@ -1,7 +1,10 @@
+{-# LANGUAGE TypeSynonymInstances,
+             MultiParamTypeClasses #-}
+
 module Main where
 
 import Prelude hiding (exp)
-import Text.ParserCombinators.UU
+import Text.ParserCombinators.UU hiding (Token, Apply,Parser)
 import TigerScanner (scanFile)
 import UU.Scanner.Token
 import UU.Scanner.Position
@@ -14,7 +17,12 @@ import System(getArgs)
 import UU.Scanner.GenTokenSymbol
 import UU.Scanner.GenTokenOrd
 
+type Parser a = P (Str Token Int)  
+
 pBracksPos p = (,) <$> pOBrackPos <*> p <* pCBrack 
+
+instance IsLocationUpdatedBy Int Token where
+   advance pos t = pos + 1
 
 ident :: Parser Token Ident 
 ident = uncurry Id <$> (pVaridPos <|> pConidPos)
@@ -45,7 +53,8 @@ main = do args <- getArgs
 parseFile f = do text <- readFile f
                  putStrLn text
                  tokens <- scanFile  f
-                 ast <- parseIO program tokens
+                 let r@(ast, errors) =  parse ( (,) <$> program <*> pEnd) (listToStr tokens 0)
+--                  ast <- parse program tokens
                  --print ast
                  mapM (putStrLn.sem_Error) 
                       (sem_Program ast)
