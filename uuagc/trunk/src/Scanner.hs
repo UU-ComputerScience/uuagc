@@ -1,5 +1,5 @@
-{-# OPTIONS -fglasgow-exts #-}
-
+{-# LANGUAGE MagicHash,
+             UnboxedTuples #-}
 module Scanner where
 import GHC.Prim
 import TokenDef

@@ -1,4 +1,6 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# LANGUAGE MagicHash,
+             UnboxedTuples #-}
+
 module TokenDef where
 
 import GHC.Prim
