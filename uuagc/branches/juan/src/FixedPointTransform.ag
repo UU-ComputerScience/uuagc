@@ -22,14 +22,14 @@ import AbstractSyntax
 import ErrorMessages
 import Options(Options,modcopy,rename)
 import HsTokenWriter
-import FixedPointHelper(testGenFP)
+import FixedPointHelper(testGenFP,FPInfo(..))
 }
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression  [ options : {Options} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
 
-ATTR Nonterminals Nonterminal Productions Production Rule Rules Expression [ fpsMap : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))} | | ]
+ATTR Nonterminals Nonterminal Productions Production Rule Rules Expression [ fpsMap : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rules Rule Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
 
@@ -55,8 +55,8 @@ SEM Production
 --         Managing Fixed Point Evaluators
 -------------------------------------------------------------------------------
 
-ATTR Nonterminals Nonterminal [ fpInfoIn : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))} | | ]
-ATTR Productions Production   [ fpInfoIn :  {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression))} | | ]
+ATTR Nonterminals Nonterminal [ fpInfoIn : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))} | | ]
+ATTR Productions Production   [ fpInfoIn :  {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule)))} | | ]
 ATTR Rules Rule               [ attrsInFp : {Map Int [(Identifier,Identifier)]} | | ]
 ATTR Rules Rule               [ | | fprules USE {>|-|<} {Map.empty} : {Map Int Rules} ]
 
@@ -124,7 +124,7 @@ genFixedPointEval = let fun = [""
                     in vlist (map pp fun)
 
 
-fixruletoRule :: (Rules,Set Identifier) -> Map (Identifier,Identifier) Expression -> Rule
+fixruletoRule :: (Rules,Set Identifier) -> Map (Identifier,Identifier) (FPInfo Rule) -> Rule
 fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs allPats pats_rhss collectedNts)) False (toOrigin nts pats fpInfo) False
   where toRhs p r psemf                    = getHsTokens (do initWriter
                                                              addTextN 2 "let"
@@ -173,14 +173,14 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
         attrfromPats (Irrefutable p)       = attrfromPats p
         attrfromPats (Underscore _)        = []
         attrDefPats                        = concatMap attrfromPats pats
-        cattrs                             = Map.keys $ fpInfo 
+        cattrs                             = Map.keys fpInfo 
         missingAttrAtPats                  = cattrs List.\\ attrDefPats
         collectedNts                       = filter (not.isReservedIdentifier) $ Map.keys $ Map.fromList cattrs `Map.union` Map.fromList attrDefPats
         attrToPat (f,a)                    = Alias f a (Underscore noPos) []
         allPats                            = pats ++ map attrToPat missingAttrAtPats
         allPatsP                           = Product noPos allPats 
         lookupAttr'                        :: (Identifier -> Identifier -> String)
-                                           -> (String -> Pos -> Expression -> HsToken)
+                                           -> (String -> Pos -> FPInfo Rule -> HsToken)
                                            -> Identifier
                                            -> Identifier
                                            -> Pos
@@ -188,26 +188,26 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
                                            -> HsToken
         lookupAttr' g h f a pos e          = maybe e (h (g f a) pos) $ Map.lookup (f,a) fpInfo
         lookupAttr''                       :: (Pos -> a)
-                                           -> (Expression -> Pos -> a)
+                                           -> (FPInfo Rule -> Pos -> a)
                                            -> Identifier
                                            -> Identifier
                                            -> (Pos -> a)
         lookupAttr'' e g f a               = maybe e g $ Map.lookup (f,a) fpInfo
 
 fixpointrules :: Map Int Rules 
-              -> Map Int (Map (Identifier,Identifier) Expression) -- Bottoms
+              -> Map Int (Map (Identifier,Identifier) (FPInfo Rule)) -- Bottoms
               -> Map Int (Set Identifier) -- Nonterminals
               -> Map Int Rule
 fixpointrules mr mb mnt = Map.intersectionWith (fixruletoRule) (Map.intersectionWith ((,)) mr mnt) mb
  
-addSemFuntoFPsMap :: Map NontermIdent (Map ConstructorIdent [(Map (Identifier,Identifier) Expression,Rules)])
+addSemFuntoFPsMap :: Map NontermIdent (Map ConstructorIdent [(Map (Identifier,Identifier) (FPInfo Rule),Rules)])
                   -> Map NontermIdent (Map ConstructorIdent [([(Identifier,Identifier)],Rules)])
-                  -> Map NontermIdent (Map ConstructorIdent [(Map (Identifier,Identifier) Expression,Rules)])
+                  -> Map NontermIdent (Map ConstructorIdent [(Map (Identifier,Identifier) (FPInfo Rule),Rules)])
 addSemFuntoFPsMap fpInfoMap fpSemRulesMap = Map.mapWithKey (\ntId m -> (Map.mapWithKey (\cId m' ->  map (\ (m'',_) -> (m'',maybe [] id (getRules ntId cId m'' fpSemRulesMap))) m') m)) fpInfoMap 
 
 getRules :: NontermIdent 
          -> ConstructorIdent 
-         -> Map (Identifier,Identifier) Expression 
+         -> Map (Identifier,Identifier) (FPInfo Rule) 
          -> Map NontermIdent (Map ConstructorIdent [([(Identifier,Identifier)],Rules)])
          -> Maybe Rules
 getRules nt ct mfp m = do m'  <- Map.lookup nt m

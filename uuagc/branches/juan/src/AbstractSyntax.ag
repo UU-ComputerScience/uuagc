@@ -6,6 +6,7 @@ import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
 import CommonTypes
+import FixedPointHelper(MapNnTConAttrsFPInfo)
 }
 
 DATA Grammar      | Grammar typeSyns  : {TypeSyns}
@@ -20,7 +21,7 @@ DATA Grammar      | Grammar typeSyns  : {TypeSyns}
                             uniqueMap  : {UniqueMap}
                             augmentsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
                             aroundsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
-                            fpsMap     : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))}
+                            fpsMap     : {MapNnTConAttrsFPInfo Rule} -- {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rules))))}
 
 TYPE Nonterminals = [Nonterminal]
 

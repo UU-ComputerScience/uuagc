@@ -26,6 +26,7 @@ import HsToken
 
 import Options
 import CommonTypes
+import FixedPointHelper(FPInfo(..))
 }
 
 
@@ -144,7 +145,7 @@ ATTR Elems Elem Attrs
 {type UniqueInfo = (Identifier,Identifier) }
 {type AugmentInfo = (Identifier,Expression)}
 {type AroundInfo  = (Identifier,Expression)}
-{type FPInfo      = (AttrName,Expression)}
+{type AttrFPInfo  = (AttrName,FPInfo ())}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -153,7 +154,7 @@ ATTR Elem Elems SemAlt SemAlts
              collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
              collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
              collectedArounds  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AroundInfo])  ]}
-             collectedFPs      USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [[FPInfo]]) ]}
+             collectedFPs      USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [[AttrFPInfo]]) ]}
      ]
 
 
@@ -336,7 +337,7 @@ type InstsAndErrors    = ([(Identifier, Type)], Seq Error)
 type UniquesAndErrors  = (Map Identifier Identifier, Seq Error)
 type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
 type AroundsAndErrors  = (Map Identifier [Expression], Seq Error)
-type FPsAndErrors      = (Map Int (Map (Identifier,Identifier) Expression),Seq Error)
+type FPsAndErrors      = (Map Int (Map (Identifier,Identifier) (FPInfo Rule)),Seq Error)
 type AttrOverwrite     = Map AttrName Bool
 type AccumRuleCheck    = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck    = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
@@ -462,24 +463,27 @@ checkArounds fieldMap nt con arounds
     in foldr checkAround (Map.empty, Seq.empty) arounds
 
 -----------------------------------------------------------------------
--- checkFPs: This function checks if the information collected about 
+-- checkFPs: This function checks the information collected about
 --           the fixed-point is correct.
---           The checking is done by using several inner checking functions: 
---           checkFPl, checkFPe, checkDefi, checkAlUsed.
+--           The checking is done by using several inner checking functions:
+--           checkFPl,
+--           checkFPe,
+--           checkDefi,
+--           checkAlUsed.
 -----------------------------------------------------------------------
-checkFPs :: Map NontermIdent (Attributes, Attributes) 
-         -> Map NontermIdent (Map ConstructorIdent FieldMap) 
-         -> NontermIdent 
-         -> ConstructorIdent 
-         -> Map Int [FPInfo]
+checkFPs :: Map NontermIdent (Attributes, Attributes)
+         -> Map NontermIdent (Map ConstructorIdent FieldMap)
+         -> NontermIdent
+         -> ConstructorIdent
+         -> Map Int [AttrFPInfo]
          -> FPsAndErrors
-checkFPs attrb fieldMap nt con fps 
+checkFPs attrb fieldMap nt con fps
   = let checkFPl k mm (m,errs,aac)                           = let (res,errs', aac') = foldr checkFPe (Map.empty,errs,aac) mm
                                                                in (Map.insert k res m, errs', aac')
-        checkFPe afae@((field,attr),exp) pai@(fae,errs,aac)  = if getName field == getName _LHS
-                                                               then (fae,(Seq.<|) (InvalidField nt con field) errs,aac)
-                                                              else checkDefi afae pai
-        checkDefi afae@((field,attr),exp) pai@(fae,errs,aac) = 
+        checkFPe afae@((field,attr),fpInfoV) pai@(fae,errs,aac)  = if getName field == getName _LHS
+                                                                   then (fae,(Seq.<|) (InvalidField nt con field) errs,aac)
+                                                                   else checkDefi afae pai
+        checkDefi afae@((field,attr),fpInfoV) pai@(fae,errs,aac) = 
                  case lookup field fields of
                      Just (NT nt' _) -> case Map.lookup nt' attrb of 
                                             Just (inha,syna)  -> if maybe False (\_ -> True) (Map.lookup attr inha) || 
@@ -487,17 +491,24 @@ checkFPs attrb fieldMap nt con fps
                                                                  then checkAlUsed afae pai
                                                                  else (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
                      _               -> (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
-        checkAlUsed ((field,attr),exp) pai@(fae,errs,aac)    = 
+        checkAlUsed ((field,attr),fpInfoV) pai@(fae,errs,aac)    = 
                let idName = getName field ++ "." ++ getName attr 
                in if idName `Set.member` aac 
                   then (fae,(Seq.<|) (NotUniqueAttrFP nt con field attr) errs, aac)
-                  else (Map.insert (field,attr) (exp::Expression) fae, errs, Set.insert idName aac)
+                  else (Map.insert (field,attr) (fromFPInfoVoidFPInfoRules fpInfoV) fae, errs, Set.insert idName aac)
         fields                                    = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
         (out,errs,_)                              = Map.foldWithKey checkFPl (Map.empty,Seq.empty,Set.empty) fps
     in (out,errs)
 
 
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
+
+fromFPInfoVoidFPInfoRules :: FPInfo () -> FPInfo Rule
+fromFPInfoVoidFPInfoRules fpInfoV = FPInfo {isInFP = isInFP fpInfoV
+                                           ,bottomFP = bottomFP fpInfoV
+                                           ,listInfo = []
+                                           }
+
 }
 
 
@@ -963,7 +974,7 @@ ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
                           uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
                           aroundInfos  USE {++} {[]} : {[AroundInfo]}
-                          fpInfos      USE {++} {[]} : {[[FPInfo]]}
+                          fpInfos      USE {++} {[]} : {[[AttrFPInfo]]}
                     ]
 
 
@@ -1107,7 +1118,7 @@ constructGrammar ::    Set NontermIdent
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
-                    -> Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) Expression)))
+                    -> Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))
                     -> Grammar
 
 constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap fpsMap =

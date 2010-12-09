@@ -23,6 +23,7 @@ import System.Directory
 import HsTokenScanner
 import Options
 import Control.Applicative(pure)
+import FixedPointHelper(FPInfo(..),newFPInfo,defaultFPInfo)
 
 type AGParser = AnaParser Input  Pair Token Pos
 
@@ -224,13 +225,15 @@ parseFile opts searchPath file
           <|> pure <$> (pFP *> pFPSemAlt)
 
     pFPSemAlt :: AGParser SemDef
-    pFPSemAlt = FixedPoint  <$> pOBrackPos <*> pFPElem <* pCBrack
+    pFPSemAlt = FixedPoint <$> pOBrackPos <*> pFPElem <* pCBrack
 
-    pFPElem :: AGParser [((Identifier,Identifier),Expression)]
+    pFPElem :: AGParser [((Identifier,Identifier),FPInfo ())]
     pFPElem = pListSep pComma pFPElem'
 
-    pFPElem' :: AGParser ((Identifier,Identifier),Expression)
-    pFPElem' = (,) <$> pAttr <* pAssign <*> pExpr
+    pFPElem' :: AGParser ((Identifier,Identifier),FPInfo ())
+    pFPElem' = (\ a e -> (a, newFPInfo True e)) <$> (pIn *> pAttr) <* pAssign <*> pExpr
+               <|> (\ a e -> (a, defaultFPInfo e)) <$> (pOut *> pAttr) <* pAssign <*> pExpr
+               <|> (\ a e -> (a, defaultFPInfo e)) <$> pAttr <* pAssign <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -471,6 +474,8 @@ pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
 pINST        = pCostReserved 5  "inst"    <?> "inst"
+pIn          = pCostReserved 5  "in"      <?> "in"
+pOut         = pCostReserved 5  "out"     <?> "out"
 pAt          = pCostReserved 5  "@"       <?> "@"
 pDot         = pCostReserved 5  "."       <?> "."
 pUScore      = pCostReserved 5  "_"       <?> "_"
