@@ -15,6 +15,7 @@ import Data.Maybe
 
 import Pretty
 import PPUtil
+import UU.Scanner.Position
 
 import AbstractSyntax
 import TokenDef
@@ -348,8 +349,11 @@ defRule ppNt (field,att) rhs = \chids locals ->
                                      in  ppAtt >|< (rhs field chids locals)
 
          
-rhsRule ppNt ppProd tks field chids locals =  hv_sp $ map (token2PP ppNt ppProd field chids locals) tks 
+rhsRule ppNt ppProd tks field chids locals =  vlist . lines2PP . (map (token2PP ppNt ppProd field chids locals)) $ tks
+-- hv_sp $ map (token2PP ppNt ppProd field chids locals) tks 
 
+
+{-
 token2PP ppNt ppProd field chids locals tk
   = case tk of
       AGLocal var _ _        -> if (elem var locals)
@@ -369,6 +373,37 @@ token2PP ppNt ppProd field chids locals tk
       CharToken value _      -> pp $ show value
       StrToken value _       -> pp $ show value
       Err mesg _             -> pp $ " ***" ++ mesg ++ "*** "
+-}
+
+lines2PP [] = []
+lines2PP xs = map line2PP . shiftLeft . getLines $ xs
+
+
+token2PP ppNt ppProd field chids locals tk
+  = case tk of
+      AGLocal var pos _        -> (pos, if (elem var locals)
+                                        then  (ppListSep "(" "" "_" [pp var, ppNt, ppProd]) >|< pp " (loc # att_loc)) " 
+                                        else  pp var)
+      AGField field attr pos _ -> let ppChT =    maybe (error $ "rhs field " ++ show field ++ " is not a child") ppShow (lookup field chids)
+                                      ppAtt =    case (show field) of
+                                                 "lhs"      ->  pp "att_inh"
+                                                 "loc"      ->  pp "att_loc"
+                                                 otherwise  ->  pp "att_syn"
+                                      ppSubAtt = case (show field) of
+                                                 "lhs"      -> ppListSep "" "" "_" [pp (getName attr), pp "Inh", ppNt]
+                                                 "loc"      -> ppListSep "" "" "_" [pp (getName attr), ppNt, ppProd]
+                                                 otherwise  -> ppListSep "" "" "_" [pp (getName attr), pp "Syn", ppChT]
+                                  in  (pos, pp "(" >|< ppSubAtt >|< " (" >|< pp (getName field) >|< " # " >|< ppAtt >|< ")) ")
+      HsToken value pos        -> (pos, pp value)
+      CharToken value pos      -> (pos, pp $ show value)
+      StrToken value pos       -> (pos, pp $ show value)
+      Err mesg pos             -> (pos, pp $ " ***" ++ mesg ++ "*** ")
+
+line2PP ts =         let f (p,t) r = let ct = column p
+                                     in \c -> pp (spaces (ct-c)) >|< t >|< r (length (show t) +ct)
+                         spaces x | x < 0 = ""
+                                  | otherwise = replicate x ' '
+                     in foldr f (pp . const "") ts 1
 
 }
 
