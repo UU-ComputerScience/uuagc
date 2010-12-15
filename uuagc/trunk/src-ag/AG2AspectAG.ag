@@ -108,8 +108,8 @@ SEM Production
 {
 
 prodName :: Bool -> PP_Doc -> PP_Doc -> PP_Doc
-prodName rename ppNt ppCon | rename     = ppCon
-                           | otherwise  = ppListSep "" "" "_" [ppNt, ppCon] 
+prodName rename ppNt ppCon | rename     = ppListSep "" "" "_" [ppNt, ppCon] 
+                           | otherwise  = ppCon 
 
 
 }
