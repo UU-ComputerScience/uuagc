@@ -26,7 +26,7 @@ import HsToken
 
 import Options
 import CommonTypes
-import FixedPointHelper(FPInfo(..))
+import FixedPointHelper(FPInfo(..),newFPInfo,FPAttrInfo(..),fromFPInfoVoidFPInfoRules,isOutFP)
 }
 
 
@@ -145,7 +145,7 @@ ATTR Elems Elem Attrs
 {type UniqueInfo = (Identifier,Identifier) }
 {type AugmentInfo = (Identifier,Expression)}
 {type AroundInfo  = (Identifier,Expression)}
-{type AttrFPInfo  = (AttrName,FPInfo ())}
+{type AttrFPInfo  = (AttrName,FPAttrInfo)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -337,7 +337,7 @@ type InstsAndErrors    = ([(Identifier, Type)], Seq Error)
 type UniquesAndErrors  = (Map Identifier Identifier, Seq Error)
 type AugmentsAndErrors = (Map Identifier [Expression], Seq Error)
 type AroundsAndErrors  = (Map Identifier [Expression], Seq Error)
-type FPsAndErrors      = (Map Int (Map (Identifier,Identifier) (FPInfo Rule)),Seq Error)
+type FPsAndErrors      = (Map Int (FPInfo Rule),Seq Error)
 type AttrOverwrite     = Map AttrName Bool
 type AccumRuleCheck    = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck    = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
@@ -478,24 +478,24 @@ checkFPs :: Map NontermIdent (Attributes, Attributes)
          -> Map Int [AttrFPInfo]
          -> FPsAndErrors
 checkFPs attrb fieldMap nt con fps
-  = let checkFPl k mm (m,errs,aac)                           = let (res,errs', aac') = foldr checkFPe (Map.empty,errs,aac) mm
+  = let checkFPl k mm (m,errs,aac)                           = let (res,errs', aac') = foldr checkFPe (newFPInfo,errs,aac) mm
                                                                in (Map.insert k res m, errs', aac')
-        checkFPe afae@((field,attr),fpInfoV) pai@(fae,errs,aac)  = if getName field == getName _LHS
+        checkFPe afae@((field,attr),fpInfoV) pai@(fae,errs,aac)  = if field == _LHS
                                                                    then (fae,(Seq.<|) (InvalidField nt con field) errs,aac)
                                                                    else checkDefi afae pai
         checkDefi afae@((field,attr),fpInfoV) pai@(fae,errs,aac) = 
-                 case lookup field fields of
-                     Just (NT nt' _) -> case Map.lookup nt' attrb of 
-                                            Just (inha,syna)  -> if maybe False (\_ -> True) (Map.lookup attr inha) || 
-                                                                    maybe False (\_ -> True) (Map.lookup attr syna)
-                                                                 then checkAlUsed afae pai
-                                                                 else (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
-                     _               -> (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
+                 fromJust $ (do (NT nt' _)  <- lookup field fields 
+                                (inha,syna) <- Map.lookup nt' attrb 
+                                if maybe False (const (isOutFP fpInfoV)) (Map.lookup attr inha) || 
+                                   maybe False (const (isInFP  fpInfoV)) (Map.lookup attr syna)
+                                 then return $ checkAlUsed afae pai
+                                 else return $ (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
+                            ) `mplus` return (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
         checkAlUsed ((field,attr),fpInfoV) pai@(fae,errs,aac)    = 
                let idName = getName field ++ "." ++ getName attr 
                in if idName `Set.member` aac 
                   then (fae,(Seq.<|) (NotUniqueAttrFP nt con field attr) errs, aac)
-                  else (Map.insert (field,attr) (fromFPInfoVoidFPInfoRules fpInfoV) fae, errs, Set.insert idName aac)
+                  else (fae { fpAttrInfo = Map.insert (field,attr) fpInfoV (fpAttrInfo fae)}, errs, Set.insert idName aac)
         fields                                    = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
         (out,errs,_)                              = Map.foldWithKey checkFPl (Map.empty,Seq.empty,Set.empty) fps
     in (out,errs)
@@ -503,11 +503,6 @@ checkFPs attrb fieldMap nt con fps
 
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 
-fromFPInfoVoidFPInfoRules :: FPInfo () -> FPInfo Rule
-fromFPInfoVoidFPInfoRules fpInfoV = FPInfo {isInFP = isInFP fpInfoV
-                                           ,bottomFP = bottomFP fpInfoV
-                                           ,listInfo = []
-                                           }
 
 }
 
@@ -1118,7 +1113,7 @@ constructGrammar ::    Set NontermIdent
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
-                    -> Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))
+                    -> Map NontermIdent (Map ConstructorIdent (Map Int (FPInfo Rule)))
                     -> Grammar
 
 constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap fpsMap =
