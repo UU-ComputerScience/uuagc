@@ -23,7 +23,7 @@ import System.Directory
 import HsTokenScanner
 import Options
 import Control.Applicative(pure)
-import FixedPointHelper(FPInfo(..),newFPInfo,defaultFPInfo)
+import FixedPointHelper(FPAttrInfo(..),newFPAttrInfo,defaultFPAttrInfo)
 
 type AGParser = AnaParser Input  Pair Token Pos
 
@@ -227,13 +227,13 @@ parseFile opts searchPath file
     pFPSemAlt :: AGParser SemDef
     pFPSemAlt = FixedPoint <$> pOBrackPos <*> pFPElem <* pCBrack
 
-    pFPElem :: AGParser [((Identifier,Identifier),FPInfo ())]
+    pFPElem :: AGParser [((Identifier,Identifier),FPAttrInfo)]
     pFPElem = pListSep pComma pFPElem'
 
-    pFPElem' :: AGParser ((Identifier,Identifier),FPInfo ())
-    pFPElem' = (\ a e -> (a, newFPInfo True e)) <$> (pIn *> pAttr) <* pAssign <*> pExpr
-               <|> (\ a e -> (a, defaultFPInfo e)) <$> (pOut *> pAttr) <* pAssign <*> pExpr
-               <|> (\ a e -> (a, defaultFPInfo e)) <$> pAttr <* pAssign <*> pExpr
+    pFPElem' :: AGParser ((Identifier,Identifier),FPAttrInfo)
+    pFPElem' = (\ a e -> (a, newFPAttrInfo True e)) <$> (pIn *> pAttr) <* pAssign <*> pExpr
+               <|> (\ a e -> (a, defaultFPAttrInfo e)) <$> (pOut *> pAttr) <* pAssign <*> pExpr
+               <|> (\ a e -> (a, defaultFPAttrInfo e)) <$> pAttr <* pAssign <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -448,7 +448,8 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pFP
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pFP, pOut,
+      pIn
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -474,8 +475,8 @@ pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
 pINST        = pCostReserved 5  "inst"    <?> "inst"
-pIn          = pCostReserved 5  "in"      <?> "in"
-pOut         = pCostReserved 5  "out"     <?> "out"
+pIn          = pCostReserved 5  "IN"      <?> "IN"
+pOut         = pCostReserved 5  "OUT"     <?> "OUT"
 pAt          = pCostReserved 5  "@"       <?> "@"
 pDot         = pCostReserved 5  "."       <?> "."
 pUScore      = pCostReserved 5  "_"       <?> "_"

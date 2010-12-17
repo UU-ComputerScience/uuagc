@@ -22,14 +22,15 @@ import AbstractSyntax
 import ErrorMessages
 import Options(Options,modcopy,rename)
 import HsTokenWriter
-import FixedPointHelper(testGenFP,FPInfo(..))
+import FixedPointHelper(testGenFP,FPInfo(..),FPAttrInfo(..),FPEvalTxt(..),newFPEval)
+import Control.Monad(mplus)
 }
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression  [ options : {Options} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
 
-ATTR Nonterminals Nonterminal Productions Production Rule Rules Expression [ fpsMap : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))} | | ]
+-- ATTR Nonterminals Nonterminal Productions Production Rule Rules Expression [ fpsMap : {Map NontermIdent (Map ConstructorIdent (Map Int (FPInfo Rule)))} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rules Rule Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
 
@@ -41,7 +42,7 @@ ATTR Productions Production Rule Rules Expression HsTokensRoot HsToken HsTokens 
 
 ATTR Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ con : ConstructorIdent | | ]
 
-SEM Grammar | Grammar nonts.fpsMap = @fpsMap
+-- SEM Grammar | Grammar nonts.fpsMap = @fpsMap
 
 SEM Nonterminal
   | Nonterminal
@@ -55,8 +56,9 @@ SEM Production
 --         Managing Fixed Point Evaluators
 -------------------------------------------------------------------------------
 
-ATTR Nonterminals Nonterminal [ fpInfoIn : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))} | | ]
-ATTR Productions Production   [ fpInfoIn :  {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule)))} | | ]
+ATTR Nonterminals Nonterminal Productions Production [ | fpInfoIn : {Map NontermIdent (Map ConstructorIdent (Map Int (FPInfo Rule)))} |  ]
+-- ATTR Productions Production   [ fpInfoIn :  {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule)))} | | ]
+ATTR Productions Production   [ gNt : {NontermIdent} | | ]
 ATTR Rules Rule               [ attrsInFp : {Map Int [(Identifier,Identifier)]} | | ]
 ATTR Rules Rule               [ | | fprules USE {>|-|<} {Map.empty} : {Map Int Rules} ]
 
@@ -68,18 +70,25 @@ ATTR Rules Rule               [ | | fprules USE {>|-|<} {Map.empty} : {Map Int R
 SEM Grammar
   | Grammar      nonts.fpInfoIn = @fpsMap
 
+-- SEM Nonterminal
+--   | Nonterminal  loc.fpInfoIn     = Map.findWithDefault Map.empty @nt @lhs.fpInfoIn
 SEM Nonterminal
-  | Nonterminal  loc.fpInfoIn     = Map.findWithDefault Map.empty @nt @lhs.fpInfoIn
+  |  Nonterminal    loc.gNt        = @nt
 
 SEM Production
-  | Production   loc.bottoms      = Map.findWithDefault Map.empty @con @lhs.fpInfoIn
-                 loc.attrsInFp    = Map.map (Map.keys) @bottoms
+  | Production   loc.bottoms      = Map.findWithDefault Map.empty @con (Map.findWithDefault Map.empty @lhs.gNt @lhs.fpInfoIn)
+                 loc.attrsInFp    = Map.map (Map.keys.fpAttrInfo) @bottoms
                  loc.ntsInFp      = Map.map (Set.fromList.map fst $) @attrsInFp
                  rules.attrsInFp  = @attrsInFp
-                 loc.e_attrgamma  = Map.map (Map.keys) $ Map.findWithDefault Map.empty @con @lhs.fpInfoIn
-                 loc.e_nontgamma  = Map.map (Map.foldWithKey (\ k _ b -> Set.insert (fst k) b) Set.empty) $ Map.findWithDefault Map.empty @con @lhs.fpInfoIn
-                 loc.rulesoutput  = @rules.output ++ Map.elems (fixpointrules @rules.fprules  @bottoms @ntsInFp)
-                 loc.output       = Production @con @children.output @rulesoutput @typeSigs.output 
+                 loc.rulesoutput  = @rules.output ++ Map.elems (fixpointrules @rules.fprules @bottoms @ntsInFp)
+                 loc.output       = Production @con @children.output @rulesoutput @typeSigs.output
+                 loc.fpInfoIn     = Map.map (Map.map (mixResults @rules.fprules)) @lhs.fpInfoIn
+
+{
+mixResults :: Map Int Rules -> Map Int (FPInfo Rule) -> Map Int (FPInfo Rule)
+mixResults gathRules = Map.mapWithKey f 
+   where f k fpInfo =  fromJust $ (Map.lookup k gathRules >>= \rs -> return (fpInfo { fpOtherInfo = rs })) `mplus` return fpInfo
+}
 
 SEM Rules 
  | Cons  lhs.output = @hd.outputs ++ @tl.output
@@ -102,9 +111,8 @@ SEM Grammar | Grammar loc.output = Grammar @typeSyns
                                            @uniqueMap
                                            @augmentsMap
                                            @aroundsMap
-                                           @fpsMap
-                      loc.fpEval     = testGenFP @fpsMap
-                      loc.fixedBlock = if @fpEval 
+                                           @nonts.fpInfoIn -- @fpsMap
+                      loc.fixedBlock = if testGenFP @fpsMap  
                                        then genFixedPointEval
                                        else empty
 
@@ -124,8 +132,8 @@ genFixedPointEval = let fun = [""
                     in vlist (map pp fun)
 
 
-fixruletoRule :: (Rules,Set Identifier) -> Map (Identifier,Identifier) (FPInfo Rule) -> Rule
-fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs allPats pats_rhss collectedNts)) False (toOrigin nts pats fpInfo) False
+fixruletoRule :: Int -> (Rules,Set Identifier) -> FPInfo Rule -> Rule
+fixruletoRule ifp (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs allPats pats_rhss collectedNts)) False (toOrigin ifp nts pats (fpAttrInfo fpInfo)) False
   where toRhs p r psemf                    = getHsTokens (do initWriter
                                                              addTextN 2 "let"
                                                              setVTab
@@ -157,7 +165,7 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
                                                              setBottoms (lookupAttr'') p
                                                              addText ")"
                                                          ) 
-        toOrigin  _ _ _                    = "Fixed Point Evaluation" 
+        toOrigin i _ _ _                   = show.newFPEval $ i 
         subIn  f a                         = sub "E" f a
         subOut f a                         = sub "S" f a
         subOutExpr' s p _                  = HsToken s p
@@ -173,32 +181,32 @@ fixruletoRule (rs,nts) fpInfo = Rule Nothing allPatsP (Expression noPos (toRhs a
         attrfromPats (Irrefutable p)       = attrfromPats p
         attrfromPats (Underscore _)        = []
         attrDefPats                        = concatMap attrfromPats pats
-        cattrs                             = Map.keys fpInfo 
+        cattrs                             = Map.keys (fpAttrInfo fpInfo)
         missingAttrAtPats                  = cattrs List.\\ attrDefPats
         collectedNts                       = filter (not.isReservedIdentifier) $ Map.keys $ Map.fromList cattrs `Map.union` Map.fromList attrDefPats
         attrToPat (f,a)                    = Alias f a (Underscore noPos) []
         allPats                            = pats ++ map attrToPat missingAttrAtPats
         allPatsP                           = Product noPos allPats 
         lookupAttr'                        :: (Identifier -> Identifier -> String)
-                                           -> (String -> Pos -> FPInfo Rule -> HsToken)
+                                           -> (String -> Pos -> FPAttrInfo -> HsToken)
                                            -> Identifier
                                            -> Identifier
                                            -> Pos
                                            -> HsToken
                                            -> HsToken
-        lookupAttr' g h f a pos e          = maybe e (h (g f a) pos) $ Map.lookup (f,a) fpInfo
+        lookupAttr' g h f a pos e          = maybe e (h (g f a) pos) $ Map.lookup (f,a) (fpAttrInfo fpInfo)
         lookupAttr''                       :: (Pos -> a)
-                                           -> (FPInfo Rule -> Pos -> a)
+                                           -> (FPAttrInfo -> Pos -> a)
                                            -> Identifier
                                            -> Identifier
                                            -> (Pos -> a)
-        lookupAttr'' e g f a               = maybe e g $ Map.lookup (f,a) fpInfo
+        lookupAttr'' e g f a               = maybe e g $ Map.lookup (f,a) (fpAttrInfo fpInfo)
 
 fixpointrules :: Map Int Rules 
-              -> Map Int (Map (Identifier,Identifier) (FPInfo Rule)) -- Bottoms
+              -> Map Int (FPInfo Rule)    -- Bottoms
               -> Map Int (Set Identifier) -- Nonterminals
               -> Map Int Rule
-fixpointrules mr mb mnt = Map.intersectionWith (fixruletoRule) (Map.intersectionWith ((,)) mr mnt) mb
+fixpointrules mr mb mnt = Map.intersectionWithKey (fixruletoRule) (Map.intersectionWith ((,)) mr mnt) mb
  
 addSemFuntoFPsMap :: Map NontermIdent (Map ConstructorIdent [(Map (Identifier,Identifier) (FPInfo Rule),Rules)])
                   -> Map NontermIdent (Map ConstructorIdent [([(Identifier,Identifier)],Rules)])

@@ -47,7 +47,15 @@ import FixedPointHelper(testGenFP,toFPIdentifier)
 import UU.Scanner.Position(noPos)
 import Control.Monad(mplus)
 import SemFPCSegments
-import FixedPointHelper(FPInfo(..))
+import FixedPointHelper(FPInfo(..)
+                       ,FPAttrInfo(..)
+                       ,FPEvalTxt(..)
+                       ,getFPEvalTxtIx
+                       ,notFPEval
+                       ,isOutMapAttrsFPInfo
+                       ,isInMapAttrsFPInfo
+                       ,getFPId
+                       ,condMaybe)
 }
 
 {
@@ -73,7 +81,7 @@ SEM Rule
                                else 0
           lhs.nAutoRules = if startsWith    "use rule" @origin 
                               || startsWith "copy rule" @origin
-                              || startsWith "Fixed Point" @origin
+                              || startsWith "FixedPoint" @origin
                            then 1
                            else 0
 
@@ -150,25 +158,29 @@ SEM Grammar
 ------------------------------------------------------------------
 -- Pass fixed point information down
 ------------------------------------------------------------------
-ATTR Nonterminals Nonterminal [ fpInfo : {Map NontermIdent (Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule))))} | | ]
+ATTR Nonterminals Nonterminal [ fpInfo : {Map NontermIdent (Map ConstructorIdent (Map Int (FPInfo Rule)))} | | ]
 
-ATTR Productions Production [ fpInfo : {Map ConstructorIdent (Map Int (Map (Identifier,Identifier) (FPInfo Rule)))} | | ]
+ATTR Productions Production [ fpInfo : {Map ConstructorIdent (Map Int (FPInfo Rule))} | | ]
 
-ATTR Children Child [ fpInfo : {Map Int (Map (Identifier,Identifier) (FPInfo Rule))} | | ]
+ATTR Children Child [ fpInfo : {Map Int (FPInfo Rule)} | | ]
 
-ATTR Rules Rule [ fpInfo : {Map (Identifier,Identifier) (FPInfo Rule)} | | ]
+-- ATTR Rules Rule [ fpInfo : {Map (Identifier,Identifier) FPAttrInfo} | | ]
+ATTR Rules Rule [ fpInfo : {Map Int (FPInfo Rule)} | | ]
 
-ATTR Patterns Pattern [ fpInfo : {Map (Identifier,Identifier) (FPInfo Rule)} | | ]
+ATTR Patterns Pattern [ -- fpInfo : {Map (Identifier,Identifier) FPAttrInfo} 
+                        fpInfo : {Map Int (FPInfo Rule)} 
+                        fpInfoTxt : {FPEvalTxt} 
+                        | | ]
 
 SEM Nonterminal
   | Nonterminal prods.fpInfo = maybe Map.empty id (Map.lookup @nt @lhs.fpInfo)
 
 SEM Production
-  |  Production loc.fpInfo = maybe Map.empty id (Map.lookup @con @lhs.fpInfo)
-                rules.fpInfo    = Map.fold (Map.union) Map.empty  @fpInfo
+  |  Production loc.fpInfo    = maybe Map.empty id (Map.lookup @con @lhs.fpInfo)
+                -- rules.fpInfo  = Map.fold (Map.union.fpAttrInfo) Map.empty  @fpInfo
 
 SEM Child
-  |  Child loc.fpSynAttrs = Map.fold (List.union.map snd.Map.keys.Map.filterWithKey (\ (f,_) v -> f == @name)) [] @lhs.fpInfo 
+  |  Child loc.fpSynAttrs = Map.fold (List.union.map snd.Map.keys.Map.filterWithKey (const . (@name ==). fst).fpAttrInfo) [] @lhs.fpInfo
  
 ------------------------------------------------------------------
 -- Building a mapping from Vertices to Ints
@@ -214,7 +226,10 @@ SEM  Production
 ATTR Patterns Pattern [ isFPRule : {Bool} | | ]
 
 SEM Rule
-  |  Rule loc.isFPRule = startsWith "Fixed Point" @origin 
+  |  Rule loc.isFPRule = startsWith "FixedPoint" @origin 
+          loc.fpInfoTxt = if @isFPRule
+                          then read @origin
+                          else notFPEval
 
 SEM  Child
   |  Child  loc.maptolocal =  case @tp of
@@ -230,9 +245,12 @@ SEM  Pattern
                                       || @field == _LHS
                                       || @field == _INST 
                                     then [AltAttr @field @attr (@field == _LOC || @field == _INST)]
-                                    else if Map.member (@field,@attr) @lhs.fpInfo
-                                         then maybe  [AltAttr @field @attr (@field == _LOC || @field == _INST)] (const [AltAttr _FP (Ident (getName @field ++ "_" ++ getName @attr) noPos) True]) $ lookupMaps @field @attr @lhs.childSyns 
-                                         else [AltAttr @field @attr (@field == _LOC || @field == _INST)]
+                                    else condMaybe (isInMapAttrsFPInfo (getFPId @lhs.fpInfoTxt) @field @attr @lhs.fpInfo) 
+                                                   [AltAttr _FP (Ident (getName @field ++ "_" ++ getName @attr) noPos) True] 
+                                                   [AltAttr @field @attr (@field == _LOC || @field == _INST)] 
+                                         -- if Map.member (@field,@attr) @lhs.fpInfo
+                                         -- then maybe  [AltAttr @field @attr (@field == _LOC || @field == _INST)] (const [AltAttr _FP (Ident (getName @field ++ "_" ++ getName @attr) noPos) True]) $ lookupMaps @field @attr @lhs.childSyns 
+                                         -- else [AltAttr @field @attr (@field == _LOC || @field == _INST)]
 
 ATTR Rules Rule Patterns Pattern [ altAttrs : {Map AltAttr Vertex} | | ]
 SEM  Production
@@ -295,18 +313,25 @@ SEM  Rule
                                                         || field == _LOC
                                                         || field == _INST
                                                      then AltAttr field attr isLocalOrInst
-                                                     else if not @isFPRule
-                                                          then AltAttr field attr isLocalOrInst
-                                                          else maybe (AltAttr field attr isLocalOrInst) (const (AltAttr _FP  (Ident (getName field ++ "_" ++ getName attr) noPos) True)) $ lookupMaps field attr @lhs.childSyns
+                                                     else condMaybe (isInMapAttrsFPInfo (getFPId @fpInfoTxt) field attr @lhs.fpInfo) 
+                                                                    (AltAttr _FP  (Ident (getName field ++ "_" ++ getName attr) noPos) True) 
+                                                                    (AltAttr field attr isLocalOrInst)  
+                                                          -- if not @isFPRule
+                                                          -- then AltAttr field attr isLocalOrInst
+                                                          -- else maybe (AltAttr field attr isLocalOrInst) (const (AltAttr _FP  (Ident (getName field ++ "_" ++ getName attr) noPos) True))  field attr @lhs.childSyns
                                           ]
            loc.gathRules =  let childnt field  = Map.lookup field @lhs.childNts 
                             in Seq.fromList [ CRule attr' isIn' True @lhs.nt @lhs.con field' childnt' tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars @explicit @mbName
                                             | (field,attr,tp) <- Map.elems @defines 
-                                            , let (field',attr',childnt',isIn') = if not @isFPRule
-                                                                                  then (field, attr, childnt field, False)
-                                                                                  else if Map.member (field,attr) @lhs.fpInfo
-                                                                                       then maybe (field, attr, childnt field, False) (const (_FP,(Ident (getName field ++ "_" ++ getName attr) noPos),Nothing,True)) $ lookupMaps field attr @lhs.childSyns
-                                                                                       else (field, attr, childnt field, False)
+                                            , let (field',attr',childnt',isIn') = condMaybe (isInMapAttrsFPInfo (getFPId @fpInfoTxt) field attr @lhs.fpInfo) 
+                                                                                            (_FP,(Ident (getName field ++ "_" ++ getName attr) noPos),Nothing,True) 
+                                                                                            (field, attr, childnt field, False) 
+
+                                                                                  -- if not @isFPRule
+                                                                                  -- then (field, attr, childnt field, False)
+                                                                                  -- else if Map.member (field,attr) @lhs.fpInfo
+                                                                                  --      then maybe (field, attr, childnt field, False) (const (_FP,(Ident (getName field ++ "_" ++ getName attr) noPos),Nothing,True)) $ lookupMaps field attr @lhs.childSyns
+                                                                                  --      else (field, attr, childnt field, False)
                                             ] 
 
 {
@@ -333,16 +358,21 @@ ATTR Patterns Pattern
 
 SEM  Pattern
   |  Alias lhs.patternAttrs' = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
-           lhs.patternAttrs  = let defaultRes = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)] 
-                               in if not @lhs.isFPRule
-                                  then defaultRes
-                                  else if @field    == _LOC
-                                          || @field == _LHS
-                                          || @field == _INST
-                                       then defaultRes
-                                       else if Map.member (@field,@attr) @lhs.fpInfo
-                                            then maybe defaultRes  (const [(_FP,toFPIdentifier @field @attr, True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
-                                            else defaultRes
+           lhs.patternAttrs  = condMaybe (isInMapAttrsFPInfo (getFPId @lhs.fpInfoTxt) @field @attr @lhs.fpInfo) 
+                                         [(_FP,toFPIdentifier @field @attr, True ,@parts.copy)] 
+                                         [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)] 
+
+-- let defaultRes = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)] 
+--                                in if not @lhs.isFPRule
+--                                   then defaultRes
+--                                   else if @field    == _LOC
+--                                           || @field == _LHS
+--                                           || @field == _INST
+--                                        then defaultRes
+--                                        else if Map.member (@field,@attr) @lhs.fpInfo
+--                                             then maybe defaultRes  (const [(_FP,toFPIdentifier @field @attr, True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
+--                                             else defaultRes
+-- 
 {
 const' :: (Show a) => a -> b -> a
 const' a = error $ "He recibido " ++ show a
