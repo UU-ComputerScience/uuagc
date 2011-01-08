@@ -1,0 +1,87 @@
+
+file : "src/AbstractSyntax.ag"
+options : data, pretty, genlinepragmas, module "AbstractSyntax"
+
+file : "src/ConcreteSyntax.ag"
+options : data, pretty, genlinepragmas, module "ConcreteSyntax"
+
+file : "src/ErrorMessages.ag"
+options : data, pretty, genlinepragmas, module "ErrorMessages"
+
+file : "src/HsToken.ag"
+options : data, pretty, genlinepragmas, module "HsToken"
+
+file : "src/Code.ag"
+options : data, pretty, genlinepragmas, module "Code"
+
+file : "src/Expression.ag"
+options : data, pretty, genlinepragmas, module "Expression"
+
+file : "src/Patterns.ag"
+options : data, pretty, genlinepragmas, module "Patterns"
+
+file : "src/Interfaces.ag"
+options : data, pretty, genlinepragmas, module "Interfaces"
+
+file : "src/CodeSyntax.ag"
+options : data, pretty, genlinepragmas, module "CodeSyntax"
+
+file : "src/DeclBlocks.ag"
+options : data, pretty, genlinepragmas, module "DeclBlocks" 
+
+file : "src/VisageSyntax.ag"
+options : data, pretty, genlinepragmas, module "VisageSyntax"
+
+file : "src/VisagePatterns.ag"
+options : data, pretty, genlinepragmas, module "VisagePatterns"
+
+file : "src/Desugar.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Desugar"
+
+file : "src/DefaultRules.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "DefaultRules"
+
+file : "src/GenerateCode.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "GenerateCode"
+
+file : "src/PrintOcamlCode.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintOcamlCode"
+
+file : "src/PrintCode.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintCode"
+
+file : "src/PrintVisitCode.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintVisitCode"
+
+file : "src/PrintErrorMessages.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintErrorMessages"
+
+file : "src/Transform.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Transform"
+
+file : "src/Order.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Order"
+file : "src/AbstractSyntaxDump.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "AbstractSyntaxDump"
+
+file : "src/CodeSyntaxDump.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "CodeSyntaxDump"
+
+file : "src/Visage.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Visage"
+
+file : "src/TfmToVisage.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "TfmToVisage"
+
+file : "src/FixedPointTransform.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "FixedPointTransform"
+
+file : "src/InterfacesRules.lag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "InterfacesRules"
+
+file : "src/SemHsTokens.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "SemHsTokens"
+
+file : "src/SemFPCSegments.ag"
+options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "SemFPCSegments"
+
