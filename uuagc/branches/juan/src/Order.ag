@@ -46,7 +46,7 @@ import Maybe
 import FixedPointHelper(testGenFP,toFPIdentifier)
 import UU.Scanner.Position(noPos)
 import Control.Monad(mplus)
-import SemFPCSegments
+-- import SemFPCSegments
 import FixedPointHelper(FPInfo(..)
                        ,FPAttrInfo(..)
                        ,FPEvalTxt(..)
@@ -373,10 +373,6 @@ SEM  Pattern
 --                                             then maybe defaultRes  (const [(_FP,toFPIdentifier @field @attr, True ,@parts.copy)]) $  lookupMaps @field @attr @lhs.childSyns 
 --                                             else defaultRes
 -- 
-{
-const' :: (Show a) => a -> b -> a
-const' a = error $ "He recibido " ++ show a
-}
 
 -- Giving them a number
 ATTR  Nonterminals Nonterminal Productions Production
