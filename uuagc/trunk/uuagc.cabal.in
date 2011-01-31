@@ -24,7 +24,7 @@ executable uuagc
     build-depends: base < 4
 
   if flag(compatibility2)
-    build-depends: base >= 3, base < 5, containers, directory, array
+    build-depends: base >= 3, base < 5, containers >= 0.3, directory, array
   else
     build-depends: base < 3
 
