@@ -1,0 +1,16 @@
+
+attr Tree 
+     syn count :: Int, sum :: Int
+
+sem Tree
+  |  Leaf  lhs.count = 1
+           lhs.sum   = @int
+  |  Bin   lhs.count = @lt.count + @rt.count
+           lhs.sum   = @lt.sum + @rt.sum
+
+attr Root 
+     syn avg :: Int
+
+sem Root
+  | Root   lhs.avg = @tree.sum `div` @tree.count
+

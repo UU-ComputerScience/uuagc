@@ -79,7 +79,7 @@ executable uuagc
   hs-source-dirs: src, src-derived
 
 Library
-   build-depends:   base >= 4, base < 5, Cabal, directory, process, uulib>=0.9.12, filepath
+   build-depends:   base >= 4, base < 5, Cabal<=1.8.0.6, directory, process, uulib>=0.9.12, filepath, mtl
    hs-source-dirs:  cabal-plugin/src
    exposed-modules: Distribution.Simple.UUAGC
    other-modules:   Distribution.Simple.UUAGC.UUAGC,

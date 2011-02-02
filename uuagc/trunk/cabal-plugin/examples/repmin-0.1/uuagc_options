@@ -1,3 +1,0 @@
-
-file : "src/RepMin.ag"
-options : data, catas, semfuns, signatures, pretty, rename, module "RepMin", wrappers
