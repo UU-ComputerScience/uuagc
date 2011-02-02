@@ -1,5 +1,6 @@
+module Main where
 
 import Distribution.Simple
-import Distribution.Simple.PPUUAGC
+import Distribution.Simple.UUAGC
 
 main = defaultMainWithHooks uuagcUserHook

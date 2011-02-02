@@ -1,6 +1,6 @@
 
 name:          repmin
-version:       0.1
+version:       0.2
 cabal-version: >=1.6
 build-type:    Simple
 license:       GPL
@@ -11,10 +11,20 @@ maintainer:    fcardona@eafit.edu.co
 stability:     experimental
 bug-reports:   mailto: fcardona@eafit.edu.co
 description:   An example of the use of the PPUUAGC preprocesor
-extra-source-files:   uuagc_options,src/RepMax.ag
+extra-source-files:   src/RepMax.ag
 
 Executable repmin
    build-depends:   base
    hs-source-dirs:  src
    main-is:         RepMinMain.hs
    other-modules:   RepMin
+   x-agmodule:      file: "src/RepMin.ag" options : data, catas, semfuns, signatures, pretty, rename, module "RepMin", wrappers
+
+
+Executable repminHS
+   build-depends:   base
+   hs-source-dirs:  src
+   main-is:         RepMinMainHS.hs
+   other-modules:   RepMinHS
+   x-agmodule:      file: "src/RepMinHS.ag" options : data, catas, semfuns, signatures, pretty, rename, haskellsyntax, module "RepMinHS", wrappers
+
