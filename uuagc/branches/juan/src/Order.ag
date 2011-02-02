@@ -299,7 +299,8 @@ SEM  Rule
                                                                                       else (lookupMaps field attr @lhs.childInhs)
                                                                                            `mplus` 
                                                                                            (lookupMaps field attr @lhs.childSyns)
-                                                                                           `mplus` (error $ "Rule.defines.tp " ++ show field ++ " " ++ show attr)
+                                                                                           `mplus` 
+                                                                                           (error $ "Rule.defines.tp " ++ show field ++ " " ++ show attr)
 
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts

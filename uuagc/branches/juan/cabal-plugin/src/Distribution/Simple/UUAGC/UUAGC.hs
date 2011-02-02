@@ -33,6 +33,7 @@ import System.FilePath(pathSeparators,
                        (</>),
                        takeFileName,
                        normalise,
+                       joinPath,
                        dropFileName,
                        addExtension,
                        dropExtension)
@@ -69,7 +70,7 @@ agModule = "x-agmodule"
 agClass  = "x-agclass"
 
 uuagcUserHook :: UserHooks
-uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("lag",uuagc):("ag", uuagc):knownSuffixHandlers
+uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("ag", uuagc):("lag",uuagc):knownSuffixHandlers
                                 ,buildHook = uuagcBuildHook
                                 ,postBuild = uuagcPostBuild
                                 }
@@ -88,7 +89,7 @@ addSearch sp fl = let sf = [head pathSeparators]
                       path = if sp == ""
                              then '.' : sf
                              else sp ++ sf
-                  in [normalise (sp ++ f) | f  <- fl]
+                  in [normalise (joinPath [sp,f]) | f  <- fl]
 
 throwFailure :: IO ()
 throwFailure = throwIO $ ExitFailure 1
