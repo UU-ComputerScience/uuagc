@@ -82,7 +82,8 @@ DATA SemDef    | Def    pos    : Pos
                         pattern: Pattern
                         rhs    : {Expression}
                         owrt   : {Bool}
-               | TypeDef ident : {Identifier}
+               | TypeDef pos   : {Pos}
+                         ident : {Identifier}
                          tp    : Type
                | UniqueDef ident : {Identifier}
                            ref   : {Identifier}

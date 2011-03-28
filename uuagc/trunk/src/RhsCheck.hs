@@ -9,7 +9,7 @@ import UU.Scanner.Position
 
 checkRhs,checkBlock,checkTy :: Expression -> Errors
 checkRhs = check parseExpWithMode
-checkBlock = check parseDeclWithMode
+checkBlock = check parseModuleWithMode
 checkTy = check parseTypeWithMode
 
 check :: (ParseMode -> String -> ParseResult a) -> Expression -> Errors

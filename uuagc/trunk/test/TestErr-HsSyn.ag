@@ -2,7 +2,13 @@ MODULE {Test} {} {}
 
 DATA D | C
 
-ATTR D [ | | x : Int ]
+ATTR D [ | | x : {Int)} ]
+
+{
+import Bullshit
+
+x = [6.8]
+}
 
 SEM D | C
   lhs.x = x+3+
