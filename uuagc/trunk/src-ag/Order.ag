@@ -223,7 +223,7 @@ SEM  Rule
                               typ :: Pattern -> Maybe Type
                               typ (Alias field attr _ parts) = tp field attr parts
                               typ (Underscore _)             = Nothing
-                              typ (Product _ pats)           = tp _LOC undefined pats
+                              -- typ (Product _ pats)           = tp _LOC undefined pats
                               typ _                          = Nothing
                               
                          in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))

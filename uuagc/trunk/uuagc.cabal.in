@@ -28,7 +28,8 @@ executable uuagc
   else
     build-depends: base < 3
 
-  build-depends: haskell98, uulib>=0.9.12
+  build-depends: haskell98, uulib>=0.9.12, mtl>=1.1.1.1
+  build-depends: haskell-src-exts
   main-is: Ag.hs
   other-modules: Ag
     , CommonTypes
@@ -75,11 +76,12 @@ executable uuagc
     , VisageSyntax
     , VisagePatterns
     , AG2AspectAG
+    , RhsCheck
   extensions: TypeSynonymInstances, MultiParamTypeClasses
   hs-source-dirs: src, src-derived
 
 Library
-   build-depends:   base >= 4, base < 5, Cabal<=1.8.0.6, directory, process, uulib>=0.9.12, filepath, mtl
+   build-depends:   base >= 4, base < 5, Cabal>=1.8.0.6, directory, process, uulib>=0.9.12, filepath, mtl
    hs-source-dirs:  cabal-plugin/src
    exposed-modules: Distribution.Simple.UUAGC
    other-modules:   Distribution.Simple.UUAGC.UUAGC,

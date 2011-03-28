@@ -26,6 +26,7 @@ import HsToken
 
 import Options
 import CommonTypes
+import RhsCheck
 }
 
 
@@ -34,11 +35,11 @@ import CommonTypes
 -------------------------------------------------------------------------------
 
 -- Given some options, we want to construct a Grammar, that is, a structure that conforms to AbstractSyntax
-ATTR AG
-     [ options:{Options} | | output : Grammar ]
+ATTR AG [ | | output : Grammar ]
+ATTR AG Elems Elem SemAlts SemAlt SemDefs SemDef [ options : Options | | ]
 
 -- as a side effect, we generate error messages and Haskell code blocks that need to be embedded in the final code
-ATTR AG Elems Elem SemAlts SemAlt Attrs NontSet ConstructorSet
+ATTR AG Elems Elem SemAlts SemAlt Attrs NontSet ConstructorSet SemDefs SemDef
      [ | | errors USE {Seq.><}{Seq.empty}:{Seq Error} ]
 ATTR AG Elems Elem
      [ | | blocks USE {`mapUnionWithPlusPlus`} {Map.empty}: {Blocks} ]
@@ -513,6 +514,16 @@ mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
 
 
 -------------------------------------------------------------------------------
+--         Checking RHSs of rules (optional)
+-------------------------------------------------------------------------------
+
+SEM SemDef | Def MergeDef
+  lhs.errors = if checkParseRhs @lhs.options
+               then Seq.fromList $ checkRhs @rhs
+               else Seq.empty
+
+
+-------------------------------------------------------------------------------
 --         Collecting Set names and Nonterminal names
 -------------------------------------------------------------------------------
 
@@ -946,6 +957,7 @@ SEM SemAlt
                            | (nt, conset, conkeys) <- @loc.coninfo
                            , con <- Set.toList (Set.difference conset conkeys)
                            ]
+                        Seq.>< @rules.errors
            lhs.collectedRules 
                =       [ (nt,con,r)
                        | (nt, conset, _) <- @loc.coninfo

@@ -2,7 +2,7 @@ module Main where
 
 import System                        (getArgs, getProgName, exitFailure)
 import System.Console.GetOpt         (usageInfo)
-import List                          (isSuffixOf)
+import List                          (isSuffixOf,nub)
 import Monad                         (zipWithM_)
 import Data.Maybe
 
@@ -77,7 +77,7 @@ compile flags input output
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
-          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags'}
+          output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags', PrErr.dups_Inh_Errors = [] }
 
           dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
@@ -320,7 +320,7 @@ reportDeps flags files
   = do results <- mapM (depsAG flags (searchPath flags)) files
        let (fs, mesgs) = foldr combine ([],[]) results
        let errs = take (min 1 (wmaxerrs flags)) (map message2error mesgs)
-       let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags}
+       let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags, PrErr.dups_Inh_Errors = []}
        if null errs
         then mapM_ putStrLn fs
         else do putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs

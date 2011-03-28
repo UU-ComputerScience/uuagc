@@ -45,6 +45,7 @@ isError opts (MissingUnique   _ _      ) = True
 isError opts (MissingSyn      _ _      ) = True
 isError opts (MissingNamedRule _ _ _)    = True
 isError opts (DupRuleName _ _ _)         = True
+isError opts (HsParseError _ _)          = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -60,12 +61,18 @@ ATTR Error   [ options:{Options} verbose:{Bool}    | | pp           :{PP_Doc}
                                      me                             :SELF
              ]
 
-ATTR Errors  [ options:{Options} | | pp         USE {>-<} {text ""} : {PP_Doc} 
+ATTR Errors  [ options:{Options}  dups : {[String]} | | pp         USE {>-<} {text ""} : {PP_Doc}
              ]
 
 SEM Errors
   | *  loc.verbose = verbose @lhs.options 
-
+  | Cons  loc.str = disp @hd.pp 5000 ""
+  
+          lhs.pp = if @loc.str `elem` @lhs.dups
+                   then @tl.pp
+                   else @hd.pp >-< @tl.pp
+          tl.dups = @loc.str : @lhs.dups
+  | Nil   lhs.pp = text ""
 
 
 SEM Error
@@ -74,7 +81,9 @@ SEM Error
                                  help = text ""
                                  act  = text @action
                               in ppError (isError @lhs.options @me) @pos mesg pat help act @lhs.verbose
-                             
+  
+  | HsParseError    lhs.pp = ppError True @pos (text @msg) (text "") (text "") (text "Correct the syntax of the Haskell code.") @lhs.verbose
+
   | DupAlt          lhs.pp = let mesg  = wfill ["Repeated definition for alternative", getName @con
                                                ,"of nonterminal", getName @nt, "."
                                                ] >-<
