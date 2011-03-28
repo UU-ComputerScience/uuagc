@@ -36,7 +36,7 @@ import RhsCheck
 
 -- Given some options, we want to construct a Grammar, that is, a structure that conforms to AbstractSyntax
 ATTR AG [ | | output : Grammar ]
-ATTR AG Elems Elem SemAlts SemAlt SemDefs SemDef [ options : Options | | ]
+ATTR AG Elems Elem SemAlts SemAlt SemDefs SemDef Attrs [ options : Options | | ]
 
 -- as a side effect, we generate error messages and Haskell code blocks that need to be embedded in the final code
 ATTR AG Elems Elem SemAlts SemAlt Attrs NontSet ConstructorSet SemDefs SemDef
@@ -187,6 +187,12 @@ SEM Elem
                           )
          loc.blockValue = [(@lines, @pos)]
          lhs.blocks     = Map.singleton @loc.blockInfo @loc.blockValue
+         lhs.errors     = if checkParseBlock @lhs.options
+                          then let exp = Expression @pos tks
+                                   tks = [tk]
+                                   tk  = HsToken (unlines @lines) @pos
+                               in Seq.fromList $ checkBlock $ exp
+                          else Seq.empty
 
 
 -------------------------------------------------------------------------------
@@ -520,6 +526,18 @@ mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
 SEM SemDef | Def MergeDef
   lhs.errors = if checkParseRhs @lhs.options
                then Seq.fromList $ checkRhs @rhs
+               else Seq.empty
+
+-- type of a type signature
+
+SEM SemDef | TypeDef
+  lhs.errors = if checkParseTy @lhs.options
+               then case @tp of
+                      Haskell s -> let exp = Expression @pos tks
+                                       tks = [tk]
+                                       tk  = HsToken s @pos
+                                   in Seq.fromList $ checkTy exp
+                      _ -> Seq.empty 
                else Seq.empty
 
 
@@ -906,6 +924,20 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
                                                    isUse (n,(e1,e2,_)) = not (null e1 || null e2)
                                                in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
           lhs.useMap = Map.fromList (zip (Set.toList @lhs.nts) (repeat @useMap))
+          
+          loc.errors1 = if checkParseTy @lhs.options
+                        then let attrs  = @inh ++ @syn ++ @chn
+                                 items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
+                                 errs  = map check items
+                                 check (pos,Haskell s) =
+                                   let exp = Expression pos tks
+                                       tks = [tk]
+                                       tk  = HsToken s pos
+                                   in Seq.fromList $ checkTy exp
+                                 check _ = Seq.empty
+                             in foldr (Seq.><) Seq.empty errs
+                        else Seq.empty
+          lhs.errors = @loc.errors Seq.>< @loc.errors1
 
 
 {

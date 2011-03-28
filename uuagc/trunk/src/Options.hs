@@ -66,6 +66,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["checkParseRhs"]         (NoArg parseHsRhsOpt) "Parse RHS of rules with Haskell parser"
                , Option []        ["checkParseTys"]         (NoArg parseHsTpOpt) "Parse types of attrs with Haskell parser"
                , Option []        ["checkParseBlocks"]         (NoArg parseHsBlockOpt) "Parse blocks with Haskell parser"
+               , Option []        ["checkParseHaskell"]  (NoArg parseHsOpt) "Parse Haskell code (recognizer)"
                ]
 
 allc = "dcfsprm"
@@ -249,6 +250,7 @@ breadthfirstStrictOpt opts = opts { breadthFirstStrict = True }
 parseHsRhsOpt opts = opts { checkParseRhs = True }
 parseHsTpOpt opts = opts { checkParseTy = True }
 parseHsBlockOpt opts = opts { checkParseBlock = True }
+parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

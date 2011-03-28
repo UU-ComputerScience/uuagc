@@ -237,12 +237,12 @@ parseFile opts searchPath file
                    <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
 
     pLocDecl :: AGParser SemDef
-    pLocDecl = pDot <**> (pIdentifier <**> (pTypeColon <**> (   (\tp _ ident _  -> TypeDef ident tp) <$> pLocType
+    pLocDecl = pDot <**> (pIdentifier <**> (pTypeColon <**> (   (\(tp,pos) _ ident _  -> TypeDef pos ident tp) <$> pLocType
                                                             <|> (\ref _ ident _ -> UniqueDef ident ref) <$ pUNIQUEREF <*> pIdentifier )))
 
 
     pInstDecl :: AGParser SemDef
-    pInstDecl = (\ident tp -> TypeDef ident tp)
+    pInstDecl = (\ident tp -> TypeDef (getPos ident) ident tp)
                   <$ pDot <*> pIdentifier <* pTypeColon <*> pTypeNt
 
     pSemDefs :: AGParser SemDefs
@@ -395,8 +395,9 @@ nl2sp '\n' = ' '
 nl2sp '\r' = ' '
 nl2sp x = x
 
-pLocType = (Haskell . getName) <$> pIdentifierU
-       <|> Haskell <$> pCodescrap'  <?> "a type"
+pLocType :: AGParser (Type, Pos)
+pLocType = (\u -> (Haskell $ getName u, getPos u)) <$> pIdentifierU
+       <|> (\(s,p) -> (Haskell s,p)) <$> pCodescrap  <?> "a type"
 
 pVar :: AGParser (Identifier -> (Identifier, Identifier))
 pVar = (\att fld -> (fld,att)) <$> pIdentifier
