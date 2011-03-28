@@ -63,6 +63,9 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
                , Option []        ["visitcode"]        (NoArg visitorsOutputOpt) "Experimental: generate visitors code"
                , Option []        ["statistics"]      (ReqArg statisticsOpt "FILE to append to") "Append statistics to FILE"
+               , Option []        ["checkParseRhs"]         (NoArg parseHsRhsOpt) "Parse RHS of rules with Haskell parser"
+               , Option []        ["checkParseTys"]         (NoArg parseHsTpOpt) "Parse types of attrs with Haskell parser"
+               , Option []        ["checkParseBlocks"]         (NoArg parseHsBlockOpt) "Parse blocks with Haskell parser"
                ]
 
 allc = "dcfsprm"
@@ -123,6 +126,9 @@ data Options = Options{ moduleName :: ModuleHeader
                       , statsFile :: Maybe String
                       , breadthFirst :: Bool
                       , breadthFirstStrict :: Bool
+                      , checkParseRhs :: Bool
+                      , checkParseTy :: Bool
+                      , checkParseBlock :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -180,8 +186,10 @@ noOptions = Options { moduleName    = NoName
                     , statsFile       = Nothing
                     , breadthFirst     = False
                     , breadthFirstStrict = False
+                    , checkParseRhs = False
+                    , checkParseTy  = False
+                    , checkParseBlock = False
                     }
-
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}            
 dataOpt         opts = opts{dataTypes    = True}            
@@ -238,6 +246,9 @@ visitorsOutputOpt opts = opts { visitorsOutput = True }
 statisticsOpt nm opts = opts { statsFile = Just nm }
 breadthfirstOpt opts = opts { breadthFirst = True }
 breadthfirstStrictOpt opts = opts { breadthFirstStrict = True }
+parseHsRhsOpt opts = opts { checkParseRhs = True }
+parseHsTpOpt opts = opts { checkParseTy = True }
+parseHsBlockOpt opts = opts { checkParseBlock = True }
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

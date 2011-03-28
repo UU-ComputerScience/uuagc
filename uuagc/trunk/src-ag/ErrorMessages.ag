@@ -9,10 +9,12 @@ import CommonTypes
 
 TYPE Errors = [Error]
 
-
 DATA Error  | ParserError     pos     : {Pos}
                               problem : {String}
                               action  : {String}
+                              
+            | HsParseError    pos     : {Pos}
+                              msg     : {String}
 
             | DupAlt          nt    : {NontermIdent}
                               con,occ1 : {ConstructorIdent}
