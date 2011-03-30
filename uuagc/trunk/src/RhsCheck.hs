@@ -6,6 +6,7 @@ import ConcreteSyntax
 import Expression
 import HsToken
 import UU.Scanner.Position
+import Debug.Trace
 
 checkRhs,checkBlock,checkTy :: Expression -> Errors
 checkRhs = check parseExpWithMode
@@ -15,13 +16,18 @@ checkTy = check parseTypeWithMode
 check :: (ParseMode -> String -> ParseResult a) -> Expression -> Errors
 check p (Expression pos tks) = case res of
    ParseOk _           -> []
-   ParseFailed loc msg -> let pos' = Pos (srcLine loc + line pos - 1) (srcColumn loc) (srcFilename loc)
+   ParseFailed loc msg -> trace (">>\n" ++ str ++ "\n" ++ msg ++ "<<") $
+                          let pos' = Pos (srcLine loc + line pos - 1) (srcColumn loc) (srcFilename loc)
                           in [HsParseError pos' msg]
  where
   pos0 = Pos (line pos) 1 (file pos)
   str  = toString pos0 tks
   res  = p mode str
-  mode = defaultParseMode { parseFilename = file pos, ignoreLanguagePragmas = False, extensions = glasgowExts }
+  mode = defaultParseMode { parseFilename = file pos, ignoreLanguagePragmas = False, extensions = exts
+                          , ignoreLinePragmas = False, fixities = baseFixities }
+
+exts :: [Extension]
+exts = glasgowExts
 
 toString :: Pos -> HsTokens -> String
 toString _    []       = ""
@@ -42,7 +48,7 @@ getPos (StrToken _ pos)     = pos
 getPos (Err _ pos)          = pos
 
 fmt :: HsToken -> String
-fmt (AGLocal var _ _)         = show var
+fmt (AGLocal var _ _)         = "_" ++ show var
 fmt (AGField field attr _ _)  = "_" ++ show field ++ "_" ++ show attr
 fmt (HsToken val _)           = val
 fmt (CharToken val _)         = show val
