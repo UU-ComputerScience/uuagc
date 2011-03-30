@@ -30,8 +30,9 @@ uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,ocase, ostrictcase, ostrictercase, olocalcps, osplitsems
          ,owerrors, owignore, odumpgrammar, odumpcgrammar, ogentraces
          ,ogenusetraces, ogencostcentres, ogenlinepragmas, osepsemmods
-         ,ogenfiledeps, ogenvisage, ogenattrlist, olckeywords
-         ,odoublecolons, oself ]
+         ,ogenfiledeps, ogenvisage, ogenaspectag, ogenattrlist, olckeywords
+         ,odoublecolons, oself
+         ,ocheckparserhs,ocheckparsetys,ocheckparseblocks,ocheckparsehaskell]
 
 uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UNewTypes, UPretty
@@ -40,8 +41,9 @@ uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UCase, UStrictCase, UStricterCase, ULocalCPS, USplitSems
             ,UWErrors, UWIgnore, UDumpGrammar, UDumpCGrammar, UGenTraces
             ,UGenUseTraces, UGenCostCentres, UGenLinePragmas, USepSemMods
-            ,UGenFileDeps, UGenVisage, UGenAttrList, ULCKeyWords
-            ,UDoubleColons, USelf ]
+            ,UGenFileDeps, UGenVisage, UGenAspectAG, UGenAttrList, ULCKeyWords
+            ,UDoubleColons, USelf
+            ,UCheckParseRhs, UCheckParseTys, UCheckParseBlocks, UCheckParseHaskell]
 
 gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
          ,(ooptimize, [ovisit,ocase])
@@ -51,7 +53,7 @@ gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
 gabsFlags = [UAll, UOptimize, UHaskellSyntax]
 
 
-aFlags = [omodule, ooutput, osearch, oprefix, owmax, oforceirrefutable]
+aFlags = [omodule, ooutput, osearch, oprefix, owmax, oforceirrefutable, ouniquedispenser, ostatistics]
 
 ugFlags = uFlags ++ (map (fst) gFlags)
 
@@ -92,7 +94,13 @@ pWmax = f <$> (pKey owmax *> pInteger)
 pForceIrrefutable :: Parser Token UUAGCOption
 pForceIrrefutable = UForceIrrefutable <$> (pKey oforceirrefutable *> pString)
 
-pAllFlags = pugFlags ++ [pModule,pOutput,pSearch,pPrefix,pWmax,pForceIrrefutable]
+pUniqueDispenser :: Parser Token UUAGCOption
+pUniqueDispenser = UUniqueDispenser <$> (pKey ouniquedispenser *> pString)
+
+pStatistics :: Parser Token UUAGCOption
+pStatistics = UStatistics <$> (pKey ostatistics *> pString)
+
+pAllFlags = pugFlags ++ [pModule,pOutput,pSearch,pPrefix,pWmax,pForceIrrefutable,pUniqueDispenser,pStatistics]
 
 pAnyFlag = pAny id pAllFlags
 

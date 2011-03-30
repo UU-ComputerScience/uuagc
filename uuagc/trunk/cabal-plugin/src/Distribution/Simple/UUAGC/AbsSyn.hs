@@ -58,12 +58,19 @@ data UUAGCOption = UModuleDefault
                  | USepSemMods
                  | UGenFileDeps
                  | UGenVisage
+                 | UGenAspectAG
                  | UGenAttrList
                  | UForceIrrefutable FilePath
+                 | UUniqueDispenser  String
                  | ULCKeyWords
                  | UOptimize
                  | UDoubleColons
                  | UHaskellSyntax
+                 | UStatistics FilePath
+                 | UCheckParseRhs
+                 | UCheckParseTys
+                 | UCheckParseBlocks
+                 | UCheckParseHaskell
                    deriving (Eq, Read, Show)
 
 type UUAGCOptions = [UUAGCOption]
@@ -128,13 +135,20 @@ fromUUAGCOtoArgs UGenLinePragmas        = toLOp ogenlinepragmas
 fromUUAGCOtoArgs USepSemMods            = toLOp osepsemmods
 fromUUAGCOtoArgs UGenFileDeps           = toLOp ogenfiledeps
 fromUUAGCOtoArgs UGenVisage             = toLOp ogenvisage
+fromUUAGCOtoArgs UGenAspectAG           = toLOp ogenaspectag
 fromUUAGCOtoArgs UGenAttrList           = toLOp ogenattrlist
 fromUUAGCOtoArgs (UForceIrrefutable fp) = toLEOpA oforceirrefutable fp
+fromUUAGCOtoArgs (UUniqueDispenser  nm) = toLEOpA ouniquedispenser  nm
 fromUUAGCOtoArgs UOptimize              = toLOp ooptimize
 fromUUAGCOtoArgs UModuleDefault         = toLOp omodule
 fromUUAGCOtoArgs UHaskellSyntax         = toLOp ohaskellsyntax
 fromUUAGCOtoArgs UDoubleColons          = toLOp odoublecolons
 fromUUAGCOtoArgs ULCKeyWords            = toLOp olckeywords
+fromUUAGCOtoArgs (UStatistics fp)       = toLEOpA ostatistics fp
+fromUUAGCOtoArgs UCheckParseRhs         = toLOp ocheckparserhs
+fromUUAGCOtoArgs UCheckParseTys         = toLOp ocheckparsetys
+fromUUAGCOtoArgs UCheckParseBlocks      = toLOp ocheckparseblocks
+fromUUAGCOtoArgs UCheckParseHaskell     = toLOp ocheckparsehaskell
 
 fromUUAGCOstoArgs :: UUAGCOptions -> [String]
 fromUUAGCOstoArgs = map fromUUAGCOtoArgs
