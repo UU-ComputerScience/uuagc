@@ -6,7 +6,6 @@ import ConcreteSyntax
 import Expression
 import HsToken
 import UU.Scanner.Position
-import Debug.Trace
 
 checkRhs,checkBlock,checkTy :: Expression -> Errors
 checkRhs = check parseExpWithMode
@@ -16,8 +15,7 @@ checkTy = check parseTypeWithMode
 check :: (ParseMode -> String -> ParseResult a) -> Expression -> Errors
 check p (Expression pos tks) = case res of
    ParseOk _           -> []
-   ParseFailed loc msg -> trace (">>\n" ++ str ++ "\n" ++ msg ++ "<<") $
-                          let pos' = Pos (srcLine loc + line pos - 1) (srcColumn loc) (srcFilename loc)
+   ParseFailed loc msg -> let pos' = Pos (srcLine loc + line pos - 1) (srcColumn loc) (srcFilename loc)
                           in [HsParseError pos' msg]
  where
   pos0 = Pos (line pos) 1 (file pos)
