@@ -8,9 +8,9 @@ import HsToken
 import UU.Scanner.Position
 
 checkRhs,checkBlock,checkTy :: Expression -> Errors
-checkRhs = check parseExpWithMode
+checkRhs   = check parseExpWithMode
 checkBlock = check parseModuleWithMode
-checkTy = check parseTypeWithMode
+checkTy    = check parseTypeWithMode
 
 check :: (ParseMode -> String -> ParseResult a) -> Expression -> Errors
 check p (Expression pos tks) = case res of

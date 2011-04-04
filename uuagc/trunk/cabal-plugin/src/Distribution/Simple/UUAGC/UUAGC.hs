@@ -10,7 +10,7 @@ import Distribution.Simple.PreProcess
 import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.Utils
 import Distribution.Simple.Setup
-import Distribution.PackageDescription
+import Distribution.PackageDescription hiding (Flag)
 import Distribution.Simple.UUAGC.AbsSyn( AGFileOption(..)
                                          , AGFileOptions
                                          , AGOptionsClass(..)
@@ -23,6 +23,7 @@ import Distribution.Simple.UUAGC.AbsSyn( AGFileOption(..)
                                          , fileClasses
                                          )
 import Distribution.Simple.UUAGC.Parser
+import Distribution.Verbosity
 import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
                      , StdStream(..), runProcess, waitForProcess
                      , proc)
@@ -220,7 +221,10 @@ uuagcBuildHook pd lbi uh bf = do
   options <- getAGFileOptions (bis >>= customFieldsBI)
   fileOptions <- forM options (\ opt ->
       let (notFound, opts) = getOptionsFromClass classes $ opt
-      in forM_ notFound (hPutStrLn stderr) >> return (normalise . filename $ opt, opts))
+      in do case buildVerbosity bf of
+              Flag v | v >= verbose -> putStrLn ("options for " ++ filename opt ++ ": " ++ show opts)
+              _ -> return () 
+            forM_ notFound (hPutStrLn stderr) >> return (normalise . filename $ opt, opts))
   writeFileOptions fileOptions
   let agflSP = map (id &&& dropFileName) $ nub $ getAGFileList options
   mapM_ (updateAGFile pd lbi) agflSP
