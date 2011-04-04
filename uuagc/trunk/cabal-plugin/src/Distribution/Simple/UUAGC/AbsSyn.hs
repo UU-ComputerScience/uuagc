@@ -158,4 +158,3 @@ lookupFileOptions s = foldl f defaultUUAGCOptions
     where f e (AGFileOption s' classes opt)
               | s == (normalise s')  = opt
               | otherwise            = e
-
