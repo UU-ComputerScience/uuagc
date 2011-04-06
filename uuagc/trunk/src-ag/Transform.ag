@@ -663,7 +663,11 @@ SEM Elem
                                   (nontSet,e1) | Set.member @name allUsedNames
                                                            = (Set.empty, Seq.singleton(CyclicSet @name))
                                                | otherwise = (@set.nontSet, Seq.empty)
-                                  (res, e2) = checkDuplicate DupSet  @name (nontSet,Set.insert @name allUsedNames) @lhs.defSets
+                                  (res, e2) = let toAdd = (nontSet,Set.insert @name allUsedNames)
+                                                  union (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
+                                              in if Set.member @name @lhs.allNonterminals || not @merge
+                                                 then checkDuplicate DupSet @name toAdd @lhs.defSets
+                                                 else (Map.insertWith union @name toAdd @lhs.defSets, Seq.empty)
                               in (res, e1 Seq.>< e2)
         lhs.defSets         = @defSets2
            .errors          = @errs >< @set.errors

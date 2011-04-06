@@ -49,6 +49,7 @@ DATA Elem      | Data   pos    : {Pos}
 
                | Set    pos    : {Pos}
                         name   : {NontermIdent}
+                        merge  : Bool
                         set    : NontSet
 
                | Deriving pos  : {Pos}
