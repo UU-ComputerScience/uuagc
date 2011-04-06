@@ -130,7 +130,9 @@ parseFile opts searchPath file
                  <*> pSemAlts
         <|> Set  <$> pSET
                  <*> pIdentifierU
-                 <*  pEquals
+                 <*> (   False <$ pEquals
+                     <|> True  <$ pColon
+                     )
                  <*> pNontSet
         <|> Deriving
                  <$> pDERIVING
