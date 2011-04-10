@@ -58,6 +58,9 @@ DATA Elem      | Data   pos    : {Pos}
                           
                | Wrapper  pos  : {Pos}
                           set  : NontSet
+              
+               | Nocatas  pos  : {Pos}
+                          set  : NontSet
 
                | Pragma   pos  : {Pos}
                           names: {[NontermIdent]}

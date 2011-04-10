@@ -919,7 +919,7 @@ SEM CNonterminal
                                       (Comment (getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-'))
                                       (if @lhs.o_pretty                  then [@loc.comment]   else [])
                                       (if isJust @lhs.o_data             then [@loc.dataDef]   else [])
-                                      (if @lhs.o_cata                    then  @loc.cataFun    else [])
+                                      (if @lhs.o_cata && @loc.genCata    then  @loc.cataFun    else [])
                                       (if @lhs.o_sig                     then  @inter.semDom   else [])
                                       (if @nt `Set.member` @lhs.wrappers then  @loc.semWrapper else [])
                                       (if @lhs.o_sem                     then  @prods.decls     else [])
@@ -1014,7 +1014,8 @@ SEM CProduction
 -------------------------------------------------------------------------------
 
 SEM CNonterminal
-  | CNonterminal loc.cataFun = let appParams nm = TypeApp (SimpleType nm) (map SimpleType (map getName @params))
+  | CNonterminal loc.genCata = not (@nt `Set.member` nocatas @lhs.options)
+                 loc.cataFun = let appParams nm = TypeApp (SimpleType nm) (map SimpleType (map getName @params))
                                    evalTp | null @params = id
                                           | otherwise    = idEvalType
                                    tSig = TSig (cataname @lhs.prefix @nt)
