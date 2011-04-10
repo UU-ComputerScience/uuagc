@@ -1,6 +1,9 @@
 module Options where
 
 import System.Console.GetOpt
+import CommonTypes
+import Data.Set(Set)
+import qualified Data.Set as Set
 
 options     :: [OptDescr (Options -> Options)]
 options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) "generate default module header"
@@ -67,6 +70,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["checkParseTys"]         (NoArg parseHsTpOpt) "Parse types of attrs with Haskell parser"
                , Option []        ["checkParseBlocks"]         (NoArg parseHsBlockOpt) "Parse blocks with Haskell parser"
                , Option []        ["checkParseHaskell"]  (NoArg parseHsOpt) "Parse Haskell code (recognizer)"
+               , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
                ]
 
 allc = "dcfsprm"
@@ -130,6 +134,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseRhs :: Bool
                       , checkParseTy :: Bool
                       , checkParseBlock :: Bool
+                      , nocatas :: Set NontermIdent
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -190,6 +195,7 @@ noOptions = Options { moduleName    = NoName
                     , checkParseRhs = False
                     , checkParseTy  = False
                     , checkParseBlock = False
+                    , nocatas         = Set.empty
                     }
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}            
@@ -251,6 +257,14 @@ parseHsRhsOpt opts = opts { checkParseRhs = True }
 parseHsTpOpt opts = opts { checkParseTy = True }
 parseHsBlockOpt opts = opts { checkParseBlock = True }
 parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
+nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
+  set = Set.fromList ids
+  ids = map identifier lst
+  lst = split str
+
+  split str | null p   = []
+            | otherwise = p : split ps
+    where (p,ps) = break (== ',') str
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            

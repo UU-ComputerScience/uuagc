@@ -142,6 +142,9 @@ parseFile opts searchPath file
         <|> Wrapper
                  <$> pWRAPPER
                  <*> pNontSet
+        <|> Nocatas
+                 <$> pNOCATAS
+                 <*> pNontSet
         <|> Pragma
                  <$> pPRAGMA
                  <*> pNames
@@ -436,12 +439,13 @@ pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
-      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
+      pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
       pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
 pWRAPPER     = pCostReserved 90 "WRAPPER" <?> "WRAPPER"
+pNOCATAS     = pCostReserved 90 "NOCATAS" <?> "NOCATAS"
 pPRAGMA      = pCostReserved 90 "PRAGMA"  <?> "PRAGMA"
 pSEMPRAGMA   = pCostReserved 90 "SEMPRAGMA" <?> "SEMPRAGMA"
 pATTACH      = pCostReserved 90 "ATTACH"  <?> "ATTACH"
