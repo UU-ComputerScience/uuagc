@@ -1,5 +1,0 @@
--- synthesized attribute y is declared twice
-
-DATA Aap | Een a : {Int}
-ATTR Aap [ | | y : {Int} ]
-ATTR Aap [ | | y : {Int} ]
