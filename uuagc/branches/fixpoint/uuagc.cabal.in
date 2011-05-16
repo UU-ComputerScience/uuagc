@@ -78,8 +78,35 @@ executable uuagc
     , AG2AspectAG
     , RhsCheck
   extensions: TypeSynonymInstances, MultiParamTypeClasses
-  hs-source-dirs: src, src-derived
-
+  hs-source-dirs: src
+  x-agmodule: file : "src/AbstractSyntax.ag" options : data, pretty, genlinepragmas, module "AbstractSyntax"
+  x-agmodule: file : "src/ConcreteSyntax.ag" options : data, pretty, genlinepragmas, module "ConcreteSyntax"
+  x-agmodule: file : "src/ErrorMessages.ag" options : data, pretty, genlinepragmas, module "ErrorMessages"
+  x-agmodule: file : "src/HsToken.ag" options : data, pretty, genlinepragmas, module "HsToken"
+  x-agmodule: file : "src/Code.ag" options : data, pretty, genlinepragmas, module "Code"
+  x-agmodule: file : "src/Expression.ag" options : data, pretty, genlinepragmas, module "Expression"
+  x-agmodule: file : "src/Patterns.ag" options : data, pretty, genlinepragmas, module "Patterns"
+  x-agmodule: file : "src/Interfaces.ag" options : data, pretty, genlinepragmas, module "Interfaces"
+  x-agmodule: file : "src/CodeSyntax.ag" options : data, pretty, genlinepragmas, module "CodeSyntax"
+  x-agmodule: file : "src/DeclBlocks.ag" options : data, pretty, genlinepragmas, module "DeclBlocks" 
+  x-agmodule: file : "src/VisageSyntax.ag" options : data, pretty, genlinepragmas, module "VisageSyntax"
+  x-agmodule: file : "src/VisagePatterns.ag" options : data, pretty, genlinepragmas, module "VisagePatterns"
+  x-agmodule: file : "src/Desugar.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Desugar"
+  x-agmodule: file : "src/DefaultRules.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "DefaultRules"
+  x-agmodule: file : "src/GenerateCode.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "GenerateCode"
+  x-agmodule: file : "src/PrintOcamlCode.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintOcamlCode"
+  x-agmodule: file : "src/PrintCode.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintCode"
+  x-agmodule: file : "src/PrintVisitCode.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintVisitCode"
+  x-agmodule: file : "src/PrintErrorMessages.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "PrintErrorMessages"
+  x-agmodule: file : "src/Transform.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Transform"
+  x-agmodule: file : "src/Order.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Order"
+  x-agmodule: file : "src/AbstractSyntaxDump.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "AbstractSyntaxDump"
+  x-agmodule: file : "src/CodeSyntaxDump.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "CodeSyntaxDump"
+  x-agmodule: file : "src/Visage.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "Visage"
+  x-agmodule: file : "src/TfmToVisage.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "TfmToVisage"
+  x-agmodule: file : "src/InterfacesRules.lag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "InterfacesRules"
+  x-agmodule: file : "src/SemHsTokens.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "SemHsTokens"
+  x-agmodule: file : "src/AG2AspectAG.ag" options : catas, semfuns, signatures, pretty, wrappers, newtypes, genlinepragmas, module "AG2AspectAG"
 Library
    build-depends:   base >= 4, base < 5, Cabal>=1.8.0.6, directory, process, uulib>=0.9.12, filepath, mtl
    hs-source-dirs:  cabal-plugin/src
