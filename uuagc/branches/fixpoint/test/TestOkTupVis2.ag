@@ -1,0 +1,32 @@
+-- A grammar that requires two visits, and an attribute w that is needed in both passes
+-- and two local attributes p and q, of which p is needed in two passes
+-- This is the same as TestOKTupVis1, but now p and q are tupled
+
+-- Both p and q are needed in visit 0.
+-- This is compiled incorrectly: the tuple (p,q) is evaluated twice in visit 0.
+-- The passing of p to visit 1 through an intra-parameter is done correctly.
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Aap
+
+
+ATTR Aap [ x : Int | y : Int |  z : Int   w : Int ]
+
+
+SEM Root
+  | Root  a.x = @a.y + @a.w
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t          + @loc.p + @loc.q
+         lhs.z = @t + @lhs.x + @loc.p
+         lhs.w = 3
+         loc.p : Int
+         (loc.p,loc.q) = (8,9)
+         
+  | Twee lhs.y = 7
+         lhs.z = @u.w   

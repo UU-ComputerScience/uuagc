@@ -1,0 +1,50 @@
+MODULE {Main} {main} {}
+
+DATA Root
+  | Root
+      prog : Prog
+
+DATA Prog
+  | Prog
+
+WRAPPER Root
+
+PRAGMA optimize
+PRAGMA strictcase
+
+ATTR Root Prog [ | | z : Int ]
+
+SEM Prog
+  | Prog
+      loc.a : {Int}
+      loc.a = 1
+      
+      loc.b : {Int}
+      loc.b = let n = n in n
+      
+      loc.c : {Int}
+      loc.c = 3
+  
+      loc.x : {Int}
+      loc.x = let n = n in n
+      
+      loc.y : {Int}
+      loc.y = 5
+      
+      loc.z : {Int}
+      loc.z = 6
+      
+      lhs.z = let _ = [@loc.a, @loc.b, @loc.c, @loc.x, @loc.y, @loc.z]
+              in @loc.z
+
+{
+main :: IO ()
+main
+  = let root = Root_Root $ Prog_Prog
+        inh = Inh_Root {}
+        sem = sem_Root root
+        syn = wrap_Root sem inh
+        z = z_Syn_Root syn
+     in putStrLn ("z: " ++ show z)
+}
+

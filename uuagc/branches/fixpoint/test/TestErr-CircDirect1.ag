@@ -1,0 +1,18 @@
+-- The simplest direct dependency possible:
+-- in the Root, there is a S->I dependency,
+-- in the Aap below, there is a I->S dependency.
+
+DATA Root
+   | Start  a: Aap
+   
+DATA Aap
+   | Een    i: Int
+   
+ATTR Aap [ x:Int | | y:Int ]
+
+SEM Root
+  | Start  a.x = @a.y
+  
+SEM Aap
+  | Een    lhs.y = @lhs.x
+

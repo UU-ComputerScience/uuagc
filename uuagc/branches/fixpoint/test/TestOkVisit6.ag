@@ -1,0 +1,41 @@
+-- A grammar that requires two visits, and a SELF attribute of a child
+-- that is needed in both passes
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Noot
+
+DATA Noot
+    | Drie  v : Aap
+
+ATTR Aap [ x : Int | y : Int |  z : Int   s : SELF ]
+
+ATTR Noot [ x:Int y:Int | | e:Int   s : SELF ]
+
+
+SEM Root
+  | Root  a.x = @a.y + f @a.s
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t
+         lhs.z = @t + @lhs.x
+         
+  | Twee lhs.y = 7
+         lhs.z = g @u.s       
+
+
+SEM Noot
+  | Drie  lhs.e = 12
+
+
+{
+f :: Aap -> Int
+f a = 5
+g :: Noot -> Int
+g n = 6
+}
+

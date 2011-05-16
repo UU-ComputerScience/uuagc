@@ -1,0 +1,8 @@
+-- type synonym Noot is defined twice
+
+DATA Aap
+	| Een a : {Int}
+	
+TYPE Noot = [Aap]
+
+TYPE Noot = (Aap,Aap)

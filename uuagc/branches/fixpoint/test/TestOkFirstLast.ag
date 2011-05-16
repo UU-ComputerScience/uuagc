@@ -1,0 +1,21 @@
+-- In the generated code, n1.y should be mapped to 4 and n3.y to 5.
+DATA Aap
+  | A n1 : Noot
+      n2 : Noot
+      n3 : Noot
+
+DATA Noot
+  | B
+
+ATTR Aap Noot [|| x : Int ]
+
+SEM Aap
+  | A  -- lhs.x = @first.x
+       loc.y = 3
+       first.y = 4
+       last.y = 5
+
+ATTR Noot [ y : Int ||]
+
+SEM Noot
+  | B  lhs.x = @lhs.y
