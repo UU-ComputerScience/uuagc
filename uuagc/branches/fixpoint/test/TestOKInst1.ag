@@ -1,0 +1,14 @@
+-- Tests the possibility of using an 'inst' attribute as local attribute
+
+DATA Aap
+  | Een
+
+
+ATTR Aap [|| x : Aap ]
+
+SEM Aap
+  | Een  inst.x : Aap
+         inst.x = Aap_Een
+         
+         inst.y : Aap
+         inst.y = @inst.x

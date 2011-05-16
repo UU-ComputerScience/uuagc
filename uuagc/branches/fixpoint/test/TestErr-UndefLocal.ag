@@ -1,0 +1,9 @@
+-- the local variabele i is not defined
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Aap [ | | y : {Int} ]
+	
+SEM Aap
+	| Een lhs.y = @i

@@ -1,0 +1,42 @@
+DATA Root 
+   | Root tree:Tree
+DATA Tree 
+   | Branch left:Tree right:Tree
+   | Leaf i1:Int i2:Int i3:Int i4:Int i5:Int i6:Int
+
+ATTR Root [ | | minval:Int ]
+ATTR Tree [ d1:Int d2:Int d3:Int d4:Int d5:Int d6:Int 
+          | 
+          | u1:Int u2:Int u3:Int u4:Int u5:Int u6:Int ]
+
+SEM Root
+  | Root tree.d1 = 99999
+         tree.d2 = @tree.u1
+         tree.d3 = @tree.u2
+         tree.d4 = @tree.u3
+         tree.d5 = @tree.u4
+         tree.d6 = @tree.u5
+         lhs.minval = @tree.u6
+ 
+SEM Tree
+  | Branch lhs.u1 = min @left.u1 @right.u1
+           lhs.u2 = min @left.u2 @right.u2
+           lhs.u3 = min @left.u3 @right.u3
+           lhs.u4 = min @left.u4 @right.u4
+           lhs.u5 = min @left.u5 @right.u5
+           lhs.u6 = min @left.u6 @right.u6
+
+  | Leaf   lhs.u1 = min @lhs.d1 @i1
+           lhs.u2 = min @lhs.d2 @i2
+           lhs.u3 = min @lhs.d3 @i3
+           lhs.u4 = min @lhs.d4 @i4
+           lhs.u5 = min @lhs.d5 @i5
+           lhs.u6 = min @lhs.d6 @i6
+
+{
+main :: IO ()
+main = putStr (show test)
+test = let tree n  | n <= 0    = sem_Tree_Leaf 7 9 12 14 66 11
+                   | otherwise = sem_Tree_Branch (tree (n-1)) (tree (n-2))
+       in sem_Root_Root (tree 28)
+}

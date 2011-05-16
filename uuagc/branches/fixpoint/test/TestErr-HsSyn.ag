@@ -1,0 +1,18 @@
+MODULE {Test} {} {}
+
+DATA D | C
+
+ATTR D [ | | x : {Int)} ]
+
+{
+import Bullshit
+
+x = [6.8]
+}
+
+SEM D | C
+  lhs.x = x+3+
+          hi
+            hello "234"
+             [ @loc.x ])
+  loc.x = 3

@@ -1,0 +1,218 @@
+PRAGMA strictdata
+PRAGMA optimize
+PRAGMA bangpats
+PRAGMA strictwrap
+
+INCLUDE "Code.ag"
+INCLUDE "Patterns.ag"
+
+imports
+{
+import Pretty
+import Code
+import Patterns
+import Options
+import CommonTypes hiding (List,Type,Map,Maybe,IntMap,Either)
+import Data.List(intersperse,intercalate)
+import Data.Char(toLower)
+}
+
+
+{
+type PP_Docs = [PP_Doc]
+
+ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqH = ppMultiSeq' (>#<)
+
+ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqV = ppMultiSeq' (>-<)
+
+ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq' next strictArgs expr
+  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
+
+ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
+ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+}
+
+
+--
+-- Pass options down
+--
+
+ATTR Program Expr Exprs Decl Decls Chunk Chunks CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
+
+ATTR Program Chunks Chunk [ textBlockMap : {Map BlockInfo PP_Doc} | | ]
+
+
+--
+-- Collect outputs
+--
+
+ATTR Program                                                              [ | | output:{PP_Docs} ]
+ATTR Expr Decl DataAlt CaseAlt Type NamedType Lhs Pattern                 [ | | pp:{PP_Doc} ]
+ATTR Exprs DataAlts CaseAlts Types NamedTypes Decls Chunk Chunks Patterns [ | | pps : {PP_Docs} ]
+
+SEM Program
+  | Program    lhs.output  = @chunks.pps
+
+SEM Exprs
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM CaseAlts
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM DataAlts
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Types
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM NamedTypes
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Decls
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Chunks
+  | Cons lhs.pps = @hd.pps ++ @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Patterns
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+--
+-- Individual cases
+--
+
+SEM Chunk
+  | Chunk      lhs.pps     =  @comment.pp
+                              :  @info.pps
+                              ++ @dataDef.pps
+                              ++ @semDom.pps
+                              ++ @semFunctions.pps
+                              ++ @semWrapper.pps
+                              ++ @cataFun.pps
+                              ++ [Map.findWithDefault empty (BlockOther, Just $ identifier @name) @lhs.textBlockMap]
+
+SEM Decl
+  | Decl       lhs.pp      = if @lhs.isToplevel
+                             then "let" >#< @left.pp >#< "="
+                                  >-< indent 4 @rhs.pp >#< ";;"
+                             else "let" >#< @left.pp >#< "="
+                                  >-< indent 4 @rhs.pp >#< "in"
+  | Bind       lhs.pp      = error "pp of Decl.Bind not supported"
+  | BindLet    lhs.pp      = error "pp of Decl.BindLet not supported"
+  | Data       lhs.pp      = "type" >#< hv_sp (map (\p -> "'" >|< p) @params ++ [text $ toOcamlTC @name])
+                             >#<  ( case @alts.pps of
+                                          [] -> empty
+                                          (x:xs) ->              "=" >#<  x
+                                                 >-< vlist (map ("|" >#<) xs)
+                                  )
+                             >#< ";;"
+  | NewType    lhs.pp      = error "pp of Decl.NewType not supported"
+  | Type       lhs.pp      = "type" >#< hv_sp (map (\p -> "'" >|< p) @params ++ [text $ toOcamlTC @name]) >#< "=" >#<  @tp.pp >#< ";;"
+  | TSig       lhs.pp      = "(*" >#< @name >#< ":" >#< @tp.pp >#< "*)"
+  | Comment    lhs.pp      = if '\n' `elem` @txt
+                               then "(* " >-< vlist (lines @txt) >-< "*)"
+                               else "(*" >#< @txt >#< "*)"
+  | PragmaDecl lhs.pp      = error "pp of Decl.PragmaDecl not supported"
+
+
+  SEM Expr
+    | Let        lhs.pp      = pp_parens $ vlist (@decls.pps ++ [@body.pp])
+    | Case       lhs.pp      = pp_parens ( "match" >#< @expr.pp >#< "with"
+                                         >-< indent 2 ( case @alts.pps of
+                                                          [] -> empty
+                                                          (x:xs) -> " " >#<  x
+                                                                    >-< vlist (map ("|" >#<) xs)
+                                                      )
+                                         )
+    | Do         lhs.pp      = error "pp of Expr.Do not supported"
+    | Lambda     lhs.pp      = pp_parens ( pp "fun" >#< hv_sp @args.pps >#< "->"
+                                         >-< indent 2 @body.pp )
+    | TupleExpr  lhs.pp      = ppTuple False @exprs.pps
+    | UnboxedTupleExpr  lhs.pp = error "pp of Expr.UnboxedTupleExpr not supported"
+    | App        lhs.pp      = pp_parens $ @name >#< hv_sp @args.pps
+    | SimpleExpr lhs.pp      = text @txt
+    | TextExpr   lhs.pp      = vlist (map text @lns)
+    | Trace      lhs.pp      = @expr.pp
+    | PragmaExpr lhs.pp      = @expr.pp
+    | LineExpr   lhs.pp      = @expr.pp
+    | TypedExpr  lhs.pp      = @expr.pp
+
+SEM Lhs
+  | Pattern3   lhs.pp      = @pat3.pp
+  | Pattern3SM lhs.pp      = error "pp of Lhs.Pattern3SM not supported"
+  | TupleLhs   lhs.pp      = ppTuple False (map text @comps)
+  | UnboxedTupleLhs   lhs.pp      = error "pp of Lhs.UnboxedTupleLhs not supported"
+  | Fun        lhs.pp      = @name >#< hv_sp @args.pps
+  | Unwrap     lhs.pp      = pp_parens (@name >#< @sub.pp)
+
+SEM Type
+  | Arr        lhs.pp = pp_parens (@left.pp >#< "->" >#< @right.pp)
+  | CtxApp     lhs.pp = error "pp of Type.CtxApp not supported"
+  | TypeApp    lhs.pp = pp_parens (hv_sp (@args.pps ++ [@func.pp]))
+  | TupleType  lhs.pp = pp_block "(" ")" "," @tps.pps
+  | UnboxedTupleType
+               lhs.pp = error "pp of Type.UnboxedTupleType is not supported"
+  | List       lhs.pp = @tp.pp >#< "list"
+  | SimpleType lhs.pp = text @txt
+  | NontermType lhs.pp = pp_block "(" ")" " " (map text @params ++ [text $ toOcamlTC @name])
+  | TMaybe     lhs.pp = @tp.pp >#< "opt"
+  | TEither    lhs.pp = error "pp of Type.TEither is not supported"
+  | TMap       lhs.pp = error "pp of Type.TMap is not supported"
+  | TIntMap    lhs.pp = error "pp of Type.TIntMap is not supported"
+
+{
+toOcamlTC (c:cs) = toLower c : cs
+toOcamlTC xs = xs
+}
+
+SEM CaseAlt
+  | CaseAlt    lhs.pp      = @left.pp >#< "->" >#< @expr.pp
+
+SEM DataAlt
+  | DataAlt    lhs.pp      = @name >#< "of" >#< pp_block "" "" " * " (map pp_parens @args.pps)
+  | Record     lhs.pp      = pp_block "{" "}" ";" @args.pps
+
+SEM NamedType
+  | Named      lhs.pp      = @name >#< ":" >#< @tp.pp
+
+SEM Pattern
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
+  | Alias   -- assuming here that there is only an underscore under an alias
+            lhs.pp     = if @pat.isUnderscore
+                          then pp (attrname False @field @attr)
+                          else error "pp of Pattern.Alias is only supported in the form (x@_)"
+  | Irrefutable lhs.pp = error "pp of Pattern.Irrefutable not supported"
+  | Underscore lhs.pp  = text "_"
+
+SEM Pattern [ | | isUnderscore:{Bool}]
+ | Constr      lhs.isUnderscore = False
+ | Product     lhs.isUnderscore = False
+ | Alias       lhs.isUnderscore = False
+ | Underscore  lhs.isUnderscore = True
+
+--
+-- Determine if a declaration is toplevel
+--
+
+ATTR Chunks Chunk Decls Decl [ isToplevel : Bool | | ]
+SEM Program
+  | Program
+      chunks.isToplevel = True
+
+SEM Expr
+  | Let
+      decls.isToplevel = False
+  | Do
+      stmts.isToplevel = False

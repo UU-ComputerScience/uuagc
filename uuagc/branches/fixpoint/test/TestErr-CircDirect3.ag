@@ -1,0 +1,29 @@
+-- A simple direct 3-node dependency
+-- in the Root, there is a S->I dependency,
+-- in the Aap down under, there is a I->S dependency.
+-- this is the same as example 2, but now
+-- in between is there is a Noot node, passing the attribute down and up
+
+DATA Root
+   | Start  b: Noot
+   
+DATA Noot
+   | Uno    a: Aap
+   
+DATA Aap
+   | Een    i: Int
+   
+ATTR Aap Noot [ x:Int | | y:Int ]
+
+SEM Root
+  | Start  loc.s = @b.y
+           b.x = @loc.s
+
+SEM Noot
+  | Uno    a.x = @lhs.x
+           lhs.y = @a.y
+
+SEM Aap
+  | Een    loc.t = @lhs.x
+           lhs.y = @loc.t
+
