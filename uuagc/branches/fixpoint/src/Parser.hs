@@ -23,7 +23,8 @@ import System.Directory
 import System.FilePath
 import HsTokenScanner
 import Options
-
+import Control.Applicative(pure)
+import FixPointHelper(FPAttrInfo(..),newFPAttrInfo,defaultFPAttrInfo)
 
 type AGParser = AnaParser Input  Pair Token Pos
 
@@ -228,6 +229,16 @@ parseFile opts searchPath file
           <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
           <|> (\sources target nt expr -> [MergeDef target nt sources expr]) <$ pMERGE <*> (pList1_ng pIdentifier <* pAS <|> pSucceed []) <*> pIdentifier <* pTypeColon <*> pIdentifierU <* pAssign <*> pExpr
           <|> (\mbNm pat (owrt,pos) exp -> [Def pos mbNm (pat ()) exp owrt]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
+          <|> pure <$> (pFP *> pFPSemAlt)
+
+    pFPSemAlt :: AGParser SemDef
+    pFPSemAlt = FixedPoint <$> pOBrackPos <*> pFPElem <* pCBrack
+
+    pFPElem :: AGParser [((Identifier,Identifier), FPAttrInfo)]
+    pFPElem = pListSep pComma pFPElem'
+
+    pFPElem' :: AGParser ((Identifier,Identifier), FPAttrInfo)
+    pFPElem' = (\ a e -> (a, defaultFPAttrInfo e)) <$> pAttr <* pAssign <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -440,7 +451,7 @@ pCodescrap   = pCodeBlock
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pFP
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -458,6 +469,7 @@ pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pINH         = pCostReserved 90 "INH"     <?> "INH"
 pSYN         = pCostReserved 90 "SYN"     <?> "SYN"
 pCHN         = pCostReserved 90 "CHN"     <?> "CHN"
+pFP          = pCostReserved 5  "FP"      <?> "FP"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
