@@ -4,6 +4,7 @@ import UU.Scanner.Position (Pos)
 import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
+import FixPointHelper(FPAttrInfo(..))
 }
 
 
@@ -102,6 +103,8 @@ DATA SemDef    | Def    pos    : Pos
                | SemPragma  names : {[NontermIdent]}
                | AttrOrderBefore  before : {[Occurrence]}
                                   after  : {[Occurrence]}
+               | FixedPoint pos : Pos
+                            bottoms : {[((Identifier,Identifier), FPAttrInfo)]}
 
 DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet
