@@ -36,7 +36,7 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expressi
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
 
-ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression [ | | output : SELF ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression TopFPInfo TopFPInfos [ | | output : SELF ]
 
 
 -------------------------------------------------------------------------------

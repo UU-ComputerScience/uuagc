@@ -494,7 +494,7 @@ SEM Grammar
   | Grammar nonts.uniq = 1
 
 ATTR Grammar Nonterminals  Nonterminal   Productions
-    Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
+    Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig TopFPInfos TopFPInfo
     [ | | output:SELF ] 
 
 ATTR Rule [ | | outputs:Rules ]
@@ -505,7 +505,7 @@ SEM Production
       loc.extra1 = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
       loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
       loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
-      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output
+      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output []
 
 SEM Rules 
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
