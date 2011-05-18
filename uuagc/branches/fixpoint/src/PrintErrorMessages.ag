@@ -46,6 +46,8 @@ isError opts (MissingSyn      _ _      ) = True
 isError opts (MissingNamedRule _ _ _)    = True
 isError opts (DupRuleName _ _ _)         = True
 isError opts (HsParseError _ _)          = True
+isError opts (InvalidField _ _ _)        = True
+isError opts (NotUniqueAttrFP _ _ _ _)   = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -502,6 +504,32 @@ SEM Error
                                               ]
                                 act  = wfill ["It is not possible to proceed without this declaration."]
                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+ | InvalidField    lhs.pp  = let mesg  = wfill ["Invalid field at fixed point in nonterminal"
+                                               , getName @nt
+                                               , "at production"
+                                               , getName @con
+                                               ]
+                                 pat   = "SEM " >#< getName @nt >#< " | " >#< getName @con >#< "FP [ ... ]"
+                                 help  = wfill ["You have used a invalid field "
+                                               , getName @field
+                                               ,"on the fixed point evaluator"
+                                               ,"you only can used local attributes and any child attribute ocurrence"
+                                               ]
+                                 act   = wfill ["Re-define the fixed point declaration"]
+                             in ppError (isError @lhs.options @me) noPos mesg pat help act @lhs.verbose
+ | NotUniqueAttrFP lhs.pp  = let mesg  = wfill ["The attributes used on a fixed point evaluator declared on "
+                                               , getName @nt
+                                               , "and production"
+                                               , getName @con
+                                               , "cannot be used into another fixed point evaluator"
+                                               ]
+                                 pat   = "SEM " >#< getName @nt >#< " | " >#< getName @con >#< "FP [ ... ]"
+                                 help  = wfill ["An attribute ocurrence can only be use"
+                                               ,"on the fixed point evaluator"
+                                               ]
+                                 act   = wfill ["Re-define the fixed point declaration"]
+                             in ppError (isError @lhs.options @me) noPos mesg pat help act @lhs.verbose
+
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '

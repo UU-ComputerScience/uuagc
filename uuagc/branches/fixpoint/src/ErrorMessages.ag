@@ -131,3 +131,13 @@ DATA Error  | ParserError     pos     : {Pos}
             
             | MissingSyn      nt      : {NontermIdent}
                               attr    : {Identifier}
+
+            | InvalidField    nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
+
+            | NotUniqueAttrFP nt      : {NontermIdent}
+                              con     : {ConstructorIdent}
+                              field   : {Identifier}
+                              attr    : {Identifier}
+

@@ -27,6 +27,7 @@ import HsToken
 import Options
 import CommonTypes
 import RhsCheck
+import FixPointHelper(FPInfo(..),newFPInfo,FPAttrInfo(..),fromFPInfoVoidFPInfoRules,isOutFP)
 }
 
 
@@ -67,6 +68,7 @@ SEM AG
                                      @loc.checkedAugments
                                      @loc.checkedArounds
                                      @loc.checkedMerges
+                                     @loc.checkedFPs
 
 
 -------------------------------------------------------------------------------
@@ -146,6 +148,7 @@ ATTR Elems Elem Attrs
 {type AugmentInfo = (Identifier,Expression)}
 {type AroundInfo  = (Identifier,Expression)}
 {type MergeInfo   = (Identifier, Identifier, [Identifier], Expression)}
+{type AttrFPInfo  = (AttrName,FPAttrInfo)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
      [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
@@ -155,6 +158,7 @@ ATTR Elem Elems SemAlt SemAlts
              collectedAugments USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]}
              collectedArounds  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [AroundInfo])  ]}
              collectedMerges   USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [MergeInfo])   ]}
+             collectedFPs      USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [[AttrFPInfo]]) ]}
      ]
 
 
@@ -276,6 +280,10 @@ SEM AG
                             in foldr f Map.empty @elems.collectedArounds
          loc.allMerges   =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                              in foldr f Map.empty @elems.collectedMerges
+         loc.allFPs'     = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                           in foldr f Map.empty @elems.collectedFPs
+         loc.allFPs      = Map.map (Map.map (Map.fromList.zip [0..] $)) @allFPs'
+         
          
          loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
@@ -288,6 +296,7 @@ SEM AG
          loc.allAugmentErrs = Map.mapWithKey (Map.mapWithKey . (checkAugments @allAttrDecls                               )) @loc.allAugments
          loc.allAroundsErrs = Map.mapWithKey (Map.mapWithKey . (checkArounds @loc.allFields)) @loc.allArounds
          loc.allMergesErrs  = Map.mapWithKey (Map.mapWithKey . (checkMerges @loc.allNonterminals @loc.allInsts @loc.allFields)) @loc.allMerges
+         loc.allFPsErrs     = Map.mapWithKey (Map.mapWithKey . (checkFPs @allAttrDecls @allFields)) @allFPs 
 
          loc.checkedRulesPre = Map.map (Map.map fst) @loc.allRulesErrs
          loc.checkedSigs     = Map.map (Map.map fst) @loc.allSigsErrs `unionunionplusplus` @loc.augmentSigs
@@ -295,6 +304,7 @@ SEM AG
          loc.checkedUniques  = Map.map (Map.map fst) @loc.allUniquesErrs
          loc.checkedAugments = Map.map (Map.map fst) @loc.allAugmentErrs
          loc.checkedArounds  = Map.map (Map.map fst) @loc.allAroundsErrs
+         loc.checkedFPs      = Map.map (Map.map fst) @loc.allFPsErrs
          loc.checkedRules    = Map.unionWith (Map.unionWith (++)) @loc.checkedRulesPre (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules @lhs.options @loc.allFields @loc.checkedInsts @loc.allAttrDecls)) @loc.checkedUniques)
          loc.checkedMerges   = Map.map (Map.map fst) @loc.allMergesErrs
 
@@ -333,7 +343,11 @@ SEM AG
          loc.errs11      =  let f m s = Map.fold ((><) . snd) s m
                             in Map.fold f Seq.empty @loc.allMergesErrs
 
-         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10 >< @errs11
+         loc.errs12      =  let  f m s = Map.fold ((><) . snd) s m
+                            in Map.fold f Seq.empty @loc.allFPsErrs 
+
+         lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 
+                                         >< @errs8 >< @errs9 >< @errs10 >< @errs11 >< @errs12
 
 {
 type RulesAndErrors = ([Rule], Seq Error)
@@ -346,6 +360,7 @@ type MergesAndErrors  = (Map Identifier (Identifier, [Identifier], Expression), 
 type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
+type FPsAndErrors      = (Map Int (FPInfo Rule),Seq Error)
 
 checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
@@ -487,6 +502,46 @@ checkMerges allNts allInsts fieldMap nt con merges
     in foldr checkMerge (Map.empty, Seq.empty) merges
 
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
+
+-----------------------------------------------------------------------
+-- checkFPs: This function checks the information collected about
+--           the fixed-point is correct.
+--           The checking is done by using several inner checking functions:
+--           checkFPl,
+--           checkFPe,
+--           checkDefi,
+--           checkAlUsed.
+-----------------------------------------------------------------------
+checkFPs :: Map NontermIdent (Attributes, Attributes)
+         -> Map NontermIdent (Map ConstructorIdent FieldMap)
+         -> NontermIdent
+         -> ConstructorIdent
+         -> Map Int [AttrFPInfo]
+         -> FPsAndErrors
+checkFPs attrb fieldMap nt con fps
+  = let checkFPl k mm (m,errs,aac)                           = let (res,errs', aac') = foldr checkFPe (newFPInfo,errs,aac) mm
+                                                               in (Map.insert k res m, errs', aac')
+        checkFPe afae@((field,attr),fpInfoV) pai@(fae,errs,aac)  = if field == _LHS
+                                                                   then (fae,(Seq.<|) (InvalidField nt con field) errs,aac)
+                                                                   else checkDefi afae pai
+        checkDefi afae@((field,attr),fpInfoV) pai@(fae,errs,aac) = 
+                 fromJust $ (do (NT nt' _)  <- lookup field fields 
+                                (inha,syna) <- Map.lookup nt' attrb 
+                                if maybe False (const (isOutFP fpInfoV)) (Map.lookup attr inha) || 
+                                   maybe False (const (isInFP  fpInfoV)) (Map.lookup attr syna)
+                                 then return $ checkAlUsed afae pai
+                                 else return $ (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
+                            ) `mplus` return (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
+        checkAlUsed ((field,attr),fpInfoV) pai@(fae,errs,aac)    = 
+               let idName = getName field ++ "." ++ getName attr 
+               in if idName `Set.member` aac 
+                  then (fae,(Seq.<|) (NotUniqueAttrFP nt con field attr) errs, aac)
+                  else (fae { fpAttrInfo = Map.insert (field,attr) fpInfoV (fpAttrInfo fae)}, errs, Set.insert idName aac)
+        fields                                    = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
+        (out,errs,_)                              = Map.foldrWithKey checkFPl (Map.empty,Seq.empty,Set.empty) fps
+    in (out,errs)
+
+
 }
 
 
@@ -984,6 +1039,7 @@ ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
                           aroundInfos  USE {++} {[]} : {[AroundInfo]}
                           mergeInfos   USE {++} {[]} : {[MergeInfo]}
+                          fpInfos      USE {++} {[]} : {[[AttrFPInfo]]}
                     ]
 
 
@@ -1044,6 +1100,12 @@ SEM SemAlt
                        , con <- Set.toList conset
                        ]
 
+           lhs.collectedFPs 
+              =        [ (nt, con, @rules.fpInfos)
+                       | (nt, conset, _) <- @loc.coninfo
+                       , con <- Set.toList conset
+                       ]
+
 SEM SemDef
   | Def  lhs.ruleInfos = [ (@mbName, @pattern.patunder, @rhs, @pattern.definedAttrs, @owrt, show @pattern.stpos) ]
 
@@ -1062,6 +1124,8 @@ SEM SemDef
 SEM SemDef
   | MergeDef    lhs.mergeInfos = [ (@target, @nt, @sources, @rhs) ]
 
+SEM SemDef
+  | FixedPoint  lhs.fpInfos     = [ @bottoms ]
 
 ATTR SemDef SemDefs Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 ATTR Pattern Patterns [ | | definedAttrs USE {++} {[]} : {[AttrName]} ]
@@ -1129,9 +1193,10 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))
+                    -> Map NontermIdent (Map ConstructorIdent (Map Int (FPInfo Rule)))
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap mergeMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap mergeMap fpMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1140,11 +1205,13 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              params    = Map.findWithDefault []                    nt ntParams
                              mergemap  = Map.findWithDefault Map.empty             nt mergeMap
+                             fpmap     = Map.findWithDefault Map.empty             nt fpMap
                              alt (con,flds) =
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
                                        merges = [ (n, NT t []) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
+                                       fps    = [ TopFPInfo i (fpAttrInfo fpinfo) | (i,fpinfo)<- Map.assocs $ maybe Map.empty id (Map.lookup con fpmap) ]
 
                                        -- important: keep order of children
                                        cldrn = map child (flds ++ filter (not . existsAsField) insts ++ merges)
@@ -1167,7 +1234,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con cldrn rules tsigs
+                                   in Production con cldrn rules tsigs fps
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap mergeMap
 }
