@@ -21,6 +21,7 @@ module FixPointHelper(testGenFP
                      ,isOutMapAttrsFPInfo
                      ,isInMapAttrsFPInfo
                      ,condMaybe
+                     ,setFPInfo
                      ) where
 
 import qualified Data.Map as Map
@@ -46,6 +47,9 @@ data FPAttrInfo = FPAttrInfo {isInFP   :: Bool
 data FPEvalTxt = FixedPointEval Int 
                | NotFixedPointEval 
                  deriving (Show,Read)
+
+setFPInfo ::  FPInfo b -> [a] -> FPInfo a
+setFPInfo (FPInfo a _) r  = FPInfo a r
 
 getFPId :: FPEvalTxt -> Int
 getFPId (FixedPointEval i) = i
