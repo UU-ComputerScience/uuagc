@@ -27,7 +27,7 @@ import HsToken
 import Options
 import CommonTypes
 import RhsCheck
-import FixPointHelper(FPInfo(..),newFPInfo,FPAttrInfo(..),fromFPInfoVoidFPInfoRules,isOutFP)
+import FixPointHelper(FPInfo(..),newFPInfo,FPAttrInfo(..),fromFPInfoVoidFPInfoRules)
 }
 
 
@@ -504,8 +504,8 @@ checkMerges allNts allInsts fieldMap nt con merges
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 
 -----------------------------------------------------------------------
--- checkFPs: This function checks the information collected about
---           the fixed-point is correct.
+-- checkFPs: This function checks if the information collected about
+--           each FP directive is correct.
 --           The checking is done by using several inner checking functions:
 --           checkFPl,
 --           checkFPe,
@@ -527,8 +527,8 @@ checkFPs attrb fieldMap nt con fps
         checkDefi afae@((field,attr),fpInfoV) pai@(fae,errs,aac) = 
                  fromJust $ (do (NT nt' _)  <- lookup field fields 
                                 (inha,syna) <- Map.lookup nt' attrb 
-                                if maybe False (const (isOutFP fpInfoV)) (Map.lookup attr inha) || 
-                                   maybe False (const (isInFP  fpInfoV)) (Map.lookup attr syna)
+                                if maybe False (const True) (Map.lookup attr inha) || 
+                                   maybe False (const True) (Map.lookup attr syna)
                                  then return $ checkAlUsed afae pai
                                  else return $ (fae,(Seq.<|) (UndefChild nt con attr) errs, aac)
                             ) `mplus` return (fae,(Seq.<|) (UndefChild nt con field) errs, aac)
@@ -1211,7 +1211,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
                                        merges = [ (n, NT t []) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
-                                       fps    = [ TopFPInfo i (fpAttrInfo fpinfo) | (i,fpinfo)<- Map.assocs $ maybe Map.empty id (Map.lookup con fpmap) ]
+                                       fps    = maybe Map.empty id (Map.lookup con fpmap)
 
                                        -- important: keep order of children
                                        cldrn = map child (flds ++ filter (not . existsAsField) insts ++ merges)

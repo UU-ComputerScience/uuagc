@@ -134,7 +134,7 @@ keywords = lowercaseKeywords ++
            [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "SET","DERIVING","FOR", "WRAPPER", "NOCATAS", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
-           , "AUGMENT", "AROUND", "MERGE", "AS"
+           , "AUGMENT", "AROUND", "MERGE", "AS", "FP"
            ]
 
 ncomment c p ('-':'}':xs) = advc' 2 p c  xs
