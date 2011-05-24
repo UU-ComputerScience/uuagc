@@ -6,7 +6,7 @@ import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
 import CommonTypes
-import FixPointHelper (FPInfo(..),FPAttrInfo(..),MapAttrFPInfo)
+import FixPointHelper (FPInfo(..),FPAttrInfo(..),MapAttrsFPInfo)
 }
 
 DATA Grammar      | Grammar typeSyns  : {TypeSyns}
@@ -33,8 +33,6 @@ TYPE Rules        = [Rule]
 
 TYPE TypeSigs     = [TypeSig]
 
-TYPE TopFPInfos   = [TopFPInfo]
-
 DATA Nonterminal  | Nonterminal nt     : {NontermIdent}
                                 params : {[Identifier]}
                                 inh    : {Attributes}
@@ -45,7 +43,7 @@ DATA Production  | Production   con        : {ConstructorIdent}
                                 children   : Children
                                 rules      : Rules
                                 typeSigs   : TypeSigs
-                                topFPInfos : TopFPInfos     -- Collect all FP directives declared for each Production
+                                topFPInfo  : {MapAttrsFPInfo Rule}     -- Collect all FP directives declared for each Production
 
 DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
@@ -63,9 +61,6 @@ DATA Rule         | Rule    mbName  : {Maybe Identifier}
 DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}
 
-DATA TopFPInfo    | TopFPInfo id  : {Int}
-                              cir : {MapAttrFPInfo}  -- Circular attributes declared
-
 SET AllAbstractSyntax
   = Grammar
     Nonterminal Nonterminals
@@ -73,4 +68,3 @@ SET AllAbstractSyntax
     Child Children
     Rule Rules
     TypeSig TypeSigs
-    TopFPInfo TopFPInfos

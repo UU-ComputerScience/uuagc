@@ -161,7 +161,7 @@ getNtName _         = nullIdent
 -- Therefore, in the AltAttr structures, a boolean is added,
 -- that is False in sublists 3a and 3b, i.e. the non-local output fields.
 --
--- Each AltAttr, that is eacht attribute occurence, is mapped to a number
+-- Each AltAttr, that is each attribute occurence, is mapped to a number
 -- in the altAttrs Map, starting at vcount
 {
 data AltAttr = AltAttr Identifier Identifier Bool 

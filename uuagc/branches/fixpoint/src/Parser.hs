@@ -238,7 +238,7 @@ parseFile opts searchPath file
     pFPElem = pListSep pComma pFPElem'
 
     pFPElem' :: AGParser ((Identifier,Identifier), FPAttrInfo)
-    pFPElem' = (\ a e -> (a, defaultFPAttrInfo e)) <$> pAttr <* pAssign <*> pExpr
+    pFPElem' = (\ a e -> (a, defaultFPAttrInfo e)) <$> pAttrFP <*> (pSucceed (Expression noPos []) <|> (pAssign *> pExpr))
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -397,8 +397,15 @@ pFieldIdentifier =  pIdentifier
                 <|> Ident "loc"  <$> pLOC
                 <|> Ident "inst" <$> pINST
 
+pFieldIdentifierFP :: AGParser Identifier
+pFieldIdentifierFP =  pIdentifier
+                  <|> Ident "loc"  <$> pLOC
+
 pAugmentToken :: AGParser ()
 pAugmentToken = () <$ (pAUGMENT <|> pPlus)
+
+pAttrFP = (,) <$> pFieldIdentifierFP <* pDot <*> pIdentifier
+
 
 pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
 
@@ -469,7 +476,6 @@ pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pINH         = pCostReserved 90 "INH"     <?> "INH"
 pSYN         = pCostReserved 90 "SYN"     <?> "SYN"
 pCHN         = pCostReserved 90 "CHN"     <?> "CHN"
-pFP          = pCostReserved 5  "FP"      <?> "FP"
 pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
@@ -500,3 +506,4 @@ pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
 pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"
 pMERGE       = pCostReserved 5  "MERGE" <?> "MERGE"
 pAS          = pCostReserved 5  "AS" <?> "AS"
+pFP          = pCostReserved 5  "FP"      <?> "FP"

@@ -10,16 +10,16 @@ module FixPointHelper(testGenFP
                      ,MapAttrsFPInfo
                      ,MapAttrFPInfo
                      ,fromFPInfoVoidFPInfoRules
-                     ,isOutFP
-                     ,isInFPInfo
-                     ,isOutFPInfo
+                     -- ,isOutFP
+                     -- ,isInFPInfo
+                     -- ,isOutFPInfo
                      ,FPEvalTxt(..)
                      ,newFPEval
                      ,getFPEvalTxtIx
                      ,notFPEval
                      ,getFPId
-                     ,isOutMapAttrsFPInfo
-                     ,isInMapAttrsFPInfo
+                     -- ,isOutMapAttrsFPInfo
+                     -- ,isInMapAttrsFPInfo
                      ,condMaybe
                      ,setFPInfo
                      ) where
@@ -40,8 +40,7 @@ data FPInfo a = FPInfo { fpAttrInfo  :: MapAttrFPInfo
                        , fpOtherInfo :: [a]
                        } 
 
-data FPAttrInfo = FPAttrInfo {isInFP   :: Bool
-                             ,bottomFP :: Expression
+data FPAttrInfo = FPAttrInfo {bottomFP :: Expression
                              }
 
 data FPEvalTxt = FixedPointEval Int 
@@ -66,36 +65,34 @@ newFPInfo = FPInfo { fpAttrInfo = Map.empty
 notFPEval :: FPEvalTxt
 notFPEval = NotFixedPointEval
 
-isOutFP :: FPAttrInfo -> Bool
-isOutFP = not.isInFP 
+-- isOutFP :: FPAttrInfo -> Bool
+-- isOutFP = not.isInFP 
 
-isMapAttrsFPPInfo :: (FPAttrInfo -> Bool) 
-                  -> Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
-isMapAttrsFPPInfo p i f a m = do fpInfo <- Map.lookup i m
-                                 isPFPInfo p f a fpInfo
+-- isMapAttrsFPPInfo :: (FPAttrInfo -> Bool) 
+--                   -> Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
+-- isMapAttrsFPPInfo p i f a m = do fpInfo <- Map.lookup i m
+--                                  isPFPInfo p f a fpInfo
 
-isInMapAttrsFPInfo :: Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
-isInMapAttrsFPInfo = isMapAttrsFPPInfo isInFP
+-- isInMapAttrsFPInfo :: Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
+-- isInMapAttrsFPInfo = isMapAttrsFPPInfo isInFP
 
-isOutMapAttrsFPInfo :: Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
-isOutMapAttrsFPInfo = isMapAttrsFPPInfo isOutFP
+-- isOutMapAttrsFPInfo :: Int -> Identifier -> Identifier -> MapAttrsFPInfo a -> Maybe Bool
+-- isOutMapAttrsFPInfo = isMapAttrsFPPInfo isOutFP
 
-isPFPInfo :: (FPAttrInfo -> Bool) -> Identifier -> Identifier -> FPInfo a -> Maybe Bool
-isPFPInfo p f a fpInfo =  maybe (Nothing) (return.p) $ Map.lookup (f,a) $ fpAttrInfo fpInfo
+-- isPFPInfo :: (FPAttrInfo -> Bool) -> Identifier -> Identifier -> FPInfo a -> Maybe Bool
+-- isPFPInfo p f a fpInfo =  maybe (Nothing) (return.p) $ Map.lookup (f,a) $ fpAttrInfo fpInfo
 
-isInFPInfo :: Identifier -> Identifier -> FPInfo a -> Maybe Bool
-isInFPInfo = isPFPInfo isInFP 
+-- isInFPInfo :: Identifier -> Identifier -> FPInfo a -> Maybe Bool
+-- isInFPInfo = isPFPInfo isInFP 
 
-isOutFPInfo :: Identifier -> Identifier -> FPInfo a -> Maybe Bool
-isOutFPInfo = isPFPInfo isOutFP
+-- isOutFPInfo :: Identifier -> Identifier -> FPInfo a -> Maybe Bool
+-- isOutFPInfo = isPFPInfo isOutFP
 
 newFPAttrInfo :: Bool -> Expression -> FPAttrInfo 
-newFPAttrInfo b e =  (defaultFPAttrInfo e) { isInFP = b }
+newFPAttrInfo b e =  (defaultFPAttrInfo e)
 
 defaultFPAttrInfo :: Expression -> FPAttrInfo 
-defaultFPAttrInfo e  = FPAttrInfo { isInFP = False
-                                  , bottomFP = e
-                                  }
+defaultFPAttrInfo e  = FPAttrInfo e
 
 getFPEvalTxtIx :: FPEvalTxt -> Int
 getFPEvalTxtIx (FixedPointEval i) = i
