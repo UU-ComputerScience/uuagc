@@ -1,0 +1,18 @@
+MODULE {TestOkFP} {} {}
+
+DATA Root | Root tA : A
+DATA A | P tB : B
+DATA B | Q 
+
+ATTR Root [                 | | outcir : {[Int]} ]
+ATTR A    [                 | | outcir : {[Int]} ]
+ATTR B    [ incir : {[Int]} | | outcir : {[Int]} ]
+
+SEM A | P FP [tB.incir,tB.outcir] 
+          tB.incir   = @tB.outcir
+          lhs.outcir = @tB.outcir
+SEM B | Q lhs.outcir = @lhs.incir
+
+{
+main = undefined
+}
