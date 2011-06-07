@@ -20,6 +20,7 @@ import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_
 import qualified Desugar            as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
@@ -73,6 +74,8 @@ compile flags input output
           grammarV  = PassV.visage_Syn_Grammar   outputV
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
+          output3a  = Pass3a.wrap_Grammar        (Pass3a.sem_Grammar grammar2                          ) Pass3a.Inh_Grammar  {Pass3a.options_Inh_Grammar  = flags'}
+          debug3a   = Pass3a.debugoutput_Syn_Grammar  output3a
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
@@ -92,8 +95,9 @@ compile flags input output
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
                                Seq.>< Pass1a.errors_Syn_Grammar output1a
                                Seq.>< Pass2.errors_Syn_Grammar  output2 )
-          furtherErrors    = toList ( Pass3.errors_Syn_Grammar  output3
-                               Seq.>< Pass4.errors_Syn_CGrammar output4)
+          furtherErrors    = if kennedyWarren flags' then []
+                             else toList ( Pass3.errors_Syn_Grammar  output3
+                                  Seq.>< Pass4.errors_Syn_CGrammar output4)
 
           errorList        = if null parseErrorList
                              then mainErrors
@@ -201,6 +205,14 @@ compile flags input output
                                     
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
+                         | kennedyWarren flags'
+                            = vlist [debug3a,
+                                     if dumpgrammar flags'
+                                      then vlist [ pp "{- Dump of grammar with default rules"
+                                                 , GrammarDump.pp_Syn_Grammar dump2
+                                                 , pp "-}"
+                                                 ]
+                                      else empty]
                          | otherwise
                             = vlist [ vlist ( if not (ocaml flags')
                                               then [ pp optionsLine

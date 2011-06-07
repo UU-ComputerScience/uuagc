@@ -1,0 +1,161 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "HsToken.ag"
+INCLUDE "Expression.ag"
+INCLUDE "Patterns.ag"
+imports
+{
+import AbstractSyntax
+import HsToken
+import Expression
+import Patterns
+import Options
+import PPUtil
+import Pretty
+import Knuth1
+import KennedyWarren
+import Maybe
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+}
+
+-------------------------------------------------------------------------------
+--         Debugging
+-------------------------------------------------------------------------------
+ATTR Grammar [ | | debugoutput : {PP_Doc} ]
+
+-------------------------------------------------------------------------------
+--         Distributing options
+-------------------------------------------------------------------------------
+ATTR Grammar [ options : {Options} | | ]
+
+-------------------------------------------------------------------------------
+--         Give unique names to rules
+-------------------------------------------------------------------------------
+ATTR Nonterminal Nonterminals
+     Production Productions
+     Rule Rules  [ | rulenumber : Int | ]
+
+SEM  Grammar
+  |  Grammar nonts.rulenumber = 0
+
+SEM  Rule
+  |  Rule lhs.rulenumber = @lhs.rulenumber + 1
+     	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName 
+
+-------------------------------------------------------------------------------
+--         Dependency graph per production
+-------------------------------------------------------------------------------
+-- Gather vertices
+ATTR HsToken Expression
+     Rule Rules
+     Pattern Patterns
+     Child Children [ | | vertices USE {`Set.union`} {Set.empty} : {Set.Set Vertex} ]
+
+-- All vertices from the righthandside of a rule
+SEM  HsToken
+  |  AGLocal lhs.vertices = Set.singleton $ VAttr Loc _LOC @var
+  |  AGField lhs.vertices = Set.singleton $ VAttr (if      @field == _LHS then Inh
+     	     		    		    	   else if @field == _LOC then Loc 
+						   else    	     	       Syn) @field @attr
+
+-- Gather vertices for an expression (make a higher order child)
+SEM  Expression
+  |  Expression lhs.vertices = Set.unions $ map (\tok -> vertices_Syn_HsToken 
+     			       		    (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+
+-- Gather vertices at patterns
+SEM  Pattern
+  |  Alias loc.vertex   = if		      @field == _INST then VChild @attr
+     	   		  else VAttr (if      @field == _LHS  then Syn
+     	     		    	      else if @field == _LOC  then Loc 
+				      else 	 	      	   Inh) @field @attr
+     	   lhs.vertices = Set.insert @loc.vertex $ @parts.vertices `Set.union` @pat.vertices
+
+-- Gather vertices for children
+SEM  Child
+  |  Child loc.vertex      = VChild @name
+     	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @syn
+     	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @inh
+	   lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
+     	   		        NT _ _ -> Set.insert @loc.vertex (Set.fromList $ @loc.synvertices ++ @loc.inhvertices)
+			     	_      -> Set.empty
+
+-- Add extra vertex for a rule
+SEM  Rule
+  |  Rule loc.vertex   = VRule @loc.rulename
+     	  lhs.vertices = Set.insert @loc.vertex $ @pattern.vertices `Set.union` @rhs.vertices
+
+-- Combine all vertices for a production
+SEM  Production
+  |  Production loc.vertices = @rules.vertices `Set.union` @children.vertices
+
+-- Gather edges
+ATTR Rule Rules
+     Child Children [ | | edges USE {`Set.union`} {Set.empty} : {Set.Set Edge} ]
+
+-- Gather edges for a rule
+SEM  Rule
+  |  Rule loc.edgesout = map ((,) @loc.vertex) (Set.toList @rhs.vertices)
+     	  loc.edgesin  = map (flip (,) @loc.vertex) (Set.toList @pattern.vertices)
+	  lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
+
+-- Gather edges for a child
+SEM  Child
+  |  Child loc.edgesout = []
+     	   loc.edgesin  = map (flip (,) @loc.vertex) @loc.synvertices
+	   lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
+
+-- Combine all edges for a production
+SEM  Production
+  |  Production loc.edges = @rules.edges `Set.union` @children.edges
+
+-- Find all child nonterminal names for a production
+ATTR Child Children [ | | nontnames USE {++} {[]} : {[(Identifier, Identifier)]}]
+
+SEM  Child
+  |  Child lhs.nontnames = case @tp of
+     	   		     NT nont _ -> [(@name, nont)]
+			     _         -> []
+
+-- Return a dependency graph for each production
+ATTR Production  [ | | depgraph : {ProdDependencyGraph} ]
+ATTR Productions [ | | depgraph USE {:} {[]} : {[ProdDependencyGraph]} ]
+
+SEM  Production
+  |  Production lhs.depgraph  = ProdDependencyGraph { pdgVertices    = Set.toList @loc.vertices
+			      			    , pdgEdges       = Set.toList @loc.edges
+						    , pdgProduction  = @con
+                                               	    , pdgChildMap    = @children.nontnames }
+
+-------------------------------------------------------------------------------
+--         Dependency graph per nonterminal
+-------------------------------------------------------------------------------
+
+-- Vertices are just all inherited and syntesized attributes
+SEM  Nonterminal
+  |  Nonterminal loc.synvertices = map (VAttr Syn @nt) . Map.keys $ @syn
+     	   	 loc.inhvertices = map (VAttr Inh @nt) . Map.keys $ @inh
+	   	 loc.vertices    = @loc.synvertices ++ @loc.inhvertices
+
+-- Construct nonterminal dependency graph for production
+SEM  Nonterminal
+  |  Nonterminal loc.nontgraph = NontDependencyGraph { ndgVertices = @loc.vertices
+     		 	       	 		     , ndgEdges    = [] }
+
+-- Create dependency information for nonterminal and pass it upwards
+ATTR Nonterminal  [ | | depinfo : {NontDependencyInformation} ]
+ATTR Nonterminals [ | | depinfo USE {:} {[]} : {[NontDependencyInformation]} ]
+
+SEM  Nonterminal
+  |  Nonterminal lhs.depinfo = NontDependencyInformation { ndiNonterminal = @nt
+                                                         , ndiInh         = Map.keys @inh
+                                                         , ndiSyn         = Map.keys @syn
+                                                         , ndiDepGraph    = @loc.nontgraph
+                                                         , ndiProds       = @prods.depgraph }
+
+-------------------------------------------------------------------------------
+--         Debug output  (in graphviz style)
+-------------------------------------------------------------------------------
+SEM  Grammar
+  |  Grammar lhs.debugoutput = kennedyWarrenIO @nonts.depinfo
+

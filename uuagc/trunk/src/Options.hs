@@ -65,6 +65,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["breadthfirst"]      (NoArg breadthfirstOpt) "Experimental: generate breadth-first code"
                , Option []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
                , Option []        ["visitcode"]        (NoArg visitorsOutputOpt) "Experimental: generate visitors code"
+               , Option []        ["kennedywarren"]      (NoArg kennedyWarrenOpt) "Experimental: use Kennedy-Warren's algorithm for ordering"
                , Option []        ["statistics"]      (ReqArg statisticsOpt "FILE to append to") "Append statistics to FILE"
                , Option []        ["checkParseRhs"]         (NoArg parseHsRhsOpt) "Parse RHS of rules with Haskell parser"
                , Option []        ["checkParseTys"]         (NoArg parseHsTpOpt) "Parse types of attrs with Haskell parser"
@@ -135,6 +136,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseTy :: Bool
                       , checkParseBlock :: Bool
                       , nocatas :: Set NontermIdent
+                      , kennedyWarren :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -196,6 +198,7 @@ noOptions = Options { moduleName    = NoName
                     , checkParseTy  = False
                     , checkParseBlock = False
                     , nocatas         = Set.empty
+                    , kennedyWarren   = False
                     }
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}            
@@ -257,6 +260,7 @@ parseHsRhsOpt opts = opts { checkParseRhs = True }
 parseHsTpOpt opts = opts { checkParseTy = True }
 parseHsBlockOpt opts = opts { checkParseBlock = True }
 parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
+kennedyWarrenOpt opts = opts { kennedyWarren = True }
 nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
   set = Set.fromList ids
   ids = map identifier lst
