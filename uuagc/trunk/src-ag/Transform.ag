@@ -63,6 +63,7 @@ SEM AG
                                      @elems.semPragmasCollect
                                      @elems.attrOrderCollect
                                      @elems.ctxCollect
+                                     @elems.quantCollect
                                      @loc.checkedUniques
                                      @loc.checkedAugments
                                      @loc.checkedArounds
@@ -105,14 +106,14 @@ ATTR Elem Elems
   -- top-down distribution
 ATTR Elem Elems NontSet
      [ definedSets:{DefinedSets} | | ]
-     
-     
-     
--- Interpreting nonterminal sets     
+
+
+
+-- Interpreting nonterminal sets
 ATTR NontSet [ | | nontSet   : {Set NontermIdent} ]
 
 
--- Interpreting constructor sets     
+-- Interpreting constructor sets
 ATTR ConstructorSet  [ | | constructors : {(Set ConstructorIdent->Set ConstructorIdent)} ]
 
 
@@ -148,7 +149,7 @@ ATTR Elems Elem Attrs
 {type MergeInfo   = (Identifier, Identifier, [Identifier], Expression)}
   -- bottom-up collection
 ATTR Elem Elems SemAlt SemAlts
-     [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]} 
+     [ | |   collectedRules    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, RuleInfo)]}
              collectedSigs     USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, SigInfo) ]}
              collectedInsts    USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [Identifier]) ]}
              collectedUniques  USE {++} {[]} : {[ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]}
@@ -248,7 +249,7 @@ SEM Elem
   | Type lhs.collectedFields = map (\(x,y)->(@name, x, y)) @loc.expanded
 
 SEM AG
-  | AG   
+  | AG
 
          loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                            in  foldr f (Map.empty) @elems.collectedFields
@@ -264,10 +265,10 @@ SEM AG
                            in  foldr f (Map.empty) ( @elems.collectedSigs
                                                    ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- @elems.collectedUniques, (ident,ref) <- us ]
                                                    )
-         
+
          loc.allInsts    = let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
                            in  foldr f (Map.empty) @elems.collectedInsts
-         
+
          loc.allUniques  = let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
                            in foldr f (Map.empty) @elems.collectedUniques
          loc.allAugments = let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
@@ -276,7 +277,7 @@ SEM AG
                             in foldr f Map.empty @elems.collectedArounds
          loc.allMerges   =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                              in foldr f Map.empty @elems.collectedMerges
-         
+
          loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
 
@@ -311,13 +312,13 @@ SEM AG
 
          loc.errs4       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allRulesErrs
-                            
+
          loc.errs5       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allSigsErrs
-         
+
          loc.errs6       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allInstsErrs
-         
+
          loc.errs7       = let  f m s = Map.fold ((><) . snd) s m
                            in Map.fold f Seq.empty @loc.allUniquesErrs
 
@@ -329,7 +330,7 @@ SEM AG
 
          loc.errs10      =  let  f m s = Map.fold ((><)) s m
                             in Map.fold f Seq.empty @loc.allNamesErrs
-         
+
          loc.errs11      =  let f m s = Map.fold ((><) . snd) s m
                             in Map.fold f Seq.empty @loc.allMergesErrs
 
@@ -357,20 +358,20 @@ checkRules attributes fields allinsts allsigs allmerges nt con rs
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
                  ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
                  --   merged children are not allowed to have any inherited attrs defined: do not include
-        
+
         sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allsigs)
 
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
-  
+
         checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
-        checkRule (mbNm, pat,exp,as,owrt,str) ((r1,e1),m1) 
+        checkRule (mbNm, pat,exp,as,owrt,str) ((r1,e1),m1)
           = let (e2,m2,u2,b2) = foldr (checkDefi owrt) (e1,m1,[],[]) as
             in  ( (Rule mbNm (pat u2) exp owrt str True : r1, e2), m2)
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
          = case lookup field fieldmap
-            of  Just (NT tp _) -> 
+            of  Just (NT tp _) ->
                   let tp' = maybe tp id (deforestedNt tp)
                   in              if field == _LOC || field == _INST || field == _FIRST || field == _LAST
                                      || hasAttrib (if getName field==getName _LHS then snd else fst) tp' attr
@@ -395,7 +396,7 @@ checkRuleNames nt con
     checkRule (Nothing,_,_,_,_,_) inp = inp
 
 checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
-checkSigs nt con sis 
+checkSigs nt con sis
   = let checkSig (ide,typ) (sigs,errs)
          = if   ide `elem` map (\(TypeSig n t)-> n) sigs
            then (sigs, ((Seq.<|)) (DupSig nt con ide) errs)
@@ -418,16 +419,16 @@ checkInsts allNts sigMap fieldMap nt con
                                                                                          True  -> (info : insts, errs)
                                                                                          False -> (insts, Seq.singleton (UndefNont nm') >< errs)
                                                    | otherwise                   -> (insts, Seq.singleton (UndefNont nm) >< errs)
-                    ) 
+                    )
                   $ findSig inst
           ) ([], Seq.empty)
   where
     sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
-    
+
     findSig name
       = do tp@(NT _ _) <- lookup name sigs
            return (name, tp)
-    
+
     findInst _ [] = Nothing
     findInst k ((k', _): r)
       | k == k'   = Just k'
@@ -515,7 +516,7 @@ mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
       = h ("case " ++ uniqueDispenser opts ++ " __cont of { (__cont, " ++ getName nm ++ ") -> ") ++ outp ++ h "}"
     h s = [HsToken s noPos]
     finalout us = h ("(__cont, " ++ concat (intersperse "," (map getName us)) ++ ")")
-    wrap ref inp = h "case " ++ [AGField _LHS ref noPos Nothing] ++ h " of { __cont | __cont `seq` True -> " ++ inp ++ h "}"
+    wrap ref inp = h "let __cont = " ++ [AGField _LHS ref noPos Nothing] ++ h " in seq __cont ( " ++ inp ++ h " )"
 }
 
 
@@ -537,7 +538,7 @@ SEM SemDef | TypeDef
                                        tks = [tk]
                                        tk  = HsToken s @pos
                                    in Seq.fromList $ checkTy exp
-                      _ -> Seq.empty 
+                      _ -> Seq.empty
                else Seq.empty
 
 
@@ -558,7 +559,7 @@ SEM NontSet
 
 SEM AG
   | AG   loc.allNonterminals = @elems.collectedNames `Set.difference` @elems.collectedSetNames
- 
+
 
 
 
@@ -649,7 +650,7 @@ SEM Elem
 
 
 SEM AG
-  | AG 
+  | AG
        elems.defSets     = Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList @loc.allNonterminals))
        elems.definedSets = Map.map fst @elems.defSets
 
@@ -894,6 +895,23 @@ mergeCtx
 }
 
 -------------------------------------------------------------------------------
+--         Collecting quantifiers of semantic functions
+-------------------------------------------------------------------------------
+
+ATTR Elem Elems [ | | quantCollect USE {`mergeQuant`} {Map.empty} : {QuantMap}]
+
+SEM Elem
+  | Sem Attr
+      lhs.quantCollect = if null @quants
+                         then Map.empty
+                         else Map.fromList [(nt, @quants) | nt <- Set.toList @names.nontSet]
+
+{
+mergeQuant :: QuantMap -> QuantMap -> QuantMap
+mergeQuant = Map.unionWith (++)
+}
+
+-------------------------------------------------------------------------------
 --         Collecting derivings
 -------------------------------------------------------------------------------
 
@@ -927,7 +945,7 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
   | Attrs loc.(attrDecls,errors) = checkAttrs @lhs.allFields (Set.toList @lhs.nts) @inherited @synthesized @lhs.attrDecls
 
              .(inherited,synthesized,useMap) = let splitAttrs xs = unzip [ ((n,makeType @lhs.allNonterminals t),(n,ud))
-                                                                         | (n,t,ud) <- xs 
+                                                                         | (n,t,ud) <- xs
                                                                          ]
                                                    (inh,_)     = splitAttrs @inh
                                                    (chn,uses1) = splitAttrs @chn
@@ -935,7 +953,7 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
                                                    isUse (n,(e1,e2,_)) = not (null e1 || null e2)
                                                in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
           lhs.useMap = Map.fromList (zip (Set.toList @lhs.nts) (repeat @useMap))
-          
+
           loc.errors1 = if checkParseTy @lhs.options
                         then let attrs  = @inh ++ @syn ++ @chn
                                  items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
@@ -978,8 +996,8 @@ SEM AG
 -------------------------------------------------------------------------------
 
 
-ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]} 
-                          sigInfos     USE {++} {[]} : {[SigInfo]} 
+ATTR SemDef SemDefs [ | | ruleInfos    USE {++} {[]} : {[RuleInfo]}
+                          sigInfos     USE {++} {[]} : {[SigInfo]}
                           uniqueInfos  USE {++} {[]} : {[UniqueInfo]}
                           augmentInfos USE {++} {[]} : {[AugmentInfo]}
                           aroundInfos  USE {++} {[]} : {[AroundInfo]}
@@ -994,14 +1012,14 @@ SEM SemAlt
                          , let conkeys = Set.fromList (Map.keys conmap)
                          , let conset  = @constructorSet.constructors conkeys
                          ]
-  
+
            lhs.errors = Seq.fromList
                            [ UndefAlt nt con
                            | (nt, conset, conkeys) <- @loc.coninfo
                            , con <- Set.toList (Set.difference conset conkeys)
                            ]
                         Seq.>< @rules.errors
-           lhs.collectedRules 
+           lhs.collectedRules
                =       [ (nt,con,r)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
@@ -1013,31 +1031,31 @@ SEM SemAlt
                        , con <- Set.toList conset
                        , ts <- @rules.sigInfos
                        ]
-           
+
            lhs.collectedInsts
                =       [ (nt,con,@rules.definedInsts)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
-           
+
            lhs.collectedUniques
                =       [ (nt,con,@rules.uniqueInfos)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
-          
+
            lhs.collectedAugments
               =        [ (nt, con, @rules.augmentInfos)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
-          
+
            lhs.collectedArounds
               =        [ (nt, con, @rules.aroundInfos)
                        | (nt, conset, _) <- @loc.coninfo
                        , con <- Set.toList conset
                        ]
-           
+
            lhs.collectedMerges
              =         [ (nt, con, @rules.mergeInfos)
                        | (nt, conset, _) <- @loc.coninfo
@@ -1125,13 +1143,14 @@ constructGrammar ::    Set NontermIdent
                     -> PragmaMap
                     -> AttrOrderMap
                     -> ContextMap
+                    -> QuantMap
                     -> UniqueMap
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap uniqueMap augmentsMap aroundsMap mergeMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1169,7 +1188,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
                                    in Production con cldrn rules tsigs
                             in Nonterminal nt params inh syn (map alt alts)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap uniqueMap augmentsMap aroundsMap mergeMap
+   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }
 
 {

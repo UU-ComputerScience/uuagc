@@ -30,7 +30,7 @@ DATA Chunk    | Chunk            name         : String
                                  semFunctions : Decls
                                  semNames     : {[String]}
 
-DATA Expr     | Let              decls : Decls   
+DATA Expr     | Let              decls : Decls
                                  body  : Expr
               | Case             expr  : Expr
                                  alts  : CaseAlts
@@ -40,7 +40,7 @@ DATA Expr     | Let              decls : Decls
                                  body : Expr
               | TupleExpr        exprs : Exprs
 	          | UnboxedTupleExpr exprs : Exprs
-              | App              name  : {String} 
+              | App              name  : {String}
                                  args  : Exprs
               | SimpleExpr       txt   : {String}
               | TextExpr         lns   : {[String]}
@@ -84,12 +84,12 @@ DATA Decl     | Decl             left  : Lhs
                                  derivings : {[String]}
               | NewType          name  : {String}
                                  params: {[String]}
-                                 con   : {String} 
+                                 con   : {String}
                                  tp    : Type
               | Type             name  : {String}
                                  params: {[String]}
                                  tp    : Type
-              | TSig             name  : {String} 
+              | TSig             name  : {String}
                                  tp    : Type
               | Comment          txt   : {String}
               | PragmaDecl       txt   : {String}
@@ -102,9 +102,9 @@ DATA Decl     | Decl             left  : Lhs
                                  left  : Lhs
                                  rhs   : Expr
 
-DATA DataAlt  | DataAlt          name  : {String} 
+DATA DataAlt  | DataAlt          name  : {String}
                                  args  : Types
-              | Record           name  : {String} 
+              | Record           name  : {String}
                                  args  : NamedTypes
 
 DATA NamedType | Named           strict: {Bool}
@@ -114,6 +114,8 @@ DATA NamedType | Named           strict: {Bool}
 DATA Type     | Arr              left  : Type
                                  right : Type
               | CtxApp           left  : {[(String, [String])]}
+                                 right : Type
+              | QuantApp         left  : String
                                  right : Type
               | TypeApp          func  : Type
                                  args  : Types
@@ -134,7 +136,7 @@ DATA Lhs      | Pattern3    pat3  : Pattern
               | Pattern3SM  pat3  : Pattern
               | TupleLhs         comps : {[String]} -- \ [Lhs] appears to be more sensible
               | UnboxedTupleLhs  comps : {[String]} -- /
-              | Fun              name  : {String} 
+              | Fun              name  : {String}
                                  args  : Exprs
               | Unwrap name : {String} sub : Lhs
 
@@ -143,8 +145,8 @@ DERIVING Type : Show
 {
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
---   inh    The inherited attributes. 
---          If there are none, no unboxing can take place, 
+--   inh    The inherited attributes.
+--          If there are none, no unboxing can take place,
 --          because in that case the semantic function (a top-level identifier) would have an unboxed type.
 -- Of course we can't have an unboxed 1-tuple
 mkTupleExpr :: Bool -> Bool -> Exprs -> Expr

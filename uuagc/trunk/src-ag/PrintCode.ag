@@ -58,7 +58,7 @@ SEM Program | Program
   loc.options = @lhs.options { breadthFirst = breadthFirst @lhs.options && visit @lhs.options && cases @lhs.options && @ordered }
 
 SEM Program
-  | Program chunks.nested = nest @lhs.options 
+  | Program chunks.nested = nest @lhs.options
 
 SEM Exprs
   | Cons lhs.pps = @hd.pp : @tl.pps
@@ -114,7 +114,7 @@ SEM Decl
                                                  >-< vlist (map ("|" >#<) xs)
                                      >-< if null @derivings
                                             then empty
-                                            else "deriving" >#< ppTuple False (map text @derivings)  
+                                            else "deriving" >#< ppTuple False (map text @derivings)
                                   )
   | NewType    lhs.pp      = "newtype" >#< hv_sp (@name : @params) >#< "=" >#< @con >#< pp_parens @tp.pp
   | Type       lhs.pp      = "type" >#< hv_sp (@name : @params) >#< "=" >#<  @tp.pp
@@ -152,7 +152,7 @@ SEM Expr
                loc.addBang = if bangpats @lhs.options
                              then \p -> pp_parens ("!" >|< p)
                              else id
-               lhs.pp      = pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->" 
+               lhs.pp      = pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->"
                                        >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
                                        )
   | TupleExpr  lhs.pp      = ppTuple @lhs.nested @exprs.pps
@@ -187,7 +187,7 @@ SEM Expr
                              else @expr.pp >#< hv_sp @args.pps
   | ResumeExpr lhs.pp      = if breadthFirst @lhs.options
                              then pp_parens ("resume" >#< pp_parens @expr.pp
-                                            >-< indent 2 (pp_parens ( "\\" >|< 
+                                            >-< indent 2 (pp_parens ( "\\" >|<
                                                   pp_parens ("~" >|< pp_parens (@nt >|< "_Syn" >#< "_inh_arg"))
                                                     >#< "->"
                                             >-< indent 2 ( "let" >#< @left.pp >#< "= _inh_arg"
@@ -210,7 +210,7 @@ SEM Expr
                                   >-< indent 2 (@loc.strictParams `ppMultiSeqV` @body.pp))
                              else if null @args.pps
                                   then @body.pp
-                                  else pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->" 
+                                  else pp_parens (    "\\" >#< (vlist (map @loc.addBang @args.pps)) >#< "->"
                                                  >-< indent 4 (@loc.strictParams `ppMultiSeqV` @body.pp)
                                                  )
 
@@ -263,9 +263,11 @@ SEM Type  [ | | prec:Int ]
 
   | TypeApp
       lhs.pp = hv_sp (@func.pp : @args.pps)
-  
+
   | CtxApp
       lhs.pp = (pp_block "(" ")" "," $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) @left) >#< "=>" >#< @right.pp
+  | QuantApp
+      lhs.pp = @left >#< @right.pp
 
   | TupleType  lhs.prec    = 5
                   .pp      = ppTuple @lhs.nested @tps.pps
@@ -278,7 +280,7 @@ SEM Type  [ | | prec:Int ]
 
   | SimpleType lhs.prec    = 5
                   .pp      = if reallySimple @txt then text @txt else pp_parens (text @txt)
-  
+
   | NontermType  lhs.prec  = 5
                  lhs.pp    = text @name >#< hv_sp @params
   | TMaybe       lhs.prec  = 5

@@ -76,14 +76,14 @@ SEM HsToken
       loc.tks = AGLocal @var (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
   | AGField
       loc.mField = findField @field @attr @lhs.childSyns
-      
+
       loc.field' = maybe @field id @loc.mField
       lhs.errors = maybe (Seq.singleton (UndefAttr @lhs.nt @lhs.con @field (Ident "<ANY>" (getPos @field)) False)) (const Seq.empty) @loc.mField
-      
+
       lhs.addLines = if @lhs.useFieldIdent || length (getName @field) < length (getName @loc.field')
                      then @lhs.addLines + 1
                      else @lhs.addLines
-      
+
       loc.tks = AGField @loc.field' @attr (addl @lhs.addLines @pos) (if @lhs.useFieldIdent then Just @lhs.ruleDescr else Nothing)
   | HsToken
       loc.tks = HsToken @value (addl @lhs.addLines @pos)
@@ -242,7 +242,7 @@ SEM Production
   | Production
       loc.augmentsIn = Map.findWithDefault Map.empty @con @lhs.augmentsIn
       loc.augmentsOut = Map.singleton @con @loc.augmentsOut1
-      
+
       (loc.augmentErrs, loc.augmentsOut1) = Map.mapAccum (desugarExprs @lhs.options @lhs.nt @con @children.childInhs @children.childSyns) Seq.empty @loc.augmentsIn
 
 WRAPPER Expression
@@ -296,6 +296,7 @@ SEM Grammar
                            @manualAttrOrderMap
                            @paramMap
                            @contextMap
+                           @quantMap
                            @uniqueMap
                            @nonts.augmentsOut
                            @aroundsMap
