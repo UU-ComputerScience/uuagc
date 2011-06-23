@@ -18,9 +18,9 @@ import GrammarInfo
 import DeclBlocks
 
 import qualified Data.Map as Map
-import Data.Map(Map) 
+import Data.Map(Map)
 import qualified Data.Set as Set
-import Data.Set(Set) 
+import Data.Set(Set)
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq)
 import UU.Scanner.Position
@@ -79,14 +79,14 @@ SEM CGrammar
 -- Passing information about nonterminal and constructor down
 -------------------------------------------------------------------------------
 
-ATTR  CProductions CProduction CVisits 
-      CVisit Sequence CRule CInterface 
+ATTR  CProductions CProduction CVisits
+      CVisit Sequence CRule CInterface
       CSegments CSegment [ nt:NontermIdent inh,syn:Attributes | | ]
 SEM  CNonterminal
   |  CNonterminal  inter.(inh,syn,nt) = (@inh,@syn,@nt)
                   prods.(inh,syn,nt) = (@inh,@syn,@nt)
 
-ATTR CVisits CVisit Sequence CRule [ con:ConstructorIdent 
+ATTR CVisits CVisit Sequence CRule [ con:ConstructorIdent
                                      terminals : {[Identifier]} | | ]
 SEM  CProduction
   |  CProduction  visits.con = @con
@@ -112,16 +112,21 @@ cleanupArg s
       SimpleType s' -> s'
 }
 
-ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ contextMap : {ContextMap} | | ]
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ contextMap : {ContextMap} quantMap : QuantMap | | ]
 
 SEM CGrammar
   | CGrammar
       nonts.contextMap = @contextMap
+      nonts.quantMap   = @quantMap
 
 {
 appContext :: ContextMap -> NontermIdent -> Code.Type -> Code.Type
 appContext mp nt tp
   = maybe tp (\ctx -> CtxApp (map (\(n,ns) -> (getName n, ns)) ctx) tp) $ Map.lookup nt mp
+
+appQuant :: QuantMap -> NontermIdent -> Code.Type -> Code.Type
+appQuant mp nt tp
+  = foldr QuantApp tp $ Map.findWithDefault [] nt mp
 }
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit Sequence CRule [ allNts : {Set NontermIdent} | | ]
@@ -158,12 +163,12 @@ SEM  CRule
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
                                        $ case mb of
                                            Just (Just tp') -> App instLocFieldName [SimpleExpr $ fieldname inst]
-                                           _               -> 
+                                           _               ->
                                               case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
                                                 True  -> App (cataname @lhs.prefix nm)
                                                              [SimpleExpr instLocFieldName]
                                                 False -> SimpleExpr instLocFieldName
-                                  )    
+                                  )
                                   (Set.singleton instSemFieldName)
                                   (Set.singleton instLocFieldName)
                            | inst <- @loc.definedInsts
@@ -299,7 +304,7 @@ SEM  CSegments
 
 ATTR CVisit [ nextIntra : {Exprs} nextIntraVars : {Set String} | | ]
 ATTR CVisits CVisit [ | | intra : {Exprs} intraVars : {Set String} ]
-SEM  CVisit 
+SEM  CVisit
   |  CVisit lhs.intra = @intra.exprs
             lhs.intraVars = @intra.usedVars
 SEM  CVisits
@@ -330,7 +335,7 @@ SEM  CRule
                           then funname @name 0
                           else attrname @isIn @field @name
            lhs.exprs = [SimpleExpr @loc.rulename]
-  |  CChildVisit 
+  |  CChildVisit
        loc.names = -- do not pass inst-childs as parameter if they are not defined yet
                    if @loc.isSuperfluousHigherOrderIntra
                    then []
@@ -350,7 +355,7 @@ SEM CRule
       lhs.usedVars = Set.fromList @loc.names
 
 -------------------------------------------------------------------------------
--- Type signatures are added to the declarations. 
+-- Type signatures are added to the declarations.
 -------------------------------------------------------------------------------
 
 ATTR Sequence CRule [ | | tSigs USE {++} {[]} : {[Decl]} ]
@@ -396,7 +401,7 @@ SEM  CRule
                   loc.replParamMap = Map.fromList (zip @loc.orgParams @loc.instParams)
                   loc.replace = \k -> Map.findWithDefault k k @loc.replParamMap
                   loc.evalTp = if null @loc.orgParams then id else evalType @loc.replace
-      
+
 
 -------------------------------------------------------------------------------
 -- Types of intra-visit dependencies are needed in the type of the
@@ -414,7 +419,7 @@ SEM  CProduction
   |  CProduction visits.children = @children
 
 
-ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]} 
+ATTR Sequence CRule [ | | tps USE {++} {[]} : {[Type]}
                           allTpsFound USE {&&} {True} : Bool ]
 SEM  CRule
   |  CRule        lhs.(tps,allTpsFound) = maybe ([],False) (\tp -> ([substSelf (fromJust @childnt) tp],True)) @tp
@@ -456,19 +461,19 @@ SEM  CVisit
             intra.lastExpr = error "lastExpr: not used here"
             loc.lastExprVars = map (lhsname False) (Map.keys @syn) ++ @loc.nextVisitName
             (loc.blockFunDecls, loc.blockFirstFunCall) = mkPartitionedFunction @loc.funcname @loc.o_case @loc.nextVisitDecl @loc.lastExprVars @vss.blockDecls
-            
+
             loc.costCentreDescr = "b" ++ ":" ++ show @lhs.nt ++ ":" ++ show @lhs.con ++ ":" ++ show @lhs.nr
             loc.addCostCentre = \v -> if @lhs.o_costcentre
                                       then PragmaExpr True False ("SCC \"" ++ @loc.costCentreDescr ++ "\"") v
                                       else v
-            
+
             loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
             loc.semFun = let  lhs = Fun @funcname lhs_args
                               lhs_args = if @lhs.nr == 0 then map field @loc.firstOrderOrig else [] -- @intra.exprs
 
                               field (name,NT tp tps,_) = let unwrap | @lhs.o_newtypes = \x -> App (sdtype tp) [x]
                                                                     | otherwise       = id
-                                                             
+
                                                              addType expr | null tps  = expr
                                                                           | otherwise = TypedExpr expr (@lhs.unfoldSemDom tp 0 tps)
 
@@ -477,7 +482,7 @@ SEM  CVisit
                                                          in if null @loc.params
                                                             then expr
                                                             else TypedExpr expr (idEvalType $ typeToCodeType (Just @lhs.nt) @loc.params tp)
-                              
+
                               mbEvalTp | null @loc.params = const Nothing
                                        | otherwise        = Just . idEvalType
 
@@ -491,7 +496,7 @@ SEM  CVisit
                                          . mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh)
                                          $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
                               wrap = if  @lhs.o_newtypes
-                                         then \x -> App (typeName @lhs.nt @lhs.nr) [x] 
+                                         then \x -> App (typeName @lhs.nt @lhs.nr) [x]
                                          else id
                          in Decl lhs rhs Set.empty Set.empty
             loc.tsig = TSig @funcname @semType
@@ -501,12 +506,12 @@ SEM  CVisit
 
                               evalTp | null @loc.params = id
                                      | otherwise        = idEvalType
-                              
-                          in appContext @lhs.contextMap @lhs.nt $ evalTp $
-                             if  @lhs.nr == 0  
+
+                          in appQuant @lhs.quantMap @lhs.nt $ appContext @lhs.contextMap @lhs.nt $ evalTp $
+                             if  @lhs.nr == 0
                                  then foldr argType (typeAppStrs (sdtype   @lhs.nt        ) @loc.params) (map (\(_,t,_) -> t) @loc.firstOrderOrig)
                                  else foldr argType (typeAppStrs (typeName @lhs.nt @lhs.nr) @loc.params) [] -- @intra.tps
-            lhs.decls =  ( if  @lhs.with_sig 
+            lhs.decls =  ( if  @lhs.with_sig
                            then [@tsig, @semFun]
                            else [@semFun]
                          ) ++
@@ -679,10 +684,10 @@ freevars additional decls
   where
     allused = Set.unions (Set.fromList additional : map usedvars decls)
     alldefined = Set.unions (map definedvars decls)
-  
+
     usedvars (Decl _ _ _ uses) = uses
     usedvars _                 = Set.empty
-    
+
     definedvars (Decl _ _ defs _) = defs
     definedvars _                 = Set.empty
 
@@ -696,7 +701,7 @@ mkBlockLambda optCase name args decls expr
 
 
 -------------------------------------------------------------------------------
--- The semantic domain is generated from the interface. 
+-- The semantic domain is generated from the interface.
 -------------------------------------------------------------------------------
 
 ATTR  CInterface CSegments CSegment [ | | semDom USE {++} {[]} : {[Decl]} ]
@@ -805,7 +810,7 @@ SEM CNonterminal
                                       varPat = if  @lhs.o_newtypes
                                                    then App (sdtype @nt) [SimpleExpr var]
                                                    else SimpleExpr var
-                                      
+
                                       evalTp | null params' = id
                                              | otherwise    = idEvalType
                                       appParams nm = TypeApp (SimpleType nm) (map SimpleType params')
@@ -856,7 +861,7 @@ SEM  CGrammar [ | | errors : {Seq Error} ]
 SEM CNonterminal
   | CNonterminal loc.comment = Comment . unlines . map ind $ ( @inter.comments ++ ("alternatives:" : map ind @prods.comments) )
 
-ATTR CInterface CSegments CSegment 
+ATTR CInterface CSegments CSegment
      CProductions CProduction
      CVisits CVisit Sequence CRule  [ | | comments USE {++} {[]}: {[String]} ]
 
@@ -868,7 +873,7 @@ SEM CSegment
                                     then []
                                     else ("visit " ++ show @lhs.nr ++ ":") : body
 
-SEM CProduction 
+SEM CProduction
   | CProduction  loc.firstOrderChildren = [ (nm,fromJust mb,virt) | (nm,tp,virt) <- @children, let mb = isFirstOrder virt tp, isJust mb ]
                  lhs.comments =  ("alternative " ++ getName @con ++ ":")
                                  : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) @loc.firstOrderChildren
@@ -876,7 +881,7 @@ SEM CProduction
                                            )
 
 {
--- for a virtual child that already existed as a child, returns 
+-- for a virtual child that already existed as a child, returns
 isFirstOrder :: Maybe (Maybe Type) -> Type -> Maybe Type
 isFirstOrder Nothing tp = Just tp
 isFirstOrder (Just x) _ = x
@@ -978,12 +983,12 @@ visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
 ATTR CNonterminals CNonterminal [ wrappers:{Set NontermIdent} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
 SEM CGrammar
   | CGrammar nonts . typeSyns  = @typeSyns
-                   . derivings = @derivings 
+                   . derivings = @derivings
                    . wrappers  = @wrappers
 
 SEM CNonterminal
   | CNonterminal loc.dataDef = let params' = map getName @params
-                                   typeSyn tp = let theType = 
+                                   typeSyn tp = let theType =
                                                       case tp of
                                                         CommonTypes.Maybe t      -> TMaybe $ typeToCodeType (Just @nt) params' t
                                                         CommonTypes.Either t1 t2 -> TEither (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
@@ -1019,9 +1024,9 @@ SEM CNonterminal
                                    evalTp | null @params = id
                                           | otherwise    = idEvalType
                                    tSig = TSig (cataname @lhs.prefix @nt)
-                                               (appContext @lhs.contextMap @nt $ evalTp $ appParams (getName @nt) `Arr` appParams (sdtype @nt))
+                                               (appQuant @lhs.quantMap @nt $ appContext @lhs.contextMap @nt $ evalTp $ appParams (getName @nt) `Arr` appParams (sdtype @nt))
                                    special typ = case typ of
-                                                 CommonTypes.List tp ->                                  
+                                                 CommonTypes.List tp ->
                                                      let cons = SimpleExpr (semname @lhs.prefix @nt (identifier "Cons"))
                                                          nil  = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
                                                          arg  = SimpleExpr "list"
@@ -1032,7 +1037,7 @@ SEM CNonterminal
                                                          lhs = Fun (cataname @lhs.prefix @nt) [arg]
                                                          rhs = (App "Prelude.foldr" [cons,nil,rarg])
                                                      in  [Decl lhs rhs Set.empty Set.empty]
-                                                 CommonTypes.Maybe tp ->                                  
+                                                 CommonTypes.Maybe tp ->
                                                      let just    = semname @lhs.prefix @nt (identifier "Just")
                                                          nothing = semname @lhs.prefix @nt (identifier "Nothing" )
                                                          arg  = SimpleExpr "x"
@@ -1040,11 +1045,11 @@ SEM CNonterminal
                                                                   NT t _ -> let t' = maybe t id (deforestedNt t)
                                                                             in App (cataname @lhs.prefix t') [arg]
                                                                   _      -> arg
-                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
+                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]
                                                      in  [Decl (lhs (App "Prelude.Just" [arg]))     (App just [rarg])    Set.empty Set.empty
                                                          ,Decl (lhs (SimpleExpr "Prelude.Nothing")) (SimpleExpr nothing) Set.empty Set.empty
                                                          ]
-                                                 CommonTypes.Either tp1 tp2 ->                                  
+                                                 CommonTypes.Either tp1 tp2 ->
                                                      let left  = semname @lhs.prefix @nt (identifier "Left")
                                                          right = semname @lhs.prefix @nt (identifier "Right" )
                                                          arg   = SimpleExpr "x"
@@ -1056,7 +1061,7 @@ SEM CNonterminal
                                                                   NT t _ -> let t' = maybe t id (deforestedNt t)
                                                                             in App (cataname @lhs.prefix t') [arg]
                                                                   _      -> arg
-                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]                                                        
+                                                         lhs a = Fun (cataname @lhs.prefix @nt) [a]
                                                      in  [Decl (lhs (App "Prelude.Left"  [arg]))     (App left  [rarg0])    Set.empty Set.empty
                                                          ,Decl (lhs (App "Prelude.Right" [arg]))     (App right [rarg1])    Set.empty Set.empty
                                                          ]
@@ -1082,22 +1087,22 @@ SEM CNonterminal
                                                        lhs   = Fun (cataname @lhs.prefix @nt) [arg]
                                                        rhs   = App "IntMap.foldWithKey" [entry,nil,rarg]
                                                    in [Decl lhs rhs Set.empty Set.empty]
-                                                 CommonTypes.Tuple tps ->   
+                                                 CommonTypes.Tuple tps ->
                                                      let con  = semname @lhs.prefix @nt (identifier "Tuple")
                                                          tps' = [ (SimpleExpr (getName x),y) | (x,y) <- tps]
-                                                         rargs = map rarg tps'                                                        
+                                                         rargs = map rarg tps'
                                                          rarg (n, tp) = case tp of
                                                                   NT t _ -> let t' = maybe t id (deforestedNt t)
                                                                             in App (cataname @lhs.prefix t') [n]
                                                                   _      -> n
-                                                                  
+
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
                                                          rhs = App con rargs
                                                      in  [Decl lhs rhs Set.empty Set.empty]
                                in  Comment "cata" :
                                    (if @lhs.o_sig then [tSig] else []) ++
                                    maybe @prods.cataAlts special (lookup @nt @lhs.typeSyns)
- 
+
 ATTR CProductions     [ | | cataAlts : {Decls} ]
 ATTR CProduction      [ | | cataAlt  : {Decl}  ]
 

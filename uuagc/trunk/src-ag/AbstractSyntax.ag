@@ -17,6 +17,7 @@ DATA Grammar      | Grammar typeSyns  : {TypeSyns}
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
                             paramMap   : {ParamMap}
                             contextMap : {ContextMap}
+                            quantMap   : {QuantMap}
                             uniqueMap  : {UniqueMap}
                             augmentsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
                             aroundsMap  : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
@@ -50,7 +51,7 @@ DATA Child        | Child   name        : {Identifier}
                             virtual     : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
 DATA Rule         | Rule    mbName  : {Maybe Identifier}
-                            pattern : Pattern 
+                            pattern : Pattern
                             rhs     : Expression
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)

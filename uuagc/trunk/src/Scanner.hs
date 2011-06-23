@@ -12,25 +12,25 @@ import Char
 import UU.Scanner.GenToken
 import Options
 
-data Input = Input !Pos String (Maybe (Token, Input))  
+data Input = Input !Pos String (Maybe (Token, Input))
 
 instance InputState Input Token Pos where
- splitStateE input@(Input _ _ next) = 
+ splitStateE input@(Input _ _ next) =
                 case next of
                      Nothing         -> Right' input
                      Just (s, rest)  -> Left' s rest
- splitState (Input _ _ next) = 
+ splitState (Input _ _ next) =
                 case next of
                      Nothing         -> error "splitState on empty input"
                      Just (s, rest)  -> (# s, rest #)
- getPosition (Input pos _ next) =  case next of 
+ getPosition (Input pos _ next) =  case next of
                                     Just (s,_) -> position s
                                     Nothing    -> pos -- end of file
 
 
 input :: Options -> Pos -> String -> Input
-input opts pos inp = Input pos 
-                      inp 
+input opts pos inp = Input pos
+                      inp
                       (case scan opts pos inp of
                              Nothing      -> Nothing
                              Just (s,p,r) -> Just (s, input opts p r)
@@ -47,10 +47,10 @@ scan opts
                 else keywords
     mkKeyword s | s `elem` lowercaseKeywords = s
                 | otherwise                  = map toUpper s
-  
+
     scan :: Lexer Token
     scan p []                        = Nothing
-    scan p ('-':'-':xs) | null xs || not (head xs `elem` "<>!?#@:%$^&")    
+    scan p ('-':'-':xs) | null xs || not (head xs `elem` "<>!?#@:%$^&")
                                      = let (com,rest) = span (/= '\n') xs
                                        in advc' (2+length com) p scan rest
     scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
@@ -74,27 +74,27 @@ scan opts
             scan' (')' :rs)          = (reserved ")" p, advc 1 p, rs)
     --        scan' ('{'    :rs)       = (OBrace      p, advc 1 p, rs)
     --        scan' ('}'    :rs)       = (CBrace      p, advc 1 p, rs)
-    
+
             scan' ('\"' :rs)         = let isOk c = c /= '"' && c /= '\n'
                                            (str,rest) = span isOk rs
                                        in if null rest || head rest /= '"'
                                               then (errToken "unterminated string literal"   p
                                                    , advc (1+length str) p,rest)
                                               else (valueToken TkString str p, advc (2+length str) p, tail rest)
-    
+
             scan' ('=' : '>' : rs)   = (reserved "=>" p, advc 2 p, rs)
             scan' ('=' :rs)          = (reserved "=" p, advc 1 p, rs)
             scan' (':':'=':rs)       = (reserved ":=" p, advc 2 p, rs)
-    
-            scan' (':':':':rs) | doubleColons opts    = (reserved "::" p, advc 1 p, rs)
+
+            scan' (':':':':rs) {- | doubleColons opts -}    = (reserved "::" p, advc 1 p, rs)  -- recognize double colons too
             scan' (':' :rs)                           = (reserved ":" p, advc 1 p, rs)
             scan' ('|' :rs)          = (reserved "|" p, advc 1 p, rs)
-    
+
             scan' ('/':'\\':rs)      = (reserved "/\\" p, advc 2 p, rs)
             scan' ('-':'>' :rs)      = (reserved "->" p, advc 2 p, rs)
             scan' ('-'     :rs)      = (reserved "-" p, advc 1 p, rs)
             scan' ('*'     :rs)      = (reserved "*" p, advc 1 p, rs)
-    
+
             scan' (x:rs) | isLower x = let (var,rest) = ident rs
                                            str        = (x:var)
                                            tok | str `elem` keywords' = reserved (mkKeyword str)
@@ -106,7 +106,7 @@ scan opts
                                                | otherwise            = valueToken TkConid str
                                        in (tok p, advc (length var+1) p,rest)
                          | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
-    
+
     scanBeginOfLine :: Lexer Token
     scanBeginOfLine p ('{' : '-' : ' ' : 'L' : 'I' : 'N' : 'E' : ' ' : xs)
       | isOkBegin rs && isOkEnd rs'
@@ -117,15 +117,15 @@ scan opts
         (r,rs)   = span isDigit xs
         (s, rs') = span (/= '"') (drop 2 rs)
         p' = Pos (read r - 1) (column p) s    -- LINE pragma indicates the line number of the /next/ line!
-    
+
         isOkBegin (' ' : '"' : _) = True
         isOkBegin _               = False
-    
+
         isOkEnd ('"' : ' ' : '-' : '}' : _) = True
         isOkEnd _         = False
     scanBeginOfLine p xs
       = scan p xs
- 
+
 
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
@@ -154,7 +154,7 @@ codescrap' d p ('{':'{':xs) = let (p2,xs2,sc) = advc' 2 p (codescrap' d) xs
                               in (p2,xs2,'{':' ':sc)
 codescrap' d p ('}':'}':xs) = let (p2,xs2,sc) = advc' 2 p (codescrap' d) xs
                               in (p2,xs2,'}':' ':sc)
--}                              
+-}
 codescrap' d p ('{':xs)     = let (p2,xs2,sc) = advc' 1 p (codescrap' (d+1)) xs
                               in (p2,xs2,'{' : sc)
 codescrap' d p ('}':xs)     | d == 1 = (p,'}':xs,[])
@@ -190,13 +190,13 @@ toLines s    = let (l,s') = breakLine s
                in l :  toLines s'
 breakLine xs = case xs of
                 '\CR' : ys -> case ys of
-                                '\LF' : zs -> ([],zs) 
+                                '\LF' : zs -> ([],zs)
                                 _          -> ([],ys)
                 '\LF' : ys -> ([], ys)
                 x     : ys -> let (l,s) = breakLine ys
                               in (x:l,s)
                 []         -> ([],[])
- 
+
 codelines [] = error "Unterminated literate code block"
 codelines ((n,l):ls) | "\\end{code}" `isPrefixOf` l = ([],ls)
                      | otherwise                    = let (lns,r) = codelines ls

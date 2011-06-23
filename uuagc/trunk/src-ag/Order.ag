@@ -27,7 +27,7 @@ import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Sequence as Seq
-import Data.Map(Map) 
+import Data.Map(Map)
 import Data.Set(Set)
 import Data.Sequence(Seq, (><))
 import UU.Util.Utils
@@ -106,7 +106,7 @@ SEM Nonterminal
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Nonterminals Nonterminal Productions Production Rules Rule 
+ATTR Nonterminals Nonterminal Productions Production Rules Rule
    [ o_newtypes
    , o_cata
    , o_sig
@@ -114,7 +114,7 @@ ATTR Nonterminals Nonterminal Productions Production Rules Rule
    , o_rename
    , o_wantvisit -- True if the option for visit functions has been specified
    , o_dovisit   -- True if o_wantvisit and it is possible to generate visit functions (no cycles)
-   , o_case:{Bool}  
+   , o_case:{Bool}
    prefix : {String} | | ]
 ATTR Nonterminals Nonterminal Productions Production Children Child [ o_unbox:{Bool} | | ]
 ATTR Nonterminals Nonterminal [ o_data:{Bool} | | ]
@@ -149,7 +149,7 @@ getNtName _         = nullIdent
 --  1.  inherited attributes for _LHS
 --  2a. synthesized attributes for children
 --  2b. children that are a trivial field
---  3a. inherited attributes for children 
+--  3a. inherited attributes for children
 --  3b. synthesized attributes for _LHS
 --  3c. local attributes
 --
@@ -164,7 +164,7 @@ getNtName _         = nullIdent
 -- Each AltAttr, that is eacht attribute occurence, is mapped to a number
 -- in the altAttrs Map, starting at vcount
 {
-data AltAttr = AltAttr Identifier Identifier Bool 
+data AltAttr = AltAttr Identifier Identifier Bool
                deriving (Eq, Ord, Show)
 }
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
@@ -188,14 +188,14 @@ SEM  Production
   |  Production loc.altAttrs = Map.fromList (zip @gathAltAttrs [@lhs.vcount..])
 
 -- Information passed to Pattern
-ATTR  Children Child 
-      [  | |  nts USE {Seq.><} {Seq.empty} : {Seq (Identifier,NontermIdent)} 
+ATTR  Children Child
+      [  | |  nts USE {Seq.><} {Seq.empty} : {Seq (Identifier,NontermIdent)}
               inhs USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)} ]
 SEM  Child
   |  Child  lhs.nts = Seq.singleton (@name,getNtName @tp)
             lhs.inhs = Seq.singleton (@name,@inh)
 ATTR  Rules Rule
-      [  childNts : {Map Identifier NontermIdent} 
+      [  childNts : {Map Identifier NontermIdent}
          childInhs : {Map Identifier Attributes} | | ]
 SEM  Production
   |  Production  rules.childNts = Map.fromList (toList @children.nts)
@@ -215,7 +215,7 @@ SEM  Child
 
 SEM  Rule
   |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
-                                                                  = case parts of 
+                                                                  = case parts of
                                                                       [] -> Map.lookup attr @lhs.allTypeSigs
                                                                       _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
                                                   | field == _LHS = Map.lookup attr @lhs.syn
@@ -225,14 +225,14 @@ SEM  Rule
                               typ (Underscore _)             = Nothing
                               -- typ (Product _ pats)           = tp _LOC undefined pats
                               typ _                          = Nothing
-                              
+
                          in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
                                           | (field,attr,isLocalOrInst,parts) <- @pattern.patternAttrs
                                           , let aa = AltAttr field attr isLocalOrInst
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
                             in Seq.fromList [ CRule attr False True @lhs.nt @lhs.con field (childnt field) tp @pattern.copy @rhs.textLines @defines @owrt @origin @rhs.allRhsVars @explicit @mbName
-                                            | (field,attr,tp) <- Map.elems @defines 
+                                            | (field,attr,tp) <- Map.elems @defines
                                             ]
 
 {
@@ -240,7 +240,7 @@ substSelf nt tp
   = case tp of
       NT n tps | n == _SELF -> NT nt tps
       _                     -> tp
-	
+
 haskellTupel :: [Type] -> Maybe Type
 haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts))) ++ ")" ))
 }
@@ -255,7 +255,7 @@ SEM  Pattern
 
 -- Giving them a number
 ATTR  Nonterminals Nonterminal Productions Production
-      [  | vcount : Int 
+      [  | vcount : Int
          | rules USE {Seq.><} {Seq.empty} : {Seq (Vertex,CRule)}]
 SEM  Grammar
   |  Grammar  nonts.vcount = 0
@@ -264,8 +264,8 @@ SEM  Production
                   lhs.vcount = @lhs.vcount + length @gathRules
 
 -- Direct dependencies
-ATTR Nonterminals Nonterminal 
-     Productions Production 
+ATTR Nonterminals Nonterminal
+     Productions Production
      Rules Rule [ | | directDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM  Rule
   |  Rule  lhs.directDep
@@ -307,8 +307,8 @@ SEM Production
 --  (inst.x,x.y) for each synthesized attribute of N
 --
 
-ATTR Nonterminals Nonterminal 
-     Productions Production 
+ATTR Nonterminals Nonterminal
+     Productions Production
      Rules Rule [ | | instDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 SEM Rule
   | Rule
@@ -399,8 +399,8 @@ SEM Production
 -- (x_around, x.y) for each synthesized attribute y of N
 --
 
-ATTR Nonterminals Nonterminal 
-     Productions Production 
+ATTR Nonterminals Nonterminal
+     Productions Production
        [ | | aroundDep USE {Seq.><} {Seq.empty} : {Seq Edge} ]
 
 ATTR Nonterminals Nonterminal
@@ -495,8 +495,8 @@ SEM Expression
 -------------------------------------
 -- NT-Attributes
 -------------------------------------
-ATTR  Nonterminals Nonterminal 
-      [ | acount : Int |  ntattrs USE {Seq.><} {Seq.empty} : {Seq (Vertex,NTAttr)} 
+ATTR  Nonterminals Nonterminal
+      [ | acount : Int |  ntattrs USE {Seq.><} {Seq.empty} : {Seq (Vertex,NTAttr)}
                           aranges  USE {Seq.><} {Seq.empty} : {Seq (Int,Int,Int)}]
 
 SEM Grammar
@@ -584,7 +584,7 @@ SEM Grammar
                                                                      , error "No visit sub-sequences for AG with induced cycles"
                                                                      , inducedCycleErrs @attrTable @ruleTable cim errs
                                                                      )
-            lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty) 
+            lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty)
                           Seq.>< @nonts.errors
 
 ------------------------------------------------------------------
@@ -609,14 +609,14 @@ SEM  Production
 
 -- Declarations for single visits
 ATTR Child Children [ | | singlevisits USE {++} {[]}: {[CRule]}]
-SEM Child 
+SEM Child
   | Child lhs.singlevisits  =  if  @maptolocal
                                    then []
                                    else [CChildVisit @name (getNtName @tp) 0 @inh @syn True]
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
-  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap @loc.aroundMap @loc.mergeMap @loc.o_dovisit
+  |  Grammar  lhs.output = CGrammar @typeSyns @derivings @wrappers @nonts.cNonterminals @pragmas @paramMap @contextMap @quantMap @loc.aroundMap @loc.mergeMap @loc.o_dovisit
 SEM  Nonterminals [ | | cNonterminals : CNonterminals ]
   |  Cons  lhs.cNonterminals = @hd.cNonterminal : @tl.cNonterminals
   |  Nil   lhs.cNonterminals = []
@@ -643,21 +643,21 @@ SEM Child
 -- Collecting nts
 ATTR Nonterminal Nonterminals
      Production Productions
-     Rule Rules 
+     Rule Rules
      Child Children [allnts:{[Identifier]} | | ]
-     
+
 SEM Grammar
   | Grammar nonts.allnts = map fst (@nonts.nonts)
 
 -- Collecting fields
-ATTR Rule Rules 
+ATTR Rule Rules
      Child Children [allfields:{[(Identifier,Type,Maybe (Maybe Type))]} attrs:{[(Identifier,Identifier)]} | | ]
 
 SEM Production
   | Production loc.allfields  = @children.fields
                    .attrs      = map ((,) _LOC)  @rules.locVars ++
                                  map ((,) _INST) @rules.instVars ++
-                                 map ((,) _LHS)  @inhnames ++ 
+                                 map ((,) _LHS)  @inhnames ++
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
                    .inhnames   = Map.keys @lhs.inh
                    .synnames   = Map.keys @lhs.syn
@@ -709,7 +709,7 @@ showPathLocal ruleTable xs = showP (xs++[-1])
 
 
 limitTo :: Int -> [String] -> [String]
-limitTo _ [] = [] 
+limitTo _ [] = []
 limitTo 0 _ = ["....etcetera, etcetera...."]
 limitTo n (x:xs) = x : limitTo (n-1) xs
 
@@ -726,7 +726,7 @@ showPathNice ruleTable xs = limitTo 100 (showP ((-1):xs++[-1]))
                    |  first&& not(isSyn r2) = "get from above "  ++ alignR maxf ""    ++ " " ++ alignL maxa a2 ++ " in " ++ alignR maxn n2 ++ "|" ++ c2
                    |  last                  = "pass down      "  ++ alignR maxf f1    ++ "." ++ a1                                                      ++ induced
                    |              isSyn r2  = "get from below "  ++ alignR maxf f2    ++ "." ++ alignL maxa a2 ++ " in " ++ alignR maxn n2 ++ "|" ++ c2
-                   |  isLocal r1  = if head a1 == '_' 
+                   |  isLocal r1  = if head a1 == '_'
                                          then ""
                                          else "calculate      "  ++ alignR maxf "loc" ++ "." ++ a1
                    |  otherwise             = "pass down      "  ++ alignR maxf f1    ++ "." ++ alignL maxa a1 ++ " to " ++ alignR maxn n2 ++ "|" ++ c2

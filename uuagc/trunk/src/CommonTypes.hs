@@ -21,7 +21,7 @@ data Identifier = Ident { getName::String, getPos::Pos }
 instance Eq Identifier where
  Ident x _ == Ident y _ = x == y
 
-instance Ord Identifier where 
+instance Ord Identifier where
  compare (Ident x _) (Ident y _) = compare x y
 
 instance Show Identifier where
@@ -63,6 +63,7 @@ type Fields      = [(Identifier,Type)]
 type Derivings   = Map NontermIdent (Set Identifier)
 type ClassContext = [(Identifier, [String])]
 type ContextMap  = Map NontermIdent ClassContext
+type QuantMap    = Map NontermIdent [String]
 type Strings     = [String]
 type NontermIdent     = Identifier
 type ConstructorIdent = Identifier
@@ -77,11 +78,11 @@ type AttrEnv = ( [Identifier]
                , [(Identifier,Identifier)]
                )
 
-identifier x   = Ident x noPos               
+identifier x   = Ident x noPos
 nullIdent = identifier ""
-_LHS   = identifier "lhs" 
-_SELF  = identifier "SELF" 
-_LOC   = identifier "loc" 
+_LHS   = identifier "lhs"
+_SELF  = identifier "SELF"
+_LOC   = identifier "loc"
 _INST  = identifier "inst"
 _INST' = identifier "inst'"
 _FIELD = identifier "field"
@@ -105,14 +106,14 @@ lhsname :: Bool -> Identifier -> String
 lhsname isIn = attrname isIn _LHS
 
 attrname :: Bool -> Identifier -> Identifier -> String
-attrname isIn field attr | field == _LOC   = locname attr 
+attrname isIn field attr | field == _LOC   = locname attr
                          | field == _INST  = instname attr
                          | field == _INST' = inst'name attr
                          | field == _FIELD = fieldname attr
-                         | otherwise       = let direction | isIn      = "I" 
+                         | otherwise       = let direction | isIn      = "I"
                                                            | otherwise = "O"
                                              in '_' : getName field ++ direction ++ getName attr
-                               
+
 locname v   = '_' : getName v
 instname v  = getName v ++ "_val_"
 inst'name v = getName v ++ "_inst_"
@@ -144,7 +145,7 @@ _NOCASE = identifier "nocase"
 hasPragma :: PragmaMap -> NontermIdent -> ConstructorIdent -> Identifier -> Bool
 hasPragma mp nt con nm
   = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)
-  
+
 isNonterminal :: Type -> Bool
 isNonterminal (NT _ _) = True
 isNonterminal _        = False
@@ -161,7 +162,7 @@ nontermArgs :: Type -> [String]
 nontermArgs tp
   = case tp of
       NT _ args -> args
-      _         -> [] 
+      _         -> []
 
 deforestedNt :: Identifier -> Maybe Identifier
 deforestedNt nm
