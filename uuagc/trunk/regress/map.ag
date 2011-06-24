@@ -5,6 +5,7 @@ MODULE {Main} {} {}
 optpragmas
 {
 {-# OPTIONS_GHC -fglasgow-exts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 }
 
 imports
