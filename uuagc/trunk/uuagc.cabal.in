@@ -77,6 +77,9 @@ executable uuagc
     , VisagePatterns
     , AG2AspectAG
     , RhsCheck
+    , Knuth1
+    , KennedyWarren
+    , KWOrder
   extensions: TypeSynonymInstances, MultiParamTypeClasses
   hs-source-dirs: src, src-derived
 
