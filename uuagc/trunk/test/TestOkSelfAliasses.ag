@@ -1,0 +1,8 @@
+MODULE {TestOkSelfAliasses} {} {}
+
+TYPE ListA = [A]
+TYPE MaybeA = MAYBE A
+
+DATA A | A
+
+ATTR ListA A MaybeA [ | | x : SELF ]

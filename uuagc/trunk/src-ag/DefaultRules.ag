@@ -40,8 +40,8 @@ ATTR Rule Rules Child Children Pattern Patterns [ con:ConstructorIdent | | ]
 -------------------------------------------------------------------------------
 
 ATTR Grammar          [ options:{Options} | | ]
-ATTR Nonterminals Nonterminal Productions Production [ o_rename:{Bool} 
-                                                       cr:Bool {- copy rule -}  
+ATTR Nonterminals Nonterminal Productions Production [ o_rename:{Bool}
+                                                       cr:Bool {- copy rule -}
                                                      | | ]
 
 ATTR Children Child [ cr:Bool {- copy rule -}  | | ]
@@ -60,47 +60,51 @@ ATTR Nonterminals Nonterminal Productions Production [ typeSyns : {TypeSyns} | |
 -------------------------------------------------------------------------------
 {
 fieldName n       = '@' : getName n
-	
+
 locName n         = '@' : getName n
 
 attrName fld attr
- | fld == _LOC    = '@' :                       getName attr 
+ | fld == _LOC    = '@' :                       getName attr
  | otherwise      = '@' : getName fld ++ "." ++ getName attr
 
 _ACHILD = Ident "(" noPos -- hack
-	
-	
-getConName typeSyns rename nt con1 
+
+
+getConName typeSyns rename nt con1
  | nt `elem` map fst typeSyns  =  synonym
  | otherwise                   =  normalName
  where con                            = getName con1
        normalName | rename            = getName nt++"_"++ con
                   | otherwise         =  con
        synonym    | con == "Cons"     = "(:)"
-                  | con == "Nil"      = "[]"
+                  | con == "Nil"      = case lookup nt typeSyns of
+                                          Just (Map _ _)  -> "Map.empty"
+                                          Just (IntMap _) -> "IntMap.empty"
+                                          _               -> "[]"
                   | con == "Just"     = "Just"
                   | con == "Nothing"  = "Nothing"
+                  | con == "Entry"    = case lookup nt typeSyns of
+                                          Just (Map _ _)  -> "Map.insert"
+                                          Just (IntMap _) -> "IntMap.insert"
                   | otherwise         = normalName
-
-
 
 concatSeq = foldr (Seq.><) Seq.empty
 
 splitAttrs :: Map Identifier a -> [Identifier] -> ([(Identifier,a)],[Identifier])	  -- a used as (String,String)
-splitAttrs _      []           
+splitAttrs _      []
   =  ([],[])
-splitAttrs useMap (n:rest) 
+splitAttrs useMap (n:rest)
   =  let (uses,normals) = splitAttrs useMap rest
      in case Map.lookup n useMap of
-          Just x  -> ((n,x):uses ,   normals )       
+          Just x  -> ((n,x):uses ,   normals )
           Nothing -> (      uses , n:normals )
 
 removeDefined ::  Set (Identifier,Identifier) -> (Identifier,Attributes) -> (Identifier,[Identifier])
-removeDefined defined (fld,as) 
+removeDefined defined (fld,as)
   = ( fld
-    , [ a 
+    , [ a
       | a <- Map.keys as
-      , not (Set.member (fld,a) defined) 
+      , not (Set.member (fld,a) defined)
       ]
     )
 
@@ -111,7 +115,7 @@ removeDefined defined (fld,as)
 -------------------------------------------------------------------------------
 
 ATTR Grammar Nonterminals Nonterminal Productions Production
-     Child Children Rule Rules Pattern Patterns 
+     Child Children Rule Rules Pattern Patterns
      [ | | errors USE {Seq.><} {Seq.empty}:{Seq Error} ]
 
 -------------------------------------------------------------------------------
@@ -119,7 +123,7 @@ ATTR Grammar Nonterminals Nonterminal Productions Production
 -------------------------------------------------------------------------------
 
 ATTR Nonterminals Nonterminal  [ || collect_nts USE {`Set.union`} {Set.empty} : {Set NontermIdent}  ]
-SEM Nonterminal 
+SEM Nonterminal
   | Nonterminal lhs.collect_nts = Set.singleton @nt
 
 ATTR Nonterminals Nonterminal Productions Production [ nonterminals  : {Set NontermIdent} || ]
@@ -156,94 +160,94 @@ SEM Child [ | | name:{Identifier} inherited,synthesized:{Attributes} ]
           lhs.synthesized = if @name `Set.member` @lhs.merged
                             then Map.empty
                             else @syn
-          
+
 SEM Children [ | | inputs,outputs:{[(Identifier, Attributes)]} ]
   | Cons lhs.inputs  = (@hd.name, @hd.inherited) : @tl.inputs
             .outputs = (@hd.name, @hd.synthesized) : @tl.outputs
   | Nil  lhs.inputs  = []
             .outputs = []
- 
- 
- 
+
+
+
 -------------------------------------------------------------------------------
 -- Implementation of Use-rule and Copy-rule
 -------------------------------------------------------------------------------
- 
+
 {
-	
-	
-	
+
+
+
 deprecatedCopyRuleError nt con fld a
- = let mesg = 
-                "In the definitions for alternative" 
-            >#< getName con 
-            >#< "of nonterminal" 
-            >#< getName nt 
-            >|< "," 
-            >-< "the value of field" 
-            >#< getName a  
-            >#< "is copied by a copy-rule."                                    
+ = let mesg =
+                "In the definitions for alternative"
+            >#< getName con
+            >#< "of nonterminal"
+            >#< getName nt
+            >|< ","
+            >-< "the value of field"
+            >#< getName a
+            >#< "is copied by a copy-rule."
             >-< "Copying the value of a field using a copy-rule is deprecated"
             >-< "Please add the following lines to your code:"
-            >-< (    "SEM" 
+            >-< (    "SEM"
                 >#< getName nt
-                >-< indent 2 (      "|" 
-                             >#< getName con 
-                             >#< getName fld 
-                             >#< "." 
-                             >#< a 
-                             >#< "=" 
-                             >#< "@" 
+                >-< indent 2 (      "|"
+                             >#< getName con
+                             >#< getName fld
+                             >#< "."
+                             >#< a
+                             >#< "="
+                             >#< "@"
                              >|< a
                              )
-                )  
+                )
     in  CustomError True (getPos a) mesg
-	
-	
+
+
 missingRuleErrorExpr nt con fld a
- = "error \"missing rule: " 
-   ++ show nt  ++ "." ++ show con ++ "." 
+ = "error \"missing rule: "
+   ++ show nt  ++ "." ++ show con ++ "."
    ++ show fld ++ "." ++ show a   ++ "\""
-	
-	
-	
+
+
+
 makeRule :: (Identifier,Identifier) -> Expression -> String -> Rule
-makeRule (f1,a1) expr origin 
+makeRule (f1,a1) expr origin
  = Rule Nothing
-        (Alias f1 a1 (Underscore noPos) []) 
-        expr 
-        False 
+        (Alias f1 a1 (Underscore noPos) [])
+        expr
+        False
         origin
         False
 
 
 useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
-useRule locals ch_outs (n,(op,e,pos)) 
- =  let elems = [ fld 
+useRule locals ch_outs (n,(op,e,pos))
+ =  let elems = [ fld
                 | (fld,as) <- ch_outs
                 , Map.member n as
                 ]
 
         expr | Set.member n locals  =  attrName _LOC n
              | null elems           =  e
-             | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) 
+             | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y)
                                               (map (flip attrName n) elems)
 
         tks | Set.member n locals  =  [AGLocal n noPos Nothing]
             | null elems           =  lexTokens noPos e
             | otherwise            =  lexTokens noPos str
                                       where
-                                        str = foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y) 
+                                        str = foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y)
                                                 (map (flip attrName n) elems)
 
-    in makeRule (_LHS,n) 
+    in makeRule (_LHS,n)
                 (Expression noPos tks)
                 ("use rule " ++ pos)
 
 
 
 
-selfRule lhsNecLoc attr x   
+selfRule lhsNecLoc attr x
  = let expr | lhsNecLoc  = locName attr
             | otherwise  = x
 
@@ -253,7 +257,7 @@ selfRule lhsNecLoc attr x
    in makeRule (if lhsNecLoc then _LHS else _LOC,attr)
                (Expression noPos tks)
                "self rule"
-               
+
 
 
 
@@ -262,43 +266,43 @@ concatRE rsess = let (rss,ess) = unzip rsess
 
 
 copyRule :: Identifier -> Identifier -> Bool -> Set Identifier -> (Map Identifier Identifier, (Identifier,[Identifier])) -> ([Rule], Seq Error)
-copyRule nt con modcopy locals (env,(fld,as)) 
+copyRule nt con modcopy locals (env,(fld,as))
  = concatRE (map copyRu as)
- 
- where 
+
+ where
        copyRu a
-           = ( [ makeRule (fld,a) 
+           = ( [ makeRule (fld,a)
                           (Expression noPos tks)
                           (cruletxt sel)
                ]
              , err
              )
-                
-        where 
-              sel 
-               |    not modcopy 
+
+        where
+              sel
+               |    not modcopy
                  && Set.member a locals  =  Just _LOC
                | otherwise               =  Map.lookup a env
 
-              (expr,err) 
+              (expr,err)
                = case sel of
                   Nothing         -> ( missingRuleErrorExpr nt con fld a
                                      , Seq.singleton (MissingRule nt con fld a)
                                      )
-                  Just f 
+                  Just f
                    | f == _ACHILD -> ( fieldName a
                                      , Seq.singleton (deprecatedCopyRuleError nt con fld a)
                                      )
                    | otherwise    -> ( attrName f a
                                      , Seq.empty
                                      )
-              
+
               (tks,err')
                = case sel of
                   Nothing         -> ( [HsToken (missingRuleErrorExpr nt con fld a) noPos]
                                      , Seq.singleton (MissingRule nt con fld a)
                                      )
-                  Just f 
+                  Just f
                    | f == _ACHILD -> ( [AGLocal a noPos Nothing]
                                      , Seq.singleton (deprecatedCopyRuleError nt con fld a)
                                      )
@@ -319,69 +323,69 @@ copyRule nt con modcopy locals (env,(fld,as))
                       nonlocal  =  maybe False (/= _LOC)    sel
                       local     =  maybe False (== _LOC)    sel
                       deprChild =  maybe False (== _ACHILD) sel
-}       
+}
 
 
 
 
 SEM Production
- | Production 
+ | Production
 
    lhs.errors = @children.errors >< @errs >< @rules.errors >< @loc.orderErrs
 
-   loc.(newRls, errs) 
+   loc.(newRls, errs)
    =
-    let locals       = @rules.locals  
-        initenv      = Map.fromList (  [ (a,_ACHILD) 
+    let locals       = @rules.locals
+        initenv      = Map.fromList (  [ (a,_ACHILD)
                                        | (a,_,_) <- @children.fields
-                                       ] 
-                                    ++ attrs(_LHS, @lhs.inh) 
-                                    ++ [ (a,_LOC) 
+                                       ]
+                                    ++ attrs(_LHS, @lhs.inh)
+                                    ++ [ (a,_LOC)
                                        |  a <- Set.toList locals
                                        ]
-                                    ) 
-                                    
-        attrs (n,as) = [ (a,n) | a <- Map.keys as ]  
-        
-        envs       = scanl (flip Map.union) 
-                           initenv 
+                                    )
+
+        attrs (n,as) = [ (a,n) | a <- Map.keys as ]
+
+        envs       = scanl (flip Map.union)
+                           initenv
                            (map (Map.fromList . attrs ) @children.outputs)
-                           
+
         child_envs = init envs
         lhs_env    = last envs
-        
-        (selfAttrs, normalAttrs) 
+
+        (selfAttrs, normalAttrs)
           = Map.partition isSELFNonterminal @lhs.syn
-                 
-        (_,undefAttrs)    
+
+        (_,undefAttrs)
           = removeDefined @rules.definedAttrs (_LHS, normalAttrs)
-                 
-        (useAttrs,others) 
+
+        (useAttrs,others)
           = splitAttrs @lhs.useMap undefAttrs
 
         (rules1, errors1)
           = concatRE $ map (copyRule @lhs.nt @con @lhs.cr locals)
-                           (zip envs (map (removeDefined @rules.definedAttrs) @children.inputs))  
+                           (zip envs (map (removeDefined @rules.definedAttrs) @children.inputs))
 
-        uRules            
+        uRules
           = map (useRule locals @children.outputs) useAttrs
-   
-        selfLocRules  
+
+        selfLocRules
           =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp,virt) <- @children.fields, childExists virt])
              | attr <- Map.keys selfAttrs
              , not (Set.member attr locals)
              ]
-             where   
-               childSelf self nm tp 
+             where
+               childSelf self nm tp
                  = case tp of NT nt _                         -> attrName nm self
                               _      | nm `Set.member` locals -> locname nm
                                      | otherwise              -> fieldName nm
                constructor fs
-                | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns 
+                | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns
                   = "(" ++ concat (List.intersperse "," fs) ++ ")"
-                | otherwise 
+                | otherwise
                   = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs
-              
+
                childExists Nothing         = True
                childExists (Just (Just _)) = True
                childExists (Just Nothing)  = False
@@ -389,16 +393,16 @@ SEM Production
         selfRules
           = [ selfRule True attr undefined
             | attr <- Map.keys selfAttrs
-            , not (Set.member (_LHS,attr) @rules.definedAttrs) 
+            , not (Set.member (_LHS,attr) @rules.definedAttrs)
             ]
-                               
-        (rules5, errs5) 
-          = copyRule @lhs.nt 
-                     @con 
-                     @lhs.cr 
-                     locals 
+
+        (rules5, errs5)
+          = copyRule @lhs.nt
+                     @con
+                     @lhs.cr
+                     locals
                      (lhs_env, (_LHS, others))
-    in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)   
+    in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
 
 {
 addAugments :: (Identifier, [Expression]) -> [Rule] -> [Rule]
@@ -455,10 +459,10 @@ addMerges (target,(_,_,expr)) rules
     rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) expr False "merge rule" False
     childLoc = Ident (show target ++ "_merge") (getPos target)
 }
-   
-   
+
+
 ATTR Rule Rules Pattern Patterns
-  [ | | locals        USE {`Set.union`} {Set.empty} : {Set Identifier} 
+  [ | | locals        USE {`Set.union`} {Set.empty} : {Set Identifier}
         definedAttrs  USE {`Set.union`} {Set.empty} : {Set (Identifier,Identifier)}
   ]
 
@@ -472,7 +476,7 @@ SEM Pattern
 SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
   | Cons lhs.fields = @hd.field : @tl.fields
   | Nil  lhs.fields = []
-  
+
 SEM Child    [ | | field  : { (Identifier,Type,Maybe (Maybe Type)) } ]
   | Child lhs.field = (@name,@tp,@virtual)
 
@@ -495,7 +499,7 @@ SEM Grammar
 
 ATTR Grammar Nonterminals  Nonterminal   Productions
     Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
-    [ | | output:SELF ] 
+    [ | | output:SELF ]
 
 ATTR Rule [ | | outputs:Rules ]
 
@@ -507,7 +511,7 @@ SEM Production
       loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
       lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output
 
-SEM Rules 
+SEM Rules
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
     -- remove rules that define nothing
 
@@ -516,10 +520,10 @@ SEM Rule
 
 
 {
-{- 
+{-
 multiRule replaces
   loc.(a,b) = e
-by  
+by
   loc.tup1  = e
   loc.(a,_) = @loc.tup1
   loc.(_,b) = @loc.tup1
@@ -546,8 +550,8 @@ multiRule (Rule (Just nm) pat expr owrt origin expl) uniq
 
 multiRule (Rule Nothing pat expr owrt origin expl) uniq
   =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
-         f expl' w e (Product pos pats) n 
-           = let freshName = Ident ("_tup" ++ show n) pos 
+         f expl' w e (Product pos pats) n
+           = let freshName = Ident ("_tup" ++ show n) pos
                  freshExpr = Expression pos freshTks
                  freshTks  = [AGField _LOC freshName pos Nothing]
                  freshPat  = Alias _LOC freshName (Underscore pos) pats
@@ -562,7 +566,7 @@ multiRule (Rule Nothing pat expr owrt origin expl) uniq
                    , n9
                    )
                  )
-         f expl' w e p n 
+         f expl' w e p n
            = ( p
              , ( [Rule Nothing (w p) e owrt origin expl']
                , n
@@ -591,7 +595,7 @@ SEM Rule | Rule  lhs.ruleNames = case @mbName of
 SEM Production
   | Production
       loc.orderDeps = Set.toList $ Map.findWithDefault Set.empty @con $ Map.findWithDefault Map.empty @lhs.nt @lhs.manualAttrOrderMap
-      
+
       loc.orderErrs
         = let chldOutMap = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.outputs ]
               chldInMap  = Map.fromList [ (k, Map.keysSet s) | (k,s) <- @children.inputs ]
@@ -625,7 +629,7 @@ SEM Production
                  | otherwise   = if nm `Set.member` (Map.findWithDefault Set.empty fld chldInMap)
                                  then []
                                  else [UndefAttr @lhs.nt @con fld nm True]
-              
+
               existsRule nm = if nm `Set.member` @rules.ruleNames
                               then []
                               else [MissingNamedRule @lhs.nt @con nm]
