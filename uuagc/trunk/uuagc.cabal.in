@@ -80,6 +80,8 @@ executable uuagc
     , Knuth1
     , KennedyWarren
     , KWOrder
+    , ExecutionPlan
+    , ExecutionPlan2Hs
   extensions: TypeSynonymInstances, MultiParamTypeClasses
   hs-source-dirs: src, src-derived
 

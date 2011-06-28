@@ -68,6 +68,8 @@ type Strings     = [String]
 type NontermIdent     = Identifier
 type ConstructorIdent = Identifier
 type AttrOrderMap = Map NontermIdent (Map ConstructorIdent (Set Dependency))
+type VisitIdentifier = Int
+type StateIdentifier = Int
 data Dependency = Dependency Occurrence Occurrence deriving (Eq,Ord,Show)
 data Occurrence
   = OccAttr Identifier Identifier

@@ -1,6 +1,7 @@
 module Knuth1 where
 
 import Pretty
+import ExecutionPlan
 import CommonTypes
 import Control.Monad
 import Control.Monad.ST
@@ -93,12 +94,16 @@ graphConstructTRC vs es = do g <- graphConstruct vs
                              -- Insert all initial edges
                              graphInsertEdgesTRC g es
                              return g
-                             
 
 -- | Return all successors of a vertex
 graphSuccessors :: DependencyGraph s -> Vertex -> ST s (Set.Set Vertex)
 graphSuccessors g v = do sucs <- readSTRef $ (successors g) Array.! (graphGetIVertex g v)
                          return $ Set.map (graphGetVertex g) sucs
+
+-- | Return all predecessors of a vertex
+graphPredecessors :: DependencyGraph s -> Vertex -> ST s (Set.Set Vertex)
+graphPredecessors g v = do sucs <- readSTRef $ (predecessors g) Array.! (graphGetIVertex g v)
+                           return $ Set.map (graphGetVertex g) sucs
 
 -- | Check if the graph contains an edge
 graphContainsEdge :: DependencyGraph s -> Edge -> ST s Bool
@@ -107,8 +112,7 @@ graphContainsEdge g (v1,v2) = do let iv1  = graphGetIVertex g v1
                                  sucs <- readSTRef $ (successors g) Array.! iv1
                                  return $ iv2 `Set.member` sucs
 
--- | Insert an edge in a transtive closed graph and return all other edges that were
---   added due to transtivity
+-- | Insert an edge in the graph
 graphInsert :: DependencyGraph s -> Edge -> ST s ()
 graphInsert g (v1,v2) = do let iv1  = graphGetIVertex g v1
                            let iv2  = graphGetIVertex g v2
@@ -163,6 +167,10 @@ graphEdges g = do let vs = Array.indices $ vertexOMap g
                     let sucl = Set.toList sucs
                     return $ map ((,) rv . graphGetVertex g) sucl
                   return $ concat perv
+
+-- | Insert a list of edges in the graph
+graphInsertEdges :: DependencyGraph s -> [Edge] -> ST s ()
+graphInsertEdges g ed = mapM_ (graphInsert g) ed
 
 -- | Insert a list of edges in the graph and return all other edges that
 --   were added due to transitivity
@@ -225,6 +233,26 @@ graphCheckConsistency g = do let vs = Array.indices $ vertexOMap g
                                return $ and $ r1 ++ r2
                              return $ and $ ret
 
+-- | Add edges to the graph so that it is topologically sorted (this will not work if graph is cyclic)
+graphTopSort :: DependencyGraph s -> ST s [Edge]
+graphTopSort g = do let vs = Array.indices $ vertexOMap g
+                    order <- foldM (graphTopSort' g) [] vs
+                    mb <- forM (zip order (tail order)) $ \(v1,v2) -> do
+                      let edg = graphGetEdge g (v2,v1) -- order is actually reverse order
+                      ce <- graphContainsEdge g edg
+                      if ce
+                        then return Nothing                
+                        else do graphInsert g edg
+                                return $ Just edg
+                    return $ catMaybes mb
+
+-- | Helper function for graphTopSort
+graphTopSort' :: DependencyGraph s -> [IVertex] -> IVertex -> ST s [IVertex]
+graphTopSort' g prev cur | cur `elem` prev = return prev
+                         | otherwise       = do pred <- readSTRef $ (predecessors g) Array.! cur
+                                                order <- foldM  (graphTopSort' g) prev $ Set.toList pred
+                                                return $ cur : order
+
 -------------------------------------------------------------------------------
 --         Dependency graph information wrappers
 -------------------------------------------------------------------------------
@@ -236,12 +264,15 @@ data NontDependencyGraph = NontDependencyGraph { ndgVertices    :: [Vertex]
 -- | Special wrapper for production dependency graphs, including mapping between child names and nonterminals
 data ProdDependencyGraph = ProdDependencyGraph { pdgVertices    :: [Vertex]
                                                , pdgEdges       :: [Edge]
+                                               , pdgRules       :: ERules
+                                               , pdgChilds      :: EChildren
                                                , pdgProduction  :: Identifier
                                                , pdgChildMap    :: [(Identifier, Identifier)] }
 
 
 -- | Represent all information from the dependency graphs for a nonterminal
 data NontDependencyInformation = NontDependencyInformation { ndiNonterminal :: Identifier
+                                                           , ndiParams      :: [Identifier]
                                                            , ndiInh         :: [Identifier]
                                                            , ndiSyn         :: [Identifier]
                                                            , ndiDepGraph    :: NontDependencyGraph
@@ -289,17 +320,31 @@ mkNontDependencyInformationM ndi = do dg <- mkNontDependencyGraphM (ndiDepGraph 
                                                                           , ndimDepGraph = dg
                                                                           , ndimProds    = prods }
 
--- | Construct the production graphs from the 
+-- | Construct the production graphs from the transitivelly closed graphs
 undoTransitiveClosure :: [NontDependencyInformationM s] -> ST s [NontDependencyInformationM s]
 undoTransitiveClosure ndis = do edgesl <- mapM (\ndi -> graphEdges (ndgmDepGraph $ ndimDepGraph ndi)) ndis
                                 let edges = concat edgesl
                                 forM ndis $ \ndi -> do
                                   prods <- mapM (mkProdDependencyGraphM False) (ndiProds $ ndimOrig ndi)
-                                  let ret = NontDependencyInformationM { ndimOrig     = ndimOrig ndi
-                                                                       , ndimDepGraph = ndimDepGraph ndi
-                                                                       , ndimProds    = prods }
-                                  addNontProd False (edges, ret)
-                                  return ret
+                                  forM_ (zip prods (ndimProds ndi)) $ \(nprod,oprod) -> do
+                                    -- All possible edges
+                                    let possa = do (v1,v2) <- edges
+                                                   -- Take a child of this nonterminal type
+                                                   guard $ isVertexAttr v1
+                                                   guard $ isVertexAttr v2
+                                                   let tp = getAttrChildName v1
+                                                   (ch,chtp) <- pdgChildMap $ pdgmOrig nprod
+                                                   guard $ tp == chtp
+                                                   -- Construct edge as it should be in the production graph
+                                                   let nv1 = setAttrChildName v1 ch
+                                                   let nv2 = setAttrChildName v2 ch
+                                                   return (nv1, nv2)
+                                    toadd <- filterM (graphContainsEdge (pdgmDepGraph oprod)) possa
+                                    graphInsertEdges (pdgmDepGraph nprod) toadd
+                                  return $ NontDependencyInformationM { ndimOrig     = ndimOrig ndi
+                                                                      , ndimDepGraph = ndimDepGraph ndi
+                                                                      , ndimProds    = prods }
+
 
 -------------------------------------------------------------------------------
 --         Knuth-1 algorithm
@@ -308,29 +353,33 @@ undoTransitiveClosure ndis = do edgesl <- mapM (\ndi -> graphEdges (ndgmDepGraph
 -- | Combine the dependency and nonterminal graphs using Knuth-1
 --   this function assumes that the nonterminal graphs initially contains no edges
 knuth1 :: [NontDependencyInformationM s] -> ST s ()
-knuth1 ndis = do -- Create initial list of pending edges for each ndi (just all edges of the production graphs)
-                 let ipending :: NontDependencyInformationM s -> ST s [Edge]
-                     ipending = liftM concat . mapM (graphEdges . pdgmDepGraph) . ndimProds
---               pndis :: [([Edge], NontDependencyInformation)]
+knuth1 ndis = do -- Create initial list of pending edges for each ndi per production (initially all prod edges)
+                 let ipending :: NontDependencyInformationM s -> ST s [[Edge]]
+                     ipending = mapM (graphEdges . pdgmDepGraph) . ndimProds
+--               pndis :: [([[Edge]], NontDependencyInformation)]
                  pndis <- mapM (\ndi -> liftM2 (,) (ipending ndi) (return ndi)) ndis
                  knuth1' pndis
 
 -- | Helper function for |knuth1| which repeats the process until we are done
-knuth1' :: [([Edge], NontDependencyInformationM s)] -> ST s ()
+knuth1' :: [([[Edge]], NontDependencyInformationM s)] -> ST s ()
 knuth1' ndis = do -- Add edges from the production graphs to the nonterminal graph
 --                ndis' :: [Maybe [Edge]]
                   ndis' <- mapM addProdNont ndis
                   -- List of all newly added edges
 --                ntedge :: [Edge]
-                  let ntedge = concatMap (\x -> maybe [] id x) ndis'
+                  let pntedge = concatMap (\x -> maybe [] id x) ndis'
+                  -- Add backedges
+                  bedges <- addBackEdges ndis
+                  -- All added nonterminal edges
+                  let ntedge = pntedge ++ bedges
                   if null ntedge
                     -- When no new edges have been added we are done
                     then return ()
                     else do -- Otherwise, the next step is to add edges from nonterminal to production graphs
---                          ndis'' :: [Maybe [Edge]]
+--                          ndis'' :: [Maybe [[Edge]]]
                             ndis'' <- mapM (\(_,x) -> addNontProd True (ntedge, x)) ndis
                             -- List of new states (production edges + dependency graphs)
---                          nndis' :: [([Edge], NontDependencyInformation)]
+--                          nndis' :: [([[Edge]], NontDependencyInformation)]
                             nndis' <- zipWithM (\(_,ndi) me -> return (maybe [] id me, ndi)) ndis ndis''
                             if any isJust ndis''
                                -- We have added some edges, so continue the process
@@ -340,12 +389,12 @@ knuth1' ndis = do -- Add edges from the production graphs to the nonterminal gra
 
 -- | Add pending edges from the production graphs to the nonterminal graph, return Nothing if none were added
 --   otherwise, return the list of newly added nonterminal edges
-addProdNont :: ([Edge], NontDependencyInformationM s) -> ST s (Maybe [Edge])
+addProdNont :: ([[Edge]], NontDependencyInformationM s) -> ST s (Maybe [Edge])
 addProdNont (pending, ndi) = do -- Unwrapping of the records
                                 let nontDepGraph = ndimDepGraph ndi
                                 let nontGraph = ndgmDepGraph nontDepGraph
                                 -- nub the list because multiple productions can result in the same new edges
-                                let possa = nub $ do (v1,v2) <- pending
+                                let possa = nub $ do (v1,v2) <- concat pending
                                                      -- Take only edges from syn.lhs to inh.lhs
                                                      guard $ isVertexAttr v1
                                                      guard $ getAttrChildName v1 == _LHS
@@ -369,13 +418,13 @@ addProdNont (pending, ndi) = do -- Unwrapping of the records
 
 -- | Add edges from the nonterminal graphs to the production graphs, return Nothing if none were added
 --   otherwise, return the list of newly added production edges and the updated graph
-addNontProd :: Bool -> ([Edge], NontDependencyInformationM s) -> ST s (Maybe [Edge])
+addNontProd :: Bool -> ([Edge], NontDependencyInformationM s) -> ST s (Maybe [[Edge]])
 addNontProd trc (pending, ndi) = do -- Call the helper function for each nonterminal
                                     prods' <- mapM (addNontProd' trc pending) (ndimProds ndi)
                                     -- Check if any edges were added
                                     if any isJust prods'
                                       then -- Return list of newly created edges
-                                           return $ Just $ concatMap (maybe [] id) prods'
+                                           return $ Just $ map (maybe [] id) prods'
                                       else return Nothing
 
 -- | Helper function for |addNontProd| for a single production
@@ -409,13 +458,12 @@ addNontProd' trc pend pdg = do -- Unwrapping of the records
                                          return $ Just ret
 
 -- | Add the "back edges" to the nonterminal graphs for creating a global ordering
-addBackEdges :: [NontDependencyInformationM s] -> ST s ()
-addBackEdges ndis = do -- gather all back edges
-                       lBackEdges <- forM ndis $ \ndi -> do
+addBackEdges :: [([[Edge]], NontDependencyInformationM s)] -> ST s [Edge]
+addBackEdges ndis = do -- gather all backedges
+                       lBackEdges <- forM ndis $ \(aedg,ndi) -> do
                          -- For every production
-                         bs <- forM (ndimProds ndi) $ \prod -> do
-                           -- Go through all edges
-                           edg <- graphEdges . pdgmDepGraph $ prod
+                         bs <- forM (zip aedg (ndimProds ndi)) $ \(edg,prod) -> do
+                           -- Filter out the backedges
                            return $ do (v1,v2) <- edg
                                        -- Backedges are from inh.ch to syn.ch
                                        guard $ isVertexAttr v1
@@ -433,13 +481,39 @@ addBackEdges ndis = do -- gather all back edges
                                        let nv1 = setAttrChildName v1 chtp
                                        let nv2 = setAttrChildName v2 chtp
                                        return (nv1, nv2)
-                         return $ concat bs
+                         return $ foldl' union [] bs
                        -- Concatenate all lists of backedges
-                       let backedges = concat lBackEdges
-                       -- Now add backedges to every nonterminal graph
-                       forM_ ndis $ \ndi -> do
+                       let backedges = foldl' union [] lBackEdges
+                       -- Add backedges to every nonterminal graph
+                       ret <- forM ndis $ \(_,ndi) -> do
                          -- Find the backedges for this nonterminal
                          let nont = ndiNonterminal . ndimOrig $ ndi
                          let thisbe = filter ((==) nont . getAttrChildName . fst) backedges
                          -- Add them to the graph
                          graphInsertEdgesTRC (ndgmDepGraph . ndimDepGraph $ ndi) thisbe
+                       return $ backedges ++ concat ret
+
+
+-- | Add all resulting edges from a topsort on the nonterminal graph to the production graph
+--   this will ignore edges that will make the graph cyclic
+addTopSortEdges :: [Edge] -> ProdDependencyGraphM s -> ST s ()
+addTopSortEdges pend pdg = do -- Unwrapping of the records
+                              prodGraph <- return $ pdgmDepGraph pdg
+                              -- Construct all possible new edges
+                              let possa = do (v1,v2) <- pend
+                                             -- Take a child of this nonterminal type
+                                             guard $ isVertexAttr v1
+                                             guard $ isVertexAttr v2
+                                             let tp = getAttrChildName v1
+                                             (ch,chtp) <- pdgChildMap $ pdgmOrig pdg
+                                             guard $ tp == chtp
+                                             -- Construct edge as it should be in the production graph
+                                             let nv1 = setAttrChildName v1 ch
+                                             let nv2 = setAttrChildName v2 ch
+                                             return (nv1, nv2)
+                              -- Edges that are not in the production graph yet
+                              forM_ possa $ \(v1,v2) -> do e1 <- graphContainsEdge prodGraph (v1,v2)
+                                                           e2 <- graphContainsEdge prodGraph (v2,v1)
+                                                           when (not $ e1 || e2) $ do
+                                                             graphInsertTRC prodGraph (v1,v2)
+                                                             return ()

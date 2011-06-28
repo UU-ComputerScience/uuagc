@@ -13,15 +13,12 @@ import PPUtil
 import Pretty
 import Knuth1
 import KennedyWarren
-import Maybe
+import ExecutionPlan
+import Data.Maybe
+import Debug.Trace
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 }
-
--------------------------------------------------------------------------------
---         Debugging
--------------------------------------------------------------------------------
-ATTR Grammar [ | | debugoutput : {PP_Doc} ]
 
 -------------------------------------------------------------------------------
 --         Distributing options
@@ -41,6 +38,33 @@ SEM  Grammar
 SEM  Rule
   |  Rule lhs.rulenumber = @lhs.rulenumber + 1
      	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName 
+
+-------------------------------------------------------------------------------
+--         Gather all rules per production for the execution plan
+-------------------------------------------------------------------------------
+ATTR Expression [ | | copy : SELF ]
+
+ATTR Rule  [ | | erules : ERule ]
+ATTR Rules [ | | erules USE {:} {[]} : ERules  ]
+
+SEM Rule
+  | Rule lhs.erules = ERule @loc.rulename
+                            @pattern.copy
+                            @rhs.copy
+                            @owrt
+                            @origin
+                            @explicit
+
+
+-------------------------------------------------------------------------------
+--         Gather all childs per production for the execution plan
+-------------------------------------------------------------------------------
+
+ATTR Child    [ | | echilds : EChild ]
+ATTR Children [ | | echilds USE {:} {[]} : EChildren ]
+
+SEM Child
+  | Child lhs.echilds = EChild @name @tp @virtual
 
 -------------------------------------------------------------------------------
 --         Dependency graph per production
@@ -124,6 +148,8 @@ ATTR Productions [ | | depgraph USE {:} {[]} : {[ProdDependencyGraph]} ]
 SEM  Production
   |  Production lhs.depgraph  = ProdDependencyGraph { pdgVertices    = Set.toList @loc.vertices
 			      			    , pdgEdges       = Set.toList @loc.edges
+						    , pdgRules       = @rules.erules
+						    , pdgChilds      = @children.echilds
 						    , pdgProduction  = @con
                                                	    , pdgChildMap    = @children.nontnames }
 
@@ -148,14 +174,30 @@ ATTR Nonterminals [ | | depinfo USE {:} {[]} : {[NontDependencyInformation]} ]
 
 SEM  Nonterminal
   |  Nonterminal lhs.depinfo = NontDependencyInformation { ndiNonterminal = @nt
+     		 	       				 , ndiParams      = @params
                                                          , ndiInh         = Map.keys @inh
                                                          , ndiSyn         = Map.keys @syn
                                                          , ndiDepGraph    = @loc.nontgraph
                                                          , ndiProds       = @prods.depgraph }
 
 -------------------------------------------------------------------------------
---         Debug output  (in graphviz style)
+--         Call the kennedy-warren algorithm
 -------------------------------------------------------------------------------
-SEM  Grammar
-  |  Grammar lhs.debugoutput = kennedyWarrenIO @nonts.depinfo
+ATTR Grammar [ | | output : {ExecutionPlan} ]
 
+SEM  Grammar
+  |  Grammar (Just lhs.output) = kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns
+
+
+-------------------------------------------------------------------------------
+--         Output nonterminal type mappings
+-------------------------------------------------------------------------------
+ATTR Grammar
+     Nonterminals  [ | | inhmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes}
+     	                 synmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes} ]
+
+ATTR Nonterminal [ | | inhmap : {Map.Map NontermIdent Attributes}
+     		       synmap : {Map.Map NontermIdent Attributes} ]
+SEM Nonterminal
+  | Nonterminal lhs.inhmap = Map.singleton @nt @inh
+    		lhs.synmap = Map.singleton @nt @syn

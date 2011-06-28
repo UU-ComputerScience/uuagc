@@ -1,0 +1,496 @@
+INCLUDE "ExecutionPlan.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+INCLUDE "HsToken.ag"
+
+imports
+{
+import ExecutionPlan
+import Pretty
+import PPUtil
+import Options
+import Data.Maybe
+import Debug.Trace
+
+import TokenDef
+import HsToken
+
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+}
+
+ATTR ExecutionPlan
+  [ importBlocks : PP_Doc
+    pragmaBlocks : String
+    textBlocks   : PP_Doc
+    moduleHeader : {String -> String -> String -> Bool -> String}
+    mainName     : String | | ]
+
+-- options
+ATTR ExecutionPlan ENonterminals ENonterminal [ options : {Options} | | ]
+ATTR EProductions EProduction [ rename : {Bool} | | ]
+
+SEM ENonterminal
+  | ENonterminal prods.rename = rename @lhs.options
+
+-- main output
+ATTR ExecutionPlan [  | | debugoutput : {PP_Doc} ]
+
+SEM ExecutionPlan
+  | ExecutionPlan lhs.debugoutput = "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+    		  		    >-< @lhs.pragmaBlocks
+				    >-< @lhs.moduleHeader @lhs.mainName "" "" False
+    		 		    >-< "import Control.Monad.Identity"
+				    >-< @lhs.importBlocks
+				    >-< @lhs.textBlocks
+				    >-< @nonts.debugoutput
+
+ATTR ENonterminal ENonterminals [ wrappers : {Set.Set NontermIdent} | | debugoutput USE {>-<} {empty} : {PP_Doc} ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.wrappers = @wrappers
+
+SEM ENonterminal
+  | ENonterminal lhs.debugoutput = (if dataTypes @lhs.options then @loc.datatype else empty)
+    		 		   >-< (if @nt `Set.member` @lhs.wrappers
+				        then     @loc.wr_inh
+					     >-< @loc.wr_syn
+					     >-< @loc.wrapper
+					else empty)
+    		 		   >-< @loc.sem_nt
+    		 	           >-< @loc.t_init 
+			           >-< @loc.t_states
+				   >-< @loc.k_states
+			       	   >-< @prods.t_visits
+				   >-< @prods.sem_prod
+
+-- datatype for each nonterminal
+ATTR ENonterminal ENonterminals [ typeSyns : {TypeSyns} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.typeSyns = @typeSyns
+
+SEM ENonterminal
+  | ENonterminal loc.datatype = case lookup @nt @lhs.typeSyns of
+    		 	          Nothing -> "data" >#< @nt >#< (vlist $ ("=" >#< head @prods.datatype)
+				  	     : (map ("|" >#<) $ tail @prods.datatype))
+				  Just (List t) -> "type" >#< @nt >#< "=" >#< "[" >#< show t >#< "]"
+				  Just x -> error $ "Type " ++ show x ++ " is not supported yet"
+
+ATTR EProduction  [ | | datatype : {PP_Doc} ]
+ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
+
+SEM EProduction
+  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.datatype
+
+ATTR EChild    [ nt : {NontermIdent} | | datatype : {PP_Doc} ]
+ATTR EChildren [ nt : {NontermIdent} | | datatype USE {:} {[]} : {[PP_Doc]} ] 
+
+SEM EChild
+  | EChild lhs.datatype = if isJust @virtual
+    	   		  then empty
+			  else pp $ typeToHaskellString (Just @lhs.nt) [] @tp
+
+-- sem_nonterminal
+SEM ENonterminal
+  | ENonterminal loc.sem_nt = "sem_" >|< @nt >#< "::" >#< @nt >#< "->" >#< "T_" >|< @nt
+    		 	      >-< case lookup @nt @lhs.typeSyns of
+			      	    Nothing -> @prods.sem_nt
+				    Just (List t) -> "sem_" >|< @nt >#< "list" >#< "=" >#< "Prelude.foldr sem_"
+				    	       	     >|< @nt >|< "_Cons" >#< "sem_" >|< @nt >|< "_Nil"
+						     >#< "(" >#< "Prelude.map sem_" >|< show t >#< "list" >#< ")"
+
+ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
+SEM EProduction
+  | EProduction lhs.sem_nt = "sem_" >|< @lhs.nt >#< "(" >#< conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.argnames >#< ")"
+    			     >#< "=" >#< "sem_" >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @children.argnamesw
+
+ATTR EChild    [ | | argnamesw              : { PP_Doc } ] 
+ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
+
+SEM EChild
+  | EChild lhs.argnamesw = if isJust @virtual
+    	   		   then empty
+			   else if isNonterminal @tp
+    	   	      	       then "(" >#< "sem_" >|< extractNonterminal @tp >#< "field_" >|< @name >#< ")"
+			       else text $ locname @name
+	   
+
+-- Get types of attributes
+ATTR ExecutionPlan
+     ENonterminals
+     ENonterminal  [ inhmap : {Map.Map NontermIdent Attributes}
+     		     synmap : {Map.Map NontermIdent Attributes} | | ]
+
+ATTR EProductions
+     EProduction
+     Visits
+     Visit   [ inhmap : {Attributes}
+     	       synmap : {Attributes} | | ]
+
+SEM ENonterminal
+  | ENonterminal (Just prods.inhmap) = Map.lookup @nt @lhs.inhmap
+    		 (Just prods.synmap) = Map.lookup @nt @lhs.synmap
+
+-- State datatypes
+ATTR Visit  [ | | allvisits : {(VisitIdentifier,StateIdentifier, StateIdentifier)}]
+ATTR Visits [ | | allvisits USE {:} {[]} : {[(VisitIdentifier,StateIdentifier, StateIdentifier)]}]
+ATTR EProduction EProductions [ | | allvisits: {[(VisitIdentifier,StateIdentifier, StateIdentifier)]}]
+
+SEM Visit
+  | Visit lhs.allvisits = (@ident, @from, @to)
+
+SEM EProductions
+  | Cons lhs.allvisits = @hd.allvisits -- just pick the first production
+  | Nil  lhs.allvisits = error "Every nonterminal should have at least 1 production"
+
+-- type of tree in a given state s
+SEM ENonterminal
+  | ENonterminal loc.outedges  = Set.fromList $ map (\(_,f,_) -> f) @prods.allvisits
+    		 loc.inedges   = Set.fromList $ map (\(_,_,t) -> t) @prods.allvisits
+		 loc.allstates = Set.insert @initial $ @loc.inedges `Set.union` @loc.outedges
+		 loc.t_init    = "type" >#< "T_" >|< @nt >#< "=" >#< "T_" >|< @nt >|< "_s" >|< @initial
+    		 loc.t_states  = vlist $ map (\st ->
+		 	       	    let nt_st = @nt >|< "_s" >|< st
+				    	t_st  = "T_" >|< nt_st
+					k_st  = "K_" >|< nt_st
+					c_st  = "C_" >|< nt_st
+					inv_st  = "inv_" >|< nt_st
+				    in  "data" >#< t_st >#< "where" >#< c_st >#< "::" >#< "{" >#< inv_st >#< "::"
+				    	       >#< "forall t." >#< k_st >#< "t" >#< "->" >#< "t" >#< "}"
+					       >#< "->" >#< t_st	
+					) $ Set.toList @loc.allstates
+
+-- type of a key which identifies a visit v from state s
+SEM ENonterminal
+  | ENonterminal loc.k_states = vlist $ map (\st ->
+    		 	      	    let nt_st = @nt >|< "_s" >|< st
+					k_st  = "K_" >|< nt_st
+					outg  = filter (\(v,f,t) -> f == st) @prods.allvisits
+					visitlist = vlist $ map (\(v,f,t) ->
+					   "K_" >|< @nt >|< "_v" >|< v >#< "::" >#< k_st >#< "T_" >|< @nt >|< "_v" >|< v
+					    ) outg
+				    in  "data" >#< k_st >#< "k" >#< "where"
+				    	>-< indent 3 visitlist) $ Set.toList @loc.allstates
+ATTR Visit Visits VisitSteps VisitStep [ | | usedrules USE {`Set.union`} {Set.empty} : {Set.Set Identifier} ]
+ATTR ERules ERule [ usedrules : {Set.Set Identifier} | | ]
+
+SEM VisitStep
+  | Sem lhs.usedrules = Set.singleton @name
+
+SEM EProduction
+  | EProduction rules.usedrules = @visits.usedrules
+
+-- type of a visit v, with continuation as new state s
+ATTR Visit
+     Visits
+     EProduction
+     EProductions [ nt : {NontermIdent} | | t_visits USE {>-<} {empty} : {PP_Doc} ]
+
+SEM EProductions
+  | Cons lhs.t_visits = @hd.t_visits -- just pick the first production
+
+SEM ENonterminal
+  | ENonterminal prods.nt = @nt
+
+SEM Visit
+  | Visit lhs.t_visits = "type" >#< "T_" >|< @lhs.nt >|< "_v" >|< @ident >#< "=" >#< @loc.inhpart >#<
+        	   	 "Identity" >#< "(" >#< @loc.synpart >#< "T_" >|< @lhs.nt >|< "_s" >|< @to >#< ")"
+	  loc.inhpart   = if   Set.null @inh
+	  	          then empty
+		          else (ppSpaced $ map (\i -> (\x -> x >#< "->") $ typeToHaskellString (Just @lhs.nt) []
+			       		 $ fromJust $ Map.lookup i @lhs.inhmap) $ Set.toList @inh)
+	  loc.synpart   = if   Set.null @syn
+	  	          then empty
+		          else (ppCommas $ map (\i -> typeToHaskellString (Just @lhs.nt) [] $ fromJust $ Map.lookup i @lhs.synmap) $ Set.toList @syn) >#< ","
+
+
+-- inh and syn wrappers
+SEM ENonterminal
+  | ENonterminal loc.wr_inh  = @loc.genwrap "Inh" @loc.wr_inhs
+    		 loc.wr_syn  = @loc.genwrap "Syn" @loc.wr_syns
+    		 loc.genwrap = \nm attr -> "data" >#< nm >|< "_" >|< @nt >#< "=" >#< nm >|< "_" >|< @nt >#< "{"
+    		 	       >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< @nt >#< "::"
+			       	    >#< typeToHaskellString (Just @nt) [] t) attr) >#< "}"
+		 loc.wr_inhs = Map.toList $ fromJust $ Map.lookup @nt @lhs.inhmap
+		 loc.wr_syns = Map.toList $ fromJust $ Map.lookup @nt @lhs.synmap
+		 loc.inhlist = map (lhsname True . fst) @loc.wr_inhs
+		 loc.synlist = map (lhsname False . fst) @loc.wr_syns
+		 loc.wrapper = ("wrap_" >|< @nt >#< "::" >#< "T_" >|< @nt >#< "->"
+		 	        >#< "Inh_" >|< @nt >#< "->" >#< "Syn_" >|< @nt)
+			       >-<
+			       (("wrap_" >|< @nt >#< "sem" >#< "(" >#< "Inh_" >|< @nt
+			         >#< ppSpaced @loc.inhlist >#< ")" >#< "=")
+				>-<
+				indent 3 ("let" >#< "(" >#< ppCommas @loc.synlist >#< "," >#< "_" >#< ")" >#< "="
+				       	   >#< "runIdentity" >#< "$" >#< "(" >#< "inv_" >|< @nt >|< "_s" >|< @initial
+					   >#< "sem" >#< "K_" >|< @nt >|< "_v" >|< fromJust @initialv >#< ")"
+					   >#< ppSpaced @loc.inhlist
+					   >-<
+					   "in " >#< "(" >#< "Syn_" >|< @nt >#< ppSpaced @loc.synlist >#< ")")
+			       )
+
+
+{-wrap_Tree :: T_Tree  ->
+             Inh_Tree  ->
+             Syn_Tree 
+wrap_Tree sem (Inh_Tree _lhsIfac )  =
+    (let ( _lhsOsum) = sem _lhsIfac 
+     in  (Syn_Tree _lhsOsum ))-}
+
+
+-- sem functions
+ATTR EProduction  [ | | sem_prod                   : {PP_Doc} ]
+ATTR EProductions [ | | sem_prod USE {>-<} {empty} : {PP_Doc} ]
+
+ATTR EProduction EProductions [ initial : {StateIdentifier} allstates : {Set.Set StateIdentifier} | | ]
+SEM ENonterminal | ENonterminal prods.initial   = @initial
+    		   		prods.allstates = @loc.allstates
+
+ATTR EChild    [ | | argtps                : {  PP_Doc  }
+     	       	     argnames              : {  PP_Doc  } ]
+ATTR EChildren [ | | argtps   USE {:} {[]} : { [PP_Doc] }
+     	       	     argnames USE {:} {[]} : { [PP_Doc] }  ]
+
+SEM EChild
+  | EChild lhs.argtps   = if isJust @virtual
+    	   		  then empty
+			  else if isNonterminal @tp
+    	   	      	       then ("T_" >|< extractNonterminal @tp) >#< "->"
+			       else (text $ show @tp) >#< "->"
+	   loc.argnames = if isJust @virtual
+	   		  then empty
+			  else if isNonterminal @tp
+			       then "field_" >|< @name
+			       else text $ locname @name
+
+SEM EProduction
+  | EProduction loc.args     = @children.argnames
+    		lhs.sem_prod = "sem_" >|< @lhs.nt >|< "_" >|< @con >#< "::" >#< ppSpaced @children.argtps >#< "T_" >|< @lhs.nt
+			       >-< "sem_" >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @loc.args >#< "="
+			         >#< "st" >|< @lhs.initial >#< "where"
+			       >-< (indent 3 $ vlist @loc.statefns >-< @rules.sem_rules)
+	        loc.statefns = map (\st -> "st" >|< st >#< @loc.stargs st >#< "=" >#<
+			       	   	"C_" >|< @lhs.nt >|< "_s" >|< st >#< "k" >|< st >#< "where"
+					>-< indent 3 (@loc.stks st >-< @loc.stvs st)
+			           ) $ Set.toList @lhs.allstates
+		loc.stargs   = \st -> ppSpaced $ Set.toList $ maybe Set.empty id $ Map.lookup st @visits.intramap
+		loc.stks     = \st -> "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
+			       	  >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
+				      	    	 	   >#< "v" >|< v) $ @loc.stvisits st)
+				  >-< if null (@loc.stvisits st)
+				      then "k" >|< st >#< "_" >#< "=" >#< "error \"unreachable\""
+				      else empty
+		loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @visits.allvisits
+		loc.stvs     = \st -> vlist $ map snd $ filter (\(f,pp) -> f == st) @visits.sem_visit
+		visits.mrules  = @rules.mrules
+
+ATTR Visit  [ | | sem_visit              : {  (StateIdentifier,PP_Doc)  } ]
+ATTR Visits [ | | sem_visit USE {:} {[]} : { [(StateIdentifier,PP_Doc)] } ]
+
+SEM Visit
+  | Visit lhs.sem_visit = (@from, "v" >|< @ident >#< "::" >#< "T_" >|< @lhs.nt >|< "_v" >|< @ident
+        	  	      >-< "v" >|< @ident >#< (@loc.inhargs _LHS True) >#< "=" >#< "do"
+			      >-< indent 3 @loc.sem_steps)
+	  loc.inhargs   = \chn inh -> ppSpaced $ map (\arg -> attrname inh chn arg) $ Set.toList @inh
+	  loc.synargs   = ppSpaced $ map (\arg -> attrname False _LHS arg >#< ",") $ Set.toList @syn
+	  loc.nextargs  = ppSpaced $ Set.toList $ maybe Set.empty id $ Map.lookup @to @lhs.allintramap
+	  loc.sem_steps = @steps.sem_steps
+	  		  >-< "return" >#< "(" >#< @loc.synargs >#< "st" >|< @to >#< @loc.nextargs >#< ")"
+--			  >-< "-- Defs:" >#< show @loc.defs
+--			  >-< "-- Uses: " >#< show @loc.uses
+
+ATTR Visits Visit VisitStep VisitSteps [  mrules : {Map.Map Identifier PP_Doc} | | ]
+ATTR VisitStep VisitSteps [ | | sem_steps USE {>-<} {empty} : {PP_Doc} ]
+SEM VisitStep
+  | Sem        lhs.sem_steps = maybe (error "Rule not found") id $ Map.lookup @name @lhs.mrules
+  | ChildIntro lhs.sem_steps = maybe (error $ "Child " ++ show @child ++ " not found in: " ++ show @lhs.childintros) id $ Map.lookup @child @lhs.childintros
+  | ChildVisit lhs.sem_steps = (maybe (error "Visit not found") id $ Map.lookup @visit @lhs.allchildvisit) $ @child
+
+{-  | Sim        lhs.sem_steps = trace ("Sim: " ++ show @steps.length) $ @steps.sem_steps
+
+ATTR VisitSteps [ | | length : {Int} ]
+SEM VisitSteps 
+  | Cons lhs.length = 1 + @tl.length
+  | Nil  lhs.length = 0-}
+
+-- Child introduction
+ATTR EChild EChildren [ | | childintros USE {`Map.union`} {Map.empty} : {Map.Map Identifier PP_Doc} ]
+
+ATTR Visits Visit
+     VisitSteps VisitStep [ childintros : {Map.Map Identifier PP_Doc} | | ]
+
+SEM EProduction
+  | EProduction visits.childintros = @children.childintros
+
+SEM EChild
+  | EChild lhs.childintros = Map.singleton @name $ locname @name >#< "<-" >#< "return" >#< "$" >#<
+     	  		     if isJust @virtual
+     	  		     then "sem_" >|< extractNonterminal @tp >#< instname @name
+ 			     else "field_" >|< @name
+
+-- rules
+ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
+     	    	        mrules USE {`Map.union`} {Map.empty} : {Map.Map Identifier PP_Doc}  ]
+
+SEM ERule
+  | ERule lhs.sem_rules = if Set.member @name @lhs.usedrules
+    	  		  then (@name >#< "=" >#< 
+    	  		       (if Set.null @rhs.attrs
+    	  		      	  then empty
+			      	  else "\\" >|< @loc.attrlst >#< "->")
+				>#< @rhs.semfunc)
+			  else empty
+	  loc.attrlst   = ppSpaced $ Set.toList @rhs.attrs
+	  lhs.mrules    = Map.singleton @name $ @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
+
+ATTR Pattern  [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String}
+     	       	    sem_lhs : {PP_Doc} ]
+ATTR Patterns [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String}
+     	      	    sem_lhs USE {:} {[]} : {[PP_Doc]} ]
+
+SEM Pattern
+  | Alias       lhs.sem_lhs = text $ attrname False @field @attr -- todo
+    	        lhs.attrs   = Set.singleton $ attrname False @field @attr
+  | Product     lhs.sem_lhs = pp_block "(" ")" "," @pats.sem_lhs
+  | Constr      lhs.sem_lhs = pp_parens $ @name >#< hv_sp @pats.sem_lhs
+  | Underscore  lhs.sem_lhs = text "_"
+  | Irrefutable lhs.sem_lhs = text "~" >|< pp_parens @pat.sem_lhs
+
+ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+SEM HsToken
+  | AGLocal   lhs.attrs   = Set.singleton $ locname @var
+  | AGField   lhs.attrs   = Set.singleton $ attrname True @field @attr
+
+ATTR Expression [ | | semfunc : {PP_Doc} ]
+
+SEM Expression
+  | Expression lhs.attrs   = Set.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+    	       lhs.semfunc = vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+-- ppSpaced $ map (\tok -> semfunc_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+
+-- child visit map
+ATTR Visit
+     Visits
+     EProduction
+     EProductions
+     ENonterminal
+     ENonterminals [ allchildvisit : {Map.Map VisitIdentifier (Identifier -> PP_Doc)}
+     		    | | childvisit USE {`Map.union`} {Map.empty} : {Map.Map VisitIdentifier (Identifier -> PP_Doc)} ]
+
+ATTR VisitSteps VisitStep [ allchildvisit : {Map.Map VisitIdentifier (Identifier -> PP_Doc)} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.allchildvisit = @nonts.childvisit
+
+SEM Visit
+  | Visit lhs.childvisit = Map.singleton @ident $ \chn -> "(" >#< ppSpaced (
+    	  		   map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn 
+			   >#< ")" >#< "<-" >#< "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
+			   >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< @loc.inhargs chn False
+
+-- intra attributes
+{
+uwSetUnion :: (Ord a, Ord b) => Map.Map a (Set.Set b) -> Map.Map a (Set.Set b) -> Map.Map a (Set.Set b)
+uwSetUnion = Map.unionWith Set.union
+}
+ATTR Visit Visits [ allintramap : {Map.Map StateIdentifier (Set.Set String)} | | 
+     	   	    intramap USE {`uwSetUnion`} {Map.empty} : {Map.Map StateIdentifier (Set.Set String)} ] 
+
+ATTR Visit Visits [ terminaldefs : {Set.Set String} | | ]
+ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+
+SEM EChild
+  | EChild lhs.terminaldefs = if isJust @virtual || isNonterminal @tp
+     	  		      then Set.empty
+ 			      else Set.singleton $ locname @name
+
+SEM EProduction
+  | EProduction visits.allintramap = @visits.intramap
+    		visits.terminaldefs = @children.terminaldefs
+
+SEM Visit
+  | Visit lhs.intramap  = Map.singleton @from $ (@loc.uses `Set.union` @loc.nextintra) `Set.difference` @loc.defs
+          loc.nextintra = maybe Set.empty id $ Map.lookup @to @lhs.allintramap
+	  loc.uses      = @steps.uses
+          loc.defs      = @steps.defs `Set.union` (Set.map (lhsname True) @inh) `Set.union` @lhs.terminaldefs
+
+ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map.Map Identifier (Set.Set String)}
+     	   	        ruleuses USE {`uwSetUnion`} {Map.empty} : {Map.Map Identifier (Set.Set String)} ]
+ATTR Visit Visits
+     VisitSteps VisitStep [ ruledefs  : {Map.Map Identifier (Set.Set String)}
+     	   	 	    ruleuses  : {Map.Map Identifier (Set.Set String)} | | ]
+
+SEM ERule
+  | ERule lhs.ruledefs = Map.singleton @name @pattern.attrs
+    	  lhs.ruleuses = Map.singleton @name @rhs.attrs
+
+SEM EProduction
+  | EProduction visits.ruledefs = @rules.ruledefs
+    		visits.ruleuses = @rules.ruleuses
+
+ATTR Visit Visits
+     EProduction
+     EProductions
+     ENonterminal
+     ENonterminals [ | | visitdefs USE {`uwSetUnion`} {Map.empty} : {Map.Map VisitIdentifier (Set.Set Identifier)}
+     		      	 visituses USE {`uwSetUnion`} {Map.empty} : {Map.Map VisitIdentifier (Set.Set Identifier)} ]
+
+SEM Visit
+  | Visit lhs.visitdefs = Map.singleton @ident @syn
+    	  lhs.visituses = Map.singleton @ident @inh
+
+ATTR Visit Visits
+     VisitSteps VisitStep
+     EProduction EProductions
+     ENonterminal ENonterminals [ avisitdefs : {Map.Map VisitIdentifier (Set.Set Identifier)}
+     	   	 	       	  avisituses : {Map.Map VisitIdentifier (Set.Set Identifier)} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.avisitdefs = @nonts.visitdefs
+	   	  nonts.avisituses = @nonts.visituses
+
+ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set.Set String}
+     			        uses USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+SEM VisitStep
+  | Sem	       lhs.defs = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruledefs
+    	       lhs.uses = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruleuses
+  | ChildIntro lhs.defs = Set.singleton $ locname @child
+  | ChildVisit lhs.defs = maybe (error "Visit not found") (Set.map $ attrname True @child) $ Map.lookup @visit @lhs.avisitdefs
+    	       lhs.uses = Set.insert (locname @child) $
+	       		  maybe (error "Visit not found") (Set.map $ attrname False @child) $ Map.lookup @visit @lhs.avisituses
+
+
+-------------------------------------------------------------------------------
+--  Pretty printing
+-------------------------------------------------------------------------------
+
+--SEM HsTokensRoot
+--  | HsTokensRoot lhs.textLines = showTokens @tokens.tks
+
+SEM HsTokens [ || tks : {[(Pos,String)]} ]
+  | Cons lhs.tks = @hd.tok : @tl.tks
+  | Nil  lhs.tks = []
+
+
+SEM HsToken
+  | AGLocal   loc.tok = (@pos,locname @var)
+
+
+SEM HsToken [ || tok:{(Pos,String)}]
+   | AGField
+       loc.addTrace = case @rdesc of
+                        Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ " (" ++ x ++ "))"
+                        Nothing -> id
+       lhs.tok = (@pos, @loc.addTrace $ attrname True @field @attr)
+
+   | HsToken lhs.tok = (@pos, @value)
+
+   | CharToken lhs.tok = (@pos, if null @value
+                                   then ""
+                                   else showCharShort (head @value)
+                         )
+
+   | StrToken  lhs.tok = (@pos, showStrShort @value)
+   | Err       lhs.tok = (@pos, "")
+
