@@ -23,6 +23,7 @@ import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_
 import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified ExecutionPlan2Hs   as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..))
 import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
@@ -75,9 +76,11 @@ compile flags input output
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
           output3a  = Pass3a.wrap_Grammar        (Pass3a.sem_Grammar grammar2                          ) Pass3a.Inh_Grammar  {Pass3a.options_Inh_Grammar  = flags'}
-          debug3a   = Pass3a.debugoutput_Syn_Grammar  output3a
+          grammar3a = Pass3a.output_Syn_Grammar  output3a
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
+          output4b  = Pass4b.wrap_ExecutionPlan  (Pass4b.sem_ExecutionPlan grammar3a) Pass4b.Inh_ExecutionPlan {Pass4b.options_Inh_ExecutionPlan = flags', Pass4b.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4b.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4b.pragmaBlocks_Inh_ExecutionPlan = pragmaBlocksTxt, Pass4b.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4b.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4b.moduleHeader_Inh_ExecutionPlan = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
+          debug4b   = Pass4b.debugoutput_Syn_ExecutionPlan  output4b
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags', PrErr.dups_Inh_Errors = [] }
@@ -206,7 +209,7 @@ compile flags input output
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
                          | kennedyWarren flags'
-                            = vlist [debug3a,
+                            = vlist [debug4b,
                                      if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar with default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump2

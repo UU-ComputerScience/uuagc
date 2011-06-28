@@ -1,0 +1,61 @@
+imports
+{
+-- VisitSyntax.ag imports
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import CommonTypes
+
+import qualified Data.Set as Set
+}
+
+DATA ExecutionPlan | ExecutionPlan  nonts    : ENonterminals
+     		     		    typeSyns : {TypeSyns}
+				    wrappers : {Set.Set NontermIdent}
+
+TYPE ENonterminals = [ENonterminal]
+
+TYPE EProductions  = [EProduction]
+
+TYPE ERules        = [ERule]
+
+TYPE EChildren     = [EChild]
+
+TYPE VisitSteps    = [VisitStep]
+
+TYPE Visits        = [Visit]
+
+DATA ENonterminal | ENonterminal nt       : {NontermIdent}
+                                 params   : {[Identifier]}
+				 initial  : {StateIdentifier}
+				 initialv : {Maybe VisitIdentifier}
+                                 prods    : EProductions
+
+DATA EProduction  | EProduction  con      : {ConstructorIdent}
+     		   		 rules    : ERules
+				 children : EChildren
+				 visits   : Visits
+
+DATA EChild       | EChild       name    : {Identifier}
+                                 tp      : {Type}
+             			 virtual : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
+
+DATA ERule        | ERule       name     : {Identifier}
+                                pattern  : Pattern 
+                                rhs      : Expression
+                                owrt     : {Bool}
+                                origin   : String  -- just for documentation (and maybe errors)
+                                explicit : Bool  -- True if this rule defined in the source code
+
+DATA Visit        | Visit       ident    : {VisitIdentifier}
+     		    		from     : {StateIdentifier}
+				to       : {StateIdentifier}
+				inh      : {Set.Set Identifier}
+				syn      : {Set.Set Identifier}
+     		    		steps    : VisitSteps
+
+DATA VisitStep    | Sem         name     : {Identifier}
+		  | ChildVisit  child    : {Identifier}
+		    		nonterm  : {NontermIdent}
+				visit    : {VisitIdentifier}
+		  | Sim         steps    : VisitSteps
+		  | ChildIntro  child    : {Identifier}
