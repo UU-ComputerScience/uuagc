@@ -12,8 +12,10 @@ imports
 {
 import Data.Map(Map)
 import qualified Data.Map as Map
+import qualified Data.Map
 import Data.IntMap(IntMap)
 import qualified Data.IntMap as IntMap
+import qualified Data.IntMap
 }
 
 DATA Root
