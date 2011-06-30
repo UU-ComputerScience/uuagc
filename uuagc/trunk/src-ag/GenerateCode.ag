@@ -1071,10 +1071,10 @@ SEM CNonterminal
                                                        arg   = SimpleExpr "m"
                                                        rarg  = case tp of
                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
-                                                                           in App "Map.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
+                                                                           in App "Data.Map.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
                                                                  _      -> arg
                                                        lhs   = Fun (cataname @lhs.prefix @nt) [arg]
-                                                       rhs   = App "Map.foldWithKey" [entry,nil,rarg]
+                                                       rhs   = App "Data.Map.foldrWithKey" [entry,nil,rarg]
                                                    in [Decl lhs rhs Set.empty Set.empty]
                                                  CommonTypes.IntMap tp ->
                                                    let entry = SimpleExpr (semname @lhs.prefix @nt (identifier "Entry"))
@@ -1082,10 +1082,10 @@ SEM CNonterminal
                                                        arg   = SimpleExpr "m"
                                                        rarg  = case tp of
                                                                  NT t _ -> let t' = maybe t id (deforestedNt t)
-                                                                           in App "IntMap.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
+                                                                           in App "Data.IntMap.map" [SimpleExpr $ cataname @lhs.prefix t', arg]
                                                                  _      -> arg
                                                        lhs   = Fun (cataname @lhs.prefix @nt) [arg]
-                                                       rhs   = App "IntMap.foldWithKey" [entry,nil,rarg]
+                                                       rhs   = App "Data.IntMap.foldWithKey" [entry,nil,rarg]
                                                    in [Decl lhs rhs Set.empty Set.empty]
                                                  CommonTypes.Tuple tps ->
                                                      let con  = semname @lhs.prefix @nt (identifier "Tuple")
