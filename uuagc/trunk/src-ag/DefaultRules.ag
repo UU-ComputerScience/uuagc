@@ -78,14 +78,14 @@ getConName typeSyns rename nt con1
                   | otherwise         =  con
        synonym    | con == "Cons"     = "(:)"
                   | con == "Nil"      = case lookup nt typeSyns of
-                                          Just (Map _ _)  -> "Map.empty"
-                                          Just (IntMap _) -> "IntMap.empty"
+                                          Just (Map _ _)  -> "Data.Map.empty"
+                                          Just (IntMap _) -> "Data.IntMap.empty"
                                           _               -> "[]"
                   | con == "Just"     = "Just"
                   | con == "Nothing"  = "Nothing"
                   | con == "Entry"    = case lookup nt typeSyns of
-                                          Just (Map _ _)  -> "Map.insert"
-                                          Just (IntMap _) -> "IntMap.insert"
+                                          Just (Map _ _)  -> "Data.Map.insert"
+                                          Just (IntMap _) -> "Data.IntMap.insert"
                   | otherwise         = normalName
 
 concatSeq = foldr (Seq.><) Seq.empty

@@ -288,9 +288,9 @@ SEM Type  [ | | prec:Int ]
   | TEither      lhs.prec  = 5
                  lhs.pp    = text "Either" >#< pp_parens @left.pp >#< pp_parens @right.pp
   | TMap         lhs.prec  = 5
-                 lhs.pp    = text "Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
+                 lhs.pp    = text "Data.Map.Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
   | TIntMap      lhs.prec  = 5
-                 lhs.pp    = text "IntMap" >#< pp_parens @value.pp
+                 lhs.pp    = text "Data.IntMap.IntMap" >#< pp_parens @value.pp
 
 
 {
