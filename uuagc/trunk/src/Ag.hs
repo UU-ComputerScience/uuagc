@@ -79,8 +79,7 @@ compile flags input output
           grammar3a = Pass3a.output_Syn_Grammar  output3a
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
-          output4b  = Pass4b.wrap_ExecutionPlan  (Pass4b.sem_ExecutionPlan grammar3a) Pass4b.Inh_ExecutionPlan {Pass4b.options_Inh_ExecutionPlan = flags', Pass4b.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4b.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4b.pragmaBlocks_Inh_ExecutionPlan = pragmaBlocksTxt, Pass4b.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4b.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4b.moduleHeader_Inh_ExecutionPlan = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
-          debug4b   = Pass4b.debugoutput_Syn_ExecutionPlan  output4b
+          output4b  = Pass4b.wrap_ExecutionPlan  (Pass4b.sem_ExecutionPlan grammar3a) Pass4b.Inh_ExecutionPlan {Pass4b.options_Inh_ExecutionPlan = flags', Pass4b.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4b.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4b.pragmaBlocks_Inh_ExecutionPlan = pragmaBlocksTxt, Pass4b.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4b.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4b.moduleHeader_Inh_ExecutionPlan = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainFile_Inh_ExecutionPlan = mainFile, Pass4b.optionsLine_Inh_ExecutionPlan = optionsLine}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags', PrErr.dups_Inh_Errors = [] }
@@ -181,7 +180,9 @@ compile flags input output
 
            if sepSemMods flags'
             then do -- alternative module gen
-                    Pass5.genIO_Syn_Program output5
+                    if kennedyWarren flags'
+                      then Pass4b.genIO_Syn_ExecutionPlan output4b
+                      else Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
                     let doc
@@ -209,7 +210,7 @@ compile flags input output
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
                          | kennedyWarren flags'
-                            = vlist [debug4b,
+                            = vlist [Pass4b.output_Syn_ExecutionPlan  output4b,
                                      if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar with default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump2
@@ -317,8 +318,8 @@ mkMainName _ (Just (name, _, _))
   = name
 
 mkModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> Bool -> String
-mkModuleHeader Nothing defaultName _ _ _
-  = "module " ++ defaultName ++ " where"
+mkModuleHeader Nothing defaultName suffix _ _
+  = "module " ++ defaultName ++ suffix ++ " where"
 mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExports
   = "module " ++ name ++ suffix ++ exp ++ " where\n" ++ imports ++ "\n"
   where
