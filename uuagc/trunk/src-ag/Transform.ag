@@ -787,6 +787,8 @@ SEM Elem
                                          "genlinepragmas" -> o { genLinePragmas = True }
                                          "newtypes"       -> o { newtypes = True }
                                          "nonewtypes"     -> o { newtypes = False }
+                                         "nooptimizations" -> o { noOptimizations = True }
+                                         "kennedywarren"   -> o { kennedyWarren = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 

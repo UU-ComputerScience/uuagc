@@ -66,7 +66,7 @@ compile flags input output
       irrefutableMap <- readIrrefutableMap flags
 
       let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
-          flags'    = Pass1.pragmas_Syn_AG       output1 $ flags
+          flags'    = condDisableOptimizations (Pass1.pragmas_Syn_AG output1 flags)
           grammar1  = Pass1.output_Syn_AG        output1
           output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags', Pass1a.forcedIrrefutables_Inh_Grammar = irrefutableMap }
           grammar1a =Pass1a.output_Syn_Grammar   output1a
