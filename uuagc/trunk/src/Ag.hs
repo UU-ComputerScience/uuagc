@@ -19,6 +19,7 @@ import UU.Scanner.Token              (Token)
 import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
 import qualified Desugar            as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified ResolveLocals      as Pass2a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
@@ -43,13 +44,13 @@ import ATermWrite
 
 
 main :: IO ()
-main        
+main
  = do args     <- getArgs
       progName <- getProgName
-      
+
       let usageheader = "Usage info:\n " ++ progName ++ " options file ...\n\nList of options:"
           (flags,files,errs) = getOptions args
-          
+
       if showVersion flags
        then putStrLn banner
        else if null files || showHelp flags || (not.null) errs
@@ -73,9 +74,11 @@ compile flags input output
           grammar2  = Pass2.output_Syn_Grammar   output2
           outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
           grammarV  = PassV.visage_Syn_Grammar   outputV
-          output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2                           ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
+          output2a  = Pass2a.wrap_Grammar        (Pass2a.sem_Grammar grammar2                          ) Pass2a.Inh_Grammar {Pass2a.options_Inh_Grammar = flags'}
+          grammar2a = Pass2a.output_Syn_Grammar  output2a
+          output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2a                          ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
           grammar3  = Pass3.output_Syn_Grammar   output3
-          output3a  = Pass3a.wrap_Grammar        (Pass3a.sem_Grammar grammar2                          ) Pass3a.Inh_Grammar  {Pass3a.options_Inh_Grammar  = flags'}
+          output3a  = Pass3a.wrap_Grammar        (Pass3a.sem_Grammar grammar2a                         ) Pass3a.Inh_Grammar  {Pass3a.options_Inh_Grammar  = flags'}
           grammar3a = Pass3a.output_Syn_Grammar  output3a
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
@@ -96,7 +99,8 @@ compile flags input output
           parseErrorList   = map message2error parseErrors
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
                                Seq.>< Pass1a.errors_Syn_Grammar output1a
-                               Seq.>< Pass2.errors_Syn_Grammar  output2 )
+                               Seq.>< Pass2.errors_Syn_Grammar  output2
+                               Seq.>< Pass2a.errors_Syn_Grammar output2a)
           furtherErrors    = if kennedyWarren flags' then []
                              else toList ( Pass3.errors_Syn_Grammar  output3
                                   Seq.>< Pass4.errors_Syn_CGrammar output4)
@@ -107,15 +111,15 @@ compile flags input output
                                      then furtherErrors
                                      else []
                              else [head parseErrorList]
-     
+
           fatalErrorList = filter (PrErr.isError flags') errorList
-          
+
           allErrors = if wignore flags'
                       then fatalErrorList
                       else errorsToFront flags' errorList
 
           errorsToReport = take (wmaxerrs flags') allErrors
-          
+
           errorsToStopOn = if werrors flags'
                             then errorList
                             else fatalErrorList
@@ -123,27 +127,27 @@ compile flags input output
           blocks1                    = (Pass1.blocks_Syn_AG output1) {-SM `Map.unionWith (++)` (Pass3.blocks_Syn_Grammar output3)-}
           (pragmaBlocks, blocks2)    = Map.partitionWithKey (\(k, at) _->k==BlockPragma && at == Nothing) blocks1
           (importBlocks, textBlocks) = Map.partitionWithKey (\(k, at) _->k==BlockImport && at == Nothing) blocks2
-          
+
           importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
           textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockOther, Nothing) $ textBlocks
           pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
           textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
-          
+
           outputfile = if null output then outputFile input else output
-          
+
           addLocationPragma :: ([String], Pos) -> PP_Doc
           addLocationPragma (strs, p)
             | genLinePragmas flags'
                 = "{-# LINE" >#< pp (show (line p)) >#< show (file p) >#< "#-}" >-< vlist (map pp strs) >-< "{-# LINE" >#< ppWithLineNr (pp.show.(+1)) >#< show outputfile >#< "#-}"
             | otherwise
                 = vlist (map pp strs)
-          
+
           optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-XBangPatterns"
           option True s  = [s]
           option False _ = []
           optionsLine | null optionsGHC = ""
                       | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}"
-          
+
           mainName = stripPath $ defaultModuleName input
           mainFile = defaultModuleName input
 
@@ -156,7 +160,7 @@ compile flags input output
           pluralS n = if n == 1 then "" else "s"
 
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
-      
+
       if additionalErrors > 0
        then putStr $ "\nPlus " ++ show additionalErrors ++ " more error" ++ pluralS additionalErrors ++
                      if additionalWarnings > 0
@@ -165,15 +169,15 @@ compile flags input output
        else if additionalWarnings > 0
             then putStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
             else return ()
-           
-      if not (null fatalErrorList) 
+
+      if not (null fatalErrorList)
        then exitFailure
-       else 
+       else
         do
            if genvisage flags'
             then writeFile (outputfile++".visage") (writeATerm aterm)
             else return ()
-            
+
            if genAttributeList flags'
             then writeAttributeList (outputfile++".attrs") (Pass1a.allAttributes_Syn_Grammar output1a)
             else return ()
@@ -206,7 +210,7 @@ compile flags input output
                                     , AspectAGDump.importAspectAG
                                     , textBlocksDoc
                                     , pp "\n\n{-- AspectAG Code --}\n\n"
-                                    
+
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
                          | kennedyWarren flags'
@@ -243,7 +247,7 @@ compile flags input output
                                                  ]
                                       else empty
                                     , if dumpcgrammar flags'
-                                      then vlist [ pp "{- Dump of cgrammar" 
+                                      then vlist [ pp "{- Dump of cgrammar"
                                                  , CGrammarDump.pp_Syn_CGrammar dump3
                                                  , pp "-}"
                                                  ]
@@ -269,8 +273,8 @@ formatErrors pp = disp pp 5000 ""
 
 message2error :: Message Token Pos -> Error
 message2error (Msg expect pos action) = ParserError pos (show expect) actionString
- where actionString 
-        =  case action 
+ where actionString
+        =  case action
            of Insert s -> "inserting: " ++ show s
 
               Delete s -> "deleting: "  ++ show s
@@ -283,24 +287,24 @@ errorsToFront flags mesgs = filter (PrErr.isError flags) mesgs ++ filter (not.(P
 
 moduleHeader :: Options -> String -> String
 moduleHeader flags input
- = case moduleName flags 
+ = case moduleName flags
    of Name nm -> genMod nm
       Default -> genMod (defaultModuleName input)
       NoName  -> ""
    where genMod x = "module " ++ x ++ " where"
 
 inputFile :: String -> String
-inputFile name 
+inputFile name
  = if ".ag" `isSuffixOf` name || ".lag" `isSuffixOf` name
    then name
    else name ++ ".ag"
 
 outputFile :: String -> String
-outputFile name 
+outputFile name
  = defaultModuleName name ++ ".hs"
 
 defaultModuleName :: String -> String
-defaultModuleName name 
+defaultModuleName name
  = if ".ag" `isSuffixOf` name
    then take (length name - 3) name
    else if ".lag" `isSuffixOf` name

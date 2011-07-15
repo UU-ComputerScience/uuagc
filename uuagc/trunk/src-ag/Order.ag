@@ -460,8 +460,10 @@ ATTR Expression [ nt,con   :{Identifier}
 
 -- appendum: filter out the syn attrs of merged children in the input attr list.
 --           add the merged children to the used attr list
+-- appendum: ignored the error reporting on expressions. These are already
+--           reported by the separate 'ResolveLocals' pass.
 SEM Expression
-  | Expression  loc.(errors,textLines,usedAttrs,usedLocals,usedFields)
+  | Expression  loc.(textLines,usedAttrs,usedLocals,usedFields)
                             = let mergedChildren = [ x | (_,xs) <- Map.elems @lhs.mergeMap, x <- xs ]
                                   attrsIn = filter (\(fld,_) -> not (fld `elem` mergedChildren)) @lhs.attrs
                                   inherited = Inh_HsTokensRoot
@@ -474,8 +476,7 @@ SEM Expression
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot @tks)) inherited
                               in case synthesized of
                                    Syn_HsTokensRoot
-                                    { errors_Syn_HsTokensRoot     = errors
-                                    , textLines_Syn_HsTokensRoot  = textLines
+                                    { textLines_Syn_HsTokensRoot  = textLines
                                     , usedAttrs_Syn_HsTokensRoot  = usedAttrs
                                     , usedLocals_Syn_HsTokensRoot = usedLocals
                                     , usedFields_Syn_HsTokensRoot = usedFields
@@ -483,8 +484,9 @@ SEM Expression
                                                            | (fld,attr) <- usedAttrs, let mbMerged = Map.lookup fld @lhs.mergeMap, isJust mbMerged
                                                            , let (Just (_, srcs)) = mbMerged, src <- srcs ]
                                               usedAttrs' = usedAttrs ++ extraAttrs
-                                          in (errors,textLines,usedAttrs',usedLocals,usedFields)
+                                          in (textLines,usedAttrs',usedLocals,usedFields)
 
+                lhs.errors = Seq.empty
                 lhs.allRhsVars = Set.fromList @loc.usedAttrs
                                  `Set.union`
                                  Set.fromList [ (_LOC, l) | l <- @loc.usedLocals]
