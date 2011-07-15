@@ -60,6 +60,7 @@ SRC_LAG_SYN_NAMES =
 SRC_AG_SEM_NAMES = Desugar.ag DefaultRules.ag GenerateCode.ag PrintOcamlCode.ag PrintCode.ag PrintVisitCode.ag \
 	 PrintErrorMessages.ag SemHsTokens.ag \
 	 Transform.ag Order.ag KWOrder.ag \
+	ResolveLocals.ag \
 	 AbstractSyntaxDump.ag CodeSyntaxDump.ag \
 	 Visage.ag TfmToVisage.ag \
 	 AG2AspectAG.ag ExecutionPlan2Hs.ag

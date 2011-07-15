@@ -11,23 +11,11 @@ synopsis: Attribute Grammar System of Universiteit Utrecht
 category: Development
 stability: Stable
 copyright: Universiteit Utrecht
-extra-source-files: README, uuagc.cabal-for-ghc-6.6
+extra-source-files: README
 
-flag compatibility1
-  description: compatibility flag.
-flag compatibility2
-  description: compatibility flag.
 executable uuagc
-  if flag(compatibility1)
-    build-depends: base >= 4, base < 5, ghc-prim
-  else
-    build-depends: base < 4
-
-  if flag(compatibility2)
-    build-depends: base >= 3, base < 5, containers >= 0.3, directory, array
-  else
-    build-depends: base < 3
-
+  build-depends: base >= 4, base < 5, ghc-prim
+  build-depends: containers >= 0.3, directory, array
   build-depends: haskell98, uulib>=0.9.12, mtl>=1.1.1.1
   build-depends: haskell-src-exts>=1.11.1
   main-is: Ag.hs
@@ -77,6 +65,7 @@ executable uuagc
     , VisagePatterns
     , AG2AspectAG
     , RhsCheck
+    , ResolveLocals
     , Knuth1
     , KennedyWarren
     , KWOrder

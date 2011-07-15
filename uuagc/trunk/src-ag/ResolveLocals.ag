@@ -1,0 +1,149 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+
+
+imports
+{
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+import Data.Map(Map)
+import qualified Data.Sequence as Seq
+import Data.Sequence(Seq,(><))
+import CommonTypes
+import Patterns
+import ErrorMessages
+import AbstractSyntax
+import Expression
+import Options
+import HsToken(HsTokensRoot(HsTokensRoot))
+import HsTokenScanner(lexTokens)
+import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
+import Data.Maybe
+}
+
+WRAPPER Grammar
+
+
+--
+-- Main attributes
+--
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression
+  [ options:{Options} | | ]
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression
+  [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Child Children Rule Rules Pattern Patterns TypeSig TypeSigs Expression
+  [ | | output : SELF ]
+
+--
+-- Collect inputs to expressions
+--
+
+-- Collecting nts
+ATTR Nonterminal Nonterminals
+     Production Productions
+     Rule Rules
+     Child Children [allnts:{[Identifier]} | | ]
+
+SEM Grammar
+  | Grammar nonts.allnts = map fst (@nonts.nonts)
+
+ATTR Nonterminals Nonterminal [ | | nonts USE {++} {[]} : {[(NontermIdent,[ConstructorIdent])]} ]
+SEM  Nonterminal
+  |  Nonterminal  lhs.nonts = [(@nt,@prods.cons)]
+ATTR Productions Production [ | | cons USE {++} {[]} : {[ConstructorIdent]} ]
+SEM  Production
+  |  Production  lhs.cons = [@con]
+
+-- Collecting fields
+ATTR Rule Rules
+     Child Children [allfields:{[(Identifier,Type,Maybe (Maybe Type))]} attrs:{[(Identifier,Identifier)]} | | ]
+
+SEM Production
+  | Production loc.allfields  = @children.fields
+                   .attrs      = map ((,) _LOC)  @rules.locVars ++
+                                 map ((,) _INST) @rules.instVars ++
+                                 map ((,) _LHS)  @inhnames ++
+                                 concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- @children.attributes]
+                   .inhnames   = Map.keys @lhs.inh
+                   .synnames   = Map.keys @lhs.syn
+
+ATTR Children [ | | attributes USE {++} {[]} : {[(Identifier,Attributes,Attributes)]} ]
+SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
+  | Child lhs.attributes = [(@name, @inh, @syn)]
+
+SEM Child [ | | field : {(Identifier,Type,Maybe (Maybe Type))} ]
+  | Child lhs.field = (@name, @tp, @virtual)
+
+SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
+  | Cons  lhs.fields = @hd.field : @tl.fields
+  | Nil   lhs.fields = []
+
+ATTR Rules Rule Patterns Pattern [ | | locVars USE {++} {[]}:{[Identifier]} instVars USE {++} {[]} : {[Identifier]} ]
+
+SEM Pattern
+  | Alias    lhs.locVars   = if @field == _LOC
+                                then [@attr]
+                                else []
+             lhs.instVars  = if @field == _INST
+                                then [@attr]
+                                else []
+
+--         Distributing name of nonterminal and names of attributes
+ATTR Productions Production Child Children Rules Rule Patterns Pattern [ nt : {Identifier} inh,syn : {Attributes} | | ]
+ATTR Child Children Rules Rule Patterns Pattern [ con : {Identifier} | | ]
+
+SEM Production
+  | Production children . con = @con
+SEM Production
+  | Production rules . con = @con
+SEM Nonterminal
+  | Nonterminal prods . nt = @nt
+
+SEM Nonterminal
+  | Nonterminal prods.inh  = @inh
+                prods.syn  = @syn
+
+-- merge map
+SEM Grammar
+  | Grammar  nonts.mergeMap  = Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) @mergeMap
+
+ATTR Nonterminals Nonterminal
+  [ mergeMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))} | | ]
+
+ATTR Productions Production
+  [ mergeMap : {Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))} | | ]
+
+SEM Nonterminal | Nonterminal  loc.mergeMap = Map.findWithDefault Map.empty @nt @lhs.mergeMap
+SEM Production  | Production   loc.mergeMap = Map.findWithDefault Map.empty @con @lhs.mergeMap
+
+ATTR Rules Rule Children Child Expression [ mergeMap : {Map Identifier (Identifier,[Identifier])} | | ]
+
+
+--
+-- Handling Expressions
+--
+
+ATTR Expression [ nt,con   :{Identifier}
+                  allfields:{[(Identifier,Type,Maybe (Maybe Type))]}
+                  allnts   :{[Identifier]}
+                  attrs    :{[(Identifier,Identifier)]}
+                || ]
+
+SEM Expression
+  | Expression  loc.(errors,newTks)
+                            = let mergedChildren = [ x | (_,xs) <- Map.elems @lhs.mergeMap, x <- xs ]
+                                  attrsIn = filter (\(fld,_) -> not (fld `elem` mergedChildren)) @lhs.attrs
+                                  inherited = Inh_HsTokensRoot
+                                              { attrs_Inh_HsTokensRoot      = attrsIn
+                                              , con_Inh_HsTokensRoot        = @lhs.con
+                                              , allfields_Inh_HsTokensRoot  = @lhs.allfields
+                                              , allnts_Inh_HsTokensRoot     = @lhs.allnts
+                                              , nt_Inh_HsTokensRoot         = @lhs.nt
+                                              }
+                                  synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot @tks)) inherited
+                              in (errors_Syn_HsTokensRoot synthesized, output_Syn_HsTokensRoot synthesized)
+                lhs.output = Expression @pos @loc.newTks

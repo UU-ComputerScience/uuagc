@@ -1,0 +1,33 @@
+MODULE {TestOkLocals} {} {}
+
+DATA D
+  | C1  x : Int
+  | C2  x : Bool
+  | C4  x : D
+  | C5
+
+ATTR D [ | | output : String ]
+
+SEM D
+  | C1  loc.x = False
+        lhs.output = show (@x, @loc.x)
+  | C2  lhs.output = show @x
+  | C4  loc.x = True
+        lhs.output = show (length [@x], @loc.x)
+  | C5  loc.x = True
+        lhs.output = show (@x, @loc.x)
+
+
+WRAPPER D
+
+{
+trees = [ D_C1 1, D_C2 False, D_C4 D_C5, D_C5 ]
+
+run t = output_Syn_D syn
+  where
+    inh = Inh_D {}
+    syn = wrap_D sem inh
+    sem = sem_D t
+
+results = map run trees
+}
