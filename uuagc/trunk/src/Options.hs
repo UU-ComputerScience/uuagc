@@ -72,11 +72,12 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["checkParseBlocks"]         (NoArg parseHsBlockOpt) "Parse blocks with Haskell parser"
                , Option []        ["checkParseHaskell"]  (NoArg parseHsOpt) "Parse Haskell code (recognizer)"
                , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
+               , Option []        ["nooptimize"]         (NoArg noOptimizeOpt) "Disable optimizations"
                ]
 
 allc = "dcfsprm"
 
-data Options = Options{ moduleName :: ModuleHeader 
+data Options = Options{ moduleName :: ModuleHeader
                       , dataTypes :: Bool
                       , strictData :: Bool
                       , strictWrap :: Bool
@@ -137,6 +138,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseBlock :: Bool
                       , nocatas :: Set NontermIdent
                       , kennedyWarren :: Bool
+                      , noOptimizations :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -199,28 +201,29 @@ noOptions = Options { moduleName    = NoName
                     , checkParseBlock = False
                     , nocatas         = Set.empty
                     , kennedyWarren   = False
+                    , noOptimizations = False
                     }
 
-moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}            
-dataOpt         opts = opts{dataTypes    = True}            
-strictDataOpt   opts = opts{strictData   = True}            
-strictWrapOpt   opts = opts{strictWrap   = True}            
-cataOpt         opts = opts{folds        = True}            
-semfunsOpt      opts = opts{semfuns      = True}            
-signaturesOpt   opts = opts{typeSigs     = True}            
-prettyOpt       opts = opts{attrInfo     = True}            
+moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
+dataOpt         opts = opts{dataTypes    = True}
+strictDataOpt   opts = opts{strictData   = True}
+strictWrapOpt   opts = opts{strictWrap   = True}
+cataOpt         opts = opts{folds        = True}
+semfunsOpt      opts = opts{semfuns      = True}
+signaturesOpt   opts = opts{typeSigs     = True}
+prettyOpt       opts = opts{attrInfo     = True}
 renameOpt       opts = opts{rename       = True}
 wrappersOpt     opts = opts{wrappers     = True}
 modcopyOpt      opts = opts{modcopy      = True}
 newtypesOpt     opts = opts{newtypes     = True}
 nestOpt         opts = opts{nest         = True}
 smacroOpt       opts = opts{smacro       = True}
-verboseOpt      opts = opts{verbose      = True}            
-helpOpt         opts = opts{showHelp     = True}            
-versionOpt      opts = opts{showVersion  = True}            
-prefixOpt pre   opts = opts{prefix       = pre }            
-selfOpt         opts = opts{withSelf     = True}            
-cycleOpt        opts = opts{withCycle    = True}            
+verboseOpt      opts = opts{verbose      = True}
+helpOpt         opts = opts{showHelp     = True}
+versionOpt      opts = opts{showVersion  = True}
+prefixOpt pre   opts = opts{prefix       = pre }
+selfOpt         opts = opts{withSelf     = True}
+cycleOpt        opts = opts{withCycle    = True}
 visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
@@ -261,6 +264,7 @@ parseHsTpOpt opts = opts { checkParseTy = True }
 parseHsBlockOpt opts = opts { checkParseBlock = True }
 parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
 kennedyWarrenOpt opts = opts { kennedyWarren = True }
+noOptimizeOpt opts = opts { noOptimizations = True }
 nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
   set = Set.fromList ids
   ids = map identifier lst
@@ -270,15 +274,34 @@ nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
             | otherwise = p : split ps
     where (p,ps) = break (== ',') str
 
-outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
-searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
+outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}
+searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
 optimizeOpt   = visitOpt . casesOpt
 
+condDisableOptimizations opts
+  | noOptimizations opts =
+      opts { strictData         = False
+           , strictWrap         = False
+           , withSeq            = False
+           , unbox              = False
+           , bangpats           = False
+           , cases              = False
+           , strictCases        = False
+           , stricterCases      = False
+           , strictSems         = False
+           , localCps           = False
+           , splitSems          = False
+           , breadthFirstStrict = False
+           }
+  | otherwise = opts
+
 getOptions args = let (flags,files,errors) = getOpt Permute options args
-                  in (foldl (flip ($)) noOptions flags,files,errors)
+                      appliedOpts = foldl (flip ($)) noOptions flags
+                      finOpts = condDisableOptimizations appliedOpts
+                  in (finOpts,files,errors)
 
 data ModuleHeader  = NoName
                    | Name String
