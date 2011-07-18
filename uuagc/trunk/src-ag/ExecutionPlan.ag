@@ -8,9 +8,10 @@ import CommonTypes
 import qualified Data.Set as Set
 }
 
-DATA ExecutionPlan | ExecutionPlan  nonts    : ENonterminals
-     		     		    typeSyns : {TypeSyns}
-				    wrappers : {Set.Set NontermIdent}
+DATA ExecutionPlan | ExecutionPlan  nonts     : ENonterminals
+     		     		    typeSyns  : {TypeSyns}
+				    wrappers  : {Set.Set NontermIdent}
+				    derivings : {Derivings}
 
 TYPE ENonterminals = [ENonterminal]
 

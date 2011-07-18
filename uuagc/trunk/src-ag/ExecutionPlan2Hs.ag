@@ -33,7 +33,7 @@ ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
 -------------------------------------------------------------------------------
 --  Options
 -------------------------------------------------------------------------------
-ATTR ExecutionPlan ENonterminals ENonterminal [ options : {Options} | | ]
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction [ options : {Options} | | ]
 ATTR EProductions EProduction [ rename : {Bool} | | ]
 
 SEM ENonterminal
@@ -45,13 +45,7 @@ SEM ENonterminal
 ATTR ExecutionPlan [  | | output : {PP_Doc} ]
 
 SEM ExecutionPlan
-  | ExecutionPlan lhs.output = "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
-                               >-< @lhs.pragmaBlocks
-                               >-< @lhs.moduleHeader @lhs.mainName "" "" False
-                               >-< "import Control.Monad.Identity"
-                               >-< @lhs.importBlocks
-                               >-< @lhs.textBlocks
-                               >-< @nonts.output
+  | ExecutionPlan lhs.output = @nonts.output
 
 ATTR ENonterminal ENonterminals [ wrappers : {Set.Set NontermIdent}
                                  | | output USE {>-<} {empty} : {PP_Doc} ]
@@ -66,33 +60,44 @@ SEM ENonterminal
                                         >-< @loc.wr_syn
                                         >-< @loc.wrapper
                                    else empty)
-                              >-< @loc.sem_nt
-                              >-< @loc.t_init 
-                              >-< @loc.t_states
-                              >-< @loc.k_states
-                              >-< @prods.t_visits
-                              >-< @prods.sem_prod
+                              >-< (if   semfuns @lhs.options
+                                   then @loc.sem_nt
+                                        >-< @loc.t_init
+                                        >-< @loc.t_states
+                                        >-< @loc.k_states
+                                        >-< @prods.t_visits
+                                        >-< @prods.sem_prod
+                                   else empty)
 
 -------------------------------------------------------------------------------
 --  Nonterminal datatype
 -------------------------------------------------------------------------------
-ATTR ENonterminal ENonterminals [ typeSyns : {TypeSyns} | | ]
+ATTR ENonterminal ENonterminals [ typeSyns : {TypeSyns}
+                                  derivings : {Derivings} | | ]
 
 SEM ExecutionPlan
   | ExecutionPlan nonts.typeSyns = @typeSyns
+    		  nonts.derivings = @derivings
 
 SEM ENonterminal
   | ENonterminal loc.datatype = case lookup @nt @lhs.typeSyns of
                                    Nothing -> "data" >#< @nt >#< (vlist $ ("=" >#< head @prods.datatype)
-                                               : (map ("|" >#<) $ tail @prods.datatype))
+                                               : (map ("|" >#<) $ tail @prods.datatype)) >#< @loc.derivings
                                    Just (List t) -> "type" >#< @nt >#< "=" >#< "[" >#< show t >#< "]"
+                                   Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< pp_parens (show t)
                                    Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
+                 loc.derivings = case Map.lookup @nt @lhs.derivings of
+		 	       	    Nothing -> empty
+				    Just s  -> if   Set.null s
+ 				    	       then empty
+					       else "deriving" >#< (pp_parens $ ppCommas $ map pp $ Set.toList s)
 
 ATTR EProduction  [ | | datatype : {PP_Doc} ]
 ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EProduction
-  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.datatype
+  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced (map (@loc.addStrict . pp_parens) @children.datatype)
+    		loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
 
 ATTR EChild    [ nt : {NontermIdent} | | datatype : {PP_Doc} ]
 ATTR EChildren [ nt : {NontermIdent} | | datatype USE {:} {[]} : {[PP_Doc]} ] 
@@ -110,8 +115,10 @@ SEM ENonterminal
                  loc.sem_nt  = @loc.semname >#< "::" >#< @nt >#< "->" >#< @loc.t_type
                                >-< case lookup @nt @lhs.typeSyns of
                                       Nothing -> @prods.sem_nt
-                                      Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons" >#< @loc.semname >|< "_Nil"
+                                      Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
+                     		      	   	       >#< @loc.semname >|< "_Nil"
                                                        >#< "(" >#< "Prelude.map sem_" >|< show t >#< "list" >#< ")"
+                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
 
 ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
 SEM EProduction
@@ -177,8 +184,8 @@ SEM ENonterminal
                                         c_st  = "C_" >|< nt_st
                                         inv_st  = "inv_" >|< nt_st
                                     in  "data" >#< t_st >#< "where" >#< c_st >#< "::" >#< "{" >#< inv_st >#< "::"
-                                               >#< "forall t." >#< k_st >#< "t" >#< "->" >#< "t" >#< "}"
-                                               >#< "->" >#< t_st        
+                                               >#< "!" >|< pp_parens ("forall t." >#< k_st >#< "t" >#< "->" >#< "t") >#< "}"
+                                               >#< "->" >#< t_st
                                         ) $ Set.toList @loc.allstates
 
 -- type of a key which identifies a visit v from state s
@@ -211,7 +218,7 @@ SEM Visit
                             "Identity" >#< "(" >#< @loc.synpart >#< "T_" >|< @lhs.nt >|< "_s" >|< @to >#< ")"
           loc.inhpart   = if   Set.null @inh
                           then empty
-                          else (ppSpaced $ map (\i -> (\x -> x >#< "->") $ typeToHaskellString (Just @lhs.nt) []
+                          else (ppSpaced $ map (\i -> (\x -> pp_parens x >#< "->") $ typeToHaskellString (Just @lhs.nt) []
                                                 $ fromJust $ Map.lookup i @lhs.inhmap) $ Set.toList @inh)
           loc.synpart   = if   Set.null @syn
                           then empty
@@ -240,9 +247,10 @@ SEM ENonterminal
                                   >#< ppSpaced @loc.inhlist >#< ")" >#< "=")
                                 >-<
                                 indent 3 ("let" >#< "(" >#< ppCommas @loc.synlist >#< "," >#< "_" >#< ")" >#< "="
-                                          >#< "runIdentity" >#< "$" >#< "(" >#< "inv_" >|< @nt >|< "_s" >|< @initial
-                                          >#< "sem" >#< @loc.k_type >|< "_v" >|< fromJust @initialv >#< ")"
-                                          >#< ppSpaced @loc.inhlist
+                                          >#< "Control.Monad.Identity.runIdentity"
+					  >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial
+                                          >#< "sem" >#< @loc.k_type >|< "_v" >|< fromJust @initialv
+                                          >#< ppSpaced @loc.inhlist)
                                           >-<
                                           "in " >#< "(" >#< @loc.synname >#< ppSpaced @loc.synlist >#< ")")
                                 )

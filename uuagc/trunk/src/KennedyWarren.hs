@@ -18,8 +18,8 @@ import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
-kennedyWarrenOrder :: Set.Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Maybe ExecutionPlan
-kennedyWarrenOrder wr ndis typesyns = runST $ do
+kennedyWarrenOrder :: Set.Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe ExecutionPlan
+kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
   indi <- mapM mkNontDependencyInformationM ndis
   knuth1 indi
   -- Check all graphs for cyclicity, transitive closure and consistency
@@ -67,7 +67,7 @@ kennedyWarrenOrder wr ndis typesyns = runST $ do
          traceVG $ "Running kennedy-warren..."
          initvs <- kennedyWarrenVisitM wr indi
          -- Generate execution plan
-         kennedyWarrenExecutionPlan indi initvs wr typesyns
+         kennedyWarrenExecutionPlan indi initvs wr typesyns derivings
        -- Return the result
        return $ Just ret
     else return Nothing
@@ -429,6 +429,9 @@ vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do
     rprod <- vgInST $ newSTRef []
     return ((ndiNonterminal $ ndimOrig ndi, pdgProduction $ pdgmOrig prod, ret),rprod)
   modify $ \st -> st { vgProdVisits = Map.union (Map.fromList refs) prodv }
+  --- DEBUG ---
+--  traceVG $ "node_" ++ show n1 ++ " -> node_" ++ show n2 ++ " [style=dotted,label=\"visit v" ++ show num ++ "\\n\\ninh:\\n" ++ (concat $ intersperse "\\n" $ map show $ Set.toList inh) ++ "\\n\\nsyn:\\n" ++ (concat $ intersperse "\\n" $ map show $ Set.toList syn) ++ "\"];"
+  -------------
   return $ ret
 
 -- | Check whether a vertex is marked final on this node in this production
@@ -622,8 +625,8 @@ isChildAttr v = isVertexAttr v && getAttrChildName v /= _LHS && getAttrType v /=
 ---         Construction of the execution plan           ---
 ------------------------------------------------------------
 kennedyWarrenExecutionPlan :: [NontDependencyInformationM s] -> [Maybe Int] -> Set.Set NontermIdent
-                              -> TypeSyns -> VG s ExecutionPlan
-kennedyWarrenExecutionPlan ndis initvs wr typesyns = do
+                              -> TypeSyns -> Derivings -> VG s ExecutionPlan
+kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
   -- Loop over all nonterminals
   nonts <- forM (zip ndis initvs) $ \(ndi, initv) -> do
     -- Loop over all productions of this nonterminal
@@ -654,4 +657,4 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns = do
                            initv
                            prods
   -- Return complete execution plan
-  return $ ExecutionPlan nonts typesyns wr
+  return $ ExecutionPlan nonts typesyns wr derivings
