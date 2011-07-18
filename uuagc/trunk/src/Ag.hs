@@ -214,8 +214,18 @@ compile flags input output
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
                                     ]
                          | kennedyWarren flags'
-                            = vlist [Pass4b.output_Syn_ExecutionPlan  output4b,
-                                     if dumpgrammar flags'
+                            = vlist [ pp optionsLine
+                                    , pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+                                    , pp pragmaBlocksTxt
+                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                           then moduleHeader flags' mainName
+                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                    , pp importBlocksTxt
+                                    , pp $ "import Control.Monad.Identity (Identity)"
+                                    , pp $ "import qualified Control.Monad.Identity"
+                                    , textBlocksDoc
+                                    , Pass4b.output_Syn_ExecutionPlan  output4b
+                                    , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar with default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump2
                                                  , pp "-}"

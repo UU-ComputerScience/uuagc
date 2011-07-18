@@ -186,7 +186,7 @@ SEM  Nonterminal
 ATTR Grammar [ | | output : {ExecutionPlan} ]
 
 SEM  Grammar
-  |  Grammar (Just lhs.output) = kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns
+  |  Grammar (Just lhs.output) = kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns @derivings
 
 
 -------------------------------------------------------------------------------
