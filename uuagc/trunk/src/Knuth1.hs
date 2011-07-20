@@ -369,9 +369,9 @@ knuth1' ndis = do -- Add edges from the production graphs to the nonterminal gra
 --                ntedge :: [Edge]
                   let pntedge = concatMap (\x -> maybe [] id x) ndis'
                   -- Add backedges
-                  bedges <- addBackEdges ndis
+                  --bedges <- addBackEdges ndis
                   -- All added nonterminal edges
-                  let ntedge = pntedge ++ bedges
+                  let ntedge = pntedge -- ++ bedges
                   if null ntedge
                     -- When no new edges have been added we are done
                     then return ()
