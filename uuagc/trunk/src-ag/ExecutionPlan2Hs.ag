@@ -33,7 +33,10 @@ ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
 -------------------------------------------------------------------------------
 --  Options
 -------------------------------------------------------------------------------
-ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction [ options : {Options} | | ]
+ATTR ExecutionPlan 
+     ENonterminals ENonterminal 
+     EProductions EProduction 
+     ERules ERule [ options : {Options} | | ]
 ATTR EProductions EProduction [ rename : {Bool} | | ]
 
 SEM ENonterminal
@@ -84,8 +87,12 @@ SEM ENonterminal
                                    Nothing -> "data" >#< @nt >#< (vlist $ ("=" >#< head @prods.datatype)
                                                : (map ("|" >#<) $ tail @prods.datatype)) >#< @loc.derivings
                                    Just (List t) -> "type" >#< @nt >#< "=" >#< "[" >#< show t >#< "]"
-                                   Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< pp_parens (show t)
-                                   Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
+                                   Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< show t
+				   Just (Tuple ts) -> "type" >#< @nt >#< "=" >#< pp_parens (ppCommas $ map (show . snd) ts)
+				   Just (Either l r) -> "type" >#< @nt >#< "=" >#< "Either" >#< show l >#< show r
+				   Just (Map k v) -> "type" >#< @nt >#< "=" >#< "Data.Map.Map" >#< pp_parens (show k) >#< show v
+				   Just (IntMap t) -> "type" >#< @nt >#< "=" >#< "Data.IntMap.IntMap" >#< show t
+--                                   Just x -> error $ "Type " ++ show x ++ " is not supported"
                  loc.derivings = case Map.lookup @nt @lhs.derivings of
 		 	       	    Nothing -> empty
 				    Just s  -> if   Set.null s
@@ -111,14 +118,37 @@ SEM EChild
 --  Nonterminal semantic function
 -------------------------------------------------------------------------------
 SEM ENonterminal
-  | ENonterminal loc.semname = "sem_" ++ show @nt
+  | ENonterminal loc.fsemname = \x -> "sem_" ++ show x
+    		 loc.semname = @loc.fsemname @nt
+		 loc.frecarg = \t x -> case t of
+		 	       	          NT nt _ -> pp_parens (@fsemname nt >#< x)
+				          _  	  -> pp x
                  loc.sem_nt  = @loc.semname >#< "::" >#< @nt >#< "->" >#< @loc.t_type
                                >-< case lookup @nt @lhs.typeSyns of
                                       Nothing -> @prods.sem_nt
                                       Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
                      		      	   	       >#< @loc.semname >|< "_Nil"
-                                                       >#< "(" >#< "Prelude.map sem_" >|< show t >#< "list" >#< ")"
-                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
+                                                       >#< case t of
+						       	      NT nt _ -> pp_parens ("Prelude.map" >#< @fsemname nt >#< "list")
+							      _ -> pp "list"
+				      Just (Maybe t) -> @loc.semname >#< "Prelude.Nothing" >#< "=" >#< @loc.semname >|< "_Nothing"
+				      	   	        >-< @loc.semname >#< pp_parens ("Prelude.Just just") >#< "="
+							>#< @loc.semname >|< "_Just" >#< @frecarg t "just"
+				      Just (Tuple ts) -> @loc.semname >#< pp_parens (ppCommas $ map fst ts) >#< "="
+				      	   	      	 >#< @loc.semname >|< "_Tuple" >#< ppSpaced (map (\t -> @frecarg (snd t) (show $ fst t)) ts)
+				      Just (Either l r) -> @loc.semname >#< "(Prelude.Left left)" >#< "=" >#< @loc.semname >|< "_Left" >#< @frecarg l "left"
+				      	   	     	   >-< @loc.semname >#< "(Prelude.Right right)" >#< "=" >#< @loc.semname >|< "_Right" >#< @frecarg r "right"
+				      Just (Map k v) -> @loc.semname >#< "m" >#< "=" >#< "Data.Map.foldrWithKey"
+				      	   	     	>#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
+							>#< case v of 
+							       NT nt _ -> pp_parens ("Data.Map.map" >#< @fsemname nt >#< "m")
+							       _ -> pp "m"
+				      Just (IntMap v) -> @loc.semname >#< "m" >#< "=" >#< "Data.IntMap.foldWithKey"
+				      	   	     	 >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
+							 >#< case v of 
+							        NT nt _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
+							        _ -> pp "m"
+--                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
 
 ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
 SEM EProduction
@@ -359,29 +389,34 @@ ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
                         mrules USE {`Map.union`} {Map.empty} : {Map.Map Identifier PP_Doc}  ]
 
 SEM ERule
-  | ERule lhs.sem_rules = if Set.member @name @lhs.usedrules
-                          then (@name >#< "=" >#< 
-                                (if Set.null @rhs.attrs
-                                 then empty
-                                 else "\\" >|< @loc.attrlst >#< "->")
-                                >#< @rhs.semfunc)
-                          else empty
-          loc.attrlst   = ppSpaced $ Set.toList @rhs.attrs
-          lhs.mrules    = Map.singleton @name $ @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
+  | ERule lhs.sem_rules    = if Set.member @name @lhs.usedrules
+                             then (@name >#< "=" >#< 
+                                  (if Set.null @rhs.attrs
+                                   then empty
+                                   else "\\" >|< @loc.attrlst >#< "->")
+                                  >#< @rhs.semfunc)
+                             else empty
+          loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
+          lhs.mrules       = Map.singleton @name $ @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
+	  pattern.addtilde = \x -> if cases @lhs.options then x else "~" >|< x
 
 -- pattern and expression semantics
 ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
 ATTR Patterns [ | | sem_lhs USE {:} {[]} : {[PP_Doc]} ]
+ATTR Pattern Patterns [ addtilde : {PP_Doc -> PP_Doc} | | ]
 
 ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
 
 SEM Pattern
-  | Alias       lhs.sem_lhs = text $ attrname False @field @attr -- todo: alias
-                lhs.attrs   = Set.singleton $ attrname False @field @attr
-  | Product     lhs.sem_lhs = pp_block "(" ")" "," @pats.sem_lhs
-  | Constr      lhs.sem_lhs = pp_parens $ @name >#< hv_sp @pats.sem_lhs
-  | Underscore  lhs.sem_lhs = text "_"
-  | Irrefutable lhs.sem_lhs = text "~" >|< pp_parens @pat.sem_lhs
+  | Alias       lhs.sem_lhs   = text $ attrname False @field @attr -- todo: alias
+                lhs.attrs     = Set.singleton $ attrname False @field @attr
+  | Product     lhs.sem_lhs   = @lhs.addtilde $ pp_block "(" ")" "," @pats.sem_lhs
+		pats.addtilde = id
+  | Constr      lhs.sem_lhs   = @lhs.addtilde $ pp_parens $ @name >#< hv_sp @pats.sem_lhs
+		pats.addtilde = id
+  | Underscore  lhs.sem_lhs   = text "_"
+  | Irrefutable lhs.sem_lhs   = text "~" >|< pp_parens @pat.sem_lhs
+    		pat.addtilde  = id
 
 ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
 SEM HsToken
