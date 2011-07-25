@@ -493,9 +493,11 @@ kennedyWarrenVisitM wr ndis = do
   -- Create initial nodes and edges (edges only for wrapper nodes)
   initvs <- forM ndis $ \ndi -> do
     nd <- insertInitialNode ndi
-    if (Set.member (ndiNonterminal $ ndimOrig $ ndi) wr)
+    let inh = Set.fromList $ ndiInh $ ndimOrig ndi
+    let syn = Set.fromList $ ndiSyn $ ndimOrig ndi
+    if (Set.member (ndiNonterminal $ ndimOrig $ ndi) wr) && (not (Set.null inh) || not (Set.null syn))
       then do
-        VGEdge initv <- createPending nd (Set.fromList $ ndiInh $ ndimOrig ndi) (Set.fromList $ ndiSyn $ ndimOrig ndi)
+        VGEdge initv <- createPending nd inh syn
         return $ Just initv
       else return Nothing
   -- Handle all pending edges while there are any

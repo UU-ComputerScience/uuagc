@@ -271,19 +271,22 @@ SEM ENonterminal
 		 loc.inhname  = "Inh_" ++ show @nt
 		 loc.synname  = "Syn_" ++ show @nt
                  loc.wrapper  = (@loc.wrapname >#< "::" >#< @loc.t_type >#< "->"
-                                >#< @loc.inhname >#< "->" >#< @loc.synname)
+                              	 >#< @loc.inhname >#< "->" >#< @loc.synname)
                                 >-<
-                                ((@loc.wrapname >#< "sem" >#< "(" >#< @loc.inhname
-                                  >#< ppSpaced @loc.inhlist >#< ")" >#< "=")
+                                (@loc.wrapname >#< "sem" >#< "(" >#< @loc.inhname
+                                 >#< ppSpaced @loc.inhlist >#< ")" >#< "=")
                                 >-<
-                                indent 3 ("let" >#< "(" >#< ppCommas @loc.synlist >#< "," >#< "_" >#< ")" >#< "="
-                                          >#< "Control.Monad.Identity.runIdentity"
-					  >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial
-                                          >#< "sem" >#< @loc.k_type >|< "_v" >|< fromJust @initialv
-                                          >#< ppSpaced @loc.inhlist)
-                                          >-<
-                                          "in " >#< "(" >#< @loc.synname >#< ppSpaced @loc.synlist >#< ")")
-                                )
+				indent 3 (case @initialv of
+				  -- case where there are no inherited or synthesized attributes
+		 	      	  Nothing -> @loc.synname >#< " { }"
+				  Just initv ->
+                                     "let" >#< "(" >#< ppCommas @loc.synlist >#< "," >#< "_" >#< ")" >#< "="
+                                           >#< "Control.Monad.Identity.runIdentity"
+					   >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial
+                                           >#< "sem" >#< @loc.k_type >|< "_v" >|< initv
+                                           >#< ppSpaced @loc.inhlist)
+                                     >-<
+                                     "in " >#< "(" >#< @loc.synname >#< ppSpaced @loc.synlist >#< ")")
 
 -------------------------------------------------------------------------------
 --  Production semantic functions
