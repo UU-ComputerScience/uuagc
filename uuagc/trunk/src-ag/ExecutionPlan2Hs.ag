@@ -57,19 +57,32 @@ SEM ExecutionPlan
   | ExecutionPlan nonts.wrappers = @wrappers
 
 SEM ENonterminal
-  | ENonterminal lhs.output = (if dataTypes @lhs.options then @loc.datatype else empty)
+  | ENonterminal lhs.output = ("-- " ++ getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
+    		 	      >-< (if dataTypes @lhs.options
+    		 	       	   then "-- data"
+			       	    	>-< @loc.datatype
+					>-< ""
+			       	   else empty)
                               >-< (if @nt `Set.member` @lhs.wrappers
-                                   then     @loc.wr_inh
+                                   then "-- wrapper"
+				   	>-< @loc.wr_inh
                                         >-< @loc.wr_syn
                                         >-< @loc.wrapper
+					>-< ""
                                    else empty)
+			      >-< (if   folds @lhs.options
+			      	   then "-- cata"
+				   	>-< @loc.sem_nt
+					>-< ""
+				   else empty)
                               >-< (if   semfuns @lhs.options
-                                   then @loc.sem_nt
+                                   then "-- semantic domain"
                                         >-< @loc.t_init
                                         >-< @loc.t_states
                                         >-< @loc.k_states
                                         >-< @prods.t_visits
                                         >-< @prods.sem_prod
+					>-< ""
                                    else empty)
 
 -------------------------------------------------------------------------------

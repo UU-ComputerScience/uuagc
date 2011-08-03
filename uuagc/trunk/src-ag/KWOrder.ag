@@ -183,10 +183,12 @@ SEM  Nonterminal
 -------------------------------------------------------------------------------
 --         Call the kennedy-warren algorithm
 -------------------------------------------------------------------------------
-ATTR Grammar [ | | output : {ExecutionPlan} ]
+ATTR Grammar [ | | output : {ExecutionPlan}
+     	       	   depgraphs : {PP_Doc}
+		   visitgraph : {PP_Doc} ]
 
 SEM  Grammar
-  |  Grammar (Just lhs.output) = kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns @derivings
+  |  Grammar (Just (lhs.output, lhs.depgraphs, lhs.visitgraph)) = kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns @derivings
 
 
 -------------------------------------------------------------------------------
