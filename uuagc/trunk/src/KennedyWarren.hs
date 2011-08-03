@@ -18,7 +18,7 @@ import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.IntSet as IntSet
 
-kennedyWarrenOrder :: Set.Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe ExecutionPlan
+kennedyWarrenOrder :: Set.Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe (ExecutionPlan, PP_Doc, PP_Doc)
 kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
   indi <- mapM mkNontDependencyInformationM ndis
   knuth1 indi
@@ -62,14 +62,19 @@ kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
     then do
        -- Create non-transitive closed graph for efficiency
        indi <- undoTransitiveClosure indi
+       -- Graphviz output of dependency graphs
+       gvs <- mapM toGVNontDependencyInfo indi
        -- Doing kennedywarren
-       ret <- runVG $ do
+       (ret, visitg) <- runVG $ do
          traceVG $ "Running kennedy-warren..."
          initvs <- kennedyWarrenVisitM wr indi
          -- Generate execution plan
-         kennedyWarrenExecutionPlan indi initvs wr typesyns derivings
+         ex <- kennedyWarrenExecutionPlan indi initvs wr typesyns derivings
+         -- Get visit graph
+         visitg <- toGVVisitGraph
+         return (ex,visitg)
        -- Return the result
-       return $ Just ret
+       return $ Just (ret, vlist gvs, visitg)
     else return Nothing
 
 -------------------------------------------------------------------------------
@@ -129,6 +134,20 @@ toGVProdDependencyGraph pdg = do dg <- return $ pdgmDepGraph pdg
                                            text "}"
                                            >-<
                                            text "")
+
+toGVVisitGraph :: VG s PP_Doc
+toGVVisitGraph = do
+  ndis <- gets vgNDI
+  noded <- forM (IntMap.toList ndis) $ \(n,rndi) -> do
+    ndi <- vgInST $ readSTRef rndi
+    return $ "node_" >|< n >#< "[label=\"" >|< ndiNonterminal (ndimOrig ndi) >|< "_" >|< n >|< "\"];"
+  edges <- gets vgEdges
+  edged <- forM (IntMap.toList edges) $ \(edg,(VGNode from,VGNode to)) -> do
+    inh <- getInherited (VGEdge edg)
+    syn <- getSynthesized (VGEdge edg)
+    return $ "node_" >|< from >#< "-> node_" >|< to >#< "[label=\"visit v" >|< edg 
+      >|< "\\ninh:" >#< (concat $ intersperse ", " $ map show $ Set.toList inh) >|< "\\nsyn: " >|< (concat $ intersperse ", " $ map show $ Set.toList syn) >|< "\"];"
+  return $ "digraph visitgraph { " >-< vlist noded >-< vlist edged >-< "}"
 
 -------------------------------------------------------------------------------
 --         Kennedy-Warren in monadic style
@@ -429,9 +448,6 @@ vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do
     rprod <- vgInST $ newSTRef []
     return ((ndiNonterminal $ ndimOrig ndi, pdgProduction $ pdgmOrig prod, ret),rprod)
   modify $ \st -> st { vgProdVisits = Map.union (Map.fromList refs) prodv }
-  --- DEBUG ---
---  traceVG $ "node_" ++ show n1 ++ " -> node_" ++ show n2 ++ " [style=dotted,label=\"visit v" ++ show num ++ "\\n\\ninh:\\n" ++ (concat $ intersperse "\\n" $ map show $ Set.toList inh) ++ "\\n\\nsyn:\\n" ++ (concat $ intersperse "\\n" $ map show $ Set.toList syn) ++ "\"];"
-  -------------
   return $ ret
 
 -- | Check whether a vertex is marked final on this node in this production

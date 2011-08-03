@@ -224,7 +224,11 @@ compile flags input output
                                     , pp $ "import Control.Monad.Identity (Identity)"
                                     , pp $ "import qualified Control.Monad.Identity"
                                     , textBlocksDoc
-                                    , Pass4b.output_Syn_ExecutionPlan  output4b
+                                    --, pp $ "{-"
+                                    --, Pass3a.depgraphs_Syn_Grammar output3a
+                                    --, Pass3a.visitgraph_Syn_Grammar output3a
+                                    --, pp $ "-}"
+                                    , Pass4b.output_Syn_ExecutionPlan output4b
                                     , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar with default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump2
