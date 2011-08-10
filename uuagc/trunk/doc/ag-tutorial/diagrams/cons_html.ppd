@@ -1,0 +1,13 @@
+prod Cons : Docs
+attrs
+  syn html : String
+children
+  nonterm hd : Doc
+    attrs
+      syn html : String
+  nonterm tl : Docs
+    attrs
+      syn html : String
+flows
+  hd.out.html -> lhs.out.html
+  tl.out.html -> lhs.out.html

@@ -1,0 +1,15 @@
+prod Section : Doc
+attrs
+  inh level : Int
+  syn html  : String
+children
+  term title : String
+  nonterm body : Docs
+    attrs
+      inh level : Int
+      syn html  : String
+flows
+  title         -> lhs.out.html
+  body.out.html -> lhs.out.html
+  lhs.in.level  -> body.in.level
+  lhs.in.level  -> lhs.out.html downwards

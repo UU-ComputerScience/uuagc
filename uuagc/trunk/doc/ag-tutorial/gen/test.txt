@@ -1,0 +1,21 @@
+\newcommand{\tikz.A} { %
+  \agparent{lhs}{s1}{6.6}{Docs} %
+  \agparattr{level}{s2}{4.8}{Int} %
+  \agparattr{html}{s3}{8.399999999999999}{String} %
+  \agchldnonterm{hd}{s4}{2.3}{Doc} %
+  \agchldattr{level}{s5}{0.5}{Int} %
+  \agchldattr{html}{s6}{4.1}{String} %
+  \agsibline{s5}{s4} %
+  \agsibline{s4}{s6} %
+  \agchldnonterm{tl}{s7}{8.9}{Docs} %
+  \agchldattr{level}{s8}{7.1}{Int} %
+  \agchldattr{html}{s9}{10.7}{String} %
+  \agsibline{s8}{s7} %
+  \agsibline{s7}{s9} %
+  \agsibline{s2}{s1} %
+  \agsibline{s1}{s3} %
+  \agdeplineupdown{s6}{s3} %
+  \agdeplineupdown{s9}{s3} %
+  \agdeplinedownup{s2}{s5} %
+  \agdeplinedownup{s2}{s8} %
+}

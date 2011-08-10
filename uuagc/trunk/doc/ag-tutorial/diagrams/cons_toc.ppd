@@ -1,0 +1,37 @@
+prod Cons : Docs
+attrs
+  inh toc      : String
+  inh count    : Int
+  inh level    : Int
+  syn html     : String
+  syn count    : Int
+  syn toclines : String
+children
+  nonterm hd : Doc
+    attrs
+      inh toc      : String
+      inh count    : Int
+      inh level    : Int
+      syn html     : String
+      syn count    : Int
+      syn toclines : String
+  nonterm tl : Docs
+    attrs
+      inh toc      : String
+      inh count    : Int
+      inh level    : Int
+      syn html     : String
+      syn count    : Int
+      syn toclines : String
+flows
+  hd.out.html     -> lhs.out.html
+  tl.out.html     -> lhs.out.html
+  lhs.in.level    -> hd.in.level
+  lhs.in.level    -> tl.in.level
+  lhs.in.count    -> hd.in.count
+  hd.out.count    -> tl.in.count upwards
+  tl.out.count    -> lhs.out.count
+  lhs.in.toc      -> hd.in.toc
+  lhs.in.toc      -> tl.in.toc
+  hd.out.toclines -> lhs.out.toclines
+  tl.out.toclines -> lhs.out.toclines

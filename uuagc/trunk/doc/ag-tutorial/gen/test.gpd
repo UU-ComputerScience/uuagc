@@ -1,0 +1,21 @@
+grammar Html
+hierarchy A
+prod Cons : Docs
+view A
+  attrs
+    inh level : Int
+    syn html  : String
+  children
+    nonterm hd : Doc
+      attrs
+        inh level : Int
+        syn html  : String
+    nonterm tl : Docs
+      attrs
+        inh level : Int
+        syn html  : String
+  flows
+    syn.hd.html   -> syn.lhs.html
+    syn.tl.html   -> syn.lhs.html
+    inh.lhs.level -> inh.hd.level
+    inh.lhs.level -> inh.tl.level

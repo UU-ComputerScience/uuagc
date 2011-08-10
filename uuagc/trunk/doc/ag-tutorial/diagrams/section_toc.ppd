@@ -1,0 +1,28 @@
+prod Section : Doc
+attrs
+  inh toc      : String
+  inh count    : Int
+  inh level    : Int
+  syn html     : String
+  syn count    : Int
+  syn toclines : String
+children
+  term title : String
+  nonterm body : Docs
+    attrs
+      inh toc      : String
+      inh count    : Int
+      inh level    : Int
+      syn html     : String
+      syn count    : Int
+      syn toclines : String
+flows
+  title             -> lhs.out.html
+  body.out.html     -> lhs.out.html
+  lhs.in.level      -> body.in.level
+  lhs.in.level      -> lhs.out.html downwards
+  lhs.in.count      -> body.in.count
+  body.out.count    -> lhs.out.count
+  lhs.in.toc        -> body.in.toc
+  title             -> lhs.out.toclines
+  body.out.toclines -> lhs.out.toclines

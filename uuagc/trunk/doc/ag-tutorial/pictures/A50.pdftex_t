@@ -1,0 +1,21 @@
+\begin{picture}(0,0)%
+\includegraphics{A50.pdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(7629,4954)(619,-5405)
+\put(2656,-3616){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Section}%
+}}}}
+\put(2926,-646){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Cons}%
+}}}}
+\put(7066,-646){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Nil}%
+}}}}
+\put(6931,-3571){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Pcdata}%
+}}}}
+\end{picture}%

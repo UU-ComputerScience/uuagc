@@ -1,0 +1,669 @@
+MODULE {Main} {main} {}
+
+--
+-- Imports
+--
+
+imports
+{
+import Data.Foldable(toList)
+import Data.Sequence(Seq)
+import qualified Data.Sequence as Seq
+import Data.Map(Map)
+import qualified Data.Map as Map
+import Data.Set(Set)
+import qualified Data.Set as Set
+import UU.Pretty
+import UU.Scanner
+import UU.Parsing
+import System.Environment
+import Data.List
+}
+
+
+--
+-- Source language
+--
+
+DATA ViewedGrammar
+  | Gram
+      name        : {String}
+      hierarchies : {[[String]]}
+      prods       : ProdViews
+
+DATA Grammar
+  | Gram
+      name        : {String}
+      view        : {String}
+      prods       : Prods
+
+TYPE ProdViews = [ProdView]
+TYPE Prods     = [Prod]
+
+DATA ProdView
+  | Prod
+      view : {String}
+      prod : Prod
+
+DATA Prod
+  | Prod
+      name     : {String}
+      parent   : Nonterm
+      children : Syms
+      deps     : Deps
+
+TYPE Syms = [Sym]
+
+DATA Sym
+  | Term
+      name : {String}
+      tp   : {String}
+  | Nont
+      name : {String}
+      tp   : Nonterm
+
+DATA Nonterm
+  | Nont
+      tp  : {String}
+      inh : Attrs
+      syn : Attrs
+
+TYPE Attrs = [Attr]
+
+DATA Attr
+  | Attr
+      name  : {String}
+      tp    : {String}
+      style : {Maybe String}
+
+TYPE Deps = [Dep]
+
+DATA Dep
+  | Dep
+      source : {Ident}
+      target : {Ident}
+      hint   : {Maybe DirHint}
+      style  : {Maybe String}
+
+DATA DirHint
+  | ForceUp
+  | ForceDown
+
+DATA Flow
+  | Inh
+  | Syn
+
+DATA Ident
+  | ChildAttr
+      child : {String}
+      flow  : {Flow}
+      attr  : {String}
+  | LhsAttr
+      flow  : {Flow}
+      attr  : {String}
+  | ChildVal
+      child : {String}
+
+DERIVING Ident Flow : Eq, Ord
+DERIVING * : Show
+
+
+SET AllAttr       = Attrs Attr
+SET AllNonterm    = Nonterm AllAttr
+SET AllSyms       = Syms Sym AllNonterm
+SET AllDeps       = Deps Dep
+SET AllProdViews  = ProdViews ProdView AllProds
+SET AllProds      = Prods Prod AllSyms AllDeps
+SET AllGram       = Grammar AllProds
+SET AllViewedGram = ViewedGrammar AllProdViews
+
+{
+type UID = Int
+type Dim = Double
+
+half :: Dim -> Dim
+half = (/2)
+}
+
+
+--
+-- Desugar
+--
+
+ATTR ViewedGrammar [ | | grammars : {Map String Grammar} ]
+ATTR ProdViews ProdView [ | | prods USE {++} {[]} : {[(String, Prod)]} ]
+ATTR AllProds [ | | copy : SELF ]
+
+SEM ViewedGrammar
+  | Gram
+      loc.views    = flattenViews @hierarchies
+      lhs.grammars = Map.mapWithKey (mergeForView @name @prods.prods) @loc.views
+
+SEM ProdView
+  | Prod
+      lhs.prods = [(@view, @prod.copy)]
+
+{
+flattenViews :: [[String]] -> Map String (Set String)
+flattenViews hierarchies
+  = let views = nub $ concat hierarchies
+        parents v acc [] = []
+        parents v acc (x:xs)
+          | v == x    = acc
+          | otherwise = parents v (x:acc) xs
+    in Map.fromList [ (v, Set.fromList (concatMap (parents v [v]) hierarchies)) | v <- views ]
+
+mergeForView :: String -> [(String, Prod)] -> String -> Set String -> Grammar
+mergeForView name prods view parents
+  = Grammar_Gram name view prods'
+  where
+    prods' = [ p | (n,p) <- prods, n `Set.member` parents ]
+}
+
+
+--
+-- Distributing unique numbers
+--
+
+ATTR AllSyms [ | guid : UID | ]
+SEM Prod
+  | Prod
+      loc.uid     = 1
+      parent.guid = @loc.uid + 1
+
+SEM Attr
+  | Attr
+     loc.uid  = @lhs.guid
+     lhs.guid = @lhs.guid + 1
+
+SEM Sym
+  | Term
+      loc.uid  = @lhs.guid
+      lhs.guid = @lhs.guid + 1
+  | Nont
+      loc.uid = @lhs.guid
+      tp.guid = @lhs.guid + 1
+
+
+--
+-- Width calculation
+--
+
+ATTR AllSyms [ | | width : Dim ]
+SEM Prod
+  | Prod
+      loc.totalWidth = @parent.width `max` @children.width
+
+SEM Syms
+  | Cons
+      loc.sepWidth   = defaultSymSepWidth
+      loc.totalWidth = @loc.sepWidth + @hd.width + @tl.width
+      lhs.width      = @loc.totalWidth
+  | Nil
+      lhs.width = 0
+
+SEM Sym
+  | Term
+      loc.width = defaultSymWidth
+
+SEM Nonterm
+  | Nont
+      loc.width      = defaultSymWidth
+      loc.sepWidth   = defaultAttrSepWidth
+      loc.innerWidth = @loc.width + 2 * @loc.sepWidth
+      loc.totalWidth = @loc.innerWidth + @inh.width + @syn.width
+      lhs.width      = @loc.totalWidth
+
+SEM Attrs
+  | Cons
+      loc.sepWidth   = defaultAttrSepWidth
+      loc.totalWidth = @loc.sepWidth + @hd.width + @tl.width
+      lhs.width      = @loc.totalWidth
+  | Nil
+      lhs.width = -1 * defaultAttrSepWidth
+
+SEM Attr
+  | Attr
+      loc.width = defaultAttrWidth
+
+{
+defaultSymSepWidth :: Dim
+defaultSymSepWidth = 2
+
+defaultSymWidth :: Dim
+defaultSymWidth = 1
+
+defaultAttrSepWidth :: Dim
+defaultAttrSepWidth = 0.8
+
+defaultAttrWidth :: Dim
+defaultAttrWidth = 1
+}
+
+
+--
+-- Horizontal coordinate distribution
+-- (center position)
+--
+
+ATTR AllSyms [ x : Dim | | ]
+
+SEM Prod
+  | Prod
+      parent.x   = left 0 @loc.totalWidth @parent.width
+      children.x = left 0 @loc.totalWidth @children.width
+
+SEM Syms
+  | Cons
+      hd.x = @lhs.x
+      tl.x = @lhs.x + @loc.totalWidth - @tl.width
+
+SEM Nonterm
+  | Nont
+      inh.x = @lhs.x
+      syn.x = @lhs.x + @loc.totalWidth - @syn.width
+      loc.x = left (@lhs.x + @inh.width) @loc.innerWidth 0
+
+SEM Attrs
+  | Cons
+      hd.x = @lhs.x
+      tl.x = @lhs.x + @loc.totalWidth - @tl.width
+
+SEM Attr
+  | Attr
+      loc.x = left @lhs.x @loc.width 0
+
+{
+left :: Dim -> Dim -> Dim -> Dim
+left x total width
+  = x + (half (total - width))
+}
+
+
+--
+-- Collect uids of attributes
+--
+
+ATTR Attrs Attr [ | | uids USE {Seq.><} {Seq.empty} : {Seq UID} ]
+SEM Attr
+  | Attr
+      lhs.uids = Seq.singleton @loc.uid
+
+ATTR Nonterm [ | | inhUids : {Seq UID} synUids : {Seq UID} ]
+SEM Nonterm
+  | Nont
+      lhs.inhUids = @inh.uids
+      lhs.synUids = @syn.uids
+
+
+--
+-- UID dictionary construction
+--
+
+{
+type UIDDict = Map Ident UID
+}
+
+ATTR AllSyms [ | | dictCol USE {`Map.union`} {Map.empty} : UIDDict ]
+ATTR AllNonterm [ buildDict : {String -> Flow -> UID -> UIDDict} | | ]
+ATTR AllDeps [ dict : UIDDict | | ]
+ATTR AllAttr [ flow : {Flow} | | ]
+
+SEM Nonterm
+  | Nont
+      inh.flow = Flow_Inh
+      syn.flow = Flow_Syn
+
+SEM Prod
+  | Prod
+      parent.buildDict = \name flow uid -> Map.singleton (Ident_LhsAttr flow name) uid
+
+SEM Sym
+  | Nont
+      tp.buildDict = \name flow uid -> Map.singleton (Ident_ChildAttr @name flow name) uid
+
+SEM Sym
+  | Term
+      lhs.dictCol = Map.singleton (Ident_ChildVal @name) @loc.uid
+
+SEM Attr
+  | Attr
+      lhs.dictCol = @lhs.buildDict @name @lhs.flow @loc.uid
+
+SEM Prod
+  | Prod
+      loc.dict = @parent.dictCol `Map.union` @children.dictCol
+
+
+--
+-- Command synthesis
+--
+
+ATTR AllGram [ | | cmds USE {Seq.><} {Seq.empty} : Cmds ]
+ATTR Nonterm [ build : PartCmd | | ]
+ATTR AllNonterm [ buildAttr : AttrCmd | | ]
+
+SEM Prod
+  | Prod
+      parent.build     = Cmd_Parent "lhs" @loc.uid
+      parent.buildAttr = Cmd_AttrParent
+      loc.inhEdges     = mkEdges (@parent.inhUids Seq.>< Seq.singleton @loc.uid)
+      loc.synEdges     = mkEdges (Seq.singleton @loc.uid Seq.>< @parent.synUids)
+      lhs.cmds         = @parent.cmds Seq.>< @children.cmds Seq.>< Seq.fromList @loc.inhEdges Seq.>< Seq.fromList @loc.synEdges Seq.>< @deps.cmds
+
+SEM Sym
+  | Nont
+      tp.build     = Cmd_ChildNonTerm @name @loc.uid
+      tp.buildAttr = Cmd_AttrChild
+      loc.inhEdges = mkEdges (@tp.inhUids Seq.>< Seq.singleton @loc.uid)
+      loc.synEdges = mkEdges (Seq.singleton @loc.uid Seq.>< @tp.synUids)
+      lhs.cmds     = @tp.cmds Seq.>< Seq.fromList @loc.inhEdges Seq.>< Seq.fromList @loc.synEdges
+
+SEM Sym
+  | Term
+      lhs.cmds = Seq.singleton $ Cmd_ChildTerm @name @loc.uid @lhs.x @tp
+
+SEM Nonterm
+  | Nont
+      lhs.cmds = (Seq.singleton $ @lhs.build @loc.x @tp) Seq.>< @inh.cmds Seq.>< @syn.cmds
+
+SEM Attr
+  | Attr
+      lhs.cmds = Seq.singleton $ @lhs.buildAttr @name @loc.uid @loc.x @tp
+
+SEM Dep
+  | Dep
+      loc.uidSource  = @lhs.dict Map.! @source
+      loc.uidTarget  = @lhs.dict Map.! @target
+      (loc.hintSource, loc.hintDest) = selectHints @source @target @hint
+      lhs.cmds = Seq.singleton $ Cmd_DepLine @loc.uidSource @loc.uidTarget @loc.hintSource @loc.hintDest
+
+{
+mkEdges :: Seq UID -> [Cmd]
+mkEdges us
+  = zipWith Cmd_SibLine uids (tail uids)
+  where uids = toList us
+
+selectHints :: Ident -> Ident -> Maybe DirHint -> (DirHint, DirHint)
+selectHints _                       _                       (Just h) = (h, h)
+selectHints (Ident_ChildAttr _ _ _) (Ident_ChildAttr _ _ _) _        = error "Dep from child attr to child attr: a hint is required."
+selectHints (Ident_ChildAttr _ _ _) (Ident_LhsAttr _ _)     _        = (DirHint_ForceUp, DirHint_ForceDown)
+selectHints (Ident_ChildAttr _ _ _) (Ident_ChildVal _)      _        = error "Child-values cannot have a dependency on an attribute."
+selectHints (Ident_LhsAttr _ _)     (Ident_ChildAttr _ _ _) _        = (DirHint_ForceDown, DirHint_ForceUp)
+selectHints (Ident_LhsAttr _ _)     (Ident_LhsAttr _ _)     _        = error "Dep from lhs attr to lhs attr: a hint is required."
+selectHints (Ident_LhsAttr _ _)     (Ident_ChildVal _)      _        = error "Child-values cannot have a dependency on an attribute."
+selectHints (Ident_ChildVal _)      (Ident_ChildAttr _ _ _) _        = (DirHint_ForceDown, DirHint_ForceDown)
+selectHints (Ident_ChildVal _)      (Ident_LhsAttr _ _)     _        = (DirHint_ForceUp, DirHint_ForceDown)
+selectHints (Ident_ChildVal _)      (Ident_ChildVal _)      _        = error "Child-values cannot have a dependency on another child-value."
+}
+
+
+
+
+--
+-- Target language
+--
+
+{
+type Cmds = Seq.Seq Cmd
+type PartCmd = Dim -> String -> Cmd
+type AttrCmd = String -> UID -> Dim -> String -> Cmd
+}
+
+TYPE CmdList = [Cmd]
+
+DATA Cmd
+  | Parent
+      nm  : {String}
+      uid : {UID}
+      x   : {Dim}
+      tp  : {String}
+  | AttrParent
+      nm  : {String}
+      uid : {UID}
+      x   : {Dim}
+      tp  : {String}
+  | AttrChild
+      nm  : {String}
+      uid : {UID}
+      x   : {Dim}
+      tp  : {String}
+  | ChildNonTerm
+      nm  : {String}
+      uid : {UID}
+      x   : {Dim}
+      tp  : {String}
+  | ChildTerm
+      nm   : {String}
+      uid  : {UID}
+      x    : {Dim}
+      tp   : {String}
+  | SibLine
+      uidA : {UID}
+      uidB : {UID}
+  | DepLine
+      uidA  : {UID}
+      uidB  : {UID}
+      hintA : {DirHint}
+      hintB : {DirHint}
+
+SET AllCmds = CmdList Cmd
+
+
+--
+-- Wrappers
+--
+
+WRAPPER ViewedGrammar Grammar CmdList
+
+
+--
+-- PP
+--
+
+ATTR AllCmds [ | | pp USE {>-<} {empty} : {PP_Doc} ]
+
+SEM Cmd
+  | Parent
+      lhs.pp = texcmd "agparent" [@nm, mkId @uid, show @x, @tp]
+  | AttrParent
+      lhs.pp = texcmd "agparattr" [@nm, mkId @uid, show @x, @tp]
+  | AttrChild
+      lhs.pp = texcmd "agchldattr" [@nm, mkId @uid, show @x, @tp]
+  | ChildNonTerm
+      lhs.pp = texcmd "agchldnonterm" [@nm, mkId @uid, show @x, @tp]
+  | ChildTerm
+      lhs.pp = texcmd "agchldterm" [@nm, mkId @uid, show @x, @tp]
+  | SibLine
+      lhs.pp = texcmd "agsibline" [mkId @uidA, mkId @uidB]
+  | DepLine
+      loc.texname = case (@hintA, @hintB) of
+                      (DirHint_ForceUp, DirHint_ForceUp)     -> "agdeplineupup"
+                      (DirHint_ForceUp, DirHint_ForceDown)   -> "agdeplineupdown"
+                      (DirHint_ForceDown, DirHint_ForceUp)   -> "agdeplinedownup"
+                      (DirHint_ForceDown, DirHint_ForceDown) -> "agdeplinedowndown"
+      lhs.pp = texcmd @loc.texname [mkId @uidA, mkId @uidB]
+
+{
+mkId :: Int -> String
+mkId uid = "s" ++ show uid
+
+texcmd :: (PP a, PP b) => a -> [b] -> PP_Doc
+texcmd nm ps
+  = "\\" >|< nm >|< hlist (map (pp_braces.pp) ps) >#< "%"
+}
+
+
+--
+-- Pipeline
+--
+
+{
+transform :: ViewedGrammar -> String
+transform
+  = phasePPString
+  . vlist
+  . Map.elems
+  . Map.mapWithKey (\v -> phaseCreateTexMacro v . phaseCmdListPP . phaseCmdSeqCmdList . phaseGrammarCmdSeq)
+  . phaseDesugar
+  where
+    phaseDesugar :: ViewedGrammar -> Map String Grammar
+    phaseDesugar grammar
+      = let inh = Inh_ViewedGrammar {}
+            sem = sem_ViewedGrammar grammar
+            syn = wrap_ViewedGrammar sem inh
+        in grammars_Syn_ViewedGrammar syn
+
+    phaseGrammarCmdSeq :: Grammar -> Cmds
+    phaseGrammarCmdSeq grammar
+      = let inh = Inh_Grammar {}
+            sem = sem_Grammar grammar
+            syn = wrap_Grammar sem inh
+        in cmds_Syn_Grammar syn
+
+    phaseCmdSeqCmdList :: Cmds -> CmdList
+    phaseCmdSeqCmdList = toList
+
+    phaseCmdListPP :: CmdList -> PP_Doc
+    phaseCmdListPP list
+      = let inh = Inh_CmdList {}
+            sem = sem_CmdList list
+            syn = wrap_CmdList sem inh
+         in pp_Syn_CmdList syn
+
+    phaseCreateTexMacro :: String -> PP_Doc -> PP_Doc
+    phaseCreateTexMacro v d
+      = d
+      -- disabled for now:
+      {-
+      "\\newcommand{\\tikz." >|< v >|< "}" >#< "{ %"
+      >-< " " >#< d
+      >-< "}"
+      -}
+
+    phasePPString :: PP_Doc -> String
+    phasePPString doc
+      = disp doc 10000 ""
+
+
+scanPPDFile :: FilePath -> IO [Token]
+scanPPDFile
+  = let keywords    = ["grammar", "hierarchy", "view", "prod", "attrs", "inh", "syn", "children", "nonterm", "term", "flows", "lhs", "downwards", "upwards", "in", "out", "style"]
+        keywordsops = ["->", ".", ":"]
+        opchars     = "->.:"
+    in scanFile keywords keywordsops "" opchars
+
+
+pUpperId :: Parser Token String
+pUpperId = pConid <|>  pString
+
+pLowerId :: Parser Token String
+pLowerId = pVarid <|> pString
+
+pGrammar :: Parser Token ViewedGrammar
+pGrammar
+  = opt (ViewedGrammar_Gram
+          <$  pKey "grammar" <*> pUpperId
+          <*> pList pHierarchy
+        )
+        (ViewedGrammar_Gram "Nont" [["View"]])  -- backwards compatibility
+  <*> pList pProd
+
+pHierarchy :: Parser Token [String]
+pHierarchy
+  = pKey "hierarchy" *> pList pUpperId
+
+pProd :: Parser Token ProdView
+pProd
+  = (\n t v (i,s) syms deps -> ProdView_Prod v (Prod_Prod n (Nonterm_Nont t i s) syms deps))
+  <$  pKey "prod" <*> pUpperId <* pKey ":" <*> pUpperId
+  <*> opt (pKey "view" *> pUpperId) "View"  -- backwards compatibility
+  <*> pAttrs
+  <*> pSyms
+  <*> pDeps
+
+pAttrs :: Parser Token (Attrs, Attrs)
+pAttrs
+  = (,) <$ pKey "attrs" <*> pList (pAttr "inh") <*> pList (pAttr "syn")
+
+pAttr :: String -> Parser Token Attr
+pAttr key
+  = Attr_Attr <$ pKey key <*> pLowerId <* pKey ":" <*> pUpperId <*> pStyle
+
+pSyms :: Parser Token Syms
+pSyms
+  = pKey "children" *> pList pRhsSym
+
+pRhsSym :: Parser Token Sym
+pRhsSym
+  =   Sym_Term <$ pKey "term" <*> pLowerId <* pKey ":" <*> pUpperId
+  <|> (\n t (i,s) -> Sym_Nont n (Nonterm_Nont t i s)) <$ pKey "nonterm" <*> pLowerId <* pKey ":" <*> pUpperId <*> pAttrs
+
+pDeps :: Parser Token Deps
+pDeps
+  = pKey "flows" *> pList pDepWithStyle
+
+pDepWithStyle :: Parser Token Dep
+pDepWithStyle
+  = pDepWithoutStyle <*> pStyle
+
+pStyle :: Parser Token (Maybe String)
+pStyle
+  = opt (Just <$ pKey "style" <*> pLowerId) Nothing
+
+pDepWithoutStyle :: Parser Token (Maybe String -> Dep)
+pDepWithoutStyle = Dep_Dep <$> pAttrOcc <* pKey "->" <*> pAttrOcc <*> opt (Just <$> pHint) Nothing
+
+pAttrOcc :: Parser Token Ident
+pAttrOcc  =  (\fl f a -> f fl a) <$> pFlow <* pKey "." <*> pChildOcc <* pKey "." <*> pLowerId
+         <|> pChildOcc <* pKey "." <*> pFlowOld <* pKey "." <*> pLowerId
+         <|> Ident_ChildVal <$> pLowerId
+
+pChildOcc :: Parser Token (Flow -> String -> Ident)
+pChildOcc
+   =   Ident_LhsAttr <$ pKey "lhs"
+  <|>  Ident_ChildAttr <$> pLowerId
+
+pHint :: Parser Token DirHint
+pHint =   DirHint_ForceUp   <$ pKey "upwards"
+      <|> DirHint_ForceDown <$ pKey "downwards"
+
+pFlow :: Parser Token Flow
+pFlow =   Flow_Inh <$ pKey "inh"
+      <|> Flow_Syn <$ pKey "syn"
+
+pFlowOld :: Parser Token Flow
+pFlowOld
+      =   Flow_Inh <$ pKey "in"
+      <|> Flow_Syn <$ pKey "out"
+
+
+compile :: FilePath -> FilePath -> IO ()
+compile source dest
+  = do tokens <- scanPPDFile source
+       gram   <- parseIOMessage show pGrammar tokens
+       let pict = transform gram
+       writeFile dest pict
+
+
+main :: IO ()
+main
+  = do args <- getArgs
+       if (length args /= 2)
+        then putStrLn "usage: pictgen <source> <dest>"
+        else let [source,dest] = args
+             in compile source dest
+}
+
+
+--
+-- Additional type signatures
+--
+
+SEM *
+  | *
+    loc.innerWidth : {Dim}
+    loc.width : {Dim}
+    loc.totalWidth : {Dim}
+    loc.uid : {UID}
+
