@@ -1,0 +1,2 @@
+file: "src/PictGen.ag"
+options: data, rename, catas, semfuns, signatures, optimize, strictdata, strictwrap, genlinepragmas

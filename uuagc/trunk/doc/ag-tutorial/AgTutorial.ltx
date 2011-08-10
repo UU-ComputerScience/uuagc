@@ -1,0 +1,749 @@
+\documentclass{beamer}
+\usepackage{beamerthemeuucs}
+
+%include lhs2TeX.fmt
+%include polycode.fmt
+
+
+\usepackage{array}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usepackage{pgf}
+\usepackage{pgfbaseshapes}
+\usepackage{graphicx}
+
+
+\makeatletter
+\renewcommand{\hscodestyle}{\small}
+\newenvironment{boxedhscode}%
+{{\parskip=0pt\parindent=0pt\par\vskip\abovedisplayskip\noindent}%
+  \hscodestyle%
+  \arrayrulecolor{uuxred}%
+  \tabular{%
+  @@{}||>{\columncolor{uuxorange!20}\(}p{.95\columnwidth}<{\)}||@@{}}%
+  \hline%
+  \let\\=\@@normalcr%
+  \pboxed}%
+  {\endpboxed%
+  \tabularnewline\hline%
+  \endtabular%
+  {\parskip=0pt\parindent=0pt\par\vskip\belowdisplayskip\noindent}%
+  \ignorespacesafterend}
+\sethscode{boxedhscode}
+\makeatother
+
+
+\newcommand{\pitem}{\pause\item}
+\newcommand{\altr}[1]{{\color{uuxred}{#1}}}
+\newcommand{\attr}[1]{{\color{uuxgreen}{#1}}}
+\newcommand{\inh}[1]{{\color{uuxred}{#1}}}
+\newcommand{\synt}[1]{{\color{uuxred}{#1}}}
+\newcommand{\skipspacing}{\vspace*{-\baselineskip}}
+
+
+%format ^ =" "
+%format DATA = "{\bf DATA}"
+%format TYPE = "{\bf TYPE}"
+%format SEM  = "{\bf SEM}"
+%format ATTR  = "{\bf ATTR}"
+%format lhs   = "{\bf lhs}"
+%format loc   = "{\bf loc}"
+%format . = "."
+%format epsilon = "\epsilon"
+%format ^^^^ = "\hspace{2em}"
+%format ^^^ = "\hspace{1em}"
+
+%format Section = "\altr{Section}"
+%format Paragraph  = "\altr{Paragraph}"
+%format Nil     = "\altr{Nil}"
+%format Cons    = "\altr{Cons}"
+%%format @(a)    = "{\altr{@a}}"
+
+%format htmlString = "{\synt{html:String}}"
+%format levelInt= "{\inh{level:Int}}"
+%format xhd = "{\color{uuxred}\_hd}"
+%format xtl = "{\color{uuxred}\_tl}"
+
+%format (affix (n) (a)) = n "\!\left<" a "\right>"
+
+%format <..> 	= "\; \langle \hspace*{-0.2ex} .. \hspace*{-0.2ex}\rangle\;  "
+%format <$> 	= "\; \langle \hspace*{-0.2ex} \$ \hspace*{-0.2ex}\rangle\;  "
+%format <$  	= "\; \langle \hspace*{-0.2ex} \$\;"
+%format <*> 	= "\; \langle \hspace*{-0.4ex} * \hspace*{-0.4ex}\rangle\;  "
+%format <**> 	= "\; \langle \hspace*{-0.4ex} ** \hspace*{-0.4ex}\rangle\;  "
+%format <??> 	= "\; \langle \hspace*{-0.35ex} ?? \hspace*{-0.35ex}\rangle\;  "
+%format <*  	= "\; \langle \hspace*{-0.4ex} *\;"
+%format  *> 	= "\; *\hspace*{-0.4ex}\rangle\;  "
+%format <|> 	= "\; \langle \hspace*{-0.2ex} | \hspace*{-0.2ex}\rangle\;  "
+
+%format atbody  = @body
+%format attitle = @title
+%format atlhs   = @lhs
+
+
+\newdimen\agrelsize
+\setlength{\agrelsize}{0.4cm}
+\tikzstyle{agnontermstyle}=[shape=circle,fill=red!70,minimum size=\agrelsize]
+\tikzstyle{agchldstyle}=[shape=circle,fill=red!70,minimum size=\agrelsize]
+\tikzstyle{agattrstyle}=[shape=rectangle,fill=red!95,minimum size=\agrelsize,]
+\tikzstyle{agdepstyle}=[gray]
+\newcommand{\agcoordpary}{5}
+\newcommand{\agcoordchldy}{0}
+\newcommand{\agparent}[4]{ \draw (#3 \agrelsize,\agcoordpary \agrelsize) node [style=agnontermstyle] (#2) {}; \draw (#2.north) node [anchor=south] {\footnotesize{ #1 }}; \draw (#2.south) node [anchor=north] {\footnotesize{ #4 }}; }
+\newcommand{\agparattr}[4]{ \draw (#3 \agrelsize,\agcoordpary \agrelsize) node [style=agattrstyle] (#2) {}; \draw (#2.north) node [anchor=south] {\tiny{ #1 }}; }
+\newcommand{\agchldattr}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agattrstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\tiny{ #1 }}; }
+\newcommand{\agchldnonterm}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agnontermstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\footnotesize{ #1 }};  }
+\newcommand{\agchldterm}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agchldstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\footnotesize{ #1 }}; }
+\newcommand{\agsibline}[2]{ \draw (#1.east) -- (#2.west); }
+\newcommand{\agdeplineupdown}[2]{ \draw[->,style=agdepstyle] (#1.north) .. controls +(0,1) and +(0,-1) .. (#2.south); }
+\newcommand{\agdeplineupup}[2]{ \draw[->,style=agdepstyle] (#1.north) .. controls +(0,1) and +(0,1) .. (#2.north); }
+\newcommand{\agdeplineupupbold}[2]{ \draw[->,style=agdepstyle,line width=2pt] (#1.north) .. controls +(0,1) and +(0,1) .. (#2.north); }
+\newcommand{\agdeplinedowndown}[2]{ \draw[->,style=agdepstyle] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
+\newcommand{\agdeplinedowndownbold}[2]{ \draw[->,style=agdepstyle,line width=2pt] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
+\newcommand{\agdeplinedowndowndashed}[2]{ \draw[->,style=agdepstyle, dashed] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
+\newcommand{\agdeplinedownup}[2]{ \draw[->,style=agdepstyle] (#1.south) .. controls +(0,-1) and +(0,1) .. (#2.north); }
+\newcommand{\agpicture}[1]{ \begin{tikzpicture}\input{#1.tikz}\end{tikzpicture} }
+%% \newcommand{\agpicture}[1]{ Snip. }
+
+\title{Attribute Grammars: A short tutorial\\Tree-Oriented Programming}
+\author{S. Doaitse Swierstra (doaitse@@cs.uu.nl), GPCE 2003\\%
+        Arie Middelkoop (ariem@@cs.uu.nl), LERNET 2008\\%
+        Adapted for Brazil 2008/2009\\%
+        Universiteit Utrecht}
+\date{March 1, 2008}
+
+\begin{document}
+
+
+\frontmatter
+\frame{\titlepage}
+
+\mainmatter
+
+\frame {
+  \frametitle{Implementing a Language}
+
+  \begin{itemize}
+  \item Parsing is about syntax
+  \item What about semantics?
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{Describing Semantics With a Grammar?}
+
+  \begin{itemize}
+  \item Context-free grammars have limited expressiveness, and thus fail to describe:
+  \pause
+    \begin{itemize}
+    \item Scope rules
+    \item Typing rules
+    \item Pretty printing
+    \item Code generation
+    \end{itemize}
+  \pause
+  \item Are there extensions?
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{Parameterize Non-Terminal Symbols}
+
+  Parameterize non-terminal symbols with values from some other domain: {\em attribute grammars} (Knuth)
+  \begin{code}
+(affix E (read x))  ->  x
+(affix E (n+m))     ->  (affix E n) "+" (affix E m)
+(affix E (n*m))     ->  (affix E n) "*" (affix E m)
+  \end{code}
+}
+
+
+\frame {
+  \frametitle{An Attribute Grammar Consists Of:}
+
+  \begin{itemize}
+  \item An underlying context free grammar
+  \pause
+  \item A description of which non-terminals have which attributes:
+    \begin{itemize}
+    \item {\em\color{uuxred} Inherited} attributes, that are used or passing information {\em\color{uuxred} downwards} in the tree
+    \item {\em\color{uuxred} Synthesized} attributes that are used to pass information {\em \color{uuxred}upwards}
+    \end{itemize}
+  \pause
+  \item For {\em each production} a description how to compute the:
+    \begin{itemize}
+    \item Inherited attributes of the non-terminals in the {\em\color{uuxred} right hand side}
+    \item The synthesized attributes of the non-terminal at the {\em\color{uuxred} left hand side}
+    \end{itemize}
+  \item In this way we describe {\em\color{uuxred} global} data flow over a tree, by defining {\em\color{uuxred} local} data-flow building blocks, corresponding to the productions of the grammar
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{Creating HTML From a Document}
+
+  \begin{small}
+  \begin{verbatim}
+\section{Intro}            <h1>Intro</h1>
+  \section{Section 1}      <h2>Section 1</h2>
+    \paragraph             <p>
+      paragraph 1            Paragraph 1
+    \end                   </p>
+    \paragraph             <p>
+      paragraph 2            Paragraph 2
+    \end                   </p>
+  \end
+  \section{Section 2}      <h2>Section 2</h2>
+    \paragraph             <p>
+      paragraph 1            Paragraph 1
+    \end                   </p>
+    \paragraph             <p>
+      paragraph 2            Paragraph 2
+    \end                   </p>
+  \end \end
+  \end{verbatim}
+  \end{small}
+}
+
+
+\frame {
+  \frametitle{Introducing UUAG}
+
+  \begin{itemize}
+  \item Special syntax for programming with attributes
+  \item Domain specific language for specifying tree walks
+  \end{itemize}
+
+  \pause UUAG generates {\it semantic functions} which define the semantics of an {\it abstract syntax tree}.
+}
+
+
+\frame {
+  \frametitle{Concrete and Abstract syntax}
+
+  \begin{small}
+  \begin{verbatim}
+    Docs  ::=  Doc*
+    Doc   ::=  "\section" "{" Text "}" Docs "\end"
+            |  "\paragraph" Text "\end"
+  \end{verbatim}
+  \end{small}
+  \pause
+  \skipspacing
+  Using a parser for the above concrete syntax, we produce a tree with the following {\it abstract syntax}:
+    \begin{code}
+DATA  Doc    |  Section    title : String    ^^^  body : Docs
+             |  Paragraph  text : String
+             ^^^
+DATA  Docs   |  Cons       hd : Doc   ^^^  tl : Docs
+             |  Nil
+    \end{code}
+    \skipspacing
+  \begin{itemize}
+  \item |Docs| and |Doc| are non-terminals
+  \item |Section| and |Paragraph| label different productions
+  \item |title|, |body| and |string| are names for children
+  \end{itemize}
+}
+
+
+\frame {
+{\large
+\begin{center}
+Synthesized attributes
+\end{center}}
+}
+
+
+\frame {
+  \frametitle{Semantics: Our First Attribute!}
+
+  \begin{itemize}
+  \item We introduce an attribute |html| of type |String| to return the generated html code in a {\color{uuxred}synthesized attribute}:
+  \end{itemize}
+    \skipspacing
+    \begin{code}
+ATTR Doc Docs [ ^^^ | ^^^ | ^^^ htmlString ^^^ ]
+    \end{code}
+    \skipspacing
+  \begin{itemize}
+  \pitem Nonterminal Doc has |html| as attribute, so we now need to define for productions |Section| and |Paragraph| how to compute the value of this attribute. The same for productions |Cons| and |Nil| of |Docs|.
+  \pitem Definitions for attributes are given in Haskell, with embedded references to attributes, in the form of @@@<ntname>.<attrname>@:
+  \item Assume for now that you can refer to:
+        \begin{itemize}
+        \item the synthesized attributes defined on the children
+        \item values of child-terminals
+        \end{itemize}
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{A Picture for Section}
+
+  \begin{code}
+    DATA Doc | Section   ^^^  title : {String}   ^^^  body  : Docs
+    ^^^
+    ATTR Doc [ | | html : {String} ]
+    ^^^
+    SEM Doc
+  | Section     ^^^  lhs.html  =  "<bf>" ++ @title ++ "</bf>\n"
+                ^^^               ++ @body.html
+  \end{code}
+
+  \begin{center}
+  \agpicture{section_html}
+  \end{center}
+}
+
+\frame {
+  \frametitle{A Picture for Cons}
+
+  \begin{code}
+  DATA Docs | Cons   ^^^  hd : Doc   ^^^   tl : Docs
+  ^^^
+  ATTR Docs [ | | html : {String} ]
+  ^^^
+  SEM Docs
+    | Cons        ^^^  lhs.html  =  @hd.html ++ @tl.html
+  \end{code}
+
+  \begin{center}
+  \agpicture{cons_html}
+  \end{center}
+}
+
+
+\frame {
+  \frametitle{To Summarize: Our First Attribute!}
+
+  \begin{itemize}
+  \item We introduce an attribute |html| of type |String| to return the generated html code in a {\color{uuxred}synthesized attribute}:
+  \end{itemize}
+    \skipspacing
+    \begin{code}
+ATTR Doc Docs [ ^^^ | ^^^ | ^^^ htmlString ^^^ ]
+    \end{code}
+    \skipspacing
+  \begin{itemize}
+  \pitem Definitions for attributes are given in Haskell, with embedded references to attributes, in the form of @@@<ntname>.<attrname>@:
+  \end{itemize}
+    \begin{code}
+SEM Doc
+  | Section     ^^^  lhs.html  =  "<bf>" ++ @title ++ "</bf>\n"
+                ^^^               ++ @body.html
+  | Paragraph   ^^^  lhs.html  =  "<P>" ++ @text ++ "</P>"
+
+SEM Docs
+  | Cons        ^^^  lhs.html  =  @hd.html ++ @tl.html
+  | Nil         ^^^  lhs.html  =  ""
+    \end{code}
+}
+
+\frame {
+{\large
+\begin{center}
+Inherited attributes
+\end{center}}
+}
+
+
+
+\frame {
+  \frametitle{Summary: Adding The Level Aspect}
+
+  \begin{itemize}
+  \item Introduce an {\bf inherited} attribute with name |level|, indicating the nesting level of the headings:
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+ATTR Doc Docs [ ^^^ levelInt ^^^ | ^^^ | ^^^ ]
+    \end{code}
+  \skipspacing
+  \begin{itemize}
+  \item You can refer to the inherited attributes defined on the left-hand side
+  \item You need to define the inherited attributes of the children
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{A Picture For Section}
+
+  \begin{code}
+SEM   Doc  |  Section
+        body.level  =   @lhs.level + 1
+        lhs .html   =   mk_tag  ("H" ++ show atlhs.level)
+                                "" attitle
+                        ++ atbody.html
+  \end{code}
+
+  \begin{center}
+  \agpicture{section_level}
+  \end{center}
+}
+
+\frame {
+  \frametitle{A Picture For Cons}
+
+  \begin{code}
+SEM   Docs  |  Cons
+        hd.level = @lhs.level
+        tl.level = @lhs.level
+    \end{code}
+
+  \begin{center}
+  \agpicture{cons_level}
+  \end{center}
+
+  \pause
+  Actually, these two rules are not needed...
+}
+
+\frame {
+  \frametitle{Summary: Adding The Level Aspect}
+
+  \begin{itemize}
+  \item Introduce an {\bf inherited} attribute with name |level|, indicating the nesting level of the headings:
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+ATTR Doc Docs [ ^^^ levelInt ^^^ | ^^^ | ^^^ ]
+    \end{code}
+  \skipspacing
+  \begin{itemize}
+  \pitem With the semantic rules:
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+SEM   Doc  |  Section
+        body.level  =   @lhs.level + 1
+        lhs .html   =   mk_tag  ("H" ++ show atlhs.level)
+                                "" attitle
+                        ++ atbody.html
+    \end{code}
+  \skipspacing
+  \begin{itemize}
+  \pitem Where the function |mk_tag| is defined by:
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+mk_tag tag attrs elem  =      "<"  ++ tag ++ attrs ++ ">" ++ elem
+                          ++  "</"  ++ tag ++">"
+
+    \end{code}
+}
+
+\frame {
+{\large
+\begin{center}
+Copy rules
+\end{center}}
+}
+
+\frame {
+  \frametitle{Copy rules}
+
+  \begin{itemize}
+  \item We do not need to give rules for |level| for Docs?
+  \pitem We generate copy rules in case attributes are passed on unmodified
+  \item The {\em copy rules} that were automatically generated are:
+    \begin{code}
+SEM Docs
+ | Cons  hd.level    = @lhs.level
+         tl.level    = @lhs.level
+    \end{code}
+  \item The same process holds for the synthesized attributes, except that if there is more than one child with this synthesized attribute, then the right most child with this attribute is chosen.
+  \end{itemize}
+}
+
+\frame {
+  \frametitle{Formally: Copy Rules}
+
+  If a rule for an attribute |k.a| is missing:
+
+  \begin{itemize}
+  \item Use |@loc.a|
+  \item Use |@c.a| for the rightmost child |c| to the left of |k|, which has a synthesized attribute named |a|
+  \item Use |@lhs.a|
+  \end{itemize}
+}
+
+\frame {
+  \frametitle{Special copy rule: the USE rule}
+
+  Remember:
+  \begin{code}
+  SEM Docs
+  | Cons        ^^^  lhs.html  =  @hd.html ++ @tl.html
+  | Nil         ^^^  lhs.html  =  ""
+  \end{code}
+  These rules cannot be produced by the copy rules. Why not?
+  \pause
+  But this code can be produced by a special copy rule, for which we need to provide extra information:
+  \begin{code}
+  ATTR Docs [ | | html USE {++} {""} : {String} ]
+  \end{code}
+}
+
+\frame {
+{\large
+\begin{center}
+Chained attributes
+\end{center}}
+}
+
+
+\frame {
+  \frametitle{Adding The Section Counter Aspect}
+
+  \begin{itemize}
+  \item Introduce two inherited attributes:
+    \begin{itemize}
+    \item The |context|, representing the outer blocks
+    \item A |count|er for keeping track of the number of encountered siblings.
+    \end{itemize}
+    \begin{code}
+ATTR Doc Docs  [  context:String
+               |  count : Int
+               | ]
+    \end{code}
+  \item Since we do not now whether a |Doc| will update the counter we will have to pass it from |Docs| to |Doc|, and back up again. So |count| becomes a {\em threaded attribute}
+  \item {\bf loc} represents a local attribute, which is just a local definition
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{A picture With The {\color{uuxgreen}count} Added}
+
+  \begin{center}
+  \agpicture{cons_count}
+  \agpicture{section_count}
+  \end{center}
+}
+
+\frame {
+  \frametitle{The Semantic Functions}
+
+  \begin{code}
+SEM  Doc
+  |  Section  body.count      =   1
+
+              body.context    =   @loc.prefix
+              lhs.count       =   @lhs.count + 1
+              lhs.html        =   @loc.html
+              loc.prefix      =   if    null atlhs.context
+                                  then  show atlhs.count
+                                  else  atlhs.context
+                                        ++ "."
+                                        ++ show atlhs.count
+              loc.html        =   mk_tag  ("H" ++ show atlhs.level)
+                                          ""
+                                          (  @loc.prefix ++ " "
+                                             ++ attitle)
+                                  ++ @body.html
+  \end{code}
+}
+
+
+\frame {
+  \frametitle{A Pictorial Representation}
+
+  \begin{itemize}
+  \item We show some different aspects
+  \item We show the aspects {\color{uuxgreen}|count|} and {\color{uuxgreen}|level|} and {\color{uuxgreen}html}
+  \end{itemize}
+
+  \begin{center}
+  \agpicture{cons_count_full}
+  \end{center}
+}
+
+
+\frame {
+  \frametitle{Adding Extra Productions}
+
+  \begin{itemize}
+  \item We may also add extra productions, and as an example we will insert a table of contents
+  \pause
+  \item An extra synthesized attribute |toclines| in which the table of contents is constructed
+  \item An extra inherited attribute |toc|,  containing the table of contents
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+DATA Root  | Root doc:Doc
+
+ATTR Root  [ | | html:String]
+
+DATA Doc   | Toc
+ATTR Doc Docs  [  toc : String
+               |
+               |  toclines USE {++} {""}: String ]
+    \end{code}
+  \skipspacing
+  \begin{itemize}
+  \item The |USE| clause defines default semantic computation
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{A picture with the {\color{uuxgreen} toc} and {\color{uuxgreen} toclines} added}
+
+  \begin{center}
+  \agpicture{cons_toc}
+  \agpicture{section_toc}
+  \end{center}
+}
+
+
+\frame {
+  \frametitle{...}
+
+  \begin{code}
+SEM Doc
+  |  Section
+          lhs   .toclines =   mk_tag "LI" ""
+                              (mk_tag  ("A")
+                              ^  (" HREF=#" ++ @loc.prefix)
+                                 (  @loc.prefix ++ " "
+                                    ++ @title))
+                              ++   mk_tag "UL" "" @body.toclines
+          lhs   .html     :=  mk_tag "A"  (  " NAME="
+                              ^            ++ @loc.prefix) ""
+                              ++   @loc.html
+  |  Toc  lhs   .html     =   @lhs.toc
+
+SEM Root
+  |  Root  doc  .toc      =   @doc.toclines
+           doc  .level    =   1
+           doc  .context  =   ""
+           doc  .count    =   1
+
+  \end{code}
+}
+
+
+\frame {
+  \frametitle{Backward Flow Of Data}
+
+  \begin{itemize}
+  \item We want to be able to jump to the section to the |left| and the |right|
+of the current section
+  \item We introduce two new attributes for passing this information around
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{Left}
+
+  \begin{center}
+  \agpicture{cons_left}
+  \agpicture{section_left}
+  \end{center}
+}
+
+
+\frame {
+  \frametitle{Right}
+
+  \begin{center}
+  \agpicture{cons_right}
+  \agpicture{section_right}
+  \end{center}
+
+  \begin{code}
+  SEM Docs                            ^^^^  SEM Doc
+    |  Cons                           ^^^^    |  Section
+       ^  hd.right  =  @tl.right      ^^^^       ^  lhs.right   = @title
+       ^  tl.right  =  @lhs.right     ^^^^       ^  body.right  = ""
+       ^  lhs.right =  @hd.right
+  \end{code}
+}
+
+
+\frame {
+  \frametitle{What Is Generated?}
+
+  \begin{itemize}
+  \item Data types
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+data Doc  =  Doc_Paragraph String
+          |  Doc_Section String Docs
+          |  Doc_Toc
+
+    \end{code}
+  \skipspacing
+  \begin{itemize}
+  \pitem Types
+  \end{itemize}
+  \skipspacing
+    \begin{code}
+type T_Doc =  String  ->
+              Int     ->
+              Int     ->
+              String  ->
+              (Int, String, String)
+    \end{code}
+}
+
+
+\frame {
+  \frametitle{... And ...}
+
+  Semantic functions:
+    \begin{code}
+sem_Docs_Cons (xhd) (xtl) =
+    \ _lhs_context
+      _lhs_count
+      _lhs_level
+      _lhs_toc ->
+        let  ( _hd_count,_hd_html,_hd_toclines) =
+        ^     ^   (xhd (_lhs_context) (_lhs_count) (_lhs_level) (_lhs_toc))
+             ( _tl_count,_tl_html,_tl_toclines) =
+        ^     ^   (xtl (_lhs_context) (_hd_count) (_lhs_level) (_lhs_toc))
+        in   (  _tl_count,_hd_html ++ _tl_html
+             ,  _ hd_toclines ++ _tl_toclines)
+
+     \end{code}
+}
+
+
+\frame {
+  \frametitle{Optimizations}
+
+  \begin{itemize}
+  \item Perform an abstract interpretation of the grammar
+  \item Computing dependencies between attributes
+  \pitem Schedule the attributes for computation per non-terminal (multiple visits)
+  \pitem And is this way achieve a data-driven evaluation
+  \pitem That may be somewhat cheaper
+  \item And takes far less space
+  \end{itemize}
+}
+
+
+\frame {
+  \frametitle{Conclusions}
+
+  \begin{itemize}
+  \item Attribute grammars are your friend if you want to implement a language
+  \item Attributes may even depend on themselves if you are building on a lazy language
+  \item Even thinking in terms of attribute grammars may help you
+  \end{itemize}
+
+  \begin{itemize}
+  \item @http://www.cs.uu.nl/wiki/HUT/WebHome@
+  \end{itemize}
+}
+
+
+\end{document}
