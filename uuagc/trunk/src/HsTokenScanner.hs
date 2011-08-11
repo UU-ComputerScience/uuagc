@@ -2,11 +2,11 @@
 module HsTokenScanner where
 import HsToken
 import UU.Scanner.Position
-import List(sort)
+import Data.List(sort)
 import UU.Util.BinaryTrees
 import CommonTypes
-import Maybe
-import Char
+import Data.Maybe
+import Data.Char
 isAGesc c = c == '@'
 
 lexTokens :: Pos -> String -> [HsToken]
@@ -45,7 +45,7 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
                                  let (fld,p2,rest) = scanIdent (advc 2 p) s
                                      field = d:fld
                                  in case rest of
-                                      ('.':r:rs) 
+                                      ('.':r:rs)
                                           | isIdStart r -> let (at,p3,rest2) = scanIdent (advc 2 p2) rs
                                                                attr = r : at
                                                            in AGField (Ident field p) (Ident attr p) p Nothing : doScan p3 rest2

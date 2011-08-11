@@ -17,7 +17,7 @@ import Data.Map(Map)
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq,(><))
 import UU.Scanner.Position(Pos(..))
-import Maybe
+import Data.Maybe
 import Data.List(intersperse)
 
 import AbstractSyntax

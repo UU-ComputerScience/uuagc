@@ -6,9 +6,9 @@ import TokenDef
 import UU.Scanner.Position
 import UU.Scanner.Token
 import UU.Parsing(InputState(..),Either'(..))
-import Maybe
-import List
-import Char
+import Data.Maybe
+import Data.List
+import Data.Char
 import UU.Scanner.GenToken
 import Options
 

@@ -1,8 +1,11 @@
-cabal-version: >=1.2
-build-type: Simple
+cabal-version: >= 1.8
+build-type: Custom
+x-bootstrap-build-type: Simple
 name: uuagc
-version: @VERSION@
-license: GPL
+version: 0.9.39.0
+x-bootstrap-name: uuagc-bootstrap
+x-bootstrap-version: 0.9.39.0.0
+license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
 homepage: http://www.cs.uu.nl/wiki/HUT/WebHome
@@ -11,13 +14,20 @@ synopsis: Attribute Grammar System of Universiteit Utrecht
 category: Development
 stability: Stable
 copyright: Universiteit Utrecht
+author: Software Technology at Universiteit Utrecht
+bug-reports: hut-developers@cs.uu.nl
+tested-with: GHC >= 6.12
 extra-source-files: README
+extra-source-files: uuagc_options
 
 executable uuagc
-  build-depends: base >= 4, base < 5, ghc-prim
-  build-depends: containers >= 0.3, directory, array
-  build-depends: haskell98, uulib>=0.9.12, mtl>=1.1.1.1
-  build-depends: haskell-src-exts>=1.11.1
+  build-depends: uuagc-bootstrap >= 0.9.39.0.0
+  build-depends: uuagc-cabal >= 1.0.0.2
+  build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
+  build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
+  build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1
+  build-depends: haskell-src-exts >= 1.11.1
+  build-depends: filepath >= 1.1.0.4
   main-is: Ag.hs
   other-modules: Ag
     , CommonTypes
@@ -72,13 +82,12 @@ executable uuagc
     , ExecutionPlan
     , ExecutionPlan2Hs
   extensions: TypeSynonymInstances, MultiParamTypeClasses
-  hs-source-dirs: src, src-derived
+  hs-source-dirs: src, src-version, src-ag
+  x-bootstrap-hs-source-dirs: src, src-version, src-derived
 
-Library
-   build-depends:   base >= 4, base < 5, Cabal>=1.8.0.6, directory, process, uulib>=0.9.12, filepath, mtl
-   hs-source-dirs:  cabal-plugin/src
-   exposed-modules: Distribution.Simple.UUAGC
-   other-modules:   Distribution.Simple.UUAGC.UUAGC,
-                    Distribution.Simple.UUAGC.Parser,
-                    Distribution.Simple.UUAGC.AbsSyn,
-                    Distribution.Simple.UUAGC.Options
+library
+   build-depends:   base >= 4, base < 5
+   hs-source-dirs:  src
+   x-bootstrap-hs-source-dirs: src
+   exposed-modules: UU.UUAGC.Version
+   x-bootstrap-exposed-modules: UU.UUAGC.BootstrapVersion

@@ -1,9 +1,10 @@
 module Main where
 
-import System                        (getArgs, getProgName, exitFailure)
+import System.Environment            (getArgs, getProgName)
+import System.Exit                   (exitFailure)
 import System.Console.GetOpt         (usageInfo)
-import List                          (isSuffixOf,nub)
-import Monad                         (zipWithM_)
+import Data.List                     (isSuffixOf,nub)
+import Control.Monad                 (zipWithM_)
 import Data.Maybe
 
 import qualified Data.Set as Set

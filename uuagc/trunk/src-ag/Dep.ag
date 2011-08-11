@@ -1,8 +1,8 @@
 imports
 {
 -- Dep.ag imports
-import Maybe (fromJust)
-import List(partition,transpose)
+import Data.Maybe (fromJust)
+import Data.List(partition,transpose)
 import qualified Data.Map as Map
 import qualified UU.Scanner.Position(line)
 import ErrorMessages(Error(CircGrammar))
@@ -33,7 +33,7 @@ getResult [] = Seq.empty
 
 -- volgorde van belang: eerst de inh aflopen, dat zijn er minder!!
 checkCircular :: [(Vertex,Result)] -> Seq Error
-checkCircular res = Seq.fromList $  
+checkCircular res = Seq.fromList $
                      concat [ [ CircGrammar
                                 nt1
                                 attr1
@@ -52,7 +52,7 @@ checkCircular res = Seq.fromList $
 
 SEM Grammar
   | Grammar prods.down = @prods.up
-            loc.errors           = if withCycle @lhs.options 
+            loc.errors           = if withCycle @lhs.options
                                     then getResult
                                        . transpose
                                        . map (\(vertex,stream) -> zip (repeat vertex) stream)
@@ -167,11 +167,11 @@ SEM Rule
 
 ATTR Pattern Patterns [ | | vertices USE {++} {[]} : {[Vertex]} ]
 
-SEM Pattern 
+SEM Pattern
   | Alias  lhs.vertices = let vertex | @field==_LHS = LHSSyn @lhs.nt @lhs.con @attr
                                      | @field==_LOC || @field == nullIdent = Local @lhs.nt  @lhs.con @attr
                                      | otherwise    = RHSInh fieldType @lhs.nt @lhs.con @field @attr
-                              fieldType = maybe nullIdent getNonterminalName (lookup @field @lhs.fields)       
+                              fieldType = maybe nullIdent getNonterminalName (lookup @field @lhs.fields)
                           in [vertex]
 
 ATTR Rules Rule Pattern Patterns [ fields:{[(Name,Type)]} | | ]

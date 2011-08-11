@@ -3,7 +3,7 @@ module Streaming where
 import CommonTypes(Name)
 import DepTypes
 import List(partition)
-import Maybe(fromMaybe,fromJust)
+import Data.Maybe(fromMaybe,fromJust)
 
 mapp :: (a -> b) -> (a,a) -> (b,b)
 mapp f (l,r) = (f l,f r)
@@ -66,7 +66,7 @@ stPort :: Name -> Stream -> Stream -> Stream
 stPort attr ((xset,xupd):xrest) ((yset,yupd):yrest) = case lookup attr (map toPair xupd) of
                                                        Just causes -> (addTrace causes ([],yset++yupd)):(stPortRest attr xrest yrest)
                                                        Nothing    -> ([],[]):(stPort attr xrest yrest)
- where                                                     
+ where
   stPortRest attr ((xset,xupd):xrest) (y:yrest) = case lookup attr (map toPair xset) of
                                                    Just causes -> (addTrace causes y):(stPortRest attr xrest yrest)
                                                    Nothing -> (error "Dit mag nooit gebeuren!" ([],[])):(stPortRest attr xrest yrest)

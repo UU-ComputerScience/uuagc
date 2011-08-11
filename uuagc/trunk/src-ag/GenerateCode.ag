@@ -29,7 +29,7 @@ import HsToken
 import HsTokenScanner
 
 import Data.List(partition,intersperse,intersect,(\\))
-import Maybe(fromJust,isJust)
+import Data.Maybe(fromJust,isJust)
 
 import Debug.Trace
 }

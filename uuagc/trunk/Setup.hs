@@ -1,3 +1,8 @@
+module Main where
 
 import Distribution.Simple
-main = defaultMain
+import Distribution.Simple.UUAGC
+
+-- uses the bootstrapped version of uuagc to build itself
+compiler = "uuagc-bootstrap"
+main = defaultMainWithHooks (uuagcUserHook' compiler)
