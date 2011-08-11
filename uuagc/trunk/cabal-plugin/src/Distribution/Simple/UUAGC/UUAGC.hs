@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 
 module Distribution.Simple.UUAGC.UUAGC(uuagcUserHook,
+                                       uuagcUserHook',
                                        uuagc
                                       ) where
 import Distribution.Simple.BuildPaths (autogenModulesDir)
@@ -47,7 +48,7 @@ import System.IO( openFile, IOMode(..),
                   hGetContents,
                   hFlush,
                   Handle(..), stderr, hPutStr, hPutStrLn)
-import System(exitFailure)
+import System.Exit(exitFailure)
 import Control.Exception (throwIO)
 import Control.Monad (liftM, when, guard, forM_, forM)
 import Control.Arrow ((&&&), second)
@@ -71,13 +72,21 @@ agModule = "x-agmodule"
 agClass  = "x-agclass"
 
 uuagcUserHook :: UserHooks
-uuagcUserHook = simpleUserHooks {hookedPreProcessors = ("ag", uuagc):("lag",uuagc):knownSuffixHandlers
-                                ,buildHook = uuagcBuildHook
-                                ,postBuild = uuagcPostBuild
-                                }
+uuagcUserHook = uuagcUserHook' uuagcn
+
+uuagcUserHook' :: String -> UserHooks
+uuagcUserHook' uuagcPath = hooks where
+  hooks = simpleUserHooks { hookedPreProcessors = ("ag", ag):("lag",ag):knownSuffixHandlers
+                          , buildHook = uuagcBuildHook uuagcPath
+                          , postBuild = uuagcPostBuild
+                          , sDistHook = uuagcSDistHook uuagcPath
+                          , postSDist = uuagcPostBuild
+                          }
+  ag = uuagc' uuagcPath
 
 originalPreBuild  = preBuild simpleUserHooks
 originalBuildHook = buildHook simpleUserHooks
+originalSDistHook = sDistHook simpleUserHooks
 
 processContent :: Handle -> IO [String]
 processContent = liftM words . hGetContents
@@ -123,11 +132,12 @@ tmpFile buildTmp = (buildTmp </>)
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
-updateAGFile :: PackageDescription 
-             -> LocalBuildInfo 
+updateAGFile :: String
+             -> PackageDescription
+             -> LocalBuildInfo
              -> (FilePath, String)
              -> IO ()
-updateAGFile pkgDescr lbi (f, sp) = do
+updateAGFile uuagcPath pkgDescr lbi (f, sp) = do
   fileOpts <- readFileOptions
   let opts = case lookup f fileOpts of
                Nothing -> []
@@ -156,7 +166,8 @@ updateAGFile pkgDescr lbi (f, sp) = do
       do putErrorInfo ppOutput
          putErrorInfo ppError
          throwFailure
-  where newProcess mopts = createProcess $ (proc uuagcn (fromUUAGCOstoArgs mopts ++ ["--genfiledeps"
+  where newProcess mopts = createProcess $ (proc uuagcPath
+                                                        (fromUUAGCOstoArgs mopts ++ ["--genfiledeps"
                                                                                     ,"--=" ++ intercalate ":" [sp]
                                                                                     ,f
                                                                                     ]
@@ -207,13 +218,38 @@ getOptionsFromClass classes fOpt =
                                                    ++ show fClass
                                                    ++ " is not defined."
 
+uuagcSDistHook :: String
+     -> PackageDescription
+     -> Maybe LocalBuildInfo
+     -> UserHooks
+     -> SDistFlags
+     -> IO ()
+uuagcSDistHook uuagcPath pd mbLbi uh df = do
+  case mbLbi of
+    Nothing -> warn normal "sdist: the local buildinfo was not present. Skipping AG initialization. Dist may fail."
+    Just lbi -> commonHook uuagcPath pd lbi uh (sDistVerbosity df)
+  originalSDistHook pd mbLbi uh df
+
+
+
 uuagcBuildHook
-  :: PackageDescription
+  :: String
+     -> PackageDescription
      -> LocalBuildInfo
      -> UserHooks
      -> BuildFlags
      -> IO ()
-uuagcBuildHook pd lbi uh bf = do
+uuagcBuildHook uuagcPath pd lbi uh bf = do
+  commonHook uuagcPath pd lbi uh (buildVerbosity bf)
+  originalBuildHook pd lbi uh bf
+
+commonHook :: String
+     -> PackageDescription
+     -> LocalBuildInfo
+     -> UserHooks
+     -> Flag Verbosity
+     -> IO ()
+commonHook uuagcPath pd lbi uh fl = do
   let lib    = library pd
       exes   = executables pd
       bis    = map libBuildInfo (maybeToList lib) ++ map buildInfo exes
@@ -221,14 +257,13 @@ uuagcBuildHook pd lbi uh bf = do
   options <- getAGFileOptions (bis >>= customFieldsBI)
   fileOptions <- forM options (\ opt ->
       let (notFound, opts) = getOptionsFromClass classes $ opt
-      in do case buildVerbosity bf of
+      in do case  fl of
               Flag v | v >= verbose -> putStrLn ("options for " ++ filename opt ++ ": " ++ show opts)
-              _ -> return () 
+              _ -> return ()
             forM_ notFound (hPutStrLn stderr) >> return (normalise . filename $ opt, opts))
   writeFileOptions fileOptions
   let agflSP = map (id &&& dropFileName) $ nub $ getAGFileList options
-  mapM_ (updateAGFile pd lbi) agflSP
-  originalBuildHook pd lbi uh bf
+  mapM_ (updateAGFile uuagcPath pd lbi) agflSP
 
 uuagcPostBuild _ _ _ _ = do
                exists <- doesFileExist agClassesFile
@@ -237,10 +272,14 @@ uuagcPostBuild _ _ _ _ = do
 getAGFileList :: AGFileOptions -> [FilePath]
 getAGFileList = map (normalise . filename)
 
-uuagc :: BuildInfo
+uuagc :: BuildInfo -> LocalBuildInfo -> PreProcessor
+uuagc = uuagc' uuagcn
+
+uuagc' :: String
+        -> BuildInfo
         -> LocalBuildInfo
         -> PreProcessor
-uuagc build local  =
+uuagc' uuagcPath build local  =
    PreProcessor {
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
@@ -254,10 +293,9 @@ uuagc build local  =
                               search  = dropFileName inFile
                               options = fromUUAGCOstoArgs opts
                                         ++ ["-P" ++ search, "--output=" ++ outFile, inFile]
-                          (_,_,_,ph) <- createProcess (proc uuagcn options)
+                          (_,_,_,ph) <- createProcess (proc uuagcPath options)
                           eCode <- waitForProcess ph
                           case eCode of
                             ExitSuccess   -> return ()
                             ExitFailure _ -> throwFailure
                 }
-

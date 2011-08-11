@@ -7,7 +7,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Control.Monad(mplus,mzero)
-import List (partition, elem, nub,intersperse, union)
+import Data.List (partition, elem, nub,intersperse, union)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -222,7 +222,7 @@ foldErrors f e xs = foldl g (e,Seq.empty) xs
 
 checkForDuplicates :: (Identifier -> Identifier -> Error)  ->  [Identifier]  ->  [Error]
 checkForDuplicates err [] = []
-checkForDuplicates err (x:xs) = let (same,other) = List.partition (equalId x) xs
+checkForDuplicates err (x:xs) = let (same,other) = partition (equalId x) xs
                                 in  map (err x) same ++ checkForDuplicates err other
 
 equalId :: Identifier -> Identifier -> Bool
@@ -789,6 +789,7 @@ SEM Elem
                                          "nonewtypes"     -> o { newtypes = False }
                                          "nooptimizations" -> o { noOptimizations = True }
                                          "kennedywarren"   -> o { kennedyWarren = True }
+                                         "rename"          -> o { rename = True }
                                          _              -> o
                           in \o -> foldr mk o @names
 
@@ -1202,13 +1203,13 @@ mapUnionWithPlusPlus = Map.unionWith (++)
 --marcos
 -------------------------------------------------------------------------------
 --         Collecting the AGI information
-------------------------------------------------------------------------------- 
+-------------------------------------------------------------------------------
 
 ATTR AG [ | | agi : {(Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))} ]
 
 ATTR Elem Elems SemAlts SemAlt [ allAttrs : {Map NontermIdent (Attributes, Attributes)} | | ]
 
-SEM AG 
+SEM AG
   | AG lhs.agi      = (@loc.allNonterminals,@loc.allFields,@loc.allAttrs)
 
        loc.allAttrs =  if withSelf @lhs.options
@@ -1222,10 +1223,10 @@ SEM AG
   | AG  elems.attrs = Map.empty
 
 
-SEM Attrs 
+SEM Attrs
   | Attrs lhs.attrs =   let insert decls nt = if Map.member nt decls
                                                 then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList @inherited
-                                                                                     , Map.union syn $ Map.fromList @synthesized)) nt decls 
+                                                                                     , Map.union syn $ Map.fromList @synthesized)) nt decls
                                                 else  Map.insert nt (Map.fromList @inherited, Map.fromList @synthesized) decls
 
                         in  foldl insert @lhs.attrs (Set.toList @lhs.nts)

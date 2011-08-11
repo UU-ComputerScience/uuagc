@@ -8,7 +8,7 @@ INCLUDE "Patterns.ag"
 
 imports
 {
-import Char (isAlphaNum)
+import Data.Char (isAlphaNum)
 import Pretty
 import Code
 import Patterns

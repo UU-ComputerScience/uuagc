@@ -8,10 +8,10 @@ import CommonTypes
 import Patterns
 import UU.Pretty(text,PP_Doc,empty,(>-<))
 import TokenDef
-import List (intersperse)
-import Char
+import Data.List (intersperse)
+import Data.Char
 import Scanner (Input(..),scanLit,input)
-import List
+import Data.List
 import Expression
 import UU.Scanner.Token
 import UU.Scanner.TokenParser

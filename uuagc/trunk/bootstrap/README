@@ -1,0 +1,37 @@
+This is the bootstrapping-version of UUAGC.
+The UUAGC tool is fully functional. The essential difference with the
+bootstrapped version is that this one is called "uuagc-bootstrap"
+instead of "uuagc".
+
+It should be used to compile the actual version of UUAG from source.
+This package should be updated to prevent it from bitrotting with
+respect to library and language changes.
+This package does *not* require UUAG to be installed. Instead, it
+has the "derived" files in the src-derived directory.
+
+
+Note about updating the boostrapping package:
+
+To update it this package in the repository version some
+manual labour is unfortunately required:
+* build the bootstrapped version of UUAG using cabal build.
+  This produces Haskell sources compiled from the AG files of the
+  src-ag directory in dist/build/uuagc/uuagc-tmp.
+* Copy dist/build/uuagc/uuagc-tmp/*.hs to
+  bootstrap/src-derived.
+  -> Use the update-derived.sh script for this.
+  Since these files are also added to the repository, you may want
+  to add new files also to the repository or delete obsolete files.
+* Update the uuagc-bootstrap.cabal file if new modules are added
+  or settings change. Bump the version number.
+  -> Use the update-cabalfile.sh script for this. It takes the
+  cabal file of the bootstrapping version and replaces some
+  lines in it with the x-bootstrap lines in that file.
+* Compile and publish.
+
+
+Note about the directory structure:
+
+src:          sources common to the bootstrapping and bootstrapped version of UUAGC
+src-derived:  haskell files compiled from the ag files of the bootstrapped version.
+src-version:  version information only for the bootstrapping version.
