@@ -33,11 +33,12 @@ import qualified TfmToVisage        as PassV  (sem_Grammar,  wrap_Grammar,  Syn_
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
 import qualified Visage as VisageDump (sem_VisageGrammar, wrap_VisageGrammar, Syn_VisageGrammar(..), Inh_VisageGrammar(..))
-import qualified AG2AspectAG as AspectAGDump (pragmaAspectAG, importAspectAG, sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..)) --marcos
+import qualified AG2AspectAG as AspectAGDump (pragmaAspectAG, sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..)) --marcos
+-- import qualified AgiDump as AgiDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..)) --marcos
 
 import Options
 import Version       (banner)
-import Parser        (parseAG, depsAG)
+import Parser        (parseAG, depsAG, parseAGI)
 import ErrorMessages (Error(ParserError), Errors)
 import CommonTypes
 import ATermWrite
@@ -65,6 +66,11 @@ compile flags input output
  = do (output0,parseErrors) <- parseAG flags (searchPath flags) (inputFile input)
       irrefutableMap <- readIrrefutableMap flags
 
+      (outAgi, ext) <-  --marcos
+                     if genAspectAG flags  
+                     then parseAGI flags (searchPath flags) (agiFile input) 
+                     else return (undefined,undefined)
+
       let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
           flags'    = condDisableOptimizations (Pass1.pragmas_Syn_AG output1 flags)
           grammar1  = Pass1.output_Syn_AG        output1
@@ -91,12 +97,21 @@ compile flags input output
           dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
           dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
 
-          aspectAG  = AspectAGDump.wrap_Grammar   (AspectAGDump.sem_Grammar grammar2                     ) AspectAGDump.Inh_Grammar {AspectAGDump.options_Inh_Grammar = flags'} --marcos
+
+          ext' = case ext of
+                        Nothing -> Nothing
+                        Just e  -> Just (remAgi e)
+
+          outAgi1   = Pass1.wrap_AG              (Pass1.sem_AG               outAgi ) Pass1.Inh_AG             {Pass1.options_Inh_AG       = flags'}
+          agi       = Pass1.agi_Syn_AG           outAgi1
+          aspectAG  = AspectAGDump.wrap_Grammar (AspectAGDump.sem_Grammar grammar2  ) AspectAGDump.Inh_Grammar { AspectAGDump.options_Inh_Grammar  = flags'
+                                                                                                               , AspectAGDump.agi_Inh_Grammar      = agi
+                                                                                                               , AspectAGDump.ext_Inh_Grammar      = ext' } --marcos
 
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
 
-          parseErrorList   = map message2error parseErrors
+          parseErrorList   = map message2error (parseErrors)
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
                                Seq.>< Pass1a.errors_Syn_Grammar output1a
                                Seq.>< Pass2.errors_Syn_Grammar  output2
@@ -159,6 +174,8 @@ compile flags input output
           additionalWarnings = totalNrOfWarnings - nrOfWarningsToReport
           pluralS n = if n == 1 then "" else "s"
 
+
+
       putStr . formatErrors $ PrErr.pp_Syn_Errors output6
 
       if additionalErrors > 0
@@ -182,6 +199,11 @@ compile flags input output
             then writeAttributeList (outputfile++".attrs") (Pass1a.allAttributes_Syn_Grammar output1a)
             else return ()
 
+{-
+           if genAspectAG flags' -- marcos
+            then writeFile (outputfile++".agi") $ disp (AgiDump.ppAgi_Syn_Grammar agi) 50000 ""
+            else return ()
+-}
            if sepSemMods flags'
             then do -- alternative module gen
                     if kennedyWarren flags'
@@ -198,20 +220,18 @@ compile flags input output
                          -- marcos AspectAG gen
                          | genAspectAG flags'
                             = vlist [ AspectAGDump.pragmaAspectAG
-                                    , vlist (      [ pp optionsLine
-                                                   , pp pragmaBlocksTxt
-                                                   , pp $ take 70 ("-- UUAGC2AspectAG " ++ drop 50 banner ++ " (" ++ input) ++ ")"
-                                                   , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                                          then moduleHeader flags' mainName
-                                                          else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
-                                                   ]
-                                            )
-                                    , pp importBlocksTxt
-                                    , AspectAGDump.importAspectAG
-                                    , textBlocksDoc
-                                    , pp "\n\n{-- AspectAG Code --}\n\n"
+                                    , pp optionsLine
+                                    , pp pragmaBlocksTxt
 
+                                    , pp $ take 70 ("-- UUAGC2AspectAG " ++ drop 50 banner ++ " (" ++ input) ++ ")"
+                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                           then moduleHeader flags' mainName
+                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                    , pp importBlocksTxt
+                                    , AspectAGDump.imp_Syn_Grammar aspectAG
+                                    , pp "\n\n{-- AspectAG Code --}\n\n"
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
+                                    , textBlocksDoc
                                     ]
                          | kennedyWarren flags'
                             = vlist [ pp optionsLine
@@ -313,6 +333,18 @@ inputFile name
    then name
    else name ++ ".ag"
 
+--marcos
+agiFile :: String -> String
+agiFile name
+ = if ".ag" `isSuffixOf` name || ".lag" `isSuffixOf` name
+   then name ++ "i"
+   else name ++ ".agi"
+
+remAgi :: String -> String
+remAgi name
+ = takeWhile (/= '.') name
+
+
 outputFile :: String -> String
 outputFile name
  = defaultModuleName name ++ ".hs"
@@ -380,4 +412,5 @@ readIrrefutableMap flags
                           lists = read s
                       return $ Map.fromList [ (identifier n, Map.fromList [(identifier c, Set.fromList [ (identifier fld, identifier attr) | (fld,attr) <- ss ]) | (c,ss) <- cs ]) | (n,cs) <- lists ]
       Nothing   -> return Map.empty
+
 
