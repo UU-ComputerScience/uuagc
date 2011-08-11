@@ -367,7 +367,7 @@ knuth1' ndis = do -- Add edges from the production graphs to the nonterminal gra
                   ndis' <- mapM addProdNont ndis
                   -- List of all newly added edges
 --                ntedge :: [Edge]
-                  let pntedge = concatMap (\x -> maybe [] id x) ndis'
+                  let pntedge = concatMap (maybe [] id) ndis'
                   -- Add backedges
                   --bedges <- addBackEdges ndis
                   -- All added nonterminal edges
