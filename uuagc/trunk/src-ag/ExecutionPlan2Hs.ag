@@ -36,7 +36,9 @@ ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
 ATTR ExecutionPlan 
      ENonterminals ENonterminal 
      EProductions EProduction 
-     ERules ERule [ options : {Options} | | ]
+     ERules ERule
+     EChildren EChild
+     Visits Visit [ options : {Options} | | ]
 ATTR EProductions EProduction [ rename : {Bool} | | ]
 
 SEM ENonterminal
@@ -116,8 +118,7 @@ ATTR EProduction  [ | | datatype : {PP_Doc} ]
 ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EProduction
-  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced (map (@loc.addStrict . pp_parens) @children.datatype)
-    		loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
+  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.datatype
 
 ATTR EChild    [ nt : {NontermIdent} | | datatype : {PP_Doc} ]
 ATTR EChildren [ nt : {NontermIdent} | | datatype USE {:} {[]} : {[PP_Doc]} ] 
@@ -125,7 +126,8 @@ ATTR EChildren [ nt : {NontermIdent} | | datatype USE {:} {[]} : {[PP_Doc]} ]
 SEM EChild
   | EChild lhs.datatype = if isJust @virtual
                           then empty
-                          else pp $ typeToHaskellString (Just @lhs.nt) [] @tp
+                          else @loc.addStrict $ pp_parens $ typeToHaskellString (Just @lhs.nt) [] @tp
+	   loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
 
 -------------------------------------------------------------------------------
 --  Nonterminal semantic function
@@ -413,8 +415,9 @@ SEM ERule
                                   >#< @rhs.semfunc)
                              else empty
           loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
-          lhs.mrules       = Map.singleton @name $ @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
+          lhs.mrules       = Map.singleton @name $ @loc.addbang @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
 	  pattern.addtilde = \x -> if cases @lhs.options then x else "~" >|< x
+	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
 
 -- pattern and expression semantics
 ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
@@ -460,10 +463,11 @@ SEM ExecutionPlan
   | ExecutionPlan nonts.allchildvisit = @nonts.childvisit
 
 SEM Visit
-  | Visit lhs.childvisit = Map.singleton @ident $ \chn -> "(" >#< ppSpaced (
+  | Visit lhs.childvisit = Map.singleton @ident $ \chn -> @loc.addbang ("(" >#< ppSpaced (
                               map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn 
-                           >#< ")" >#< "<-" >#< "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
+                           >#< ")") >#< "<-" >#< "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
                            >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< @loc.inhargs chn False
+	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
 
 -------------------------------------------------------------------------------
 --  Intra attributes
@@ -617,6 +621,7 @@ SEM ENonterminal
                                     >-< @loc.t_states
                                     >-< @loc.k_states
                                     >-< @prods.t_visits
+
 ATTR EProduction EProductions
      ENonterminal ENonterminals [ | | imports USE {++} {[]} : {[PP_Doc]}
                                       genProdIO USE {>>} {return ()} : {IO ()} ]
