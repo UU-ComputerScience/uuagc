@@ -7,7 +7,7 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Control.Monad(mplus,mzero)
-import List (partition, elem, nub,intersperse)
+import List (partition, elem, nub,intersperse, union)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -943,6 +943,7 @@ SEM Elem
   | Attr attrs.nts = @names.nontSet
   | Sem  attrs.nts = @names.nontSet
 
+
 SEM Attrs [ nts:{Set NontermIdent} | | ]
   | Attrs loc.(attrDecls,errors) = checkAttrs @lhs.allFields (Set.toList @lhs.nts) @inherited @synthesized @lhs.attrDecls
 
@@ -1197,3 +1198,35 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
 mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus = Map.unionWith (++)
 }
+
+--marcos
+-------------------------------------------------------------------------------
+--         Collecting the AGI information
+------------------------------------------------------------------------------- 
+
+ATTR AG [ | | agi : {(Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))} ]
+
+ATTR Elem Elems SemAlts SemAlt [ allAttrs : {Map NontermIdent (Attributes, Attributes)} | | ]
+
+SEM AG 
+  | AG lhs.agi      = (@loc.allNonterminals,@loc.allFields,@loc.allAttrs)
+
+       loc.allAttrs =  if withSelf @lhs.options
+                            then foldr addSelf @elems.attrs (Set.toList @loc.allNonterminals)
+                            else               @elems.attrs
+
+ATTR Elems Elem Attrs
+     [ | attrs : {Map NontermIdent (Attributes, Attributes)} | ]
+
+SEM AG
+  | AG  elems.attrs = Map.empty
+
+
+SEM Attrs 
+  | Attrs lhs.attrs =   let insert decls nt = if Map.member nt decls
+                                                then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList @inherited
+                                                                                     , Map.union syn $ Map.fromList @synthesized)) nt decls 
+                                                else  Map.insert nt (Map.fromList @inherited, Map.fromList @synthesized) decls
+
+                        in  foldl insert @lhs.attrs (Set.toList @lhs.nts)
+

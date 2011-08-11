@@ -132,6 +132,7 @@ ident = span isValid
 lowercaseKeywords = ["loc","lhs", "inst"]
 keywords = lowercaseKeywords ++
            [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
+           , "EXTENDS" -- marcos
            , "SET","DERIVING","FOR", "WRAPPER", "NOCATAS", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
            , "AUGMENT", "AROUND", "MERGE", "AS"

@@ -63,7 +63,7 @@ SRC_AG_SEM_NAMES = Desugar.ag DefaultRules.ag GenerateCode.ag PrintOcamlCode.ag 
 	ResolveLocals.ag \
 	 AbstractSyntaxDump.ag CodeSyntaxDump.ag \
 	 Visage.ag TfmToVisage.ag \
-	 AG2AspectAG.ag ExecutionPlan2Hs.ag
+	 AG2AspectAG.ag AgiDump.ag  ExecutionPlan2Hs.ag
 SRC_LAG_SEM_NAMES = InterfacesRules.lag
 
 # Default flags for AG

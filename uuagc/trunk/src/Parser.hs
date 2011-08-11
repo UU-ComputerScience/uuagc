@@ -34,32 +34,40 @@ pIdentifier   = uncurry Ident <$> pVaridPos
 
 parseAG :: Options -> [FilePath] -> String -> IO (AG,[Message Token Pos])
 parseAG opts searchPath file
-              = do (es,_,_,mesg) <- parseFile opts searchPath file
+              = do (es,_,_,_,mesg) <- parseFile False opts searchPath file
                    return (AG es, mesg)
+
+--marcos
+parseAGI :: Options -> [FilePath] -> String -> IO (AG, Maybe String)
+parseAGI opts searchPath file
+              = do (es,_,_,ext,_) <- parseFile True opts searchPath file
+                   return (AG es, ext)
+
 
 depsAG :: Options -> [FilePath] -> String -> IO ([String], [Message Token Pos])
 depsAG opts searchPath file
-  = do (_,_,fs,mesgs) <- parseFile opts searchPath file
+  = do (_,_,fs,_,mesgs) <- parseFile False opts searchPath file
        return (fs, mesgs)
 
-parseFile :: Options -> [FilePath] -> String -> IO  ([Elem],[String],[String],[Message Token Pos ])
-parseFile opts searchPath file
+-- marcos: added the parameter 'agi' and the 'ext' part
+parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
+parseFile agi opts searchPath file
  = do txt <- readFile file
       let litMode = ".lag" `isSuffixOf` file
           (files,text) = if litMode then scanLit txt
                          else ([],txt)
           tokens       = input opts (initPos file) text
 
-          steps = parse pElemsFiles tokens
-          stop (_,fs,_,_) = null fs
-          cont (es,fs,allfs,msg)
+          steps = parse (pElemsFiles agi) tokens
+          stop (_,fs,_,_,_) = null fs
+          cont (es,fs,allfs,ext,msg)
             = do files <- mapM (resolveFile searchPath) fs
-                 res <- mapM (parseFile opts searchPath) files
-                 let (ess,fss,allfss, msgs) = unzip4 res
-                 return (es ++ concat ess, concat fss, concat allfss ++ allfs, msg ++ concat msgs)
-      let (Pair (es,fls) _ ,mesg) = evalStepsMessages steps
+                 res <- mapM (parseFile agi opts searchPath) files
+                 let (ess,fss,allfss,_, msgs) = unzip5 res
+                 return (es ++ concat ess, concat fss, concat allfss ++ allfs, ext, msg ++ concat msgs)
+      let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
       let allfs = files ++ fls
-      loopp stop cont (es,allfs,allfs,mesg)
+      loopp stop cont (es,allfs,allfs, ext,mesg)
  where
 
     --
@@ -68,12 +76,14 @@ parseFile opts searchPath file
     -- while retaining sharing
     --
 
-    pElemsFiles :: AGParser ([Elem],[String])
-    pElemsFiles = pFoldr (($),([],[])) pElem'
+    pElemsFiles :: Bool -> AGParser ([Elem],[String],Maybe String)
+    pElemsFiles agi = pFoldr (($),([],[],Nothing)) pElem'
        where pElem' =  addElem <$> pElem
                    <|> pINCLUDE *> (addInc <$> pStringPos)
-             addElem e      (es,fs) = (e:es,   fs)
-             addInc  (fn,_) (es,fs) = (  es,fn:fs)
+                   <|> pEXTENDS *> (addExt <$> pStringPos)
+             addElem e      (es,fs,ext) = (e:es,   fs, ext)
+             addInc  (fn,_) (es,fs,ext) = (  es,fn:fs, ext)
+             addExt  (fn,_) (es,fs,ext) = if agi then (es,fs, Just fn) else (es,fn:fs, ext) --marcos
 
     pCodescrapL = (\(ValToken _ str pos) -> (str, pos))<$>
                         parseScrapL <?> "a code block"
@@ -112,7 +122,7 @@ parseFile opts searchPath file
                  <*> pList pIdentifier
                  <*> pOptAttrs
                  <*> pAlts
-                <*> pSucceed False
+                 <*> pSucceed False
         <|> Attr <$> pATTR
                  <*> pOptClassContext
                  <*> pNontSet
@@ -443,6 +453,7 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
+      pEXTENDS, -- marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
       pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS
@@ -459,6 +470,7 @@ pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
 pSEM         = pCostReserved 90 "SEM"     <?> "SEM"
 pINCLUDE     = pCostReserved 90 "INCLUDE" <?> "INCLUDE"
+pEXTENDS     = pCostReserved 90 "EXTENDS" <?> "EXTENDS" --marcos
 pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pINH         = pCostReserved 90 "INH"     <?> "INH"
 pSYN         = pCostReserved 90 "SYN"     <?> "SYN"
