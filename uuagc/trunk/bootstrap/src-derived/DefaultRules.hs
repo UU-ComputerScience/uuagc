@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.38.6.5 (src-ag/DefaultRules.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/DefaultRules.ag)
 module DefaultRules where
 {-# LINE 10 "src-ag/DefaultRules.ag" #-}
 

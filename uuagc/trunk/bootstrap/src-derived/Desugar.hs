@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.38.6.5 (src-ag/Desugar.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/Desugar.ag)
 module Desugar where
 {-# LINE 13 "src-ag/Desugar.ag" #-}
 

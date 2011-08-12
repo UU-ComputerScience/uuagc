@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.38.6.5 (src-ag/InterfacesRules.lag)
+-- UUAGC 0.9.39.0.0 (src-ag/InterfacesRules.lag)
 module InterfacesRules where
 {-# LINE 10 "src-ag/InterfacesRules.lag" #-}
 

@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/CodeSyntaxDump.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/CodeSyntaxDump.ag)
 module CodeSyntaxDump where
 {-# LINE 5 "src-ag/CodeSyntaxDump.ag" #-}
 

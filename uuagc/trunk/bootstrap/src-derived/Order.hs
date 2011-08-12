@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/Order.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/Order.ag)
 module Order where
 {-# LINE 9 "src-ag/Order.ag" #-}
 

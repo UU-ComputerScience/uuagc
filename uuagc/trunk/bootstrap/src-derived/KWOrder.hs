@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/KWOrder.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/KWOrder.ag)
 module KWOrder where
 {-# LINE 6 "src-ag/KWOrder.ag" #-}
 

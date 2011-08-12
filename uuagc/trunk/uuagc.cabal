@@ -31,7 +31,6 @@ executable uuagc
   main-is: Ag.hs
   other-modules: Ag
     , CommonTypes
-    , DepTypes
     , GrammarInfo
     , HsTokenScanner
     , Options
@@ -41,7 +40,6 @@ executable uuagc
     , Scanner
     , SequentialComputation
     , SequentialTypes
-    , Streaming
     , TokenDef
     , Version
     , AbstractSyntax

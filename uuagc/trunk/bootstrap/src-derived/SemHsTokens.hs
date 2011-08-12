@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/SemHsTokens.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/SemHsTokens.ag)
 module SemHsTokens where
 {-# LINE 4 "src-ag/SemHsTokens.ag" #-}
 
