@@ -63,7 +63,7 @@ uuagcn = "uuagc"
 defUUAGCOptions = "uuagc_options"
 
 -- | File used to store de classes defined in the cabal file.
-agClassesFile = ".ag_file_options"
+agClassesFile = "ag_file_options"
 
 -- | The prefix used for the cabal file optionsw
 agModule = "x-agmodule"
@@ -78,9 +78,7 @@ uuagcUserHook' :: String -> UserHooks
 uuagcUserHook' uuagcPath = hooks where
   hooks = simpleUserHooks { hookedPreProcessors = ("ag", ag):("lag",ag):knownSuffixHandlers
                           , buildHook = uuagcBuildHook uuagcPath
-                          , postBuild = uuagcPostBuild
                           , sDistHook = uuagcSDistHook uuagcPath
-                          , postSDist = uuagcPostBuild
                           }
   ag = uuagc' uuagcPath
 
@@ -132,13 +130,14 @@ tmpFile buildTmp = (buildTmp </>)
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
-updateAGFile :: String
+updateAGFile :: FilePath
+             -> FilePath
              -> PackageDescription
              -> LocalBuildInfo
              -> (FilePath, String)
              -> IO ()
-updateAGFile uuagcPath pkgDescr lbi (f, sp) = do
-  fileOpts <- readFileOptions
+updateAGFile uuagcPath classesPath pkgDescr lbi (f, sp) = do
+  fileOpts <- readFileOptions classesPath
   let opts = case lookup f fileOpts of
                Nothing -> []
                Just x -> x
@@ -192,16 +191,16 @@ getAGFileOptions extra = do
 getAGClasses :: [(String, String)] -> IO [AGOptionsClass]
 getAGClasses = mapM (parseClassAG . snd) . filter ((== agClass) . fst)
 
-writeFileOptions :: [(String, [UUAGCOption])] -> IO ()
-writeFileOptions opts  = do
-  hClasses <- openFile agClassesFile WriteMode
+writeFileOptions :: FilePath -> [(String, [UUAGCOption])] -> IO ()
+writeFileOptions classesPath opts  = do
+  hClasses <- openFile classesPath WriteMode
   hPutStr hClasses $ show opts
   hFlush  hClasses
   hClose  hClasses
 
-readFileOptions :: IO [(String, [UUAGCOption])]
-readFileOptions = do
-  hClasses <- openFile agClassesFile ReadMode
+readFileOptions :: FilePath -> IO [(String, [UUAGCOption])]
+readFileOptions classesPath = do
+  hClasses <- openFile classesPath ReadMode
   sClasses <- hGetContents hClasses
   classes <- readIO sClasses :: IO [(String, [UUAGCOption])]
   hClose hClasses
@@ -218,38 +217,44 @@ getOptionsFromClass classes fOpt =
                                                    ++ show fClass
                                                    ++ " is not defined."
 
-uuagcSDistHook :: String
+uuagcSDistHook :: FilePath
      -> PackageDescription
      -> Maybe LocalBuildInfo
      -> UserHooks
      -> SDistFlags
      -> IO ()
 uuagcSDistHook uuagcPath pd mbLbi uh df = do
+  {-
   case mbLbi of
     Nothing -> warn normal "sdist: the local buildinfo was not present. Skipping AG initialization. Dist may fail."
-    Just lbi -> commonHook uuagcPath pd lbi uh (sDistVerbosity df)
+    Just lbi -> let classesPath = buildDir lbi </> agClassesFile
+                in commonHook uuagcPath classesPath pd lbi (sDistVerbosity df)
   originalSDistHook pd mbLbi uh df
-
-
+  -}
+  originalSDistHook pd mbLbi (uh { hookedPreProcessors = ("ag", nouuagc):("lag",nouuagc):knownSuffixHandlers }) df  -- bypass preprocessors
 
 uuagcBuildHook
-  :: String
+  :: FilePath
      -> PackageDescription
      -> LocalBuildInfo
      -> UserHooks
      -> BuildFlags
      -> IO ()
 uuagcBuildHook uuagcPath pd lbi uh bf = do
-  commonHook uuagcPath pd lbi uh (buildVerbosity bf)
+  let classesPath = buildDir lbi </> agClassesFile
+  commonHook uuagcPath classesPath pd lbi (buildVerbosity bf)
   originalBuildHook pd lbi uh bf
 
-commonHook :: String
+commonHook :: FilePath
+     -> FilePath
      -> PackageDescription
      -> LocalBuildInfo
-     -> UserHooks
      -> Flag Verbosity
      -> IO ()
-commonHook uuagcPath pd lbi uh fl = do
+commonHook uuagcPath classesPath pd lbi fl = do
+  let verbosity = fromFlagOrDefault normal fl
+  when (verbosity >= verbose) $ putStrLn ("commonHook: Assuming AG classesPath: " ++ classesPath)
+  createDirectoryIfMissingVerbose verbosity True (buildDir lbi)
   let lib    = library pd
       exes   = executables pd
       bis    = map libBuildInfo (maybeToList lib) ++ map buildInfo exes
@@ -257,17 +262,11 @@ commonHook uuagcPath pd lbi uh fl = do
   options <- getAGFileOptions (bis >>= customFieldsBI)
   fileOptions <- forM options (\ opt ->
       let (notFound, opts) = getOptionsFromClass classes $ opt
-      in do case  fl of
-              Flag v | v >= verbose -> putStrLn ("options for " ++ filename opt ++ ": " ++ show opts)
-              _ -> return ()
+      in do when (verbosity >= verbose) $ putStrLn ("options for " ++ filename opt ++ ": " ++ show opts)
             forM_ notFound (hPutStrLn stderr) >> return (normalise . filename $ opt, opts))
-  writeFileOptions fileOptions
+  writeFileOptions classesPath fileOptions
   let agflSP = map (id &&& dropFileName) $ nub $ getAGFileList options
-  mapM_ (updateAGFile uuagcPath pd lbi) agflSP
-
-uuagcPostBuild _ _ _ _ = do
-               exists <- doesFileExist agClassesFile
-               when exists $ removeFile agClassesFile
+  mapM_ (updateAGFile uuagcPath classesPath pd lbi) agflSP
 
 getAGFileList :: AGFileOptions -> [FilePath]
 getAGFileList = map (normalise . filename)
@@ -279,14 +278,16 @@ uuagc' :: String
         -> BuildInfo
         -> LocalBuildInfo
         -> PreProcessor
-uuagc' uuagcPath build local  =
+uuagc' uuagcPath build lbi  =
    PreProcessor {
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
                        do info verbosity $ concat [inFile, " has been preprocessed into ", outFile]
                           print $ "processing: " ++ inFile ++ " generating: " ++ outFile
 --                          opts <- getAGFileOptions $ customFieldsBI build
-                          fileOpts <- readFileOptions
+                          let classesPath = buildDir lbi </> agClassesFile
+                          when (verbosity >= verbose) $ putStrLn ("uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath)
+                          fileOpts <- readFileOptions classesPath
                           let opts = case lookup inFile fileOpts of
                                        Nothing -> []
                                        Just x -> x
@@ -299,3 +300,11 @@ uuagc' uuagcPath build local  =
                             ExitSuccess   -> return ()
                             ExitFailure _ -> throwFailure
                 }
+
+nouuagc :: BuildInfo -> LocalBuildInfo -> PreProcessor
+nouuagc build lbi =
+  PreProcessor {
+    platformIndependent = True,
+    runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do
+      info verbosity ("skipping: " ++ outFile)
+  }
