@@ -10,7 +10,8 @@ sed -e '/^name\:/d' \
     -e '/ hs\-source\-dirs\:/d' \
     -e '/build\-depends\: uuagc-bootstrap/d' \
     -e '/uuagc\-cabal/d' \
-    -e '/^extra-source-files: uuagc_options/d' \
+    -e '/^extra\-source\-files: uuagc_options/d' \
+    -e '/ other\-modules: Paths/d' \
     -e 's/executable uuagc/executable uuagc\-bootstrap/' \
     -e 's/x\-bootstrap\-//' ../uuagc.cabal > uuagc-bootstrap.cabal
 

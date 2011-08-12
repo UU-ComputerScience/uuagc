@@ -3,6 +3,13 @@ INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 
 
+--
+-- Checks right-hand sides for missing attributes.
+-- Attribute references @xxx are now explicitly mapped to @loc.xxx if there is such
+-- an attribute in scope.
+--
+
+
 imports
 {
 import qualified Data.Set as Set
