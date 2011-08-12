@@ -789,9 +789,20 @@ SEM Elem
                                          "nonewtypes"     -> o { newtypes = False }
                                          "nooptimizations" -> o { noOptimizations = True }
                                          "kennedywarren"   -> o { kennedyWarren = True }
+                                         "aspectag"        -> o { genAspectAG = True }
+                                         'n':'o':'g':'r':'o':'u':'p':'_':atts        
+                                                           -> o { noGroup =  extract atts  ++ noGroup o }
                                          "rename"          -> o { rename = True }
                                          _              -> o
                           in \o -> foldr mk o @names
+
+{
+extract s = case dropWhile isSeparator s of
+                                "" -> []
+                                s' -> w : extract s''
+                                      where (w, s'') = break isSeparator  s'
+isSeparator x = x == '_'
+}
 
 ATTR Elem Elems SemAlts SemAlt [ | | semPragmasCollect USE {`pragmaMapUnion`} {Map.empty} : {PragmaMap} ]
 

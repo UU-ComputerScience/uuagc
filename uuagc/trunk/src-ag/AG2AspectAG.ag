@@ -713,7 +713,8 @@ SEM Production
                                             in   "atts_" >|< @loc.prodName >|< " = " >|< 
                                                                                ppListSep "" "" " `ext` " 
                                                                                (@loc.ppRA ++ extend ) >-<
-                                                 "sem_" >|< @loc.prodName >|< pp " = knit atts_" >|< @loc.prodName
+                                                 "semP_" >|< @loc.prodName >|< pp " = knit atts_" >|< @loc.prodName
+
 {
 ppNoGroupAtts syn noGroup = let synatts = Map.keys $ Map.filterWithKey (\att _ -> elem (getName att) noGroup) syn 
                             in  map (flip (>|<) "_inh") noGroup ++  map (flip (>|<) "_syn") synatts
@@ -778,7 +779,7 @@ SEM Production
                 	lhs     .  	ppSPF    	= 
                                             let  chi = @children.ppCSF
                                                  ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
-                                            in   "semP_" >|< @lhs.ppNt >|< "_" >|< @con >#< ppParams ppSpaced >|< " = sem_" >|< @loc.prodName >|<
+                                            in   "sem_" >|< @lhs.ppNt >|< "_" >|< @con >#< ppParams ppSpaced >|< " = semP_" >|< @loc.prodName >|<
                                                  " (" >|< map (snd . snd) chi >|< "emptyRecord)"
 
 
