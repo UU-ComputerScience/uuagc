@@ -1,5 +1,5 @@
 {-# LANGUAGE MagicHash,
-             UnboxedTuples #-}
+             UnboxedTuples, FlexibleInstances #-}
 
 module TokenDef where
 
@@ -18,7 +18,6 @@ import UU.Parsing.MachineInterface(Symbol(..))
 import Data.Char(isPrint,ord)
 import HsToken
 import CommonTypes
-
 
 
 
@@ -44,7 +43,6 @@ instance Symbol Token  where
                 TkError -> 0#
 
                 _       -> 5#
-
 
 
 tokensToStrings :: [HsToken] -> [(Pos,String)]

@@ -2,9 +2,9 @@ cabal-version: >= 1.8
 build-type: Custom
 x-bootstrap-build-type: Simple
 name: uuagc
-version: 0.9.39.0
 x-bootstrap-name: uuagc-bootstrap
-x-bootstrap-version: 0.9.39.0.0
+version: 0.9.39.1
+x-bootstrap-version: 0.9.39.1.0
 license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
@@ -21,8 +21,8 @@ extra-source-files: README
 extra-source-files: uuagc_options
 
 executable uuagc
-  build-depends: uuagc-bootstrap >= 0.9.39.0.0
-  build-depends: uuagc-cabal >= 1.0.0.2
+  build-depends: uuagc-bootstrap >= 0.9.39.1.0
+  build-depends: uuagc-cabal >= 1.0.0.4
   build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
   build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
   build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1
