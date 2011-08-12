@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.38.6.5 (src-ag/PrintCode.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/PrintCode.ag)
 module PrintCode where
 {-# LINE 10 "src-ag/PrintCode.ag" #-}
 

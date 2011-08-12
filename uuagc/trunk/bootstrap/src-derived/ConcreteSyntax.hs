@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
 {-# LINE 2 "src-ag/ConcreteSyntax.ag" #-}
 

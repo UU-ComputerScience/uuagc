@@ -25,7 +25,6 @@ executable uuagc-bootstrap
   main-is: Ag.hs
   other-modules: Ag
     , CommonTypes
-    , DepTypes
     , GrammarInfo
     , HsTokenScanner
     , Options
@@ -35,7 +34,6 @@ executable uuagc-bootstrap
     , Scanner
     , SequentialComputation
     , SequentialTypes
-    , Streaming
     , TokenDef
     , Version
     , AbstractSyntax

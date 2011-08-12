@@ -2,7 +2,6 @@ imports
 {
 import UU.Scanner.Position(Pos)
 import Pretty
-import DepTypes(Trace)
 import CodeSyntax
 import CommonTypes
 }
@@ -12,7 +11,7 @@ TYPE Errors = [Error]
 DATA Error  | ParserError     pos     : {Pos}
                               problem : {String}
                               action  : {String}
-                              
+
             | HsParseError    pos     : {Pos}
                               msg     : {String}
 
@@ -37,7 +36,7 @@ DATA Error  | ParserError     pos     : {Pos}
                               con   : {ConstructorIdent}
                               field : {Identifier}
                               attr,occ1 : {Identifier}
-            
+
             | DupRuleName     nt    : {NontermIdent}
                               con   : {ConstructorIdent}
                               nm    : {Identifier}
@@ -60,7 +59,7 @@ DATA Error  | ParserError     pos     : {Pos}
                               con   : {ConstructorIdent}
                               field : {Identifier}
                               attr  : {Identifier}
-            
+
             | MissingNamedRule  nt   : {NontermIdent}
                                 con  : {Identifier}
                                 name : {Identifier}
@@ -99,7 +98,7 @@ DATA Error  | ParserError     pos     : {Pos}
                               attr    : {Identifier}
                               o_visit : {Bool}
                               path    : {[String]}
-            
+
             | InstCirc        nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
@@ -117,17 +116,17 @@ DATA Error  | ParserError     pos     : {Pos}
             | MissingTypeSig  nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
-            
+
             | MissingInstSig  nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
-            
+
             | DupUnique       nt      : {NontermIdent}
                               con     : {ConstructorIdent}
                               attr    : {Identifier}
-            
+
             | MissingUnique   nt      : {NontermIdent}
                               attr    : {Identifier}
-            
+
             | MissingSyn      nt      : {NontermIdent}
                               attr    : {Identifier}

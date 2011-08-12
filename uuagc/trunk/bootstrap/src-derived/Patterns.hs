@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.38.6.5 (src-ag/Patterns.ag)
+-- UUAGC 0.9.39.0.0 (src-ag/Patterns.ag)
 module Patterns where
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
