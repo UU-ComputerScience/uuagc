@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -XScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Distribution.Simple.UUAGC.Parser(parserAG,
                                         parserAG',
                                         scanner,
@@ -14,11 +14,10 @@ import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
 import Control.Monad.Error
 
-data (Show a) => ParserError a = ParserError a
-                               | DefParserError String
+data ParserError = DefParserError String
                  deriving (Show, Eq, Read)
 
-instance Error (ParserError a) where
+instance Error ParserError where
     strMsg x = DefParserError x
 
 -- import Control.Exception
@@ -116,7 +115,7 @@ pLiftOptions f n = f <$> (pKey n *> pSep *> pString)
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
 pAGFileOption :: Parser Token AGFileOption
-pAGFileOption = AGFileOption <$> (pKey "file" *> pSep *> pString) 
+pAGFileOption = AGFileOption <$> (pKey "file" *> pSep *> pString)
                 <*> pFileClasses
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
@@ -130,14 +129,14 @@ parserAG :: FilePath -> IO AGFileOptions
 parserAG fp = do s <- readFile fp
                  parseIOAction action pAGFileOptions (scanner fp s)
 
-parserAG' :: FilePath -> IO (Either (ParserError String) AGFileOptions)
+parserAG' :: FilePath -> IO (Either ParserError AGFileOptions)
 parserAG' fp = do s <- readFile fp
                   let steps = parse pAGFileOptions (scanner fp s)
                   let (Pair res _, mesg) = evalStepsMessages steps
                   if null mesg
                      then return $ Right res
                      else do let err = foldr (++) [] $ map message2error mesg
-                             return (Left $ ParserError err) 
+                             return (Left $ DefParserError err)
 
 message2error :: Message Token (Maybe Token) -> String
 message2error (Msg e p a) = "Expecting: " ++ (show e) ++ " at " ++ action
