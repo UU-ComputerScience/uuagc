@@ -1,0 +1,14 @@
+-- an alternative Drie is added to multiple datatypes
+-- in v.0.9.1 this is not possible
+-- in v.0.9.3 it is allowed
+
+DATA Aap
+	| Een  a : {Int}
+
+DATA Noot
+	| Twee b : {Int}
+	
+SET Both = Aap Noot
+
+DATA Both
+	| Drie c : {Int}

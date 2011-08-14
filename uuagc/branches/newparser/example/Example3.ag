@@ -1,0 +1,65 @@
+-- UUAGC Example 3: Inherited attributes
+--
+-- first preprocess with:   uuagc -dcfsw Example3.ag
+-- then compile with:       ghc Example3.hs
+-- finally run with:        ./main
+
+
+DATA Tree 
+   | Node  left:  Tree   right: Tree
+   | Tip   value: Int
+
+-- As we will use "show" on the Tree datatype in the main program,
+-- we need to have Haskell "deriving Show" for the Tree datatype.
+-- In the preprocessor language, this is requested in a separate declaration:
+
+DERIVING Tree: Show
+
+-- We declare a synthesized attribute "transformed", that will be
+-- a transformed version of the tree. It has the same shape as
+-- the original tree, but different values: all values are
+-- replaced by a single constant.
+-- The value to use as a replacement is information that flows 
+-- top-down through the tree.
+-- For this, we declare an *inherited* attribute "replacement".
+
+ATTR Tree [ replacement: Int
+          |
+          | transformed: Tree
+          ]
+
+-- The definition of synthesized attribute "transformed" is like
+-- the "copy" attribute from Example2, except that at a Tip,
+-- instead of @value, the replacement value is inserted.
+-- For the inherited attribute "replacement", the role of the
+-- two sides of the assignments are reversed: we may now *use*
+-- the value of @lhs.replacement at the right side of the equation,
+-- but we must *define* the values for the left and right children.
+
+SEM Tree
+  | Node  lhs.transformed   = Node @left.transformed @right.transformed
+          left.replacement  = @lhs.replacement
+          right.replacement = @lhs.replacement
+  | Tip   lhs.transformed   = Tip @lhs.replacement
+
+
+{
+main :: IO ()
+main = print (show result)
+
+testTree :: Tree
+testTree = Node (Tip 1) (Node (Tip 2) (Tip 3))
+
+test :: T_Tree
+test = sem_Tree testTree
+
+-- The inherited attribute needs to be initialized at the top of the tree.
+-- This is done in the second argument to wrap_Tree.
+-- That argument is a datastructure with named fields for all inherited attributes.
+-- The notation with the braces is the (not so well-known) Haskell notation for
+-- initializing such datastructure values.
+
+result :: Tree
+result = transformed_Syn_Tree (wrap_Tree test Inh_Tree{replacement_Inh_Tree=37} )
+}
+-- output of the program will be "Node (Tip 37) (Node (Tip 37) (Tip 37))"

@@ -1,0 +1,8 @@
+DATA D | C  k : D
+       | D
+
+ATTR D [ | | x : Int ]
+
+SEM D
+  | C  AROUND k = const sem_D_D
+  | D  lhs.x = 3

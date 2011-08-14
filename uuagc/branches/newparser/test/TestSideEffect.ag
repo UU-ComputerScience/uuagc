@@ -1,0 +1,24 @@
+MODULE {TestSideEffect} {} {}
+
+imports
+{
+import Debug.Trace
+}
+
+DATA D | C
+       | C2  k : D
+
+ATTR D [ | | z USE {++} {""} : String ]
+
+SEM D
+  | C  r1: (loc.y, loc.a) = do putStrLn "r1!"
+                               return ('d', 'a')
+       r2: loc.x = do putStrLn "r2!"
+                      return 'c'
+       lhs.z = return [ @loc.a, @loc.x , @loc.y ]
+       r1 < r2
+
+{
+main :: IO ()
+main = sem_D (D_C2 (D_C)) >>= putStrLn
+}

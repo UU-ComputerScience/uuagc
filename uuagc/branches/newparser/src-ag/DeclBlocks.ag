@@ -1,0 +1,20 @@
+imports
+{
+import Code (Decl,Expr)
+}
+
+
+DATA DeclBlocksRoot
+  | DeclBlocksRoot
+      blocks : DeclBlocks
+
+
+DATA DeclBlocks
+  | DeclBlock
+      defs : {[Decl]}
+      visit : {Decl}
+      next : DeclBlocks
+  | DeclTerminator
+      defs : {[Decl]}
+      result : {Expr}
+

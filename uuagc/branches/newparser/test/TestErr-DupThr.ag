@@ -1,0 +1,5 @@
+-- threaded attribute xy is declared twice
+
+DATA Aap | Een a : {Int}
+ATTR Aap [ | xy : {Int} | ]
+ATTR Aap [ | xy : {Int} | ]
