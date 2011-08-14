@@ -1,0 +1,8 @@
+DATA D
+  | C  field : {Int}
+
+ATTR D [ | | output : SELF ]
+
+SEM D
+  | C  loc.field = 3
+

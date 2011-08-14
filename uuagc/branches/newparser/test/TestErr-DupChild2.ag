@@ -1,0 +1,9 @@
+-- field a is declared twice, in two different definitions of the same alternative
+-- in v.0.9.1 it is not allowed to have multiple definitions of the same alternative anyway
+-- in v.0.9.3 this is allowed, but not with the same field
+
+DATA Aap 
+	| Een a : {Int}
+
+DATA Aap
+	| Een a : {Int}

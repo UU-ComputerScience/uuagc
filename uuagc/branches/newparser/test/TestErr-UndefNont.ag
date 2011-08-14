@@ -1,0 +1,7 @@
+-- an attribute is declared for a non-existing type
+
+DATA Aap 
+	| Een a : {Int}
+
+ATTR Noot [ | | y : {Int} ]
+	

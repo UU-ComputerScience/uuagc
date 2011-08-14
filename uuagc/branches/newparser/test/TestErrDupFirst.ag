@@ -1,0 +1,13 @@
+-- should give an error because `first` refers to `n` in this case
+DATA Aap
+  | A  n : Noot
+
+DATA Noot
+  | B
+
+ATTR Noot [ x : Int | | ]
+
+SEM Aap
+  | A  n.x = 3
+       first.x = 4
+

@@ -1,0 +1,15 @@
+Two ways of grouping code in literate mode
+
+The first way is with uppercase Code, which is possible for quite some time already
+\begin{Code}
+DATA Aap
+	| Een   x : Int
+\end{Code}
+
+The second way is with lowercase code, which is the convention used in Haskell
+\begin{code}
+DATA Noot
+	| Twee   y : Int
+\end{code}
+
+bla bla

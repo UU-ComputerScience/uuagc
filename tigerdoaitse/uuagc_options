@@ -1,8 +1,0 @@
-file: "src/TigerAS.ag"
-options: data, module
-
-file: "src/TigerSem.ag"
-options: module, catas, semfuns, signatures
-
-file: "src/TigerError.ag"
-options: module, data, catas, semfuns, signatures

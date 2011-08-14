@@ -1,0 +1,9 @@
+DATA Dummy
+  | Dummy
+
+ATTR Dummy [ | | x : Int ]
+
+SEM Dummy
+  | Dummy
+      lhs.x = let x = 3
+              in x

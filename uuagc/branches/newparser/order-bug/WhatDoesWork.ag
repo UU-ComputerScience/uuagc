@@ -1,0 +1,69 @@
+DATA R1
+  | R1  d : D
+
+DATA R2
+  | R2  d : D
+  | R2Fake r : R2
+
+DATA D
+  | D
+
+
+
+-- create a 4-pass D
+ATTR D [ | c2, c3, c4 : Int | s1 : Int ]
+
+SEM R1
+  | R1  d.c2 = @d.s1
+        d.c3 = @d.c2
+        d.c4 = @d.c3
+
+SEM D
+  | D   lhs.s1 = 1
+
+
+-- create a 3-pass R2
+ATTR R2 [ i2,i3 : Int | | s1,s2,s3 : Int ]
+
+SEM R2
+  | R2Fake  r.i2   = @r.s1 + @lhs.i2
+            r.i3   = @r.s2 + @lhs.i3
+            lhs.s1 = @r.s3
+  | R2
+            lhs.s1 = 1
+            lhs.s2 = 1
+            lhs.s3 = @d.c4
+            d.c2 = 1
+            d.c3 = 1
+            d.c4 = 1
+
+
+
+
+
+
+{-
+DATA D
+  | C1  e : D
+  | C2  e : D
+
+-- use rules for C1 to create a 4-pass AG
+ATTR D [ i2, i3, i4 : Int | | s1, s2, s3, s4 : Int ]
+
+SEM D
+  | C1  lhs.s1 = @e.s1
+        lhs.s2 = @lhs.i2
+        lhs.s3 = @lhs.i3
+        lhs.s4 = @lhs.i4
+
+        e.i2   = @e.s1
+        e.i3   = @e.s2
+        e.i4   = @e.s3
+
+
+SEM D
+  | C2  lhs.s1 = 1
+        lhs.s2 = 2
+        lhs.s3 = 3
+        lhs.s4 = @e.s2
+-}

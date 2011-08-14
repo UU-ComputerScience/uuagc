@@ -1,0 +1,5 @@
+-- inherited attribute x is declared twice
+
+DATA Aap | Een a : {Int}
+ATTR Aap [ x : {Int} | | ]
+ATTR Aap [ x : {Int} | | ]

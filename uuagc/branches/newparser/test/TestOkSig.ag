@@ -1,0 +1,8 @@
+-- Local variable with explicit type signature (new syntax introduced in "sequential")
+
+DATA Aap
+	| Een  a : {Int}
+
+SEM Aap
+   | Een loc.x : {Int}
+         loc.x = 1
