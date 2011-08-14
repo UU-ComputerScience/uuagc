@@ -5,9 +5,9 @@ INCLUDE "TigerAS.ag"
 imports
 {
 import TigerAS
-import Monad(mplus)
-import List(sort)
-import Maybe(fromMaybe)
+import Control.Monad(mplus)
+import Data.List(sort)
+import Data.Maybe(fromMaybe)
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq, (><), singleton,empty)
 import Data.Foldable(toList)
@@ -17,18 +17,18 @@ import TigerError
 }
 -- nil only for records
 -- overloading of <> =
--- type def is neither void nor nil 
+-- type def is neither void nor nil
 {
 type Errors = Seq Error
 
 union a b = unionWith const a b
 type TypeEnv   = Map TypeIdent (Pos, TYPE)
 type VarEnv    = Map VarIdent  (Pos,VarType)
-type TypeSyns  = Map TypeIdent (Pos,TypeIdent) 
+type TypeSyns  = Map TypeIdent (Pos,TypeIdent)
 --type RecordEnv = Map TypeRef (Map VarIdent TypeRef)
 --type ArrayEnv  = Map TypeRef TypeRef
 
-data VarType = VarType TYPE        
+data VarType = VarType TYPE
              | FunType [TYPE]      -- argument types
                         TYPE       -- return type
 
@@ -49,11 +49,11 @@ binaryOps = fromList [ (o,iii) | o <- ["*", "/", "+", "-"  ,">=", "<=", "=", "<>
 
 initTypeEnv     = Map.fromList (map toIdent
                   [ ("int", INT)
-                  , ("string", STRING) 
+                  , ("string", STRING)
 		  ])
 
 toIdent (n,t) = (Id n noPos,(noPos, t))
-  
+
 initVarEnv = Map.fromList (map toIdent
              [ ("print"    , procedure [STRING])
 	     , ("flush"    , procedure []      )
@@ -66,64 +66,64 @@ initVarEnv = Map.fromList (map toIdent
 	     , ("concat"   , function [STRING, STRING]   STRING )
 	     , ("not"      , function [INT]              INT    )
 	     ])
-             
+
 procedure args    = FunType args VOID
-function args res = FunType args res             
+function args res = FunType args res
 
 findType env n = case lookupIdent n env of
                    Just x  -> (empty, x)
                    Nothing -> (singleton (UndeclaredType n), ERROR)
-                   
+
 findVar env n = case lookupIdent n env of
                    Just x -> case x of
                                   VarType t   -> (empty, t)
-                                  FunType _ _ -> (singleton (NotVarType n), ERROR) 
+                                  FunType _ _ -> (singleton (NotVarType n), ERROR)
                    Nothing    -> (singleton (UndeclaredVar n), ERROR)
 findFunction env n = case lookupIdent n env of
                    Just x -> case x of
-                                  VarType t   -> (singleton (NotFunType n), [], ERROR) 
+                                  VarType t   -> (singleton (NotFunType n), [], ERROR)
                                   FunType a r -> (empty, a,r)
                    Nothing    -> (singleton (UndeclaredFun n), [], ERROR)
 
 
 lookupIdent :: Ident -> Map Ident (Pos,a) -> Maybe a
-lookupIdent i env = fmap snd (Map.lookup i env) 
+lookupIdent i env = fmap snd (Map.lookup i env)
 
-compilerError msg = error ("compiler error: " ++ msg)                 
+compilerError msg = error ("compiler error: " ++ msg)
 }
 
 SEM Program [ || errors : {[Error]}]
   | Program lhs.errors = toList @expr.errors
             expr.errors = empty
-   
-ATTR Declarations DeclGroup TypeDecs TypeDec FunDecs FunDec LValue Expr Args 
+
+ATTR Declarations DeclGroup TypeDecs TypeDec FunDecs FunDec LValue Expr Args
      AssignField AssignFields  [ | errors : Errors | ]
 
 
 ATTR  LValue Expr Args AssignField AssignFields FunDec FunDecs [ varEnv:VarEnv || ]
 
-ATTR LValue Expr Args AssignField 
+ATTR LValue Expr Args AssignField
      AssignFields FunDec FunDecs  TypeDec TypeDecs [ typeEnv:TypeEnv || ]
 
-ATTR  DeclGroup Declarations 
-     [ 
-     | varEnv:VarEnv 
-       typeEnv:TypeEnv 
-     | 
+ATTR  DeclGroup Declarations
+     [
+     | varEnv:VarEnv
+       typeEnv:TypeEnv
+     |
      ]
 
 
-SEM Program 
+SEM Program
   | Program expr.varEnv    = initVarEnv
-		.typeEnv   = initTypeEnv 
+		.typeEnv   = initTypeEnv
 
 
-ATTR Declarations DeclGroup TypeDecs TypeDec FunDecs FunDec LValue Expr Args 
+ATTR Declarations DeclGroup TypeDecs TypeDec FunDecs FunDec LValue Expr Args
      AssignField AssignFields  [ | typecounter:Int | ]
 
-SEM Program 
+SEM Program
   | Program expr.typecounter = 10
-                
+
 -- Type declaration groups
 ATTR TypeDecs [ | | typedecs:{(TypeEnv, TypeSyns)} ]
 ATTR TypeDec  [ | typedecs:{(TypeEnv, TypeSyns)} | ]
@@ -134,41 +134,41 @@ SEM TypeDecs
   | Nil  lhs.typedecs = (Map.empty,Map.empty)
 
 SEM TypeDec
-  | TypeDec loc.(errs,typedecs) 
-                         = let (env,syns) = @lhs.typedecs                               
+  | TypeDec loc.(errs,typedecs)
+                         = let (env,syns) = @lhs.typedecs
                            in case lookupPos @ident env `mplus` lookupPos  @ident syns of
                                 Just pos -> (singleton (DuplicateType @ident pos ), @lhs.typedecs)
                                 Nothing  ->  case @tp of
                                               Var nm   ->  (empty, (env, insertIdent @ident nm syns) )
                                               Array t  ->  let (err,t')   = findType @lhs.typeEnv t
-                                                               tp         = ARRAY @ident @lhs.typecounter t'                                              
+                                                               tp         = ARRAY @ident @lhs.typecounter t'
                                                            in (err, (insertIdent @ident tp env, syns))
                                               Record fs -> let (err,fs')  = recordFields @lhs.typeEnv fs
-                                                               tp         = RECORD @ident @lhs.typecounter fs'                                              
+                                                               tp         = RECORD @ident @lhs.typecounter fs'
                                                            in (err, (insertIdent @ident tp env, syns))
-            lhs.typecounter = @lhs.typecounter + 1  
-               .errors      = @lhs.errors >< @errs 
-  
+            lhs.typecounter = @lhs.typecounter + 1
+               .errors      = @lhs.errors >< @errs
+
 SEM DeclGroup
   | TypeDecs loc.(errs,typeEnv) = addTypeDecls @decs.typedecs @lhs.typeEnv
              decs.errors        = @lhs.errors >< @errs
-  
+
 {
 recordFields :: TypeEnv -> [TypedVar] -> (Errors,Map Ident (Pos,TYPE))
 recordFields tenv tvs = foldr field (empty,Map.empty) tvs
-  where field (TypedVar v t) ~(es,fs) 
+  where field (TypedVar v t) ~(es,fs)
                 = case lookupPos v fs of
                         Just p  -> (es >< singleton (DupRecordFieldDecl v p),fs)
                         Nothing -> let (err,t')   = findType tenv t
                                    in (es >< err,insertIdent v t' fs)
-    
+
 
 
 lookupPos :: Ident -> Map Ident (Pos,a) -> Maybe Pos
 lookupPos i env = fmap fst (Map.lookup i env)
 
 insertIdent :: Ident -> a -> Map Ident (Pos,a) -> Map Ident (Pos,a)
-insertIdent i@(Id n p) val = insert i (p,val) 
+insertIdent i@(Id n p) val = insert i (p,val)
 
 addTypeDecls :: (TypeEnv,TypeSyns) -> TypeEnv -> (Errors,TypeEnv)
 addTypeDecls (new,syns) env = (errors, fmap (snd.snd) resolve `union`  rest)
@@ -176,12 +176,12 @@ addTypeDecls (new,syns) env = (errors, fmap (snd.snd) resolve `union`  rest)
         errors   = foldr (><) empty (map (fst.snd) (elems resolve))
         resolve :: Map Ident ([Ident],(Seq Error,(Pos,TYPE)))
         resolve  = mapWithKey find syns
-           where find l (p,v) 
+           where find l (p,v)
                    = case Map.lookup v resolve of
-                            Just ~(vs,~(_,b)) -> (v:vs,  if v `elem` vs 
+                            Just ~(vs,~(_,b)) -> (v:vs,  if v `elem` vs
                                                             then (singleton (CyclicType l)
                                                                  ,(p,ERROR)
-                                                                 ) 
+                                                                 )
                                                             else (empty,(p, snd b))
                                                  )
                             Nothing           -> let (es,tp) = findType rest v
@@ -203,20 +203,20 @@ SEM FunDec
                        = case lookupPos @ident @lhs.fundecs of
                                 Just pos -> (singleton (DuplicateFun @ident pos ), @lhs.fundecs)
                                 Nothing  ->  (empty, insertIdent @ident (FunType @atps @ret) @lhs.fundecs)
-           loc.(err2,argEnv,atps) 
+           loc.(err2,argEnv,atps)
                        = let f (TypedVar n t) ~(errs,env,tps)
-                                = let (e1,tp) = findType @lhs.typeEnv t 
+                                = let (e1,tp) = findType @lhs.typeEnv t
                                       (e2,en) = case lookupPos n env of
-                                                  Just p  -> (singleton (DuplicateArg @ident n p), env) 
-                                                  Nothing -> (empty, insertIdent n (VarType tp) env)                                                
+                                                  Just p  -> (singleton (DuplicateArg @ident n p), env)
+                                                  Nothing -> (empty, insertIdent n (VarType tp) env)
                                   in(e1 >< e2 >< errs,en,tp:tps)
                          in foldr f (empty,Map.empty,[]) @argTps
               .(err3,ret)     = case @retTp of
-                                Just tp -> findType @lhs.typeEnv tp                                           
-                                Nothing -> (empty,VOID)                                
-           body.varEnv = @argEnv `union` @lhs.varEnv 
-               .errors = @lhs.errors >< @err1 >< @err2 >< @err3 
-  
+                                Just tp -> findType @lhs.typeEnv tp
+                                Nothing -> (empty,VOID)
+           body.varEnv = @argEnv `union` @lhs.varEnv
+               .errors = @lhs.errors >< @err1 >< @err2 >< @err3
+
 SEM DeclGroup
   | FunDecs loc.varEnv = @decs.fundecs `union` @lhs.varEnv
 
@@ -224,9 +224,9 @@ SEM DeclGroup
 -- Var Declarations
 SEM DeclGroup
    | VarDec lhs.varEnv  = insertIdent @ident (VarType @theType) @lhs.varEnv
-            loc.(errs,theType) 
-                           = case @tp of 
-                                  Just t -> findType @lhs.typeEnv t                                           
+            loc.(errs,theType)
+                           = case @tp of
+                                  Just t -> findType @lhs.typeEnv t
                                   Nothing -> case @expr.tp of
                                               NIL  -> (singleton (UnknownType (getPos @ident)),ERROR)
                                               VOID -> (singleton (InitWithVoid (getPos @ident)),ERROR)
@@ -239,10 +239,10 @@ SEM Expr
 
 ATTR Expr LValue [ expect:{TYPE} || tp : {TYPE} ]
 
-SEM Program 
+SEM Program
   | Program expr.expect = @expr.tp
 
-SEM FunDec 
+SEM FunDec
   | FunDec body.expect = @ret
 
 
@@ -256,7 +256,7 @@ recordFieldType :: Pos -> Map VarIdent (Pos,TYPE) -> Ident -> (Errors,TYPE)
 recordFieldType p fields ident = case lookupIdent ident fields of
                                         Nothing -> (singleton (NoSuchField p ident), ERROR)
                                         Just t  -> (empty,t)
-                                        
+
 recordType :: Pos -> TYPE -> (Errors,Map Ident (Pos,TYPE))
 recordType _ ERROR           = (empty,Map.empty)
 recordType p (RECORD n _ fs) = (empty,fs)
@@ -280,90 +280,90 @@ meetErr a b = case meet a b of
             Just t  -> (empty, t)
 --Nil?
 }
-SEM LValue 
-   | Sub    loc.(err,tp) = arrayComponentType @pos @expr.tp 
+SEM LValue
+   | Sub    loc.(err,tp) = arrayComponentType @pos @expr.tp
             index.expect = INT
             expr.expect  = case @tp of ERROR -> ERROR ; _ -> @expr.tp
             expr.errors  = @lhs.errors ><
-                           @err >< 
-                           if match @lhs.expect @tp 
+                           @err ><
+                           if match @lhs.expect @tp
                               then empty
                               else singleton (TypeMisMatch  @lhs.expect @tp)
-            --check expect == tp                
-            
-   | Dot    loc.(err1,fieldEnv) 
+            --check expect == tp
+
+   | Dot    loc.(err1,fieldEnv)
                           = recordType @pos @expr.tp
                .(err2,tp) = recordFieldType @pos @fieldEnv @ident
             expr.expect  = case @tp of ERROR -> ERROR ; _ -> @expr.tp
-            expr.errors  = @lhs.errors >< 
-                           @err1 ><          
-                           @err2 ><          
-                           if match @lhs.expect @tp 
+            expr.errors  = @lhs.errors ><
+                           @err1 ><
+                           @err2 ><
+                           if match @lhs.expect @tp
                               then empty
                               else singleton (TypeMisMatch  @lhs.expect @tp)
-            -- expect == tp            
-   | Ident  loc.(errs,tp) = findVar @lhs.varEnv @ident 
-            lhs.errors  = @lhs.errors >< 
-                          @errs ><          
-                          if match @lhs.expect @tp 
+            -- expect == tp
+   | Ident  loc.(errs,tp) = findVar @lhs.varEnv @ident
+            lhs.errors  = @lhs.errors ><
+                          @errs ><
+                          if match @lhs.expect @tp
                               then empty
                               else singleton (TypeMisMatch  @lhs.expect @tp)
 -- check expect == tp
-   
+
 SEM Expr
-   | LValue loc.tp = if @lvalue.tp == LOOPCOUNTER 
-                         then INT 
+   | LValue loc.tp = if @lvalue.tp == LOOPCOUNTER
+                         then INT
                          else @lvalue.tp
-            lvalue.expect = @lhs.expect    
+            lvalue.expect = @lhs.expect
 
    | IntLit loc.tp = INT
-            lhs.errors  = @lhs.errors >< 
-                          if match @lhs.expect @tp 
+            lhs.errors  = @lhs.errors ><
+                          if match @lhs.expect @tp
                               then empty
                               else singleton (TypeMisMatch  @lhs.expect @tp)
-               
+
    | StringLit loc.tp = STRING
-               lhs.errors  = @lhs.errors >< 
-                             if match @lhs.expect @tp 
+               lhs.errors  = @lhs.errors ><
+                             if match @lhs.expect @tp
                                 then empty
                                 else singleton (TypeMisMatch  @lhs.expect @tp)
                -- check expect == tp
    | Skip      loc.tp = VOID
-               lhs.errors  = @lhs.errors >< 
-                             if match @lhs.expect @tp 
+               lhs.errors  = @lhs.errors ><
+                             if match @lhs.expect @tp
                                 then empty
                                 else singleton (TypeMisMatch  @lhs.expect @tp)
                -- check expect == tp
    | Nil       loc.tp = NIL
-               lhs.errors  = @lhs.errors >< 
-                             (if @lhs.expect == NIL 
+               lhs.errors  = @lhs.errors ><
+                             (if @lhs.expect == NIL
                                    then singleton (UnknownType @pos)
-                                   else empty                              
+                                   else empty
                              ) ><
-                             if match @lhs.expect @tp 
+                             if match @lhs.expect @tp
                                 then empty
                                 else singleton (TypeMisMatch  @lhs.expect @tp)
                -- check expect is a recordType
    | Break     loc.tp = VOID
-               lhs.errors  = @lhs.errors >< 
-                             if match @lhs.expect @tp 
+               lhs.errors  = @lhs.errors ><
+                             if match @lhs.expect @tp
                                 then empty
                                 else singleton (TypeMisMatch  @lhs.expect @tp)
-               -- check expect == VOID         
+               -- check expect == VOID
    | Sequence  loc.tp = @right.tp
-               left.expect = @left.tp                
-               left.errors  = @lhs.errors >< 
-                              if match @lhs.expect @tp 
+               left.expect = @left.tp
+               left.errors  = @lhs.errors ><
+                              if match @lhs.expect @tp
                                  then empty
                                  else singleton (TypeMisMatch  @lhs.expect @tp)
-               -- check expect == tp  
+               -- check expect == tp
 SEM Expr
    | While loc.tp      = VOID
            cond.expect = INT
-           body.expect = VOID 
+           body.expect = VOID
            -- check lhs.expect == VOID
-           cond.errors  = @lhs.errors >< 
-                          if match @lhs.expect @tp 
+           cond.errors  = @lhs.errors ><
+                          if match @lhs.expect @tp
                             then empty
                             else singleton (TypeMisMatch  @lhs.expect @tp)
    | For   loc.tp      = VOID
@@ -371,8 +371,8 @@ SEM Expr
            low.expect  = INT
            body.expect = VOID
            -- check lhs.expect == VOID
-           low.errors  = @lhs.errors >< 
-                         if match @lhs.expect @tp 
+           low.errors  = @lhs.errors ><
+                         if match @lhs.expect @tp
                             then empty
                             else singleton (TypeMisMatch  @lhs.expect @tp)
    | If    loc.tp  = @expectType
@@ -381,67 +381,67 @@ SEM Expr
            elsePart.expect = @expectType
            thenPart.expect = @expectType
            cond.errors  = @lhs.errors ><
-                          @err ><           
-                          if match @lhs.expect @tp 
+                          @err ><
+                          if match @lhs.expect @tp
                             then empty
                             else singleton (TypeMisMatch  @lhs.expect @tp)
-           
+
    | Let   lhs.tp  = @body.tp
            body.expect = @lhs.expect
-   | Assign loc.tp = VOID 
+   | Assign loc.tp = VOID
                .(err,expType) = @lvalue.tp `meetErr` @expr.tp
             lvalue.expect = @expType
             expr.expect   = @expType
             --check lhs.expect == VOID
             --check lhs.tp /= LOOPCOUNTER
-            lvalue.errors  = @lhs.errors >< 
+            lvalue.errors  = @lhs.errors ><
                              @err ><
-                             (if @lvalue.tp == LOOPCOUNTER 
+                             (if @lvalue.tp == LOOPCOUNTER
                                  then singleton (AssignLoopcounter @pos)
                                  else empty
                              )   ><
-                             if match @lhs.expect @tp 
+                             if match @lhs.expect @tp
                                 then empty
                                 else singleton (TypeMisMatch  @lhs.expect @tp)
-   | Op   left.expect  = @expect  
-          right.expect = @expect 
+   | Op   left.expect  = @expect
+          right.expect = @expect
           loc.tp = INT
-             .(err, expect) 
+             .(err, expect)
                 = let check | @op `elem` ["+","-","*","/","|","&"] = (empty,INT)
                             | @op `elem` [">=", "<=",  "<", ">"]   = let (e,tp) = meetErr @left.tp @right.tp
-                                                                     in if tp `elem` [INT,STRING,ERROR]  
+                                                                     in if tp `elem` [INT,STRING,ERROR]
                                                                            then (e,tp)
                                                                            else (e><singleton(CompareOp @pos @op),tp)
                             | @op `elem` [ "=", "<>"]              = let (e,tp) = meetErr @left.tp @right.tp
-                                                                     in if tp == NIL 
+                                                                     in if tp == NIL
                                                                            then (e><singleton(UnknownType  @pos) ,ERROR)
                                                                            else (e,tp)
                             | otherwise  = compilerError ("unknown binary operator: " ++ @op)
-                  in  check              
-          left.errors  = @lhs.errors >< 
+                  in  check
+          left.errors  = @lhs.errors ><
                          @err ><
-                         if match @lhs.expect @tp 
+                         if match @lhs.expect @tp
                             then empty
                             else singleton (TypeMisMatch  @lhs.expect @tp)
-   | UnOp loc.(tp,expect) = case @op of   
+   | UnOp loc.(tp,expect) = case @op of
                               "-" -> (INT,INT)
                               _   -> compilerError ("unknown unary operator: " ++ @op)
-          expr.errors  = @lhs.errors >< 
-                         if match @lhs.expect @tp 
+          expr.errors  = @lhs.errors ><
+                         if match @lhs.expect @tp
                             then empty
                             else singleton (TypeMisMatch  @lhs.expect @tp)
 SEM Expr
-   | Apply loc.(errs,argTps,retTp) 
-                              = findFunction @lhs.varEnv @ident 
+   | Apply loc.(errs,argTps,retTp)
+                              = findFunction @lhs.varEnv @ident
            lhs.tp             = @retTp
            args.expects       = @argTps ++ repeat ERROR
-           args.errors  = @lhs.errors >< 
+           args.errors  = @lhs.errors ><
                           @errs ><
                           (case compare @args.size (length @argTps) of
                              LT -> singleton (TooFewArguments  @ident)
                              GT -> singleton (TooManyArguments @ident)
                              EQ -> empty) ><
-                          if match @lhs.expect @retTp 
+                          if match @lhs.expect @retTp
                              then empty
                              else singleton (TypeMisMatch  @lhs.expect @retTp)
           -- check lhs.expect == retTp
@@ -449,50 +449,50 @@ SEM Expr
    | ArrayVal loc.(err1,tp)   = findType @lhs.typeEnv @ident
                  .(err2,compTp) = arrayComponentType (getPos @ident) @tp
               size.expect       = INT
-              init.expect       = @compTp              
+              init.expect       = @compTp
               init.errors  = @lhs.errors ><
                              @err1 ><
-                             @err2 ><                            
-                             if match @lhs.expect @tp 
+                             @err2 ><
+                             if match @lhs.expect @tp
                                then empty
                                else singleton (TypeMisMatch  @lhs.expect @tp)
               -- check lhs.expect == tp
    | RecordVal loc.(err1,tp)  = findType @lhs.typeEnv @ident
-                  .(err2,fieldEnv) 
+                  .(err2,fieldEnv)
                               = recordType (getPos @ident) @tp
-               loc.(err3, expFields) 
+               loc.(err3, expFields)
                               = let f i ~(err,ts) = case recordFieldType (getPos i) @fieldEnv i of
                                                       (e,t) -> (err><e,t:ts)
-                                in foldr f (empty,[]) @fields.names    
+                                in foldr f (empty,[]) @fields.names
                              -- check lhs.expect = tp
                              -- check all fields defined
-               loc.notInit    = foldr (Seq.<|) empty [ FieldNotInit f | f <- keys @fieldEnv, not (f `elem` @fields.names)]              
+               loc.notInit    = foldr (Seq.<|) empty [ FieldNotInit f | f <- keys @fieldEnv, not (f `elem` @fields.names)]
                fields.expects = @expFields
                fields.errors  = @lhs.errors ><
                                 @err1 ><
-                                @err2 ><    
+                                @err2 ><
                                 @err3 ><
                                 @notInit ><
-                                if match @lhs.expect @tp 
+                                if match @lhs.expect @tp
                                   then empty
                                   else singleton (TypeMisMatch  @lhs.expect @tp)
 
 
 ATTR Args [ expects:{[TYPE]} || size : Int]
 
-SEM Args 
+SEM Args
   | Nil  lhs.size   = 0
   | Cons hd.expect  = head @lhs.expects
          tl.expects = tail @lhs.expects
          lhs.size   = 1 + @tl.size
-         
+
 ATTR AssignField  [ expect:{TYPE} || name   : {VarIdent} ]
 ATTR AssignFields [ expects:{[TYPE]} || names : {[VarIdent]} ]
 
-SEM AssignField 
+SEM AssignField
    | AssignField lhs.name = @ident
-   
-SEM AssignFields 
+
+SEM AssignFields
   | Nil  lhs.names    = []
   | Cons lhs.names = @hd.name : @tl.names
          hd.expect    = head @lhs.expects

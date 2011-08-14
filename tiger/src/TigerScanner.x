@@ -1,4 +1,5 @@
 {
+{-# LANGUAGE BangPatterns #-}
 module TigerScanner(scanFile) where
 
 import UU.Scanner.Token
@@ -24,9 +25,9 @@ tiger :-
 
 
     "," | ":" | ";" | "(" | ")" |
-    "[" | "]" | "{" | "}" | "." | 
-    "+" | "-" | "*" | "/" | "=" | 
-    "<>" | "<" | "<=" | ">" | 
+    "[" | "]" | "{" | "}" | "." |
+    "+" | "-" | "*" | "/" | "=" |
+    "<>" | "<" | "<=" | ">" |
     ">=" | "&" | "|" | ":="       { symbol }
 
     $digit+                       { integer }
@@ -34,18 +35,18 @@ tiger :-
     \" @content* \"               { string }
 
     $letter $ident*               { identifier }
-    
- 
 
 
 
-{ 
+
+
+{
 -- semantic actions
 -- if a sequence of letters is an identifier, except when it is member of the set of reserved words.
-identifier = makeToken keywordOrIdentifier 
-    where keywordOrIdentifier str | Set.member str reservedwords  = reserved str 
-                                  | otherwise                     = valueToken TkVarid str 
-                           
+identifier = makeToken keywordOrIdentifier
+    where keywordOrIdentifier str | Set.member str reservedwords  = reserved str
+                                  | otherwise                     = valueToken TkVarid str
+
 
 reservedwords = Set.fromList [ "array", "if", "then", "else", "while", "for", "to", "do", "let", "in", "end", "of", "break", "nil", "function", "var", "type" ]
 
@@ -58,32 +59,32 @@ integer  = makeToken (valueToken TkInteger10)
 -- string literals
 string   = makeToken (valueToken TkString)
 
--- comment-lexer: drops a comment-block enclosed by /* and */ from the input, and resumes lexing. 
--- block comments can be nested, hence: /* this /* is some */ text */ 
+-- comment-lexer: drops a comment-block enclosed by /* and */ from the input, and resumes lexing.
+-- block comments can be nested, hence: /* this /* is some */ text */
 -- is a single comment-block
 
 comment pos _ inp _ _ st@(_,file) = dropcomments (move_pos2 pos) 1 (drop 2 inp)
   where move_pos2 (AlexPn a l c) = AlexPn (a+2) l (c+2)
-        dropcomments p 0 ss = continue p ss 
+        dropcomments p 0 ss = continue p ss
         dropcomments p n inp = case inp of
                                 ('*':'/':ss) -> dropcomments (move_pos2 p ) (n-1) ss
                                 ('/':'*':ss) -> dropcomments (move_pos2 p ) (n+1) ss
                                 (s      :ss) -> dropcomments (alexMove p s) n     ss
                                 []           -> errToken ("unterminated comment") (makePos file pos)
-                                              : continue p [] 
-        continue = tiger_scan file                                   
-                           
-makeToken :: (String -> Pos -> Token) 
-          -> AlexPosn 
-          -> a 
-          -> String 
-          -> Int 
-          -> ((Int,FilePath) -> [Token]) 
+                                              : continue p []
+        continue = tiger_scan file
+
+makeToken :: (String -> Pos -> Token)
+          -> AlexPosn
+          -> a
+          -> String
+          -> Int
+          -> ((Int,FilePath) -> [Token])
           -> (Int,FilePath) -> [Token]
-makeToken f p _ inp len cont state@(_,file) = f (take len inp) (makePos file p) : cont state 
+makeToken f p _ inp len cont state@(_,file) = f (take len inp) (makePos file p) : cont state
 
 makePos :: FilePath -> AlexPosn -> Pos
-makePos f (AlexPn _ l c) = Pos l c f 
+makePos f (AlexPn _ l c) = Pos l c f
 
 scanFile :: FilePath -> IO [Token]
 scanFile file = do txt <- readFile file
