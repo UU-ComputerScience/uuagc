@@ -1,7 +1,7 @@
 cabal-version: >=1.2
-build-type: Simple
+build-type: Custom
 name: tiger
-version: 1.0
+version: 1.1
 license: GPL
 license-file: LICENSE
 maintainer: Doaitse Swierstra
@@ -14,10 +14,10 @@ copyright: Universiteit Utrecht
 extra-source-files: INSTALL, LICENSE, uuagc_options, src/TigerAS.ag, src/TigerError.ag, src/TigerSem.ag
 
 executable tiger
-  build-depends: base >= 3
-  build-depends: haskell98, array
-  build-depends: uulib, containers
-  build-depends: uuagc >= 0.9.29
+  build-depends: base >= 4, base < 5
+  build-depends: array >= 0.3.0.3
+  build-depends: uulib >= 0.9.14, containers >= 0.4.1.0
+  build-depends: uuagc >= 0.9.39.1, uuagc-cabal >= 1.0.0.4
   main-is: Tiger.hs
   hs-source-dirs: src
   other-modules: TigerAS, TigerSem, TigerError, TigerScanner, TigerTypes
