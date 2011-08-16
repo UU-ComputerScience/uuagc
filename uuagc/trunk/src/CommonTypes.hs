@@ -104,6 +104,9 @@ conname rename nt con | rename =  getName nt ++ "_" ++ getName con
 semname  ::  String -> NontermIdent -> ConstructorIdent -> String
 semname pre nt con =  pre ++ (getName nt ++ "_" ++ getName con)
 
+recordFieldname :: NontermIdent -> ConstructorIdent -> Identifier -> String
+recordFieldname nt con nm = getName nm ++ "_" ++ getName nt ++ "_" ++ getName con
+
 lhsname :: Bool -> Identifier -> String
 lhsname isIn = attrname isIn _LHS
 
