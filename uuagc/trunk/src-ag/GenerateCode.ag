@@ -1011,8 +1011,19 @@ SEM CProductions
   | Nil         lhs.dataAlts  = []
 
 SEM CProduction
-  | CProduction loc.params = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
-                lhs.dataAlt = DataAlt (conname @lhs.o_rename @lhs.nt @con) (map (\(_,t,_) -> typeToCodeType (Just @lhs.nt) @loc.params t) @loc.firstOrderChildren)
+  | CProduction loc.params  = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
+                lhs.dataAlt = let conNm = conname @lhs.o_rename @lhs.nt @con
+                                  mkFields f = map (\(nm,t,_) -> f @lhs.nt @con nm (typeToCodeType (Just @lhs.nt) @loc.params t)) @loc.firstOrderChildren
+                              in if dataRecords @lhs.options
+                                 then Record conNm $ mkFields $ toNamedType (strictData @lhs.options)
+                                 else DataAlt conNm $ mkFields $ \_ _ _ t -> t
+
+{
+toNamedType :: Bool -> NontermIdent -> ConstructorIdent -> Identifier -> Code.Type -> Code.NamedType
+toNamedType genStrict nt con nm tp
+  = Code.Named genStrict strNm tp
+  where strNm = recordFieldname nt con nm
+}
 
 -------------------------------------------------------------------------------
 -- Catamorphism were already present

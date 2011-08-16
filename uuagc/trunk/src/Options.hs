@@ -9,6 +9,7 @@ options     :: [OptDescr (Options -> Options)]
 options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) "generate default module header"
                , Option []        ["module"]        (OptArg moduleOpt "name")   "generate module header, specify module name"
                , Option ['d']     ["data"]          (NoArg dataOpt)             "generate data type definition"
+               , Option []        ["datarecords"]   (NoArg dataRecOpt)          "generate record data types"
                , Option []        ["strictdata"]    (NoArg strictDataOpt)       "generate strict data fields (when data is generated)"
                , Option []        ["strictwrap"]    (NoArg strictWrapOpt)       "generate strict wrap fields for WRAPPER generated data"
                , Option ['c']     ["catas"]         (NoArg cataOpt)             "generate catamorphisms"
@@ -81,6 +82,7 @@ allc = "dcfsprm"
 
 data Options = Options{ moduleName :: ModuleHeader
                       , dataTypes :: Bool
+                      , dataRecords :: Bool
                       , strictData :: Bool
                       , strictWrap :: Bool
                       , folds :: Bool
@@ -146,6 +148,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
+                    , dataRecords   = False
                     , strictData    = False
                     , strictWrap    = False
                     , folds         = False
@@ -212,6 +215,7 @@ noOptions = Options { moduleName    = NoName
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
 dataOpt         opts = opts{dataTypes    = True}
+dataRecOpt      opts = opts{dataRecords  = True}
 strictDataOpt   opts = opts{strictData   = True}
 strictWrapOpt   opts = opts{strictWrap   = True}
 cataOpt         opts = opts{folds        = True}
@@ -253,7 +257,7 @@ genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
 genAspectAGOpt opts = opts{genAspectAG = True}
-noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}            
+noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
   where extract s = case dropWhile isSeparator s of
                                 "" -> []
                                 s' -> w : extract s''
@@ -261,7 +265,7 @@ noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
                                              break isSeparator  s'
         isSeparator x = x == ':'
 
-extendsOpt  m  opts = opts{extends  = Just m }            
+extendsOpt  m  opts = opts{extends  = Just m }
 
 genAttrListOpt opts = opts { genAttributeList = True }
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
@@ -294,7 +298,7 @@ outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}
 searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
-allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
+allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt . dataRecOpt
 optimizeOpt   = visitOpt . casesOpt
 
 condDisableOptimizations opts

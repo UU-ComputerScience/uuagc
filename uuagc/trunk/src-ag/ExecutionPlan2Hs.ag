@@ -33,9 +33,9 @@ ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
 -------------------------------------------------------------------------------
 --  Options
 -------------------------------------------------------------------------------
-ATTR ExecutionPlan 
-     ENonterminals ENonterminal 
-     EProductions EProduction 
+ATTR ExecutionPlan
+     ENonterminals ENonterminal
+     EProductions EProduction
      ERules ERule
      EChildren EChild
      Visits Visit [ options : {Options} | | ]
@@ -43,6 +43,19 @@ ATTR EProductions EProduction [ rename : {Bool} | | ]
 
 SEM ENonterminal
   | ENonterminal prods.rename = rename @lhs.options
+
+-------------------------------------------------------------------------------
+--  Context info (nonterminal ident, constructor ident)
+-------------------------------------------------------------------------------
+
+ATTR Visit Visits EProduction EProductions EChildren EChild [ nt : NontermIdent | | ]
+SEM ENonterminal
+  | ENonterminal prods.nt = @nt
+
+ATTR EChildren EChild [ con : ConstructorIdent | | ]
+
+SEM EProduction
+  | EProduction children.con = @con
 
 -------------------------------------------------------------------------------
 --  Default output
@@ -99,8 +112,13 @@ SEM ExecutionPlan
 
 SEM ENonterminal
   | ENonterminal loc.datatype = case lookup @nt @lhs.typeSyns of
-                                   Nothing -> "data" >#< @nt >#< (vlist $ ("=" >#< head @prods.datatype)
-                                               : (map ("|" >#<) $ tail @prods.datatype)) >#< @loc.derivings
+                                   Nothing -> "data" >#< @nt
+                                              >#< ( if null @prods.datatype
+                                                    then empty
+                                                    else (vlist $ ("=" >#< head @prods.datatype)
+                                                                  : (map ("|" >#<) $ tail @prods.datatype))
+                                                  )
+                                              >#< @loc.derivings
                                    Just (List t) -> "type" >#< @nt >#< "=" >#< "[" >#< show t >#< "]"
                                    Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< show t
 				   Just (Tuple ts) -> "type" >#< @nt >#< "=" >#< pp_parens (ppCommas $ map (show . snd) ts)
@@ -118,15 +136,28 @@ ATTR EProduction  [ | | datatype : {PP_Doc} ]
 ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EProduction
-  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.datatype
+  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#<
+                               ppConFields (dataRecords @lhs.options) @children.datatype
 
-ATTR EChild    [ nt : {NontermIdent} | | datatype : {PP_Doc} ]
-ATTR EChildren [ nt : {NontermIdent} | | datatype USE {:} {[]} : {[PP_Doc]} ] 
+{
+-- first parameter indicates: generate a record or not
+ppConFields :: Bool -> [PP_Doc] -> PP_Doc
+ppConFields True  flds = ppListSep "{" "}" ", " flds
+ppConFields False flds = ppSpaced flds
+}
+
+
+ATTR EChild    [ | | datatype : {PP_Doc} ]
+ATTR EChildren [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EChild
-  | EChild lhs.datatype = if isJust @virtual
-                          then empty
-                          else @loc.addStrict $ pp_parens $ typeToHaskellString (Just @lhs.nt) [] @tp
+  | EChild  loc.tpDoc = @loc.addStrict $ pp_parens $ typeToHaskellString (Just @lhs.nt) [] @tp
+            loc.strNm = recordFieldname @lhs.nt @lhs.con @name
+            lhs.datatype = if isJust @virtual
+                           then empty
+                           else if dataRecords @lhs.options
+                                then @loc.strNm >#< "::" >#< @loc.tpDoc
+                                else @loc.tpDoc
 	   loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
 
 -------------------------------------------------------------------------------
@@ -155,12 +186,12 @@ SEM ENonterminal
 				      	   	     	   >-< @loc.semname >#< "(Prelude.Right right)" >#< "=" >#< @loc.semname >|< "_Right" >#< @frecarg r "right"
 				      Just (Map k v) -> @loc.semname >#< "m" >#< "=" >#< "Data.Map.foldrWithKey"
 				      	   	     	>#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
-							>#< case v of 
+							>#< case v of
 							       NT nt _ -> pp_parens ("Data.Map.map" >#< @fsemname nt >#< "m")
 							       _ -> pp "m"
 				      Just (IntMap v) -> @loc.semname >#< "m" >#< "=" >#< "Data.IntMap.foldWithKey"
 				      	   	     	 >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
-							 >#< case v of 
+							 >#< case v of
 							        NT nt _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
 							        _ -> pp "m"
 --                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
@@ -170,7 +201,7 @@ SEM EProduction
   | EProduction lhs.sem_nt = "sem_" >|< @lhs.nt >#< "(" >#< conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.argnames >#< ")"
                              >#< "=" >#< "sem_" >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @children.argnamesw
 
-ATTR EChild    [ | | argnamesw              : { PP_Doc } ] 
+ATTR EChild    [ | | argnamesw              : { PP_Doc } ]
 ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EChild
@@ -179,7 +210,7 @@ SEM EChild
                            else if isNonterminal @tp
                                 then "(" >#< "sem_" >|< extractNonterminal @tp >#< "field_" >|< @name >#< ")"
                                 else text $ locname @name
-           
+
 -------------------------------------------------------------------------------
 --  Types of attributes
 -------------------------------------------------------------------------------
@@ -247,16 +278,10 @@ SEM ENonterminal
                                        >-< indent 3 visitlist) $ Set.toList @loc.allstates
 
 -- type of a visit v, with continuation as new state s
-ATTR Visit
-     Visits
-     EProduction
-     EProductions [ nt : {NontermIdent} | | t_visits USE {>-<} {empty} : {PP_Doc} ]
+ATTR Visit Visits EProduction EProductions [ | | t_visits USE {>-<} {empty} : {PP_Doc} ]
 
 SEM EProductions
   | Cons lhs.t_visits = @hd.t_visits -- just pick the first production
-
-SEM ENonterminal
-  | ENonterminal prods.nt = @nt
 
 SEM Visit
   | Visit lhs.t_visits = "type" >#< "T_" >|< @lhs.nt >|< "_v" >|< @ident >#< "=" >#< @loc.inhpart >#<
@@ -408,7 +433,7 @@ ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
 
 SEM ERule
   | ERule lhs.sem_rules    = if Set.member @name @lhs.usedrules
-                             then (@name >#< "=" >#< 
+                             then (@name >#< "=" >#<
                                   (if Set.null @rhs.attrs
                                    then empty
                                    else "\\" >|< @loc.attrlst >#< "->")
@@ -464,7 +489,7 @@ SEM ExecutionPlan
 
 SEM Visit
   | Visit lhs.childvisit = Map.singleton @ident $ \chn -> @loc.addbang ("(" >#< ppSpaced (
-                              map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn 
+                              map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn
                            >#< ")") >#< "<-" >#< "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
                            >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< @loc.inhargs chn False
 	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
@@ -477,7 +502,7 @@ uwSetUnion :: (Ord a, Ord b) => Map.Map a (Set.Set b) -> Map.Map a (Set.Set b) -
 uwSetUnion = Map.unionWith Set.union
 }
 ATTR Visit Visits [ allintramap : {Map.Map StateIdentifier (Set.Set String)}
-                    | | intramap USE {`uwSetUnion`} {Map.empty} : {Map.Map StateIdentifier (Set.Set String)} ] 
+                    | | intramap USE {`uwSetUnion`} {Map.empty} : {Map.Map StateIdentifier (Set.Set String)} ]
 
 ATTR Visit Visits [ terminaldefs : {Set.Set String} | | ]
 ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
@@ -617,7 +642,7 @@ SEM ENonterminal
                                      else empty)
                                     >-< @loc.sem_nt
                  lhs.appendCommon = (if dataTypes @lhs.options then @loc.datatype else empty)
-                                    >-< @loc.t_init 
+                                    >-< @loc.t_init
                                     >-< @loc.t_states
                                     >-< @loc.k_states
                                     >-< @prods.t_visits
