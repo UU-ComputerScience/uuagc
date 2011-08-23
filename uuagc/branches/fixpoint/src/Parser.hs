@@ -8,10 +8,10 @@ import CommonTypes
 import Patterns
 import UU.Pretty(text,PP_Doc,empty,(>-<))
 import TokenDef
-import List (intersperse)
-import Char
+import Data.List (intersperse)
+import Data.Char
 import Scanner (Input(..),scanLit,input)
-import List
+import Data.List
 import Expression
 import UU.Scanner.Token
 import UU.Scanner.TokenParser
@@ -34,17 +34,25 @@ pIdentifier   = uncurry Ident <$> pVaridPos
 
 
 parseAG :: Options -> [FilePath] -> String -> IO (AG,[Message Token Pos])
-parseAG opts searchPath file 
-              = do (es,_,_,mesg) <- parseFile opts searchPath file
+parseAG opts searchPath file
+              = do (es,_,_,_,mesg) <- parseFile False opts searchPath file
                    return (AG es, mesg)
+
+--marcos
+parseAGI :: Options -> [FilePath] -> String -> IO (AG, Maybe String)
+parseAGI opts searchPath file
+              = do (es,_,_,ext,_) <- parseFile True opts searchPath file
+                   return (AG es, ext)
+
 
 depsAG :: Options -> [FilePath] -> String -> IO ([String], [Message Token Pos])
 depsAG opts searchPath file
-  = do (_,_,fs,mesgs) <- parseFile opts searchPath file
+  = do (_,_,fs,_,mesgs) <- parseFile False opts searchPath file
        return (fs, mesgs)
 
-parseFile :: Options -> [FilePath] -> String -> IO  ([Elem],[String],[String],[Message Token Pos ])
-parseFile opts searchPath file 
+-- marcos: added the parameter 'agi' and the 'ext' part
+parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
+parseFile agi opts searchPath file
  = do txt <- readFile file
       let litMode = ".lag" `isSuffixOf` file
           (files,text) = if litMode then scanLit txt

@@ -53,7 +53,9 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["sepsemmods"]    (NoArg sepSemModsOpt)       "Generate separate modules for semantic functions (in generated code)"
                , Option ['M']     ["genfiledeps"] (NoArg genFileDepsOpt) "Generate a list of dependencies on the input AG files"
                , Option []        ["genvisage"] (NoArg genVisageOpt)  "Generate output for the AG visualizer Visage"
-               , Option []        ["genAspectAG"] (NoArg genAspectAGOpt)  "Generate AspectAG file"
+               , Option []        ["aspectag"]   (NoArg genAspectAGOpt)  "Generate AspectAG file"
+               , Option []        ["nogroup"]       (ReqArg noGroupOpt "attributes")   "specify the attributes that won't be grouped in AspectAG"
+               , Option []        ["extends"]       (ReqArg extendsOpt "module")   "specify a module to be extended"
                , Option []        ["genattrlist"] (NoArg genAttrListOpt) "Generate a list of all explicitly defined attributes (outside irrefutable patterns)"
                , Option []        ["forceirrefutable"] (OptArg forceIrrefutableOpt "file") "Force a set of explicitly defined attributes to be irrefutable, specify file containing the attribute set"
                , Option []        ["uniquedispenser"] (ReqArg uniqueDispenserOpt "name") "The Haskell function to call in the generated code"
@@ -65,17 +67,19 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["breadthfirst"]      (NoArg breadthfirstOpt) "Experimental: generate breadth-first code"
                , Option []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
                , Option []        ["visitcode"]        (NoArg visitorsOutputOpt) "Experimental: generate visitors code"
+               , Option []        ["kennedywarren"]      (NoArg kennedyWarrenOpt) "Experimental: use Kennedy-Warren's algorithm for ordering"
                , Option []        ["statistics"]      (ReqArg statisticsOpt "FILE to append to") "Append statistics to FILE"
                , Option []        ["checkParseRhs"]         (NoArg parseHsRhsOpt) "Parse RHS of rules with Haskell parser"
                , Option []        ["checkParseTys"]         (NoArg parseHsTpOpt) "Parse types of attrs with Haskell parser"
                , Option []        ["checkParseBlocks"]         (NoArg parseHsBlockOpt) "Parse blocks with Haskell parser"
                , Option []        ["checkParseHaskell"]  (NoArg parseHsOpt) "Parse Haskell code (recognizer)"
                , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
+               , Option []        ["nooptimize"]         (NoArg noOptimizeOpt) "Disable optimizations"
                ]
 
 allc = "dcfsprm"
 
-data Options = Options{ moduleName :: ModuleHeader 
+data Options = Options{ moduleName :: ModuleHeader
                       , dataTypes :: Bool
                       , strictData :: Bool
                       , strictWrap :: Bool
@@ -120,6 +124,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genLinePragmas :: Bool
                       , genvisage :: Bool
                       , genAspectAG :: Bool
+                      , noGroup :: [String]
+                      , extends :: Maybe String
                       , genAttributeList :: Bool
                       , forceIrrefutables :: Maybe String
                       , uniqueDispenser :: String
@@ -135,6 +141,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseTy :: Bool
                       , checkParseBlock :: Bool
                       , nocatas :: Set NontermIdent
+                      , kennedyWarren :: Bool
+                      , noOptimizations :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -181,6 +189,8 @@ noOptions = Options { moduleName    = NoName
                     , genLinePragmas = False
                     , genvisage      = False
                     , genAspectAG    = False
+                    , noGroup        = []
+                    , extends        = Nothing
                     , genAttributeList = False
                     , forceIrrefutables = Nothing
                     , uniqueDispenser = "nextUnique"
@@ -196,28 +206,30 @@ noOptions = Options { moduleName    = NoName
                     , checkParseTy  = False
                     , checkParseBlock = False
                     , nocatas         = Set.empty
+                    , kennedyWarren   = False
+                    , noOptimizations = False
                     }
 
-moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}            
-dataOpt         opts = opts{dataTypes    = True}            
-strictDataOpt   opts = opts{strictData   = True}            
-strictWrapOpt   opts = opts{strictWrap   = True}            
-cataOpt         opts = opts{folds        = True}            
-semfunsOpt      opts = opts{semfuns      = True}            
-signaturesOpt   opts = opts{typeSigs     = True}            
-prettyOpt       opts = opts{attrInfo     = True}            
+moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
+dataOpt         opts = opts{dataTypes    = True}
+strictDataOpt   opts = opts{strictData   = True}
+strictWrapOpt   opts = opts{strictWrap   = True}
+cataOpt         opts = opts{folds        = True}
+semfunsOpt      opts = opts{semfuns      = True}
+signaturesOpt   opts = opts{typeSigs     = True}
+prettyOpt       opts = opts{attrInfo     = True}
 renameOpt       opts = opts{rename       = True}
 wrappersOpt     opts = opts{wrappers     = True}
 modcopyOpt      opts = opts{modcopy      = True}
 newtypesOpt     opts = opts{newtypes     = True}
 nestOpt         opts = opts{nest         = True}
 smacroOpt       opts = opts{smacro       = True}
-verboseOpt      opts = opts{verbose      = True}            
-helpOpt         opts = opts{showHelp     = True}            
-versionOpt      opts = opts{showVersion  = True}            
-prefixOpt pre   opts = opts{prefix       = pre }            
-selfOpt         opts = opts{withSelf     = True}            
-cycleOpt        opts = opts{withCycle    = True}            
+verboseOpt      opts = opts{verbose      = True}
+helpOpt         opts = opts{showHelp     = True}
+versionOpt      opts = opts{showVersion  = True}
+prefixOpt pre   opts = opts{prefix       = pre }
+selfOpt         opts = opts{withSelf     = True}
+cycleOpt        opts = opts{withCycle    = True}
 visitOpt        opts = opts{visit        = True, withCycle = True}
 seqOpt          opts = opts{withSeq      = True}
 unboxOpt        opts = opts{unbox        = True}
@@ -241,6 +253,16 @@ genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
 genAspectAGOpt opts = opts{genAspectAG = True}
+noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}            
+  where extract s = case dropWhile isSeparator s of
+                                "" -> []
+                                s' -> w : extract s''
+                                      where (w, s'') =
+                                             break isSeparator  s'
+        isSeparator x = x == ':'
+
+extendsOpt  m  opts = opts{extends  = Just m }            
+
 genAttrListOpt opts = opts { genAttributeList = True }
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
 uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
@@ -257,6 +279,8 @@ parseHsRhsOpt opts = opts { checkParseRhs = True }
 parseHsTpOpt opts = opts { checkParseTy = True }
 parseHsBlockOpt opts = opts { checkParseBlock = True }
 parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
+kennedyWarrenOpt opts = opts { kennedyWarren = True }
+noOptimizeOpt opts = opts { noOptimizations = True }
 nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
   set = Set.fromList ids
   ids = map identifier lst
@@ -266,15 +290,34 @@ nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
             | otherwise = p : split ps
     where (p,ps) = break (== ',') str
 
-outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}            
-searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}            
+outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}
+searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
   where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
                      in if null p then [] else p : extract ps
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt
 optimizeOpt   = visitOpt . casesOpt
 
+condDisableOptimizations opts
+  | noOptimizations opts =
+      opts { strictData         = False
+           , strictWrap         = False
+           , withSeq            = False
+           , unbox              = False
+           , bangpats           = False
+           , cases              = False
+           , strictCases        = False
+           , stricterCases      = False
+           , strictSems         = False
+           , localCps           = False
+           , splitSems          = False
+           , breadthFirstStrict = False
+           }
+  | otherwise = opts
+
 getOptions args = let (flags,files,errors) = getOpt Permute options args
-                  in (foldl (flip ($)) noOptions flags,files,errors)
+                      appliedOpts = foldl (flip ($)) noOptions flags
+                      finOpts = condDisableOptimizations appliedOpts
+                  in (finOpts,files,errors)
 
 data ModuleHeader  = NoName
                    | Name String
