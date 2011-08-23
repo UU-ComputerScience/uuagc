@@ -1,0 +1,10 @@
+Example variants:
+
+the final, full, complete ones, though without indexing functionality:
+- Html.ag, plain AG
+- HtmlHS.ag, AG with Haskell syntax
+
+stripped down version only producing html, as in the accompanying slides:
+- Html0HS.ag, AG with Haskell syntax
+
+Choose one of the above in the Makefile

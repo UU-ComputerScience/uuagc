@@ -1,6 +1,7 @@
+-- Plain AG
+
 imports
 {
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fdo-lambda-eta-expansion -fvia-C #-}
 module Main(main) where
 
 import UU.Parsing
@@ -100,6 +101,11 @@ DATA Doc
   | Paragraph
       text  : {String}
   | Toc
+
+  -- following are included because it is part of the test, but not used
+  | Index
+  | Keyword
+      text  : {String}
 
 DATA Root
   | Root
@@ -229,6 +235,7 @@ SEM Docs
 -- Add some artificial dependencies to tweak the scheduler
 --
 
+{-
 SEM Docs
   | Cons
       hd.left < tl.right
@@ -237,6 +244,7 @@ SEM Doc
   | Paragraph
       lhs.left < lhs.gathToc
       lhs.prefix < lhs.gathToc
+-}
 
 
 --
