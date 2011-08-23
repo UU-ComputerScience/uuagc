@@ -1,6 +1,7 @@
+-- Haskell syntax AG
+
 imports
 {
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fdo-lambda-eta-expansion -fvia-C #-}
 module Main(main) where
 
 import UU.Parsing
@@ -91,31 +92,33 @@ trim
 --
 
 -- Give a name to lists such that we can give a semantics (with constructors Cons and Nil)
-TYPE Docs = [Doc]
+type Docs = [Doc]
 
-DATA Doc
+data Doc
   | Section
-      title : {String}
-      body  : Docs
+      title :: {String}
+      body  :: Docs
   | Paragraph
-      text  : {String}
+      text  :: {String}
   | Toc
+
+  -- following are included because it is part of the test, but not used
   | Index
   | Keyword
-      word  : {String}
+      text  :: {String}
 
-DATA Root
+data Root
   | Root
-      body : Docs
+      body :: Docs
 
 -- Derive show instances when generating Haskell data types for these data declarations
-DERIVING * : Show
+deriving * : Show
 
 -- Generates an interface to the haskell world:
 --   inh  = Inh_Root { }
 --   syn  = wrap_Root sem inh
 --   code = html_Syn_Root syn
-WRAPPER Root
+wrapper Root
 
 
 --
@@ -123,13 +126,13 @@ WRAPPER Root
 --
 
 
-ATTR Docs Doc [ level : Int | | ]
+attr Docs Doc inh level :: Int
 
-SEM Root
+sem Root
   | Root
       loc.level = 1
 
-SEM Doc
+sem Doc
   | Section
       loc.level = 1 + @lhs.level
 
@@ -139,13 +142,14 @@ SEM Doc
 -- (sibling counter)
 --
 
-ATTR Docs Doc [ | count : Int | ]
+attr Docs Doc  inh count :: Int
+               syn count :: Int
 
-SEM Root
+sem Root
   | Root
       body.count = 1
 
-SEM Doc
+sem Doc
   | Section
       lhs.count  = 1 + @lhs.count
       body.count = 1
@@ -158,49 +162,51 @@ SEM Doc
 --   loc.context is a string representation of the prefix of the current node
 --
 
-ATTR Docs Doc [ prefix : {[Int]} | | ]
-SEM Root
+attr Docs Doc inh prefix :: {[Int]}
+sem Root
   | Root
       body.prefix = []
 
-SEM Doc
+sem Doc
   | Section
       loc.prefix  = @lhs.count : @lhs.prefix
       loc.context = concat . intersperse "." . map show . reverse $ @loc.prefix
       
-      loc.context : {String}  -- type signature needed because loc.context is needed in more than one visit
+      loc.context :: {String}  -- type signature needed because loc.context is needed in more than one visit
 
 
 --
 -- Table of contents attribute
 --
 
-ATTR Docs Doc [ toc : PP_Doc | | gathToc USE {>-<} {empty} : {PP_Doc} ]
+attr Docs Doc  inh toc :: PP_Doc
+               syn gathToc use {>-<} {empty} :: {PP_Doc}
 
-SEM Root
+sem Root
   | Root
       body.toc = ul @body.gathToc
 
-SEM Doc
+sem Doc
   | Section
       loc.name    = @loc.context >#< @title
       loc.tocline = aHref @loc.context @loc.name
       lhs.gathToc = @loc.tocline >-< ul @body.gathToc
       
-      loc.name : {PP_Doc}  -- type signature needed because loc.name is needed in more than one visit
+      loc.name :: {PP_Doc}  -- type signature needed because loc.name is needed in more than one visit
 
 
 --
 -- Left attribute
 --
 
-ATTR Docs Doc [ | left : String | ]
+attr Docs Doc  inh left :: String
+               syn left :: String
 
-SEM Root
+sem Root
   | Root
       body.left = ""
 
-SEM Doc
+sem Doc
   | Section
       body.left = ""
       lhs.left  = @loc.context
@@ -209,19 +215,20 @@ SEM Doc
 -- Right attribute
 --
 
-ATTR Docs Doc [ | right : String | ]
+attr Docs Doc  inh right :: String
+               syn right :: String
 
-SEM Root
+sem Root
   | Root
       body.right = ""
 
-SEM Doc
+sem Doc
   | Section
       body.right = ""
       lhs.right  = @loc.context
 
 -- manually implement right-to-left copy rule
-SEM Docs
+sem Docs
   | Cons
       tl.right = @lhs.right
       hd.right  = @tl.right
@@ -232,23 +239,25 @@ SEM Docs
 -- Add some artificial dependencies to tweak the scheduler
 --
 
-SEM Docs
+{-
+sem Docs
   | Cons
       hd.left < tl.right
 
-SEM Doc
+sem Doc
   | Paragraph
       lhs.left < lhs.gathToc
       lhs.prefix < lhs.gathToc
+-}
 
 
 --
 -- Html generation
 --
 
-ATTR Root Docs Doc [ | | html USE {>-<} {empty} : PP_Doc ]
+attr Root Docs Doc syn html use {>-<} {empty} :: PP_Doc
 
-SEM Doc
+sem Doc
   | Section
       lhs.html = aName @loc.context
                  >-< h @lhs.level @loc.name
@@ -261,10 +270,6 @@ SEM Doc
       lhs.html = p @text
   | Toc
       lhs.html = h @lhs.level "Table Of Contents" >-< @lhs.toc
-  | Index
-      lhs.html = h @lhs.level "Index" >-< p "To be done."
-  | Keyword
-      lhs.html = empty
 
 
 --

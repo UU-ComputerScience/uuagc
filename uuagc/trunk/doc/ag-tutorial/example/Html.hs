@@ -1,7 +1,8 @@
-{-# OPTIONS_GHC -fbang-patterns #-}
--- UUAGC 0.9.5 (Html.ag)
 
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fdo-lambda-eta-expansion -fvia-C #-}
+
+-- UUAGC 0.9.38.6 (Html.ag)
+
+
 module Main(main) where
 
 import UU.Parsing
@@ -78,6 +79,7 @@ trim
   = (reverse . trimAtFront . reverse) . trimAtFront
   where trimAtFront = dropWhile isSpace
 
+
 main :: IO ()
 main
   = do args <- getArgs
@@ -116,6 +118,7 @@ pretty :: PP_Doc -> String
 pretty doc
   = disp doc 10000 ""
 
+
 aHref :: PP a => String -> a -> PP_Doc
 aHref bookmark txt
   = "<a href=\"#" >|< bookmark >|< "\">" >|< txt >|< "</a>"
@@ -143,129 +146,159 @@ h n title
 hr :: PP_Doc
 hr = pp "<hr/>"
 -- Doc ---------------------------------------------------------
-data Doc = Doc_Paragraph !(String)
-         | Doc_Section !(String) !(Docs)
-         | Doc_Toc 
-         deriving ( Show)
+data Doc  = Doc_Index 
+          | Doc_Keyword (String) 
+          | Doc_Paragraph (String) 
+          | Doc_Section (String) (Docs ) 
+          | Doc_Toc 
+          deriving ( Show)
 -- cata
-sem_Doc :: Doc ->
-           T_Doc
-sem_Doc !(Doc_Paragraph _text) =
-    (sem_Doc_Paragraph _text)
-sem_Doc !(Doc_Section _title _body) =
-    (sem_Doc_Section _title (sem_Docs _body))
-sem_Doc !(Doc_Toc ) =
+sem_Doc :: Doc  ->
+           T_Doc 
+sem_Doc (Doc_Index )  =
+    (sem_Doc_Index )
+sem_Doc (Doc_Keyword _text )  =
+    (sem_Doc_Keyword _text )
+sem_Doc (Doc_Paragraph _text )  =
+    (sem_Doc_Paragraph _text )
+sem_Doc (Doc_Section _title _body )  =
+    (sem_Doc_Section _title (sem_Docs _body ) )
+sem_Doc (Doc_Toc )  =
     (sem_Doc_Toc )
 -- semantic domain
-type T_Doc = Int ->
-             String ->
-             ([Int]) ->
-             ( Int,PP_Doc,String,T_Doc_1)
-type T_Doc_1 = Int ->
-               String ->
-               PP_Doc ->
-               ( PP_Doc,String)
-sem_Doc_Paragraph :: String ->
-                     T_Doc
-sem_Doc_Paragraph !text_ =
-    (\ (!_lhsIcount)
-       (!_lhsIleft)
-       (!_lhsIprefix) ->
-         (let _lhsOcount :: Int
-              _lhsOgathToc :: PP_Doc
+type T_Doc  = Int ->
+              String ->
+              Int ->
+              ([Int]) ->
+              String ->
+              PP_Doc ->
+              ( Int,PP_Doc,PP_Doc,String,String)
+sem_Doc_Index :: T_Doc 
+sem_Doc_Index  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
+         (let _lhsOgathToc :: PP_Doc
+              _lhsOhtml :: PP_Doc
+              _lhsOcount :: Int
               _lhsOleft :: String
-              _lhsOcount =
-                  _lhsIcount
+              _lhsOright :: String
               _lhsOgathToc =
                   empty
+              _lhsOhtml =
+                  empty
+              _lhsOcount =
+                  _lhsIcount
               _lhsOleft =
                   _lhsIleft
-              ( !sem_Doc_1) =
-                  (sem_Doc_Paragraph_1 text_)
-          in  ( _lhsOcount,_lhsOgathToc,_lhsOleft,sem_Doc_1)))
-sem_Doc_Paragraph_1 :: String ->
-                       T_Doc_1
-sem_Doc_Paragraph_1 !text_ =
-    (\ (!_lhsIlevel)
-       (!_lhsIright)
-       (!_lhsItoc) ->
+              _lhsOright =
+                  _lhsIright
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
+sem_Doc_Keyword :: String ->
+                   T_Doc 
+sem_Doc_Keyword text_  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
+         (let _lhsOgathToc :: PP_Doc
+              _lhsOhtml :: PP_Doc
+              _lhsOcount :: Int
+              _lhsOleft :: String
+              _lhsOright :: String
+              _lhsOgathToc =
+                  empty
+              _lhsOhtml =
+                  empty
+              _lhsOcount =
+                  _lhsIcount
+              _lhsOleft =
+                  _lhsIleft
+              _lhsOright =
+                  _lhsIright
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
+sem_Doc_Paragraph :: String ->
+                     T_Doc 
+sem_Doc_Paragraph text_  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
          (let _lhsOhtml :: PP_Doc
+              _lhsOgathToc :: PP_Doc
+              _lhsOcount :: Int
+              _lhsOleft :: String
               _lhsOright :: String
               _lhsOhtml =
                   p text_
+              _lhsOgathToc =
+                  empty
+              _lhsOcount =
+                  _lhsIcount
+              _lhsOleft =
+                  _lhsIleft
               _lhsOright =
                   _lhsIright
-          in  ( _lhsOhtml,_lhsOright)))
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
 sem_Doc_Section :: String ->
-                   T_Docs ->
-                   T_Doc
-sem_Doc_Section !title_ !body_ =
-    (\ (!_lhsIcount)
-       (!_lhsIleft)
-       (!_lhsIprefix) ->
+                   T_Docs  ->
+                   T_Doc 
+sem_Doc_Section title_ body_  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
          (let _lhsOcount :: Int
-              _bodyOprefix :: ([Int])
-              _bodyOleft :: String
+              _bodyOcount :: Int
               _context :: String
               _name :: PP_Doc
-              _bodyOcount :: Int
-              body_1 :: T_Docs_1
-              _bodyIgathToc :: PP_Doc
               _lhsOgathToc :: PP_Doc
+              _bodyOleft :: String
               _lhsOleft :: String
+              _bodyOright :: String
+              _lhsOright :: String
+              _lhsOhtml :: PP_Doc
+              _bodyOlevel :: Int
+              _bodyOprefix :: ([Int])
+              _bodyOtoc :: PP_Doc
+              _bodyIcount :: Int
+              _bodyIgathToc :: PP_Doc
+              _bodyIhtml :: PP_Doc
+              _bodyIleft :: String
+              _bodyIright :: String
+              _level =
+                  1 + _lhsIlevel
               _lhsOcount =
                   1 + _lhsIcount
+              _bodyOcount =
+                  1
               _prefix =
                   _lhsIcount : _lhsIprefix
-              _bodyOprefix =
-                  _prefix
-              _bodyOleft =
-                  ""
               _context =
                   concat . intersperse "." . map show . reverse $ _prefix
               _name =
                   _context     >#< title_
               _tocline =
                   aHref _context     _name
-              _bodyOcount =
-                  1
-              ( !_bodyIgathToc,!body_1) =
-                  (body_ _bodyOcount _bodyOleft _bodyOprefix)
               _lhsOgathToc =
                   _tocline     >-< ul _bodyIgathToc
+              _bodyOleft =
+                  ""
               _lhsOleft =
                   _context
-              ( !sem_Doc_1) =
-                  (sem_Doc_Section_1 body_1 _lhsIleft _name _context)
-          in  ( _lhsOcount,_lhsOgathToc,_lhsOleft,sem_Doc_1)))
-sem_Doc_Section_1 :: T_Docs_1 ->
-                     String ->
-                     PP_Doc ->
-                     String ->
-                     T_Doc_1
-sem_Doc_Section_1 !body_1 !_lhsIleft !_name !_context =
-    (\ (!_lhsIlevel)
-       (!_lhsIright)
-       (!_lhsItoc) ->
-         (let _bodyOtoc :: PP_Doc
-              _bodyOlevel :: Int
-              _bodyOright :: String
-              _bodyIcount :: Int
-              _bodyIhtml :: PP_Doc
-              _bodyIleft :: String
-              _bodyIright :: String
-              _lhsOhtml :: PP_Doc
-              _lhsOright :: String
-              _bodyOtoc =
-                  _lhsItoc
-              _level =
-                  1 + _lhsIlevel
-              _bodyOlevel =
-                  _level
               _bodyOright =
                   ""
-              ( !_bodyIcount,!_bodyIhtml,!_bodyIleft,!_bodyIright) =
-                  (body_1 _bodyOlevel _bodyOright _bodyOtoc)
+              _lhsOright =
+                  _context
               _lhsOhtml =
                   aName _context
                   >-< h _lhsIlevel _name
@@ -273,225 +306,203 @@ sem_Doc_Section_1 !body_1 !_lhsIleft !_name !_context =
                       >#< (if null _lhsIright then empty else aHref _lhsIright "right")
                   >-< _bodyIhtml
                   >-< hr
-              _lhsOright =
-                  _context
-          in  ( _lhsOhtml,_lhsOright)))
-sem_Doc_Toc :: T_Doc
+              _bodyOlevel =
+                  _level
+              _bodyOprefix =
+                  _prefix
+              _bodyOtoc =
+                  _lhsItoc
+              ( _bodyIcount,_bodyIgathToc,_bodyIhtml,_bodyIleft,_bodyIright) =
+                  body_ _bodyOcount _bodyOleft _bodyOlevel _bodyOprefix _bodyOright _bodyOtoc 
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
+sem_Doc_Toc :: T_Doc 
 sem_Doc_Toc  =
-    (\ (!_lhsIcount)
-       (!_lhsIleft)
-       (!_lhsIprefix) ->
-         (let _lhsOcount :: Int
-              _lhsOgathToc :: PP_Doc
-              _lhsOleft :: String
-              _lhsOcount =
-                  _lhsIcount
-              _lhsOgathToc =
-                  empty
-              _lhsOleft =
-                  _lhsIleft
-              ( !sem_Doc_1) =
-                  (sem_Doc_Toc_1 )
-          in  ( _lhsOcount,_lhsOgathToc,_lhsOleft,sem_Doc_1)))
-sem_Doc_Toc_1 :: T_Doc_1
-sem_Doc_Toc_1  =
-    (\ (!_lhsIlevel)
-       (!_lhsIright)
-       (!_lhsItoc) ->
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
          (let _lhsOhtml :: PP_Doc
+              _lhsOgathToc :: PP_Doc
+              _lhsOcount :: Int
+              _lhsOleft :: String
               _lhsOright :: String
               _lhsOhtml =
                   h _lhsIlevel "Table Of Contents" >-< _lhsItoc
+              _lhsOgathToc =
+                  empty
+              _lhsOcount =
+                  _lhsIcount
+              _lhsOleft =
+                  _lhsIleft
               _lhsOright =
                   _lhsIright
-          in  ( _lhsOhtml,_lhsOright)))
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
 -- Docs --------------------------------------------------------
-type Docs = [Doc]
+type Docs  = [Doc ]
 -- cata
-sem_Docs :: Docs ->
-            T_Docs
-sem_Docs !list =
-    (Prelude.foldr sem_Docs_Cons sem_Docs_Nil (Prelude.map sem_Doc list))
+sem_Docs :: Docs  ->
+            T_Docs 
+sem_Docs list  =
+    (Prelude.foldr sem_Docs_Cons sem_Docs_Nil (Prelude.map sem_Doc list) )
 -- semantic domain
-type T_Docs = Int ->
-              String ->
-              ([Int]) ->
-              ( PP_Doc,T_Docs_1)
-type T_Docs_1 = Int ->
-                String ->
-                PP_Doc ->
-                ( Int,PP_Doc,String,String)
-sem_Docs_Cons :: T_Doc ->
-                 T_Docs ->
-                 T_Docs
-sem_Docs_Cons !hd_ !tl_ =
-    (\ (!_lhsIcount)
-       (!_lhsIleft)
-       (!_lhsIprefix) ->
-         (let _tlOprefix :: ([Int])
-              _hdOprefix :: ([Int])
-              _hdOleft :: String
+type T_Docs  = Int ->
+               String ->
+               Int ->
+               ([Int]) ->
+               String ->
+               PP_Doc ->
+               ( Int,PP_Doc,PP_Doc,String,String)
+sem_Docs_Cons :: T_Doc  ->
+                 T_Docs  ->
+                 T_Docs 
+sem_Docs_Cons hd_ tl_  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
+         (let _tlOright :: String
+              _hdOright :: String
+              _lhsOright :: String
+              _lhsOgathToc :: PP_Doc
+              _lhsOhtml :: PP_Doc
+              _lhsOcount :: Int
+              _lhsOleft :: String
               _hdOcount :: Int
-              hd_1 :: T_Doc_1
+              _hdOleft :: String
+              _hdOlevel :: Int
+              _hdOprefix :: ([Int])
+              _hdOtoc :: PP_Doc
+              _tlOcount :: Int
+              _tlOleft :: String
+              _tlOlevel :: Int
+              _tlOprefix :: ([Int])
+              _tlOtoc :: PP_Doc
               _hdIcount :: Int
               _hdIgathToc :: PP_Doc
+              _hdIhtml :: PP_Doc
               _hdIleft :: String
-              _tlOleft :: String
-              _tlOcount :: Int
-              tl_1 :: T_Docs_1
-              _tlIgathToc :: PP_Doc
-              _lhsOgathToc :: PP_Doc
-              _tlOprefix =
-                  _lhsIprefix
-              _hdOprefix =
-                  _lhsIprefix
-              _hdOleft =
-                  _lhsIleft
-              _hdOcount =
-                  _lhsIcount
-              ( !_hdIcount,!_hdIgathToc,!_hdIleft,!hd_1) =
-                  (hd_ _hdOcount _hdOleft _hdOprefix)
-              _tlOleft =
-                  _hdIleft
-              _tlOcount =
-                  _hdIcount
-              ( !_tlIgathToc,!tl_1) =
-                  (tl_ _tlOcount _tlOleft _tlOprefix)
-              _lhsOgathToc =
-                  _hdIgathToc >-< _tlIgathToc
-              ( !sem_Docs_1) =
-                  (sem_Docs_Cons_1 _hdIleft tl_1 hd_1)
-          in  ( _lhsOgathToc,sem_Docs_1)))
-sem_Docs_Cons_1 :: String ->
-                   T_Docs_1 ->
-                   T_Doc_1 ->
-                   T_Docs_1
-sem_Docs_Cons_1 !_hdIleft !tl_1 !hd_1 =
-    (\ (!_lhsIlevel)
-       (!_lhsIright)
-       (!_lhsItoc) ->
-         (let _tlOtoc :: PP_Doc
-              _tlOlevel :: Int
-              _tlOright :: String
+              _hdIright :: String
               _tlIcount :: Int
+              _tlIgathToc :: PP_Doc
               _tlIhtml :: PP_Doc
               _tlIleft :: String
               _tlIright :: String
-              _lhsOcount :: Int
-              _hdOtoc :: PP_Doc
-              _hdOlevel :: Int
-              _hdOright :: String
-              _hdIhtml :: PP_Doc
-              _hdIright :: String
-              _lhsOhtml :: PP_Doc
-              _lhsOleft :: String
-              _lhsOright :: String
-              _tlOtoc =
-                  _lhsItoc
-              _tlOlevel =
-                  _lhsIlevel
               _tlOright =
                   _lhsIright
-              ( !_tlIcount,!_tlIhtml,!_tlIleft,!_tlIright) =
-                  (tl_1 _tlOlevel _tlOright _tlOtoc)
-              _lhsOcount =
-                  _tlIcount
-              _hdOtoc =
-                  _lhsItoc
-              _hdOlevel =
-                  _lhsIlevel
               _hdOright =
                   _tlIright
-              ( !_hdIhtml,!_hdIright) =
-                  (hd_1 _hdOlevel _hdOright _hdOtoc)
-              _lhsOhtml =
-                  _hdIhtml >-< _tlIhtml
-              _lhsOleft =
-                  _tlIleft
               _lhsOright =
                   _hdIright
-          in  ( _lhsOcount,_lhsOhtml,_lhsOleft,_lhsOright)))
-sem_Docs_Nil :: T_Docs
-sem_Docs_Nil  =
-    (\ (!_lhsIcount)
-       (!_lhsIleft)
-       (!_lhsIprefix) ->
-         (let _lhsOgathToc :: PP_Doc
               _lhsOgathToc =
-                  empty
-              ( !sem_Docs_1) =
-                  (sem_Docs_Nil_1 _lhsIcount _lhsIleft)
-          in  ( _lhsOgathToc,sem_Docs_1)))
-sem_Docs_Nil_1 :: Int ->
-                  String ->
-                  T_Docs_1
-sem_Docs_Nil_1 !_lhsIcount !_lhsIleft =
-    (\ (!_lhsIlevel)
-       (!_lhsIright)
-       (!_lhsItoc) ->
-         (let _lhsOcount :: Int
+                  _hdIgathToc >-< _tlIgathToc
+              _lhsOhtml =
+                  _hdIhtml >-< _tlIhtml
+              _lhsOcount =
+                  _tlIcount
+              _lhsOleft =
+                  _tlIleft
+              _hdOcount =
+                  _lhsIcount
+              _hdOleft =
+                  _lhsIleft
+              _hdOlevel =
+                  _lhsIlevel
+              _hdOprefix =
+                  _lhsIprefix
+              _hdOtoc =
+                  _lhsItoc
+              _tlOcount =
+                  _hdIcount
+              _tlOleft =
+                  _hdIleft
+              _tlOlevel =
+                  _lhsIlevel
+              _tlOprefix =
+                  _lhsIprefix
+              _tlOtoc =
+                  _lhsItoc
+              ( _hdIcount,_hdIgathToc,_hdIhtml,_hdIleft,_hdIright) =
+                  hd_ _hdOcount _hdOleft _hdOlevel _hdOprefix _hdOright _hdOtoc 
+              ( _tlIcount,_tlIgathToc,_tlIhtml,_tlIleft,_tlIright) =
+                  tl_ _tlOcount _tlOleft _tlOlevel _tlOprefix _tlOright _tlOtoc 
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
+sem_Docs_Nil :: T_Docs 
+sem_Docs_Nil  =
+    (\ _lhsIcount
+       _lhsIleft
+       _lhsIlevel
+       _lhsIprefix
+       _lhsIright
+       _lhsItoc ->
+         (let _lhsOgathToc :: PP_Doc
               _lhsOhtml :: PP_Doc
+              _lhsOcount :: Int
               _lhsOleft :: String
               _lhsOright :: String
-              _lhsOcount =
-                  _lhsIcount
+              _lhsOgathToc =
+                  empty
               _lhsOhtml =
                   empty
+              _lhsOcount =
+                  _lhsIcount
               _lhsOleft =
                   _lhsIleft
               _lhsOright =
                   _lhsIright
-          in  ( _lhsOcount,_lhsOhtml,_lhsOleft,_lhsOright)))
+          in  ( _lhsOcount,_lhsOgathToc,_lhsOhtml,_lhsOleft,_lhsOright)))
 -- Root --------------------------------------------------------
-data Root = Root_Root !(Docs)
-          deriving ( Show)
+data Root  = Root_Root (Docs ) 
+           deriving ( Show)
 -- cata
-sem_Root :: Root ->
-            T_Root
-sem_Root !(Root_Root _body) =
-    (sem_Root_Root (sem_Docs _body))
+sem_Root :: Root  ->
+            T_Root 
+sem_Root (Root_Root _body )  =
+    (sem_Root_Root (sem_Docs _body ) )
 -- semantic domain
-type T_Root = ( PP_Doc)
-data Inh_Root = Inh_Root {}
-data Syn_Root = Syn_Root {html_Syn_Root :: !(PP_Doc)}
-wrap_Root !sem !(Inh_Root ) =
-    (let ( !_lhsOhtml) =
-             (sem )
-     in  (Syn_Root _lhsOhtml))
-sem_Root_Root :: T_Docs ->
-                 T_Root
-sem_Root_Root !body_ =
-    (let _bodyOlevel :: Int
-         _bodyOright :: String
-         _bodyOleft :: String
+type T_Root  = ( PP_Doc)
+data Inh_Root  = Inh_Root {}
+data Syn_Root  = Syn_Root {html_Syn_Root :: PP_Doc}
+wrap_Root :: T_Root  ->
+             Inh_Root  ->
+             Syn_Root 
+wrap_Root sem (Inh_Root )  =
+    (let ( _lhsOhtml) = sem 
+     in  (Syn_Root _lhsOhtml ))
+sem_Root_Root :: T_Docs  ->
+                 T_Root 
+sem_Root_Root body_  =
+    (let _bodyOcount :: Int
          _bodyOprefix :: ([Int])
-         _bodyOcount :: Int
-         body_1 :: T_Docs_1
-         _bodyIgathToc :: PP_Doc
          _bodyOtoc :: PP_Doc
+         _bodyOleft :: String
+         _bodyOright :: String
+         _lhsOhtml :: PP_Doc
+         _bodyOlevel :: Int
          _bodyIcount :: Int
+         _bodyIgathToc :: PP_Doc
          _bodyIhtml :: PP_Doc
          _bodyIleft :: String
          _bodyIright :: String
-         _lhsOhtml :: PP_Doc
          _level =
              1
-         _bodyOlevel =
-             _level
-         _bodyOright =
-             ""
-         _bodyOleft =
-             ""
-         _bodyOprefix =
-             []
          _bodyOcount =
              1
-         ( !_bodyIgathToc,!body_1) =
-             (body_ _bodyOcount _bodyOleft _bodyOprefix)
+         _bodyOprefix =
+             []
          _bodyOtoc =
              ul _bodyIgathToc
-         ( !_bodyIcount,!_bodyIhtml,!_bodyIleft,!_bodyIright) =
-             (body_1 _bodyOlevel _bodyOright _bodyOtoc)
+         _bodyOleft =
+             ""
+         _bodyOright =
+             ""
          _lhsOhtml =
              _bodyIhtml
+         _bodyOlevel =
+             _level
+         ( _bodyIcount,_bodyIgathToc,_bodyIhtml,_bodyIleft,_bodyIright) =
+             body_ _bodyOcount _bodyOleft _bodyOlevel _bodyOprefix _bodyOright _bodyOtoc 
      in  ( _lhsOhtml))
