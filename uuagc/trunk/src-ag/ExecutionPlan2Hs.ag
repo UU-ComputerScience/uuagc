@@ -251,6 +251,7 @@ SEM ENonterminal
   | ENonterminal loc.outedges  = Set.fromList $ map (\(_,f,_) -> f) @prods.allvisits
                  loc.inedges   = Set.fromList $ map (\(_,_,t) -> t) @prods.allvisits
                  loc.allstates = Set.insert @initial $ @loc.inedges `Set.union` @loc.outedges
+		 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
 		 loc.t_type    = "T_" ++ show @nt
                  loc.t_init    = "type" >#< @loc.t_type >#< "=" >#< @loc.t_type >|< "_s" >|< @initial
                  loc.t_states  = vlist $ map (\st ->
@@ -259,9 +260,11 @@ SEM ENonterminal
                                         k_st  = "K_" >|< nt_st
                                         c_st  = "C_" >|< nt_st
                                         inv_st  = "inv_" >|< nt_st
-                                    in  "data" >#< t_st >#< "where" >#< c_st >#< "::" >#< "{" >#< inv_st >#< "::"
-                                               >#< "!" >|< pp_parens ("forall t." >#< k_st >#< "t" >#< "->" >#< "t") >#< "}"
-                                               >#< "->" >#< t_st
+                                    in  "data" >#< t_st >#< "where" >#< c_st >#< "::" >#< "{" >#<
+				    	(if null (@loc.stvisits st)
+					then empty
+					else inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< "t" >#< "->" >#< "t"))
+					>#< "}" >#< "->" >#< t_st
                                         ) $ Set.toList @loc.allstates
 
 -- type of a key which identifies a visit v from state s
@@ -364,17 +367,19 @@ SEM EProduction
                                >-< @loc.semname >#< ppSpaced @loc.args >#< "="
                                >#< "st" >|< @lhs.initial >#< "where"
                                >-< (indent 3 $ vlist @loc.statefns >-< @rules.sem_rules)
-                loc.statefns = map (\st -> "st" >|< st >#< @loc.stargs st >#< "=" >#<
-                                           "C_" >|< @lhs.nt >|< "_s" >|< st >#< "k" >|< st >#< "where"
+                loc.statefns = map (\st -> ("st" >|< st >#< @loc.stargs st >#< "=" >#<
+                                           "C_" >|< @lhs.nt >|< "_s" >|< st >#< 
+					   if null (@loc.stvisits st)
+			       	   	   then empty
+					   else "k" >|< st >#< "where")
                                            >-< indent 3 (@loc.stks st >-< @loc.stvs st)
                                    ) $ Set.toList @lhs.allstates
                 loc.stargs   = \st -> ppSpaced $ Set.toList $ maybe Set.empty id $ Map.lookup st @visits.intramap
-                loc.stks     = \st -> "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
-                                      >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
+                loc.stks     = \st -> if null (@loc.stvisits st)
+                                      then empty
+                                      else "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
+                                      	   >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
                                                                   >#< "v" >|< v) $ @loc.stvisits st)
-                                  >-< if null (@loc.stvisits st)
-                                      then "k" >|< st >#< "_" >#< "=" >#< "error \"unreachable\""
-                                      else empty
                 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @visits.allvisits
                 loc.stvs     = \st -> vlist $ map snd $ filter (\(f,pp) -> f == st) @visits.sem_visit
                 visits.mrules = @rules.mrules
@@ -412,7 +417,7 @@ SEM EProduction
   | EProduction visits.childintros = @children.childintros
 
 SEM EChild
-  | EChild lhs.childintros = Map.singleton @name $ locname @name >#< "<-" >#< "return" >#< "$" >#<
+  | EChild lhs.childintros = Map.singleton @name $ "let" >#< locname @name >#< "=" >#<
                              if isJust @virtual
                              then "sem_" >|< extractNonterminal @tp >#< instname @name
                              else "field_" >|< @name
@@ -440,7 +445,7 @@ SEM ERule
                                   >#< @rhs.semfunc)
                              else empty
           loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
-          lhs.mrules       = Map.singleton @name $ @loc.addbang @pattern.sem_lhs >#< "<-" >#< "return" >#< "$" >#< @name >#< @loc.attrlst
+          lhs.mrules       = Map.singleton @name $ "let" >#< @loc.addbang @pattern.sem_lhs >#< "=" >#< @name >#< @loc.attrlst
 	  pattern.addtilde = \x -> if cases @lhs.options then x else "~" >|< x
 	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
 
