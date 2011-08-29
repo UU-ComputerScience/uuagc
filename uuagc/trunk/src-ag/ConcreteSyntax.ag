@@ -4,6 +4,7 @@ import UU.Scanner.Position (Pos)
 import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
+import Macro --marcos
 }
 
 
@@ -78,6 +79,7 @@ DATA Attrs     | Attrs  pos    : {Pos}
 DATA Alt       | Alt    pos    : {Pos}
                         names  : ConstructorSet
                         fields : {Fields}
+                        macro  : MaybeMacro --marcos: macro extension
 
 DATA SemAlt    | SemAlt pos    : {Pos}
                         constructorSet   : ConstructorSet
@@ -116,4 +118,5 @@ DATA NontSet   | NamedSet   name      : {NontermIdent}
                | Intersect  set1,set2 : NontSet
                | Difference set1,set2 : NontSet
                | Path       from,to   : {NontermIdent}
+
 

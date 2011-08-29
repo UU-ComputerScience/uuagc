@@ -68,6 +68,7 @@ SEM AG
                                      @loc.checkedAugments
                                      @loc.checkedArounds
                                      @loc.checkedMerges
+                                     @loc.allMacros
 
 
 -------------------------------------------------------------------------------
@@ -1164,9 +1165,10 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
                     -> Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))
+                    -> Map NontermIdent (Map ConstructorIdent MaybeMacro)
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap =
+constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1175,6 +1177,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                              instsmap  = Map.findWithDefault Map.empty             nt allinsts
                              params    = Map.findWithDefault []                    nt ntParams
                              mergemap  = Map.findWithDefault Map.empty             nt mergeMap
+                             macromap  = Map.findWithDefault Map.empty             nt macros
                              alt (con,flds) =
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
@@ -1202,7 +1205,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con cldrn rules tsigs
+                                   in Production con cldrn rules tsigs (fromJust $ Map.lookup con macromap)
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }
@@ -1212,7 +1215,30 @@ mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus = Map.unionWith (++)
 }
 
+
 --marcos
+-------------------------------------------------------------------------------
+--         Collecting Macro information
+-------------------------------------------------------------------------------
+
+ATTR Alt Alts Elem Elems
+     [ | | collectedMacros USE {++} {[]} : {[(NontermIdent, ConstructorIdent, MaybeMacro)]}]
+
+
+SEM Alt
+  | Alt  lhs.collectedMacros  =       [ (nt, con, @macro)
+                                      | nt  <- Set.toList @lhs.nts
+                                      , con <- Set.toList (@names.constructors (Map.findWithDefault Set.empty nt @lhs.allConstructors))
+                                      ]
+
+
+SEM AG
+  | AG
+
+         loc.allMacros   = let f (nt,con,m) = Map.insertWith (Map.union) nt (Map.singleton con m)
+                           in  foldr f (Map.empty) @elems.collectedMacros
+
+
 -------------------------------------------------------------------------------
 --         Collecting the AGI information
 -------------------------------------------------------------------------------
@@ -1242,4 +1268,5 @@ SEM Attrs
                                                 else  Map.insert nt (Map.fromList @inherited, Map.fromList @synthesized) decls
 
                         in  foldl insert @lhs.attrs (Set.toList @lhs.nts)
+
 

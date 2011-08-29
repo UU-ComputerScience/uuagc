@@ -5,6 +5,7 @@ import Data.Set(Set)
 import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
+import Macro --marcos
 import CommonTypes
 }
 
@@ -43,6 +44,7 @@ DATA Production  | Production   con      : {ConstructorIdent}
                                 children : Children
                                 rules    : Rules
                                 typeSigs : TypeSigs
+                                macro    : MaybeMacro --marcos
 
 DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
