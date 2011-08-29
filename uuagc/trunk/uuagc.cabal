@@ -72,6 +72,7 @@ executable uuagc
     , VisageSyntax
     , VisagePatterns
     , AG2AspectAG
+    , Macro
     , RhsCheck
     , ResolveLocals
     , Knuth1

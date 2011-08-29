@@ -13,6 +13,7 @@ import Data.Char
 import Scanner (Input(..),scanLit,input)
 import Data.List
 import Expression
+import Macro --marcos
 import UU.Scanner.Token
 import UU.Scanner.TokenParser
 import UU.Scanner.GenToken
@@ -209,7 +210,7 @@ parseFile agi opts searchPath file
                  <$> pIdentifiers <*> pUse <* pTypeColon <*> pType <?> "attribute declarations"
 
     pAlt :: AGParser Alt
-    pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
+    pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <*> pMaybeMacro <?> "a datatype alternative" --marcos
 
     pAlts :: AGParser Alts
     pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -273,6 +274,24 @@ parseFile agi opts searchPath file
       = if doubleColons opts
         then pDoubleColon
         else pColon
+
+    --marcos
+    pMaybeMacro :: AGParser MaybeMacro
+    pMaybeMacro  =  Just <$ pDoubleArrow <*>  pMacro 
+                <|> pSucceed Nothing
+
+    pMacro :: AGParser Macro
+    pMacro
+          =  Macro <$> pIdentifierU
+                   <*> pList1 pMacroChild 
+                   <?> "macro"
+
+    pMacroChild :: AGParser MacroChild
+    pMacroChild
+          =  (pIdentifier <* pEquals) <**>
+             (flip RuleChild   <$> pMacro       <|>
+              flip ChildChild  <$> pIdentifier  <|>
+              flip ValueChild  <$> pCodescrap' )
 
     --
     -- End of AG Parser
@@ -453,7 +472,7 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
-      pEXTENDS, -- marcos
+      pEXTENDS, --marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
       pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS

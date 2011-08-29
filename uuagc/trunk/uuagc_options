@@ -90,6 +90,9 @@ options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genline
 file: "src-ag/AG2AspectAG.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
 
+file: "src-ag/Macro.ag"
+options: module, pretty, data, genlinepragmas, checkParseHaskell
+
 file: "src-ag/ExecutionPlan2Hs.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
 
