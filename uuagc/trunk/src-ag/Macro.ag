@@ -1,0 +1,24 @@
+--marcos: macros extension
+
+imports
+{
+import CommonTypes
+}
+
+TYPE MaybeMacro  = MAYBE Macro
+
+DATA Macro     | Macro   con      : {ConstructorIdent}
+                         children : MacroChildren
+               | None
+
+TYPE MacroChildren = [MacroChild]
+
+DATA MacroChild | RuleChild   name      : {Identifier}
+                              macro     : Macro
+                | ChildChild  name      : {Identifier}
+                              child     : {Identifier}
+
+                | ValueChild  name      : {Identifier}
+                              value     : {String}
+
+DERIVING MaybeMacro Macro MacroChildren MacroChild : Show
