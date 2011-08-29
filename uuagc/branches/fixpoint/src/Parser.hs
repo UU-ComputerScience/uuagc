@@ -13,6 +13,7 @@ import Data.Char
 import Scanner (Input(..),scanLit,input)
 import Data.List
 import Expression
+import Macro --marcos
 import UU.Scanner.Token
 import UU.Scanner.TokenParser
 import UU.Scanner.GenToken
@@ -59,30 +60,32 @@ parseFile agi opts searchPath file
                          else ([],txt)
           tokens       = input opts (initPos file) text
 
-          steps = parse pElemsFiles tokens
-          stop (_,fs,_,_) = null fs
-          cont (es,fs,allfs,msg)
+          steps = parse (pElemsFiles agi) tokens
+          stop (_,fs,_,_,_) = null fs
+          cont (es,fs,allfs,ext,msg)
             = do files <- mapM (resolveFile searchPath) fs
-                 res <- mapM (parseFile opts searchPath) files
-                 let (ess,fss,allfss, msgs) = unzip4 res
-                 return (es ++ concat ess, concat fss, concat allfss ++ allfs, msg ++ concat msgs)
-      let (Pair (es,fls) _ ,mesg) = evalStepsMessages steps
+                 res <- mapM (parseFile agi opts searchPath) files
+                 let (ess,fss,allfss,_, msgs) = unzip5 res
+                 return (es ++ concat ess, concat fss, concat allfss ++ allfs, ext, msg ++ concat msgs)
+      let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
       let allfs = files ++ fls
-      loopp stop cont (es,allfs,allfs,mesg)
+      loopp stop cont (es,allfs,allfs, ext,mesg)
  where
-  
+
     --
     -- Option dependent AG Parsers inlined here
     -- to have access to the opts
     -- while retaining sharing
     --
-    
-    pElemsFiles :: AGParser ([Elem],[String])
-    pElemsFiles = pFoldr (($),([],[])) pElem'
+
+    pElemsFiles :: Bool -> AGParser ([Elem],[String],Maybe String)
+    pElemsFiles agi = pFoldr (($),([],[],Nothing)) pElem'
        where pElem' =  addElem <$> pElem
                    <|> pINCLUDE *> (addInc <$> pStringPos)
-             addElem e      (es,fs) = (e:es,   fs)
-             addInc  (fn,_) (es,fs) = (  es,fn:fs)
+                   <|> pEXTENDS *> (addExt <$> pStringPos)
+             addElem e      (es,fs,ext) = (e:es,   fs, ext)
+             addInc  (fn,_) (es,fs,ext) = (  es,fn:fs, ext)
+             addExt  (fn,_) (es,fs,ext) = if agi then (es,fs, Just fn) else (es,fn:fs, ext) --marcos
 
     pCodescrapL = (\(ValToken _ str pos) -> (str, pos))<$>
                         parseScrapL <?> "a code block"
@@ -102,14 +105,14 @@ parseFile agi opts searchPath file
     pElems :: AGParser Elems
     pElems = pList_ng pElem
 
-    pComplexType =  List   <$> pBracks pTypeEncapsulated 
+    pComplexType =  List   <$> pBracks pTypeEncapsulated
                <|> Maybe  <$ pMAYBE <*> pType
                <|> Either <$ pEITHER <*> pType <*> pType
                <|> Map    <$ pMAP <*> pTypePrimitive <*> pType
                <|> IntMap <$ pINTMAP <*> pType
                <|> tuple  <$> pParens (pListSep pComma field)
       where field = (,) <$> ((Just <$> pIdentifier <* pTypeColon) `opt` Nothing) <*> pTypeEncapsulated
-            tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t) 
+            tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t)
                              | (n,(f,t)) <- zip [1..] xs
                              ]
 
@@ -121,10 +124,11 @@ parseFile agi opts searchPath file
                  <*> pList pIdentifier
                  <*> pOptAttrs
                  <*> pAlts
-                <*> pSucceed False
+                 <*> pSucceed False
         <|> Attr <$> pATTR
                  <*> pOptClassContext
                  <*> pNontSet
+                 <*> pOptQuantifiers
                  <*> pAttrs
         <|> Type <$> pTYPE
                  <*> pOptClassContext
@@ -136,6 +140,7 @@ parseFile agi opts searchPath file
                  <*> pOptClassContext
                  <*> pNontSet
                  <*> pOptAttrs
+                 <*> pOptQuantifiers
                  <*> pSemAlts
         <|> Set  <$> pSET
                  <*> pIdentifierU
@@ -187,7 +192,7 @@ parseFile agi opts searchPath file
     pSingleSynAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleSynAttrDef
       = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pTypeColon <*> pType <?> "syn attribute declaration"
-      
+
     pSingleChnAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleChnAttrDef
       = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pType <?> "chn attribute declaration"
@@ -206,7 +211,7 @@ parseFile agi opts searchPath file
                  <$> pIdentifiers <*> pUse <* pTypeColon <*> pType <?> "attribute declarations"
 
     pAlt :: AGParser Alt
-    pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <?> "a datatype alternative"
+    pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <*> pMaybeMacro <?> "a datatype alternative" --marcos
 
     pAlts :: AGParser Alts
     pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -281,18 +286,36 @@ parseFile agi opts searchPath file
         then pDoubleColon
         else pColon
 
+    --marcos
+    pMaybeMacro :: AGParser MaybeMacro
+    pMaybeMacro  =  Just <$ pDoubleArrow <*>  pMacro 
+                <|> pSucceed Nothing
+
+    pMacro :: AGParser Macro
+    pMacro
+          =  Macro <$> pIdentifierU
+                   <*> pList1 pMacroChild 
+                   <?> "macro"
+
+    pMacroChild :: AGParser MacroChild
+    pMacroChild
+          =  (pIdentifier <* pEquals) <**>
+             (flip RuleChild   <$> pMacro       <|>
+              flip ChildChild  <$> pIdentifier  <|>
+              flip ValueChild  <$> pCodescrap' )
+
     --
     -- End of AG Parser
     --
 
 resolveFile :: [FilePath] -> FilePath -> IO FilePath
-resolveFile path fname = search (path ++ ["."])                                                  
+resolveFile path fname = search (path ++ ["."])
  where search (p:ps) = do let filename = joinPath [p, fname]
                           fExists <- doesFileExist filename
                           if fExists
                             then return filename
                             else search ps
-       search []     = error ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) )                      
+       search []     = error ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) )
 
 pathSeparator = "/"
 
@@ -328,7 +351,7 @@ pNontSet = set0
   where set0 = pChainr (Intersect <$ pIntersect) set1
         set1 = pChainl (Difference <$ pMinus) set2
         set2 = pChainr (pSucceed Union) set3
-        set3 = pIdentifierU <**> opt (flip Path <$ pArrow <*> pIdentifierU) NamedSet 
+        set3 = pIdentifierU <**> opt (flip Path <$ pArrow <*> pIdentifierU) NamedSet
             <|> All <$ pStar
             <|> pParens set0
 
@@ -350,6 +373,9 @@ pOptClassContext
 pClassContext :: AGParser ClassContext
 pClassContext
   = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
+
+pOptQuantifiers :: AGParser [String]
+pOptQuantifiers = (return <$ pDoubleColon <*> pCodescrap') `opt` []
 
 pTypeNt :: AGParser Type
 pTypeNt
@@ -382,7 +408,7 @@ pIdentifiers :: AGParser [Identifier]
 pIdentifiers =  pList1Sep pComma pIdentifier <?> "lowercase identifiers"
 
 pUse :: AGParser (String,String,String)
-pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap')` opt` ("","","") <?> "USE declaration"
+pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap') `opt` ("","","") <?> "USE declaration"
 
 mklower :: String -> String
 mklower (x:xs) = toLower x : xs
@@ -448,8 +474,8 @@ pPattern pvar = pPattern2 where
                <|> pPattern1 <?> "a pattern"
   pPattern1 =  pvariable
            <|> pPattern2
-  pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a) []) 
-           <$> ((Irrefutable <$ pTilde) `opt` id) <*> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos)) 
+  pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a) [])
+           <$> ((Irrefutable <$ pTilde) `opt` id) <*> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos))
   pPattern2 = (mkTuple <$> pOParenPos <*> pListSep pComma pPattern0 <* pCParen )
           <|> (const . Underscore) <$> pUScore <?> "a pattern"
     where mkTuple _ [x] a = x a
@@ -464,6 +490,7 @@ pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
 pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
+      pEXTENDS, --marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
       pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pFP
@@ -480,6 +507,7 @@ pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
 pSEM         = pCostReserved 90 "SEM"     <?> "SEM"
 pINCLUDE     = pCostReserved 90 "INCLUDE" <?> "INCLUDE"
+pEXTENDS     = pCostReserved 90 "EXTENDS" <?> "EXTENDS" --marcos
 pTYPE        = pCostReserved 90 "TYPE"    <?> "TYPE"
 pINH         = pCostReserved 90 "INH"     <?> "INH"
 pSYN         = pCostReserved 90 "SYN"     <?> "SYN"

@@ -8,8 +8,7 @@ INCLUDE "Patterns.ag"
 
 imports
 {
-import qualified List (delete,intersperse)
-
+import qualified Data.List
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import Data.Map(Map)
@@ -17,12 +16,10 @@ import qualified Data.Sequence as Seq
 import Data.Sequence(Seq,(><))
 import UU.Scanner.Position(noPos)
 import Pretty
-import Maybe
+import Data.Maybe
 import HsToken
 import HsTokenScanner
 import Data.List(intersperse)
-import Data.List as List
-import Data.Maybe(catMaybes)
 
 import AbstractSyntax
 import ErrorMessages
@@ -80,12 +77,16 @@ getConName typeSyns rename nt con1
        normalName | rename            = getName nt++"_"++ con
                   | otherwise         =  con
        synonym    | con == "Cons"     = "(:)"
-                  | con == "Nil"      = "[]"
+                  | con == "Nil"      = case lookup nt typeSyns of
+                                          Just (Map _ _)  -> "Data.Map.empty"
+                                          Just (IntMap _) -> "Data.IntMap.empty"
+                                          _               -> "[]"
                   | con == "Just"     = "Just"
                   | con == "Nothing"  = "Nothing"
+                  | con == "Entry"    = case lookup nt typeSyns of
+                                          Just (Map _ _)  -> "Data.Map.insert"
+                                          Just (IntMap _) -> "Data.IntMap.insert"
                   | otherwise         = normalName
-
-
 
 concatSeq = foldr (Seq.><) Seq.empty
 
@@ -381,7 +382,7 @@ SEM Production
                                      | otherwise              -> fieldName nm
                constructor fs
                 | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns
-                  = "(" ++ concat (List.intersperse "," fs) ++ ")"
+                  = "(" ++ concat (Data.List.intersperse "," fs) ++ ")"
                 | otherwise
                   = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs
 
@@ -497,7 +498,7 @@ SEM Grammar
   | Grammar nonts.uniq = 1
 
 ATTR Grammar Nonterminals  Nonterminal   Productions
-    Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig 
+    Production Children Child Rules Rule Pattern  Patterns TypeSigs TypeSig
     [ | | output:SELF ]
 
 ATTR Rules [ | | fpRules USE {:} {[]} : {[(Maybe Int, Rules)]}]
@@ -508,7 +509,7 @@ SEM Production
       loc.extra1 = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
       loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
       loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
-      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output @loc.collectedfpInfo
+      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output @macro @loc.collectedfpInfo
 
 SEM Rules
   | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
@@ -679,20 +680,20 @@ ATTR Rules Rule Patterns Pattern   [ cirInhAttrs, cirSynAttrs : { [(Int, [(Ident
 
 SEM Production | Production loc.childInhAttrs = distChildId @children.inputs
                             loc.childSynAttrs = distChildId @children.outputs
-                            loc.cirInhAttrs   = map ( \(i,fpI) -> (i, (Map.keys.fpAttrInfo $ fpI) `List.intersect` @childInhAttrs)) (Map.assocs @topFPInfo)
-                            loc.cirSynAttrs   = map ( \(i,fpI) -> (i, (Map.keys.fpAttrInfo $ fpI) `List.intersect` @childSynAttrs)) (Map.assocs @topFPInfo)
+                            loc.cirInhAttrs   = map ( \(i,fpI) -> (i, (Map.keys.fpAttrInfo $ fpI) `Data.List.intersect` @childInhAttrs)) (Map.assocs @topFPInfo)
+                            loc.cirSynAttrs   = map ( \(i,fpI) -> (i, (Map.keys.fpAttrInfo $ fpI) `Data.List.intersect` @childSynAttrs)) (Map.assocs @topFPInfo)
 
 ATTR Patterns [ | | conCirInhAttrs USE {++} {[]} : {[Maybe Int]} ]
 ATTR Pattern  [ | | conCirInhAttrs : {[Maybe Int]} ]
 
 SEM Pattern | Underscore lhs.conCirInhAttrs = [Nothing]
             | Alias      lhs.conCirInhAttrs = let attrsFoundOnCir = map f @lhs.cirInhAttrs
-                                                  f (id,attrs)    = if (@field,@attr) `List.elem` attrs then return id else Nothing
+                                                  f (id,attrs)    = if (@field,@attr) `Data.List.elem` attrs then return id else Nothing
                                               in attrsFoundOnCir
 
 SEM Rule | Rule loc.conCirSynAttrs = catMaybes $ findCirAttrsRhs @rhs @lhs.cirSynAttrs
                 loc.conCirInhAttrs = catMaybes $ @pattern.conCirInhAttrs
-                loc.topFPWithRule  = @conCirInhAttrs `List.intersect` @conCirSynAttrs
+                loc.topFPWithRule  = @conCirInhAttrs `Data.List.intersect` @conCirSynAttrs
                 loc.isFPRule       = not.null $ @loc.topFPWithRule
 
 SEM Production | Production loc.collectedfpInfo =  foldr (\(i,rs) m -> Map.adjust (\fpInfo -> fpInfo {fpOtherInfo = rs} ) i m) @topFPInfo $ foldr dropRules [] @rules.fpRules 

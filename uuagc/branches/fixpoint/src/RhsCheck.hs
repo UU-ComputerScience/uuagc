@@ -1,5 +1,6 @@
 module RhsCheck(checkRhs,checkBlock,checkTy) where
 
+import Data.Maybe (fromMaybe)
 import Language.Haskell.Exts
 import ErrorMessages
 import ConcreteSyntax
@@ -21,8 +22,11 @@ check p (Expression pos tks) = case res of
   pos0 = Pos (line pos) 1 (file pos)
   str  = toString pos0 tks
   res  = p mode str
+  bf   = case baseFixities of
+           [] -> Nothing
+           xs -> Just xs
   mode = defaultParseMode { parseFilename = file pos, ignoreLanguagePragmas = False, extensions = exts
-                          , ignoreLinePragmas = False, fixities = baseFixities }
+                          , ignoreLinePragmas = False, fixities = bf }
 
 exts :: [Extension]
 exts = glasgowExts

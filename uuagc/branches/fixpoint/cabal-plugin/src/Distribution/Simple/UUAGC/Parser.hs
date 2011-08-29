@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -XScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Distribution.Simple.UUAGC.Parser(parserAG,
                                         parserAG',
                                         scanner,
@@ -14,11 +14,10 @@ import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
 import Control.Monad.Error
 
-data (Show a) => ParserError a = ParserError a
-                               | DefParserError String
+data ParserError = DefParserError String
                  deriving (Show, Eq, Read)
 
-instance Error (ParserError a) where
+instance Error ParserError where
     strMsg x = DefParserError x
 
 -- import Control.Exception
@@ -32,7 +31,8 @@ uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,ogenusetraces, ogencostcentres, ogenlinepragmas, osepsemmods
          ,ogenfiledeps, ogenvisage, ogenaspectag, ogenattrlist, olckeywords
          ,odoublecolons, oself
-         ,ocheckparserhs,ocheckparsetys,ocheckparseblocks,ocheckparsehaskell]
+         ,ocheckparserhs,ocheckparsetys,ocheckparseblocks,ocheckparsehaskell
+         ,okennedywarren]
 
 uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UNewTypes, UPretty
@@ -43,7 +43,8 @@ uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UGenUseTraces, UGenCostCentres, UGenLinePragmas, USepSemMods
             ,UGenFileDeps, UGenVisage, UGenAspectAG, UGenAttrList, ULCKeyWords
             ,UDoubleColons, USelf
-            ,UCheckParseRhs, UCheckParseTys, UCheckParseBlocks, UCheckParseHaskell]
+            ,UCheckParseRhs, UCheckParseTys, UCheckParseBlocks, UCheckParseHaskell
+            ,UKennedyWarren]
 
 gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
          ,(ooptimize, [ovisit,ocase])
@@ -53,7 +54,7 @@ gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
 gabsFlags = [UAll, UOptimize, UHaskellSyntax]
 
 
-aFlags = [omodule, ooutput, osearch, oprefix, owmax, oforceirrefutable, ouniquedispenser, ostatistics]
+aFlags = [omodule, ooutput, osearch, oprefix, owmax, oforceirrefutable, ouniquedispenser, ostatistics,onocatas]
 
 ugFlags = uFlags ++ (map (fst) gFlags)
 
@@ -100,7 +101,10 @@ pUniqueDispenser = UUniqueDispenser <$> (pKey ouniquedispenser *> pString)
 pStatistics :: Parser Token UUAGCOption
 pStatistics = UStatistics <$> (pKey ostatistics *> pString)
 
-pAllFlags = pugFlags ++ [pModule,pOutput,pSearch,pPrefix,pWmax,pForceIrrefutable,pUniqueDispenser,pStatistics]
+pNoCatas :: Parser Token UUAGCOption
+pNoCatas = UNoCatas <$> (pKey onocatas *> pString)
+
+pAllFlags = pugFlags ++ [pModule,pOutput,pSearch,pPrefix,pWmax,pForceIrrefutable,pUniqueDispenser,pStatistics,pNoCatas]
 
 pAnyFlag = pAny id pAllFlags
 
@@ -116,7 +120,7 @@ pLiftOptions f n = f <$> (pKey n *> pSep *> pString)
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
 pAGFileOption :: Parser Token AGFileOption
-pAGFileOption = AGFileOption <$> (pKey "file" *> pSep *> pString) 
+pAGFileOption = AGFileOption <$> (pKey "file" *> pSep *> pString)
                 <*> pFileClasses
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
@@ -130,14 +134,14 @@ parserAG :: FilePath -> IO AGFileOptions
 parserAG fp = do s <- readFile fp
                  parseIOAction action pAGFileOptions (scanner fp s)
 
-parserAG' :: FilePath -> IO (Either (ParserError String) AGFileOptions)
+parserAG' :: FilePath -> IO (Either ParserError AGFileOptions)
 parserAG' fp = do s <- readFile fp
                   let steps = parse pAGFileOptions (scanner fp s)
                   let (Pair res _, mesg) = evalStepsMessages steps
                   if null mesg
                      then return $ Right res
                      else do let err = foldr (++) [] $ map message2error mesg
-                             return (Left $ ParserError err) 
+                             return (Left $ DefParserError err)
 
 message2error :: Message Token (Maybe Token) -> String
 message2error (Msg e p a) = "Expecting: " ++ (show e) ++ " at " ++ action

@@ -4,6 +4,7 @@ import UU.Scanner.Position (Pos)
 import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
+import Macro --marcos
 import FixPointHelper(FPAttrInfo(..))
 }
 
@@ -35,12 +36,14 @@ DATA Elem      | Data   pos    : {Pos}
                | Attr   pos    : {Pos}
                         ctx    : {ClassContext}
                         names  : NontSet
+                        quants : {[String]}
                         attrs  : Attrs
 
                | Sem    pos    : {Pos}
                         ctx    : {ClassContext}
                         names  : NontSet
                         attrs  : Attrs
+                        quants : {[String]}
                         alts   : SemAlts
 
                | Txt    pos    : {Pos}
@@ -56,10 +59,10 @@ DATA Elem      | Data   pos    : {Pos}
                | Deriving pos  : {Pos}
                           set  : NontSet
                           classes : {[NontermIdent]}
-                          
+
                | Wrapper  pos  : {Pos}
                           set  : NontSet
-              
+
                | Nocatas  pos  : {Pos}
                           set  : NontSet
 
@@ -77,8 +80,9 @@ DATA Attrs     | Attrs  pos    : {Pos}
 DATA Alt       | Alt    pos    : {Pos}
                         names  : ConstructorSet
                         fields : {Fields}
+                        macro  : MaybeMacro --marcos: macro extension
 
-DATA SemAlt    | SemAlt pos    : {Pos} 
+DATA SemAlt    | SemAlt pos    : {Pos}
                         constructorSet   : ConstructorSet
                         rules  : SemDefs
 
@@ -109,12 +113,13 @@ DATA SemDef    | Def    pos    : Pos
 DATA ConstructorSet | CName       name      : {ConstructorIdent}
                     | CUnion      set1,set2 : ConstructorSet
                     | CDifference set1,set2 : ConstructorSet
-                    | CAll  
+                    | CAll
 
 DATA NontSet   | NamedSet   name      : {NontermIdent}
-               | All  
+               | All
                | Union      set1,set2 : NontSet
                | Intersect  set1,set2 : NontSet
                | Difference set1,set2 : NontSet
                | Path       from,to   : {NontermIdent}
-               
+
+

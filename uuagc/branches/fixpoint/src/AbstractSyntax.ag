@@ -5,6 +5,7 @@ import Data.Set(Set)
 import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
+import Macro --marcos
 import CommonTypes
 import FixPointHelper (FPInfo(..),FPAttrInfo(..),MapAttrsFPInfo)
 }
@@ -18,6 +19,7 @@ DATA Grammar      | Grammar typeSyns  : {TypeSyns}
                             manualAttrOrderMap : {AttrOrderMap}  -- manually enforced dependencies between attributes
                             paramMap   : {ParamMap}
                             contextMap : {ContextMap}
+                            quantMap   : {QuantMap}
                             uniqueMap  : {UniqueMap}
                             augmentsMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
                             aroundsMap  : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
@@ -39,10 +41,11 @@ DATA Nonterminal  | Nonterminal nt     : {NontermIdent}
                                 syn    : {Attributes}
                                 prods  : Productions
 
-DATA Production  | Production   con        : {ConstructorIdent}
-                                children   : Children
-                                rules      : Rules
-                                typeSigs   : TypeSigs
+DATA Production  | Production   con      : {ConstructorIdent}
+                                children : Children
+                                rules    : Rules
+                                typeSigs : TypeSigs
+                                macro    : MaybeMacro --macros 
                                 topFPInfo  : {MapAttrsFPInfo Rule}     -- Collect all FP directives declared for each Production
 
 DATA Child        | Child   name        : {Identifier}
@@ -52,7 +55,7 @@ DATA Child        | Child   name        : {Identifier}
                             virtual     : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
 DATA Rule         | Rule    mbName  : {Maybe Identifier}
-                            pattern : Pattern 
+                            pattern : Pattern
                             rhs     : Expression
                             owrt    : {Bool}
                             origin  : String  -- just for documentation (and maybe errors)

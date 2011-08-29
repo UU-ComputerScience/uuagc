@@ -71,6 +71,8 @@ data UUAGCOption = UModuleDefault
                  | UCheckParseTys
                  | UCheckParseBlocks
                  | UCheckParseHaskell
+                 | UKennedyWarren
+                 | UNoCatas String
                    deriving (Eq, Read, Show)
 
 type UUAGCOptions = [UUAGCOption]
@@ -149,6 +151,8 @@ fromUUAGCOtoArgs UCheckParseRhs         = toLOp ocheckparserhs
 fromUUAGCOtoArgs UCheckParseTys         = toLOp ocheckparsetys
 fromUUAGCOtoArgs UCheckParseBlocks      = toLOp ocheckparseblocks
 fromUUAGCOtoArgs UCheckParseHaskell     = toLOp ocheckparsehaskell
+fromUUAGCOtoArgs UKennedyWarren         = toLOp okennedywarren
+fromUUAGCOtoArgs (UNoCatas lnt)         = toLEOpA onocatas lnt
 
 fromUUAGCOstoArgs :: UUAGCOptions -> [String]
 fromUUAGCOstoArgs = map fromUUAGCOtoArgs
