@@ -10,8 +10,11 @@ import Data.List
 import Data.STRef
 import Debug.Trace
 
+import Data.Array (Array)
 import qualified Data.Array as Array
+import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
 import qualified Data.Set as Set
 
 -- | Trace a message in the ST monad
@@ -62,10 +65,10 @@ type IVertex = Int
 type IEdge = (IVertex, IVertex)
 
 -- Representation of the graph
-data DependencyGraph s = DependencyGraph { vertexIMap   :: Map.Map     Vertex  IVertex
-                                         , vertexOMap   :: Array.Array IVertex Vertex 
-                                         , successors   :: Array.Array IVertex (STRef s (Set.Set IVertex))
-                                         , predecessors :: Array.Array IVertex (STRef s (Set.Set IVertex)) }
+data DependencyGraph s = DependencyGraph { vertexIMap   :: Map   Vertex  IVertex
+                                         , vertexOMap   :: Array IVertex Vertex 
+                                         , successors   :: Array IVertex (STRef s (Set IVertex))
+                                         , predecessors :: Array IVertex (STRef s (Set IVertex)) }
 
 -------------------------------------------------------------------------------
 --         Dependency graph fuctions
@@ -96,12 +99,12 @@ graphConstructTRC vs es = do g <- graphConstruct vs
                              return g
 
 -- | Return all successors of a vertex
-graphSuccessors :: DependencyGraph s -> Vertex -> ST s (Set.Set Vertex)
+graphSuccessors :: DependencyGraph s -> Vertex -> ST s (Set Vertex)
 graphSuccessors g v = do sucs <- readSTRef $ (successors g) Array.! (graphGetIVertex g v)
                          return $ Set.map (graphGetVertex g) sucs
 
 -- | Return all predecessors of a vertex
-graphPredecessors :: DependencyGraph s -> Vertex -> ST s (Set.Set Vertex)
+graphPredecessors :: DependencyGraph s -> Vertex -> ST s (Set Vertex)
 graphPredecessors g v = do sucs <- readSTRef $ (predecessors g) Array.! (graphGetIVertex g v)
                            return $ Set.map (graphGetVertex g) sucs
 
@@ -122,7 +125,7 @@ graphInsert g (v1,v2) = do let iv1  = graphGetIVertex g v1
 
 -- | Insert an edge in a transtive closed graph and return all other edges that were
 --   added due to transtivity
-graphInsertTRC :: DependencyGraph s -> Edge -> ST s [(IVertex, Set.Set IVertex)]
+graphInsertTRC :: DependencyGraph s -> Edge -> ST s [(IVertex, Set IVertex)]
 graphInsertTRC g (v1,v2) = do let iv1  = graphGetIVertex g v1
                               let iv2  = graphGetIVertex g v2
                               -- Read predecessors of v1 and successors of v2
@@ -175,10 +178,10 @@ graphInsertEdges g ed = mapM_ (graphInsert g) ed
 -- | Insert a list of edges in the graph and return all other edges that
 --   were added due to transitivity
 graphInsertEdgesTRC :: DependencyGraph s -> [Edge] -> ST s [Edge]
-graphInsertEdgesTRC g ed = do -- rets :: [[(IVertex, Set.Set IVertex)]]
+graphInsertEdgesTRC g ed = do -- rets :: [[(IVertex, Set IVertex)]]
                               rets <- mapM (graphInsertTRC g) ed
                               -- Combine all successor sets
-                              let f    :: (IVertex, (Set.Set IVertex)) -> [(IVertex, IVertex)]
+                              let f    :: (IVertex, (Set IVertex)) -> [(IVertex, IVertex)]
                                   f (v,s) = map ((,) v) (Set.toList s)
                               let comb :: [(IVertex, IVertex)]
                                   comb = concatMap (concatMap f) rets

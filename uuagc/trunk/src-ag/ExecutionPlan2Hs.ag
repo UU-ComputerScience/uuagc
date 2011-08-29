@@ -17,7 +17,9 @@ import System.Directory
 import TokenDef
 import HsToken
 
+import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map (Map)
 import qualified Data.Map as Map
 }
 
@@ -65,7 +67,7 @@ ATTR ExecutionPlan [  | | output : {PP_Doc} ]
 SEM ExecutionPlan
   | ExecutionPlan lhs.output = @nonts.output
 
-ATTR ENonterminal ENonterminals [ wrappers : {Set.Set NontermIdent}
+ATTR ENonterminal ENonterminals [ wrappers : {Set NontermIdent}
                                  | | output USE {>-<} {empty} : {PP_Doc} ]
 
 SEM ExecutionPlan
@@ -123,7 +125,7 @@ SEM ENonterminal
                                    Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< show t
 				   Just (Tuple ts) -> "type" >#< @nt >#< "=" >#< pp_parens (ppCommas $ map (show . snd) ts)
 				   Just (Either l r) -> "type" >#< @nt >#< "=" >#< "Either" >#< show l >#< show r
-				   Just (Map k v) -> "type" >#< @nt >#< "=" >#< "Data.Map.Map" >#< pp_parens (show k) >#< show v
+				   Just (Map k v) -> "type" >#< @nt >#< "=" >#< "Data.Map" >#< pp_parens (show k) >#< show v
 				   Just (IntMap t) -> "type" >#< @nt >#< "=" >#< "Data.IntMap.IntMap" >#< show t
 --                                   Just x -> error $ "Type " ++ show x ++ " is not supported"
                  loc.derivings = case Map.lookup @nt @lhs.derivings of
@@ -216,8 +218,8 @@ SEM EChild
 -------------------------------------------------------------------------------
 ATTR ExecutionPlan
      ENonterminals
-     ENonterminal  [ inhmap : {Map.Map NontermIdent Attributes}
-                     synmap : {Map.Map NontermIdent Attributes} | | ]
+     ENonterminal  [ inhmap : {Map NontermIdent Attributes}
+                     synmap : {Map NontermIdent Attributes} | | ]
 
 ATTR EProductions
      EProduction
@@ -338,7 +340,7 @@ ATTR EProduction  [ | | sem_prod                   : {PP_Doc} ]
 ATTR EProductions [ | | sem_prod USE {>-<} {empty} : {PP_Doc} ]
 
 ATTR EProduction EProductions [ initial : {StateIdentifier}
-                                allstates : {Set.Set StateIdentifier} | | ]
+                                allstates : {Set StateIdentifier} | | ]
 SEM ENonterminal
   | ENonterminal prods.initial   = @initial
                  prods.allstates = @loc.allstates
@@ -400,7 +402,7 @@ SEM Visit
           loc.sem_steps = @steps.sem_steps
                           >-< "return" >#< "(" >#< @loc.synargs >#< "st" >|< @to >#< @loc.nextargs >#< ")"
 
-ATTR Visits Visit VisitStep VisitSteps [  mrules : {Map.Map Identifier PP_Doc} | | ]
+ATTR Visits Visit VisitStep VisitSteps [  mrules : {Map Identifier PP_Doc} | | ]
 ATTR VisitStep VisitSteps [ | | sem_steps USE {>-<} {empty} : {PP_Doc} ]
 SEM VisitStep
   | Sem        lhs.sem_steps = maybe  (error $ "Rule "  ++ show @name  ++ " not found") id $ Map.lookup @name  @lhs.mrules
@@ -408,10 +410,10 @@ SEM VisitStep
   | ChildVisit lhs.sem_steps = (maybe (error $ "Visit " ++ show @visit ++ " not found") id $ Map.lookup @visit @lhs.allchildvisit) $ @child
 
 -- Child introduction
-ATTR EChild EChildren [ | | childintros USE {`Map.union`} {Map.empty} : {Map.Map Identifier PP_Doc} ]
+ATTR EChild EChildren [ | | childintros USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc} ]
 
 ATTR Visits Visit
-     VisitSteps VisitStep [ childintros : {Map.Map Identifier PP_Doc} | | ]
+     VisitSteps VisitStep [ childintros : {Map Identifier PP_Doc} | | ]
 
 SEM EProduction
   | EProduction visits.childintros = @children.childintros
@@ -423,8 +425,8 @@ SEM EChild
                              else "field_" >|< @name
 
 -- keep a list of all rules that are used
-ATTR Visit Visits VisitSteps VisitStep [ | | usedrules USE {`Set.union`} {Set.empty} : {Set.Set Identifier} ]
-ATTR ERules ERule [ usedrules : {Set.Set Identifier} | | ]
+ATTR Visit Visits VisitSteps VisitStep [ | | usedrules USE {`Set.union`} {Set.empty} : {Set Identifier} ]
+ATTR ERules ERule [ usedrules : {Set Identifier} | | ]
 
 SEM VisitStep
   | Sem lhs.usedrules = Set.singleton @name
@@ -434,7 +436,7 @@ SEM EProduction
 
 -- rules
 ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
-                        mrules USE {`Map.union`} {Map.empty} : {Map.Map Identifier PP_Doc}  ]
+                        mrules USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc}  ]
 
 SEM ERule
   | ERule lhs.sem_rules    = if Set.member @name @lhs.usedrules
@@ -454,7 +456,7 @@ ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
 ATTR Patterns [ | | sem_lhs USE {:} {[]} : {[PP_Doc]} ]
 ATTR Pattern Patterns [ addtilde : {PP_Doc -> PP_Doc} | | ]
 
-ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
 
 SEM Pattern
   | Alias       lhs.sem_lhs   = text $ attrname False @field @attr -- todo: alias
@@ -467,7 +469,7 @@ SEM Pattern
   | Irrefutable lhs.sem_lhs   = text "~" >|< pp_parens @pat.sem_lhs
     		pat.addtilde  = id
 
-ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM HsToken
   | AGLocal   lhs.attrs   = Set.singleton $ locname @var
   | AGField   lhs.attrs   = Set.singleton $ attrname True @field @attr
@@ -484,10 +486,10 @@ ATTR Visit
      EProduction
      EProductions
      ENonterminal
-     ENonterminals [ allchildvisit : {Map.Map VisitIdentifier (Identifier -> PP_Doc)}
-                     | | childvisit USE {`Map.union`} {Map.empty} : {Map.Map VisitIdentifier (Identifier -> PP_Doc)} ]
+     ENonterminals [ allchildvisit : {Map VisitIdentifier (Identifier -> PP_Doc)}
+                     | | childvisit USE {`Map.union`} {Map.empty} : {Map VisitIdentifier (Identifier -> PP_Doc)} ]
 
-ATTR VisitSteps VisitStep [ allchildvisit : {Map.Map VisitIdentifier (Identifier -> PP_Doc)} | | ]
+ATTR VisitSteps VisitStep [ allchildvisit : {Map VisitIdentifier (Identifier -> PP_Doc)} | | ]
 
 SEM ExecutionPlan
   | ExecutionPlan nonts.allchildvisit = @nonts.childvisit
@@ -503,14 +505,14 @@ SEM Visit
 --  Intra attributes
 -------------------------------------------------------------------------------
 {
-uwSetUnion :: (Ord a, Ord b) => Map.Map a (Set.Set b) -> Map.Map a (Set.Set b) -> Map.Map a (Set.Set b)
+uwSetUnion :: (Ord a, Ord b) => Map a (Set b) -> Map a (Set b) -> Map a (Set b)
 uwSetUnion = Map.unionWith Set.union
 }
-ATTR Visit Visits [ allintramap : {Map.Map StateIdentifier (Set.Set String)}
-                    | | intramap USE {`uwSetUnion`} {Map.empty} : {Map.Map StateIdentifier (Set.Set String)} ]
+ATTR Visit Visits [ allintramap : {Map StateIdentifier (Set String)}
+                    | | intramap USE {`uwSetUnion`} {Map.empty} : {Map StateIdentifier (Set String)} ]
 
-ATTR Visit Visits [ terminaldefs : {Set.Set String} | | ]
-ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+ATTR Visit Visits [ terminaldefs : {Set String} | | ]
+ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set String} ]
 
 SEM EChild
   | EChild lhs.terminaldefs = if isJust @virtual || isNonterminal @tp
@@ -527,11 +529,11 @@ SEM Visit
           loc.uses      = @steps.uses
           loc.defs      = @steps.defs `Set.union` (Set.map (lhsname True) @inh) `Set.union` @lhs.terminaldefs
 
-ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map.Map Identifier (Set.Set String)}
-                        ruleuses USE {`uwSetUnion`} {Map.empty} : {Map.Map Identifier (Set.Set String)} ]
+ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)}
+                        ruleuses USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)} ]
 ATTR Visit Visits
-     VisitSteps VisitStep [ ruledefs  : {Map.Map Identifier (Set.Set String)}
-                            ruleuses  : {Map.Map Identifier (Set.Set String)} | | ]
+     VisitSteps VisitStep [ ruledefs  : {Map Identifier (Set String)}
+                            ruleuses  : {Map Identifier (Set String)} | | ]
 
 SEM ERule
   | ERule lhs.ruledefs = Map.singleton @name @pattern.attrs
@@ -545,8 +547,8 @@ ATTR Visit Visits
      EProduction
      EProductions
      ENonterminal
-     ENonterminals [ | | visitdefs USE {`uwSetUnion`} {Map.empty} : {Map.Map VisitIdentifier (Set.Set Identifier)}
-                         visituses USE {`uwSetUnion`} {Map.empty} : {Map.Map VisitIdentifier (Set.Set Identifier)} ]
+     ENonterminals [ | | visitdefs USE {`uwSetUnion`} {Map.empty} : {Map VisitIdentifier (Set Identifier)}
+                         visituses USE {`uwSetUnion`} {Map.empty} : {Map VisitIdentifier (Set Identifier)} ]
 
 SEM Visit
   | Visit lhs.visitdefs = Map.singleton @ident @syn
@@ -555,15 +557,15 @@ SEM Visit
 ATTR Visit Visits
      VisitSteps VisitStep
      EProduction EProductions
-     ENonterminal ENonterminals [ avisitdefs : {Map.Map VisitIdentifier (Set.Set Identifier)}
-                                  avisituses : {Map.Map VisitIdentifier (Set.Set Identifier)} | | ]
+     ENonterminal ENonterminals [ avisitdefs : {Map VisitIdentifier (Set Identifier)}
+                                  avisituses : {Map VisitIdentifier (Set Identifier)} | | ]
 
 SEM ExecutionPlan
   | ExecutionPlan nonts.avisitdefs = @nonts.visitdefs
                   nonts.avisituses = @nonts.visituses
 
-ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set.Set String}
-                                uses USE {`Set.union`} {Set.empty} : {Set.Set String} ]
+ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set String}
+                                uses USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM VisitStep
   | Sem        lhs.defs = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruledefs
                lhs.uses = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruleuses

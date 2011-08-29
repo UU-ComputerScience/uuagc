@@ -13,12 +13,16 @@ import Data.Maybe
 import Data.List
 import Data.Ord
 
+import Data.Set (Set)
 import qualified Data.Set as Set
+import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
+import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
 
-kennedyWarrenOrder :: Set.Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe (ExecutionPlan, PP_Doc, PP_Doc)
+kennedyWarrenOrder :: Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe (ExecutionPlan, PP_Doc, PP_Doc)
 kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
   indi <- mapM mkNontDependencyInformationM ndis
   knuth1 indi
@@ -68,6 +72,11 @@ kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
        (ret, visitg) <- runVG $ do
          traceVG $ "Running kennedy-warren..."
          initvs <- kennedyWarrenVisitM wr indi
+         -- Print some debug info
+         nodes <- gets vgNodeNum
+         edges <- gets vgEdgeNum
+         traceVG $ "Number of nodes = " ++ show nodes
+         traceVG $ "Number of edges = " ++ show edges
          -- Generate execution plan
          ex <- kennedyWarrenExecutionPlan indi initvs wr typesyns derivings
          -- Get visit graph
@@ -155,10 +164,10 @@ toGVVisitGraph = do
 {-
 runVG                    :: VG s a -> ST s a
 insertInitialNode        :: NontDependencyInformationM s -> VG s VGNode
-createPending            :: VGNode -> Set.Set Identifier -> Set.Set Identifier -> VG s VGEdge
+createPending            :: VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
 selectPending            :: VG s VGEdge
-getInherited             :: VGEdge -> VG s (Set.Set Identifier)
-getSynthesized           :: VGEdge -> VG s (Set.Set Identifier)
+getInherited             :: VGEdge -> VG s (Set Identifier)
+getSynthesized           :: VGEdge -> VG s (Set Identifier)
 markFinal                :: VGEdge -> VG s ()
 getProductions           :: VGEdge -> VG s [VGProd]
 onMarkedDepGraph         :: (ProdDependencyGraphM s -> ST s a) -> VGProd -> VG s a
@@ -177,23 +186,23 @@ newtype VGProd = VGProd (VGEdge,Int) deriving (Show,Eq,Ord)
 data VGState s = VGState { vgNodeNum       :: Int
                          , vgEdgeNum       :: Int
                            -- Node maps
-                         , vgOutgoing      :: IntMap.IntMap (STRef s (Set.Set VGEdge))
-                         , vgIncoming      :: IntMap.IntMap (Maybe VGEdge)
-                         , vgNDI           :: IntMap.IntMap (STRef s (NontDependencyInformationM s))
-                         , vgInhSynNode    :: Map.Map (Identifier, Set.Set Identifier, Set.Set Identifier) VGNode
-                         , vgNodeInhSyn    :: IntMap.IntMap (Set.Set Identifier, Set.Set Identifier)
-                         , vgInitial       :: Map.Map Identifier VGNode
+                         , vgOutgoing      :: IntMap (STRef s (Set VGEdge))
+                         , vgIncoming      :: IntMap (Maybe VGEdge)
+                         , vgNDI           :: IntMap (STRef s (NontDependencyInformationM s))
+                         , vgInhSynNode    :: Map (Identifier, Set Identifier, Set Identifier) VGNode
+                         , vgNodeInhSyn    :: IntMap (Set Identifier, Set Identifier)
+                         , vgInitial       :: Map Identifier VGNode
                            -- Edge maps
-                         , vgEdges         :: IntMap.IntMap (VGNode, VGNode)
-                         , vgEdgesR        :: Map.Map (VGNode,VGNode) VGEdge
-                         , vgInherited     :: IntMap.IntMap (Set.Set Identifier)
-                         , vgSynthesized   :: IntMap.IntMap (Set.Set Identifier)
-                         , vgPending       :: IntSet.IntSet
-                         , vgChildVisits   :: IntMap.IntMap (STRef s (Map.Map (Identifier,Int) [VGNode]))
+                         , vgEdges         :: IntMap (VGNode, VGNode)
+                         , vgEdgesR        :: Map (VGNode,VGNode) VGEdge
+                         , vgInherited     :: IntMap (Set Identifier)
+                         , vgSynthesized   :: IntMap (Set Identifier)
+                         , vgPending       :: IntSet
+                         , vgChildVisits   :: IntMap (STRef s (Map (Identifier,Int) [VGNode]))
                            -- Final vertices in production graphs
-                         , vgFinalVertices :: IntMap.IntMap (STRef s (Set.Set (Vertex,Int)))
+                         , vgFinalVertices :: IntMap (STRef s (Set (Vertex,Int)))
                            -- Construction of execution plan (Nonterminal,Production,Visit)
-                         , vgProdVisits    :: Map.Map (Identifier,Identifier,VGEdge) (STRef s [VisitStep])
+                         , vgProdVisits    :: Map (Identifier,Identifier,VGEdge) (STRef s [VisitStep])
                          }
 
 type VG s a = ErrorT String (StateT (VGState s) (ST s)) a
@@ -218,7 +227,7 @@ insertInitialNode ndi = do
   return (VGNode node)
 
 -- | Create a pending edge from this node with a set of inherited and synthesized attributes
-createPending :: VGNode -> Set.Set Identifier -> Set.Set Identifier -> VG s VGEdge
+createPending :: VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
 createPending vgn@(VGNode n) inh syn = do
   -- Check if target node already exists
   ninhsyn <- gets vgNodeInhSyn
@@ -259,13 +268,13 @@ selectPending = do
   return $ VGEdge $ head $ readyPend
 
 -- | Get the inherited attributes of an edge
-getInherited :: VGEdge -> VG s (Set.Set Identifier)
+getInherited :: VGEdge -> VG s (Set Identifier)
 getInherited (VGEdge edg) = do
   inhs <- gets vgInherited
   return $ imLookup edg inhs
 
 -- | Get the synthesized attributes of an edge
-getSynthesized :: VGEdge -> VG s (Set.Set Identifier)
+getSynthesized :: VGEdge -> VG s (Set Identifier)
 getSynthesized (VGEdge edg) = do
   syns <- gets vgSynthesized
   return $ imLookup edg syns
@@ -398,7 +407,7 @@ vgEmptyState = VGState { vgNodeNum       = 0
                        , vgProdVisits    = Map.empty
                        }
 -- | Create a new node
-vgCreateNode :: STRef s (NontDependencyInformationM s) -> Set.Set Identifier -> Set.Set Identifier -> VG s VGNode
+vgCreateNode :: STRef s (NontDependencyInformationM s) -> Set Identifier -> Set Identifier -> VG s VGNode
 vgCreateNode rndi inh syn = do
   num      <- gets vgNodeNum
   outgoing <- gets vgOutgoing
@@ -418,7 +427,7 @@ vgCreateNode rndi inh syn = do
   return $ VGNode num
 
 -- | Create a new pending edge
-vgCreatePendingEdge :: VGNode -> VGNode -> Set.Set Identifier -> Set.Set Identifier -> VG s VGEdge
+vgCreatePendingEdge :: VGNode -> VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
 vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do 
   num      <- gets vgEdgeNum
   edges    <- gets vgEdges
@@ -476,7 +485,7 @@ vgFindInitial nt = do
   return r
 
 -- | Always succeeding IntMap lookup
-imLookup :: Int -> IntMap.IntMap a -> a
+imLookup :: Int -> IntMap a -> a
 imLookup k m = let Just r = IntMap.lookup k m in r
 
 -- | Trace inside the vg monad
@@ -489,10 +498,10 @@ traceVG s = trace s (return ())
 {-
 runVG                    :: VG s a -> ST s a
 insertInitialNode        :: NontDependencyInformationM s -> VG s VGNode
-createPending            :: VGNode -> Set.Set Identifier -> Set.Set Identifier -> VG s VGEdge
+createPending            :: VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
 selectPending            :: VG s VGEdge
-getInherited             :: VGEdge -> VG s (Set.Set Identifier)
-getSynthesized           :: VGEdge -> VG s (Set.Set Identifier)
+getInherited             :: VGEdge -> VG s (Set Identifier)
+getSynthesized           :: VGEdge -> VG s (Set Identifier)
 markFinal                :: VGEdge -> VG s ()
 getProductions           :: VGEdge -> VG s [VGProd]
 onMarkedDepGraph         :: (ProdDependencyGraphM s -> ST s a) -> VGProd -> VG s a
@@ -504,7 +513,7 @@ addVisitStep             :: VGProd -> VisitStep -> VG s ()
 repeatM                  :: VG s () -> VG s ()
 -}
 
-kennedyWarrenVisitM :: Set.Set NontermIdent -> [NontDependencyInformationM s] -> VG s [Maybe Int]
+kennedyWarrenVisitM :: Set NontermIdent -> [NontDependencyInformationM s] -> VG s [Maybe Int]
 kennedyWarrenVisitM wr ndis = do
   -- Create initial nodes and edges (edges only for wrapper nodes)
   initvs <- forM ndis $ \ndi -> do
@@ -642,7 +651,7 @@ isChildAttr v = isVertexAttr v && getAttrChildName v /= _LHS && getAttrType v /=
 ------------------------------------------------------------
 ---         Construction of the execution plan           ---
 ------------------------------------------------------------
-kennedyWarrenExecutionPlan :: [NontDependencyInformationM s] -> [Maybe Int] -> Set.Set NontermIdent
+kennedyWarrenExecutionPlan :: [NontDependencyInformationM s] -> [Maybe Int] -> Set NontermIdent
                               -> TypeSyns -> Derivings -> VG s ExecutionPlan
 kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
   -- Loop over all nonterminals
