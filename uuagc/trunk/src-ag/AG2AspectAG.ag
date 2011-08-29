@@ -454,7 +454,7 @@ SEM Rules
 SEM Rule
   | Rule	                lhs             .  	ppRL    	=  if (not @explicit &&  not @lhs.newProd)
                                                                            then []
-                                                                           else [ ppRule @pattern.info @owrt (defRule @lhs.ppNt @pattern.info @lhs.inhNoGroup @lhs.synNoGroup (@rhs.ppRE @lhs.o_noGroup)) ]
+                                                                           else [ ppRule @pattern.info @owrt (defRule @lhs.ppNt @pattern.info @lhs.o_noGroup @rhs.ppRE) ]
 
 {-
 ATTR Expression [ | | ppRE : {Identifier -> [String] -> [String] -> [(Identifier,Type)] -> [Identifier] -> PP_Doc} ]
@@ -650,8 +650,8 @@ inhRuleDef new filt1 filt2 rules inhNoGroup synNoGroup chids locals
                                       where cmpField r1 r2 = compare (ruleField r1) (ruleField r2)
                                             appSnd rule = (ruleDef rule)  chids locals
  
-defRule ppNt (field,att) inhNoGroup synNoGroup rhs = \chids locals -> 
-                                     let ppAtt = if (elem (getName att) inhNoGroup || elem (getName att) synNoGroup) 
+defRule ppNt (field,att) noGroup rhs = \chids locals -> 
+                                     let ppAtt = if (elem (getName att) noGroup) 
                                                   then empty
                                                   else case (show field) of
                                                         "lhs"     -> att >|< "_" >|< pp "SynG" >|< pp "_" >|< ppNt  >|< " = "
@@ -661,7 +661,7 @@ defRule ppNt (field,att) inhNoGroup synNoGroup rhs = \chids locals ->
                                                                      (maybe (error $ "lhs field " ++ show field ++" is not a child") 
                                                                             ppShow (lookup field chids))  
                                                                      >|< " = "
-                                     in  ppAtt >|< (rhs field chids locals)
+                                     in  ppAtt >|< (rhs noGroup field chids locals)
 
 
 rhsRule ppNt ppProd tks noGroup field chids locals  =  vlist . lines2PP . (map (token2PP ppNt ppProd field chids locals noGroup )) $ tks
@@ -693,36 +693,6 @@ token2PP ppNt ppProd field chids locals noGroup  tk
       StrToken value pos       -> (pos, pp (show value))
       Err mesg pos             -> (pos, pp $ " ***" ++ mesg ++ "*** ")
 
-{-         
-rhsRule ppNt ppProd tks field inhNoGroup synNoGroup  chids locals  =  vlist . lines2PP . (map (token2PP ppNt ppProd field chids locals inhNoGroup synNoGroup )) $ tks
-
-
-lines2PP [] = []
-lines2PP xs = map line2PP . shiftLeft . getLines $ xs
-
-
-token2PP ppNt ppProd field chids locals inhNoGroup synNoGroup  tk
-  = case tk of
-      AGLocal var pos _        -> (pos, if (elem var locals)
-                                        then  (ppListSep "(" "" "_" [pp var, ppNt, ppProd]) >|< pp " (loc # att_loc)) " 
-                                        else  pp var)
-      AGField field attr pos _ -> let ppChT =    maybe (error $ "rhs field " ++ show field ++ " is not a child") ppShow (lookup field chids)
-                                      ppAtt =    case (show field) of
-                                                 "lhs"      ->  attName "inh"
-                                                 "loc"      ->  attName "loc"
-                                                 otherwise  ->  attName "syn"
-                                      ppSubAtt = case (show field) of
-                                                 "lhs"      -> ppName [pp (getName attr), pp "InhG", ppNt]
-                                                 "loc"      -> ppName [pp (getName attr), ppNt, ppProd]
-                                                 otherwise  -> ppName [pp (getName attr), pp "SynG", ppChT]
-                                  in  (pos, if (elem (getName attr) inhNoGroup || elem (getName attr) synNoGroup )
-                                             then pp "(" >|< pp (getName field)  >|< " # " >|< attName (getName attr) >|< pp ")"  
-                                             else pp "(" >|< ppSubAtt >|< " (" >|< pp (getName field) >|< " # " >|< ppAtt >|< ")) ")
-      HsToken value pos        -> (pos, pp value)
-      CharToken value pos      -> (pos, pp (show value))
-      StrToken value pos       -> (pos, pp (show value))
-      Err mesg pos             -> (pos, pp $ " ***" ++ mesg ++ "*** ")
--}
 line2PP ts =         let f (p,t) r = let ct = column p
                                      in \c -> pp (spaces (ct-c)) >|< t >|< r (length (show t) +ct)
                          spaces x | x < 0 = ""
