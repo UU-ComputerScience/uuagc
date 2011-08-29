@@ -1,0 +1,36 @@
+This is a plugin for the UUAG system.
+
+To use UUAG in combination with Cabal, add a dependency on the packages:
+uuagc         -- installs the tool: uuagc
+uuagc-cabal   -- installs a cabal plugin that uses uuagc
+Note that this package does not have a dependency on uuagc. You can use
+this module without having uuagc installed.
+(whether this is useful is a different question)
+
+Then write a custom Setup.hs:
+
+--
+module Main where
+
+import Distribution.Simple
+import Distribution.Simple.UUAGC
+
+compiler = "uuagc"
+main = defaultMainWithHooks (uuagcUserHook' compiler)
+--
+
+Add extra-source-files: uuagc_options
+The contents of this file are options per AG module, as specified
+as follows. Write for each AG file:
+* Two lines in a file uuagc_options in the root of the package:
+   --
+   file: "src-ag/Desugar.ag"
+   options: module, pretty, catas, semfuns, signatures, genlinepragmas
+   --
+  The options depend on what you actually want to compile.
+* Add an extra source file to the AG file in the cabal file:
+    extra-source-files: src/MyProgram.ag
+* Add the module to the modules list in the cabal file.
+
+
+Originally written by Juan Cardona (or one of his students).

@@ -29,3 +29,5 @@ DATA HsToken
                pos   : {Pos}
 
 
+
+DERIVING HsToken : Show

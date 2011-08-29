@@ -13,8 +13,8 @@ import ErrorMessages
 }
 
 ATTR HsTokensRoot
-     [ 
-     | | 
+     [
+     | |
        errors    USE {Seq.><} {Seq.empty}:{Seq Error}
        usedLocals:{[Identifier]}
        usedAttrs :{[(Identifier,Identifier)]}
@@ -49,7 +49,7 @@ ATTR HsTokens HsToken [ | |  errors USE {Seq.><} {Seq.empty}:{Seq Error}  ]
 SEM HsToken
   | Err lhs.errors = let m = text @mesg
                      in Seq.singleton (CustomError False @pos m)
-                     
+
 -------------------------------------------------------------------------------
 --  Undefined variables
 -------------------------------------------------------------------------------
@@ -61,14 +61,16 @@ isNTname allnts _                = False
 
 
 SEM HsToken
-  | AGLocal   loc.(errors,tok,usedLocals) = 
-                     if @var `elem` @lhs.fieldnames   
+  | AGLocal   loc.tkAsLocal = AGLocal @var @pos @rdesc
+              loc.tkAsField = AGField _LOC @var @pos @rdesc
+              loc.(errors,output,tok,usedLocals) =
+                     if @var `elem` @lhs.fieldnames
                      then if  isNTname @lhs.allnts (lookup @var (map (\(n,t,_) -> (n,t)) @lhs.allfields))
-                          then (Seq.singleton(ChildAsLocal @lhs.nt @lhs.con @var), (@pos,fieldname @var), []    )
-                          else (Seq.empty, (@pos,fieldname @var), []    )
-                     else if (_LOC,@var) `elem` @lhs.attrs 
-                     then (Seq.empty                                   , (@pos,locname   @var), [@var])
-                     else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), (@pos,locname   @var), []    )
+                          then (Seq.singleton(ChildAsLocal @lhs.nt @lhs.con @var), @loc.tkAsLocal,(@pos,fieldname @var), []    )
+                          else (Seq.empty, @loc.tkAsLocal, (@pos,fieldname @var), []    )
+                     else if (_LOC,@var) `elem` @lhs.attrs
+                     then (Seq.empty                                      , @loc.tkAsField, (@pos,locname   @var), [@var])
+                     else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), @loc.tkAsField, (@pos,locname   @var), []    )
 
 SEM HsToken
   | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
@@ -76,7 +78,7 @@ SEM HsToken
                                  else if not(@field `elem` (_LHS : _LOC: @lhs.fieldnames))
                                          then Seq.singleton (UndefChild @lhs.nt @lhs.con @field)
                                          else Seq.singleton (UndefAttr @lhs.nt @lhs.con @field @attr False)
-                                         
+
 -------------------------------------------------------------------------------
 --         Used variables
 -------------------------------------------------------------------------------
@@ -126,4 +128,11 @@ SEM HsToken [ || tok:{(Pos,String)}]
 
    | StrToken  lhs.tok = (@pos, showStrShort @value)
    | Err       lhs.tok = (@pos, "")
+
+-------------------------------------------------------------------------------
+--  Desugar (resolve AGLocals to explicit AGFields)
+-------------------------------------------------------------------------------
+
+ATTR HsTokensRoot [ | | output : {[HsToken]} ]
+ATTR HsTokens HsToken [ | | output : SELF ]
 

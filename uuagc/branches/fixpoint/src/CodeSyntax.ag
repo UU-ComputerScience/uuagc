@@ -6,21 +6,22 @@ import Data.Map(Map)
 import Data.Set(Set)
 }
 
-DATA  CGrammar 
+DATA  CGrammar
    |  CGrammar  typeSyns  : {TypeSyns}
-                derivings : {Derivings} 
-                wrappers  : {Set NontermIdent} 
+                derivings : {Derivings}
+                wrappers  : {Set NontermIdent}
                 nonts     : CNonterminals
                 pragmas   : {PragmaMap}
                 paramMap  : {ParamMap}
                 contextMap: {ContextMap}
+                quantMap  : {QuantMap}
                 aroundsMap: {Map NontermIdent (Map ConstructorIdent (Set Identifier))}
                 mergeMap  : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))}
                 multivisit : {Bool}
 
 TYPE CNonterminals = [CNonterminal]
 
-DATA  CNonterminal 
+DATA  CNonterminal
    |  CNonterminal nt     :  NontermIdent
                    params :  {[Identifier]}
                    inh    :  Attributes
@@ -47,7 +48,7 @@ DATA  CProduction
 
 TYPE CVisits = [CVisit]
 
-DATA  CVisit 
+DATA  CVisit
    |  CVisit  inh     :  Attributes
               syn     :  Attributes
               vss     :  Sequence  -- sequence of "steps", where each "step" is either an attribute definition or a child visit

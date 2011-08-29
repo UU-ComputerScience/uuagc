@@ -18,15 +18,15 @@ import DeclBlocks
 import Pretty
 
 import qualified Data.Map as Map
-import Data.Map(Map) 
+import Data.Map(Map)
 import qualified Data.Set as Set
-import Data.Set(Set) 
+import Data.Set(Set)
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq)
 import UU.Scanner.Position
 
 import Data.List(partition,intersperse,intersect,(\\))
-import Maybe(fromJust,isJust)
+import Data.Maybe(fromJust,isJust)
 }
 
 {

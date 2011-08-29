@@ -1,6 +1,6 @@
--- #!/bin/env runhaskell
+module Main where
 
-import Distribution.Simple(defaultMainWithHooks, UserHooks(..))
+import Distribution.Simple
 import Distribution.Simple.UUAGC
 import UUAGCTests(uuagcPreTest
                  ,uuagcTestHook
@@ -8,8 +8,9 @@ import UUAGCTests(uuagcPreTest
                  )
 
 main :: IO ()
-main = defaultMainWithHooks $ uuagcUserHook { preTest  = uuagcPreTest
-                                            , testHook = uuagcTestHook
-                                            , postTest = uuagcPostTest
-                                            }
+main = do putStrLn "Estoy iniciando"
+          defaultMainWithHooks $ uuagcUserHook { preTest  = uuagcPreTest
+                                               , testHook = uuagcTestHook
+                                               , postTest = uuagcPostTest
+                                               }
 
