@@ -366,11 +366,11 @@ knuth1 ndis = do -- Create initial list of pending edges for each ndi per produc
 -- | Helper function for |knuth1| which repeats the process until we are done
 knuth1' :: [([[Edge]], NontDependencyInformationM s)] -> ST s ()
 knuth1' ndis = do -- Add edges from the production graphs to the nonterminal graph
---                ndis' :: [Maybe [Edge]]
+--                ndis' :: [[Edge]]
                   ndis' <- mapM addProdNont ndis
                   -- List of all newly added edges
 --                ntedge :: [Edge]
-                  let pntedge = concatMap (maybe [] id) ndis'
+                  let pntedge = concat ndis'
                   -- Add backedges
                   --bedges <- addBackEdges ndis
                   -- All added nonterminal edges
@@ -379,20 +379,20 @@ knuth1' ndis = do -- Add edges from the production graphs to the nonterminal gra
                     -- When no new edges have been added we are done
                     then return ()
                     else do -- Otherwise, the next step is to add edges from nonterminal to production graphs
---                          ndis'' :: [Maybe [[Edge]]]
+--                          ndis'' :: [[[Edge]]]
                             ndis'' <- mapM (\(_,x) -> addNontProd True (ntedge, x)) ndis
                             -- List of new states (production edges + dependency graphs)
 --                          nndis' :: [([[Edge]], NontDependencyInformation)]
-                            nndis' <- zipWithM (\(_,ndi) me -> return (maybe [] id me, ndi)) ndis ndis''
-                            if any isJust ndis''
+                            nndis' <- zipWithM (\(_,ndi) me -> return (me, ndi)) ndis ndis''
+                            if any (not . null) ndis''
                                -- We have added some edges, so continue the process
                               then knuth1' nndis'
                               -- No new edges added, we are done
                               else return ()
 
--- | Add pending edges from the production graphs to the nonterminal graph, return Nothing if none were added
---   otherwise, return the list of newly added nonterminal edges
-addProdNont :: ([[Edge]], NontDependencyInformationM s) -> ST s (Maybe [Edge])
+-- | Add pending edges from the production graphs to the nonterminal graph
+--   and return the list of newly added nonterminal edges
+addProdNont :: ([[Edge]], NontDependencyInformationM s) -> ST s [Edge]
 addProdNont (pending, ndi) = do -- Unwrapping of the records
                                 let nontDepGraph = ndimDepGraph ndi
                                 let nontGraph = ndgmDepGraph nontDepGraph
@@ -412,26 +412,19 @@ addProdNont (pending, ndi) = do -- Unwrapping of the records
                                 -- Edges that are not in the nonterminal graph yet
                                 toadd <- filterM (\e -> return not `ap` graphContainsEdge nontGraph e) possa
                                 -- Check whether new edges are to be added and return the added edges
-                                if null toadd
-                                   then return Nothing
-                                   else do graphInsertEdgesTRC nontGraph toadd
-                                           -- Debug output
-                                           --mapM_ (\edge -> traceST $ "Adding nonterminal edge " ++ show edge) toadd
-                                           return $ Just toadd
+                                when (not $ null toadd) $ do
+                                   graphInsertEdgesTRC nontGraph toadd
+                                   return ()
+                                return toadd
 
--- | Add edges from the nonterminal graphs to the production graphs, return Nothing if none were added
---   otherwise, return the list of newly added production edges and the updated graph
-addNontProd :: Bool -> ([Edge], NontDependencyInformationM s) -> ST s (Maybe [[Edge]])
-addNontProd trc (pending, ndi) = do -- Call the helper function for each nonterminal
-                                    prods' <- mapM (addNontProd' trc pending) (ndimProds ndi)
-                                    -- Check if any edges were added
-                                    if any isJust prods'
-                                      then -- Return list of newly created edges
-                                           return $ Just $ map (maybe [] id) prods'
-                                      else return Nothing
+-- | Add edges from the nonterminal graphs to the production graphs
+--   and return the list of newly added production edges and the updated graph
+addNontProd :: Bool -> ([Edge], NontDependencyInformationM s) -> ST s [[Edge]]
+addNontProd trc (pending, ndi) = do -- Just call the helper function for each nonterminal
+                                    mapM (addNontProd' trc pending) (ndimProds ndi)
 
 -- | Helper function for |addNontProd| for a single production
-addNontProd' :: Bool -> [Edge] -> ProdDependencyGraphM s -> ST s (Maybe [Edge])
+addNontProd' :: Bool -> [Edge] -> ProdDependencyGraphM s -> ST s [Edge]
 addNontProd' trc pend pdg = do -- Unwrapping of the records
                                prodGraph <- return $ pdgmDepGraph pdg
                                -- Construct all possible new edges
@@ -450,7 +443,7 @@ addNontProd' trc pend pdg = do -- Unwrapping of the records
                                toadd <- filterM (\e -> return not `ap` graphContainsEdge prodGraph e) possa
                                -- Check whether new edges are to be added and return the result
                                if null toadd
-                                 then return Nothing
+                                 then return []
                                  else do -- Insert all edges and return transitive edges that are added in this process
                                          ret <- if trc
                                                 then graphInsertEdgesTRC prodGraph toadd
@@ -458,7 +451,7 @@ addNontProd' trc pend pdg = do -- Unwrapping of the records
                                                         return []
                                          -- Debug output
                                          --mapM_ (\edge -> traceST $ "Adding production edge " ++ show edge) toadd
-                                         return $ Just ret
+                                         return ret
 
 -- | Add the "back edges" to the nonterminal graphs for creating a global ordering
 addBackEdges :: [([[Edge]], NontDependencyInformationM s)] -> ST s [Edge]
