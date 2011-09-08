@@ -162,7 +162,8 @@ updateAGFile uuagcPath classesPath pkgDescr lbi (f, sp) = do
                                       when (maxModified > fmt) $ removeFile f
             withBuildTmpDir pkgDescr lbi $ removeTmpFile . (`tmpFile` f)
     (ExitFailure exc) ->
-      do putErrorInfo ppOutput
+      do hPutStrLn stderr (show exc)
+         putErrorInfo ppOutput
          putErrorInfo ppError
          throwFailure
   where newProcess mopts = createProcess $ (proc uuagcPath

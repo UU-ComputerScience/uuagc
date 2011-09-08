@@ -1,7 +1,7 @@
 cabal-version: >=1.8
 build-type: Simple
 name: uuagc-cabal
-version: 1.0.0.5
+version: 1.0.0.6
 license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
