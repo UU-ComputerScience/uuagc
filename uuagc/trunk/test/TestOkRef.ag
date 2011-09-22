@@ -1,0 +1,39 @@
+MODULE {TestOkRef} {} {}
+
+imports
+{
+import Data.Monoid
+import Data.IntMap(IntMap)
+import qualified Data.IntMap as IntMap
+}
+
+WRAPPER R
+WRAPPER E
+
+{
+t = R_Root [E_Put 4,E_Get 4,E_Get 2, E_Put 2, E_Get 2]
+i = Inh_R {}
+s = wrap_R (sem_R t) i 
+v = s_Syn_R s
+}
+
+DATA R | Root l : L
+TYPE L = [E]
+DATA E | Put nm : Int
+       | Get nm : Int
+
+ATTR R L E [ | | s USE {+} {0} : Int ]
+
+ATTR L E [   dist : {IntMap Syn_E}
+         | | gath USE {`mappend`} {mempty} : {IntMap Syn_E} ]
+
+SEM R | Root
+  l.dist = @l.gath
+
+SEM E | Put
+  lhs.gath = IntMap.singleton @nm  ___node
+  lhs.s    = 3
+
+SEM E | Get
+  loc.ref  = IntMap.findWithDefault undefined @nm @lhs.dist
+  lhs.s    = s_Syn_E @loc.ref
