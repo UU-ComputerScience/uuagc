@@ -456,7 +456,17 @@ SEM  CVisit
                                 in if @lhs.isLast
                                    then []
                                    else [Decl lhs rhs (Set.fromList @nextVisitName) @lhs.nextIntraVars]
-            loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl
+            loc.isOneVisit  = @lhs.isLast && @lhs.nr == 0
+            loc.hasWrappers = @lhs.nt `Set.member` @lhs.wrappers
+            loc.refDecls = if @loc.isOneVisit && @loc.hasWrappers
+                           then let synAttrs = Map.toList @syn
+                                    synNT = "Syn" ++ "_" ++ getName @lhs.nt
+                                    synVars = [ SimpleExpr (attrname False _LHS a) | (a,_) <- synAttrs ]
+                                    rhs = App synNT synVars
+                                    lhs = Fun "___node" []
+                                in [Decl lhs rhs Set.empty Set.empty]
+                           else []
+            loc.decls = @typeSigs ++ @vss.decls ++ @nextVisitDecl ++ @loc.refDecls
             vss.lastExpr = mkTupleExpr @lhs.o_unbox (null $ Map.keys @inh) $ map (SimpleExpr . lhsname False) (Map.keys @syn) ++ map SimpleExpr @nextVisitName
             intra.lastExpr = error "lastExpr: not used here"
             loc.lastExprVars = map (lhsname False) (Map.keys @syn) ++ @loc.nextVisitName
@@ -980,7 +990,9 @@ visitname pre nt n =  pre ++ getName nt ++ "_" ++ show n
 -- Datatypes were already present
 -------------------------------------------------------------------------------
 
-ATTR CNonterminals CNonterminal [ wrappers:{Set NontermIdent} derivings: {Derivings} typeSyns : {TypeSyns} | | ]
+ATTR CNonterminals CNonterminal [ derivings: {Derivings} typeSyns : {TypeSyns} | | ]
+ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ wrappers:{Set NontermIdent} | | ]
+
 SEM CGrammar
   | CGrammar nonts . typeSyns  = @typeSyns
                    . derivings = @derivings
