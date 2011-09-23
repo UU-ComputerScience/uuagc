@@ -46,14 +46,23 @@ SEM Grammar
              nonts.o_noGroup   = @loc.o_noGroup
 
 SEM Nonterminal
-  | Nonterminal  loc.inhNoGroup     = Map.filterWithKey (\att _ -> elem (getName att) @lhs.o_noGroup) @inh
+  | Nonterminal  loc.inhNoGroup     = Map.filterWithKey (\att _ -> elem (getName att) @lhs.o_noGroup) @prods.prdInh
   | Nonterminal  loc.synNoGroup     = Map.filterWithKey (\att _ -> elem (getName att) @lhs.o_noGroup) @syn
 
 
-ATTR Productions Production Children Child Rules Rule [ inhNoGroup, synNoGroup : {[String]} | | ]
+ATTR Productions Production Children Child Rules Rule [ inhNoGroup, synNoGroup : {[String]}  | | ]
 SEM Nonterminal
   | Nonterminal  prods.inhNoGroup     = map show $ Map.keys @loc.inhNoGroup
   | Nonterminal  prods.synNoGroup     = map show $ Map.keys @loc.synNoGroup
+
+
+SEM Productions
+  | Cons  hd.inhNoGroup     = filter (flip Map.member @hd.prdInh . identifier) @lhs.inhNoGroup
+
+
+ATTR Productions Production Children Child [ | | prdInh USE {`Map.union`} {Map.empty} : {Attributes}  ]
+SEM Child
+  | Child  lhs.prdInh     = @inh
 
 
 {
