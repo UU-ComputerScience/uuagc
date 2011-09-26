@@ -355,7 +355,7 @@ SEM EChild
                           then empty
                           else if isNonterminal @tp
                                then ("T_" >|< extractNonterminal @tp) >#< "->"
-                               else (text $ show @tp) >#< "->"
+                               else (pp_parens $ show @tp) >#< "->"
            loc.argnames = if isJust @virtual
                           then empty
                           else if isNonterminal @tp
