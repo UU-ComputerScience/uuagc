@@ -447,6 +447,9 @@ SEM Program
               ]
               ++ map pp @chunks.imports
               ++ map vlist @chunks.appendMain
+              ++ case Map.lookup (BlockMain, Nothing) @lhs.textBlockMap of
+                   Nothing -> []
+                   Just p  -> [pp p]
             )
 
       loc.commonFile = @lhs.mainFile ++ "_common.hs"

@@ -6,6 +6,7 @@ import System.Console.GetOpt         (usageInfo)
 import Data.List                     (isSuffixOf,nub)
 import Control.Monad                 (zipWithM_)
 import Data.Maybe
+import System.FilePath
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -134,6 +135,9 @@ compile flags input output
           textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
 
           outputfile = if null output then outputFile input else output
+          mainFile | null output = outputFile input
+                   | otherwise   = dropExtension output
+          mainName = dropExtension $ takeFileName input
 
           addLocationPragma :: ([String], Pos) -> PP_Doc
           addLocationPragma (strs, p)
@@ -148,9 +152,6 @@ compile flags input output
           optionsLine | null optionsGHC = ""
                       | otherwise       = "{-# OPTIONS_GHC " ++ unwords optionsGHC ++ " #-}"
 
-          mainName = stripPath $ defaultModuleName input
-          mainFile = defaultModuleName input
-
           nrOfErrorsToReport = length $ filter (PrErr.isError flags') errorsToReport
           nrOfWarningsToReport = length $ filter (not.(PrErr.isError flags')) errorsToReport
           totalNrOfErrors = length $ filter (PrErr.isError flags') allErrors
@@ -161,8 +162,8 @@ compile flags input output
 
 
       (outAgi, ext) <-  --marcos
-                     if genAspectAG flags'  
-                     then parseAGI flags (searchPath flags) (agiFile input) 
+                     if genAspectAG flags'
+                     then parseAGI flags (searchPath flags) (agiFile input)
                      else return (undefined, undefined)
 
       let ext' = case ext of
@@ -234,7 +235,7 @@ compile flags input output
                                                  , GrammarDump.pp_Syn_Grammar dump2
                                                  , pp "-}"
                                                  ]
-                                      else empty]                         
+                                      else empty]
                          | kennedyWarren flags'
                             = vlist [ pp optionsLine
                                     , pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
@@ -331,37 +332,21 @@ moduleHeader flags input
 
 inputFile :: String -> String
 inputFile name
- = if ".ag" `isSuffixOf` name || ".lag" `isSuffixOf` name
-   then name
-   else name ++ ".ag"
+  | hasExtension "ag" || hasExtension "lag" = name
+  | otherwise                               = replaceExtension name "ag"
 
 --marcos
 agiFile :: String -> String
-agiFile name
- = if ".ag" `isSuffixOf` name || ".lag" `isSuffixOf` name
-   then name ++ "i"
-   else name ++ ".agi"
+agiFile name = replaceExtension name "agi"
 
 remAgi :: String -> String
-remAgi name
- = takeWhile (/= '.') name
-
+remAgi = dropExtension
 
 outputFile :: String -> String
-outputFile name
- = defaultModuleName name ++ ".hs"
+outputFile name = replaceExtension name "hs"
 
 defaultModuleName :: String -> String
-defaultModuleName name
- = if ".ag" `isSuffixOf` name
-   then take (length name - 3) name
-   else if ".lag" `isSuffixOf` name
-   then take (length name - 4) name
-   else name
-
-stripPath :: String -> String
-stripPath
-  = reverse . takeWhile (\c -> c /= '/' && c /= '\\') . reverse
+defaultModuleName = dropExtension
 
 mkMainName :: String -> Maybe (String, String,String) -> String
 mkMainName defaultName Nothing
