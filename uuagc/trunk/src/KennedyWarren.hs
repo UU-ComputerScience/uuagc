@@ -533,34 +533,16 @@ kennedyWarrenVisitM wr ndis = do
     syns  <- getSynthesized pend
     -- Handle each production for this edge
     forM_ prods $ \prod -> do
+      -- Mark all inherited attributes as final
+      setDepGraphVerticesFinal prod (map createLhsInh . Set.toList $ inhs)
       -- Find depth of all synthesized child visits
-      (vis,i) <- foldM (foldChildVisits prod) ([],0) (map (VAttr Syn _LHS) . Set.toList $ syns)
+      (vis,i) <- foldM (foldChildVisits prod) ([],0) (map createLhsSyn . Set.toList $ syns)
       -- Mark them as final
       setDepGraphVerticesFinal prod (map fst vis)
       -- Change the inherited child visits
-      vis2 <- forM vis $ \(v,i) -> do
-        if isChildInh v
-          then do
-            preds <- onMarkedDepGraph (liftM Set.toList . flip graphPredecessors v . pdgmDepGraph) prod
-            let ni = foldl1 min $ map (\x -> case x `lookup` vis of { Just i -> i; Nothing -> 99999999 }) preds
-            return (v,ni)
-          else if not $ isChildSyn v
-               then do
-                 succs <- onMarkedDepGraph (liftM Set.toList . flip graphSuccessors v . pdgmDepGraph) prod
-                 let ni = foldl max 0 $ map (\x -> case x `lookup` vis of { Just i -> i + 1; Nothing -> 0 }) succs
-                 return (v,ni)
-               else return (v,i)
+      vis2 <- correctInhChilds prod vis
       -- Add all synthesized attributes that are also ready but are not needed
-      allpreds <- forM vis2 $ \(v,i) -> do
-        if isChildInh v
-          then do
-            preds <- onMarkedDepGraph (liftM Set.toList . flip graphPredecessors v . pdgmDepGraph) prod
-            return $ Set.fromList $ filter isChildSyn preds
-          else return Set.empty
-      lextravis <- mapM (\v -> do ready <- isReadyVertex prod vis2 v
-                                  return $ do i <- ready
-                                              return (v,i)) $ Set.toList $ Set.unions allpreds
-      let extravis = catMaybes lextravis
+      extravis <- extraChildSyn prod vis2
       setDepGraphVerticesFinal prod (map fst extravis)
       -- Group by visit number and do visit for every num
       let gvis = groupSortBy (comparing snd) $ vis2 ++ extravis
@@ -620,6 +602,36 @@ findChildVisits prod v vis = do
             then return ((v,ni + 1) : nvis, ni + 1)
             else return ((v,ni) : nvis, ni)
 
+-- | Correct inherited child visits after foldChildVisits
+correctInhChilds :: VGProd -> ChildVisits -> VG s ChildVisits
+correctInhChilds prod vis =
+  forM vis $ \(v,i) -> do
+    if isChildInh v
+     then do
+      preds <- onMarkedDepGraph (liftM Set.toList . flip graphPredecessors v . pdgmDepGraph) prod
+      let ni = foldl min 99999999 $ mapMaybe (`lookup` vis) preds
+      return (v,ni)
+     else if not $ isChildSyn v
+           then do
+            succs <- onMarkedDepGraph (liftM Set.toList . flip graphSuccessors v . pdgmDepGraph) prod
+            let ni = foldl max (-1) $ mapMaybe (`lookup` vis) succs
+            return (v,ni+1)
+           else return (v,i)
+
+-- | Synthesized attributes that can also be evaluated
+extraChildSyn :: VGProd -> ChildVisits -> VG s ChildVisits
+extraChildSyn prod vis = do
+  allpreds <- forM vis $ \(v,i) -> do
+    if isChildInh v
+     then do
+      preds <- onMarkedDepGraph (liftM Set.toList . flip graphPredecessors v . pdgmDepGraph) prod
+      return $ Set.fromList $ filter isChildSyn preds
+     else return Set.empty
+  lextravis <- forM (Set.toList $ Set.unions allpreds) $ \v -> do
+    ready <- isReadyVertex prod vis v
+    return $ maybe Nothing (\i -> Just (v,i)) ready
+  return $ catMaybes lextravis
+
 -- | Check if a vertex can be marked final in this step (and is not final yet) and return the visit num
 isReadyVertex :: VGProd -> ChildVisits -> Vertex -> VG s (Maybe Int)
 isReadyVertex prod vis v = do 
@@ -647,6 +659,14 @@ isChildInh v = isChildAttr v && getAttrType v == Inh
 -- | Check if this vertex is an attribute of a child
 isChildAttr :: Vertex -> Bool
 isChildAttr v = isVertexAttr v && getAttrChildName v /= _LHS && getAttrType v /= Loc
+
+-- | Create lhs.inh vertex
+createLhsInh :: Identifier -> Vertex
+createLhsInh = VAttr Inh _LHS
+
+-- | Create lhs.inh vertex
+createLhsSyn :: Identifier -> Vertex
+createLhsSyn = VAttr Syn _LHS
 
 ------------------------------------------------------------
 ---         Construction of the execution plan           ---

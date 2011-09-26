@@ -357,10 +357,10 @@ undoTransitiveClosure ndis = do edgesl <- mapM (\ndi -> graphEdges (ndgmDepGraph
 --   this function assumes that the nonterminal graphs initially contains no edges
 knuth1 :: [NontDependencyInformationM s] -> ST s ()
 knuth1 ndis = do -- Create initial list of pending edges for each ndi per production (initially all prod edges)
-                 let ipending :: NontDependencyInformationM s -> ST s [[Edge]]
-                     ipending = mapM (graphEdges . pdgmDepGraph) . ndimProds
 --               pndis :: [([[Edge]], NontDependencyInformation)]
-                 pndis <- mapM (\ndi -> liftM2 (,) (ipending ndi) (return ndi)) ndis
+                 pndis <- forM ndis $ \ndi -> do 
+                   ipend <- mapM (graphEdges . pdgmDepGraph) . ndimProds $ ndi
+                   return (ipend, ndi)
                  knuth1' pndis
 
 -- | Helper function for |knuth1| which repeats the process until we are done
