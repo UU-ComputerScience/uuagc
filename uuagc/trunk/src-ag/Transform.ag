@@ -184,7 +184,9 @@ SEM Elem
                                then BlockImport
                                else if nm == "optpragmas"
                                     then BlockPragma
-                                    else BlockOther
+                                    else if nm == "main"
+                                         then BlockMain
+                                         else BlockOther
                           , @mbNt
                           )
          loc.blockValue = [(@lines, @pos)]

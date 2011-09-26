@@ -13,6 +13,7 @@ type BlockInfo = (BlockType, Maybe NontermIdent)
 data BlockType
   = BlockImport
   | BlockPragma
+  | BlockMain
   | BlockOther
   deriving (Eq, Ord, Show)
 
