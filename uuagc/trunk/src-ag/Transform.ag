@@ -1205,7 +1205,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con cldrn rules tsigs (fromJust $ Map.lookup con macromap)
+                                   in Production con cldrn rules tsigs (Map.findWithDefault Nothing con macromap)
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }
