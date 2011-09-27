@@ -740,10 +740,10 @@ SEM Production
                                                  macro  = case @macro of
                                                                              Nothing ->  [] 
                                                                              Just macro ->  [ "agMacro " >|<  ppMacro macro  ]
-                                                                   
+                                                 atts = sortBy (\a b -> compare (show a) (show b)) @loc.ppRA                  
                                             in   "atts_" >|< @loc.prodName >|< " = " >|< 
                                                                                ppListSep "" "" " `ext` " 
-                                                                               (@loc.ppRA ++ macro ++ extend ) >-<
+                                                                               (atts ++ macro ++ extend ) >-<
                                                  "semP_" >|< @loc.prodName >|< pp " = knit atts_" >|< @loc.prodName
 
 {
