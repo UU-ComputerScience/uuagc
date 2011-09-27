@@ -12,6 +12,7 @@ tool, change the compiler-variable in Setup.hs
 Note: to produce a source release, you'll need to use the
 Setup.hs because cabal-install at the time is not able to
 do this in combination with the cabal plugin:
+
 --
 cabal clean    # remove possible junk
 ghc --make Setup.hs -o setup
