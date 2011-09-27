@@ -370,7 +370,7 @@ SEM EProduction
                                >#< "st" >|< @lhs.initial >#< "where"
                                >-< (indent 3 $ vlist @loc.statefns >-< @rules.sem_rules)
                 loc.statefns = map (\st -> ("st" >|< st >#< @loc.stargs st >#< "=" >#<
-                                           "C_" >|< @lhs.nt >|< "_s" >|< st >#< 
+                                           "C_" >|< @lhs.nt >|< "_s" >|< st >#<
 					   if null (@loc.stvisits st)
 			       	   	   then empty
 					   else "k" >|< st >#< "where")
@@ -607,7 +607,8 @@ SEM HsToken [ || tok:{(Pos,String)}]
 --  Alternative code generation (sepsemmods)
 -------------------------------------------------------------------------------
 
-ATTR ExecutionPlan [ | | genIO : {IO ()} ]
+ATTR ExecutionPlan [ mainBlocksDoc : PP_Doc textBlockMap : {Map BlockInfo PP_Doc}
+                   | | genIO : {IO ()} ]
 
 SEM ExecutionPlan
   | ExecutionPlan lhs.genIO           = do @loc.genMainModule
@@ -623,6 +624,7 @@ SEM ExecutionPlan
                                             , pp $ "import " ++ @lhs.mainName ++ "_common"
                                             ]
                                             ++ @nonts.imports
+                                            ++ [@lhs.mainBlocksDoc]
                                             ++ @nonts.appendMain
                                           )
                   loc.commonFile      = @lhs.mainFile ++ "_common.hs"
@@ -668,6 +670,7 @@ SEM EProduction
                                    , pp $ @lhs.pragmaBlocks
                                    , pp $ @lhs.optionsLine
                                    , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
+                                   , @lhs.importBlocks
                                    , pp $ "import Control.Monad.Identity"
                                    , pp $ "import " ++ @lhs.mainName ++ "_common"
                                    , @loc.sem_prod
