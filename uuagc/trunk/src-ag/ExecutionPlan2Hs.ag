@@ -13,6 +13,7 @@ import Data.Maybe
 import Debug.Trace
 import System.IO
 import System.Directory
+import UU.Scanner.Position
 
 import TokenDef
 import HsToken
@@ -23,7 +24,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 }
 
-ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule
   [ importBlocks : PP_Doc
     pragmaBlocks : String
     textBlocks   : PP_Doc
@@ -440,16 +441,26 @@ ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
 
 SEM ERule
   | ERule lhs.sem_rules    = if Set.member @name @lhs.usedrules
-                             then (@name >#< "=" >#<
-                                  (if Set.null @rhs.attrs
-                                   then empty
-                                   else "\\" >|< @loc.attrlst >#< "->")
-                                  >#< @rhs.semfunc)
+                             then if @genpragma
+			          then (@name >#< "=" >#< @lambda)
+				       >-< indent (column @rhs.pos - 3)
+				       	   (@pragma >-< @rhs.semfunc >-< @endpragma)
+				  else @name >#< "=" >#< @lambda >#< @rhs.semfunc
                              else empty
+          loc.pragma       = "{-# LINE " ++ show (line @rhs.pos) ++ " " ++ show (file @rhs.pos) ++ "#-}"
+	  loc.endpragma    = ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show @lhs.mainFile ++ "#-}")
+	  loc.genpragma    = genLinePragmas @lhs.options && @haspos
+          loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
+          loc.lambda       = if Set.null @rhs.attrs
+                             then empty
+                             else "\\" >|< @attrlst >#< "->"
           loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
           lhs.mrules       = Map.singleton @name $ "let" >#< @loc.addbang @pattern.sem_lhs >#< "=" >#< @name >#< @loc.attrlst
 	  pattern.addtilde = \x -> if cases @lhs.options then x else "~" >|< x
 	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
+
+ATTR Expression [ | | pos : {Pos} ]
+SEM Expression | Expression lhs.pos = @pos
 
 -- pattern and expression semantics
 ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
