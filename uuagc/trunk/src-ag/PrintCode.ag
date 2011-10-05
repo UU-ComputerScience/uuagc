@@ -17,6 +17,7 @@ import CommonTypes (attrname, _LOC, getName, nullIdent)
 import Data.List(intersperse)
 import System.IO
 import System.Directory
+import System.FilePath
 import CommonTypes(BlockInfo, BlockType(..), identifier)
 }
 
@@ -41,8 +42,8 @@ ATTR Expr Exprs Decl Decls CaseAlt CaseAlts Lhs [ outputfile : {String} | | ]
 SEM Chunk
   | Chunk
       loc.outputfile = if sepSemMods @lhs.options
-                       then @lhs.mainFile ++ "_" ++ @name ++ ".hs"
-                       else @lhs.mainFile ++ ".hs"
+                       then replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_" ++ @name)
+                       else @lhs.mainFile
 
 ATTR Program                            [ options:{Options} | | output:{PP_Docs} ]
 
@@ -437,7 +438,7 @@ ATTR Program Chunks Chunk
 
 SEM Program
   | Program
-      loc.mainModuleFile = @lhs.mainFile ++ ".hs"
+      loc.mainModuleFile = @lhs.mainFile
       loc.genMainModule
         = writeModule @loc.mainModuleFile
             ( [ pp $ @lhs.pragmaBlocks
@@ -450,7 +451,7 @@ SEM Program
               ++ [@lhs.mainBlocksDoc]
             )
 
-      loc.commonFile = @lhs.mainFile ++ "_common.hs"
+      loc.commonFile = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
       loc.genCommonModule
         = writeModule @loc.commonFile
               ( [ pp $ @lhs.pragmaBlocks
