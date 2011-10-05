@@ -13,6 +13,7 @@ import Data.Maybe
 import Debug.Trace
 import System.IO
 import System.Directory
+import System.FilePath
 import UU.Scanner.Position
 
 import TokenDef
@@ -625,7 +626,7 @@ SEM ExecutionPlan
   | ExecutionPlan lhs.genIO           = do @loc.genMainModule
                                            @loc.genCommonModule
                                            @nonts.genProdIO
-                  loc.mainModuleFile  = @lhs.mainFile ++ ".hs"
+                  loc.mainModuleFile  = @lhs.mainFile
                   loc.genMainModule   = writeModule @loc.mainModuleFile
                                           ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
                                             , pp $ @lhs.pragmaBlocks
@@ -638,7 +639,7 @@ SEM ExecutionPlan
                                             ++ [@lhs.mainBlocksDoc]
                                             ++ @nonts.appendMain
                                           )
-                  loc.commonFile      = @lhs.mainFile ++ "_common.hs"
+                  loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
                   loc.genCommonModule = writeModule @loc.commonFile
                                           ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
                                             , pp $ @lhs.pragmaBlocks
@@ -675,17 +676,17 @@ SEM EProduction
   | EProduction lhs.imports    = [pp $ "import " ++ @loc.moduleName]
                 loc.moduleName = @lhs.mainName ++ @loc.suffix
                 loc.suffix     = "_" ++ show @lhs.nt ++ "_" ++ show @con
-                loc.outputfile = @lhs.mainFile ++ @loc.suffix ++ ".hs"
+                loc.outputfile = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ @loc.suffix)
                 lhs.genProdIO  = writeModule @loc.outputfile
-                                   [ pp "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
-                                   , pp $ @lhs.pragmaBlocks
-                                   , pp $ @lhs.optionsLine
-                                   , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
-                                   , @lhs.importBlocks
-                                   , pp $ "import Control.Monad.Identity"
-                                   , pp $ "import " ++ @lhs.mainName ++ "_common"
-                                   , @loc.sem_prod
-                                   ]
+                                     [ pp "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+                                     , pp $ @lhs.pragmaBlocks
+                                     , pp $ @lhs.optionsLine
+                                     , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
+                                     , @lhs.importBlocks
+                                     , pp $ "import Control.Monad.Identity"
+                                     , pp $ "import " ++ @lhs.mainName ++ "_common"
+                                     , @loc.sem_prod
+                                     ]
 
 {
 renderDocs :: [PP_Doc] -> String
