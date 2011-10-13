@@ -19,7 +19,8 @@ ppCommas :: PP a => [a] -> PP_Doc
 ppCommas = ppListSep "" "" ", "
 
 ppVList :: PP a => [a] -> PP_Doc
-ppVList = pp_block "[ " "] " ", " . map pp
+ppVList []     = "[" >#< "]"
+ppVList (x:xs) = vlist (("[" >#< pp x) : (map (\y -> "," >#< pp y) xs)) >#< "]"
 
 ppMap :: (Show a, Show b) => Map.Map a b -> PP_Doc
 ppMap m = ppVList [ ppF (show k) $ ppShow v | (k,v) <- Map.toList m ]
