@@ -52,12 +52,14 @@ DATA Child        | Child   name        : {Identifier}
                             syn         : {Attributes}
                             virtual     : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
-DATA Rule         | Rule    mbName  : {Maybe Identifier}
-                            pattern : Pattern
-                            rhs     : Expression
-                            owrt    : {Bool}
-                            origin  : String  -- just for documentation (and maybe errors)
-                            explicit : Bool  -- True if this rule defined in the source code
+DATA Rule         | Rule    mbName   : {Maybe Identifier}
+                            pattern  : Pattern
+                            rhs      : Expression
+                            owrt     : {Bool}
+                            origin   : String  -- just for documentation (and maybe errors)
+                            explicit : Bool   -- True if this rule defined in the source code
+                            pure     : Bool   -- True if this rule is pure (does not have side effects)
+                            identity : Bool   -- True if this rule is an identity rule
 
 DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}

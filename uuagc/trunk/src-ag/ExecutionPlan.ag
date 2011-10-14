@@ -41,11 +41,12 @@ DATA EChild       | EChild       name    : {Identifier}
              			 virtual : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
 
 DATA ERule        | ERule       name     : {Identifier}
-                                pattern  : Pattern 
+                                pattern  : Pattern
                                 rhs      : Expression
                                 owrt     : {Bool}
                                 origin   : String  -- just for documentation (and maybe errors)
                                 explicit : Bool  -- True if this rule defined in the source code
+                                pure     : Bool  -- True if this rule is pure (not monadic/no side effect)
 
 DATA Visit        | Visit       ident    : {VisitIdentifier}
      		    		from     : {StateIdentifier}

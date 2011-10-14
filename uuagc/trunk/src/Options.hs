@@ -76,6 +76,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["checkParseHaskell"]  (NoArg parseHsOpt) "Parse Haskell code (recognizer)"
                , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
                , Option []        ["nooptimize"]         (NoArg noOptimizeOpt) "Disable optimizations"
+               , Option []        ["parallel"]           (NoArg parallelOpt) "Generate a parallel evaluator (if possible)"
                ]
 
 allc = "dcfsprm"
@@ -145,6 +146,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , nocatas :: Set NontermIdent
                       , kennedyWarren :: Bool
                       , noOptimizations :: Bool
+                      , parallelInvoke :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -211,6 +213,7 @@ noOptions = Options { moduleName    = NoName
                     , nocatas         = Set.empty
                     , kennedyWarren   = False
                     , noOptimizations = False
+                    , parallelInvoke  = False
                     }
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
@@ -274,6 +277,7 @@ lcKeywordsOpt opts = opts { lcKeywords = True }
 doubleColonsOpt opts = opts { doubleColons = True }
 haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
 monadicOpt opts = opts { monadic = True }
+parallelOpt opts = opts { parallelInvoke = True }
 ocamlOpt opts = opts { ocaml = True }
 visitorsOutputOpt opts = opts { visitorsOutput = True }
 statisticsOpt nm opts = opts { statsFile = Just nm }

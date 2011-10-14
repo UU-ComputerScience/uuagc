@@ -90,6 +90,7 @@ DATA SemDef    | Def    pos    : Pos
                         pattern: Pattern
                         rhs    : {Expression}
                         owrt   : {Bool}
+                        pure   : Bool
                | TypeDef pos   : {Pos}
                          ident : {Identifier}
                          tp    : Type

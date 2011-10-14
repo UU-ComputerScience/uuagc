@@ -72,6 +72,7 @@ data UUAGCOption = UModuleDefault
                  | UCheckParseBlocks
                  | UCheckParseHaskell
                  | UKennedyWarren
+                 | UParallel
                    deriving (Eq, Read, Show)
 
 type UUAGCOptions = [UUAGCOption]
@@ -151,6 +152,7 @@ fromUUAGCOtoArgs UCheckParseTys         = toLOp ocheckparsetys
 fromUUAGCOtoArgs UCheckParseBlocks      = toLOp ocheckparseblocks
 fromUUAGCOtoArgs UCheckParseHaskell     = toLOp ocheckparsehaskell
 fromUUAGCOtoArgs UKennedyWarren         = toLOp okennedywarren
+fromUUAGCOtoArgs UParallel              = toLOp oparallel
 
 fromUUAGCOstoArgs :: UUAGCOptions -> [String]
 fromUUAGCOstoArgs = map fromUUAGCOtoArgs

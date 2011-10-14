@@ -240,7 +240,7 @@ parseFile agi opts searchPath file
           <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr
           <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
           <|> (\sources target nt expr -> [MergeDef target nt sources expr]) <$ pMERGE <*> (pList1_ng pIdentifier <* pAS <|> pSucceed []) <*> pIdentifier <* pTypeColon <*> pIdentifierU <* pAssign <*> pExpr
-          <|> (\mbNm pat (owrt,pos) exp -> [Def pos mbNm (pat ()) exp owrt]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pAssignPos <*> pExpr
+          <|> (\mbNm pat (owrt,pos,pur) exp -> [Def pos mbNm (pat ()) exp owrt pur]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pRuleSym <*> pExpr
 
     pMaybeRuleName :: AGParser (Maybe Identifier)
     pMaybeRuleName
@@ -249,8 +249,8 @@ parseFile agi opts searchPath file
 
     pAttrDef :: AGParser (Maybe Identifier -> Identifier -> SemDef)
     pAttrDef
-      = (\pat (owrt,pos) exp mbNm fld -> Def pos mbNm (pat fld) exp owrt)
-               <$ pDot <*> pattern <*> pAssignPos <*> pExpr
+      = (\pat (owrt,pos,pur) exp mbNm fld -> Def pos mbNm (pat fld) exp owrt pur)
+               <$ pDot <*> pattern <*> pRuleSym <*> pExpr
       where pattern =  pPattern pVar
                    <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
 
@@ -277,13 +277,13 @@ parseFile agi opts searchPath file
 
     --marcos
     pMaybeMacro :: AGParser MaybeMacro
-    pMaybeMacro  =  Just <$ pDoubleArrow <*>  pMacro 
+    pMaybeMacro  =  Just <$ pDoubleArrow <*>  pMacro
                 <|> pSucceed Nothing
 
     pMacro :: AGParser Macro
     pMacro
           =  Macro <$> pIdentifierU
-                   <*> pList1 pMacroChild 
+                   <*> pList1 pMacroChild
                    <?> "macro"
 
     pMacroChild :: AGParser MacroChild
@@ -445,9 +445,10 @@ pAssign :: AGParser Bool
 pAssign =  False <$ pReserved "="
        <|> True  <$ pReserved ":="
 
-pAssignPos :: AGParser (Bool, Pos)
-pAssignPos  =   (\p -> (False,p)) <$> pReserved "="
-            <|> (\p -> (True,p))  <$> pReserved ":="
+pRuleSym :: AGParser (Bool, Pos, Bool)
+pRuleSym  =     (\p -> (False, p, True)) <$> pReserved "="
+            <|> (\p -> (True,  p, True)) <$> pReserved ":="
+            <|> (\p -> (False, p, True)) <$> pReserved "<-"
 
 pPattern :: AGParser (a -> (Identifier,Identifier)) -> AGParser (a -> Pattern)
 pPattern pvar = pPattern2 where

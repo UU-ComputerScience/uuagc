@@ -1,3 +1,5 @@
+-- 13 okt 2011: eliminated the "multiRule" transformation for all but the Kastens-code
+
 PRAGMA strictdata
 PRAGMA optimize
 PRAGMA bangpats
@@ -24,7 +26,7 @@ import Data.List(intersperse)
 import AbstractSyntax
 import ErrorMessages
 
-import Options(Options,modcopy,rename)
+import Options
 }
 
 -------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ ATTR Rule Rules Child Children Pattern Patterns [ con:ConstructorIdent | | ]
 --         Distributing options
 -------------------------------------------------------------------------------
 
-ATTR Grammar          [ options:{Options} | | ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Rules Rule [ options:{Options} | | ]
 ATTR Nonterminals Nonterminal Productions Production [ o_rename:{Bool}
                                                        cr:Bool {- copy rule -}
                                                      | | ]
@@ -210,14 +212,16 @@ missingRuleErrorExpr nt con fld a
 
 
 
-makeRule :: (Identifier,Identifier) -> Expression -> String -> Rule
-makeRule (f1,a1) expr origin
+makeRule :: (Identifier,Identifier) -> Expression -> String -> Bool -> Rule
+makeRule (f1,a1) expr origin identity
  = Rule Nothing
         (Alias f1 a1 (Underscore noPos) [])
         expr
         False
         origin
         False
+        True
+        identity
 
 
 useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
@@ -242,6 +246,7 @@ useRule locals ch_outs (n,(op,e,pos))
     in makeRule (_LHS,n)
                 (Expression noPos tks)
                 ("use rule " ++ pos)
+                False
 
 
 
@@ -256,6 +261,7 @@ selfRule lhsNecLoc attr x
    in makeRule (if lhsNecLoc then _LHS else _LOC,attr)
                (Expression noPos tks)
                "self rule"
+               False
 
 
 
@@ -273,6 +279,7 @@ copyRule nt con modcopy locals (env,(fld,as))
            = ( [ makeRule (fld,a)
                           (Expression noPos tks)
                           (cruletxt sel)
+                          True
                ]
              , err
              )
@@ -410,17 +417,17 @@ addAugments (_, exprs) rules
 addAugments (syn, exprs) rules
   = [rule] ++ funRules ++ map modify rules
   where
-    rule = Rule Nothing (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule" False
+    rule = Rule Nothing (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule" False True False
     rhs  = Expression noPos tks
     tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "augment function" False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "augment function" False True False) funNames exprs
 
-    modify (Rule mbNm pat rhs owrt origin expl)
-      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl
+    modify (Rule mbNm pat rhs owrt origin expl pure identity)
+      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity
     modify r = r
 
     containsSyn (Constr _ pats)   = any containsSyn pats
@@ -442,20 +449,20 @@ addArounds (_, exprs) rules | null exprs = rules
 addArounds (child, exprs) rules
   = [rule] ++ funRules ++ rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule" False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule" False True False
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "around function" False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "around function" False True False) funNames exprs
 
 addMerges :: (Identifier, (Identifier,[Identifier],Expression)) -> [Rule] -> [Rule]
 addMerges (target,(_,_,expr)) rules
   = rule : rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) expr False "merge rule" False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) expr False "merge rule" False True False
     childLoc = Ident (show target ++ "_merge") (getPos target)
 }
 
@@ -487,6 +494,9 @@ ATTR Rule Pattern Patterns [ || containsVars USE {||} {False} : Bool ]
 SEM Pattern
   | Alias      lhs.containsVars = True
 
+ATTR Rule [ | | isPure : Bool ]
+SEM Rule | Rule  lhs.isPure = @pure
+
 -------------------------------------------------------------------------------
 --         Reconstructing the tree
 -------------------------------------------------------------------------------
@@ -511,12 +521,20 @@ SEM Production
       lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output @macro --marcos
 
 SEM Rules
-  | Cons lhs.output = if @hd.containsVars then @hd.outputs ++ @tl.output else @tl.output
-    -- remove rules that define nothing
+  | Cons lhs.output = if @hd.containsVars && @hd.isPure then @hd.outputs ++ @tl.output else @tl.output
+    -- remove rules that define nothing and do not have side effects
 
 SEM Rule
-  | Rule  (lhs.outputs, lhs.uniq) = multiRule @loc.output @lhs.uniq
+  | Rule  (lhs.outputs, lhs.uniq) = if needsMultiRules @lhs.options
+                                    then multiRule @loc.output @lhs.uniq
+                                    else ([@loc.output], @lhs.uniq)
 
+-- Work towards removing the need of the "multiRule".
+-- Now only enabled when truly needed
+{
+needsMultiRules :: Options -> Bool
+needsMultiRules opts = (visit opts || withCycle opts) && not (kennedyWarren opts)
+}
 
 {
 {-
@@ -539,15 +557,15 @@ becomes
 -}
 
 multiRule :: Rule -> Int -> ([Rule], Int)
-multiRule (Rule (Just nm) pat expr owrt origin expl) uniq
+multiRule (Rule (Just nm) pat expr owrt origin expl pure identity) uniq
   = let pos = getPos nm
-        r = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos) []) expr owrt origin expl
+        r = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos) []) expr owrt origin expl pure identity
         expr' = Expression pos tks
         tks = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
-        (rs,uniq') = multiRule (Rule Nothing pat expr' owrt origin False) uniq
+        (rs,uniq') = multiRule (Rule Nothing pat expr' owrt origin False pure identity) uniq
     in (r:rs, uniq')
 
-multiRule (Rule Nothing pat expr owrt origin expl) uniq
+multiRule (Rule Nothing pat expr owrt origin expl pure identity) uniq
   =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
          f expl' w e (Product pos pats) n
            = let freshName = Ident ("_tup" ++ show n) pos
@@ -561,13 +579,13 @@ multiRule (Rule Nothing pat expr owrt origin expl) uniq
                                       in  (x2:xs1, rs2++rs1, n2)
                  (xs9,rs9,n9) = foldr g ([], [], n+1) pats
              in  ( freshPat
-                 , ( Rule Nothing (w freshPat) e owrt origin expl' : rs9
+                 , ( Rule Nothing (w freshPat) e owrt origin expl' True False : rs9
                    , n9
                    )
                  )
          f expl' w e p n
            = ( p
-             , ( [Rule Nothing (w p) e owrt origin expl']
+             , ( [Rule Nothing (w p) e owrt origin expl' True False]
                , n
                )
              )
