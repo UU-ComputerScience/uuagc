@@ -42,7 +42,8 @@ ATTR ExecutionPlan
      EProductions EProduction
      ERules ERule
      EChildren EChild
-     Visits Visit [ options : {Options} | | ]
+     Visits Visit
+     VisitSteps VisitStep [ options : {Options} | | ]
 ATTR EProductions EProduction [ rename : {Bool} | | ]
 
 SEM ENonterminal
@@ -291,8 +292,11 @@ SEM EProductions
   | Cons lhs.t_visits = @hd.t_visits -- just pick the first production
 
 SEM Visit
-  | Visit lhs.t_visits = "type" >#< "T_" >|< @lhs.nt >|< "_v" >|< @ident >#< "=" >#< @loc.inhpart >#<
-                            "Identity" >#< "(" >#< @loc.synpart >#< "T_" >|< @lhs.nt >|< "_s" >|< @to >#< ")"
+  | Visit loc.monadType = if parallelInvoke @lhs.options
+                          then "IO"
+                          else "Identity"
+          lhs.t_visits = "type" >#< "T_" >|< @lhs.nt >|< "_v" >|< @ident >#< "=" >#< @loc.inhpart >#<
+                            @loc.monadType >#< "(" >#< @loc.synpart >#< "T_" >|< @lhs.nt >|< "_s" >|< @to >#< ")"
           loc.inhpart   = if   Set.null @inh
                           then empty
                           else (ppSpaced $ map (\i -> (\x -> pp_parens x >#< "->") $ typeToHaskellString (Just @lhs.nt) []
@@ -328,7 +332,10 @@ SEM ENonterminal
 		 	      	  Nothing -> @loc.synname >#< " { }"
 				  Just initv ->
                                      "let" >#< "(" >#< ppCommas @loc.synlist >#< "," >#< "_" >#< ")" >#< "="
-                                           >#< "Control.Monad.Identity.runIdentity"
+                                           >#< ( if parallelInvoke @lhs.options             -- choose a monad
+                                                 then "System.IO.Unsafe.unsafePerformIO"    -- IO monad
+                                                 else "Control.Monad.Identity.runIdentity"  -- identity monad
+                                               )
 					   >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial
                                            >#< "sem" >#< @loc.k_type >|< "_v" >|< initv
                                            >#< ppSpaced @loc.inhlist)
@@ -409,7 +416,51 @@ ATTR VisitStep VisitSteps [ | | sem_steps USE {>-<} {empty} : {PP_Doc} ]
 SEM VisitStep
   | Sem        lhs.sem_steps = maybe  (error $ "Rule "  ++ show @name  ++ " not found") id $ Map.lookup @name  @lhs.mrules
   | ChildIntro lhs.sem_steps = maybe  (error $ "Child " ++ show @child ++ " not found") id $ Map.lookup @child @lhs.childintros
-  | ChildVisit lhs.sem_steps = (maybe (error $ "Visit " ++ show @visit ++ " not found") id $ Map.lookup @visit @lhs.allchildvisit) $ @child
+  | ChildVisit (loc.patPP, loc.exprPP) = (maybe (error $ "Visit " ++ show @visit ++ " not found") id $ Map.lookup @visit @lhs.allchildvisit) $ @child
+               loc.useParallel = @lhs.useParallel && not @lhs.isLast
+               lhs.sem_steps = if @loc.useParallel
+                               then "sync_" >|< @lhs.index >#< "<- newEmptyMVar"
+                                    >-< "forkIO" >#< pp_parens (pp_parens @loc.exprPP >#< ">>= putMVar sync_" >|< @lhs.index)
+                               else @loc.patPP >#< "<-" >#< @loc.exprPP
+  | Sim        lhs.sem_steps = @steps.sem_steps >-< @steps.sync_steps
+
+ATTR VisitSteps VisitStep [ | | sync_steps USE {>-<} {empty} : {PP_Doc} ]
+SEM VisitStep | ChildVisit
+  lhs.sync_steps = if @loc.useParallel
+                   then @loc.patPP >#< "<-" >#< "takeMVar sync_" >|< @lhs.index
+                   else empty
+
+--
+-- Some properties of VisitStep(s)
+--
+
+-- Number of steps in a 'Sim' block
+ATTR VisitSteps [ | | size : Int ]
+SEM VisitSteps
+  | Nil  lhs.size = 0
+  | Cons lhs.size = 1 + @tl.size
+
+-- Number the steps in a 'Sim' block
+ATTR VisitSteps VisitStep [ index : Int | | ]
+SEM VisitSteps | Cons
+  hd.index = @lhs.index
+  tl.index = 1 + @lhs.index
+SEM Visit | Visit    steps.index = 0
+SEM VisitStep | Sim  steps.index = 0
+
+-- Is this the last step?
+ATTR VisitSteps VisitStep [ | | isLast : Bool ]
+ATTR VisitStep [ isLast : Bool | | ]
+SEM VisitSteps
+  | Nil   lhs.isLast = True
+  | Cons  lhs.isLast = False
+          hd.isLast  = @tl.isLast
+
+-- Use parallel invocation: only when option enabled and there is more than one visit to a child
+SEM VisitSteps VisitStep [ useParallel : Bool | | ]
+SEM Visit | Visit    steps.useParallel = False
+SEM VisitStep | Sim  loc.useParallel = parallelInvoke @lhs.options && @steps.size > 1
+
 
 -- Child introduction
 ATTR EChild EChildren [ | | childintros USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc} ]
@@ -441,22 +492,27 @@ ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
                         mrules USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc}  ]
 
 SEM ERule
-  | ERule lhs.sem_rules    = if Set.member @name @lhs.usedrules
-                             then if @genpragma
-			          then (@name >#< "=" >#< @lambda)
-				       >-< indent (column @rhs.pos - 3)
-				       	   (@pragma >-< @rhs.semfunc >-< @endpragma)
-				  else @name >#< "=" >#< @lambda >#< @rhs.semfunc
-                             else empty
-          loc.pragma       = "{-# LINE " ++ show (line @rhs.pos) ++ " " ++ show (file @rhs.pos) ++ "#-}"
+  | ERule
+     lhs.sem_rules    = if Set.member @name @lhs.usedrules
+                        then if @genpragma
+	                         then (@name >#< "=" >#< @lambda)
+				                  >-< indent (column @rhs.pos - 3)
+				       	                     (@pragma >-< @rhs.semfunc >-< @endpragma)
+                             else @name >#< "=" >#< @lambda >#< @rhs.semfunc
+                        else empty
+      loc.pragma       = "{-# LINE " ++ show (line @rhs.pos) ++ " " ++ show (file @rhs.pos) ++ "#-}"
 	  loc.endpragma    = ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show @lhs.mainFile ++ "#-}")
 	  loc.genpragma    = genLinePragmas @lhs.options && @haspos
-          loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
-          loc.lambda       = if Set.null @rhs.attrs
-                             then empty
-                             else "\\" >|< @attrlst >#< "->"
-          loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
-          lhs.mrules       = Map.singleton @name $ "let" >#< @loc.addbang @pattern.sem_lhs >#< "=" >#< @name >#< @loc.attrlst
+      loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
+      loc.lambda       = if Set.null @rhs.attrs
+                         then empty
+                         else "\\" >|< @attrlst >#< "->"
+      loc.attrlst      = ppSpaced $ Set.toList @rhs.attrs
+      loc.stepcode     = if @pure
+                         then "let" >#< @loc.addbang @pattern.sem_lhs >#< "=" >#< @name >#< @loc.attrlst
+                         else @loc.addbang @pattern.sem_lhs >#< "<-" >#< @name >#< @loc.attrlst
+      lhs.mrules       = Map.singleton @name @loc.stepcode
+
 	  pattern.addtilde = \x -> if cases @lhs.options then x else "~" >|< x
 	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
 
@@ -498,20 +554,25 @@ ATTR Visit
      EProduction
      EProductions
      ENonterminal
-     ENonterminals [ allchildvisit : {Map VisitIdentifier (Identifier -> PP_Doc)}
-                     | | childvisit USE {`Map.union`} {Map.empty} : {Map VisitIdentifier (Identifier -> PP_Doc)} ]
+     ENonterminals [ allchildvisit : {Map VisitIdentifier (Identifier -> (PP_Doc, PP_Doc))}
+                     | | childvisit USE {`Map.union`} {Map.empty} : {Map VisitIdentifier (Identifier -> (PP_Doc, PP_Doc))} ]
 
-ATTR VisitSteps VisitStep [ allchildvisit : {Map VisitIdentifier (Identifier -> PP_Doc)} | | ]
+ATTR VisitSteps VisitStep [ allchildvisit : {Map VisitIdentifier (Identifier -> (PP_Doc, PP_Doc))} | | ]
 
 SEM ExecutionPlan
   | ExecutionPlan nonts.allchildvisit = @nonts.childvisit
 
 SEM Visit
-  | Visit lhs.childvisit = Map.singleton @ident $ \chn -> @loc.addbang ("(" >#< ppSpaced (
-                              map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn
-                           >#< ")") >#< "<-" >#< "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
-                           >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< @loc.inhargs chn False
-	  loc.addbang      = \x -> if bangpats @lhs.options then "!" >|< x else x
+  | Visit
+     lhs.childvisit = Map.singleton @ident @loc.invokecode
+     loc.invokecode = \chn ->   -- "chn" is the name of the child at the place of invocation
+                        let pat  = @loc.addbang ("(" >#< ppSpaced (
+                                     map (\x -> attrname True chn x >#< ",") $ Set.toList @syn) >#< locname chn
+                                                     >#< ")")
+                            expr = "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
+                                   >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< @loc.inhargs chn False
+                        in (pat, expr)  -- pretty print of the pattern and the expression part
+	 loc.addbang    = \x -> if bangpats @lhs.options then "!" >|< x else x
 
 -------------------------------------------------------------------------------
 --  Intra attributes
@@ -627,12 +688,17 @@ SEM ExecutionPlan
                                            @loc.genCommonModule
                                            @nonts.genProdIO
                   loc.mainModuleFile  = @lhs.mainFile
+                  loc.ppMonadImports  = if parallelInvoke @lhs.options
+                                        then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
+                                             >-< pp "import System.IO(IO)"
+                                             >-< pp "import qualified Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
+                                        else pp "import Control.Monad.Identity"
                   loc.genMainModule   = writeModule @loc.mainModuleFile
                                           ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
                                             , pp $ @lhs.pragmaBlocks
                                             , pp $ @lhs.optionsLine
                                             , pp $ @lhs.moduleHeader @lhs.mainName "" "" False
-                                            , pp $ "import Control.Monad.Identity"
+                                            , @loc.ppMonadImports
                                             , pp $ "import " ++ @lhs.mainName ++ "_common"
                                             ]
                                             ++ @nonts.imports
@@ -645,7 +711,7 @@ SEM ExecutionPlan
                                             , pp $ @lhs.pragmaBlocks
                                             , pp $ @lhs.optionsLine
                                             , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
-                                            , pp $ "import Control.Monad.Identity"
+                                            , @loc.ppMonadImports
                                             , @lhs.importBlocks
                                             , @lhs.textBlocks
                                             ]

@@ -37,7 +37,7 @@ SEM  Grammar
 
 SEM  Rule
   |  Rule lhs.rulenumber = @lhs.rulenumber + 1
-     	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName 
+     	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName
 
 -------------------------------------------------------------------------------
 --         Gather all rules per production for the execution plan
@@ -54,6 +54,7 @@ SEM Rule
                             @owrt
                             @origin
                             @explicit
+                            @pure
 
 
 -------------------------------------------------------------------------------
@@ -79,19 +80,19 @@ ATTR HsToken Expression
 SEM  HsToken
   |  AGLocal lhs.vertices = Set.singleton $ VAttr Loc _LOC @var
   |  AGField lhs.vertices = Set.singleton $ VAttr (if      @field == _LHS then Inh
-     	     		    		    	   else if @field == _LOC then Loc 
+     	     		    		    	   else if @field == _LOC then Loc
 						   else    	     	       Syn) @field @attr
 
 -- Gather vertices for an expression (make a higher order child)
 SEM  Expression
-  |  Expression lhs.vertices = Set.unions $ map (\tok -> vertices_Syn_HsToken 
+  |  Expression lhs.vertices = Set.unions $ map (\tok -> vertices_Syn_HsToken
      			       		    (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
 
 -- Gather vertices at patterns
 SEM  Pattern
   |  Alias loc.vertex   = if		      @field == _INST then VChild @attr
      	   		  else VAttr (if      @field == _LHS  then Syn
-     	     		    	      else if @field == _LOC  then Loc 
+     	     		    	      else if @field == _LOC  then Loc
 				      else 	 	      	   Inh) @field @attr
      	   lhs.vertices = Set.insert @loc.vertex $ @parts.vertices `Set.union` @pat.vertices
 
