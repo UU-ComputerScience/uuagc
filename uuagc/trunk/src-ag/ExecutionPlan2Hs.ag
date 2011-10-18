@@ -691,7 +691,7 @@ SEM ExecutionPlan
                   loc.ppMonadImports  = if parallelInvoke @lhs.options
                                         then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
                                              >-< pp "import System.IO(IO)"
-                                             >-< pp "import qualified Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
+                                             >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                         else pp "import Control.Monad.Identity"
                   loc.genMainModule   = writeModule @loc.mainModuleFile
                                           ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
