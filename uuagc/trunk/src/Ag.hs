@@ -245,8 +245,12 @@ compile flags input output
                                            then moduleHeader flags' mainName
                                            else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                     , pp importBlocksTxt
-                                    , pp $ "import Control.Monad.Identity (Identity)"
-                                    , pp $ "import qualified Control.Monad.Identity"
+                                    , if parallelInvoke flags'
+                                      then vlist [ pp $ "import qualified System.IO.Unsafe(unsafePerformIO)"
+                                                 , pp $ "import System.IO(IO)" 
+                                                 , pp $ "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"]
+                                      else vlist [ pp $ "import Control.Monad.Identity (Identity)"
+                                                 , pp $ "import qualified Control.Monad.Identity" ]
                                     , textBlocksDoc
                                     --, pp $ "{-"
                                     --, Pass3a.depgraphs_Syn_Grammar output3a
