@@ -743,13 +743,18 @@ SEM EProduction
                 loc.moduleName = @lhs.mainName ++ @loc.suffix
                 loc.suffix     = "_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.outputfile = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ @loc.suffix)
+                loc.ppMonadImports  = if parallelInvoke @lhs.options
+                                      then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
+                                           >-< pp "import System.IO(IO)"
+                                           >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
+                                      else pp "import Control.Monad.Identity"
                 lhs.genProdIO  = writeModule @loc.outputfile
                                      [ pp "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
                                      , pp $ @lhs.pragmaBlocks
                                      , pp $ @lhs.optionsLine
                                      , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
                                      , @lhs.importBlocks
-                                     , pp $ "import Control.Monad.Identity"
+                                     , @loc.ppMonadImports
                                      , pp $ "import " ++ @lhs.mainName ++ "_common"
                                      , @loc.sem_prod
                                      ]
