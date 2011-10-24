@@ -525,9 +525,10 @@ SEM Rules
     -- remove rules that define nothing and do not have side effects
 
 SEM Rule
-  | Rule  (lhs.outputs, lhs.uniq) = if needsMultiRules @lhs.options
+  | Rule  (lhs.outputs, lhs.uniq) = multiRule @loc.output @lhs.uniq -- 24-okt (Jeroen): This didn't work for KW, maybe kennedy-warren code generation should be changed for this
+    	  			  {-if needsMultiRules @lhs.options
                                     then multiRule @loc.output @lhs.uniq
-                                    else ([@loc.output], @lhs.uniq)
+                                    else ([@loc.output], @lhs.uniq)-}
 
 -- Work towards removing the need of the "multiRule".
 -- Now only enabled when truly needed
