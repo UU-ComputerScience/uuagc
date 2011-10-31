@@ -94,7 +94,7 @@ SEM  Pattern
      	   		  else VAttr (if      @field == _LHS  then Syn
      	     		    	      else if @field == _LOC  then Loc
 				      else 	 	      	   Inh) @field @attr
-     	   lhs.vertices = Set.insert @loc.vertex $ @parts.vertices `Set.union` @pat.vertices
+     	   lhs.vertices = Set.insert @loc.vertex @pat.vertices
 
 -- Gather vertices for children
 SEM  Child

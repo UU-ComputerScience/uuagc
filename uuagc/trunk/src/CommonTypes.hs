@@ -174,3 +174,9 @@ deforestedNt :: Identifier -> Maybe Identifier
 deforestedNt nm
   | take 2 (getName nm) == "T_" = Just (Ident (drop 2 (getName nm)) (getPos nm))
   | otherwise = Nothing
+
+data WhatNext
+  = NoneNext
+  | OneNext !Int
+  | ManyNext
+  deriving (Eq, Show, Ord)

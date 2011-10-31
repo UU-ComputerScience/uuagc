@@ -214,20 +214,18 @@ SEM  Child
                                 else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
 
 SEM  Rule
-  |  Rule  loc.defines = let  tp field attr parts | field == _LOC || field == _INST
-                                                                  = case parts of
-                                                                      [] -> Map.lookup attr @lhs.allTypeSigs
-                                                                      _  -> (sequence (map typ parts)) >>= (haskellTupel . map (substSelf @lhs.nt))
+  |  Rule  loc.defines = let  tp field attr      | field == _LOC || field == _INST
+                                                                  = Map.lookup attr @lhs.allTypeSigs
                                                   | field == _LHS = Map.lookup attr @lhs.syn
                                                   | otherwise     = Map.lookup attr (findWithErr1 "Rule.defines.tp" field @lhs.childInhs)
                               typ :: Pattern -> Maybe Type
-                              typ (Alias field attr _ parts) = tp field attr parts
+                              typ (Alias field attr _)       = tp field attr
                               typ (Underscore _)             = Nothing
                               -- typ (Product _ pats)           = tp _LOC undefined pats
                               typ _                          = Nothing
 
-                         in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr parts)))
-                                          | (field,attr,isLocalOrInst,parts) <- @pattern.patternAttrs
+                         in Map.fromList  [ (findWithErr1 "Rule.defines" aa @lhs.altAttrs, (field,attr,(tp field attr)))
+                                          | (field,attr,isLocalOrInst) <- @pattern.patternAttrs
                                           , let aa = AltAttr field attr isLocalOrInst
                                           ]
            loc.gathRules =  let childnt field = Map.lookup field @lhs.childNts
@@ -246,10 +244,10 @@ haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts)
 }
 
 
-ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Identifier,Identifier,Bool,Patterns)]} ]
+ATTR Patterns Pattern [ | | patternAttrs USE {++} {[]} : {[(Identifier,Identifier,Bool)]} ]
 
 SEM  Pattern
-  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC || @field == _INST),@parts.copy)]
+  |  Alias lhs.patternAttrs = [(@field,@attr,(@field == _LOC || @field == _INST))]
 
 
 

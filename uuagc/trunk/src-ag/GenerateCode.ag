@@ -158,7 +158,7 @@ SEM  CRule
            loc.originComment = if  @lhs.o_pretty
                                    then (Comment @origin:)
                                    else id
-           loc.instDecls = [ mkDecl @lhs.o_monadic (Pattern3 (Alias _INST' inst (Underscore (getPos inst)) []))
+           loc.instDecls = [ mkDecl @lhs.o_monadic (Pattern3 (Alias _INST' inst (Underscore (getPos inst))))
                                   ( let (nm,mb) = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
                                        $ case mb of
@@ -266,7 +266,7 @@ SEM CRule
 ATTR Pattern Patterns [ | | patternAttributes USE {++} {[]} : {[(Identifier, Identifier)]} ]
 SEM Pattern
   | Alias
-      lhs.patternAttributes = (@field,@attr) : (@pat.patternAttributes ++ @parts.patternAttributes)
+      lhs.patternAttributes = (@field,@attr) : @pat.patternAttributes
 
 -------------------------------------------------------------------------------
 -- Numbering the visits

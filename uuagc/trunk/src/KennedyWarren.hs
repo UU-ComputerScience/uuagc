@@ -47,22 +47,22 @@ kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
       let pr = pdgProduction $ pdgmOrig prod
       let g = pdgmDepGraph $ prod
       -- Topsort
-      --addTopSortEdges tsedg prod    
+      --addTopSortEdges tsedg prod
       -- Check for cyclicity
-      c2 <- graphIsCyclic g 
+      c2 <- graphIsCyclic g
       when c2 $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                           ++ show nont ++ " is cylic!"
       -- Transtive closure check
       trc <- graphIsTRC g
-      when (not trc) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal " 
+      when (not trc) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                                  ++ show nont ++ " is not transitively closed!"
       -- Check consistency
       cons <- graphCheckConsistency g
-      when (not cons) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal " 
+      when (not cons) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                                  ++ show nont ++ " is not consistent!"
       return $ (not c2) && trc && cons
     return $ (and allok) && (not c1) && cons
-  if (and allok) 
+  if (and allok)
     then do
        -- Create non-transitive closed graph for efficiency
        indi <- undoTransitiveClosure indi
@@ -101,7 +101,7 @@ toGVVertex l (VRule r)   = return $ (text $ "rule_"  ++ show r) >#< if l
 
 -- | Pretty print an edge in GraphViz format
 toGVEdge :: Edge -> ST s PP_Doc
-toGVEdge (v1, v2) = do r1 <- toGVVertex False v1 
+toGVEdge (v1, v2) = do r1 <- toGVVertex False v1
                        r2 <- toGVVertex False v2
                        return $ r1 >|< text "->" >#< r2
 
@@ -154,7 +154,7 @@ toGVVisitGraph = do
   edged <- forM (IntMap.toList edges) $ \(edg,(VGNode from,VGNode to)) -> do
     inh <- getInherited (VGEdge edg)
     syn <- getSynthesized (VGEdge edg)
-    return $ "node_" >|< from >#< "-> node_" >|< to >#< "[label=\"visit v" >|< edg 
+    return $ "node_" >|< from >#< "-> node_" >|< to >#< "[label=\"visit v" >|< edg
       >|< "\\ninh:" >#< (concat $ intersperse ", " $ map show $ Set.toList inh) >|< "\\nsyn: " >|< (concat $ intersperse ", " $ map show $ Set.toList syn) >|< "\"];"
   return $ "digraph visitgraph { " >-< vlist noded >-< vlist edged >-< "}"
 
@@ -222,7 +222,7 @@ insertInitialNode ndi = do
   (VGNode node) <- vgCreateNode rndi Set.empty Set.empty
   initial       <- gets vgInitial
   incoming      <- gets vgIncoming
-  modify $ \st -> st { vgInitial  = Map.insert (ndiNonterminal $ ndimOrig ndi) (VGNode node) initial 
+  modify $ \st -> st { vgInitial  = Map.insert (ndiNonterminal $ ndimOrig ndi) (VGNode node) initial
                      , vgIncoming = IntMap.insert node Nothing incoming }
   return (VGNode node)
 
@@ -422,13 +422,13 @@ vgCreateNode rndi inh syn = do
                      , vgOutgoing      = IntMap.insert num rout outgoing
                      , vgInhSynNode    = Map.insert (ndiNonterminal $ ndimOrig nndi,inh,syn) (VGNode num) inhsyn
                      , vgNodeInhSyn    = IntMap.insert num (inh,syn) ninhsyn
-                     , vgNDI           = IntMap.insert num rndi ndi 
+                     , vgNDI           = IntMap.insert num rndi ndi
                      , vgFinalVertices = IntMap.insert num rfinalv finalv }
   return $ VGNode num
 
 -- | Create a new pending edge
 vgCreatePendingEdge :: VGNode -> VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
-vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do 
+vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do
   num      <- gets vgEdgeNum
   edges    <- gets vgEdges
   edgesr   <- gets vgEdgesR
@@ -446,7 +446,7 @@ vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do
                      , vgEdgesR      = Map.insert (vgn1,vgn2) ret edgesr
                      , vgPending     = IntSet.insert num pend
                      , vgInherited   = IntMap.insert num inh inhs
-                     , vgSynthesized = IntMap.insert num syn syns 
+                     , vgSynthesized = IntMap.insert num syn syns
                      , vgChildVisits = IntMap.insert num rchildv childv }
   -- Add prod visits (for constructing an execution plan)
   ndis <- gets vgNDI
@@ -551,7 +551,7 @@ kennedyWarrenVisitM wr ndis = do
         let (chattrs, rules) = partition isChildAttr $ map fst visit
         -- Evaluate all rules
         forM_ (reverse $ rules) $ \rule ->
-          case rule of 
+          case rule of
             VRule r  -> addVisitStep prod $ Sem r
             VChild c -> addVisitStep prod $ ChildIntro c
             _        -> return ()
@@ -634,13 +634,13 @@ extraChildSyn prod vis = do
 
 -- | Check if a vertex can be marked final in this step (and is not final yet) and return the visit num
 isReadyVertex :: VGProd -> ChildVisits -> Vertex -> VG s (Maybe Int)
-isReadyVertex prod vis v = do 
+isReadyVertex prod vis v = do
   final <- isDepGraphVertexFinal prod v
   if v `elem` (map fst vis) || final
     then return Nothing
     else do
       succ <- onMarkedDepGraph (flip graphSuccessors v . pdgmDepGraph) prod
-      rd <- mapM (\x -> do case lookup x vis of 
+      rd <- mapM (\x -> do case lookup x vis of
                              Just i  -> return $ Just i
                              Nothing -> do fin <- isDepGraphVertexFinal prod x
                                            return $ if fin then Just 1 else Nothing) (Set.toList succ)
@@ -697,11 +697,61 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
 			   visits
     -- Find initial state for this nonterminal
     VGNode init <- vgFindInitial $ ndiNonterminal $ ndimOrig ndi
+    -- Construct an environment that specifies the next visit of the states that have exactly one
+    singleNextMap <- mkNextMap init
     -- Return execution plan for this nonterminal
     return $  ENonterminal (ndiNonterminal $ ndimOrig ndi)
                            (ndiParams      $ ndimOrig ndi)
                            init
                            initv
+                           singleNextMap
                            prods
   -- Return complete execution plan
   return $ ExecutionPlan nonts typesyns wr derivings
+
+------------------------------------------------------------
+---         Construction of the single-exit states map   ---
+------------------------------------------------------------
+
+-- depth-first traversal over the graph that starts at 'init' and maintains a state 'a'
+exploreGraph :: (VGNode -> Set VGEdge -> a -> VG s a) -> VGNode -> a -> VG s a
+exploreGraph f (VGNode init) a0 = do
+  exploredRef <- vgInST $ newSTRef IntSet.empty
+  pendingRef  <- vgInST $ newSTRef [init]
+  resRef      <- vgInST $ newSTRef a0
+  edgesMap    <- gets vgOutgoing
+  edgesInfo   <- gets vgEdges
+  let explore = do
+        pending <- vgInST $ readSTRef pendingRef
+        case pending of
+          []     -> return ()
+          (p:ps) -> do
+            vgInST $ writeSTRef pendingRef ps
+            explored <- vgInST $ readSTRef exploredRef
+            if IntSet.member p explored
+              then return ()
+              else do
+                vgInST $ writeSTRef exploredRef (IntSet.insert p explored)
+                case IntMap.lookup p edgesMap of
+                  Nothing -> return ()
+                  Just edgesRef -> do
+                    edgeSet <- vgInST $ readSTRef edgesRef
+                    sol0    <- vgInST $ readSTRef resRef
+                    sol1    <- f (VGNode p) edgeSet sol0
+                    vgInST $ writeSTRef resRef sol1
+                    forM_ (Set.elems edgeSet) $ \(VGEdge edge) ->
+                      case IntMap.lookup edge edgesInfo of
+                        Nothing            -> return ()
+                        Just (_,VGNode to) -> vgInST $ modifySTRef pendingRef (to :)
+            explore
+  explore
+  vgInST $ readSTRef resRef
+
+mkNextMap :: Int -> VG s (Map Int WhatNext)
+mkNextMap start = exploreGraph f (VGNode start) Map.empty where
+  f (VGNode nd) edges mp = return $ Map.insert nd v mp where
+    s = Set.size edges
+    v | s == 0    = NoneNext
+      | s == 1    = let [VGEdge v] = Set.elems edges
+                    in OneNext v
+      | otherwise = ManyNext
