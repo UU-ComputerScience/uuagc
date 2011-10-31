@@ -1,18 +1,26 @@
-\begin{hcarentry}[updated]{UUAG}
+% UUAG-AU.tex
+\begin{hcarentry}{UUAG}
 \label{uuag}
-\report{Arie Middelkoop}%05/10
+\report{Arie Middelkoop}%11/10
 \status{stable, maintained}
 \participants{ST Group of Utrecht University}
 \makeheader
 
-UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell which makes it easy to write \emph{catamorphisms} (i.e., functions that do to any data type what \emph{foldr} does to lists). You define tree walks using the intuitive concepts of \emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power of Haskell. The generated tree walks are \emph{efficient} in both space and time.
+UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell
+that makes it easy to write \emph{catamorphisms}, i.e. functions that do to any data type what
+\emph{foldr} does to lists. Tree walks are defined using the intuitive concepts of
+\emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power
+of Haskell. The generated tree walks are \emph{efficient} in both space and time.
 
 An AG program is a collection of rules, which are pure Haskell functions between attributes.
-Idiomatic tree computations are neatly expressed in terms of copy, default, and collection rules. Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute). The order in which to visit the tree is derived automatically from the attribute computations. The tree walk is a single traversal from the perspective of the programmer.
+Idiomatic tree computations are neatly expressed in terms of copy, default, and collection rules.
+Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute). The order in which to visit the tree is derived automatically from the attribute computations. The tree walk is a single traversal from the perspective of the programmer.
 
 Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. These aspect-oriented programming features make AGs convenient to use in large projects.
 
-The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents~\cref{proxima}, the Helium compiler~\cref{helium}, the Generic Haskell compiler, UUAG itself, and many master student projects. The current version is 0.9.29 (July 2010), is extensively tested, and is available on Hackage.
+The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}), the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}), the Generic Haskell compiler, UUAG itself, and many master student projects.
+The current version is 0.9.39 (October 2011), is extensively tested, and is available on Hackage.
+Recently, we improved the Cabal support and ensured compatibility with GHC 7.
 
 We are working on the following enhancements of the UUAG system:
 \begin{description}
@@ -22,16 +30,32 @@ We are working on the following enhancements of the UUAG system:
   implemented using type-level programming. With this extension, we can write the main part of
   an AG conveniently with UUAG, and use AspectAG for (dynamic) extensions. Our goal is to have
   an extensible version of the UHC.
-\item[Fixpoint evaluation]
-    We incorporated a fixed-point evaluation scheme for circular grammars.
-    A cycle is broken by specifying an initial value for an attribute on the
-    cycle, and repeating the evaluation with an updated value until it converges.
-\item[Step-wise evaluation]
-  We provide the possibility to evaluate AGs step-wise. The evaluation for a nonterminal may
-  yield user-defined progress reports, and we can direct the evaluation until the next
-  progress report. With this mechanism, we can resolve non-determinism and encode breadth-first
-  search strategies.
+
+\item[Ordered evaluation]
+  We have implemented a variant of Kennedy and Warren (1976)
+  for \emph{ordered} AGs. For any absolutely non-circular AGs, this algorithm finds a static
+  evaluation order, which solves some of the problems we had with an earlier approach for
+  ordered AGs. A static evaluation order allows the generated code to be strict, which is
+  important to reduce the memory usage when dealing with large ASTs.
+  The generated code is purely functional, does not require type
+  annotations for local attributes, and the Haskell compiler proves that the static evaluation
+  order is correct.
+
+\item[Multi-core evaluation]
+  Our algorithm for ordered AGs identifies statically which subcomputations of children of a
+  production are independent and suitable for parallel evaluation. Together with the
+  strict evaluation as mentioned above, which is important when evaluating in parallel, the
+  generated code can automatically exploit multi-core CPUs. We are currently evaluating the
+  effectiveness of this approach.
 \end{description}
+
+In the recent past we worked on a stepwise evaluation scheme for AGs.
+Using this scheme, the evaluation of a node may
+yield user-defined progress reports, and the evaluation to the next report is
+considered to be an evaluation step. By asking nodes to yield reports, we can encode
+the parallel exploration of trees and encode breadth-first search strategies.
+
+We are currently also running a Ph.D. project that investigates incremental evaluation.
 
 \FurtherReading
 \begin{compactitem}
