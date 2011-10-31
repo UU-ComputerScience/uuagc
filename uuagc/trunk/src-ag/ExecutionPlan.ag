@@ -6,11 +6,14 @@ import Expression  (Expression(..))
 import CommonTypes
 
 import qualified Data.Set as Set
+import Data.Set(Set)
+import qualified Data.Map as Map
+import Data.Map(Map)
 }
 
 DATA ExecutionPlan | ExecutionPlan  nonts     : ENonterminals
      		     		    typeSyns  : {TypeSyns}
-				    wrappers  : {Set.Set NontermIdent}
+				    wrappers  : {Set NontermIdent}
 				    derivings : {Derivings}
 
 TYPE ENonterminals = [ENonterminal]
@@ -25,11 +28,12 @@ TYPE VisitSteps    = [VisitStep]
 
 TYPE Visits        = [Visit]
 
-DATA ENonterminal | ENonterminal nt       : {NontermIdent}
-                                 params   : {[Identifier]}
-				 initial  : {StateIdentifier}
-				 initialv : {Maybe VisitIdentifier}
-                                 prods    : EProductions
+DATA ENonterminal | ENonterminal nt         : {NontermIdent}
+                                 params     : {[Identifier]}
+				 initial    : {StateIdentifier}
+				 initialv   : {Maybe VisitIdentifier}
+				 nextVisits : {Map StateIdentifier WhatNext}  -- info about the next visits from a given state
+                                 prods      : EProductions
 
 DATA EProduction  | EProduction  con      : {ConstructorIdent}
      		   		 rules    : ERules
@@ -51,8 +55,8 @@ DATA ERule        | ERule       name     : {Identifier}
 DATA Visit        | Visit       ident    : {VisitIdentifier}
      		    		from     : {StateIdentifier}
 				to       : {StateIdentifier}
-				inh      : {Set.Set Identifier}
-				syn      : {Set.Set Identifier}
+				inh      : {Set Identifier}
+				syn      : {Set Identifier}
      		    		steps    : VisitSteps
 
 DATA VisitStep    | Sem         name     : {Identifier}

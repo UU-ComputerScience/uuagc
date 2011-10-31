@@ -252,7 +252,7 @@ parseFile agi opts searchPath file
       = (\pat (owrt,pos,pur) exp mbNm fld -> Def pos mbNm (pat fld) exp owrt pur)
                <$ pDot <*> pattern <*> pRuleSym <*> pExpr
       where pattern =  pPattern pVar
-                   <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos) []) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
+                   <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos)) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
 
     pLocDecl :: AGParser SemDef
     pLocDecl = pDot <**> (pIdentifier <**> (pTypeColon <**> (   (\(tp,pos) _ ident _  -> TypeDef pos ident tp) <$> pLocType
@@ -457,7 +457,7 @@ pPattern pvar = pPattern2 where
                <|> pPattern1 <?> "a pattern"
   pPattern1 =  pvariable
            <|> pPattern2
-  pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a) [])
+  pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a))
            <$> ((Irrefutable <$ pTilde) `opt` id) <*> pvar <*> ((pAt *> pPattern1) `opt` const (Underscore noPos))
   pPattern2 = (mkTuple <$> pOParenPos <*> pListSep pComma pPattern0 <* pCParen )
           <|> (const . Underscore) <$> pUScore <?> "a pattern"

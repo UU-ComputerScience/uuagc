@@ -12,12 +12,12 @@ import VisageSyntax
 }
 
 {
--- Maps a rule to a pair 
+-- Maps a rule to a pair
 -- Later, I expect to map to a list of rules, because we might need to unfold.
 
 
 -- Checks that a certain alias is in fact a Var in the old representation of the AG system
-isVar (Alias _ _ (Underscore _) _) = True
+isVar (Alias _ _ (Underscore _)) = True
 isVar _ = False
 
 type VisageRuleMap = [(String, VisageRule)]
@@ -40,7 +40,7 @@ getForField field xs = map snd (filter ((field ==) . fst) xs)
    [("lhs", (lhs.x,_,_) = (0,1,2)
 
    At this point, we do not use this anymore.
-   
+
 allways :: VisageRule -> VisageRuleMap
 allways vr@(VRule vrfields _ _ _ _) = zip vrfields (map (underScoreRule vr) (nub vrfields))
 
@@ -51,19 +51,19 @@ underScoreRule :: VisageRule -> String -> VisageRule
 underScoreRule (VRule fields pat expr owrt rule) s = VRule fields (underScore s pat) expr owrt rule
 
 underScore :: String -> VisagePattern -> VisagePattern
-underScore field (VConstr name pats) = VConstr name (map (underScore field) pats) 
+underScore field (VConstr name pats) = VConstr name (map (underScore field) pats)
 underScore field (VProduct pos pats) = VProduct pos (map (underScore field) pats)
-underScore field vp@(VVar vfield attr)  = 
-   if (field == getName vfield) 
+underScore field vp@(VVar vfield attr)  =
+   if (field == getName vfield)
    then vp
    else (VUnderscore (getPos vfield))
 -- Should I recurse into the pat of VAlias?
 underScore field vp@(VAlias afield attr pat) =
-   if (field == getName afield) 
+   if (field == getName afield)
    then vp
    else (VUnderscore (getPos afield))
 underScore field vp@(VUnderscore pos) = vp
-                 
+
 -}
 }
 
@@ -132,13 +132,13 @@ SEM Patterns
 SEM Pattern
   | Constr      lhs.vpat = VConstr @name @pats.vpats
   | Product     lhs.vpat = VProduct @pos @pats.vpats
-  | Alias       lhs.vpat = if (isVar @self) 
+  | Alias       lhs.vpat = if (isVar @self)
                            then VVar @field @attr
                            else VAlias @field @attr @pat.vpat
   | Underscore  lhs.vpat = VUnderscore @pos
 
 -- All (field,attrs) in a pattern
-ATTR Patterns -> Pattern [ | | fieldattrs USE { ++ } { [] } : { [(Identifier,Identifier)] } ] 
+ATTR Patterns -> Pattern [ | | fieldattrs USE { ++ } { [] } : { [(Identifier,Identifier)] } ]
 
 SEM Pattern
   | Alias       lhs.fieldattrs = [(@field, @attr)]

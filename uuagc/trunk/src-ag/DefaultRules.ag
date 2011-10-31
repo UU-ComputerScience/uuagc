@@ -215,7 +215,7 @@ missingRuleErrorExpr nt con fld a
 makeRule :: (Identifier,Identifier) -> Expression -> String -> Bool -> Rule
 makeRule (f1,a1) expr origin identity
  = Rule Nothing
-        (Alias f1 a1 (Underscore noPos) [])
+        (Alias f1 a1 (Underscore noPos))
         expr
         False
         origin
@@ -417,14 +417,14 @@ addAugments (_, exprs) rules
 addAugments (syn, exprs) rules
   = [rule] ++ funRules ++ map modify rules
   where
-    rule = Rule Nothing (Alias _LHS syn (Underscore noPos) []) rhs False "augmented rule" False True False
+    rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False
     rhs  = Expression noPos tks
     tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "augment function" False True False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "augment function" False True False) funNames exprs
 
     modify (Rule mbNm pat rhs owrt origin expl pure identity)
       | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity
@@ -433,15 +433,15 @@ addAugments (syn, exprs) rules
     containsSyn (Constr _ pats)   = any containsSyn pats
     containsSyn (Product _ pats)  = any containsSyn pats
     containsSyn (Irrefutable pat) = containsSyn pat
-    containsSyn (Alias field attr pat parts) = (field == _LHS && attr == syn) || containsSyn pat || any containsSyn parts
+    containsSyn (Alias field attr pat) = (field == _LHS && attr == syn) || containsSyn pat
     containsSyn _ = False
 
     modifyPat (Constr name pats) = Constr name (map modifyPat pats)
     modifyPat (Product pos pats) = Product pos (map modifyPat pats)
     modifyPat (Irrefutable pat)  = Irrefutable (modifyPat pat)
-    modifyPat (Alias field attr pat parts)
-      | field == _LHS && attr == syn = Alias _LOC substSyn (modifyPat pat) (map modifyPat parts)
-      | otherwise                    = Alias field attr (modifyPat pat) (map modifyPat parts)
+    modifyPat (Alias field attr pat)
+      | field == _LHS && attr == syn = Alias _LOC substSyn (modifyPat pat)
+      | otherwise                    = Alias field attr (modifyPat pat)
     modifyPat p = p
 
 addArounds :: (Identifier, [Expression]) -> [Rule] -> [Rule]
@@ -449,20 +449,20 @@ addArounds (_, exprs) rules | null exprs = rules
 addArounds (child, exprs) rules
   = [rule] ++ funRules ++ rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) rhs False "around rule" False True False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos) []) expr False "around function" False True False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "around function" False True False) funNames exprs
 
 addMerges :: (Identifier, (Identifier,[Identifier],Expression)) -> [Rule] -> [Rule]
 addMerges (target,(_,_,expr)) rules
   = rule : rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos) []) expr False "merge rule" False True False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) expr False "merge rule" False True False
     childLoc = Ident (show target ++ "_merge") (getPos target)
 }
 
@@ -525,10 +525,26 @@ SEM Rules
     -- remove rules that define nothing and do not have side effects
 
 SEM Rule
-  | Rule  (lhs.outputs, lhs.uniq) = multiRule @loc.output @lhs.uniq -- 24-okt (Jeroen): This didn't work for KW, maybe kennedy-warren code generation should be changed for this
-    	  			  {-if needsMultiRules @lhs.options
-                                    then multiRule @loc.output @lhs.uniq
-                                    else ([@loc.output], @lhs.uniq)-}
+  | Rule  (loc.output1, loc.mbAlias) = mkRuleAlias @loc.output
+          (loc.outputs, lhs.uniq) = if needsMultiRules @lhs.options  -- check if this works for UHC
+                                    then multiRule @loc.output1 @lhs.uniq
+                                    else ([@loc.output1], @lhs.uniq)
+          lhs.outputs = maybe [] return @loc.mbAlias ++ @loc.outputs
+
+{
+-- When a rule has a name, create an alias for a rule
+-- and a modified rule that refers to the alias
+-- Thus it removes rule names from rules
+mkRuleAlias :: Rule -> (Rule, Maybe Rule)
+mkRuleAlias r@(Rule Nothing _ _ _ _ _ _ _) = (r, Nothing)
+mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity) = (r', Just alias) where
+  alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity
+  pos   = getPos nm
+  expr' = Expression pos tks
+  tks   = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
+  r'    = Rule Nothing pat expr' owrt origin False True identity
+}
+
 
 -- Work towards removing the need of the "multiRule".
 -- Now only enabled when truly needed
@@ -558,21 +574,13 @@ becomes
 -}
 
 multiRule :: Rule -> Int -> ([Rule], Int)
-multiRule (Rule (Just nm) pat expr owrt origin expl pure identity) uniq
-  = let pos = getPos nm
-        r = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos) []) expr owrt origin expl pure identity
-        expr' = Expression pos tks
-        tks = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
-        (rs,uniq') = multiRule (Rule Nothing pat expr' owrt origin False pure identity) uniq
-    in (r:rs, uniq')
-
-multiRule (Rule Nothing pat expr owrt origin expl pure identity) uniq
+multiRule (Rule _ pat expr owrt origin expl pure identity) uniq
   =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
          f expl' w e (Product pos pats) n
            = let freshName = Ident ("_tup" ++ show n) pos
                  freshExpr = Expression pos freshTks
                  freshTks  = [AGField _LOC freshName pos Nothing]
-                 freshPat  = Alias _LOC freshName (Underscore pos) pats
+                 freshPat  = Alias _LOC freshName (Underscore pos)
                  a = length pats - 1
                  us b p = Product pos (replicate (a-b) (Underscore pos) ++ [p] ++ replicate b (Underscore pos))
                  g :: Pattern -> ([Pattern],[Rule],Int) -> ([Pattern],[Rule],Int)

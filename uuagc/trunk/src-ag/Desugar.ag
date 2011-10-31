@@ -113,8 +113,8 @@ SEM Pattern
                  else if (@loc.field', @attr) `Set.member` @lhs.defs
                       then Seq.singleton $ DupRule @lhs.nt @lhs.con @field @attr @loc.field'
                       else Seq.empty
-      lhs.errors = @loc.err1 Seq.>< @loc.err2 Seq.>< @pat.errors Seq.>< @parts.errors
-      loc.output = Alias @loc.field' @attr @pat.output @parts.output
+      lhs.errors = @loc.err1 Seq.>< @loc.err2 Seq.>< @pat.errors
+      loc.output = Alias @loc.field' @attr @pat.output
 
 
 -------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ ATTR Rule Rules Pattern Patterns [ | | defsCollect USE {`Set.union`} {Set.empty}
 SEM Pattern
   | Alias
       loc.def = Set.singleton (@field, @attr)
-      lhs.defsCollect = @loc.def `Set.union` @pat.defsCollect `Set.union` @parts.defsCollect
+      lhs.defsCollect = @loc.def `Set.union` @pat.defsCollect
 
 ATTR Rule Rules Pattern Patterns [ defs : {Set (Identifier, Identifier)} | | ]
 SEM Production
