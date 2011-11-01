@@ -31,7 +31,6 @@ ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ER
     textBlocks   : PP_Doc
     moduleHeader : {String -> String -> String -> Bool -> String}
     mainFile     : String
-    optionsLine  : String
     mainName     : String | | ]
 
 -------------------------------------------------------------------------------
@@ -319,7 +318,7 @@ SEM Visit
                          >-< "data" >#< @loc.nameTOut_visit >#< "=" >#< @loc.nameTOut_visit >#<
                               @loc.synpart >#< case @loc.nextVisitInfo of
                                                  NoneNext    -> empty                    -- don't return a continuation at all
-                                                 _           -> @loc.nameTNext_visit     -- normal route: select the next semantics
+                                                 _           -> @loc.addbang $ pp @loc.nameTNext_visit     -- normal route: select the next semantics
           loc.inhpart   = @loc.ppTypeList @inh @lhs.inhmap
           loc.synpart   = @loc.ppTypeList @syn @lhs.synmap
           loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang $ pp_parens $ typeToHaskellString (Just @lhs.nt) []
@@ -590,15 +589,12 @@ ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
 ATTR Patterns [ | | sem_lhs USE {:} {[]} : {[PP_Doc]} ]
 ATTR Pattern Patterns [ | | ]
 
-ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
-
 SEM Pattern
   | Alias       loc.varPat    = text $ attrname False @field @attr
                 loc.patExpr   = if @pat.isUnderscore
                                 then @loc.varPat
                                 else @loc.varPat >|< "@" >|< @pat.sem_lhs
                 lhs.sem_lhs   = @loc.addbang @loc.patExpr
-                lhs.attrs     = Set.singleton $ attrname False @field @attr
   | Product     lhs.sem_lhs   = @loc.addbang $ pp_block "(" ")" "," @pats.sem_lhs
   | Constr      lhs.sem_lhs   = @loc.addbang $ pp_parens $ @name >#< hv_sp @pats.sem_lhs
   | Underscore  lhs.sem_lhs   = text "_"
@@ -612,7 +608,12 @@ SEM Pattern
  | Alias       lhs.isUnderscore = False
  | Underscore  lhs.isUnderscore = True
 
+-- Collect the attributes defined by a pattern
+ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
+SEM Pattern | Alias
+  lhs.attrs     = Set.insert (attrname False @field @attr) @pat.attrs
 
+-- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM HsToken
   | AGLocal   lhs.attrs   = Set.singleton $ locname @var
@@ -681,9 +682,10 @@ SEM EProduction
                 visits.terminaldefs = @children.terminaldefs
 
 SEM Visit
-  | Visit lhs.intramap  = Map.singleton @from $ (@loc.uses `Set.union` @loc.nextintra) `Set.difference` @loc.defs
+  | Visit loc.thisintra = (@loc.uses `Set.union` @loc.nextintra) `Set.difference` @loc.defs
+          lhs.intramap  = Map.singleton @from @loc.thisintra
           loc.nextintra = maybe Set.empty id $ Map.lookup @to @lhs.allintramap
-          loc.uses      = @steps.uses
+          loc.uses      = @steps.uses `Set.union` (Set.map (lhsname False) @syn)
           loc.defs      = @steps.defs `Set.union` (Set.map (lhsname True) @inh) `Set.union` @lhs.terminaldefs
 
 ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)}
@@ -778,9 +780,8 @@ SEM ExecutionPlan
                                              >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                         else pp "import Control.Monad.Identity"
                   loc.genMainModule   = writeModule @loc.mainModuleFile
-                                          ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+                                          ( [ warrenFlagsPP @lhs.options
                                             , pp $ @lhs.pragmaBlocks
-                                            , pp $ @lhs.optionsLine
                                             , pp $ @lhs.moduleHeader @lhs.mainName "" "" False
                                             , @loc.ppMonadImports
                                             , pp $ "import " ++ @lhs.mainName ++ "_common"
@@ -791,9 +792,7 @@ SEM ExecutionPlan
                                           )
                   loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
                   loc.genCommonModule = writeModule @loc.commonFile
-                                          ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
-                                            , pp $ @lhs.pragmaBlocks
-                                            , pp $ @lhs.optionsLine
+                                          ( [ pp $ @lhs.pragmaBlocks  -- the common module should not need any of the special flags for main/sem modules
                                             , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
                                             , @loc.ppMonadImports
                                             , @lhs.importBlocks
@@ -833,9 +832,8 @@ SEM EProduction
                                            >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                       else pp "import Control.Monad.Identity"
                 lhs.genProdIO  = writeModule @loc.outputfile
-                                     [ pp "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+                                     [ warrenFlagsPP @lhs.options
                                      , pp $ @lhs.pragmaBlocks
-                                     , pp $ @lhs.optionsLine
                                      , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
                                      , @lhs.importBlocks
                                      , @loc.ppMonadImports
