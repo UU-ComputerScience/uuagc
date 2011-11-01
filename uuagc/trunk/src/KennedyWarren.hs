@@ -1,6 +1,7 @@
 module KennedyWarren where
 
 import CommonTypes
+import Options
 import Pretty
 import Knuth1
 import ExecutionPlan
@@ -21,6 +22,7 @@ import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
+
 
 kennedyWarrenOrder :: Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe (ExecutionPlan, PP_Doc, PP_Doc)
 kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
