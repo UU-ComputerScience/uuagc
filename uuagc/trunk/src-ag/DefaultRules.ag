@@ -392,9 +392,8 @@ SEM Production
                 | otherwise
                   = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs
 
-               childExists Nothing         = True
-               childExists (Just (Just _)) = True
-               childExists (Just Nothing)  = False
+               childExists ChildAttr = False
+               childExists _         = True
 
         selfRules
           = [ selfRule True attr undefined
@@ -479,12 +478,12 @@ SEM Pattern
                                 then Set.insert @attr @pat.locals
                                 else @pat.locals
 
-SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
+SEM Children [ | | fields : {[(Identifier,Type,ChildKind)]} ]
   | Cons lhs.fields = @hd.field : @tl.fields
   | Nil  lhs.fields = []
 
-SEM Child    [ | | field  : { (Identifier,Type,Maybe (Maybe Type)) } ]
-  | Child lhs.field = (@name,@tp,@virtual)
+SEM Child    [ | | field  : { (Identifier,Type,ChildKind) } ]
+  | Child lhs.field = (@name,@tp,@kind)
 
 -------------------------------------------------------------------------------
 --

@@ -20,7 +20,13 @@ data ParserError = DefParserError String
 instance Error ParserError where
     strMsg x = DefParserError x
 
--- import Control.Exception
+-- Add boolean flags to this list, which will then be handled generically.
+-- Requires that this flag is also an option of uuagc (case sensitive)
+booleanFlags
+  = [ "helpinlining","dummytokenvisit","tupleasdummytoken","strictdummytoken","noperruletypesigs"
+    , "noperstatetypesigs", "noeagerblackholing","noperrulecostcentres","nopervisitcostcentres"
+    ,"noinlinepragmas","aggressiveinlinepragmas"
+    ]
 
 uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,onewtypes, opretty
@@ -32,7 +38,7 @@ uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
          ,ogenfiledeps, ogenvisage, ogenaspectag, ogenattrlist, olckeywords
          ,odoublecolons, oself
          ,ocheckparserhs,ocheckparsetys,ocheckparseblocks,ocheckparsehaskell
-         ,okennedywarren,oparallel]
+         ,okennedywarren,oparallel] ++ booleanFlags
 
 uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UNewTypes, UPretty
@@ -44,7 +50,7 @@ uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
             ,UGenFileDeps, UGenVisage, UGenAspectAG, UGenAttrList, ULCKeyWords
             ,UDoubleColons, USelf
             ,UCheckParseRhs, UCheckParseTys, UCheckParseBlocks, UCheckParseHaskell
-            ,UKennedyWarren,UParallel]
+            ,UKennedyWarren,UParallel] ++ [ UGenericBoolFlag fl | fl <- booleanFlags ]
 
 gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
          ,(ooptimize, [ovisit,ocase])

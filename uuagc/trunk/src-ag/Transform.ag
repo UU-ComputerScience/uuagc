@@ -798,6 +798,19 @@ SEM Elem
                                                            -> o { noGroup =  extract atts  ++ noGroup o }
                                          "rename"          -> o { rename = True }
                                          "parallel"        -> o { parallelInvoke = True }
+
+                                         "dummytokenvisit" -> o { dummyTokenVisit = True }
+                                         "tupleasdummytoken" -> o { tupleAsDummyToken = True }
+                                         "strictdummytoken" -> o { strictDummyToken = True }
+                                         "noperruletypesigs" -> o { noPerRuleTypeSigs = True }
+                                         "noperstatetypesigs" -> o { noPerStateTypeSigs = True }
+                                         "noeagerblackholing" -> o { noEagerBlackholing = True }
+                                         "noperrulecostcentres" -> o { noPerRuleCostCentres = True }
+                                         "nopervisitcostcentres" -> o { noPerVisitCostCentres = True }
+                                         "helpinlining" -> o { helpInlining = True }
+                                         "noinlinepragmas" -> o { noInlinePragmas = True }
+                                         "aggressiveinlinepragmas" -> o { aggressiveInlinePragmas = True }
+
                                          _              -> o
                           in \o -> foldr mk o @names
 
@@ -1199,11 +1212,11 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                                  _       -> (Map.empty,Map.empty)
                                               virt = if existsAsInst nm
                                                      then case lookup nm flds of
-                                                            Just tp' -> Just (Just tp')
-                                                            Nothing  -> Just Nothing
+                                                            Just tp' -> ChildReplace tp'
+                                                            Nothing  -> ChildAttr
                                                      else if existsAsMerge nm
-                                                          then (Just Nothing)
-                                                          else Nothing
+                                                          then ChildAttr
+                                                          else ChildSyntax
                                           in Child nm tpI inh syn virt
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)

@@ -175,8 +175,13 @@ deforestedNt nm
   | take 2 (getName nm) == "T_" = Just (Ident (drop 2 (getName nm)) (getPos nm))
   | otherwise = Nothing
 
-data WhatNext
-  = NoneNext
-  | OneNext !Int
-  | ManyNext
+data StateCtx
+  = NoneVis
+  | OneVis !Int
+  | ManyVis
   deriving (Eq, Show, Ord)
+
+data ChildKind
+  = ChildSyntax        -- This child is defined by syntax
+  | ChildAttr          -- This child is defined by an attribute
+  | ChildReplace Type  -- This child replaces a child with type Type

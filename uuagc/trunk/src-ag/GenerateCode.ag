@@ -162,8 +162,8 @@ SEM  CRule
                                   ( let (nm,mb) = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes (maybe nm id (deforestedNt nm))
                                        $ case mb of
-                                           Just (Just tp') -> App instLocFieldName [SimpleExpr $ fieldname inst]
-                                           _               ->
+                                           ChildReplace tp' -> App instLocFieldName [SimpleExpr $ fieldname inst]
+                                           _                ->
                                               case nm `Set.member` @lhs.allNts of -- if it is not a member of the Nts, it must be the T_ variant
                                                 True  -> App (cataname @lhs.prefix nm)
                                                              [SimpleExpr instLocFieldName]
@@ -212,8 +212,10 @@ SEM  CRule
                                         | otherwise = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
                                   rhs = @loc.addCostCentre $ Code.InvokeExpr (typeName @nt @nr) (SimpleExpr fun) (map SimpleExpr rhsVars)
                                   isVirtual _ [] = False
-                                  isVirtual nm ((n,t,mb) : r)
-                                    | nm == n   = isJust mb
+                                  isVirtual nm ((n,t,kind) : r)
+                                    | nm == n   = case kind of
+                                                    ChildAttr -> True
+                                                    _         -> False
                                     | otherwise = isVirtual nm r
                                   isMerged = @name `Map.member` @lhs.mergeMap
                                   isMerging = @name `elem` concatMap (\(_,cs) -> cs) (Map.elems @lhs.mergeMap)
@@ -254,7 +256,7 @@ unwrapSem True nm e = Case e alts
         right = SimpleExpr "x"
 }
 
-ATTR Sequence CRule [ children : {[(Identifier,Type,Maybe (Maybe Type))]} ||]
+ATTR Sequence CRule [ children : {[(Identifier,Type,ChildKind)]} ||]
 
 ATTR Sequence CRule Pattern Patterns [|| definedInsts USE {++} {[]} : {[Identifier]} ]
 SEM Pattern
@@ -372,10 +374,10 @@ SEM  CRule
                                                        in Arr tp2 tp1
                                            Nothing -> tp1
                                     findOrigType nm [] = Nothing
-                                    findOrigType nm ((n,_,mb) : r)
-                                      | nm == n = case mb of
-                                                    Just (Just orig) -> Just orig
-                                                    _                -> Nothing
+                                    findOrigType nm ((n,_,kind) : r)
+                                      | nm == n = case kind of
+                                                    ChildReplace orig -> Just orig
+                                                    _                 -> Nothing
                                       | otherwise = findOrigType nm r
                               ]
 
@@ -414,7 +416,7 @@ substSelf nt tp = case tp of
                     _                     -> tp
 }
 
-ATTR CVisits CVisit [ children : {[(Identifier,Type, Maybe (Maybe Type))]} | | ]
+ATTR CVisits CVisit [ children : {[(Identifier,Type, ChildKind)]} | | ]
 SEM  CProduction
   |  CProduction visits.children = @children
 
@@ -555,12 +557,12 @@ mkSemFun nt nr xs e = SemFun (typeName nt nr) xs e
 
 typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
 
-isHigherOrder :: Maybe (Maybe Type) -> Bool
-isHigherOrder (Just Nothing) = True
-isHigherOrder _              = False
+isHigherOrder :: ChildKind -> Bool
+isHigherOrder ChildAttr = True
+isHigherOrder _         = False
 
-pickOrigType :: (Identifier, Type, Maybe (Maybe Type)) -> (Identifier, Type, Maybe (Maybe Type))
-pickOrigType (nm, tp, virt@(Just (Just x))) = (nm, x, virt)
+pickOrigType :: (Identifier, Type, ChildKind) -> (Identifier, Type, ChildKind)
+pickOrigType (nm, _, virt@(ChildReplace x)) = (nm, x, virt)
 pickOrigType x = x
 }
 
@@ -892,9 +894,10 @@ SEM CProduction
 
 {
 -- for a virtual child that already existed as a child, returns
-isFirstOrder :: Maybe (Maybe Type) -> Type -> Maybe Type
-isFirstOrder Nothing tp = Just tp
-isFirstOrder (Just x) _ = x
+isFirstOrder :: ChildKind -> Type -> Maybe Type
+isFirstOrder ChildSyntax       tp = Just tp
+isFirstOrder ChildAttr         _  = Nothing
+isFirstOrder (ChildReplace tp) _  = Just tp
 }
 
 SEM CVisit

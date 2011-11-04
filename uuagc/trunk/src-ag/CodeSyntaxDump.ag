@@ -13,10 +13,10 @@ import CodeSyntax
 }
 
 {
-ppChild :: (Identifier,Type,Maybe (Maybe Type)) -> PP_Doc
+ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
 ppChild (nm,tp,b)
   = pp nm >#< "::" >#< pp (show tp)
-  
+
 ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc
 ppVertexMap m
   = ppVList [ ppF (show k) $ ppAttr v | (k,v) <- Map.toList m ]
@@ -97,7 +97,7 @@ SEM CProductions
 SEM CSegments
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
-  
+
 SEM CNonterminals
   | Cons			lhs		.	ppL		=	@hd.pp : @tl.ppL
   | Nil				lhs		.	ppL		=	[]
