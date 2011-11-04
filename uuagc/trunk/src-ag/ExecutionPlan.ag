@@ -32,7 +32,8 @@ DATA ENonterminal | ENonterminal nt         : {NontermIdent}
                                  params     : {[Identifier]}
 				 initial    : {StateIdentifier}
 				 initialv   : {Maybe VisitIdentifier}
-				 nextVisits : {Map StateIdentifier WhatNext}  -- info about the next visits from a given state
+				 nextVisits : {Map StateIdentifier StateCtx}  -- info about the next visits from a given state
+				 prevVisits : {Map StateIdentifier StateCtx}  -- info about the previous visits to a given state
                                  prods      : EProductions
 
 DATA EProduction  | EProduction  con      : {ConstructorIdent}
@@ -42,7 +43,7 @@ DATA EProduction  | EProduction  con      : {ConstructorIdent}
 
 DATA EChild       | EChild       name    : {Identifier}
                                  tp      : {Type}
-             			 virtual : {Maybe (Maybe Type)}   -- first maybe: is child virtual, second maybe: did child already exist
+             			 kind    : {ChildKind}
 
 DATA ERule        | ERule       name     : {Identifier}
                                 pattern  : Pattern

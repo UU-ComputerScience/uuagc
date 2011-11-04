@@ -9,6 +9,7 @@ import ExecutionPlan
 import Pretty
 import PPUtil
 import Options
+import Data.Monoid(mappend,mempty)
 import Data.Maybe
 import Debug.Trace
 import System.IO
@@ -53,14 +54,17 @@ SEM ENonterminal
 --  Context info (nonterminal ident, constructor ident)
 -------------------------------------------------------------------------------
 
-ATTR Visit Visits EProduction EProductions EChildren EChild [ nt : NontermIdent | | ]
+ATTR Visit Visits EProduction EProductions EChildren EChild ERules ERule [ nt : NontermIdent | | ]
 SEM ENonterminal
   | ENonterminal prods.nt = @nt
 
-ATTR EChildren EChild [ con : ConstructorIdent | | ]
+ATTR EChildren EChild ERules ERule Visits Visit
+  [ con : ConstructorIdent | | ]
 
 SEM EProduction
   | EProduction children.con = @con
+                rules.con    = @con
+                visits.con   = @con
 
 -------------------------------------------------------------------------------
 --  Default output
@@ -158,11 +162,11 @@ ATTR EChildren [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 SEM EChild
   | EChild  loc.tpDoc = @loc.addStrict $ pp_parens $ typeToHaskellString (Just @lhs.nt) [] @tp
             loc.strNm = recordFieldname @lhs.nt @lhs.con @name
-            lhs.datatype = if isJust @virtual
-                           then empty
-                           else if dataRecords @lhs.options
-                                then @loc.strNm >#< "::" >#< @loc.tpDoc
-                                else @loc.tpDoc
+            lhs.datatype = case @kind of
+                             ChildSyntax -> if dataRecords @lhs.options
+                                            then @loc.strNm >#< "::" >#< @loc.tpDoc
+                                            else @loc.tpDoc
+                             _           -> empty
            loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
 
 -------------------------------------------------------------------------------
@@ -174,7 +178,11 @@ SEM ENonterminal
                  loc.frecarg = \t x -> case t of
                                           NT nt _ -> pp_parens (@fsemname nt >#< x)
                                           _       -> pp x
-                 loc.sem_nt  = @loc.semname >#< "::" >#< @nt >#< "->" >#< @loc.t_type
+
+                 -- The sem_NT function is lazy in the AST: it depends on the application of "child"
+                 -- rules to which extend the AST needs to be constructed.
+                 loc.sem_nt  = @loc.semPragma
+                               >-< @loc.semname >#< "::" >#< @nt >#< "->" >#< @loc.t_type
                                >-< case lookup @nt @lhs.typeSyns of
                                       Nothing -> @prods.sem_nt
                                       Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
@@ -200,7 +208,13 @@ SEM ENonterminal
                                                                 NT nt _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
                                                                 _ -> pp "m"
 --                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
+                loc.semPragma = if noInlinePragmas @lhs.options
+                                then empty
+                                else if helpInlining @lhs.options
+                                     then ppInlinable @loc.semname
+                                     else ppNoInline @loc.semname
 
+-- The per-production cases for the sem_NT function
 ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
 SEM EProduction
   | EProduction lhs.sem_nt = "sem_" >|< @lhs.nt >#< "(" >#< conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.argpats >#< ")"
@@ -210,11 +224,11 @@ ATTR EChild    [ | | argnamesw              : { PP_Doc } ]
 ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EChild
-  | EChild lhs.argnamesw = if isJust @virtual
-                           then empty
-                           else if isNonterminal @tp
-                                then "(" >#< "sem_" >|< extractNonterminal @tp >#< "field_" >|< @name >#< ")"
-                                else text $ locname @name
+  | EChild lhs.argnamesw = case @kind of
+                             ChildSyntax -> if isNonterminal @tp
+                                            then "(" >#< "sem_" >|< extractNonterminal @tp >#< "field_" >|< @name >#< ")"
+                                            else text $ locname @name
+                             _           -> empty
 
 -------------------------------------------------------------------------------
 --  Types of attributes
@@ -224,15 +238,19 @@ ATTR ExecutionPlan
      ENonterminal  [ inhmap : {Map NontermIdent Attributes}
                      synmap : {Map NontermIdent Attributes} | | ]
 
-ATTR EProductions
-     EProduction
+ATTR EProductions EProduction
+     ERules ERule
      Visits
      Visit   [ inhmap : {Attributes}
-               synmap : {Attributes} | | ]
+               synmap : {Attributes}
+               allInhmap : {Map NontermIdent Attributes}
+               allSynmap : {Map NontermIdent Attributes} | | ]
 
 SEM ENonterminal
   | ENonterminal (Just prods.inhmap) = Map.lookup @nt @lhs.inhmap
                  (Just prods.synmap) = Map.lookup @nt @lhs.synmap
+                 prods.allInhmap = @lhs.inhmap
+                 prods.allSynmap = @lhs.synmap
 
 -------------------------------------------------------------------------------
 --  State datatypes
@@ -256,23 +274,26 @@ SEM ENonterminal
   | ENonterminal loc.outedges  = Set.fromList $ map (\(_,f,_) -> f) @prods.allvisits
                  loc.inedges   = Set.fromList $ map (\(_,_,t) -> t) @prods.allvisits
                  loc.allstates = Set.insert @initial $ @loc.inedges `Set.union` @loc.outedges
-                 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
+                 loc.stvisits  = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
                  loc.t_type    = "T_" ++ show @nt
-                 loc.t_init    = "type" >#< @loc.t_type >#< "=" >#< @loc.t_type >|< "_s" >|< @initial
+                 loc.t_init    = "newtype" >#< @loc.t_type >#< "=" >#< @loc.t_type >#<
+                                   pp_braces (
+                                     "attach_">|< @loc.t_type >#< "::"
+                                       >#< ppMonadType @lhs.options (@loc.t_type >|< "_s" >|< @initial) )
                  loc.t_states  = vlist $ map (\st ->
                                     let nt_st = @nt >|< "_s" >|< st
                                         t_st  = "T_" >|< nt_st
                                         k_st  = "K_" >|< nt_st
                                         c_st  = "C_" >|< nt_st
                                         inv_st  = "inv_" >|< nt_st
-                                        nextVisit = Map.findWithDefault ManyNext st @nextVisits
+                                        nextVisit = Map.findWithDefault ManyVis st @nextVisits
                                     in  case nextVisit of
-                                          NoneNext    -> "data" >#< t_st >#< "=" >#< c_st  -- empty semantics
-                                          OneNext vId -> "newtype" >#< t_st >#< "=" >#< c_st
+                                          NoneVis    -> "data" >#< t_st >#< "=" >#< c_st  -- empty semantics
+                                          OneVis vId -> "newtype" >#< t_st >#< "=" >#< c_st
                                                          >#< (pp_braces $ inv_st >#< "::" >#< pp_parens (conNmTVisit @nt vId))
-                                          ManyNext    -> "data" >#< t_st >#< "where" >#< c_st >#< "::"
+                                          ManyVis    -> "data" >#< t_st >#< "where" >#< c_st >#< "::"
                                                           >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< "t" >#< "->" >#< "t"))
-                                                          >#< "->" >#< t_st  -- conventional data type declared with GADT syntax
+                                                          >#< "->" >#< t_st  -- this is a conventional data type, but declared with GADT syntax
                                         ) $ Set.toList @loc.allstates
 
 -- type of a key which identifies a visit v from state s
@@ -285,12 +306,12 @@ SEM ENonterminal
                                        visitlist = vlist $ map (\(v,f,t) ->
                                            @loc.k_type >|< "_v" >|< v >#< "::" >#< k_st >#< @loc.t_type >|< "_v" >|< v
                                             ) outg
-                                       nextVisit = Map.findWithDefault ManyNext st @nextVisits
+                                       nextVisit = Map.findWithDefault ManyVis st @nextVisits
                                        decl = "data" >#< k_st >#< "k" >#< "where" >-< indent 3 visitlist
                                    in  case nextVisit of
-                                         NoneNext  -> empty
-                                         OneNext _ -> empty
-                                         ManyNext  -> decl
+                                         NoneVis  -> empty
+                                         OneVis _ -> empty
+                                         ManyVis  -> decl
                                    ) $ Set.toList @loc.allstates
 
 -- type of a visit v, with continuation as new state s
@@ -300,25 +321,26 @@ SEM EProductions
   | Cons lhs.t_visits = @hd.t_visits -- just pick the first production
 
 SEM Visit
-  | Visit loc.monadType = if parallelInvoke @lhs.options
-                          then "IO"
-                          else "Identity"
-
-          loc.nameT_visit     = conNmTVisit @lhs.nt @ident
+  | Visit loc.nameT_visit     = conNmTVisit @lhs.nt @ident
           loc.nameTIn_visit   = conNmTVisitIn @lhs.nt @ident
           loc.nameTOut_visit  = conNmTVisitOut @lhs.nt @ident
           loc.nameTNext_visit = conNmTNextVisit @lhs.nt @to
 
-          loc.nextVisitInfo   = Map.findWithDefault ManyNext @to @lhs.nextVisits  -- which visits can we do after we reach the @to state?
+          loc.nextVisitInfo   = Map.findWithDefault ManyVis @to @lhs.nextVisits  -- which visits can we do after we reach the @to state?
 
           lhs.t_visits = "type" >#< @loc.nameT_visit >#< "=" >#<
-                           @loc.nameTIn_visit >#< "->" >#< @loc.monadType >#< @loc.nameTOut_visit
+                           @loc.nameTIn_visit
+                             >#< ( if dummyTokenVisit @lhs.options
+                                   then "->" >#< dummyType @lhs.options  -- Additional (unused though) argument
+                                   else empty
+                                 )
+                             >#< "->" >#< ppMonadType @lhs.options @loc.nameTOut_visit
                          >-< "data" >#< @loc.nameTIn_visit >#< "=" >#< @loc.nameTIn_visit >#<
                               @loc.inhpart
                          >-< "data" >#< @loc.nameTOut_visit >#< "=" >#< @loc.nameTOut_visit >#<
                               @loc.synpart >#< case @loc.nextVisitInfo of
-                                                 NoneNext    -> empty                    -- don't return a continuation at all
-                                                 _           -> @loc.addbang $ pp @loc.nameTNext_visit     -- normal route: select the next semantics
+                                                 NoneVis    -> empty                    -- don't return a continuation at all
+                                                 _          -> @loc.addbang $ pp @loc.nameTNext_visit     -- normal route: select the next semantics
           loc.inhpart   = @loc.ppTypeList @inh @lhs.inhmap
           loc.synpart   = @loc.ppTypeList @syn @lhs.synmap
           loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang $ pp_parens $ typeToHaskellString (Just @lhs.nt) []
@@ -329,6 +351,11 @@ conNmTVisit nt vId      = "T_" >|< nt >|< "_v"    >|< vId
 conNmTVisitIn nt vId    = "T_" >|< nt >|< "_vIn"  >|< vId
 conNmTVisitOut nt vId   = "T_" >|< nt >|< "_vOut" >|< vId
 conNmTNextVisit nt stId = "T_" >|< nt >|< "_s"    >|< stId
+
+ppMonadType :: PP a => Options -> a -> PP_Doc
+ppMonadType opts t
+  | parallelInvoke opts = "IO" >#< t
+  | otherwise           = "Identity" >#< t
 }
 
 -------------------------------------------------------------------------------
@@ -347,11 +374,13 @@ SEM ENonterminal
                  loc.wrapname = "wrap_" ++ show @nt
                  loc.inhname  = "Inh_" ++ show @nt
                  loc.synname  = "Syn_" ++ show @nt
-                 loc.firstVisitInfo = Map.findWithDefault ManyNext @initial @nextVisits
-                 loc.wrapper  = (@loc.wrapname >#< "::" >#< @loc.t_type >#< "->"
-                                 >#< @loc.inhname >#< "->" >#< @loc.synname)
-                                >-< (@loc.wrapname >#< (@loc.addbang $ pp "sem") >#< (@loc.addbang $ pp_parens (@loc.inhname
-                                    >#< (ppSpaced $ map (@loc.addbang . pp) @loc.inhlist)) >#< "="))
+                 loc.firstVisitInfo = Map.findWithDefault ManyVis @initial @nextVisits
+                 loc.wrapper  = @loc.wrapPragma
+                                >-< (@loc.wrapname >#< "::" >#< @loc.t_type >#< "->"
+                                      >#< @loc.inhname >#< "->" >#< @loc.synname)
+                                >-< (@loc.wrapname >#< (@loc.addbang $ pp_parens (@loc.t_type >#< pp "act"))
+                                    >#< (@loc.addbang $ pp_parens (@loc.inhname
+                                           >#< (ppSpaced $ map (@loc.addbang . pp) @loc.inhlist)) >#< "="))
                                 >-<
                                 indent 3 (case @initialv of
                                   -- case where there are no inherited or synthesized attributes
@@ -361,19 +390,29 @@ SEM ENonterminal
                                         outCon = conNmTVisitOut @nt initv
                                         pat    = @loc.addbang $ pp_parens $ pat0
                                         pat0   = outCon >#< ppSpaced @loc.synlist -- should be an "end" state, thus no continuation expected here
-                                        arg    = pp_parens arg0
-                                        arg0   = inCon >#< ppSpaced @loc.inhlist
+                                        arg    = inCon >#< ppSpaced @loc.inhlist
                                         mon    = if parallelInvoke @lhs.options             -- choose a monad
                                                  then "System.IO.Unsafe.unsafePerformIO"    -- IO monad
                                                  else "Control.Monad.Identity.runIdentity"  -- identity monad
                                         ind    = case @loc.firstVisitInfo of
-                                                   NoneNext  -> error "wrapper: initial state should have a next visit but it has none"
-                                                   OneNext _ -> empty
-                                                   ManyNext  -> @loc.k_type >|< "_v" >|< initv
+                                                   NoneVis  -> error "wrapper: initial state should have a next visit but it has none"
+                                                   OneVis _ -> empty
+                                                   ManyVis  -> @loc.k_type >|< "_v" >|< initv
+                                        extra  = if dummyTokenVisit @lhs.options
+                                                 then pp $ dummyArg @lhs.options
+                                                 else empty
                                     in "let" >#< pat >#< "=" >#< mon
-                                             >#< pp_parens
-                                                   ( "inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< arg )
+                                        >-< indent 6 (pp_parens
+                                                   ( "do" >#< ( @loc.addbang (pp "sem") >#< "<-" >#< "act"   -- run the per-node monadic code to get the initial state (of the root)
+                                                                >-< "let" >#< @loc.addbang (pp "arg") >#< "=" >#< arg
+                                                                >-< "inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< "arg" >#< extra  -- invoke initial state (of the root)
+                                                   ) ) )
                                        >-< "in " >#< pp_parens (@loc.synname >#< ppSpaced @loc.synlist))
+                 loc.wrapPragma = if parallelInvoke @lhs.options
+                                  then ppNoInline @loc.wrapname  -- required for the use of unsafePerformIO in case of the IO monad
+                                  else if noInlinePragmas @lhs.options
+                                       then empty
+                                       else ppInlinable @loc.wrapname  -- ensure that the wrapper is exposed as inlinable
 
 -------------------------------------------------------------------------------
 --  Production semantic functions
@@ -393,71 +432,177 @@ ATTR EChildren [ | | argtps  USE {:} {[]} : { [PP_Doc] }
                      argpats USE {:} {[]} : { [PP_Doc] }  ]
 
 SEM EChild
-  | EChild lhs.argtps   = if isJust @virtual
-                          then empty
-                          else if isNonterminal @tp
-                               then ("T_" >|< extractNonterminal @tp) >#< "->"
-                               else (pp_parens $ show @tp) >#< "->"
-           loc.argpats = if isJust @virtual
-                         then empty
-                         else if isNonterminal @tp
-                              then "field_" >|< @name                   -- no strictification of children semantics to facilitate infinite trees
-                              else @loc.addbang $ text $ locname @name  -- require terminals to be strict
+  | EChild lhs.argtps   = case @kind of
+                            ChildSyntax -> if isNonterminal @tp
+                                           then ("T_" >|< extractNonterminal @tp) >#< "->"
+                                           else (pp_parens $ show @tp) >#< "->"
+                            _           -> empty
+           loc.argpats = case @kind of
+                           ChildSyntax -> if isNonterminal @tp
+                                          then "field_" >|< @name                   -- no strictification of children semantics to allow infinite trees
+                                          else @loc.addbang $ text $ locname @name  -- require terminals to be strict
+                           _           -> empty
 
 SEM EProduction
-  | EProduction loc.args     = @children.argpats
+  | EProduction loc.t_type   = "T_" >|< @lhs.nt
+                loc.args     = @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
-                loc.sem_prod = @loc.semname >#< "::" >#< ppSpaced @children.argtps >#< "T_" >|< @lhs.nt
-                               >-< @loc.semname >#< ppSpaced @loc.args >#< "="
-                               >#< "st" >|< @lhs.initial >#< "where"
-                               >-< (indent 3 $ vlist @loc.statefns >-< @rules.sem_rules)
-                loc.statefns = map (\st -> let nextVisitInfo = Map.findWithDefault ManyNext st @lhs.nextVisits
-                                               lhs  = "st" >|< st >#< @loc.stargs st >#< "="
-                                               clhs = lhs >#< "C_" >|< @lhs.nt >|< "_s" >|< st
-                                           in case nextVisitInfo of
-                                                NoneNext    -> clhs  -- empty semantics
-                                                OneNext vId -> clhs >#< "v" >|< vId >#< "where"
-                                                               >-< indent 3 (@loc.stvs st)
-                                                ManyNext    -> clhs >#< "k" >|< st >#< "where"
-                                                               >-< indent 3 (@loc.stks st >-< @loc.stvs st)
-                                   ) $ Set.toList @lhs.allstates
-                loc.stargs   = \st -> ppSpaced $ map (@loc.addbang . pp) $ Set.toList $ maybe Set.empty id $ Map.lookup st @visits.intramap
+                loc.sem_prod = @loc.semInlinePragma
+                               >-< @loc.semname >#< "::" >#< ppSpaced @children.argtps >#< @loc.t_type
+                               >-< @loc.mkSemBody (@loc.semname >#< ppSpaced @loc.args >#< "=" >#< @loc.scc >#< @loc.t_type)
+                                                  @loc.mbInitializer @loc.outerlet ("return" >#< "st" >|< @lhs.initial)
+                loc.mkSemBody = \prefix mbInit outerlet ret ->
+                                  case mbInit of
+                                    Nothing -> prefix >#< pp_parens ret >#< "where"
+                                               >-< indent 3 outerlet  -- code for states and visits
+                                    Just m  -> prefix >#< "(" >#< "do"
+                                               >-< indent 1 (
+                                                     m
+                                                     >-< "let"
+                                                     >-< indent 2 outerlet -- code for the states and visits
+                                                     >-< ret )
+                                               >-< indent 1 ")"
+
+                loc.mbInitializer   = --some monadic actions, performed upon attaching a child, can
+                                      -- be specified here. The resulting bindings of these actions are
+                                      -- in scope of the rules of the production
+                                      if parallelInvoke @lhs.options
+                                      then (Nothing :: Maybe PP_Doc)  -- perhaps do some per-node registation, etc. For now: nothing
+                                      else Nothing  -- nothing special here
+                loc.scc             = if genCostCentres @lhs.options
+                                      then ppCostCentre @loc.semname
+                                      else empty
+                loc.semInlinePragma = if noInlinePragmas @lhs.options
+                                      then empty
+                                      else ppNoInline @loc.semname  -- prevent the semantic functions of constructors to be inlined (e.g. in the nt sem-funs)
+                loc.outerlet = vlist @loc.statefns >-< @rules.sem_rules
+                loc.statefns = map @loc.genstfn $ Set.toList @lhs.allstates
+                loc.genstfn  = \st -> let nextVisitInfo = Map.findWithDefault ManyVis st @lhs.nextVisits
+                                          prevVisitInfo = Map.findWithDefault ManyVis st @lhs.prevVisits
+                                          stNm = "st" >|< st
+                                          lhs  = pragma >-< bang stNm >#< "=" >#<
+                                                 ( -- generating a lambda for the same reasons as generating
+                                                   -- a lambda for rules: to ensure that overloading is
+                                                   -- resolved for all visit functions and rules together.
+                                                   if st == @lhs.initial
+                                                   then empty
+                                                   else "\\" >#< @loc.stargs st >#< dummyPat @lhs.options >#< "->"
+                                                 )
+
+                                          pragma = if noInlinePragmas @lhs.options
+                                                   then empty
+                                                   else if helpInlining @lhs.options
+                                                        then case prevVisitInfo of
+                                                               ManyVis  -> ppNoInline stNm
+                                                               OneVis _ -> if aggressiveInlinePragmas @lhs.options
+                                                                           then ppInline stNm
+                                                                           else ppInlinable stNm
+                                                               NoneVis  -> if st /= @lhs.initial
+                                                                           then error ("State " ++ show st ++ " is not reachable from the initial state.")
+                                                                           else if aggressiveInlinePragmas @lhs.options
+                                                                                then ppInline stNm    -- first state can be inlined
+                                                                                else ppInlinable stNm
+                                                        else ppNoInline stNm
+                                          cCon = "C_" >|< @lhs.nt >|< "_s" >|< st
+                                          bang | st == @lhs.initial = @loc.addbang  -- initial state is not parameterized
+                                               | otherwise          = id
+
+                                          -- note about the initial state: the initial state should be the only
+                                          -- state-binding that is not a function. It is non-recursive and not needed
+                                          -- anywhere except delivered as initial result. This binding therefore does
+                                          -- not end up needlessly in any closure.
+                                      in case nextVisitInfo of
+                                           NoneVis    -> -- the (empty) closure of a (non-initial) end state is not referenced
+                                                         -- thus generating it is not needed (and omitting it may catch some small mistakes).
+                                                         if st == @lhs.initial
+                                                         then lhs >#< cCon  -- empty state
+                                                         else empty -- no state generated
+                                           OneVis vId -> mklet lhs (@loc.stvs st False) (cCon >#< "v" >|< vId)
+                                           ManyVis    -> mklet lhs (@loc.stks st >-< @loc.stvs st True) (cCon >#< "k" >|< st)
+                loc.stargs   = \st -> let attrs = maybe Map.empty id $ Map.lookup st @visits.intramap
+                                      in ppSpaced [ let match = @loc.addbang (pp str)
+                                                    in case mbAttr of
+                                                         Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
+                                                           case Map.lookup nm @loc.localAttrTypes of
+                                                             Just tp -> let tpStr = typeToHaskellString (Just @lhs.nt) [] tp
+                                                                        in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                                             Nothing -> match
+                                                         Just attr | not (noPerStateTypeSigs @lhs.options) ->
+                                                           let tpStr = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes
+                                                           in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                                         Nothing   -> match
+                                                 | (str,mbAttr) <- Map.assocs attrs
+                                                 ]
+
                 loc.stks     = \st -> if null (@loc.stvisits st)
                                       then empty
-                                      else "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
+                                      else ( if not (noInlinePragmas @lhs.options) && helpInlining @lhs.options
+                                             then ppNoInline ("k" >|< st)
+                                             else empty
+                                           )
+                                           >-< "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
                                            >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
                                                                   >#< "v" >|< v) $ @loc.stvisits st)
                 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @visits.allvisits
-                loc.stvs     = \st -> vlist $ map snd $ filter (\(f,pp) -> f == st) @visits.sem_visit
+                loc.stvs     = \st inlinePragma -> vlist [ppf inlinePragma | (f,ppf) <- @visits.sem_visit, f == st]
                 visits.mrules = @rules.mrules
+
+{
+mklet :: (PP a, PP b, PP c) => a -> b -> c -> PP_Doc
+mklet prefix defs body =
+  prefix >#< "let"
+  >-< indent 3 defs
+  >-< indent 2 "in" >#< body
+}
 
 -------------------------------------------------------------------------------
 --  Visit semantic functions
 -------------------------------------------------------------------------------
-ATTR Visit  [ | | sem_visit              : {  (StateIdentifier,PP_Doc)  } ]
-ATTR Visits [ | | sem_visit USE {:} {[]} : { [(StateIdentifier,PP_Doc)] } ]
+ATTR Visit  [ | | sem_visit              : {  (StateIdentifier,Bool -> PP_Doc)  } ]
+ATTR Visits [ | | sem_visit USE {:} {[]} : { [(StateIdentifier,Bool -> PP_Doc)] } ]
 
 SEM Visit
   | Visit lhs.sem_visit = ( @from
-                          , "v" >|< @ident >#< "::" >#< @loc.nameT_visit
-                             >-< "v" >|< @ident >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
-                             >#< "=" >#< "do"
-                             >-< indent 3 @loc.sem_steps
+                          , \addInlinePragma ->
+                               ( if noInlinePragmas @lhs.options
+                                 then empty
+                                 else if addInlinePragma && aggressiveInlinePragmas @lhs.options
+                                      then ppInline @loc.vname
+                                      else if helpInlining @lhs.options
+                                           then ppNoInline @loc.vname
+                                           else empty
+                               )
+                               >-< "v" >|< @ident >#< "::" >#< @loc.nameT_visit
+
+                                      -- generate a lambda here as well instead of a function definition
+                               >-< "v" >|< @ident >#< "=" >#< "\\" >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
+                               >#< ( if dummyTokenVisit @lhs.options
+                                     then pp $ dummyPat @lhs.options  -- extra (but unused) argument
+                                     else empty
+                                   )
+                               >#< "->"
+                               >#< ( if genCostCentres @lhs.options
+                                     then ppCostCentre (@loc.vname >|< "_" >|< @lhs.nt >|< "_" >|< @lhs.con)
+                                     else empty
+                                   ) >#< "do"
+                               >-< indent 3 @loc.sem_steps
                           )
+          loc.vname     = "v" >|< @ident
           loc.inhpats   = ppSpaced $ map (\arg -> @loc.addbang $ pp $ attrname True _LHS arg) $ Set.toList @inh
           loc.inhargs   = \chn -> ppSpaced $ map (attrname False chn) $ Set.toList @inh
           loc.synargs   = ppSpaced $ map (\arg -> attrname False _LHS arg) $ Set.toList @syn
-          loc.nextargs  = ppSpaced $ Set.toList $ maybe Set.empty id $ Map.lookup @to @lhs.allintramap
-          loc.nextst    = "st" >|< @to >#< @loc.nextargs
+          loc.nextargs  = ppSpaced $ Map.keys $ maybe Map.empty id $ Map.lookup @to @lhs.allintramap
+          loc.nextst    = "st" >|< @to >#< @loc.nextargs >#< dummyArg @lhs.options
           loc.resultval = @loc.nameTOut_visit >#< @loc.synargs >#< @loc.nextStRef
           (loc.nextStBuild, loc.nextStRef)
             = case @loc.nextVisitInfo of
-                NoneNext -> (empty, empty)
+                NoneVis  -> (empty, empty)
                 _        -> (@loc.addbang (pp nextStName) >#< "=" >#< @loc.nextst, pp nextStName)
           loc.sem_steps = @steps.sem_steps
                           >-< "let" >#< (    @loc.nextStBuild
                                         >-<  @loc.addbang (pp resultValName) >#< "=" >#< @loc.resultval
                                         )
+                              -- when bang patterns are used: the result is evaluated before returning
                           >-< "return" >#< resultValName
 
 {
@@ -477,7 +622,7 @@ SEM VisitStep
                loc.useParallel = @lhs.useParallel && not @lhs.isLast
                lhs.sem_steps = if @loc.useParallel
                                then @loc.addbang ("sync_" >|< @lhs.index) >#< "<- newEmptyMVar"
-                                    >-< "forkIO" >#< pp_parens (pp_parens @loc.exprPP >#< ">>= \\" >#< @loc.addbang (pp parResultName) >#< " -> putMVar sync_" >|< @lhs.index >#< parResultName)
+                                    >-< "forkIO" >#< pp_parens (pp_parens @loc.exprPP >#< ">>= \\" >#< parResultName >#< " -> putMVar sync_" >|< @lhs.index >#< parResultName)  -- parResultName is guaranteed to be evaluated
                                else @loc.patPP >#< "<-" >#< @loc.exprPP
   | Sim        lhs.sem_steps = @steps.sem_steps >-< @steps.sync_steps
 
@@ -534,52 +679,125 @@ SEM EProduction
   | EProduction visits.childintros = @children.childintros
 
 SEM EChild
-  | EChild lhs.childintros = Map.singleton @name $ "let" >#< (@loc.addbang $ pp $ locname @name) >#< "=" >#<
-                               if isJust @virtual
-                               then "sem_" >|< extractNonterminal @tp >#< instname @name
-                               else "field_" >|< @name
-
--- keep a list of all rules that are used
-ATTR Visit Visits VisitSteps VisitStep [ | | usedrules USE {`Set.union`} {Set.empty} : {Set Identifier} ]
-ATTR ERules ERule [ usedrules : {Set Identifier} | | ]
-
-SEM VisitStep
-  | Sem lhs.usedrules = Set.singleton @name
-
-SEM EProduction
-  | EProduction rules.usedrules = @visits.usedrules
+  | EChild lhs.childintros = Map.singleton @name @loc.introcode
+           loc.valcode     = case @kind of
+                               ChildSyntax -> "field_" >|< @name
+                               ChildAttr   -> pp_parens ("sem_" >|< @loc.nt >#< instname @name)
+                               _           -> error "replacing childs not implemented yet"
+           loc.introcode   = (@loc.addbang $ pp $ locname @name) >#< "<-" >#< "attach_T_" >|< @loc.nt >#< @loc.valcode
+           loc.nt          = extractNonterminal @tp
 
 -- rules
 ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
                         mrules USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc}  ]
 
-SEM ERule
-  | ERule
-     lhs.sem_rules    = if Set.member @name @lhs.usedrules
-                        then if @loc.genpragma
-                                 then (@name >#< "=" >#< @loc.lambda)
-                                                  >-< indent (column @rhs.pos - 3)
-                                                             (@loc.pragma >-< @rhs.semfunc >-< @loc.endpragma)
-                             else @name >#< "=" >#< @loc.lambda >#< @rhs.semfunc
-                        else empty
+SEM ERule | ERule
+     lhs.sem_rules    = if @loc.used == 0
+                        then empty
+                        else @loc.rulePragma >-< @loc.rulecode
+     loc.rulecode     = @loc.lambda >#< @loc.scc
+                        >-< indent ((column @rhs.pos - 2) `max` 2)
+                              ( if @loc.genpragma && @explicit
+                                then @loc.pragma >-< @rhs.semfunc >-< @loc.endpragma
+                                else @rhs.semfunc
+                              )
+      loc.rulePragma   = (     if noInlinePragmas @lhs.options
+                               then empty
+                               else if @loc.used == 1
+                                    then ppPragmaBinding "INLINE CONLIKE" @name  -- always inline if used exactly once
+                                    else if helpInlining @lhs.options
+                                         then if not @explicit && @loc.used <= reallyOftenUsedThreshold
+                                              then ppPragmaBinding "INLINE[1]" @name  -- inline if copy rule
+                                              else if @loc.used > ruleInlineThresholdSoft && @explicit  -- noinline if it passes the threshold and is not a copy rule
+                                                   then if @loc.used > ruleInlineThresholdHard
+                                                        then ppPragmaBinding "NOINLINE CONLIKE" @name    -- used too often: force ghc not to inline it
+                                                        else if aggressiveInlinePragmas @lhs.options
+                                                             then ppPragmaBinding "NOINLINE[2]" @name -- allow inlining but only late in the process
+                                                             else ppNoInline @name
+                                                   else if aggressiveInlinePragmas @lhs.options
+                                                        then ppPragmaBinding "NOINLINE[1]" @name  -- otherwise, let GHC decide (but do other inlining first)
+                                                        else ppNoInline @name
+                                         else if not @explicit || @loc.used <= ruleInlineThresholdSoft
+                                              then ppPragmaBinding "NOINLINE[1]" @name  -- otherwise, let GHC decide (but do other inlining first)
+                                              else ppNoInline @name
+                             )
+      loc.scc          = if genCostCentres @lhs.options && @explicit && @pure && not (noPerRuleCostCentres @lhs.options)
+                         then ppCostCentre (@name >|< "_" >|< line @rhs.pos >|< "_" >|< @lhs.nt >|< "_" >|< @lhs.con)
+                         else empty
       loc.pragma       = "{-# LINE " ++ show (line @rhs.pos) ++ " " ++ show (file @rhs.pos) ++ "#-}"
       loc.endpragma    = ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show @lhs.mainFile ++ "#-}")
       loc.genpragma    = genLinePragmas @lhs.options && @loc.haspos
       loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
-      loc.lambda       = if Set.null @rhs.attrs
-                         then empty
-                         else "\\" >#< @loc.argPats >#< "->"
-      loc.argPats      = ppSpaced $ map (@loc.addbang . pp) $ Set.toList @rhs.attrs
-      loc.argExprs     = ppSpaced $ Set.toList @rhs.attrs
+
+        -- we generate a simple pattern binding because of overloading-resolving during the type inference process.
+        -- The types of the rules are not generalized (nor do we want that - rules are used in a single typing-context).
+        -- If overloading is resolved separately, it may not be clear which dictionaries to use. For that all rules have
+        -- to be considered together, which is done when we use simple pattern bindings with a lambda expression instead
+        -- of a function definition.
+        -- Note: we also ensure that all rules are lambda expressions, so that they are not made part of any closures
+        -- but are lambda-lifted instead.
+      loc.lambda       = @name >#< "=" >#< "\\" >#< @loc.argPats >#< dummyPat @lhs.options >#< "->"
+
+      loc.argPats      = ppSpaced [ let match = @loc.addbang (pp str)
+                                    in case mbAttr of
+                                         Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
+                                           case Map.lookup nm @lhs.localAttrTypes of
+                                             Just tp -> let tpStr = typeToHaskellString (Just @lhs.nt) [] tp
+                                                        in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                             Nothing -> match
+                                         Just attr | not (noPerRuleTypeSigs @lhs.options) ->
+                                           let tpStr = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes
+                                           in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                         Nothing   -> match
+                                  | (str,mbAttr) <- Map.assocs @rhs.attrs
+                                  ]
+      loc.argExprs     = ppSpaced $ Map.keys @rhs.attrs
       loc.stepcode     = if @pure
-                         then "let" >#< @pattern.sem_lhs >#< "=" >#< @name >#< @loc.argExprs
-                         else @pattern.sem_lhs >#< "<-" >#< @name >#< @loc.argExprs
+                         then "let" >#< @pattern.sem_lhs >#< "=" >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options
+                         else @pattern.sem_lhs >#< "<-" >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options
       lhs.mrules       = Map.singleton @name @loc.stepcode
 
       -- when using "let"s, the use of tildes should not be necessary.
       -- in fact, if it would be necessary, it is probably better to use explicitly an
       -- irrefutable pattern.
       -- loc.addtilde = \x -> if cases @lhs.options || bangpats @lhs.options then x else "~" >|< x
+
+{
+dummyPat :: Options -> String
+dummyPat opts
+  | tupleAsDummyToken opts = if strictDummyToken opts
+                             then "()"
+                             else "(_ :: ())"
+  | otherwise              = let match | strictDummyToken opts = "!_"
+                                       | otherwise             = "_"
+                             in "(" ++ match ++ " :: " ++ dummyType opts ++ ")"
+  where match | strictDummyToken opts = "(!_)"
+              | otherwise             = "_"
+
+dummyArg :: Options -> String
+dummyArg opts
+  | tupleAsDummyToken opts = "()"
+  | otherwise              = "GHC.Prim.realWorld#"
+
+dummyType :: Options -> String
+dummyType opts
+  | tupleAsDummyToken opts = "()"
+  | otherwise              = "(GHC.Prim.State# GHC.Prim.RealWorld)"
+}
+
+{
+-- rules are "deinlined" to prevent needless code duplication.
+-- if there is only a bit of duplication, we allow ghc to decide if it is worth it.
+-- if the duplication crosses this threshold, however, we tell ghc definitely not to inline it.
+ruleInlineThresholdSoft :: Int
+ruleInlineThresholdSoft = 3
+
+ruleInlineThresholdHard :: Int
+ruleInlineThresholdHard = 5
+
+reallyOftenUsedThreshold :: Int
+reallyOftenUsedThreshold = 12
+}
 
 ATTR Expression [ | | pos : {Pos} ]
 SEM Expression | Expression lhs.pos = @pos
@@ -614,15 +832,40 @@ SEM Pattern | Alias
   lhs.attrs     = Set.insert (attrname False @field @attr) @pat.attrs
 
 -- Collect the attributes used by the right-hand side
-ATTR HsToken Expression [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
+ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
 SEM HsToken
-  | AGLocal   lhs.attrs   = Set.singleton $ locname @var
-  | AGField   lhs.attrs   = Set.singleton $ attrname True @field @attr
+  | AGLocal   lhs.attrs   = Map.singleton (locname @var) Nothing
+  | AGField   loc.mbAttr  = if @field == _INST || @field == _FIELD || @field == _INST'
+                            then Nothing  -- should not be used in the first place
+                            else Just $ mkNonLocalAttr (@field == _LHS) @field @attr
+              lhs.attrs   = Map.singleton (attrname True @field @attr) @loc.mbAttr
+
+{
+data NonLocalAttr
+  = AttrInh Identifier Identifier
+  | AttrSyn Identifier Identifier
+
+mkNonLocalAttr :: Bool -> Identifier -> Identifier -> NonLocalAttr
+mkNonLocalAttr True  = AttrInh  -- True: inherited attr
+mkNonLocalAttr False = AttrSyn
+
+lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> String
+lookupAttrType (AttrInh child name) inhs _ = lookupType child name inhs
+lookupAttrType (AttrSyn child name) _ syns = lookupType child name syns
+
+lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> String
+lookupType child name attrMp childMp = tpStr where
+  attrTp     = Map.findWithDefault (error "lookupType: the attribute is not in the attrs of the child") name childAttrs
+  childAttrs = Map.findWithDefault (error "lookupType: the attributes of the nonterm are not in the map") nonterm attrMp
+  nonterm    = extractNonterminal childTp
+  childTp    = Map.findWithDefault (error ("lookupType: the child " ++ show child ++ "is not in the appropriate map")) child childMp
+  tpStr      = typeToHaskellString (Just nonterm) [] attrTp  -- takes care of SELF attributes
+}
 
 ATTR Expression [ | | semfunc : {PP_Doc} ]
 
 SEM Expression
-  | Expression lhs.attrs   = Set.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+  | Expression lhs.attrs   = Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
                lhs.semfunc = vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
 
 -- child visit map
@@ -641,23 +884,41 @@ SEM ExecutionPlan
 
 SEM Visit
   | Visit
-     loc.prevVisitInfo = Map.findWithDefault ManyNext @from @lhs.nextVisits
+     loc.prevVisitInfo = Map.findWithDefault ManyVis @from @lhs.nextVisits
      lhs.childvisit = Map.singleton @ident @loc.invokecode
      loc.invokecode = \chn ->   -- "chn" is the name of the child at the place of invocation
                         let pat   = @loc.addbang $ pp_parens $ pat0
                             pat0  = @loc.nameTOut_visit >#< (ppSpaced $ map (attrname True chn) $ Set.toList @syn)
                                                         >#< cont
                             cont  = case @loc.nextVisitInfo of
-                                      NoneNext -> empty
+                                      NoneVis  -> empty
                                       _        -> pp (locname chn)
                             expr = case @loc.prevVisitInfo of
-                                     NoneNext  -> error "error: invocation of a visit from a state that has no next visits"
-                                     OneNext _ -> "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn >#< args
-                                     ManyNext  -> "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
+                                     NoneVis  -> error "error: invocation of a visit from a state that has no next visits"
+                                     OneVis _ -> "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn >#< args
+                                     ManyVis  -> "inv_" >|< @lhs.nt >|< "_s" >|< @from >#< locname chn
                                                   >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< args
-                            args  = pp_parens args0
+                            args  = pp_parens args0 >#< args1
                             args0 = @loc.nameTIn_visit >#< @loc.inhargs chn
+                            args1 | dummyTokenVisit @lhs.options = pp $ dummyArg @lhs.options
+                                  | otherwise                    = empty
                         in (pat, expr)  -- pretty print of the pattern and the expression part
+
+-------------------------------------------------------------------------------
+--  Properties of rules
+-------------------------------------------------------------------------------
+
+-- Construct an environment that counts how often certain rules are used
+ATTR Visits Visit VisitSteps VisitStep [ | | ruleUsage USE {`unionWithSum`} {Map.empty} : {Map Identifier Int} ]
+ATTR ERules ERule [ usageInfo : {Map Identifier Int} | | ]
+
+SEM EProduction | EProduction  rules.usageInfo = @visits.ruleUsage
+SEM VisitStep | Sem            lhs.ruleUsage = Map.singleton @name 1
+SEM ERule | ERule              loc.used      = Map.findWithDefault 0 @name @lhs.usageInfo
+
+{
+unionWithSum = Map.unionWith (+)
+}
 
 -------------------------------------------------------------------------------
 --  Intra attributes
@@ -665,15 +926,21 @@ SEM Visit
 {
 uwSetUnion :: (Ord a, Ord b) => Map a (Set b) -> Map a (Set b) -> Map a (Set b)
 uwSetUnion = Map.unionWith Set.union
+
+uwMapUnion :: (Ord a, Ord b) => Map a (Map b c) -> Map a (Map b c) -> Map a (Map b c)
+uwMapUnion = Map.unionWith Map.union
 }
-ATTR Visit Visits [ allintramap : {Map StateIdentifier (Set String)}
-                    | | intramap USE {`uwSetUnion`} {Map.empty} : {Map StateIdentifier (Set String)} ]
+ATTR Visit Visits [ allintramap : {Map StateIdentifier (Map String (Maybe NonLocalAttr))}
+                    | | intramap USE {`uwMapUnion`} {Map.empty} : {Map StateIdentifier (Map String (Maybe NonLocalAttr))} ]
 
 ATTR Visit Visits [ terminaldefs : {Set String} | | ]
 ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set String} ]
 
 SEM EChild
-  | EChild lhs.terminaldefs = if isJust @virtual || isNonterminal @tp
+  | EChild loc.isVirtual = case @kind of
+                             ChildAttr -> True
+                             _         -> False
+           lhs.terminaldefs = if @loc.isVirtual || isNonterminal @tp
                               then Set.empty
                               else Set.singleton $ locname @name
 
@@ -682,17 +949,20 @@ SEM EProduction
                 visits.terminaldefs = @children.terminaldefs
 
 SEM Visit
-  | Visit loc.thisintra = (@loc.uses `Set.union` @loc.nextintra) `Set.difference` @loc.defs
+  | Visit loc.thisintra = (@loc.uses `Map.union` @loc.nextintra) `Map.difference` @loc.defsAsMap
           lhs.intramap  = Map.singleton @from @loc.thisintra
-          loc.nextintra = maybe Set.empty id $ Map.lookup @to @lhs.allintramap
-          loc.uses      = @steps.uses `Set.union` (Set.map (lhsname False) @syn)
+          loc.nextintra = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
+          loc.uses      = let mp1 = @steps.uses
+                              mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems @syn ]
+                          in mp1 `Map.union` mp2
           loc.defs      = @steps.defs `Set.union` (Set.map (lhsname True) @inh) `Set.union` @lhs.terminaldefs
+          loc.defsAsMap = Map.fromList [ (a, Nothing) | a <- Set.elems @loc.defs ]
 
 ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)}
-                        ruleuses USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)} ]
+                        ruleuses USE {`uwMapUnion`} {Map.empty} : {Map Identifier (Map String (Maybe NonLocalAttr))} ]
 ATTR Visit Visits
      VisitSteps VisitStep [ ruledefs  : {Map Identifier (Set String)}
-                            ruleuses  : {Map Identifier (Set String)} | | ]
+                            ruleuses  : {Map Identifier (Map String (Maybe NonLocalAttr))} | | ]
 
 SEM ERule
   | ERule lhs.ruledefs = Map.singleton @name @pattern.attrs
@@ -724,14 +994,15 @@ SEM ExecutionPlan
                   nonts.avisituses = @nonts.visituses
 
 ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set String}
-                                uses USE {`Set.union`} {Set.empty} : {Set String} ]
+                                uses USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
 SEM VisitStep
   | Sem        lhs.defs = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruledefs
                lhs.uses = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruleuses
-  | ChildIntro lhs.defs = Set.singleton $ locname @child
+  | ChildIntro lhs.defs = Set.singleton (locname @child)
   | ChildVisit lhs.defs = maybe (error "Visit not found") (Set.map $ attrname True @child) $ Map.lookup @visit @lhs.avisitdefs
-               lhs.uses = Set.insert (locname @child) $
-                             maybe (error "Visit not found") (Set.map $ attrname False @child) $ Map.lookup @visit @lhs.avisituses
+               lhs.uses = let convert attrs = Map.fromList [ (attrname False @child attr, Just $ mkNonLocalAttr True @child attr) | attr <- Set.elems attrs ]
+                          in Map.insert (locname @child) Nothing $ convert $
+                               maybe (error "Visit not found") id $ Map.lookup @visit @lhs.avisituses
 
 
 -------------------------------------------------------------------------------
@@ -774,11 +1045,15 @@ SEM ExecutionPlan
                                            @loc.genCommonModule
                                            @nonts.genProdIO
                   loc.mainModuleFile  = @lhs.mainFile
-                  loc.ppMonadImports  = if parallelInvoke @lhs.options
-                                        then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
-                                             >-< pp "import System.IO(IO)"
-                                             >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
-                                        else pp "import Control.Monad.Identity"
+                  loc.ppMonadImports  = ( if tupleAsDummyToken @lhs.options
+                                          then empty
+                                          else pp "import GHC.Prim"
+                                        )
+                                        >-< if parallelInvoke @lhs.options
+                                            then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
+                                                 >-< pp "import System.IO(IO)"
+                                                 >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
+                                            else pp "import Control.Monad.Identity"
                   loc.genMainModule   = writeModule @loc.mainModuleFile
                                           ( [ warrenFlagsPP @lhs.options
                                             , pp $ @lhs.pragmaBlocks
@@ -880,7 +1155,62 @@ SEM Pattern | Alias Constr Product
 --
 
 ATTR EProductions EProduction Visits Visit
-  [ nextVisits : {Map StateIdentifier WhatNext} | | ]
+  [ prevVisits, nextVisits : {Map StateIdentifier StateCtx} | | ]
 
 SEM ENonterminal | ENonterminal
   prods.nextVisits = @nextVisits
+  prods.prevVisits = @prevVisits
+
+--
+-- Collect and distribute the actual types of children of productions
+--
+
+ATTR EChildren EChild [ | | childTypes USE {`mappend`} {mempty} : {Map Identifier Type} ]
+ATTR ERules ERule [ childTypes : {Map Identifier Type} | | ]
+
+SEM EProduction | EProduction
+  loc.childTypes = Map.singleton _LHS @lhs.ntType `Map.union` @children.childTypes
+
+SEM EChild | EChild
+  lhs.childTypes = Map.singleton @name @tp
+
+--
+-- Distribute types of local attributes
+--
+
+ATTR ExecutionPlan ENonterminals ENonterminal  [ localAttrTypes : {Map NontermIdent (Map ConstructorIdent (Map Identifier Type))} | | ]
+ATTR EProductions EProduction                  [ localAttrTypes : {Map ConstructorIdent (Map Identifier Type)} | | ]
+ATTR ERules ERule                              [ localAttrTypes : {Map Identifier Type} | | ]
+
+SEM ENonterminal | ENonterminal
+  prods.localAttrTypes = Map.findWithDefault Map.empty @nt @lhs.localAttrTypes
+
+SEM EProduction | EProduction
+  loc.localAttrTypes   = Map.findWithDefault Map.empty @con @lhs.localAttrTypes
+
+--
+-- Push the nonterminal type downward
+--
+
+ATTR EProductions EProduction [ ntType : Type | | ]
+SEM ENonterminal | ENonterminal
+  loc.ntType = NT @nt (map show @params)
+
+
+-- Some pretty printing utility functions
+{
+ppNoInline :: PP a => a -> PP_Doc
+ppNoInline = ppPragmaBinding "NOINLINE"
+
+ppInline :: PP a => a -> PP_Doc
+ppInline = ppPragmaBinding "INLINE"
+
+ppInlinable :: PP a => a -> PP_Doc
+ppInlinable = ppPragmaBinding "INLINABLE"
+
+ppPragmaBinding :: (PP a, PP b) => a -> b -> PP_Doc
+ppPragmaBinding pragma nm = "{-#" >#< pragma >#< nm >#< "#-}"
+
+ppCostCentre :: PP a => a -> PP_Doc
+ppCostCentre nm = "{-#" >#< "SCC" >#< "\"" >|< nm >|< "\"" >#< "#-}"
+}

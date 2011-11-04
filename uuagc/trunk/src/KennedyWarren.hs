@@ -700,13 +700,15 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
     -- Find initial state for this nonterminal
     VGNode init <- vgFindInitial $ ndiNonterminal $ ndimOrig ndi
     -- Construct an environment that specifies the next visit of the states that have exactly one
-    singleNextMap <- mkNextMap init
+    nextMap <- mkNextMap init
+    prevMap <- mkPrevMap init
     -- Return execution plan for this nonterminal
     return $  ENonterminal (ndiNonterminal $ ndimOrig ndi)
                            (ndiParams      $ ndimOrig ndi)
                            init
                            initv
-                           singleNextMap
+                           nextMap
+                           prevMap
                            prods
   -- Return complete execution plan
   return $ ExecutionPlan nonts typesyns wr derivings
@@ -716,12 +718,14 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
 ------------------------------------------------------------
 
 -- depth-first traversal over the graph that starts at 'init' and maintains a state 'a'
-exploreGraph :: (VGNode -> Set VGEdge -> a -> VG s a) -> VGNode -> a -> VG s a
+-- the function 'f' can inspect the prev/next edges per state
+exploreGraph :: (VGNode -> Set VGEdge -> Set VGEdge -> a -> VG s a) -> VGNode -> a -> VG s a
 exploreGraph f (VGNode init) a0 = do
   exploredRef <- vgInST $ newSTRef IntSet.empty
   pendingRef  <- vgInST $ newSTRef [init]
   resRef      <- vgInST $ newSTRef a0
-  edgesMap    <- gets vgOutgoing
+  outgoingMap <- gets vgOutgoing
+  incomingMap <- gets vgIncoming
   edgesInfo   <- gets vgEdges
   let explore = do
         pending <- vgInST $ readSTRef pendingRef
@@ -734,26 +738,36 @@ exploreGraph f (VGNode init) a0 = do
               then return ()
               else do
                 vgInST $ writeSTRef exploredRef (IntSet.insert p explored)
-                case IntMap.lookup p edgesMap of
+                case IntMap.lookup p outgoingMap of
                   Nothing -> return ()
-                  Just edgesRef -> do
-                    edgeSet <- vgInST $ readSTRef edgesRef
-                    sol0    <- vgInST $ readSTRef resRef
-                    sol1    <- f (VGNode p) edgeSet sol0
-                    vgInST $ writeSTRef resRef sol1
-                    forM_ (Set.elems edgeSet) $ \(VGEdge edge) ->
-                      case IntMap.lookup edge edgesInfo of
-                        Nothing            -> return ()
-                        Just (_,VGNode to) -> vgInST $ modifySTRef pendingRef (to :)
+                  Just outRef -> case IntMap.lookup p outgoingMap of
+                    Nothing -> return ()
+                    Just inRef -> do
+                            outSet  <- vgInST $ readSTRef outRef
+                            inSet   <- vgInST $ readSTRef inRef
+                            sol0    <- vgInST $ readSTRef resRef
+                            sol1    <- f (VGNode p) inSet outSet sol0
+                            vgInST $ writeSTRef resRef sol1
+                            forM_ (Set.elems outSet) $ \(VGEdge edge) ->
+                              case IntMap.lookup edge edgesInfo of
+                                Nothing            -> return ()
+                                Just (_,VGNode to) -> vgInST $ modifySTRef pendingRef (to :)
             explore
   explore
   vgInST $ readSTRef resRef
 
-mkNextMap :: Int -> VG s (Map Int WhatNext)
+mkNextMap :: Int -> VG s (Map Int StateCtx)
 mkNextMap start = exploreGraph f (VGNode start) Map.empty where
-  f (VGNode nd) edges mp = return $ Map.insert nd v mp where
+  f (VGNode nd) _ edges = updateCountMap nd edges
+
+mkPrevMap :: Int -> VG s (Map Int StateCtx)
+mkPrevMap start = exploreGraph f (VGNode start) Map.empty where
+  f (VGNode nd) edges _ = updateCountMap nd edges
+
+updateCountMap :: Int -> Set VGEdge -> Map Int StateCtx -> VG s (Map Int StateCtx)
+updateCountMap nd edges mp = return $ Map.insert nd v mp where
     s = Set.size edges
-    v | s == 0    = NoneNext
+    v | s == 0    = NoneVis
       | s == 1    = let [VGEdge v] = Set.elems edges
-                    in OneNext v
-      | otherwise = ManyNext
+                    in OneVis v
+      | otherwise = ManyVis

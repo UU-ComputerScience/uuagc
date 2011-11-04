@@ -78,6 +78,18 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
                , Option []        ["nooptimize"]         (NoArg noOptimizeOpt) "Disable optimizations"
                , Option []        ["parallel"]           (NoArg parallelOpt) "Generate a parallel evaluator (if possible)"
+
+               , Option []        ["helpinlining"]            (NoArg helpInliningOpt) "Generate inline directives for GHC"
+               , Option []        ["dummytokenvisit"]         (NoArg dummyTokenVisitOpt) "Add an additional dummy parameter to visit functions"
+               , Option []        ["tupleasdummytoken"]       (NoArg tupleAsDummyTokenOpt) "Use conventional tuples as dummy tokens instead of a RealWorld state token"
+               , Option []        ["strictdummytoken"]        (NoArg strictDummyTokenOpt) "Strictify the dummy token that makes states and rules functions"
+               , Option []        ["noperruletypesigs"]       (NoArg noPerRuleTypeSigsOpt) "Do not generate type sigs for attrs passed to rules"
+               , Option []        ["noperstatetypesigs"]      (NoArg noPerStateTypeSigsOpt) "Do not generate type sigs for attrs saved in node states"
+               , Option []        ["noeagerblackholing"]      (NoArg noEagerBlackholingOpt) "Do not automatically add the eager blackholing feature for parallel programs"
+               , Option []        ["noperrulecostcentres"]    (NoArg noPerRuleCostCentresOpt) "Do not generate cost centres for rules"
+               , Option []        ["nopervisitcostcentres"]   (NoArg noPerVisitCostCentresOpt) "Do not generate cost centres for visits"
+               , Option []        ["noinlinepragmas"]         (NoArg noInlinePragmasOpt) "Definitely not generate inline directives"
+               , Option []        ["aggressiveinlinepragmas"] (NoArg aggressiveInlinePragmasOpt) "Generate more aggressive inline directives"
                ]
 
 allc = "dcfsprm"
@@ -120,9 +132,6 @@ data Options = Options{ moduleName :: ModuleHeader
                       , wmaxerrs :: Int
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
-                      , genTraces :: Bool
-                      , genUseTraces :: Bool
-                      , genCostCentres :: Bool
                       , sepSemMods :: Bool
                       , genFileDeps :: Bool
                       , genLinePragmas :: Bool
@@ -145,9 +154,30 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseTy :: Bool
                       , checkParseBlock :: Bool
                       , nocatas :: Set NontermIdent
-                      , kennedyWarren :: Bool
+
                       , noOptimizations :: Bool
-                      , parallelInvoke :: Bool
+
+                      -- KW code path
+                      , kennedyWarren       :: Bool
+                      , parallelInvoke      :: Bool
+                      , tupleAsDummyToken   :: Bool  -- use the empty tuple as dummy token instead of State# RealWorld (Lambda State Hack GHC?)
+                      , dummyTokenVisit     :: Bool  -- add a dummy argument/pass dummy extra token to visits (should not really have an effect ... Lambda State Hack GHC?)
+                      , strictDummyToken    :: Bool  -- make the dummy token strict (to prevent its removal -- should not really have an effect)
+                      , noPerRuleTypeSigs   :: Bool  -- do not print type signatures for attributes of rules
+                      , noPerStateTypeSigs  :: Bool  -- do not print type signatures for attributes contained in the state
+                      , noEagerBlackholing  :: Bool  -- disable the use of eager black holing in the parallel evaluator code
+
+                      -- tracing
+                      , genTraces :: Bool
+                      , genUseTraces :: Bool
+                      , genCostCentres :: Bool
+                      , noPerRuleCostCentres :: Bool
+                      , noPerVisitCostCentres :: Bool
+
+                      -- inline pragma generation
+                      , helpInlining :: Bool
+                      , noInlinePragmas :: Bool
+                      , aggressiveInlinePragmas :: Bool
                       } deriving Show
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -187,9 +217,6 @@ noOptions = Options { moduleName    = NoName
                     , wmaxerrs      = 99999
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
-                    , genTraces     = False
-                    , genUseTraces  = False
-                    , genCostCentres = False
                     , sepSemMods     = False
                     , genFileDeps    = False
                     , genLinePragmas = False
@@ -212,9 +239,29 @@ noOptions = Options { moduleName    = NoName
                     , checkParseTy  = False
                     , checkParseBlock = False
                     , nocatas         = Set.empty
-                    , kennedyWarren   = False
                     , noOptimizations = False
-                    , parallelInvoke  = False
+
+                    -- defaults for the KW-code path
+                    , kennedyWarren       = False
+                    , parallelInvoke      = False
+                    , tupleAsDummyToken   = False
+                    , dummyTokenVisit     = False
+                    , strictDummyToken    = False
+                    , noPerRuleTypeSigs   = False
+                    , noPerStateTypeSigs  = False
+                    , noEagerBlackholing  = False
+
+                    -- defaults for tracing
+                    , genTraces     = False
+                    , genUseTraces  = False
+                    , genCostCentres = False
+                    , noPerRuleCostCentres  = False
+                    , noPerVisitCostCentres = False
+
+                    -- defaults for inline pragma generation
+                    , helpInlining    = False
+                    , noInlinePragmas = False
+                    , aggressiveInlinePragmas = False
                     }
 
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
@@ -261,6 +308,19 @@ genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
 genAspectAGOpt opts = opts{genAspectAG = True}
+
+dummyTokenVisitOpt opts         = opts { dummyTokenVisit = True }
+tupleAsDummyTokenOpt opts       = opts { tupleAsDummyToken = True }
+strictDummyTokenOpt opts        = opts { strictDummyToken = True }
+noPerRuleTypeSigsOpt opts       = opts { noPerRuleTypeSigs = True }
+noPerStateTypeSigsOpt opts      = opts { noPerStateTypeSigs = True }
+noEagerBlackholingOpt opts      = opts { noEagerBlackholing = True }
+noPerRuleCostCentresOpt opts    = opts { noPerRuleCostCentres = True }
+noPerVisitCostCentresOpt opts   = opts { noPerVisitCostCentres = True }
+helpInliningOpt opts            = opts { helpInlining = True }
+noInlinePragmasOpt opts         = opts { noInlinePragmas = True }
+aggressiveInlinePragmasOpt opts = opts { aggressiveInlinePragmas = True }
+
 noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
   where extract s = case dropWhile isSeparator s of
                                 "" -> []
@@ -337,10 +397,16 @@ data ModuleHeader  = NoName
 -- but it needs to be in some common module
 warrenFlagsPP :: Options -> PP_Doc
 warrenFlagsPP options = vlist
-  [ pp "{-# LANGUAGE Rank2Types, GADTs, EmptyDataDecls #-}"
+  [ pp "{-# LANGUAGE Rank2Types, GADTs #-}"
   , if bangpats options
     then pp "{-# LANGUAGE BangPatterns #-}"
     else empty
+  , if noPerRuleTypeSigs options && noPerStateTypeSigs options
+    then empty
+    else pp "{-# LANGUAGE ScopedTypeVariables #-}"
+  , if tupleAsDummyToken options
+    then empty
+    else pp "{-# LANGUAGE ScopedTypeVariables, MagicHash #-}"
   , -- not that the meaning of "unbox" is here that strict fields in data types may be
     -- unboxed if possible. This may affect user-defined data types declared in the module.
     -- Unfortunately, we cannot turn it on for only the AG generated data types without
@@ -348,7 +414,7 @@ warrenFlagsPP options = vlist
     if unbox options && bangpats options
         then pp $ "{-# OPTIONS_GHC -funbox-strict-fields -fstrictness #-}"
         else empty
-  , if parallelInvoke options
+  , if parallelInvoke options && not (noEagerBlackholing options)
     then pp $ "{-# OPTIONS_GHC -feager-blackholing #-}"
     else empty
   ]

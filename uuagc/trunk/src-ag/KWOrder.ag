@@ -65,7 +65,7 @@ ATTR Child    [ | | echilds : EChild ]
 ATTR Children [ | | echilds USE {:} {[]} : EChildren ]
 
 SEM Child
-  | Child lhs.echilds = EChild @name @tp @virtual
+  | Child lhs.echilds = EChild @name @tp @kind
 
 -------------------------------------------------------------------------------
 --         Dependency graph per production
@@ -204,3 +204,14 @@ ATTR Nonterminal [ | | inhmap : {Map.Map NontermIdent Attributes}
 SEM Nonterminal
   | Nonterminal lhs.inhmap = Map.singleton @nt @inh
     		lhs.synmap = Map.singleton @nt @syn
+
+-------------------------------------------------------------------------------
+--         Output nonterminal type mappings
+-------------------------------------------------------------------------------
+ATTR Grammar Nonterminals Nonterminal [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent (Map.Map ConstructorIdent (Map.Map Identifier Type))} ]
+ATTR Productions Production           [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map.Map ConstructorIdent (Map.Map Identifier Type)} ]
+ATTR TypeSigs TypeSig                 [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map Identifier Type} ]
+
+SEM Nonterminal | Nonterminal  lhs.localSigMap = Map.singleton @nt @prods.localSigMap
+SEM Production | Production    lhs.localSigMap = Map.singleton @con @typeSigs.localSigMap
+SEM TypeSig | TypeSig          lhs.localSigMap = Map.singleton @name @tp

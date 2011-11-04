@@ -67,7 +67,7 @@ SEM  Production
 
 -- Collecting fields
 ATTR Rule Rules
-     Child Children [allfields:{[(Identifier,Type,Maybe (Maybe Type))]} attrs:{[(Identifier,Identifier)]} | | ]
+     Child Children [allfields:{[(Identifier,Type,ChildKind)]} attrs:{[(Identifier,Identifier)]} | | ]
 
 SEM Production
   | Production loc.allfields  = @children.fields
@@ -82,10 +82,10 @@ ATTR Children [ | | attributes USE {++} {[]} : {[(Identifier,Attributes,Attribut
 SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
   | Child lhs.attributes = [(@name, @inh, @syn)]
 
-SEM Child [ | | field : {(Identifier,Type,Maybe (Maybe Type))} ]
-  | Child lhs.field = (@name, @tp, @virtual)
+SEM Child [ | | field : {(Identifier,Type,ChildKind)} ]
+  | Child lhs.field = (@name, @tp, @kind)
 
-SEM Children [ | | fields : {[(Identifier,Type,Maybe (Maybe Type))]} ]
+SEM Children [ | | fields : {[(Identifier,Type,ChildKind)]} ]
   | Cons  lhs.fields = @hd.field : @tl.fields
   | Nil   lhs.fields = []
 
@@ -135,7 +135,7 @@ ATTR Rules Rule Children Child Expression [ mergeMap : {Map Identifier (Identifi
 --
 
 ATTR Expression [ nt,con   :{Identifier}
-                  allfields:{[(Identifier,Type,Maybe (Maybe Type))]}
+                  allfields:{[(Identifier,Type,ChildKind)]}
                   allnts   :{[Identifier]}
                   attrs    :{[(Identifier,Identifier)]}
                 || ]
