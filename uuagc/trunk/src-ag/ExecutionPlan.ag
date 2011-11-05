@@ -4,6 +4,7 @@ imports
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
 import CommonTypes
+import ErrorMessages
 
 import qualified Data.Set as Set
 import Data.Set(Set)
@@ -49,9 +50,10 @@ DATA ERule        | ERule       name     : {Identifier}
                                 pattern  : Pattern
                                 rhs      : Expression
                                 owrt     : {Bool}
-                                origin   : String  -- just for documentation (and maybe errors)
-                                explicit : Bool  -- True if this rule defined in the source code
-                                pure     : Bool  -- True if this rule is pure (not monadic/no side effect)
+                                origin   : String           -- just for documentation (and maybe errors)
+                                explicit : Bool             -- True if this rule defined in the source code
+                                pure     : Bool             -- True if this rule is pure (not monadic/no side effect)
+                                mbError  : {Maybe Error}    -- the rule may contain an error that is yielded when the rule is scheduled
 
 DATA Visit        | Visit       ident    : {VisitIdentifier}
      		    		from     : {StateIdentifier}

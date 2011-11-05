@@ -51,6 +51,14 @@ SEM Grammar
                 nonts.cr        = modcopy   @lhs.options
 
 -------------------------------------------------------------------------------
+--         Passing down the set of wrapper names
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal Productions Production [ wrappers : {Set NontermIdent} | | ]
+SEM Grammar | Grammar
+  nonts.wrappers = @wrappers
+
+-------------------------------------------------------------------------------
 -- Type synonyms environment
 -------------------------------------------------------------------------------
 ATTR Nonterminals Nonterminal Productions Production [ typeSyns : {TypeSyns} | | ]
@@ -212,8 +220,8 @@ missingRuleErrorExpr nt con fld a
 
 
 
-makeRule :: (Identifier,Identifier) -> Expression -> String -> Bool -> Rule
-makeRule (f1,a1) expr origin identity
+makeRule :: (Identifier,Identifier) -> Expression -> String -> Bool -> Maybe Error -> Rule
+makeRule (f1,a1) expr origin identity mbDelayedError
  = Rule Nothing
         (Alias f1 a1 (Underscore noPos))
         expr
@@ -222,6 +230,7 @@ makeRule (f1,a1) expr origin identity
         False
         True
         identity
+        mbDelayedError
 
 
 useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
@@ -247,6 +256,7 @@ useRule locals ch_outs (n,(op,e,pos))
                 (Expression noPos tks)
                 ("use rule " ++ pos)
                 False
+                Nothing
 
 
 
@@ -262,6 +272,7 @@ selfRule lhsNecLoc attr x
                (Expression noPos tks)
                "self rule"
                False
+               Nothing
 
 
 
@@ -270,8 +281,8 @@ concatRE rsess = let (rss,ess) = unzip rsess
                  in (concat rss, concatSeq ess)
 
 
-copyRule :: Identifier -> Identifier -> Bool -> Set Identifier -> (Map Identifier Identifier, (Identifier,[Identifier])) -> ([Rule], Seq Error)
-copyRule nt con modcopy locals (env,(fld,as))
+copyRule :: Options -> Set NontermIdent -> Identifier -> Identifier -> Bool -> Set Identifier -> (Map Identifier Identifier, (Identifier,[Identifier])) -> ([Rule], Seq Error)
+copyRule options wrappers nt con modcopy locals (env,(fld,as))
  = concatRE (map copyRu as)
 
  where
@@ -280,6 +291,7 @@ copyRule nt con modcopy locals (env,(fld,as))
                           (Expression noPos tks)
                           (cruletxt sel)
                           True
+                          mbDelayedErr
                ]
              , err
              )
@@ -290,30 +302,21 @@ copyRule nt con modcopy locals (env,(fld,as))
                  && Set.member a locals  =  Just _LOC
                | otherwise               =  Map.lookup a env
 
-              (expr,err)
+              (tks,err,mbDelayedErr)
                = case sel of
-                  Nothing         -> ( missingRuleErrorExpr nt con fld a
-                                     , Seq.singleton (MissingRule nt con fld a)
-                                     )
-                  Just f
-                   | f == _ACHILD -> ( fieldName a
-                                     , Seq.singleton (deprecatedCopyRuleError nt con fld a)
-                                     )
-                   | otherwise    -> ( attrName f a
-                                     , Seq.empty
-                                     )
-
-              (tks,err')
-               = case sel of
-                  Nothing         -> ( [HsToken (missingRuleErrorExpr nt con fld a) noPos]
-                                     , Seq.singleton (MissingRule nt con fld a)
-                                     )
+                  Nothing         -> let tks = [HsToken (missingRuleErrorExpr nt con fld a) noPos]
+                                         err = MissingRule nt con fld a
+                                     in if nt `Set.member` wrappers && kennedyWarren options
+                                        then (tks, Seq.empty, Just err)  -- yield error only if the rule is actually scheduled; for kennedyWarren code gen only
+                                        else (tks, Seq.singleton err, Nothing)
                   Just f
                    | f == _ACHILD -> ( [AGLocal a noPos Nothing]
                                      , Seq.singleton (deprecatedCopyRuleError nt con fld a)
+                                     , Nothing
                                      )
                    | otherwise    -> ( [AGField f a noPos Nothing]
                                      , Seq.empty
+                                     , Nothing
                                      )
 
               cruletxt sel
@@ -370,7 +373,7 @@ SEM Production
           = splitAttrs @lhs.useMap undefAttrs
 
         (rules1, errors1)
-          = concatRE $ map (copyRule @lhs.nt @con @lhs.cr locals)
+          = concatRE $ map (copyRule @lhs.options @lhs.wrappers @lhs.nt @con @lhs.cr locals)
                            (zip envs (map (removeDefined @rules.definedAttrs) @children.inputs))
 
         uRules
@@ -402,7 +405,9 @@ SEM Production
             ]
 
         (rules5, errs5)
-          = copyRule @lhs.nt
+          = copyRule @lhs.options
+                     @lhs.wrappers
+                     @lhs.nt
                      @con
                      @lhs.cr
                      locals
@@ -416,17 +421,17 @@ addAugments (_, exprs) rules
 addAugments (syn, exprs) rules
   = [rule] ++ funRules ++ map modify rules
   where
-    rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False
+    rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False Nothing
     rhs  = Expression noPos tks
     tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "augment function" False True False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "augment function" False True False Nothing) funNames exprs
 
-    modify (Rule mbNm pat rhs owrt origin expl pure identity)
-      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity
+    modify (Rule mbNm pat rhs owrt origin expl pure identity mbErr)
+      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity mbErr
     modify r = r
 
     containsSyn (Constr _ pats)   = any containsSyn pats
@@ -448,20 +453,20 @@ addArounds (_, exprs) rules | null exprs = rules
 addArounds (child, exprs) rules
   = [rule] ++ funRules ++ rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False Nothing
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "around function" False True False) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "around function" False True False Nothing) funNames exprs
 
 addMerges :: (Identifier, (Identifier,[Identifier],Expression)) -> [Rule] -> [Rule]
 addMerges (target,(_,_,expr)) rules
   = rule : rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) expr False "merge rule" False True False
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) expr False "merge rule" False True False Nothing
     childLoc = Ident (show target ++ "_merge") (getPos target)
 }
 
@@ -535,13 +540,13 @@ SEM Rule
 -- and a modified rule that refers to the alias
 -- Thus it removes rule names from rules
 mkRuleAlias :: Rule -> (Rule, Maybe Rule)
-mkRuleAlias r@(Rule Nothing _ _ _ _ _ _ _) = (r, Nothing)
-mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity) = (r', Just alias) where
-  alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity
+mkRuleAlias r@(Rule Nothing _ _ _ _ _ _ _ _) = (r, Nothing)
+mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity mbErr) = (r', Just alias) where
+  alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity mbErr
   pos   = getPos nm
   expr' = Expression pos tks
   tks   = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
-  r'    = Rule Nothing pat expr' owrt origin False True identity
+  r'    = Rule Nothing pat expr' owrt origin False True identity Nothing
 }
 
 
@@ -573,7 +578,7 @@ becomes
 -}
 
 multiRule :: Rule -> Int -> ([Rule], Int)
-multiRule (Rule _ pat expr owrt origin expl pure identity) uniq
+multiRule (Rule _ pat expr owrt origin expl pure identity mbErr) uniq
   =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
          f expl' w e (Product pos pats) n
            = let freshName = Ident ("_tup" ++ show n) pos
@@ -587,13 +592,13 @@ multiRule (Rule _ pat expr owrt origin expl pure identity) uniq
                                       in  (x2:xs1, rs2++rs1, n2)
                  (xs9,rs9,n9) = foldr g ([], [], n+1) pats
              in  ( freshPat
-                 , ( Rule Nothing (w freshPat) e owrt origin expl' True False : rs9
+                 , ( Rule Nothing (w freshPat) e owrt origin expl' True False mbErr : rs9
                    , n9
                    )
                  )
          f expl' w e p n
            = ( p
-             , ( [Rule Nothing (w p) e owrt origin expl' True False]
+             , ( [Rule Nothing (w p) e owrt origin expl' True False mbErr]
                , n
                )
              )

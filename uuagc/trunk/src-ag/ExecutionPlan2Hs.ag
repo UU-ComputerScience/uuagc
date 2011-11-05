@@ -19,11 +19,14 @@ import UU.Scanner.Position
 
 import TokenDef
 import HsToken
+import ErrorMessages
 
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Sequence(Seq)
+import qualified Data.Sequence as Seq
 }
 
 ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule
@@ -1195,6 +1198,17 @@ SEM EProduction | EProduction
 ATTR EProductions EProduction [ ntType : Type | | ]
 SEM ENonterminal | ENonterminal
   loc.ntType = NT @nt (map show @params)
+
+--
+-- Collect errors contained in rules that should be yielded when the
+-- rules are scheduled.
+--
+
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
+SEM ERule | ERule
+  lhs.errors = case @mbError of
+                 Just e | @loc.used > 0 -> Seq.singleton e
+                 _                      -> Seq.empty
 
 
 -- Some pretty printing utility functions
