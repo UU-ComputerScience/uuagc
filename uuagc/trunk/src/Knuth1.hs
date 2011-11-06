@@ -66,7 +66,7 @@ type IEdge = (IVertex, IVertex)
 
 -- Representation of the graph
 data DependencyGraph s = DependencyGraph { vertexIMap   :: Map   Vertex  IVertex
-                                         , vertexOMap   :: Array IVertex Vertex 
+                                         , vertexOMap   :: Array IVertex Vertex
                                          , successors   :: Array IVertex (STRef s (Set IVertex))
                                          , predecessors :: Array IVertex (STRef s (Set IVertex)) }
 
@@ -190,11 +190,22 @@ graphInsertEdgesTRC g ed = do -- rets :: [[(IVertex, Set IVertex)]]
 
 -- | Check whether the graph is cyclic
 graphIsCyclic :: DependencyGraph s -> ST s Bool
-graphIsCyclic g = do vs <- return $ Array.indices $ vertexOMap g
-                     selfcyc <- forM vs $ \v -> do
-                       sucs <- readSTRef $ (successors g) Array.! v
-                       return $ v `Set.member` sucs
-                     return $ or selfcyc
+graphIsCyclic g = do
+  s <- graphCyclicVertices g
+  return $ not $ Set.null s
+
+graphCyclicVertices :: DependencyGraph s -> ST s (Set IVertex)
+graphCyclicVertices g = do
+  vs <- return $ Array.indices $ vertexOMap g
+  sets <- forM vs $ \v -> do
+            sucs <- readSTRef $ (successors g) Array.! v
+            let res | v `Set.member` sucs = Set.singleton v
+                    | otherwise           = Set.empty
+            return res
+  return (Set.unions sets)
+
+graphCyclicVerticesExt :: DependencyGraph s -> ST s [Vertex]
+graphCyclicVerticesExt g = (map (graphGetVertex g) . Set.elems) `fmap` graphCyclicVertices g
 
 -- | Get internal representation of a vertex
 graphGetIVertex :: DependencyGraph s -> Vertex -> IVertex
@@ -244,7 +255,7 @@ graphTopSort g = do let vs = Array.indices $ vertexOMap g
                       let edg = graphGetEdge g (v2,v1) -- order is actually reverse order
                       ce <- graphContainsEdge g edg
                       if ce
-                        then return Nothing                
+                        then return Nothing
                         else do graphInsert g edg
                                 return $ Just edg
                     return $ catMaybes mb
@@ -261,7 +272,7 @@ graphTopSort' g prev cur | cur `elem` prev = return prev
 -------------------------------------------------------------------------------
 
 -- | Special wrapper for nonterminal dependency graphs (so that we can easily add other meta-information)
-data NontDependencyGraph = NontDependencyGraph { ndgVertices    :: [Vertex] 
+data NontDependencyGraph = NontDependencyGraph { ndgVertices    :: [Vertex]
                                                , ndgEdges       :: [Edge] }
 
 -- | Special wrapper for production dependency graphs, including mapping between child names and nonterminals
@@ -284,7 +295,7 @@ data NontDependencyInformation = NontDependencyInformation { ndiNonterminal :: I
 --- Monadic versions of these records, for use with the ST monad
 
 -- | Monadic wrapper of NontDependencyGraph
-data NontDependencyGraphM s = NontDependencyGraphM { ndgmDepGraph :: DependencyGraph s 
+data NontDependencyGraphM s = NontDependencyGraphM { ndgmDepGraph :: DependencyGraph s
                                                    , ndgmOrig     :: NontDependencyGraph }
 
 -- | Monadic wrapper of ProdDependencyGraph
@@ -301,7 +312,7 @@ data NontDependencyInformationM s = NontDependencyInformationM { ndimOrig       
 -- | Convert a NontDependencyGraph to the corresponding monadic version
 mkNontDependencyGraphM :: NontDependencyGraph -> ST s (NontDependencyGraphM s)
 mkNontDependencyGraphM ndg = do g <- graphConstructTRC (ndgVertices ndg) (ndgEdges ndg)
-                                return $ NontDependencyGraphM { ndgmDepGraph = g 
+                                return $ NontDependencyGraphM { ndgmDepGraph = g
                                                               , ndgmOrig     = ndg }
 
 
@@ -358,7 +369,7 @@ undoTransitiveClosure ndis = do edgesl <- mapM (\ndi -> graphEdges (ndgmDepGraph
 knuth1 :: [NontDependencyInformationM s] -> ST s ()
 knuth1 ndis = do -- Create initial list of pending edges for each ndi per production (initially all prod edges)
 --               pndis :: [([[Edge]], NontDependencyInformation)]
-                 pndis <- forM ndis $ \ndi -> do 
+                 pndis <- forM ndis $ \ndi -> do
                    ipend <- mapM (graphEdges . pdgmDepGraph) . ndimProds $ ndi
                    return (ipend, ndi)
                  knuth1' pndis
