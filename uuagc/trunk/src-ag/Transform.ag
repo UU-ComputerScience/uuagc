@@ -810,6 +810,7 @@ SEM Elem
                                          "helpinlining" -> o { helpInlining = True }
                                          "noinlinepragmas" -> o { noInlinePragmas = True }
                                          "aggressiveinlinepragmas" -> o { aggressiveInlinePragmas = True }
+                                         "latehigherorderbindings" -> o { lateHigherOrderBinding = True }
 
                                          _              -> o
                           in \o -> foldr mk o @names

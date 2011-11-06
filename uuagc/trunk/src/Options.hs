@@ -90,6 +90,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["nopervisitcostcentres"]   (NoArg noPerVisitCostCentresOpt) "Do not generate cost centres for visits"
                , Option []        ["noinlinepragmas"]         (NoArg noInlinePragmasOpt) "Definitely not generate inline directives"
                , Option []        ["aggressiveinlinepragmas"] (NoArg aggressiveInlinePragmasOpt) "Generate more aggressive inline directives"
+               , Option []        ["latehigherorderbinding"]  (NoArg lateHigherOrderBindingOpt) "Generate an attribute and wrapper for late binding of higher-order attributes"
                ]
 
 allc = "dcfsprm"
@@ -166,6 +167,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , noPerRuleTypeSigs   :: Bool  -- do not print type signatures for attributes of rules
                       , noPerStateTypeSigs  :: Bool  -- do not print type signatures for attributes contained in the state
                       , noEagerBlackholing  :: Bool  -- disable the use of eager black holing in the parallel evaluator code
+                      , lateHigherOrderBinding :: Bool  -- generate code to allow late binding of higher-order children semantics
 
                       -- tracing
                       , genTraces :: Bool
@@ -250,6 +252,7 @@ noOptions = Options { moduleName    = NoName
                     , noPerRuleTypeSigs   = False
                     , noPerStateTypeSigs  = False
                     , noEagerBlackholing  = False
+                    , lateHigherOrderBinding = False
 
                     -- defaults for tracing
                     , genTraces     = False
@@ -320,6 +323,7 @@ noPerVisitCostCentresOpt opts   = opts { noPerVisitCostCentres = True }
 helpInliningOpt opts            = opts { helpInlining = True }
 noInlinePragmasOpt opts         = opts { noInlinePragmas = True }
 aggressiveInlinePragmasOpt opts = opts { aggressiveInlinePragmas = True }
+lateHigherOrderBindingOpt opts  = opts { lateHigherOrderBinding = True }
 
 noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
   where extract s = case dropWhile isSeparator s of

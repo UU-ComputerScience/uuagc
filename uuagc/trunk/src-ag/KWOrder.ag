@@ -144,7 +144,7 @@ ATTR Child Children [ | | nontnames USE {++} {[]} : {[(Identifier, Identifier)]}
 
 SEM  Child
   |  Child lhs.nontnames = case @tp of
-     	   		     NT nont _ -> [(@name, nont)]
+     	   		     NT nont _ -> [(@name, maybe nont id $ deforestedNt nont)]
 			     _         -> []
 
 -- Return a dependency graph for each production

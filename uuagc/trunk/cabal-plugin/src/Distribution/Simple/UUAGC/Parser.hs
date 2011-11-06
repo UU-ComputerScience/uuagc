@@ -25,7 +25,7 @@ instance Error ParserError where
 booleanFlags
   = [ "helpinlining","dummytokenvisit","tupleasdummytoken","strictdummytoken","noperruletypesigs"
     , "noperstatetypesigs", "noeagerblackholing","noperrulecostcentres","nopervisitcostcentres"
-    ,"noinlinepragmas","aggressiveinlinepragmas"
+    ,"noinlinepragmas","aggressiveinlinepragmas","latehigherorderbinding"
     ]
 
 uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
