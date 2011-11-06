@@ -8,8 +8,15 @@ import ErrorMessages
 import Options
 import Data.List(mapAccumL,intersect,(\\))
 import GrammarInfo
+import qualified Control.Monad.Error.Class as Err
 }
 
+
+{
+instance Err.Error Error where
+  noMsg  = Err.strMsg "error"
+  strMsg = CustomError False noPos . pp
+}
 
 
 {
@@ -45,6 +52,7 @@ isError opts (MissingSyn      _ _      ) = True
 isError opts (MissingNamedRule _ _ _)    = True
 isError opts (DupRuleName _ _ _)         = True
 isError opts (HsParseError _ _)          = True
+isError opts (Cyclic _ _ _)              = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -378,6 +386,21 @@ SEM Error
                                                ]
                                  act  = wfill ["The nonterminal set", getName @name, "is considered to be empty."]
                              in ppError (isError @lhs.options @me) (getPos @name) mesg pat help act @lhs.verbose
+
+  | Cyclic          lhs.pp = let pos  = getPos @nt
+                                 mesg = text "Circular dependency for nonterminal" >#< getName @nt
+                                        >#< ( case @mbCon of
+                                                Nothing  -> empty
+                                                Just con -> text "and constructor" >#< con
+                                            )
+                                        >#< ( case @verts of
+                                                  v : _ -> text "including vertex" >#< text v
+                                                  _     -> empty
+                                            )
+                                 pat  = text "cyclic rule definition"
+                                 help = hlist (text "The following attributes are all cyclic: " : map text @verts)
+                                 act  = wfill ["code cannot be generated until the cycle is removed."]
+                             in ppError (isError @lhs.options @me) pos mesg pat help act False
 
   | CustomError     lhs.pp = let pat   =  text "unknown"
                                  help = wfill ["not available."]

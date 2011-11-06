@@ -9,10 +9,13 @@ import Debug.Trace
 import Control.Monad.ST
 import Control.Monad.State
 import Control.Monad.Error
+import Control.Monad.Trans
 import Data.STRef
 import Data.Maybe
 import Data.List
 import Data.Ord
+import qualified ErrorMessages as Err
+import PrintErrorMessages
 
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -22,57 +25,72 @@ import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
+import Data.Sequence(Seq)
+import qualified Data.Sequence as Seq
 
 
-kennedyWarrenOrder :: Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Maybe (ExecutionPlan, PP_Doc, PP_Doc)
-kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
-  indi <- mapM mkNontDependencyInformationM ndis
-  knuth1 indi
+kennedyWarrenOrder :: Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Either Err.Error (ExecutionPlan, PP_Doc, PP_Doc)
+kennedyWarrenOrder wr ndis typesyns derivings = runST $ runErrorT $ do
+  indi <- lift $ mapM mkNontDependencyInformationM ndis
+  lift $ knuth1 indi
   -- Check all graphs for cyclicity, transitive closure and consistency
-  traceST $ "Checking graphs..."
-  allok <- forM indi $ \ndi -> do
+  -- traceST $ "Checking graphs..."
+  forM_ indi $ \ndi -> do
     let nont = ndiNonterminal . ndimOrig $ ndi
     let g = ndgmDepGraph . ndimDepGraph $ ndi
     -- Topological sort
     --tsedg <- graphTopSort g
     -- Cyclicity check
-    c1 <- graphIsCyclic g
-    when c1 $ traceST $ "Nonterminal graph " ++ show nont ++ " is cylic!"
+    ntCycVerts <- lift $ graphCyclicVerticesExt g
+    when (not $ null ntCycVerts) $ do
+      throwError $ Err.Cyclic nont Nothing (map show ntCycVerts)
+--      let msg = "Nonterminal graph " ++ show nont ++ " is cylic!"
+--      fail msg
     -- Transtive closure check
-    --trc <- graphIsTRC g
-    --when (not trc) $ traceST $ "Nonterminal graph " ++ show nont ++ " is not transitively closed!"
+    trc <- lift $ graphIsTRC g
+    when (not trc) $ do
+      let msg = "Nonterminal graph " ++ show nont ++ " is not transitively closed!"
+      fail msg
     -- Consistency check
-    cons <- graphCheckConsistency g
-    when (not cons) $ traceST $ "Nonterminal graph " ++ show nont ++ " is not consistent!"
+    cons <- lift $ graphCheckConsistency g
+    when (not cons) $ do
+      let msg = "Nonterminal graph " ++ show nont ++ " is not consistent!"
+      fail msg
+
     -- Loop trough all productions
-    allok <- forM (ndimProds ndi) $ \prod -> do
+    forM_ (ndimProds ndi) $ \prod -> do
       let pr = pdgProduction $ pdgmOrig prod
       let g = pdgmDepGraph $ prod
       -- Topsort
       --addTopSortEdges tsedg prod
       -- Check for cyclicity
-      c2 <- graphIsCyclic g
-      when c2 $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
-                          ++ show nont ++ " is cylic!"
+      pdCycVerts <- lift $ graphCyclicVerticesExt g
+      when (not $ null pdCycVerts) $ do
+        throwError $ Err.Cyclic nont (Just pr) (map show pdCycVerts)
+        -- let msg = "Production graph " ++ show pr ++ " of nonterminal "
+        --                               ++ show nont ++ " is cylic!"
+        -- fail msg
       -- Transtive closure check
-      trc <- graphIsTRC g
-      when (not trc) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
-                                 ++ show nont ++ " is not transitively closed!"
+      trc <- lift $ graphIsTRC g
+      when (not trc) $ do
+        lift $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
+                                             ++ show nont ++ " is not transitively closed!"
+        fail "Production graph is not transitively closed."
       -- Check consistency
-      cons <- graphCheckConsistency g
-      when (not cons) $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
-                                 ++ show nont ++ " is not consistent!"
-      return $ (not c2) && trc && cons
-    return $ (and allok) && (not c1) && cons
-  if (and allok)
-    then do
-       -- Create non-transitive closed graph for efficiency
-       indi <- undoTransitiveClosure indi
-       -- Graphviz output of dependency graphs
-       gvs <- mapM toGVNontDependencyInfo indi
-       -- Doing kennedywarren
-       (ret, visitg) <- runVG $ do
-         traceVG $ "Running kennedy-warren..."
+      cons <- lift $ graphCheckConsistency g
+      when (not cons) $ do
+        let msg =  "Production graph " ++ show pr ++ " of nonterminal "
+                                       ++ show nont ++ " is not consistent!"
+        fail msg
+  -- reachable whe neverything is ok
+  lift $ do
+        -- Create non-transitive closed graph for efficiency
+        indi <- undoTransitiveClosure indi
+        -- Graphviz output of dependency graphs
+        gvs <- mapM toGVNontDependencyInfo indi
+        -- Doing kennedywarren
+        (ret, visitg) <- runVG $ do
+         -- traceVG $ "Running kennedy-warren..."
          initvs <- kennedyWarrenVisitM wr indi
          -- Print some debug info
          nodes <- gets vgNodeNum
@@ -84,9 +102,8 @@ kennedyWarrenOrder wr ndis typesyns derivings = runST $ do
          -- Get visit graph
          visitg <- toGVVisitGraph
          return (ex,visitg)
-       -- Return the result
-       return $ Just (ret, vlist gvs, visitg)
-    else return Nothing
+        -- Return the result
+        return (ret, vlist gvs, visitg)
 
 -------------------------------------------------------------------------------
 --         Debugging functionality
@@ -573,7 +590,7 @@ kennedyWarrenVisitM wr ndis = do
     -- Mark this edge as final
     markFinal pend
   -- We are done
-  traceVG "Done."
+  -- traceVG "Done."
   return initvs
 
 -- | groupBy that groups all equal (according to the function) elements instead of consequtive equal elements

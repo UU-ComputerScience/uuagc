@@ -87,6 +87,10 @@ DATA Error  | ParserError     pos     : {Pos}
                               attr  : {Identifier}
                               isOut : {Bool}
 
+            | Cyclic          nt    : {NontermIdent}
+                              mbCon : {Maybe ConstructorIdent}
+                              verts : {[String]}
+
             | CyclicSet       name:{Identifier}
 
             | CustomError     isWarning : {Bool}

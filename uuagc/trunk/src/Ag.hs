@@ -10,7 +10,7 @@ import System.FilePath
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified Data.Sequence as Seq ((><))
+import qualified Data.Sequence as Seq ((><),null)
 import Data.Foldable(toList)
 import Pretty
 
@@ -103,7 +103,10 @@ compile flags input output
                                Seq.>< Pass2.errors_Syn_Grammar  output2
                                Seq.>< Pass2a.errors_Syn_Grammar output2a)
           furtherErrors    = if kennedyWarren flags'
-                             then toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
+                             then let errs3a = Pass3a.errors_Syn_Grammar output3a
+                                  in if Seq.null errs3a
+                                     then toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
+                                     else toList errs3a
                              else toList ( Pass3.errors_Syn_Grammar  output3
                                   Seq.>< Pass4.errors_Syn_CGrammar output4)
 
