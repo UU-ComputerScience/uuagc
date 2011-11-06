@@ -92,6 +92,24 @@ _FIELD = identifier "field"
 _FIRST = identifier "first__"
 _LAST  = identifier "last__"
 
+idLateBindingAttr :: Identifier
+idLateBindingAttr = identifier "lateSemDict"
+
+lateBindingTypeNm :: String -> String
+lateBindingTypeNm modNm = "Late_" ++ modNm ++ "_"
+
+lateBindingFieldNm :: String -> String
+lateBindingFieldNm modNm = "late_" ++ modNm ++ "_"
+
+lateBindingType :: String -> Type
+lateBindingType modNm = Haskell (lateBindingTypeNm modNm)
+
+lateSemNtLabel :: NontermIdent -> String
+lateSemNtLabel nt = "mk_" ++ getName nt
+
+lateSemConLabel :: NontermIdent -> ConstructorIdent -> String
+lateSemConLabel nt con = "mk_" ++ getName nt ++ "_" ++ getName con
+
 sdtype :: NontermIdent -> String
 sdtype nt = "T_"++getName nt
 

@@ -27,6 +27,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Sequence(Seq)
 import qualified Data.Sequence as Seq
+import Data.Foldable(toList)
 }
 
 ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule
@@ -75,7 +76,7 @@ SEM EProduction
 ATTR ExecutionPlan [  | | output : {PP_Doc} ]
 
 SEM ExecutionPlan
-  | ExecutionPlan lhs.output = @nonts.output
+  | ExecutionPlan lhs.output = @nonts.output >-< @loc.commonExtra >-< @loc.wrappersExtra
 
 ATTR ENonterminal ENonterminals [ wrappers : {Set NontermIdent}
                                  | | output USE {>-<} {empty} : {PP_Doc} ]
@@ -184,8 +185,9 @@ SEM ENonterminal
 
                  -- The sem_NT function is lazy in the AST: it depends on the application of "child"
                  -- rules to which extend the AST needs to be constructed.
+                 loc.sem_tp  = @nt >#< "->" >#< @loc.t_type
                  loc.sem_nt  = @loc.semPragma
-                               >-< @loc.semname >#< "::" >#< @nt >#< "->" >#< @loc.t_type
+                               >-< @loc.semname >#< "::" >#< @loc.sem_tp
                                >-< case lookup @nt @lhs.typeSyns of
                                       Nothing -> @prods.sem_nt
                                       Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
@@ -370,9 +372,15 @@ SEM ENonterminal
                  loc.genwrap  = \nm attr -> "data" >#< nm >|< "_" >|< @nt >#< "=" >#< nm >|< "_" >|< @nt >#< "{"
                                             >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< @nt >#< "::"
                                             >#< (@loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t)) attr) >#< "}"
-                 loc.wr_inhs  = Map.toList $ fromJust $ Map.lookup @nt @lhs.inhmap
+                 loc.synAttrs = fromJust $ Map.lookup @nt @lhs.inhmap
+                 loc.wr_inhs  = Map.toList $ @loc.wr_filter $ @loc.synAttrs
+                 loc.wr_inhs1 = Map.toList @loc.synAttrs
+                 loc.wr_filter = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                                 then Map.delete idLateBindingAttr
+                                 else id
                  loc.wr_syns  = Map.toList $ fromJust $ Map.lookup @nt @lhs.synmap
                  loc.inhlist  = map (lhsname True . fst) @loc.wr_inhs
+                 loc.inhlist1 = map (lhsname True . fst) @loc.wr_inhs1
                  loc.synlist  = map (lhsname False . fst) @loc.wr_syns
                  loc.wrapname = "wrap_" ++ show @nt
                  loc.inhname  = "Inh_" ++ show @nt
@@ -393,7 +401,7 @@ SEM ENonterminal
                                         outCon = conNmTVisitOut @nt initv
                                         pat    = @loc.addbang $ pp_parens $ pat0
                                         pat0   = outCon >#< ppSpaced @loc.synlist -- should be an "end" state, thus no continuation expected here
-                                        arg    = inCon >#< ppSpaced @loc.inhlist
+                                        arg    = inCon >#< ppSpaced @loc.inhlist1
                                         mon    = if parallelInvoke @lhs.options             -- choose a monad
                                                  then "System.IO.Unsafe.unsafePerformIO"    -- IO monad
                                                  else "Control.Monad.Identity.runIdentity"  -- identity monad
@@ -411,11 +419,51 @@ SEM ENonterminal
                                                                 >-< "inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< "arg" >#< extra  -- invoke initial state (of the root)
                                                    ) ) )
                                        >-< "in " >#< pp_parens (@loc.synname >#< ppSpaced @loc.synlist))
+                                >-< if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                                    then indent 2 ("where" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName)
+                                    else empty
                  loc.wrapPragma = if parallelInvoke @lhs.options
                                   then ppNoInline @loc.wrapname  -- required for the use of unsafePerformIO in case of the IO monad
                                   else if noInlinePragmas @lhs.options
                                        then empty
                                        else ppInlinable @loc.wrapname  -- ensure that the wrapper is exposed as inlinable
+
+-------------------------------------------------------------------------------
+--  Collection of NT / Production sem funs references
+-------------------------------------------------------------------------------
+
+ATTR ENonterminals ENonterminal EProductions EProduction [ | | semFunBndDefs, semFunBndTps USE {Seq.><} {Seq.empty} : {Seq PP_Doc} ]
+SEM ENonterminal | ENonterminal
+  lhs.semFunBndDefs = @loc.semFunBndDef Seq.<| @prods.semFunBndDefs
+  lhs.semFunBndTps  = @loc.semFunBndTp Seq.<| @prods.semFunBndTps
+  loc.semFunBndDef  = @loc.semFunBndNm >#< "=" >#< @loc.semname
+  loc.semFunBndTp   = @loc.semFunBndNm >#< "::" >#< @loc.sem_tp
+  loc.semFunBndNm   = lateSemNtLabel @nt
+
+SEM EProduction | EProduction
+  lhs.semFunBndDefs = Seq.singleton @loc.semFunBndDef
+  lhs.semFunBndTps  = Seq.singleton @loc.semFunBndTp
+  loc.semFunBndDef  = @loc.semFunBndNm >#< "=" >#< @loc.semname
+  loc.semFunBndTp   = @loc.semFunBndNm >#< "::" >#< @loc.sem_tp
+  loc.semFunBndNm   = lateSemConLabel @lhs.nt @con
+
+-- Generate a dictionary that contains the semantics of all semantic functions
+SEM ExecutionPlan | ExecutionPlan
+  loc.wrappersExtra = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                      then @loc.lateSemBndDef
+                      else empty
+  loc.commonExtra   = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                      then @loc.lateSemBndTp
+                      else empty
+  loc.lateSemBndTp = "data" >#< lateBindingTypeNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName
+                      >-< (indent 2 $ pp_block "{" "}" "," $ toList @nonts.semFunBndTps)
+  loc.lateSemBndDef = ( if noInlinePragmas @lhs.options
+                        then empty
+                        else ppNoInline $ lateBindingFieldNm @lhs.mainName
+                      )
+                      >-< lateBindingFieldNm @lhs.mainName >#< "::" >#< lateBindingTypeNm @lhs.mainName
+                      >-< lateBindingFieldNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName
+                      >-< (indent 2 $ pp_block "{" "}" "," $ toList @nonts.semFunBndDefs )
 
 -------------------------------------------------------------------------------
 --  Production semantic functions
@@ -450,8 +498,9 @@ SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.args     = @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
+                loc.sem_tp   = ppSpaced @children.argtps >#< @loc.t_type
                 loc.sem_prod = @loc.semInlinePragma
-                               >-< @loc.semname >#< "::" >#< ppSpaced @children.argtps >#< @loc.t_type
+                               >-< @loc.semname >#< "::" >#< @loc.sem_tp
                                >-< @loc.mkSemBody (@loc.semname >#< ppSpaced @loc.args >#< "=" >#< @loc.scc >#< @loc.t_type)
                                                   @loc.mbInitializer @loc.outerlet ("return" >#< "st" >|< @lhs.initial)
                 loc.mkSemBody = \prefix mbInit outerlet ret ->
@@ -1066,6 +1115,7 @@ SEM ExecutionPlan
                                             ]
                                             ++ @nonts.imports
                                             ++ [@lhs.mainBlocksDoc]
+                                            ++ [@loc.wrappersExtra]
                                             ++ @nonts.appendMain
                                           )
                   loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
@@ -1076,6 +1126,7 @@ SEM ExecutionPlan
                                             , @loc.ppMonadImports
                                             , @lhs.importBlocks
                                             , @lhs.textBlocks
+                                            , @loc.commonExtra
                                             ]
                                             ++ @nonts.appendCommon
                                           )

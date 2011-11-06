@@ -32,7 +32,7 @@ import CommonTypes
 WRAPPER HsTokensRoot
 
 
-ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Expression [ options:{Options} | | ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Children Child Rule Rules Expression [ options:{Options} | | ]
 
 ATTR Grammar Nonterminals Nonterminal Productions Production Rule Rules Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
 
@@ -282,8 +282,39 @@ SEM Production
       lhs.errors = @rules.errors Seq.>< @loc.augmentErrs
 
 -------------------------------------------------------------------------------
+--         Support for late binding of higher order children
+-------------------------------------------------------------------------------
+
+ATTR Grammar Nonterminals Nonterminal Productions Production Children Child [ mainName : {String} | | ]
+
+SEM Nonterminal | Nonterminal
+  loc.extraInh = addLateAttr @lhs.options @lhs.mainName
+
+SEM Child | Child
+  loc.extraInh = addLateAttr @lhs.options @lhs.mainName
+
+{
+addLateAttr :: Options -> String -> Attributes
+addLateAttr options mainName
+  | kennedyWarren options && lateHigherOrderBinding options =
+      let tp = lateBindingType mainName
+      in Map.singleton idLateBindingAttr tp
+  | otherwise = Map.empty
+}
+
+-------------------------------------------------------------------------------
 --         Reconstruct the grammar
 -------------------------------------------------------------------------------
+
+SEM Nonterminal | Nonterminal
+  lhs.output = Nonterminal
+                 @nt @params
+                 (@loc.extraInh `Map.union` @inh)
+                 @syn
+                 @prods.output
+
+SEM Child | Child
+  lhs.output = Child @name @tp (@loc.extraInh `Map.union` @inh) @syn @kind
 
 SEM Grammar
   | Grammar
