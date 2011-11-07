@@ -55,8 +55,8 @@ SEM HsToken
 -------------------------------------------------------------------------------
 
 {
-isNTname allnts (Just (NT nt _)) = nt `elem` allnts
-isNTname allnts _                = False
+isNTname allnts (Just (NT nt _ _)) = nt `elem` allnts
+isNTname allnts _                  = False
 }
 
 

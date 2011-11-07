@@ -186,15 +186,15 @@ parseFile agi opts searchPath file
 
     pSingleInhAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleInhAttrDef
-      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pType <?> "inh attribute declaration"
+      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pTypeOrSelf <?> "inh attribute declaration"
 
     pSingleSynAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleSynAttrDef
-      = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pTypeColon <*> pType <?> "syn attribute declaration"
+      = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "syn attribute declaration"
 
     pSingleChnAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleChnAttrDef
-      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pType <?> "chn attribute declaration"
+      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pTypeOrSelf <?> "chn attribute declaration"
 
     pOptAttrs :: AGParser Attrs
     pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
@@ -202,12 +202,12 @@ parseFile agi opts searchPath file
     pInhAttrNames :: AGParser AttrNames
     pInhAttrNames
                    = (\vs tp -> map (\v -> (v,tp,("","",""))) vs)
-                      <$> pIdentifiers <*  pTypeColon <*> pType <?> "attribute declarations"
+                      <$> pIdentifiers <*  pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAttrNames :: AGParser AttrNames
     pAttrNames
              = (\vs use tp -> map (\v -> (v,tp,use)) vs)
-                 <$> pIdentifiers <*> pUse <* pTypeColon <*> pType <?> "attribute declarations"
+                 <$> pIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAlt :: AGParser Alt
     pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <*> pMaybeMacro <?> "a datatype alternative" --marcos
@@ -222,7 +222,7 @@ parseFile agi opts searchPath file
     pField
            =  (\nms tp -> map (flip (,) tp) nms)
               <$> pIdentifiers <* pTypeColon <*> pType
-              <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s [])]) <$> pIdentifierU
+              <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s [] False)]) <$> pIdentifierU
 
     pSemAlt :: AGParser SemAlt
     pSemAlt = SemAlt <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
@@ -368,8 +368,8 @@ pOptQuantifiers = (return <$ pDoubleColon <*> pCodescrap') `opt` []
 
 pTypeNt :: AGParser Type
 pTypeNt
-  =   ((\nt -> NT nt []) <$> pIdentifierU <?> "nonterminal name (no brackets)")
-  <|> (pParens (NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString) <?> "nonterminal name with parameters (using parenthesis)")
+  =   ((\nt -> mkNtType nt []) <$> pIdentifierU <?> "nonterminal name (no brackets)")
+  <|> (pParens (mkNtType <$> pIdentifierU <*> pList pTypeHaskellAnyAsString) <?> "nonterminal name with parameters (using parenthesis)")
 
 pTypeHaskellAnyAsString :: AGParser String
 pTypeHaskellAnyAsString
@@ -381,7 +381,7 @@ pTypeHaskellAnyAsString
 pTypeEncapsulated :: AGParser Type
 pTypeEncapsulated
   =   pParens pTypeEncapsulated
-  <|> NT <$> pIdentifierU <*> pList pTypeHaskellAnyAsString
+  <|> mkNtType <$> pIdentifierU <*> pList pTypeHaskellAnyAsString
   <|> (Haskell . getName) <$> pIdentifier
   <|> pTypePrimitive
 
@@ -392,6 +392,9 @@ pTypePrimitive
 pType :: AGParser Type
 pType =  pTypeNt
      <|> pTypePrimitive
+
+pTypeOrSelf :: AGParser Type
+pTypeOrSelf = pType <|> Self <$ pSELF
 
 pIdentifiers :: AGParser [Identifier]
 pIdentifiers =  pList1Sep pComma pIdentifier <?> "lowercase identifiers"
@@ -476,7 +479,7 @@ pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pEXTENDS, --marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pSELF
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -525,3 +528,4 @@ pAUGMENT     = pCostReserved 5  "AUGMENT" <?> "AUGMENT"
 pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"
 pMERGE       = pCostReserved 5  "MERGE" <?> "MERGE"
 pAS          = pCostReserved 5  "AS" <?> "AS"
+pSELF        = pCostReserved 5  "SELF" <?> "SELF"

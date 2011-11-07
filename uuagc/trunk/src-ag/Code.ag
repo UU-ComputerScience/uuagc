@@ -125,6 +125,7 @@ DATA Type     | Arr              left  : Type
               | SimpleType       txt   : {String}
               | NontermType      name   : String
                                  params : {[String]}
+                                 deforested : Bool
               | TMaybe           tp    : Type
               | TEither          left  : Type
                                  right : Type

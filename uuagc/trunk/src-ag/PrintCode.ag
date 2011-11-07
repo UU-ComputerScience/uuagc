@@ -283,7 +283,10 @@ SEM Type  [ | | prec:Int ]
                   .pp      = if reallySimple @txt then text @txt else pp_parens (text @txt)
 
   | NontermType  lhs.prec  = 5
-                 lhs.pp    = text @name >#< hv_sp @params
+                 lhs.pp    = @loc.prefix >|< text @name >#< hv_sp @params
+                 loc.prefix = if @deforested
+                              then text "T_"
+                              else empty
   | TMaybe       lhs.prec  = 5
                  lhs.pp    = text "Maybe" >#< @tp.pp
   | TEither      lhs.prec  = 5

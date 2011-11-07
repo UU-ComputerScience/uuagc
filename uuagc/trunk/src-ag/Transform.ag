@@ -357,7 +357,7 @@ checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
 checkRules attributes fields allinsts allsigs allmerges nt con rs
   = let fieldmap :: FieldMap
-        fieldmap = (_LHS,NT nt undefined) : (_LOC,NT undefined undefined) : (_INST, NT undefined undefined) : (_FIRST, NT undefined undefined) : (_LAST, NT undefined undefined)
+        fieldmap = (_LHS, NT nt [] False) : (_LOC, NT nullIdent [] False) : (_INST, NT nullIdent [] False) : (_FIRST, NT nullIdent [] False) : (_LAST, NT nullIdent [] False)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
                  ++ mapMaybe (\instNm -> lookup instNm sigs >>= \tp -> return (instNm, tp)) (Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allinsts))
                  --   merged children are not allowed to have any inherited attrs defined: do not include
@@ -374,7 +374,7 @@ checkRules attributes fields allinsts allsigs allmerges nt con rs
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
          = case lookup field fieldmap
-            of  Just (NT tp _) ->
+            of  Just (NT tp _ _) ->
                   let tp' = maybe tp id (deforestedNt tp)
                   in              if field == _LOC || field == _INST || field == _FIRST || field == _LAST
                                      || hasAttrib (if getName field==getName _LHS then snd else fst) tp' attr
@@ -412,14 +412,15 @@ checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInf
 checkInsts allNts sigMap fieldMap nt con
   = foldr (\inst (insts, errs) ->
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
-                    (\info@(k, NT nm _) ->
+                    (\info@(k, NT nm args _) ->
                       case findInst k insts of
                         Just k' -> (insts, Seq.singleton (DupChild nt con k k') >< errs)
                         Nothing -> case nm `Set.member` allNts of
                                              True  -> (info : insts, errs)
-                                             False | take 2 (getName nm) == "T_" -> let nm' = Ident (drop 2 (getName nm)) (getPos nm)
+                                             False | take 2 (getName nm) == "T_" -> let nm'   = Ident (drop 2 (getName nm)) (getPos nm)
+                                                                                        info' = (k, NT nm' args True)   -- this should be the only place at which 'for' with value True can be generated
                                                                                     in case nm' `Set.member` allNts of
-                                                                                         True  -> (info : insts, errs)
+                                                                                         True  -> (info' : insts, errs)
                                                                                          False -> (insts, Seq.singleton (UndefNont nm') >< errs)
                                                    | otherwise                   -> (insts, Seq.singleton (UndefNont nm) >< errs)
                     )
@@ -429,7 +430,7 @@ checkInsts allNts sigMap fieldMap nt con
     sigs = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt sigMap)
 
     findSig name
-      = do tp@(NT _ _) <- lookup name sigs
+      = do tp@(NT _ _ _) <- lookup name sigs
            return (name, tp)
 
     findInst _ [] = Nothing
@@ -467,8 +468,8 @@ checkArounds fieldMap nt con arounds
           = if ident `Map.member` as
             then (Map.update (\vs -> Just (vs ++ [expr])) ident as, errs)
             else case lookup ident fields of
-                   Just (NT _ _) -> (Map.insert ident [expr] as, errs)
-                   _             -> (as, ((Seq.<|)) (UndefChild nt con ident) errs)
+                   Just (NT _ _ _) -> (Map.insert ident [expr] as, errs)
+                   _               -> (as, ((Seq.<|)) (UndefChild nt con ident) errs)
         fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
     in foldr checkAround (Map.empty, Seq.empty) arounds
 
@@ -505,7 +506,7 @@ mkUniqueRules opts allFields allInsts allAttrDecls nt con usMap
 
     groups = Map.assocs $ Map.foldrWithKey (\i r m -> Map.insertWith (++) r [i] m) Map.empty usMap
     apply (ref,us) = mkRule ref (findOutField ref) us
-    findOutField ref = case [ chld | (chld,NT tp _) <- fields, tp `hasSyn` ref] of
+    findOutField ref = case [ chld | (chld, NT tp _ _) <- fields, tp `hasSyn` ref] of
                          []    -> _LHS
                          (x:_) -> x
     hasSyn tp ref = Map.member ref $ snd $ Map.findWithDefault (Map.empty,Map.empty) tp allAttrDecls
@@ -611,7 +612,7 @@ ATTR Elem Elems [ | | typeSyns USE {++} {[]} : {TypeSyns} ]
 SEM Elem
   | Type  loc.expanded       = case @argType of
                                        List tp -> [(Ident "Cons" @pos, [(Ident "hd" @pos, tp)
-                                                                       ,(Ident "tl" @pos, NT @name (map getName @params))
+                                                                       ,(Ident "tl" @pos, NT @name (map getName @params) False)
                                                                        ]
                                                    )
                                                   ,(Ident "Nil" @pos,  [])
@@ -627,13 +628,13 @@ SEM Elem
                                                   ]
                                        Map tp1 tp2 -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, tp1)
                                                                              , (Ident "val" @pos, tp2)
-                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params) False)
                                                                              ])
                                                       , (Ident "Nil" @pos, [])
                                                       ]
                                        IntMap tp   -> [ (Ident "Entry" @pos, [ (Ident "key" @pos, Haskell "Int")
                                                                              , (Ident "val" @pos, tp)
-                                                                             , (Ident "tl" @pos, NT @name (map getName @params))
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params) False)
                                                                              ])
                                                       , (Ident "Nil" @pos, [])
                                                       ]
@@ -695,7 +696,7 @@ SEM NontSet
 {
 flattenDatas :: DataTypes -> Map NontermIdent (Set NontermIdent)
 flattenDatas ds = Map.map flatten ds
-  where flatten cs =  Set.fromList [ nt | (_,NT nt _) <- concatMap snd (Map.toList cs)]
+  where flatten cs =  Set.fromList [ nt | (_, NT nt _ _) <- concatMap snd (Map.toList cs)]
 
 reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
 reachableFrom table nts = reach nts
@@ -1016,7 +1017,7 @@ checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nt
 -- Add declaration of self-attribute for each nonterminal: ATTR <nt> [ | | self:SELF]
 {
 addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
-                     in  Map.insert name (eInh, Map.insert (Ident "self" noPos) (NT _SELF []) eSyn)atMap
+                     in  Map.insert name (eInh, Map.insert (Ident "self" noPos) Self eSyn)atMap
 }
 
 
@@ -1157,10 +1158,9 @@ SEM Elem
 -------------------------------------------------------------------------------
 {
 makeType :: Set NontermIdent -> Type -> Type
-makeType nts tp@(NT x _) | x == _SELF       = tp
-                         | Set.member x nts = tp
-                         | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
-makeType _   tp                             = tp
+makeType nts tp@(NT x _ _)   | Set.member x nts = tp
+                             | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
+makeType _   tp                                 = tp
 }
 {
 constructGrammar ::    Set NontermIdent
@@ -1199,7 +1199,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                    let rules = maybe [] id (Map.lookup con rmap)
                                        tsigs = maybe [] id (Map.lookup con tsmap)
                                        insts = maybe [] id (Map.lookup con instsmap)
-                                       merges = [ (n, NT t []) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
+                                       merges = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
 
                                        -- important: keep order of children
                                        cldrn = map child (flds ++ filter (not . existsAsField) insts ++ merges)
@@ -1208,9 +1208,8 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                                     then fromJust $ lookup nm insts
                                                     else tp
                                               (inh,syn) = case tpI of
-                                                 NT nt _ -> let nt' = maybe nt id (deforestedNt nt)
-                                                            in Map.findWithDefault (Map.empty,Map.empty) nt' attrs
-                                                 _       -> (Map.empty,Map.empty)
+                                                 NT nt _ _ -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
+                                                 _         -> (Map.empty,Map.empty)
                                               virt = if existsAsInst nm
                                                      then case lookup nm flds of
                                                             Just tp' -> ChildReplace tp'

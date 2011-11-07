@@ -1,4 +1,6 @@
 -- 13 okt 2011: eliminated the "multiRule" transformation for all but the Kastens-code
+-- the SELF types are also eliminated in this phase: in a Type value, there should not be
+-- a Self constructor anymore.
 
 PRAGMA strictdata
 PRAGMA optimize
@@ -32,8 +34,12 @@ import Options
 -------------------------------------------------------------------------------
 --         Passing down corresponding nonterminal and constructor names
 -------------------------------------------------------------------------------
-ATTR Rule Rules Child Children Production Productions  Pattern Patterns [ nt:NontermIdent | | ]
+ATTR Rule Rules Child Children Production Productions TypeSigs TypeSig  Pattern Patterns [ nt:NontermIdent | | ]
 ATTR Rule Rules Child Children Pattern Patterns [ con:ConstructorIdent | | ]
+
+ATTR Productions Production Children Child TypeSigs TypeSig [ params : {[Identifier]} | | ]
+SEM Nonterminal | Nonterminal
+  prods.params = @params
 
 
 -------------------------------------------------------------------------------
@@ -145,15 +151,17 @@ SEM Grammar
 -- Pass down the lhs-attributes and the USE's to each alternative of a nonterminal
 --
 ATTR Nonterminals Nonterminal [ useMap : {UseMap} || ]
-ATTR Productions Production [ inh, syn:{Attributes} useMap : {Map Identifier (String,String,String)}|| ]
+ATTR Productions Production [ inh, syn, inhOrig, synOrig : {Attributes} useMap : {Map Identifier (String,String,String)}|| ]
 
 SEM Nonterminal
-  | Nonterminal  prods.inh  = @inh
-                 prods.syn  = @syn
-                 prods.useMap = Map.findWithDefault Map.empty @nt @lhs.useMap
+  | Nonterminal  prods.inh     = @loc.inh1
+                 prods.syn     = @loc.syn1
+                 prods.inhOrig = @inh
+                 prods.synOrig = @syn
+                 prods.useMap  = Map.findWithDefault Map.empty @nt @lhs.useMap
 
 SEM Production
-  | Production rules.con    = @con
+  | Production  rules.con    = @con
                 children.con = @con
 SEM Child
   | Child lhs . name = @name
@@ -165,10 +173,10 @@ SEM Nonterminal
   | Nonterminal prods . nt = @nt
 
 SEM Child [ | | name:{Identifier} inherited,synthesized:{Attributes} ]
-  | Child lhs.inherited = @inh
+  | Child lhs.inherited = @loc.inh1
           lhs.synthesized = if @name `Set.member` @lhs.merged
                             then Map.empty
-                            else @syn
+                            else @loc.syn1
 
 SEM Children [ | | inputs,outputs:{[(Identifier, Attributes)]} ]
   | Cons lhs.inputs  = (@hd.name, @hd.inherited) : @tl.inputs
@@ -364,7 +372,7 @@ SEM Production
         lhs_env    = last envs
 
         (selfAttrs, normalAttrs)
-          = Map.partition isSELFNonterminal @lhs.syn
+          = Map.partitionWithKey (\k _ -> maybe False isSELFNonterminal $ Map.lookup k @lhs.synOrig) @lhs.syn
 
         (_,undefAttrs)
           = removeDefined @rules.definedAttrs (_LHS, normalAttrs)
@@ -386,7 +394,7 @@ SEM Production
              ]
              where
                childSelf self nm tp
-                 = case tp of NT nt _                         -> attrName nm self
+                 = case tp of NT nt _ _                       -> attrName nm self
                               _      | nm `Set.member` locals -> locname nm
                                      | otherwise              -> fieldName nm
                constructor fs
@@ -502,6 +510,36 @@ ATTR Rule [ | | isPure : Bool ]
 SEM Rule | Rule  lhs.isPure = @pure
 
 -------------------------------------------------------------------------------
+--         Eliminate SELF types
+-------------------------------------------------------------------------------
+
+SEM Nonterminal | Nonterminal
+  loc.inh1 = Map.map (elimSelfId @nt @params) @inh
+  loc.syn1 = Map.map (elimSelfId @nt @params) @syn
+
+SEM Child | Child
+  (loc.nt, loc.params) = case @tp of
+                           NT nt params _ -> (nt, params)
+                           Self           -> error ("The type of child " ++ show @name ++ " should not be a Self type.")
+                           Haskell t      -> (identifier t, []) -- should be ignored because the child is a terminal
+
+  loc.inh1 = Map.map (elimSelfStr @loc.nt @loc.params) @inh
+  loc.syn1 = Map.map (elimSelfStr @loc.nt @loc.params) @syn
+
+SEM TypeSig | TypeSig
+  loc.tp1 = elimSelfId @lhs.nt @lhs.params @tp
+
+{
+elimSelfId :: NontermIdent -> [Identifier] -> Type -> Type
+elimSelfId nt args Self = NT nt (map locname args) False
+elimSelfId _ _ tp = tp
+
+elimSelfStr :: NontermIdent -> [String] -> Type -> Type
+elimSelfStr nt args Self = NT nt args False
+elimSelfStr _ _ tp = tp
+}
+
+-------------------------------------------------------------------------------
 --         Reconstructing the tree
 -------------------------------------------------------------------------------
 
@@ -516,6 +554,8 @@ ATTR Grammar Nonterminals  Nonterminal   Productions
 
 ATTR Rule [ | | outputs:Rules ]
 
+SEM Nonterminal | Nonterminal
+  lhs.output = Nonterminal @nt @params @loc.inh1 @loc.syn1 @prods.output
 
 SEM Production
   | Production
@@ -523,6 +563,12 @@ SEM Production
       loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
       loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
       lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output @macro --marcos
+
+SEM Child | Child
+  lhs.output = Child @name @tp @loc.inh1 @loc.syn1 @kind
+
+SEM TypeSig | TypeSig
+  lhs.output = TypeSig @name @loc.tp1
 
 SEM Rules
   | Cons lhs.output = if @hd.containsVars && @hd.isPure then @hd.outputs ++ @tl.output else @tl.output

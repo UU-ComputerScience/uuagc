@@ -35,7 +35,7 @@ import Debug.Trace(trace)
 
 Visit sub-sequences can be generated from the |Tdp| by a topological
 sort. To that end we add vertices to |Tdp|. For each production, for
-each child, for each visit to that child, we add a vertex $v$. 
+each child, for each visit to that child, we add a vertex $v$.
 
 We add the following edges:
 
@@ -52,7 +52,7 @@ We add the following edges:
 
 \end{enumerate}
 
-Now we can define a visit sub-sequence as a list of vertices: 
+Now we can define a visit sub-sequence as a list of vertices:
 
 \begin{Code}
 {
@@ -67,7 +67,7 @@ use |topSort'|.
 
 \begin{Code}
 ATTR IRoot [ tdp : Graph | | ]
-SEM  IRoot 
+SEM  IRoot
   |  IRoot loc.newedges = toList @inters.newedges
            loc.visitssGraph =  let graph = buildG (0,@inters.v-1) es
                                    es = @newedges ++ edges @lhs.tdp
@@ -81,7 +81,7 @@ vertex in |tdp|.
 \begin{Code}
 ATTR Interfaces Interface Segments Segment [ | v : Vertex | ]
 ATTR IRoot Interfaces Interface Segments Segment [ info : Info | | ]
-SEM  IRoot 
+SEM  IRoot
   |  IRoot inters.v = snd (bounds @lhs.tdp) + 1
 \end{Code}
 
@@ -101,10 +101,10 @@ When we do this for right-hand side occurrences of the inherited and
 syntesized attributes of a |Segment|, we find the new vertices.
 
 \begin{Code}
-SEM  Segment 
+SEM  Segment
   |  Segment  loc.look : {Vertex -> CRule}
               loc.look = \a -> ruleTable @lhs.info ! a
-              
+
               loc.occurAs : {(CRule -> Bool) -> [Vertex] -> [Vertex]}
               loc.occurAs = \p us -> [ a  |  u <- us
                                           ,  a <- tdsToTdp @lhs.info ! u
@@ -121,12 +121,12 @@ A description of the new vertices van be found by looking up the field
 of an attribute occurrence
 
 \begin{Code}
-ATTR  Interfaces Interface Segments Segment 
+ATTR  Interfaces Interface Segments Segment
       [ visitDescr : {Map Vertex ChildVisit} | | ]
 SEM  IRoot
   |  IRoot  inters.visitDescr = Map.fromList @descr
 ATTR  Interfaces Interface Segments Segment
-      [ | |  newedges USE {Seq.><} {Seq.empty} : {Seq Edge } 
+      [ | |  newedges USE {Seq.><} {Seq.empty} : {Seq Edge }
              descr USE {Seq.><} {Seq.empty} : {Seq (Vertex,ChildVisit)} ]
 SEM  Segment
   |  Segment lhs.descr =  Seq.fromList $ zipWith (cv @look @lhs.n) @newvertices @groups {-$-}
@@ -190,7 +190,7 @@ SEM  Interface
                 loc.firstvisitvertices = [@seg.v .. @v-1]
                 loc.newedges = zip @firstvisitvertices @seg.newvertices
                 lhs.newedges = @seg.newedges Seq.>< Seq.fromList @newedges
-                
+
                 loc.look : {Vertex -> CRule}
                 loc.look = \a -> ruleTable @lhs.info ! a
                 loc.descr = zipWith (cv @look (-1)) @firstvisitvertices @seg.groups
@@ -283,15 +283,15 @@ SEM  Segment
   |  Segment  loc.visitss : {[[Vertex]]}
               loc.visitss = let  rem :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
                                  rem prev [] = []
-                                 rem prev (v:vs) 
-                                   | inRange (bounds table) v 
+                                 rem prev (v:vs)
+                                   | inRange (bounds table) v
                                        = let  cr = table ! v
                                               addV = case findIndex cmp prev of
                                                        Just _ -> id
                                                        _      -> (v:)
                                               cmp (fld,attr,tp) = getField cr == fld && getAttr cr == attr && sameNT (getType cr) tp
-                                              sameNT (Just (NT ntA _)) (Just (NT ntB _)) = ntA == ntB
-                                              sameNT _          _                        = False
+                                              sameNT (Just (NT ntA _ _)) (Just (NT ntB _ _)) = ntA == ntB
+                                              sameNT _          _                            = False
                                               def = Map.elems (getDefines cr)
                                          in addV (rem (def ++ prev) vs)
                                    | otherwise = v:rem prev vs
@@ -318,7 +318,7 @@ SEM  Segments
 
 We declare an attribute intravisit which gives the intra-visit
 dependencies. We pass the intravisit of the next visit to this
-one. 
+one.
 \begin{Code}
 {
 type IntraVisit = [Vertex]
@@ -352,14 +352,14 @@ SEM  Interface
 SEM  Segments
   |  Cons  hd.fromLhs = @lhs.fromLhs
            tl.fromLhs = []
-SEM  Segment 
+SEM  Segment
   |  Segment  loc.fromLhs = @occurAs isLhs @inh ++ @lhs.fromLhs
               loc.computed =  let computes v = case Map.lookup v @lhs.visitDescr of
                                                  Nothing -> Map.keys (getDefines (ruleTable @lhs.info ! v))
                                                  Just (ChildVisit _ _ _ _ syn) -> v:syn
                               in concatMap (concatMap computes) @visitss
               loc.intravisits = zipWith @iv @visitss @lhs.nextIntravisits
-              loc.iv =  \vs next -> 
+              loc.iv =  \vs next ->
                           let needed = concatMap (@lhs.ddp !) vs
                           in nub (needed ++ next) \\ (@fromLhs ++ @computed)
 \end{Code}
@@ -379,7 +379,7 @@ ATTR Interfaces Interface Segments Segment [ allInters : {CInterfaceMap} | | ]
 SEM  IRoot
   |  IRoot  inters.allInters = @inters.inters
 
-ATTR  IRoot Interfaces [ | | inters : {CInterfaceMap} 
+ATTR  IRoot Interfaces [ | | inters : {CInterfaceMap}
                              visits : {CVisitsMap} ]
 SEM Interfaces
   |  Cons  lhs.inters = Map.insert @hd.nt @hd.inter @tl.inters
@@ -390,7 +390,7 @@ SEM Interfaces
 SEM  Interface [ | | nt : NontermIdent ]
   |  Interface lhs.nt = @nt
 
-SEM  Interface [ | | inter : CInterface 
+SEM  Interface [ | | inter : CInterface
                      visits : {Map ConstructorIdent CVisits} ]
   |  Interface  lhs.inter = CInterface @seg.segs
                 lhs.visits = Map.fromList (zip @cons (transpose @seg.cvisits))
@@ -422,7 +422,7 @@ ccv name nt n table
   =  CChildVisit name nt n inh syn last
      where  CInterface segs = Map.findWithDefault (error ("InterfacesRules::ccv::interfaces not in table for nt: " ++ show nt)) nt table
             (seg:remain) = drop n segs
-            CSegment inh syn = seg           
+            CSegment inh syn = seg
             last = null remain
 }
 \end{Code}

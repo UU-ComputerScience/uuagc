@@ -478,10 +478,7 @@ SEM Expression
 
 ATTR Children Child [ || idCL USE {++} {[]} : {[(Identifier,Type)]} ]
 SEM Child
- | Child                lhs     .        idCL   = [ (@name, case (stripPrefix "T_" (show @tp)) of  -- harcoded => higher order atts of type T_
-                                                              Nothing -> @tp
-                                                              Just t  -> NT (Ident t undefined) []
-                                                  ) ]
+ | Child                lhs     .        idCL   = [ (@name, removeDeforested @tp ) ]
 
 
 
