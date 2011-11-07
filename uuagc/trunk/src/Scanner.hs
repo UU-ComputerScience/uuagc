@@ -136,7 +136,7 @@ keywords = lowercaseKeywords ++
            , "EXTENDS" -- marcos
            , "SET","DERIVING","FOR", "WRAPPER", "NOCATAS", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
-           , "AUGMENT", "AROUND", "MERGE", "AS"
+           , "AUGMENT", "AROUND", "MERGE", "AS", "SELF"
            ]
 
 ncomment c p ('-':'}':xs) = advc' 2 p c  xs

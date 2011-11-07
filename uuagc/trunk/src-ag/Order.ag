@@ -136,8 +136,8 @@ SEM Grammar
 ------------------------------------------------------------------
 {
 getNtName :: Type -> NontermIdent
-getNtName (NT nt _) = maybe nt id (deforestedNt nt)
-getNtName _         = nullIdent
+getNtName (NT nt _ _) = nt
+getNtName _           = nullIdent
 }
 
 ------------------------------------------------------------------
@@ -174,8 +174,8 @@ SEM  Production
 
 SEM  Child
   |  Child  loc.maptolocal =  case @tp of
-                                NT nt _ -> Map.null @syn
-                                _       -> True
+                                NT nt _ _ -> Map.null @syn
+                                _         -> True
             lhs.gathAltAttrs = if  @maptolocal
                                    then [ AltAttr _LOC @name True ]                          -- sublist 2b
                                    else [ AltAttr @name syn True | syn <- Map.keys @syn ]    -- sublist 2a
@@ -235,8 +235,8 @@ SEM  Rule
 {
 substSelf nt tp
   = case tp of
-      NT n tps | n == _SELF -> NT nt tps
-      _                     -> tp
+      NT n tps defor | n == _SELF -> NT nt tps defor
+      _                           -> tp
 
 haskellTupel :: [Type] -> Maybe Type
 haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts))) ++ ")" ))

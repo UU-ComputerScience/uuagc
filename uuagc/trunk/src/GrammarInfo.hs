@@ -28,25 +28,25 @@ instance Show CRule
 type CInterfaceMap = Map NontermIdent CInterface
 type CVisitsMap = Map NontermIdent (Map ConstructorIdent CVisits)
 
-data CycleStatus  
+data CycleStatus
   = CycleFree     CInterfaceMap CVisitsMap
   | LocalCycle    [Route]
   | InstCycle     [Route]
   | DirectCycle   [EdgeRoutes]
-  | InducedCycle  CInterfaceMap [EdgeRoutes] 
+  | InducedCycle  CInterfaceMap [EdgeRoutes]
 
 showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)
    = let syn'     = map toString (Map.toList syn)
          inh'     = map toString (Map.toList inh)
-         toString (a,t) = (getName a, case t of (NT nt tps) -> getName nt ++ " " ++ unwords tps; Haskell t -> t)
+         toString (a,t) = (getName a, case t of (NT nt tps _) -> getName nt ++ " " ++ unwords tps; Haskell t -> t)
          chnn     = inh' `intersect` syn'
          inhn     = inh' \\ chnn
          synn     = syn' \\ chnn
          disp name [] = []
          disp name as =  (name ++ if length as == 1 then " attribute:" else " attributes:") :
                          map (\(x,y) -> ind x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) as
-     in  disp "inherited" inhn 
+     in  disp "inherited" inhn
          ++ disp "chained" chnn
          ++ disp "synthesized" synn
 

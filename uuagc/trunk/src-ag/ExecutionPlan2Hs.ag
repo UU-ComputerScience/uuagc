@@ -163,8 +163,9 @@ ppConFields False flds = ppSpaced flds
 ATTR EChild    [ | | datatype : {PP_Doc} ]
 ATTR EChildren [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
+-- Note: the child may be a higher-order attribute, and its semantics may be deforested
 SEM EChild
-  | EChild  loc.tpDoc = @loc.addStrict $ pp_parens $ typeToHaskellString (Just @lhs.nt) [] @tp
+  | EChild  loc.tpDoc = @loc.addStrict $ pp_parens $ ppTp $ removeDeforested @tp
             loc.strNm = recordFieldname @lhs.nt @lhs.con @name
             lhs.datatype = case @kind of
                              ChildSyntax -> if dataRecords @lhs.options
@@ -173,6 +174,14 @@ SEM EChild
                              _           -> empty
            loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
 
+{
+ppTp :: Type -> PP_Doc
+ppTp (Haskell s)      = text s
+ppTp (NT nt args for) = prefix >|< nt >#< ppSpaced args where
+  prefix | for       = text "T_"
+         | otherwise = empty
+}
+
 -------------------------------------------------------------------------------
 --  Nonterminal semantic function
 -------------------------------------------------------------------------------
@@ -180,8 +189,8 @@ SEM ENonterminal
   | ENonterminal loc.fsemname = \x -> "sem_" ++ show x
                  loc.semname = @loc.fsemname @nt
                  loc.frecarg = \t x -> case t of
-                                          NT nt _ -> pp_parens (@fsemname nt >#< x)
-                                          _       -> pp x
+                                          NT nt _ _ -> pp_parens (@fsemname nt >#< x)
+                                          _         -> pp x
 
                  -- The sem_NT function is lazy in the AST: it depends on the application of "child"
                  -- rules to which extend the AST needs to be constructed.
@@ -193,8 +202,8 @@ SEM ENonterminal
                                       Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
                                                        >#< @loc.semname >|< "_Nil"
                                                        >#< case t of
-                                                              NT nt _ -> pp_parens ("Prelude.map" >#< @fsemname nt >#< "list")
-                                                              _ -> pp "list"
+                                                              NT nt _ _ -> pp_parens ("Prelude.map" >#< @fsemname nt >#< "list")
+                                                              _         -> pp "list"
                                       Just (Maybe t) -> @loc.semname >#< "Prelude.Nothing" >#< "=" >#< @loc.semname >|< "_Nothing"
                                                         >-< @loc.semname >#< pp_parens ("Prelude.Just just") >#< "="
                                                         >#< @loc.semname >|< "_Just" >#< @frecarg t "just"
@@ -205,13 +214,13 @@ SEM ENonterminal
                                       Just (Map k v) -> @loc.semname >#< "m" >#< "=" >#< "Data.Map.foldrWithKey"
                                                         >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
                                                         >#< case v of
-                                                               NT nt _ -> pp_parens ("Data.Map.map" >#< @fsemname nt >#< "m")
-                                                               _ -> pp "m"
+                                                               NT nt _ _ -> pp_parens ("Data.Map.map" >#< @fsemname nt >#< "m")
+                                                               _         -> pp "m"
                                       Just (IntMap v) -> @loc.semname >#< "m" >#< "=" >#< "Data.IntMap.foldWithKey"
                                                          >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
                                                          >#< case v of
-                                                                NT nt _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
-                                                                _ -> pp "m"
+                                                                NT nt _ _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
+                                                                _         -> pp "m"
 --                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
                 loc.semPragma = if noInlinePragmas @lhs.options
                                 then empty
@@ -348,8 +357,8 @@ SEM Visit
                                                  _          -> @loc.addbang $ pp @loc.nameTNext_visit     -- normal route: select the next semantics
           loc.inhpart   = @loc.ppTypeList @inh @lhs.inhmap
           loc.synpart   = @loc.ppTypeList @syn @lhs.synmap
-          loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang $ pp_parens $ typeToHaskellString (Just @lhs.nt) []
-                                            $ fromJust $ Map.lookup i m) $ Set.toList s
+          loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang $ pp_parens $ case Map.lookup i m of
+                                                           Just tp -> ppTp tp ) $ Set.toList s
 
 {
 conNmTVisit nt vId      = "T_" >|< nt >|< "_v"    >|< vId
@@ -576,12 +585,11 @@ SEM EProduction
                                                     in case mbAttr of
                                                          Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
                                                            case Map.lookup nm @loc.localAttrTypes of
-                                                             Just tp -> let tpStr = typeToHaskellString (Just @lhs.nt) [] tp
-                                                                        in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                                             Just tp -> pp_parens (pp_parens match >#< "::" >#< ppTp tp)
                                                              Nothing -> match
                                                          Just attr | not (noPerStateTypeSigs @lhs.options) ->
-                                                           let tpStr = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes
-                                                           in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                                           let tpDoc = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes
+                                                           in pp_parens (pp_parens match >#< "::" >#< tpDoc)
                                                          Nothing   -> match
                                                  | (str,mbAttr) <- Map.assocs attrs
                                                  ]
@@ -794,12 +802,11 @@ SEM ERule | ERule
                                     in case mbAttr of
                                          Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
                                            case Map.lookup nm @lhs.localAttrTypes of
-                                             Just tp -> let tpStr = typeToHaskellString (Just @lhs.nt) [] tp
-                                                        in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                             Just tp -> pp_parens (pp_parens match >#< "::" >#< ppTp tp)
                                              Nothing -> match
                                          Just attr | not (noPerRuleTypeSigs @lhs.options) ->
-                                           let tpStr = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes
-                                           in pp_parens (pp_parens match >#< "::" >#< tpStr)
+                                           let tpDoc = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes
+                                           in pp_parens (pp_parens match >#< "::" >#< tpDoc)
                                          Nothing   -> match
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
@@ -901,17 +908,17 @@ mkNonLocalAttr :: Bool -> Identifier -> Identifier -> NonLocalAttr
 mkNonLocalAttr True  = AttrInh  -- True: inherited attr
 mkNonLocalAttr False = AttrSyn
 
-lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> String
+lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> PP_Doc
 lookupAttrType (AttrInh child name) inhs _ = lookupType child name inhs
 lookupAttrType (AttrSyn child name) _ syns = lookupType child name syns
 
-lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> String
-lookupType child name attrMp childMp = tpStr where
+lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> PP_Doc
+lookupType child name attrMp childMp = ppDoc where
   attrTp     = Map.findWithDefault (error "lookupType: the attribute is not in the attrs of the child") name childAttrs
   childAttrs = Map.findWithDefault (error "lookupType: the attributes of the nonterm are not in the map") nonterm attrMp
   nonterm    = extractNonterminal childTp
   childTp    = Map.findWithDefault (error ("lookupType: the child " ++ show child ++ "is not in the appropriate map")) child childMp
-  tpStr      = typeToHaskellString (Just nonterm) [] attrTp  -- takes care of SELF attributes
+  ppDoc      = ppTp attrTp
 }
 
 ATTR Expression [ | | semfunc : {PP_Doc} ]
@@ -1252,7 +1259,7 @@ SEM EProduction | EProduction
 
 ATTR EProductions EProduction [ ntType : Type | | ]
 SEM ENonterminal | ENonterminal
-  loc.ntType = NT @nt (map show @params)
+  loc.ntType = NT @nt (map show @params) False
 
 --
 -- Collect errors contained in rules that should be yielded when the

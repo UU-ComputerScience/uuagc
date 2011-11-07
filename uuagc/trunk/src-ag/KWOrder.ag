@@ -107,8 +107,8 @@ SEM  Child
      	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @syn
      	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @inh
 	   lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
-     	   		        NT _ _ -> Set.insert @loc.vertex (Set.fromList $ @loc.synvertices ++ @loc.inhvertices)
-			     	_      -> Set.empty
+     	   		        NT _ _ _ -> Set.insert @loc.vertex (Set.fromList $ @loc.synvertices ++ @loc.inhvertices)
+			     	_        -> Set.empty
 
 -- Add extra vertex for a rule
 SEM  Rule
@@ -144,8 +144,8 @@ ATTR Child Children [ | | nontnames USE {++} {[]} : {[(Identifier, Identifier)]}
 
 SEM  Child
   |  Child lhs.nontnames = case @tp of
-     	   		     NT nont _ -> [(@name, maybe nont id $ deforestedNt nont)]
-			     _         -> []
+     	   		     NT nont _ _ -> [(@name, nont)]
+			     _           -> []
 
 -- Return a dependency graph for each production
 ATTR Production  [ | | depgraph : {ProdDependencyGraph} ]

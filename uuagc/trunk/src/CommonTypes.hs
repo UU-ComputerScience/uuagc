@@ -33,6 +33,8 @@ instance PP Identifier where
 
 data Type = Haskell String
           | NT Identifier [String]
+               Bool  -- True: deforested nonterminal, False: nonterminal type
+          | Self     -- reference to the enclosing nonterminal type
 
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
@@ -113,6 +115,11 @@ lateSemConLabel nt con = "mk_" ++ getName nt ++ "_" ++ getName con
 sdtype :: NontermIdent -> String
 sdtype nt = "T_"++getName nt
 
+mkNtType :: Identifier -> [String] -> Type
+mkNtType nt args
+  | take 2 (getName nt) == "T_" = NT nt args True
+  | otherwise                   = NT nt args False
+
 cataname ::  String -> Identifier -> String
 cataname pre name = pre++getName name
 
@@ -146,19 +153,25 @@ fieldname v =  getName v++"_"
 typeToAGString :: Type -> String
 typeToAGString tp
   = case tp of
-      Haskell t -> t
-      NT nt tps -> formatNonterminalToHaskell (getName nt) (map (\s -> "{" ++ s ++ "}") tps)
+      Haskell t     -> t
+      NT nt tps for -> formatNonterminalToHaskell for (getName nt) (map (\s -> "{" ++ s ++ "}") tps)
+
+removeDeforested :: Type -> Type
+removeDeforested (NT nt args _) = NT nt args False
+removeDeforested tp             = tp
 
 typeToHaskellString :: Maybe NontermIdent -> [String] -> Type -> String
 typeToHaskellString mbNt params tp
   = case tp of
       Haskell t -> t
-      NT nt tps | nt == _SELF -> formatNonterminalToHaskell (maybe "Unknown" getName mbNt) params
-                | otherwise   -> formatNonterminalToHaskell (getName nt) tps
+      NT nt tps for | nt == _SELF -> formatNonterminalToHaskell for (maybe "?SELF?" getName mbNt) params
+                    | otherwise   -> formatNonterminalToHaskell for (getName nt) tps
 
-formatNonterminalToHaskell :: String -> [String] -> String
-formatNonterminalToHaskell nt tps
-  = unwords (nt:tps)
+formatNonterminalToHaskell :: Bool -> String -> [String] -> String
+formatNonterminalToHaskell for nt tps
+  = unwords ((prefix ++ nt) : tps)
+  where prefix | for       = "T_"
+               | otherwise = ""
 
 ind :: String -> String
 ind s = replicate 3 ' ' ++ s
@@ -171,22 +184,22 @@ hasPragma mp nt con nm
   = nm `Set.member` Map.findWithDefault Set.empty con (Map.findWithDefault Map.empty nt mp)
 
 isNonterminal :: Type -> Bool
-isNonterminal (NT _ _) = True
-isNonterminal _        = False
+isNonterminal (NT _ _ _) = True
+isNonterminal _          = False
 
 isSELFNonterminal :: Type -> Bool
-isSELFNonterminal (NT nt _) | nt == _SELF = True
-isSELFNonterminal _                       = False
+-- isSELFNonterminal (NT nt _ _) | nt == _SELF = True
+isSELFNonterminal Self                      = True
+isSELFNonterminal _                         = False
 
--- TODO: check if the name needs to be converted if the name is T_
 extractNonterminal :: Type -> NontermIdent
-extractNonterminal (NT n _) = maybe n id (deforestedNt n)
+extractNonterminal (NT n _ _) = n
 
 nontermArgs :: Type -> [String]
 nontermArgs tp
   = case tp of
-      NT _ args -> args
-      _         -> []
+      NT _ args _ -> args
+      _           -> []
 
 deforestedNt :: Identifier -> Maybe Identifier
 deforestedNt nm
