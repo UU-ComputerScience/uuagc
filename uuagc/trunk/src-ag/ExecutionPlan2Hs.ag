@@ -1167,6 +1167,10 @@ SEM EProduction
                                      , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
                                      , @lhs.importBlocks
                                      , @loc.ppMonadImports
+                                     , ( if tupleAsDummyToken @lhs.options
+                                            then empty
+                                            else pp "import GHC.Prim"  -- need it to pass State#
+                                      )
                                      , pp $ "import " ++ @lhs.mainName ++ "_common"
                                      , @loc.sem_prod
                                      ]
