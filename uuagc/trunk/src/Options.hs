@@ -78,6 +78,7 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
                , Option []        ["nocatas"]           (ReqArg nocatasOpt "list of nonterms") "Nonterminals not to generate catas for"
                , Option []        ["nooptimize"]         (NoArg noOptimizeOpt) "Disable optimizations"
                , Option []        ["parallel"]           (NoArg parallelOpt) "Generate a parallel evaluator (if possible)"
+               , Option []        ["monadicwrapper"]     (NoArg monadicWrappersOpt) "Generate monadic wrappers"
 
                , Option []        ["helpinlining"]            (NoArg helpInliningOpt) "Generate inline directives for GHC"
                , Option []        ["dummytokenvisit"]         (NoArg dummyTokenVisitOpt) "Add an additional dummy parameter to visit functions"
@@ -168,6 +169,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , noPerStateTypeSigs  :: Bool  -- do not print type signatures for attributes contained in the state
                       , noEagerBlackholing  :: Bool  -- disable the use of eager black holing in the parallel evaluator code
                       , lateHigherOrderBinding :: Bool  -- generate code to allow late binding of higher-order children semantics
+                      , monadicWrappers        :: Bool
 
                       -- tracing
                       , genTraces :: Bool
@@ -253,6 +255,7 @@ noOptions = Options { moduleName    = NoName
                     , noPerStateTypeSigs  = False
                     , noEagerBlackholing  = False
                     , lateHigherOrderBinding = False
+                    , monadicWrappers        = False
 
                     -- defaults for tracing
                     , genTraces     = False
@@ -324,6 +327,7 @@ helpInliningOpt opts            = opts { helpInlining = True }
 noInlinePragmasOpt opts         = opts { noInlinePragmas = True }
 aggressiveInlinePragmasOpt opts = opts { aggressiveInlinePragmas = True }
 lateHigherOrderBindingOpt opts  = opts { lateHigherOrderBinding = True }
+monadicWrappersOpt opts         = opts { monadicWrappers = True }
 
 noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
   where extract s = case dropWhile isSeparator s of

@@ -290,7 +290,9 @@ data NontDependencyInformation = NontDependencyInformation { ndiNonterminal :: I
                                                            , ndiInh         :: [Identifier]
                                                            , ndiSyn         :: [Identifier]
                                                            , ndiDepGraph    :: NontDependencyGraph
-                                                           , ndiProds       :: [ProdDependencyGraph] }
+                                                           , ndiProds       :: [ProdDependencyGraph]
+                                                           , ndiRecursive   :: Bool
+                                                           , ndiHoInfo      :: HigherOrderInfo }
 
 --- Monadic versions of these records, for use with the ST monad
 

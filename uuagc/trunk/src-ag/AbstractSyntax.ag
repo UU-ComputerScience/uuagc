@@ -62,6 +62,7 @@ DATA Rule         | Rule    mbName   : {Maybe Identifier}
                             pure     : Bool   -- True if this rule is pure (does not have side effects)
                             identity : Bool   -- True if this rule is an identity rule
                             mbError  : {Maybe Error}   -- scheduling this rule yields the given error, if present
+                            eager    : Bool    -- for ordered scheduling: use an eager semantics
 
 DATA TypeSig      | TypeSig name : {Identifier}
                             tp   : {Type}

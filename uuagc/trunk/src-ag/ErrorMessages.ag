@@ -134,3 +134,15 @@ DATA Error  | ParserError     pos     : {Pos}
 
             | MissingSyn      nt      : {NontermIdent}
                               attr    : {Identifier}
+
+            | IncompatibleVisitKind
+                              child   : {Identifier}
+                              vis     : {VisitIdentifier}
+                              from    : {VisitKind}
+                              to      : {VisitKind}
+            | IncompatibleRuleKind
+                              rule    : {Identifier}
+                              kind    : {VisitKind}
+            | IncompatibleAttachKind
+                              child   : {Identifier}
+                              kind    : {VisitKind}

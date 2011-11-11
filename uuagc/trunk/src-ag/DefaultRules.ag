@@ -239,6 +239,7 @@ makeRule (f1,a1) expr origin identity mbDelayedError
         True
         identity
         mbDelayedError
+        False
 
 
 useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
@@ -429,17 +430,17 @@ addAugments (_, exprs) rules
 addAugments (syn, exprs) rules
   = [rule] ++ funRules ++ map modify rules
   where
-    rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False Nothing
+    rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False Nothing False
     rhs  = Expression noPos tks
     tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "augment function" False True False Nothing) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "augment function" False True False Nothing False) funNames exprs
 
-    modify (Rule mbNm pat rhs owrt origin expl pure identity mbErr)
-      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity mbErr
+    modify (Rule mbNm pat rhs owrt origin expl pure identity mbErr eager)
+      | containsSyn pat = Rule mbNm (modifyPat pat) rhs owrt origin expl pure identity mbErr eager
     modify r = r
 
     containsSyn (Constr _ pats)   = any containsSyn pats
@@ -456,25 +457,35 @@ addAugments (syn, exprs) rules
       | otherwise                    = Alias field attr (modifyPat pat)
     modifyPat p = p
 
+-- adds the additional rules needed for around, which creates a sequence of
+-- rules that form a function that each transforms the semantics of a child
+-- before attaching the child.
+-- The rule defines a local attribute "<child>_around" and <child> is dependent
+-- on this attribute.
 addArounds :: (Identifier, [Expression]) -> [Rule] -> [Rule]
 addArounds (_, exprs) rules | null exprs = rules
 addArounds (child, exprs) rules
   = [rule] ++ funRules ++ rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False Nothing
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False Nothing False
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
     funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
-    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "around function" False True False Nothing) funNames exprs
+    funRules = zipWith (\name expr -> Rule Nothing (Alias _LOC name (Underscore noPos)) expr False "around function" False True False Nothing False) funNames exprs
 
+-- adds the additional rules needed for merging.
+-- It produces for each merging child a rule with local attribute: "<child>_merged".
+-- this rules takes the semantics of the first children and feeds it to the function
+-- represented by this attribute. This attribute then defines the semantics for
+-- the merging child.
 addMerges :: (Identifier, (Identifier,[Identifier],Expression)) -> [Rule] -> [Rule]
 addMerges (target,(_,_,expr)) rules
   = rule : rules
   where
-    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) expr False "merge rule" False True False Nothing
+    rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) expr False "merge rule" False True False Nothing False
     childLoc = Ident (show target ++ "_merge") (getPos target)
 }
 
@@ -586,18 +597,18 @@ SEM Rule
 -- and a modified rule that refers to the alias
 -- Thus it removes rule names from rules
 mkRuleAlias :: Rule -> (Rule, Maybe Rule)
-mkRuleAlias r@(Rule Nothing _ _ _ _ _ _ _ _) = (r, Nothing)
-mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity mbErr) = (r', Just alias) where
-  alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity mbErr
+mkRuleAlias r@(Rule Nothing _ _ _ _ _ _ _ _ _) = (r, Nothing)
+mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity mbErr eager) = (r', Just alias) where
+  alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity mbErr eager
   pos   = getPos nm
   expr' = Expression pos tks
   tks   = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
-  r'    = Rule Nothing pat expr' owrt origin False True identity Nothing
+  r'    = Rule Nothing pat expr' owrt origin False True identity Nothing False
 }
 
 
 -- Work towards removing the need of the "multiRule".
--- Now only enabled when truly needed
+-- It's currently only needed for the Kastens code generation
 {
 needsMultiRules :: Options -> Bool
 needsMultiRules opts = (visit opts || withCycle opts) && not (kennedyWarren opts)
@@ -624,7 +635,7 @@ becomes
 -}
 
 multiRule :: Rule -> Int -> ([Rule], Int)
-multiRule (Rule _ pat expr owrt origin expl pure identity mbErr) uniq
+multiRule (Rule _ pat expr owrt origin expl pure identity mbErr eager) uniq
   =  let f :: Bool -> (Pattern->Pattern) -> Expression -> Pattern -> Int -> (Pattern, ([Rule], Int))
          f expl' w e (Product pos pats) n
            = let freshName = Ident ("_tup" ++ show n) pos
@@ -638,13 +649,13 @@ multiRule (Rule _ pat expr owrt origin expl pure identity mbErr) uniq
                                       in  (x2:xs1, rs2++rs1, n2)
                  (xs9,rs9,n9) = foldr g ([], [], n+1) pats
              in  ( freshPat
-                 , ( Rule Nothing (w freshPat) e owrt origin expl' True False mbErr : rs9
+                 , ( Rule Nothing (w freshPat) e owrt origin expl' True False mbErr eager : rs9
                    , n9
                    )
                  )
          f expl' w e p n
            = ( p
-             , ( [Rule Nothing (w p) e owrt origin expl' True False mbErr]
+             , ( [Rule Nothing (w p) e owrt origin expl' True False mbErr eager]
                , n
                )
              )

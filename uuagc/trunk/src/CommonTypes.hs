@@ -6,6 +6,7 @@ import qualified Data.Map as Map
 import Data.Map(Map)
 import Data.Set(Set)
 import qualified Data.Set as Set
+import Data.Monoid(mappend,mempty,Monoid)
 
 
 type Blocks = Map BlockInfo [([String], Pos)]
@@ -216,3 +217,53 @@ data ChildKind
   = ChildSyntax        -- This child is defined by syntax
   | ChildAttr          -- This child is defined by an attribute
   | ChildReplace Type  -- This child replaces a child with type Type
+
+-- Given a map that represents a relation, returns the transitive closure of this relation
+closeMap :: Ord a => Map a (Set a) -> Map a (Set a)
+closeMap mp0 = close (Map.keysSet mp0) mp0 where
+  rev = revDeps mp0
+  close todo mp0 = case Set.minView todo of
+    Nothing         -> mp0
+    Just (k, todo1) -> let find x = Map.findWithDefault Set.empty x mp0
+                           vals0  = find k
+                           valsL  = Set.toList vals0
+                           vals1  = foldr Set.union vals0 $ map find valsL
+                       in if Set.size vals0 == Set.size vals1
+                          then close todo1 mp0  -- note: monotonically increasing set
+                          else let mp1   = Map.insert k vals1 mp0
+                                   refs  = Map.findWithDefault Set.empty k rev
+                                   todo2 = Set.union refs todo1
+                               in close todo2 mp1
+
+revDeps :: Ord a => Map a (Set a) -> Map a (Set a)
+revDeps mp = Map.fromListWith Set.union [ (a,Set.singleton k) | (k,s) <- Map.assocs mp, a <- Set.toList s ]
+
+data HigherOrderInfo = HigherOrderInfo
+  { hoNtDeps     :: Set NontermIdent
+  , hoNtRevDeps  :: Set NontermIdent
+  , hoAcyclic    :: Bool
+  }
+
+data VisitKind
+  = VisitPure Bool  -- ordered or not
+  | VisitMonadic
+  deriving (Eq,Ord)
+
+isLazyKind :: VisitKind -> Bool
+isLazyKind (VisitPure False) = True
+isLazyKind _                 = False
+
+instance Show VisitKind where
+  show (VisitPure False) = "Lazy"
+  show (VisitPure True)  = "Ordered"
+  show VisitMonadic      = "Monadic"
+
+unionWithMappend :: (Monoid a, Ord k) => Map k a -> Map k a -> Map k a
+unionWithMappend = Map.unionWith mappend
+
+
+data FormatMode
+  = FormatDo
+  | FormatLetDecl
+  | FormatLetLine
+  deriving (Eq, Ord, Show)

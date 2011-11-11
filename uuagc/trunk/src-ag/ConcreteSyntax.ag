@@ -91,6 +91,7 @@ DATA SemDef    | Def    pos    : Pos
                         rhs    : {Expression}
                         owrt   : {Bool}
                         pure   : Bool
+                        eager  : Bool
                | TypeDef pos   : {Pos}
                          ident : {Identifier}
                          tp    : Type

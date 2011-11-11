@@ -708,7 +708,7 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
         steps <- vgInST $ readSTRef rprodvs
         inh   <- getInherited vgedg
         syn   <- getSynthesized vgedg
-        return $ Visit edg fr to inh syn steps
+        return $ Visit edg fr to inh syn steps VisitMonadic -- for a lazy evaluator: (VisitPure False)
       -- Return execution plan for this production
       return $ EProduction (pdgProduction $ pdgmOrig prod)
                            (pdgRules      $ pdgmOrig prod)
@@ -727,6 +727,9 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
                            nextMap
                            prevMap
                            prods
+                           (ndiRecursive $ ndimOrig ndi)
+                           (ndiHoInfo $ ndimOrig ndi)
+
   -- Return complete execution plan
   return $ ExecutionPlan nonts typesyns wr derivings
 
