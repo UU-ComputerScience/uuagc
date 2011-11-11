@@ -22,12 +22,14 @@ import Data.Sequence(Seq)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
+import Data.Monoid(mappend,mempty)
 }
 
 -------------------------------------------------------------------------------
 --         Distributing options
 -------------------------------------------------------------------------------
-ATTR Grammar [ options : {Options} | | ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Children Child
+  [ options : {Options} | | ]
 
 -------------------------------------------------------------------------------
 --         Give unique names to rules
@@ -42,6 +44,95 @@ SEM  Grammar
 SEM  Rule
   |  Rule lhs.rulenumber = @lhs.rulenumber + 1
      	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName
+
+-------------------------------------------------------------------------------
+--         Find out which nonterminals are recursive
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ | | ntDeps, ntHoDeps USE {`mappend`} {mempty} : {Map NontermIdent (Set NontermIdent)} ]
+ATTR Nonterminals Nonterminal [ closedNtDeps, closedHoNtDeps, closedHoNtRevDeps : {Map NontermIdent (Set NontermIdent)} | | ]
+ATTR Productions Production Children Child [ | | refNts, refHoNts USE {`mappend`} {mempty} : {Set NontermIdent} ]
+
+SEM Nonterminal | Nonterminal
+  lhs.ntDeps            = Map.singleton @nt @prods.refNts
+  lhs.ntHoDeps          = Map.singleton @nt @prods.refHoNts
+
+  loc.closedNtDeps      = Map.findWithDefault Set.empty @nt @lhs.closedNtDeps
+  loc.closedHoNtDeps    = Map.findWithDefault Set.empty @nt @lhs.closedHoNtDeps
+  loc.closedHoNtRevDeps = Map.findWithDefault Set.empty @nt @lhs.closedHoNtRevDeps
+
+  loc.recursive         = @nt `Set.member` @loc.closedNtDeps
+  loc.nontrivAcyc       = @nt `Set.member` @loc.closedHoNtDeps
+  loc.hoInfo            = HigherOrderInfo { hoNtDeps            = @loc.closedHoNtDeps
+                                          , hoNtRevDeps         = @loc.closedHoNtRevDeps
+                                          , hoAcyclic           = @loc.nontrivAcyc
+                                          }
+
+SEM Child | Child
+  loc.refNts = case @tp of
+                 NT nt _ _ -> Set.singleton nt
+                 _         -> mempty
+  loc.refHoNts = if @loc.isHigherOrder then @loc.refNts else mempty
+  loc.isHigherOrder = case @kind of
+                        ChildSyntax -> False
+                        _           -> True
+
+SEM Grammar | Grammar
+  loc.closedNtDeps      = closeMap @nonts.ntDeps
+  loc.closedHoNtDeps    = closeMap @nonts.ntHoDeps
+  loc.closedHoNtRevDeps = revDeps @loc.closedHoNtDeps
+
+-------------------------------------------------------------------------------
+--         Determine which children have an around-rule
+-------------------------------------------------------------------------------
+
+-- Propagate the around-map downward
+ATTR Nonterminals Nonterminal
+  [ aroundMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} || ]
+
+ATTR Productions Production
+  [ aroundMap : {Map ConstructorIdent (Map Identifier [Expression])} || ]
+
+ATTR Children Child
+  [ aroundMap : {Map Identifier [Expression]} | | ]
+
+SEM Nonterminal | Nonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
+SEM Production | Production    loc.aroundMap = Map.findWithDefault Map.empty @con @lhs.aroundMap
+
+SEM Grammar | Grammar
+  nonts.aroundMap = @aroundsMap
+
+SEM Child | Child
+  loc.hasArounds = case Map.lookup @name @lhs.aroundMap of
+                     Nothing -> False
+                     Just as -> not (null as)
+
+-------------------------------------------------------------------------------
+--         Determine which children are used by merges
+-------------------------------------------------------------------------------
+
+-- Propagate the around-map downward
+ATTR Nonterminals Nonterminal
+  [ mergeMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))} || ]
+
+ATTR Productions Production
+  [ mergeMap : {Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression))} || ]
+
+ATTR Children Child
+  [ mergeMap : {Map Identifier (Identifier, [Identifier], Expression)} mergedChildren : {Set Identifier} | | ]
+
+SEM Nonterminal | Nonterminal  loc.mergeMap = Map.findWithDefault Map.empty @nt @lhs.mergeMap
+SEM Production | Production    loc.mergeMap = Map.findWithDefault Map.empty @con @lhs.mergeMap
+
+SEM Grammar | Grammar
+  nonts.mergeMap = @mergeMap
+
+SEM Production | Production
+  loc.mergedChildren = Set.unions [ Set.fromList ms | (_,ms,_) <- Map.elems @loc.mergeMap ]
+
+SEM Child | Child
+  loc.merges   = maybe Nothing (\(_,ms,_) -> Just ms) $ Map.lookup @name @lhs.mergeMap
+  loc.isMerged = @name `Set.member` @lhs.mergedChildren
 
 -------------------------------------------------------------------------------
 --         Gather all rules per production for the execution plan
@@ -70,7 +161,9 @@ ATTR Child    [ | | echilds : EChild ]
 ATTR Children [ | | echilds USE {:} {[]} : EChildren ]
 
 SEM Child
-  | Child lhs.echilds = EChild @name @tp @kind
+  | Child lhs.echilds = case @tp of
+                          NT _ _ _ -> EChild @name @tp @kind @loc.hasArounds @loc.merges @loc.isMerged
+                          _        -> ETerm @name @tp
 
 -------------------------------------------------------------------------------
 --         Dependency graph per production
@@ -102,12 +195,14 @@ SEM  Pattern
      	   lhs.vertices = Set.insert @loc.vertex @pat.vertices
 
 -- Gather vertices for children
+--
+-- The behavior for merged children is a bit more complicated (and ignored for now)
 SEM  Child
   |  Child loc.vertex      = VChild @name
      	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @syn
      	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @inh
 	   lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
-     	   		        NT _ _ _ -> Set.insert @loc.vertex (Set.fromList $ @loc.synvertices ++ @loc.inhvertices)
+     	   		        NT _ _ _ -> Set.insert @loc.vertex $ Set.fromList (@loc.synvertices ++ @loc.inhvertices)
 			     	_        -> Set.empty
 
 -- Add extra vertex for a rule
@@ -129,11 +224,57 @@ SEM  Rule
      	  loc.edgesin  = map (flip (,) @loc.vertex) (Set.toList @pattern.vertices)
 	  lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
 
+-- When a child is defined by a higher order attribute and the late binding option
+-- is enabled, we refer to the additional inherited attribute under the hood, hence
+-- we need to tell the dependency analysis about this in order to actually have the
+-- attribute available when we attach the child.
+-- Note that the dependencies on the rule that creates the semantics of the child
+-- is handled elsewhere by mapping an "inst"-attribute to the right child vertex.
+SEM Child | Child
+  loc.childIsDeforested = case @tp of
+                            NT _ _ defor -> defor
+                            _            -> False
+  loc.higherOrderEdges = case @kind of
+                           ChildAttr | lateHigherOrderBinding @lhs.options && not @loc.childIsDeforested
+                                        -> [(@loc.vertex, VAttr Inh _LHS idLateBindingAttr)]
+                           _            -> []  -- attribute is not referenced implicitly
+  loc.aroundEdges      = if @loc.hasArounds
+                         then [(@loc.vertex, VAttr Syn _LOC (Ident (getName @name ++ "_around") (getPos @name)))]
+                         else []
+
 -- Gather edges for a child
 SEM  Child
-  |  Child loc.edgesout = []
+  |  Child loc.edgesout = @loc.higherOrderEdges
      	   loc.edgesin  = map (flip (,) @loc.vertex) @loc.synvertices
-	   lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
+	   lhs.edges    = Set.fromList (@loc.edgesout ++ @loc.edgesin)
+
+-- Add manual attribute dependencies
+ATTR Nonterminals Nonterminal [ manualDeps : AttrOrderMap | | ]
+ATTR Productions Production [ manualDeps : {Map ConstructorIdent (Set Dependency)} | | ]
+
+SEM Grammar | Grammar         nonts.manualDeps = @manualAttrOrderMap
+SEM Nonterminal | Nonterminal prods.manualDeps = Map.findWithDefault Map.empty @nt @lhs.manualDeps
+SEM Production | Production
+  loc.manualDeps   = Map.findWithDefault Set.empty @con @lhs.manualDeps
+  loc.manualEdges  = Set.map depToEdge @loc.manualDeps
+
+{
+-- a depends on b, thus a is a successor of b
+depToEdge :: Dependency -> Edge
+depToEdge (Dependency a b) = (occToVertex False b, occToVertex True a)
+
+occToVertex :: Bool -> Occurrence -> Vertex
+occToVertex _ (OccRule nm) = VRule nm
+occToVertex isDependency (OccAttr c a)
+  | c == _LOC  = VAttr Syn c a   -- local attributes are treated as synthesized attrs of 'loc'
+  | c == _INST = VChild a        -- higher-order attributes are treated as children
+  | otherwise  = VAttr kind c a where
+      kind | isDependency && c == _LHS     = Inh     -- these dependencies have the property that
+           | isDependency && c /= _LHS     = Syn     -- they can all be faked by writing a 'const' rule
+           | not isDependency && c == _LHS = Syn     -- Perhaps we should also allow other forms of dependencies
+           | not isDependency && c /= _LHS = Inh     -- as well, such as two inherited attributes, which would
+                                                     -- force them in different visits
+}
 
 -- Combine all edges for a production
 SEM  Production
@@ -184,7 +325,9 @@ SEM  Nonterminal
                                                          , ndiInh         = Map.keys @inh
                                                          , ndiSyn         = Map.keys @syn
                                                          , ndiDepGraph    = @loc.nontgraph
-                                                         , ndiProds       = @prods.depgraph }
+                                                         , ndiProds       = @prods.depgraph
+                                                         , ndiRecursive   = @loc.recursive
+                                                         , ndiHoInfo      = @loc.hoInfo }
 
 -------------------------------------------------------------------------------
 --         Call the kennedy-warren algorithm

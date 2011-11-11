@@ -25,13 +25,14 @@ module Pretty
   where
 
 import Data.List(intersperse)
-  
+
 -------------------------------------------------------------------------
 -- Doc structure
 -------------------------------------------------------------------------
 
 data Doc
   = Emp
+  | Emp1
   | Str			!String					-- basic string
   | Hor			Doc  !Doc				-- horizontal positioning
   | Ver			Doc  !Doc				-- vertical positioning
@@ -45,16 +46,24 @@ type PP_Doc = Doc
 -------------------------------------------------------------------------
 
 infixr 3 >|<, >#<
-infixr 2 >-< 
+infixr 2 >-<
 
 (>|<) :: (PP a, PP b) => a -> b -> PP_Doc
 l >|< r = pp l `Hor` pp r
 
 (>-<) :: (PP a, PP b) => a -> b -> PP_Doc
-l >-< r = pp l `Ver` pp r
+l >-< r  | isEmpty a = b
+         | isEmpty b = a
+         | otherwise = a `Ver` b
+         where a = pp l
+               b = pp r
 
 (>#<) :: (PP a, PP b) => a -> b -> PP_Doc
-l >#< r  =  l >|< " " >|< r
+l >#< r  | isEmpty a = b
+         | isEmpty b = a
+         | otherwise = a >|< " " >|< b
+         where a = pp l
+               b = pp r
 
 indent :: PP a => Int -> a -> PP_Doc
 indent i d = Ind i $ pp d
@@ -68,6 +77,10 @@ text s
 
 empty :: PP_Doc
 empty = Emp
+
+-- empty1 is not a zero for >#<
+empty1 :: PP_Doc
+empty1 = Emp1
 
 ppWithLineNr :: PP a => (Int -> a) -> PP_Doc
 ppWithLineNr f = Line (pp . f)
@@ -140,6 +153,7 @@ instance PP Float where
 
 isEmpty :: PP_Doc -> Bool
 isEmpty Emp         = True
+isEmpty Emp1        = False
 isEmpty (Ver d1 d2) = isEmpty d1 && isEmpty d2
 isEmpty (Hor d1 d2) = isEmpty d1 && isEmpty d2
 isEmpty (Ind _  d ) = isEmpty d
@@ -156,6 +170,7 @@ disp d _ s
         put p l d s
           = case d of
               Emp              -> (s,p,l)
+              Emp1             -> (s,p,l)
               Str s'           -> (s' ++ s,p + length s',l)
               Ind i  d         -> (ind ++ r,p', l')
                                where (r,p',l') = put (p+i) l d s

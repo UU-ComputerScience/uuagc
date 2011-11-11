@@ -36,15 +36,22 @@ DATA ENonterminal | ENonterminal nt         : {NontermIdent}
 				 nextVisits : {Map StateIdentifier StateCtx}  -- info about the next visits from a given state
 				 prevVisits : {Map StateIdentifier StateCtx}  -- info about the previous visits to a given state
                                  prods      : EProductions
+                                 recursive  : Bool
+                                 hoInfo     : {HigherOrderInfo}
 
 DATA EProduction  | EProduction  con      : {ConstructorIdent}
      		   		 rules    : ERules
 				 children : EChildren
 				 visits   : Visits
 
-DATA EChild       | EChild       name    : {Identifier}
-                                 tp      : {Type}
-             			 kind    : {ChildKind}
+DATA EChild       | EChild       name      : {Identifier}
+                                 tp        : {Type}
+             			 kind      : {ChildKind}
+             			 hasAround : {Bool}  -- if there exists a rule <name>_around that transforms the child's sem
+             			 merges    : {Maybe [Identifier]} -- Nothing: not the result of a merge of other children (ignored for now)
+             			 isMerged  : {Bool}               -- False: not being used to merge other children (ignored for now)
+             	  | ETerm       name     : {Identifier}
+             	                tp       : {Type}
 
 DATA ERule        | ERule       name     : {Identifier}
                                 pattern  : Pattern
@@ -61,10 +68,13 @@ DATA Visit        | Visit       ident    : {VisitIdentifier}
 				inh      : {Set Identifier}
 				syn      : {Set Identifier}
      		    		steps    : VisitSteps
+     		    		kind     : {VisitKind}
 
 DATA VisitStep    | Sem         name     : {Identifier}
 		  | ChildVisit  child    : {Identifier}
 		    		nonterm  : {NontermIdent}
 				visit    : {VisitIdentifier}
+		  | PureGroup   steps    : VisitSteps   -- A group of steps that should be executed purely
+		                ordered  : {Bool}
 		  | Sim         steps    : VisitSteps
 		  | ChildIntro  child    : {Identifier}

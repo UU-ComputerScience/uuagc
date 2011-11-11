@@ -53,6 +53,9 @@ isError opts (MissingNamedRule _ _ _)    = True
 isError opts (DupRuleName _ _ _)         = True
 isError opts (HsParseError _ _)          = True
 isError opts (Cyclic _ _ _)              = True
+isError opts (IncompatibleVisitKind _ _ _ _) = True
+isError opts (IncompatibleRuleKind _ _)      = True
+isError opts (IncompatibleAttachKind _ _)    = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -524,6 +527,25 @@ SEM Error
                                               ]
                                 act  = wfill ["It is not possible to proceed without this declaration."]
                             in ppError (isError @lhs.options @me) (getPos @attr) mesg pat help act @lhs.verbose
+  | IncompatibleVisitKind
+                   lhs.pp = let mesg  = "visit" >#< @vis >#< "of child" >#< @child >#< " with kind" >#< show @to >#< " cannot be called from a visit with kind " >#< show @from
+                                pat   = empty
+                                help  = empty
+                                act   = text "It is not possible to proceed without fixing this kind error."
+                            in ppError (isError @lhs.options @me) (getPos @child) mesg pat help act @lhs.verbose
+  | IncompatibleRuleKind
+                   lhs.pp = let mesg  = "rule" >#< @rule >#< "cannot be called from a visit with kind " >#< show @kind
+                                pat   = empty
+                                help  = empty
+                                act   = text "It is not possible to proceed without fixing this kind error."
+                            in ppError (isError @lhs.options @me) (getPos @rule) mesg pat help act @lhs.verbose
+
+  | IncompatibleAttachKind
+                   lhs.pp = let mesg  = "child" >#< @child >#< "cannot be called from a visit with kind " >#< show @kind
+                                pat   = empty
+                                help  = empty
+                                act   = text "It is not possible to proceed without fixing this kind error."
+                            in ppError (isError @lhs.options @me) (getPos @child) mesg pat help act @lhs.verbose
 
 {
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
