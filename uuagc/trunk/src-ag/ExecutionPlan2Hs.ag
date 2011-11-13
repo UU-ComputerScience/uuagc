@@ -362,7 +362,7 @@ SEM Visit
           lhs.t_visits = "type" >#< @loc.nameT_visit >#< "=" >#<
                            @loc.nameTIn_visit
                              >#< ( if dummyTokenVisit @lhs.options
-                                   then "->" >#< dummyType @lhs.options  -- Additional (unused though) argument
+                                   then "->" >#< dummyType @lhs.options True  -- Additional (unused though) argument
                                    else empty
                                  )
                              >#< "->" >#< @loc.typecon >#< @loc.nameTOut_visit
@@ -433,7 +433,7 @@ SEM ENonterminal
                                                    OneVis _ -> empty
                                                    ManyVis  -> @loc.k_type >|< "_v" >|< initv
                                         extra  = if dummyTokenVisit @lhs.options
-                                                 then pp $ dummyArg @lhs.options
+                                                 then pp $ dummyArg @lhs.options True
                                                  else empty
                                         convert = case Map.lookup initv @lhs.allVisitKinds of
                                                     Just kind -> case kind of
@@ -572,7 +572,7 @@ SEM EProduction
                                                    -- resolved for all visit functions and rules together.
                                                    if st == @lhs.initial
                                                    then empty
-                                                   else "\\" >#< @loc.stargs st >#< dummyPat @lhs.options >#< "->"
+                                                   else "\\" >#< @loc.stargs st >#< "->"
                                                  )
 
                                           pragma = if noInlinePragmas @lhs.options
@@ -618,7 +618,7 @@ SEM EProduction
                                                            in pp_parens (pp_parens match >#< "::" >#< tpDoc)
                                                          Nothing   -> match
                                                  | (str,mbAttr) <- Map.assocs attrs
-                                                 ]
+                                                 ] >#< dummyPat @lhs.options (Map.null attrs)
 
                 loc.stks     = \st -> if null (@loc.stvisits st)
                                       then empty
@@ -663,7 +663,7 @@ SEM Visit
                                       -- generate a lambda here as well instead of a function definition
                                >-< "v" >|< @ident >#< "=" >#< "\\" >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
                                >#< ( if dummyTokenVisit @lhs.options
-                                     then pp $ dummyPat @lhs.options  -- extra (but unused) argument
+                                     then pp $ dummyPat @lhs.options True  -- extra (but unused) argument
                                      else empty
                                    )
                                >#< "->"
@@ -690,8 +690,9 @@ SEM Visit
           loc.inhpats   = ppSpaced $ map (\arg -> @loc.addbang $ pp $ attrname True _LHS arg) $ Set.toList @inh
           loc.inhargs   = \chn -> ppSpaced $ map (attrname False chn) $ Set.toList @inh
           loc.synargs   = ppSpaced $ map (\arg -> attrname False _LHS arg) $ Set.toList @syn
-          loc.nextargs  = ppSpaced $ Map.keys $ maybe Map.empty id $ Map.lookup @to @lhs.allintramap
-          loc.nextst    = "st" >|< @to >#< @loc.nextargs >#< dummyArg @lhs.options
+          loc.nextargsMp = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
+          loc.nextargs  = ppSpaced $ Map.keys $ @loc.nextargsMp
+          loc.nextst    = "st" >|< @to >#< @loc.nextargs >#< dummyArg @lhs.options (Map.null @loc.nextargsMp)
           loc.resultval = @loc.nameTOut_visit >#< @loc.synargs >#< @loc.nextStRef
           (loc.nextStBuild, loc.nextStRef)
             = case @loc.nextVisitInfo of
@@ -954,7 +955,7 @@ SEM ERule | ERule
         -- of a function definition.
         -- Note: we also ensure that all rules are lambda expressions, so that they are not made part of any closures
         -- but are lambda-lifted instead.
-      loc.lambda       = @name >#< "=" >#< "\\" >#< @loc.argPats >#< dummyPat @lhs.options >#< "->"
+      loc.lambda       = @name >#< "=" >#< "\\" >#< @loc.argPats >#< dummyPat @lhs.options (Map.null @rhs.attrs) >#< "->"
 
       loc.argPats      = ppSpaced [ let match | str `Set.member` @lhs.lazyIntras = pp str
                                               | otherwise                        = @loc.addbang1 (pp str)
@@ -973,33 +974,36 @@ SEM ERule | ERule
       loc.stepcode     = \kind fmtMode -> if kind `compatibleRule` @pure
                                           then Right $ let oper | @pure     = "="
                                                                 | otherwise = "<-"
-                                                           decl = @pattern.sem_lhs >#< oper >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options
+                                                           decl = @pattern.sem_lhs >#< oper >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options (Map.null @rhs.attrs)
                                                        in fmtDecl @pure fmtMode decl
                                           else Left $ IncompatibleRuleKind @name kind
 
       lhs.mrules       = Map.singleton @name @loc.stepcode
 
 {
-dummyPat :: Options -> String
-dummyPat opts
+dummyPat :: Options -> Bool -> PP_Doc
+dummyPat opts noArgs
+  | not noArgs && tupleAsDummyToken opts = empty  -- no unnecessary tuples
   | tupleAsDummyToken opts = if strictDummyToken opts
-                             then "()"
-                             else "(_ :: ())"
+                             then text "()"
+                             else text "(_ :: ())"
   | otherwise              = let match | strictDummyToken opts = "!_"
                                        | otherwise             = "_"
-                             in "(" ++ match ++ " :: " ++ dummyType opts ++ ")"
+                             in pp_parens (match >#< "::" >#< dummyType opts noArgs)
   where match | strictDummyToken opts = "(!_)"
               | otherwise             = "_"
 
-dummyArg :: Options -> String
-dummyArg opts
-  | tupleAsDummyToken opts = "()"
-  | otherwise              = "GHC.Prim.realWorld#"
+dummyArg :: Options -> Bool -> PP_Doc
+dummyArg opts noArgs
+  | not noArgs && tupleAsDummyToken opts = empty    -- no unnecessary tuples
+  | tupleAsDummyToken opts = text "()"
+  | otherwise              = text "GHC.Prim.realWorld#"
 
-dummyType :: Options -> String
-dummyType opts
-  | tupleAsDummyToken opts = "()"
-  | otherwise              = "(GHC.Prim.State# GHC.Prim.RealWorld)"
+dummyType :: Options -> Bool -> PP_Doc
+dummyType opts noArgs
+  | not noArgs && tupleAsDummyToken opts = empty     -- no unnecessary tuples
+  | tupleAsDummyToken opts = text "()"
+  | otherwise              = text "(GHC.Prim.State# GHC.Prim.RealWorld)"
 }
 
 {
@@ -1128,7 +1132,7 @@ SEM Visit
                                                     >#< "K_" >|< @lhs.nt >|< "_v" >|< @ident >#< args
                               args  = pp_parens args0 >#< args1
                               args0 = @loc.nameTIn_visit >#< @loc.inhargs chn
-                              args1 | dummyTokenVisit @lhs.options = pp $ dummyArg @lhs.options
+                              args1 | dummyTokenVisit @lhs.options = pp $ dummyArg @lhs.options True
                                     | otherwise                    = empty
                           in (pat, expr)  -- pretty print of the pattern and the expression part
                         else Left $ IncompatibleVisitKind chn @ident kind @kind

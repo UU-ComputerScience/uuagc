@@ -23,9 +23,9 @@ instance Error ParserError where
 -- Add boolean flags to this list, which will then be handled generically.
 -- Requires that this flag is also an option of uuagc (case sensitive)
 booleanFlags
-  = [ "helpinlining","dummytokenvisit","tupleasdummytoken","strictdummytoken","noperruletypesigs"
+  = [ "helpinlining","dummytokenvisit","tupleasdummytoken","stateasdummytoken","strictdummytoken","noperruletypesigs"
     , "noperstatetypesigs", "noeagerblackholing","noperrulecostcentres","nopervisitcostcentres"
-    ,"noinlinepragmas","aggressiveinlinepragmas","latehigherorderbinding", "monadicwrappers"
+    , "noinlinepragmas","aggressiveinlinepragmas","latehigherorderbinding", "monadicwrappers"
     ]
 
 uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures

@@ -339,9 +339,12 @@ ATTR Grammar [ | | output : {ExecutionPlan}
 
 SEM  Grammar
   |  Grammar  (lhs.output, lhs.depgraphs, lhs.visitgraph, lhs.errors)
-                = case kennedyWarrenOrder @wrappers @nonts.depinfo @typeSyns @derivings of
-                    Left e        -> (ExecutionPlan [] [] Set.empty Map.empty,empty,empty,Seq.singleton e)
-                    Right (o,d,v) -> (o,d,v,Seq.empty)
+                = let lazyPlan = kennedyWarrenLazy @lhs.options @wrappers @nonts.depinfo @typeSyns @derivings
+                  in if visit @lhs.options
+                     then case kennedyWarrenOrder @lhs.options @wrappers @nonts.depinfo @typeSyns @derivings of
+                            Left e        -> (lazyPlan,empty,empty,Seq.singleton e)
+                            Right (o,d,v) -> (o,d,v,Seq.empty)
+                     else (lazyPlan,empty,empty,Seq.empty)
 
 -------------------------------------------------------------------------------
 --         Output nonterminal type mappings
