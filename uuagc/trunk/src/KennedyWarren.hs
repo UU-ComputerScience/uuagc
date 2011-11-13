@@ -28,9 +28,57 @@ import qualified Data.IntSet as IntSet
 import Data.Sequence(Seq)
 import qualified Data.Sequence as Seq
 
+-- lazy version (does not return errors)
+-- FIXME: construct map from nonterminal to intial visit (or state?) and use it in the generation of invokes
+kennedyWarrenLazy :: Options -> Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> ExecutionPlan
+kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
+  plan  = ExecutionPlan nonts typesyns wr derivings
+  nonts = zipWith mkNont ndis nontIds
+  nontIds = enumFromThen 1 4
+  initvMap = Map.fromList $ zipWith (\ndi initv -> (ndiNonterminal ndi, initv)) ndis nontIds
 
-kennedyWarrenOrder :: Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Either Err.Error (ExecutionPlan, PP_Doc, PP_Doc)
-kennedyWarrenOrder wr ndis typesyns derivings = runST $ runErrorT $ do
+  mkNont ndi initv = nont where
+    nont = ENonterminal
+                 (ndiNonterminal ndi)
+                 (ndiParams ndi)
+                 inits
+                 (Just initv)
+                 nextMap
+                 prevMap
+                 prods
+                 (ndiRecursive ndi)
+                 (ndiHoInfo ndi)
+    inits   = initv + 1
+    finals  = initv + 2
+    nextMap = Map.fromList [(inits, OneVis initv), (finals, NoneVis)]
+    prevMap = Map.fromList [(inits, NoneVis), (finals, OneVis initv)]
+    prods   = map mkProd (ndiProds ndi)
+
+    mkProd pdi = prod where
+      prod = EProduction
+               (pdgProduction pdi)
+               (pdgRules pdi)
+               (pdgChilds pdi)
+               visits
+      visits = [visit]
+      visit  = Visit initv inits finals inh syn steps kind
+      inh    = Set.fromList $ ndiInh ndi
+      syn    = Set.fromList $ ndiSyn ndi
+      kind   = VisitPure False
+      steps  = childSteps ++ invokeSteps ++ ruleSteps
+
+      childSteps  = [ ChildIntro nm | EChild nm _ _ _ _ _ <- pdgChilds pdi ]
+      invokeSteps = [ ChildVisit nm nt v
+                    | EChild nm tp _ _ _ _ <- pdgChilds pdi
+                    , let nt = extractNonterminal tp
+                          v  = Map.findWithDefault (error "child not in initv-map") nt initvMap
+                    ]
+      ruleSteps   = [ Sem nm | (ERule nm _ _ _ _ _ _ _) <- pdgRules pdi ]
+
+
+-- ordered version (may return errors)
+kennedyWarrenOrder :: Options -> Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Either Err.Error (ExecutionPlan, PP_Doc, PP_Doc)
+kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
   indi <- lift $ mapM mkNontDependencyInformationM ndis
   lift $ knuth1 indi
   -- Check all graphs for cyclicity, transitive closure and consistency
@@ -98,7 +146,7 @@ kennedyWarrenOrder wr ndis typesyns derivings = runST $ runErrorT $ do
          traceVG $ "Number of nodes = " ++ show nodes
          traceVG $ "Number of edges = " ++ show edges
          -- Generate execution plan
-         ex <- kennedyWarrenExecutionPlan indi initvs wr typesyns derivings
+         ex <- kennedyWarrenExecutionPlan opts indi initvs wr typesyns derivings
          -- Get visit graph
          visitg <- toGVVisitGraph
          return (ex,visitg)
@@ -585,8 +633,11 @@ kennedyWarrenVisitM wr ndis = do
           target   <- createPending curstate (Set.fromList cinhs) (Set.fromList csyns)
           addChildVisit prod cname target
         -- Add child visits as simultanuous step
-        when (length chvs > 0) $ do
-          addVisitStep prod $ Sim chvs
+        when (not $ null chvs) $
+          if (length chvs == 1)
+          then addVisitStep prod $ head chvs
+          else addVisitStep prod $ Sim chvs
+
     -- Mark this edge as final
     markFinal pend
   -- We are done
@@ -690,9 +741,9 @@ createLhsSyn = VAttr Syn _LHS
 ------------------------------------------------------------
 ---         Construction of the execution plan           ---
 ------------------------------------------------------------
-kennedyWarrenExecutionPlan :: [NontDependencyInformationM s] -> [Maybe Int] -> Set NontermIdent
-                              -> TypeSyns -> Derivings -> VG s ExecutionPlan
-kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
+kennedyWarrenExecutionPlan :: Options -> [NontDependencyInformationM s] -> [Maybe Int] ->
+                              Set NontermIdent -> TypeSyns -> Derivings -> VG s ExecutionPlan
+kennedyWarrenExecutionPlan opts ndis initvs wr typesyns derivings = do
   -- Loop over all nonterminals
   nonts <- forM (zip ndis initvs) $ \(ndi, initv) -> do
     -- Loop over all productions of this nonterminal
@@ -708,7 +759,9 @@ kennedyWarrenExecutionPlan ndis initvs wr typesyns derivings = do
         steps <- vgInST $ readSTRef rprodvs
         inh   <- getInherited vgedg
         syn   <- getSynthesized vgedg
-        return $ Visit edg fr to inh syn steps VisitMonadic -- for a lazy evaluator: (VisitPure False)
+        let kind | monadic opts = VisitMonadic
+                 | otherwise    = VisitPure True
+        return $ Visit edg fr to inh syn steps kind
       -- Return execution plan for this production
       return $ EProduction (pdgProduction $ pdgmOrig prod)
                            (pdgRules      $ pdgmOrig prod)

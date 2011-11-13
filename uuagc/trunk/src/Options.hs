@@ -82,7 +82,8 @@ options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) 
 
                , Option []        ["helpinlining"]            (NoArg helpInliningOpt) "Generate inline directives for GHC"
                , Option []        ["dummytokenvisit"]         (NoArg dummyTokenVisitOpt) "Add an additional dummy parameter to visit functions"
-               , Option []        ["tupleasdummytoken"]       (NoArg tupleAsDummyTokenOpt) "Use conventional tuples as dummy tokens instead of a RealWorld state token"
+               , Option []        ["tupleasdummytoken"]       (NoArg tupleAsDummyTokenOpt) "Use conventional tuples as dummy parameter instead of a RealWorld state token"
+               , Option []        ["stateasdummytoken"]       (NoArg stateAsDummyTokenOpt) "Use RealWorld state token as dummy parameter instead of conventional tuples (default)"
                , Option []        ["strictdummytoken"]        (NoArg strictDummyTokenOpt) "Strictify the dummy token that makes states and rules functions"
                , Option []        ["noperruletypesigs"]       (NoArg noPerRuleTypeSigsOpt) "Do not generate type sigs for attrs passed to rules"
                , Option []        ["noperstatetypesigs"]      (NoArg noPerStateTypeSigsOpt) "Do not generate type sigs for attrs saved in node states"
@@ -248,7 +249,7 @@ noOptions = Options { moduleName    = NoName
                     -- defaults for the KW-code path
                     , kennedyWarren       = False
                     , parallelInvoke      = False
-                    , tupleAsDummyToken   = False
+                    , tupleAsDummyToken   = True
                     , dummyTokenVisit     = False
                     , strictDummyToken    = False
                     , noPerRuleTypeSigs   = False
@@ -317,6 +318,7 @@ genAspectAGOpt opts = opts{genAspectAG = True}
 
 dummyTokenVisitOpt opts         = opts { dummyTokenVisit = True }
 tupleAsDummyTokenOpt opts       = opts { tupleAsDummyToken = True }
+stateAsDummyTokenOpt opts       = opts { tupleAsDummyToken = False }
 strictDummyTokenOpt opts        = opts { strictDummyToken = True }
 noPerRuleTypeSigsOpt opts       = opts { noPerRuleTypeSigs = True }
 noPerStateTypeSigsOpt opts      = opts { noPerStateTypeSigs = True }
