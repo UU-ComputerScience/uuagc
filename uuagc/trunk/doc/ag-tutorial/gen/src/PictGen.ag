@@ -369,14 +369,14 @@ SEM Nonterm
 
 SEM Attr
   | Attr
-      lhs.cmds = Seq.singleton $ @lhs.buildAttr @name @loc.uid @loc.x @tp
+      lhs.cmds = Seq.singleton $ @lhs.buildAttr @name @loc.uid @loc.x @tp @style
 
 SEM Dep
   | Dep
       loc.uidSource  = @lhs.dict Map.! @source
       loc.uidTarget  = @lhs.dict Map.! @target
       (loc.hintSource, loc.hintDest) = selectHints @source @target @hint
-      lhs.cmds = Seq.singleton $ Cmd_DepLine @loc.uidSource @loc.uidTarget @loc.hintSource @loc.hintDest
+      lhs.cmds = Seq.singleton $ Cmd_DepLine @loc.uidSource @loc.uidTarget @loc.hintSource @loc.hintDest @style
 
 {
 mkEdges :: Seq UID -> [Cmd]
@@ -407,7 +407,7 @@ selectHints (Ident_ChildVal _)      (Ident_ChildVal _)      _        = error "Ch
 {
 type Cmds = Seq.Seq Cmd
 type PartCmd = Dim -> String -> Cmd
-type AttrCmd = String -> UID -> Dim -> String -> Cmd
+type AttrCmd = String -> UID -> Dim -> String -> Maybe String -> Cmd
 }
 
 TYPE CmdList = [Cmd]
@@ -423,11 +423,13 @@ DATA Cmd
       uid : {UID}
       x   : {Dim}
       tp  : {String}
+      style : {Maybe String}
   | AttrChild
       nm  : {String}
       uid : {UID}
       x   : {Dim}
       tp  : {String}
+      style : {Maybe String}
   | ChildNonTerm
       nm  : {String}
       uid : {UID}
@@ -446,6 +448,7 @@ DATA Cmd
       uidB  : {UID}
       hintA : {DirHint}
       hintB : {DirHint}
+      style : {Maybe String}
 
 SET AllCmds = CmdList Cmd
 
@@ -465,32 +468,39 @@ ATTR AllCmds [ | | pp USE {>-<} {empty} : {PP_Doc} ]
 
 SEM Cmd
   | Parent
-      lhs.pp = texcmd "agparent" [@nm, mkId @uid, show @x, @tp]
+      lhs.pp = texcmd "agparent" [@nm, mkId @uid, show @x, @tp] []
   | AttrParent
-      lhs.pp = texcmd "agparattr" [@nm, mkId @uid, show @x, @tp]
+      lhs.pp = texcmd "agparattr" [@nm, mkId @uid, show @x, @tp] @loc.styles
   | AttrChild
-      lhs.pp = texcmd "agchldattr" [@nm, mkId @uid, show @x, @tp]
+      lhs.pp = texcmd "agchldattr" [@nm, mkId @uid, show @x, @tp] @loc.styles
   | ChildNonTerm
-      lhs.pp = texcmd "agchldnonterm" [@nm, mkId @uid, show @x, @tp]
+      lhs.pp = texcmd "agchldnonterm" [@nm, mkId @uid, show @x, @tp] []
   | ChildTerm
-      lhs.pp = texcmd "agchldterm" [@nm, mkId @uid, show @x, @tp]
+      lhs.pp = texcmd "agchldterm" [@nm, mkId @uid, show @x, @tp] []
   | SibLine
-      lhs.pp = texcmd "agsibline" [mkId @uidA, mkId @uidB]
+      lhs.pp = texcmd "agsibline" [mkId @uidA, mkId @uidB] []
   | DepLine
       loc.texname = case (@hintA, @hintB) of
                       (DirHint_ForceUp, DirHint_ForceUp)     -> "agdeplineupup"
                       (DirHint_ForceUp, DirHint_ForceDown)   -> "agdeplineupdown"
                       (DirHint_ForceDown, DirHint_ForceUp)   -> "agdeplinedownup"
                       (DirHint_ForceDown, DirHint_ForceDown) -> "agdeplinedowndown"
-      lhs.pp = texcmd @loc.texname [mkId @uidA, mkId @uidB]
+      lhs.pp = texcmd @loc.texname [mkId @uidA, mkId @uidB] @loc.styles
+
+SEM Cmd | AttrParent AttrChild DepLine
+  loc.styles = optStyle @style
 
 {
 mkId :: Int -> String
 mkId uid = "s" ++ show uid
 
-texcmd :: (PP a, PP b) => a -> [b] -> PP_Doc
-texcmd nm ps
-  = "\\" >|< nm >|< hlist (map (pp_braces.pp) ps) >#< "%"
+optStyle :: Maybe String -> [String]
+optStyle (Just s) = [s]
+optStyle Nothing  = []
+
+texcmd :: String -> [String] -> [String] -> PP_Doc
+texcmd nm ps os
+  = "\\" >|< nm >|< hlist (map (pp_brackets . pp) os) >|< hlist (map (pp_braces . pp) ps) >#< "%"
 }
 
 
