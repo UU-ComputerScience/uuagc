@@ -15,7 +15,7 @@ view A
         inh level : Int
         syn html  : String
   flows
-    syn.hd.html   -> syn.lhs.html
+    syn.hd.html   -> syn.lhs.html style hoi
     syn.tl.html   -> syn.lhs.html
     inh.lhs.level -> inh.hd.level
     inh.lhs.level -> inh.tl.level
