@@ -135,6 +135,18 @@ SEM Child | Child
   loc.isMerged = @name `Set.member` @lhs.mergedChildren
 
 -------------------------------------------------------------------------------
+--         Distribute the ContextMap to nonterminals
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ classContexts : ContextMap | | ]
+
+SEM Grammar | Grammar
+  nonts.classContexts = @contextMap
+
+SEM Nonterminal | Nonterminal
+  loc.classContexts = Map.findWithDefault [] @nt @lhs.classContexts
+
+-------------------------------------------------------------------------------
 --         Gather all rules per production for the execution plan
 -------------------------------------------------------------------------------
 ATTR Expression [ | | copy : SELF ]
@@ -298,7 +310,9 @@ SEM  Production
 						    , pdgRules       = @rules.erules
 						    , pdgChilds      = @children.echilds
 						    , pdgProduction  = @con
-                                               	    , pdgChildMap    = @children.nontnames }
+                                               	    , pdgChildMap    = @children.nontnames
+                                               	    , pdgConstraints = @constraints
+                                               	    , pdgParams      = @params }
 
 -------------------------------------------------------------------------------
 --         Dependency graph per nonterminal
@@ -327,7 +341,9 @@ SEM  Nonterminal
                                                          , ndiDepGraph    = @loc.nontgraph
                                                          , ndiProds       = @prods.depgraph
                                                          , ndiRecursive   = @loc.recursive
-                                                         , ndiHoInfo      = @loc.hoInfo }
+                                                         , ndiHoInfo      = @loc.hoInfo
+                                                         , ndiClassCtxs   = @loc.classContexts
+                                                         }
 
 -------------------------------------------------------------------------------
 --         Call the kennedy-warren algorithm

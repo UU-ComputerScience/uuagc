@@ -109,6 +109,8 @@ parseFile agi opts searchPath file
                <|> Either <$ pEITHER <*> pType <*> pType
                <|> Map    <$ pMAP <*> pTypePrimitive <*> pType
                <|> IntMap <$ pINTMAP <*> pType
+               <|> OrdSet <$ pSET <*> pType
+               <|> IntSet <$ pINTSET
                <|> tuple  <$> pParens (pListSep pComma field)
       where field = (,) <$> ((Just <$> pIdentifier <* pTypeColon) `opt` Nothing) <*> pTypeEncapsulated
             tuple xs = Tuple [(fromMaybe (Ident ("x"++show n) noPos) f, t)
@@ -166,9 +168,15 @@ parseFile agi opts searchPath file
                  <*> pCodescrap'
                  <*> pCodescrap'
                  <*> pCodescrap'
-        <|> codeBlock <$> (pIdentifier <|> pSucceed (Ident "" noPos)) <*> ((Just <$ pATTACH <*> pIdentifierU) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
-              where codeBlock nm mbNt (txt,pos) = Txt pos nm mbNt (lines txt)
+        <|> codeBlock <$> pBlockKind <*> ((Just <$ pATTACH <*> pIdentifierU) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
+              where codeBlock knd mbNt (txt,pos) = Txt pos knd mbNt (lines txt)
 
+    pBlockKind :: AGParser BlockKind
+    pBlockKind =
+          BlockPragma <$ pOPTPRAGMAS
+      <|> BlockImport <$ pIMPORTS
+      <|> BlockMain   <$ pTOPLEVEL   -- block is moved to the toplevel ("main") module when "sepsemmods" is used
+      <|> pSucceed BlockOther
 
     pAttrs :: AGParser Attrs
     pAttrs
@@ -210,7 +218,7 @@ parseFile agi opts searchPath file
                  <$> pIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAlt :: AGParser Alt
-    pAlt =  Alt <$> pBar <*> pSimpleConstructorSet <*> pFields <*> pMaybeMacro <?> "a datatype alternative" --marcos
+    pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> pList_ng pIdentifier <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
 
     pAlts :: AGParser Alts
     pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -220,9 +228,9 @@ parseFile agi opts searchPath file
 
     pField :: AGParser Fields
     pField
-           =  (\nms tp -> map (flip (,) tp) nms)
-              <$> pIdentifiers <* pTypeColon <*> pType
-              <|> (\s -> [(Ident (mklower (getName s)) (getPos s) ,NT s [] False)]) <$> pIdentifierU
+           =   (\nms tp -> map (\nm -> FChild nm tp) nms) <$> pIdentifiers <* pTypeColon <*> pType
+           <|> (\s   -> [FChild (Ident (mklower $ getName s) (getPos s)) (NT s [] False)]) <$> pIdentifierU
+           <|> (\t   -> [FCtx [t]]) <$ pSmallerEqual <*> pTypePrimitive
 
     pSemAlt :: AGParser SemAlt
     pSemAlt = SemAlt <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
@@ -480,7 +488,8 @@ pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pEXTENDS, --marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
-      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pSELF
+      pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pSELF,
+      pIMPORTS, pOPTPRAGMAS, pSmallerEqual, pINTSET
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -503,6 +512,7 @@ pMAYBE       = pCostReserved 5  "MAYBE"   <?> "MAYBE"
 pEITHER      = pCostReserved 5  "EITHER"  <?> "EITHER"
 pMAP         = pCostReserved 5  "MAP"     <?> "MAP"
 pINTMAP      = pCostReserved 5  "INTMAP"  <?> "INTMAP"
+pINTSET      = pCostReserved 5  "INTSET"  <?> "INTSET"
 pUSE         = pCostReserved 5  "USE"     <?> "USE"
 pLOC         = pCostReserved 5  "loc"     <?> "loc"
 pLHS         = pCostReserved 5  "lhs"     <?> "loc"
@@ -520,6 +530,7 @@ pBar         = pCostReserved 5  "|"       <?> "|"
 pIntersect   = pCostReserved 5  "/\\"     <?> "/\\"
 pMinus       = pCostReserved 5  "-"       <?> "-"
 pDoubleArrow = pCostReserved 5  "=>"      <?> "=>"
+pSmallerEqual= pCostReserved 5  "<="      <?> "<="
 pArrow       = pCostReserved 5  "->"      <?> "->"
 pStar        = pCostReserved 5  "*"       <?> "*"
 pSmaller     = pCostReserved 5  "<"       <?> "<"
@@ -530,3 +541,6 @@ pAROUND      = pCostReserved 5  "AROUND" <?> "AROUND"
 pMERGE       = pCostReserved 5  "MERGE" <?> "MERGE"
 pAS          = pCostReserved 5  "AS" <?> "AS"
 pSELF        = pCostReserved 5  "SELF" <?> "SELF"
+pIMPORTS     = pCostReserved 5  "imports" <?> "imports"
+pOPTPRAGMAS  = pCostReserved 5  "optpragmas" <?> "optpragmas"
+pTOPLEVEL    = pCostReserved 5  "toplevel" <?> "toplevel"

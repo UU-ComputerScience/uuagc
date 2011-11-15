@@ -12,6 +12,8 @@ TYPE Elems     = [Elem]
 
 TYPE Alts      = [Alt]
 
+TYPE Fields    = [Field]
+
 TYPE SemAlts   = [SemAlt]
 
 TYPE SemDefs   = [SemDef]
@@ -46,7 +48,7 @@ DATA Elem      | Data   pos    : {Pos}
                         alts   : SemAlts
 
                | Txt    pos    : {Pos}
-                        name   : {Identifier}
+                        kind   : {BlockKind}
                         mbNt   : {Maybe NontermIdent}
                         lines  : {[String]}
 
@@ -78,8 +80,13 @@ DATA Attrs     | Attrs  pos    : {Pos}
 
 DATA Alt       | Alt    pos    : {Pos}
                         names  : ConstructorSet
-                        fields : {Fields}
+                        tyvars : {[Identifier]}
+                        fields : Fields
                         macro  : MaybeMacro --marcos: macro extension
+
+DATA Field     | FChild  name : Identifier
+                         tp   : Type
+               | FCtx    tps  : {[Type]}
 
 DATA SemAlt    | SemAlt pos    : {Pos}
                         constructorSet   : ConstructorSet

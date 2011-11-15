@@ -1,0 +1,22 @@
+MODULE {TestOkParamNonterm} {} {}
+
+WRAPPER N
+
+DATA N a
+  | C  b
+       f : {a}
+       g : {b}
+       h : (N {Int})
+       <= {b ~ a}
+
+ATTR N [ | | x : {a} ]
+
+SEM N
+  | C  lhs.x = if @h.x > 0 then @f else @g
+
+{
+main :: IO ()
+main = putStrLn msg
+  where
+    msg = "Hello World!"
+}

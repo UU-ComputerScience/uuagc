@@ -41,6 +41,7 @@ kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
     nont = ENonterminal
                  (ndiNonterminal ndi)
                  (ndiParams ndi)
+                 (ndiClassCtxs ndi)
                  inits
                  (Just initv)
                  nextMap
@@ -57,6 +58,8 @@ kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
     mkProd pdi = prod where
       prod = EProduction
                (pdgProduction pdi)
+               (pdgParams pdi)
+               (pdgConstraints pdi)
                (pdgRules pdi)
                (pdgChilds pdi)
                visits
@@ -764,6 +767,8 @@ kennedyWarrenExecutionPlan opts ndis initvs wr typesyns derivings = do
         return $ Visit edg fr to inh syn steps kind
       -- Return execution plan for this production
       return $ EProduction (pdgProduction $ pdgmOrig prod)
+                           (pdgParams     $ pdgmOrig prod)
+			   (pdgConstraints $ pdgmOrig prod)
                            (pdgRules      $ pdgmOrig prod)
                            (pdgChilds     $ pdgmOrig prod)
 			   visits
@@ -775,13 +780,14 @@ kennedyWarrenExecutionPlan opts ndis initvs wr typesyns derivings = do
     -- Return execution plan for this nonterminal
     return $  ENonterminal (ndiNonterminal $ ndimOrig ndi)
                            (ndiParams      $ ndimOrig ndi)
+                           (ndiClassCtxs $ ndimOrig ndi)
                            init
                            initv
                            nextMap
                            prevMap
                            prods
                            (ndiRecursive $ ndimOrig ndi)
-                           (ndiHoInfo $ ndimOrig ndi)
+                           (ndiHoInfo    $ ndimOrig ndi)
 
   -- Return complete execution plan
   return $ ExecutionPlan nonts typesyns wr derivings

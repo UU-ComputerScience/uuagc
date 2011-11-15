@@ -29,52 +29,55 @@ TYPE VisitSteps    = [VisitStep]
 
 TYPE Visits        = [Visit]
 
-DATA ENonterminal | ENonterminal nt         : {NontermIdent}
-                                 params     : {[Identifier]}
-				 initial    : {StateIdentifier}
-				 initialv   : {Maybe VisitIdentifier}
-				 nextVisits : {Map StateIdentifier StateCtx}  -- info about the next visits from a given state
-				 prevVisits : {Map StateIdentifier StateCtx}  -- info about the previous visits to a given state
-                                 prods      : EProductions
-                                 recursive  : Bool
-                                 hoInfo     : {HigherOrderInfo}
+DATA ENonterminal | ENonterminal nt          : {NontermIdent}
+                                 params      : {[Identifier]}
+                                 classCtxs   : {ClassContext}                  -- class context at the datatype level
+				 initial     : {StateIdentifier}
+				 initialv    : {Maybe VisitIdentifier}
+				 nextVisits  : {Map StateIdentifier StateCtx}  -- info about the next visits from a given state
+				 prevVisits  : {Map StateIdentifier StateCtx}  -- info about the previous visits to a given state
+                                 prods       : EProductions
+                                 recursive   : {Bool}
+                                 hoInfo      : {HigherOrderInfo}
 
-DATA EProduction  | EProduction  con      : {ConstructorIdent}
-     		   		 rules    : ERules
-				 children : EChildren
-				 visits   : Visits
+DATA EProduction  | EProduction  con         : {ConstructorIdent}
+				 params      : {[Identifier]}
+				 constraints : {[Type]}                        -- (class/equality) constraints on types (requires GADTs)
+     		   		 rules       : ERules
+				 children    : EChildren
+				 visits      : Visits
 
-DATA EChild       | EChild       name      : {Identifier}
-                                 tp        : {Type}
-             			 kind      : {ChildKind}
-             			 hasAround : {Bool}  -- if there exists a rule <name>_around that transforms the child's sem
-             			 merges    : {Maybe [Identifier]} -- Nothing: not the result of a merge of other children (ignored for now)
-             			 isMerged  : {Bool}               -- False: not being used to merge other children (ignored for now)
-             	  | ETerm       name     : {Identifier}
-             	                tp       : {Type}
+DATA EChild       | EChild       name        : {Identifier}
+                                 tp          : {Type}
+             			 kind        : {ChildKind}
+             			 hasAround   : {Bool}  -- if there exists a rule <name>_around that transforms the child's sem
+             			 merges      : {Maybe [Identifier]} -- Nothing: not the result of a merge of other children (ignored for now)
+             			 isMerged    : {Bool}               -- False: not being used to merge other children (ignored for now)
+             	  | ETerm        name        : {Identifier}
+             	                 tp          : {Type}
 
-DATA ERule        | ERule       name     : {Identifier}
-                                pattern  : Pattern
-                                rhs      : Expression
-                                owrt     : {Bool}
-                                origin   : String           -- just for documentation (and maybe errors)
-                                explicit : Bool             -- True if this rule defined in the source code
-                                pure     : Bool             -- True if this rule is pure (not monadic/no side effect)
-                                mbError  : {Maybe Error}    -- the rule may contain an error that is yielded when the rule is scheduled
+DATA ERule        | ERule       name         : {Identifier}
+                                pattern      : Pattern
+                                rhs          : Expression
+                                owrt         : {Bool}
+                                origin       : String           -- just for documentation (and maybe errors)
+                                explicit     : Bool             -- True if this rule defined in the source code
+                                pure         : Bool             -- True if this rule is pure (not monadic/no side effect)
+                                mbError      : {Maybe Error}    -- the rule may contain an error that is yielded when the rule is scheduled
 
-DATA Visit        | Visit       ident    : {VisitIdentifier}
-     		    		from     : {StateIdentifier}
-				to       : {StateIdentifier}
-				inh      : {Set Identifier}
-				syn      : {Set Identifier}
-     		    		steps    : VisitSteps
-     		    		kind     : {VisitKind}
+DATA Visit        | Visit       ident        : {VisitIdentifier}
+     		    		from         : {StateIdentifier}
+				to           : {StateIdentifier}
+				inh          : {Set Identifier}
+				syn          : {Set Identifier}
+     		    		steps        : VisitSteps
+     		    		kind         : {VisitKind}
 
-DATA VisitStep    | Sem         name     : {Identifier}
-		  | ChildVisit  child    : {Identifier}
-		    		nonterm  : {NontermIdent}
-				visit    : {VisitIdentifier}
-		  | PureGroup   steps    : VisitSteps   -- A group of steps that should be executed purely
-		                ordered  : {Bool}
-		  | Sim         steps    : VisitSteps
-		  | ChildIntro  child    : {Identifier}
+DATA VisitStep    | Sem         name         : {Identifier}
+		  | ChildVisit  child        : {Identifier}
+		    		nonterm      : {NontermIdent}
+				visit        : {VisitIdentifier}
+		  | PureGroup   steps        : VisitSteps   -- A group of steps that should be executed purely
+		                ordered      : {Bool}
+		  | Sim         steps        : VisitSteps
+		  | ChildIntro  child        : {Identifier}

@@ -41,11 +41,13 @@ DATA Nonterminal  | Nonterminal nt     : {NontermIdent}
                                 syn    : {Attributes}
                                 prods  : Productions
 
-DATA Production  | Production   con      : {ConstructorIdent}
-                                children : Children
-                                rules    : Rules
-                                typeSigs : TypeSigs
-                                macro    : MaybeMacro --marcos
+DATA Production  | Production   con         : {ConstructorIdent}
+                                params      : {[Identifier]}
+                                constraints : {[Type]}
+                                children    : Children
+                                rules       : Rules
+                                typeSigs    : TypeSigs
+                                macro       : MaybeMacro --marcos
 
 DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
