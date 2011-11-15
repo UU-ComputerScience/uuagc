@@ -68,6 +68,7 @@ scan opts
             scan' ('~' :rs)          = (reserved "~" p, advc 1 p, rs)
             scan' ('+' :rs)          = (reserved "+" p, advc 1 p, rs)
             scan' ('<' : '-' : rs)   = (reserved "<-" p, advc 2 p, rs)
+            scan' ('<' : '=' : rs)   = (reserved "<=" p, advc 2 p, rs)
             scan' ('<' : '<' : '-' : rs) = (reserved "<<-" p, advc 3 p, rs)
             scan' ('<' :rs)          = (reserved "<" p, advc 1 p, rs)
             scan' ('[' :rs)          = (reserved "[" p, advc 1 p, rs)
@@ -131,13 +132,13 @@ scan opts
 
 ident = span isValid
  where isValid x = isAlphaNum x || x =='_' || x == '\''
-lowercaseKeywords = ["loc","lhs", "inst"]
+lowercaseKeywords = ["loc","lhs", "inst", "optpragmas", "imports", "toplevel"]
 keywords = lowercaseKeywords ++
            [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "EXTENDS" -- marcos
            , "SET","DERIVING","FOR", "WRAPPER", "NOCATAS", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
-           , "AUGMENT", "AROUND", "MERGE", "AS", "SELF"
+           , "AUGMENT", "AROUND", "MERGE", "AS", "SELF", "INTSET"
            ]
 
 ncomment c p ('-':'}':xs) = advc' 2 p c  xs

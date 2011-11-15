@@ -281,7 +281,9 @@ data ProdDependencyGraph = ProdDependencyGraph { pdgVertices    :: [Vertex]
                                                , pdgRules       :: ERules
                                                , pdgChilds      :: EChildren
                                                , pdgProduction  :: Identifier
-                                               , pdgChildMap    :: [(Identifier, Identifier)] }
+                                               , pdgChildMap    :: [(Identifier, Identifier)]
+                                               , pdgConstraints :: [Type]
+                                               , pdgParams      :: [Identifier] }
 
 
 -- | Represent all information from the dependency graphs for a nonterminal
@@ -292,7 +294,9 @@ data NontDependencyInformation = NontDependencyInformation { ndiNonterminal :: I
                                                            , ndiDepGraph    :: NontDependencyGraph
                                                            , ndiProds       :: [ProdDependencyGraph]
                                                            , ndiRecursive   :: Bool
-                                                           , ndiHoInfo      :: HigherOrderInfo }
+                                                           , ndiHoInfo      :: HigherOrderInfo
+                                                           , ndiClassCtxs   :: ClassContext
+                                                           }
 
 --- Monadic versions of these records, for use with the ST monad
 

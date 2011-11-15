@@ -10,8 +10,8 @@ import Data.Monoid(mappend,mempty,Monoid)
 
 
 type Blocks = Map BlockInfo [([String], Pos)]
-type BlockInfo = (BlockType, Maybe NontermIdent)
-data BlockType
+type BlockInfo = (BlockKind, Maybe NontermIdent)
+data BlockKind
   = BlockImport
   | BlockPragma
   | BlockMain
@@ -43,6 +43,8 @@ data ComplexType = List Type
                  | Either Type Type
                  | Map Type Type
                  | IntMap Type
+                 | OrdSet Type
+                 | IntSet
 
 instance Show ComplexType where
   show (List  t )     = "[" ++ show t ++ "]"
@@ -51,6 +53,8 @@ instance Show ComplexType where
   show (Either t1 t2) = "Either " ++ show t1 ++ " " ++ show t2
   show (Map t1 t2)    = "Map " ++ show t1 ++ " " ++ show t2
   show (IntMap t1)    = "IntMap " ++ show t1
+  show (OrdSet t1)    = "Set" ++ show t1
+  show IntSet         = "IntSet"
 
 instance Show Type where
   show = typeToHaskellString Nothing []
@@ -63,7 +67,6 @@ type UseMap      = Map NontermIdent (Map Identifier (String,String,String))
 type PragmaMap   = Map NontermIdent (Map ConstructorIdent (Set Identifier))
 type AttrMap     = Map NontermIdent (Map ConstructorIdent (Set (Identifier,Identifier)))
 type UniqueMap   = Map NontermIdent (Map ConstructorIdent (Map Identifier Identifier))
-type Fields      = [(Identifier,Type)]
 type Derivings   = Map NontermIdent (Set Identifier)
 type ClassContext = [(Identifier, [String])]
 type ContextMap  = Map NontermIdent ClassContext

@@ -55,7 +55,7 @@ SEM ENonterminal
   | ENonterminal prods.rename = rename @lhs.options
 
 -------------------------------------------------------------------------------
---  Context info (nonterminal ident, constructor ident)
+--  Context info (nonterminal ident, constructor ident, nonterm params, etc.)
 -------------------------------------------------------------------------------
 
 ATTR Visit Visits EProduction EProductions EChildren EChild ERules ERule [ nt : NontermIdent | | ]
@@ -69,6 +69,14 @@ SEM EProduction
   | EProduction children.con = @con
                 rules.con    = @con
                 visits.con   = @con
+
+ATTR EProductions EProduction Visits Visit [ params : {[Identifier]} | | ]
+SEM ENonterminal | ENonterminal
+  prods.params = @params
+
+ATTR EProductions EProduction [ classCtxs : ClassContext | | ]
+SEM ENonterminal | ENonterminal
+  prods.classCtxs = @classCtxs
 
 -------------------------------------------------------------------------------
 --  Default output
@@ -125,20 +133,24 @@ SEM ExecutionPlan
                   nonts.derivings = @derivings
 
 SEM ENonterminal
-  | ENonterminal loc.datatype = case lookup @nt @lhs.typeSyns of
-                                   Nothing -> "data" >#< @nt
-                                              >#< ( if null @prods.datatype
+  | ENonterminal loc.classPP  = ppClasses $ classCtxsToDocs @classCtxs
+                 loc.aliasPre = "type" >#< @loc.classPP >#< @nt >#< @loc.t_params >#< "="
+                 loc.datatype = case lookup @nt @lhs.typeSyns of
+                                   Nothing -> "data" >#< @loc.classPP >#< @nt >#< @loc.t_params
+                                              >-< ( if null @prods.datatype
                                                     then empty
-                                                    else (vlist $ ("=" >#< head @prods.datatype)
-                                                                  : (map ("|" >#<) $ tail @prods.datatype))
+                                                    else indent 2 $ vlist $ ( ("=" >#< head @prods.datatype)
+                                                                            : (map ("|" >#<) $ tail @prods.datatype))
                                                   )
-                                              >#< @loc.derivings
-                                   Just (List t) -> "type" >#< @nt >#< "=" >#< "[" >#< show t >#< "]"
-                                   Just (Maybe t) -> "type" >#< @nt >#< "=" >#< "Maybe" >#< show t
-                                   Just (Tuple ts) -> "type" >#< @nt >#< "=" >#< pp_parens (ppCommas $ map (show . snd) ts)
-                                   Just (Either l r) -> "type" >#< @nt >#< "=" >#< "Either" >#< show l >#< show r
-                                   Just (Map k v) -> "type" >#< @nt >#< "=" >#< "Data.Map" >#< pp_parens (show k) >#< show v
-                                   Just (IntMap t) -> "type" >#< @nt >#< "=" >#< "Data.IntMap.IntMap" >#< show t
+                                              >-< indent 2 @loc.derivings
+                                   Just (List t)     -> @loc.aliasPre >#< "[" >#< show t >#< "]"
+                                   Just (Maybe t)    -> @loc.aliasPre >#< "Maybe" >#< show t
+                                   Just (Tuple ts)   -> @loc.aliasPre >#< pp_parens (ppCommas $ map (show . snd) ts)
+                                   Just (Either l r) -> @loc.aliasPre >#< "Either" >#< show l >#< show r
+                                   Just (Map k v)    -> @loc.aliasPre >#< "Data.Map" >#< pp_parens (show k) >#< show v
+                                   Just (IntMap t)   -> @loc.aliasPre >#< "Data.IntMap.IntMap" >#< show t
+                                   Just (OrdSet t)   -> @loc.aliasPre >#< "Data.Set.Set" >#< show t
+                                   Just IntSet       -> @loc.aliasPre >#< "Data.IntSet.IntSet"
 --                                   Just x -> error $ "Type " ++ show x ++ " is not supported"
                  loc.derivings = case Map.lookup @nt @lhs.derivings of
                                     Nothing -> empty
@@ -146,12 +158,34 @@ SEM ENonterminal
                                                then empty
                                                else "deriving" >#< (pp_parens $ ppCommas $ map pp $ Set.toList s)
 
+{
+classCtxsToDocs :: ClassContext -> [PP_Doc]
+classCtxsToDocs = map toDoc where
+  toDoc (ident,args) = (ident >#< ppSpaced (map pp_parens args))
+
+classConstrsToDocs :: [Type] -> [PP_Doc]
+classConstrsToDocs = map ppTp
+
+ppClasses :: [PP_Doc] -> PP_Doc
+ppClasses [] = empty
+ppClasses xs = pp_block "(" ")" "," xs >#< "=>"
+
+ppQuants :: [Identifier] -> PP_Doc
+ppQuants [] = empty
+ppQuants ps = "forall" >#< ppSpaced ps >#< "."
+}
+
 ATTR EProduction  [ | | datatype : {PP_Doc} ]
 ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
 
+-- we generate the data type in the type-class style instead of the GADT style
+-- the GADT extension may be required if equality constraints are used
 SEM EProduction
-  | EProduction lhs.datatype = conname @lhs.rename @lhs.nt @con >#<
-                               ppConFields (dataRecords @lhs.options) @children.datatype
+  | EProduction lhs.datatype = @loc.quantPP1 >#< @loc.classPP1
+                               >#< conname @lhs.rename @lhs.nt @con
+                               >#< ppConFields (dataRecords @lhs.options) @children.datatype
+                loc.classPP1 = ppClasses (classConstrsToDocs @constraints)
+                loc.quantPP1 = ppQuants @params
 
 {
 -- first parameter indicates: generate a record or not
@@ -182,7 +216,7 @@ SEM EChild
 {
 ppTp :: Type -> PP_Doc
 ppTp (Haskell s)      = text s
-ppTp (NT nt args for) = prefix >|< nt >#< ppSpaced args where
+ppTp (NT nt args for) = prefix >|< nt >#< ppSpaced (map pp_parens args) where
   prefix | for       = text "T_"
          | otherwise = empty
 }
@@ -199,7 +233,8 @@ SEM ENonterminal
 
                  -- The sem_NT function is lazy in the AST: it depends on the application of "child"
                  -- rules to which extend the AST needs to be constructed.
-                 loc.sem_tp  = @nt >#< "->" >#< @loc.t_type
+                 loc.sem_tp  = @loc.quantPP >#< @loc.classPP >#< @nt >#< @loc.t_params >#< "->" >#< @loc.t_type >#< @loc.t_params
+                 loc.quantPP = ppQuants @params
                  loc.sem_nt  = @loc.semPragma
                                >-< @loc.semname >#< "::" >#< @loc.sem_tp
                                >-< case lookup @nt @lhs.typeSyns of
@@ -226,6 +261,17 @@ SEM ENonterminal
                                                          >#< case v of
                                                                 NT nt _ _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
                                                                 _         -> pp "m"
+                                      Just (OrdSet t) -> @loc.semname >#< "s" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Entry"
+                                                         >#< @loc.semname >|< "_Nil"
+                                                         >#< pp_parens (
+                                                               ( case t of
+                                                                   NT nt _ _ -> pp_parens ("Prelude.map" >#< @fsemname nt)
+                                                                   _         -> empty
+                                                               ) >#< pp_parens ("Data.IntSet.elems" >#< "s")
+                                                             )
+                                      Just IntSet     -> @loc.semname >#< "s" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Entry"
+                                                         >#< @loc.semname >|< "_Nil"
+                                                         >#< pp_parens ("Data.IntSet.elems" >#< "s")
 --                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
 
                 -- precise inlining strategies for inlining
@@ -303,11 +349,12 @@ SEM ENonterminal
                  loc.inedges   = Set.fromList $ map (\(_,_,t) -> t) @prods.allvisits
                  loc.allstates = Set.insert @initial $ @loc.inedges `Set.union` @loc.outedges
                  loc.stvisits  = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
-                 loc.t_type    = "T_" ++ show @nt
-                 loc.t_init    = "newtype" >#< @loc.t_type >#< "=" >#< @loc.t_type >#<
+                 loc.t_type    = "T_" >|< @nt
+                 loc.t_params  = ppSpaced @params
+                 loc.t_init    = "newtype" >#< @loc.t_type >#< @loc.t_params >#< "=" >#< @loc.t_type >#<
                                    pp_braces (
                                      "attach_">|< @loc.t_type >#< "::"
-                                       >#< ppMonadType @lhs.options >#< @loc.t_type >|< "_s" >|< @initial )
+                                       >#< ppMonadType @lhs.options >#< pp_parens (@loc.t_type >|< "_s" >|< @initial >#< @loc.t_params))
                  loc.t_states  = vlist $ map (\st ->
                                     let nt_st = @nt >|< "_s" >|< st
                                         t_st  = "T_" >|< nt_st
@@ -316,12 +363,12 @@ SEM ENonterminal
                                         inv_st  = "inv_" >|< nt_st
                                         nextVisit = Map.findWithDefault ManyVis st @nextVisits
                                     in  case nextVisit of
-                                          NoneVis    -> "data" >#< t_st >#< "=" >#< c_st  -- empty semantics
-                                          OneVis vId -> "newtype" >#< t_st >#< "=" >#< c_st
-                                                         >#< (pp_braces $ inv_st >#< "::" >#< pp_parens (conNmTVisit @nt vId))
-                                          ManyVis    -> "data" >#< t_st >#< "where" >#< c_st >#< "::"
-                                                          >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< "t" >#< "->" >#< "t"))
-                                                          >#< "->" >#< t_st  -- this is a conventional data type, but declared with GADT syntax
+                                          NoneVis    -> "data" >#< t_st >#< @loc.t_params >#< "=" >#< c_st  -- empty semantics
+                                          OneVis vId -> "newtype" >#< t_st >#< @loc.t_params >#< "=" >#< c_st
+                                                         >#< (pp_braces $ inv_st >#< "::" >#< pp_parens (conNmTVisit @nt vId >#< @loc.t_params))
+                                          ManyVis    -> "data" >#< t_st >#< @loc.t_params >#< "where" >#< c_st >#< "::"
+                                                          >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< @loc.t_params >#< "t" >#< "->" >#< "t"))
+                                                          >#< "->" >#< t_st >#< @loc.t_params  -- this is a conventional data type, but declared with GADT syntax
                                         ) $ Set.toList @loc.allstates
 
 -- type of a key which identifies a visit v from state s
@@ -332,10 +379,10 @@ SEM ENonterminal
                                        k_st  = "K_" >|< nt_st
                                        outg  = filter (\(v,f,t) -> f == st) @prods.allvisits
                                        visitlist = vlist $ map (\(v,f,t) ->
-                                           @loc.k_type >|< "_v" >|< v >#< "::" >#< k_st >#< @loc.t_type >|< "_v" >|< v
+                                           @loc.k_type >|< "_v" >|< v >#< "::" >#< k_st >#< @loc.t_params >#< pp_parens (@loc.t_type >|< "_v" >|< v >#< @loc.t_params)
                                             ) outg
                                        nextVisit = Map.findWithDefault ManyVis st @nextVisits
-                                       decl = "data" >#< k_st >#< "k" >#< "where" >-< indent 3 visitlist
+                                       decl = "data" >#< k_st >#< "k" >#< @loc.t_params >#< "where" >-< indent 3 visitlist
                                    in  case nextVisit of
                                          NoneVis  -> empty
                                          OneVis _ -> empty
@@ -359,19 +406,20 @@ SEM Visit
                                   VisitPure _  -> empty
                                   VisitMonadic -> ppMonadType @lhs.options
 
-          lhs.t_visits = "type" >#< @loc.nameT_visit >#< "=" >#<
-                           @loc.nameTIn_visit
+          loc.t_params  = ppSpaced @lhs.params
+          lhs.t_visits = "type" >#< @loc.nameT_visit >#< @loc.t_params >#< "=" >#<
+                           pp_parens (@loc.nameTIn_visit >#< @loc.t_params)
                              >#< ( if dummyTokenVisit @lhs.options
                                    then "->" >#< dummyType @lhs.options True  -- Additional (unused though) argument
                                    else empty
                                  )
-                             >#< "->" >#< @loc.typecon >#< @loc.nameTOut_visit
-                         >-< "data" >#< @loc.nameTIn_visit >#< "=" >#< @loc.nameTIn_visit >#<
+                             >#< "->" >#< @loc.typecon >#< pp_parens (@loc.nameTOut_visit >#< @loc.t_params)
+                         >-< "data" >#< @loc.nameTIn_visit >#< @loc.t_params >#< "=" >#< @loc.nameTIn_visit >#<
                               @loc.inhpart
-                         >-< "data" >#< @loc.nameTOut_visit >#< "=" >#< @loc.nameTOut_visit >#<
+                         >-< "data" >#< @loc.nameTOut_visit >#< @loc.t_params >#< "=" >#< @loc.nameTOut_visit >#<
                               @loc.synpart >#< case @loc.nextVisitInfo of
                                                  NoneVis    -> empty                    -- don't return a continuation at all
-                                                 _          -> @loc.addbang1 $ pp @loc.nameTNext_visit     -- normal route: select the next semantics
+                                                 _          -> @loc.addbang1 $ pp_parens (@loc.nameTNext_visit >#< @loc.t_params)  -- normal route: select the next semantics
           loc.inhpart   = @loc.ppTypeList @inh @lhs.inhmap
           loc.synpart   = @loc.ppTypeList @syn @lhs.synmap
           loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang1 $ pp_parens $ case Map.lookup i m of
@@ -395,7 +443,7 @@ ppMonadType opts
 SEM ENonterminal
   | ENonterminal loc.wr_inh   = @loc.genwrap "Inh" @loc.wr_inhs
                  loc.wr_syn   = @loc.genwrap "Syn" @loc.wr_syns
-                 loc.genwrap  = \nm attr -> "data" >#< nm >|< "_" >|< @nt >#< "=" >#< nm >|< "_" >|< @nt >#< "{"
+                 loc.genwrap  = \nm attr -> "data" >#< nm >|< "_" >|< @nt >#< @loc.t_params >#< "=" >#< nm >|< "_" >|< @nt >#< "{"
                                             >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< @nt >#< "::"
                                             >#< (@loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t)) attr) >#< "}"
                  loc.synAttrs = fromJust $ Map.lookup @nt @lhs.inhmap
@@ -413,8 +461,8 @@ SEM ENonterminal
                  loc.synname  = "Syn_" ++ show @nt
                  loc.firstVisitInfo = Map.findWithDefault ManyVis @initial @nextVisits
                  loc.wrapper  = @loc.wrapPragma
-                                >-< (@loc.wrapname >#< "::" >#< @loc.t_type >#< "->"
-                                      >#< @loc.inhname >#< "->" >#< ( if monadicWrappers @lhs.options then ppMonadType @lhs.options else empty) >#< @loc.synname)
+                                >-< (@loc.wrapname >#< "::" >#< @loc.quantPP >#< @loc.classPP >#< @loc.t_type >#< @loc.t_params >#< "->"
+                                      >#< @loc.inhname >#< @loc.t_params >#< "->" >#< ( if monadicWrappers @lhs.options then ppMonadType @lhs.options else empty) >#< pp_parens (@loc.synname >#< @loc.t_params))
                                 >-< (@loc.wrapname >#< (@loc.addbang $ pp_parens (@loc.t_type >#< pp "act"))
                                     >#< (@loc.addbang $ pp_parens (@loc.inhname
                                            >#< (ppSpaced $ map (@loc.addbangWrap . pp) @loc.inhlist)) >#< "="))
@@ -517,8 +565,8 @@ ATTR EChildren [ | | argtps  USE {:} {[]} : { [PP_Doc] }
 
 SEM EChild
   | EChild lhs.argtps   = case @kind of
-                            ChildSyntax     -> ("T_" >|< @loc.nt) >#< "->"
-                            ChildReplace tp -> ("T_" >|< extractNonterminal tp) >#< "->"
+                            ChildSyntax     -> ppDefor @tp >#< "->"
+                            ChildReplace tp -> ppDefor tp >#< "->"
                             _               -> empty  -- higher order attribute
            loc.argpats = case @kind of
                            ChildSyntax    -> "field_" >|< @name                    -- no strictification of children semantics to allow infinite trees
@@ -527,12 +575,20 @@ SEM EChild
   | ETerm  lhs.argtps  = (pp_parens $ show @tp) >#< "->"
            loc.argpats = @loc.addbang $ text $ locname @name   -- terminals may be strict (perhaps this should become an option)
 
+{
+ppDefor :: Type -> PP_Doc
+ppDefor (NT nt args _) = "T_" >|< nt >#< ppSpaced (map pp_parens args)
+ppDefor (Haskell s)    = text s
+}
 
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
+                loc.t_params = ppSpaced @lhs.params
                 loc.args     = @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
-                loc.sem_tp   = ppSpaced @children.argtps >#< @loc.t_type
+                loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
+                loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
+                loc.quantPP2 = ppQuants (@lhs.params ++ @params)
                 loc.sem_prod = @loc.semInlinePragma
                                >-< @loc.semname >#< "::" >#< @loc.sem_tp
                                >-< @loc.mkSemBody (@loc.semname >#< ppSpaced @loc.args >#< "=" >#< @loc.scc >#< @loc.t_type)
@@ -614,9 +670,10 @@ SEM EProduction
                                                              Just tp -> pp_parens (pp_parens match >#< "::" >#< ppTp tp)
                                                              Nothing -> match
                                                          Just attr | not (noPerStateTypeSigs @lhs.options) ->
-                                                           let tpDoc = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes
-                                                           in pp_parens (pp_parens match >#< "::" >#< tpDoc)
-                                                         Nothing   -> match
+                                                           case lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes of
+                                                             Just tpDoc -> pp_parens (pp_parens match >#< "::" >#< tpDoc)
+                                                             Nothing    -> match
+                                                         _ -> match
                                                  | (str,mbAttr) <- Map.assocs attrs
                                                  ] >#< dummyPat @lhs.options (Map.null attrs)
 
@@ -658,7 +715,7 @@ SEM Visit
                                            then ppNoInline @loc.vname
                                            else empty
                                )
-                               >-< "v" >|< @ident >#< "::" >#< @loc.nameT_visit
+                               >-< "v" >|< @ident >#< "::" >#< @loc.nameT_visit >#< @loc.t_params
 
                                       -- generate a lambda here as well instead of a function definition
                                >-< "v" >|< @ident >#< "=" >#< "\\" >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
@@ -965,9 +1022,10 @@ SEM ERule | ERule
                                              Just tp -> pp_parens (pp_parens match >#< "::" >#< ppTp tp)
                                              Nothing -> match
                                          Just attr | not (noPerRuleTypeSigs @lhs.options) ->
-                                           let tpDoc = lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes
-                                           in pp_parens (pp_parens match >#< "::" >#< tpDoc)
-                                         Nothing   -> match
+                                           case lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes of
+                                             Just tpDoc -> pp_parens (pp_parens match >#< "::" >#< tpDoc)
+                                             Nothing    -> match
+                                         _ -> match
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
       loc.argExprs     = ppSpaced $ Map.keys @rhs.attrs
@@ -1070,17 +1128,27 @@ mkNonLocalAttr :: Bool -> Identifier -> Identifier -> NonLocalAttr
 mkNonLocalAttr True  = AttrInh  -- True: inherited attr
 mkNonLocalAttr False = AttrSyn
 
-lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> PP_Doc
+lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> Maybe PP_Doc
 lookupAttrType (AttrInh child name) inhs _ = lookupType child name inhs
 lookupAttrType (AttrSyn child name) _ syns = lookupType child name syns
 
-lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> PP_Doc
-lookupType child name attrMp childMp = ppDoc where
-  attrTp     = Map.findWithDefault (error "lookupType: the attribute is not in the attrs of the child") name childAttrs
-  childAttrs = Map.findWithDefault (error "lookupType: the attributes of the nonterm are not in the map") nonterm attrMp
-  nonterm    = extractNonterminal childTp
-  childTp    = Map.findWithDefault (error ("lookupType: the child " ++ show child ++ "is not in the appropriate map")) child childMp
-  ppDoc      = ppTp attrTp
+-- Note: if the child takes type parameters, the type of an attribute of this child may refer to these parameters. This means that
+-- the actual type of the attribute needs to have its type parameters substituted with the actual type argument of the child.
+-- However, for now we simply decide to return Nothing in this case, which skips the type annotation.
+lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> Maybe PP_Doc
+lookupType child name attrMp childMp
+  | noParameters childTp = Just ppDoc
+  | otherwise            = Nothing
+  where
+    attrTp     = Map.findWithDefault (error "lookupType: the attribute is not in the attrs of the child") name childAttrs
+    childAttrs = Map.findWithDefault (error "lookupType: the attributes of the nonterm are not in the map") nonterm attrMp
+    nonterm    = extractNonterminal childTp
+    childTp    = Map.findWithDefault (error ("lookupType: the child " ++ show child ++ "is not in the appropriate map")) child childMp
+    ppDoc      = ppTp attrTp
+
+noParameters :: Type -> Bool
+noParameters (Haskell _)   = True
+noParameters (NT _ args _) = null args
 }
 
 ATTR Expression [ | | semfunc : {PP_Doc} ]

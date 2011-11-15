@@ -11,7 +11,7 @@ import Data.List (partition, elem, nub,intersperse, union)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert)
+import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert, elems)
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq, empty, (><),fromList)
 import Data.Foldable(toList)
@@ -27,6 +27,7 @@ import HsToken
 import Options
 import CommonTypes
 import RhsCheck
+import Debug.Trace
 }
 
 
@@ -51,7 +52,9 @@ ATTR AG Elems Elem
 SEM AG
   | AG lhs.output = constructGrammar @loc.allNonterminals
                                      @elems.paramsCollect
+                                     @loc.allConParams
                                      @loc.allFields
+                                     @loc.allConstraints
                                      @loc.allAttrDecls
                                      @elems.useMap
                                      @elems.derivings
@@ -87,7 +90,7 @@ SEM AG
 ATTR Elem Elems          [ | | collectedSetNames USE {`Set.union`} {Set.empty} : {Set Identifier} ]
 ATTR Elem Elems NontSet  [ | | collectedNames    USE {`Set.union`} {Set.empty} : {Set Identifier} ]
   -- top-down distribution
-ATTR Elem Elems Attrs Alts Alt NontSet [ allNonterminals : {Set NontermIdent} | | ]
+ATTR Elem Elems Attrs Alts Alt Fields Field NontSet [ allNonterminals : {Set NontermIdent} | | ]
 
 
 -- Constructors that are in use
@@ -124,7 +127,10 @@ ATTR ConstructorSet  [ | | constructors : {(Set ConstructorIdent->Set Constructo
 {type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap) }
   -- bottom-up collection
 ATTR Alt Alts Elem Elems
-     [ | | collectedFields USE {++} {[]} : {[(NontermIdent, ConstructorIdent, FieldMap)]}]
+     [ | | collectedFields USE {++} {[]} : {[(NontermIdent, ConstructorIdent, FieldMap)]}
+           collectedConstraints USE {++} {[]} : {[(NontermIdent, ConstructorIdent, [Type])]}
+           collectedConParams USE {++} {[]} : {[(NontermIdent, ConstructorIdent, Set Identifier)]}
+     ]
   -- top-down distribution
 ATTR Elem Elems Attrs SemAlt SemAlts NontSet
      [  allFields : {DataTypes} | | ]
@@ -179,14 +185,7 @@ SEM Elem
 -------------------------------------------------------------------------------
 
 SEM Elem
-  | Txt  loc.blockInfo  = ( let nm = getName @name
-                            in if nm == "imports"
-                               then BlockImport
-                               else if nm == "optpragmas"
-                                    then BlockPragma
-                                    else if nm == "main"
-                                         then BlockMain
-                                         else BlockOther
+  | Txt  loc.blockInfo  = ( @kind
                           , @mbNt
                           )
          loc.blockValue = [(@lines, @pos)]
@@ -239,11 +238,15 @@ equalId x y = getName x == getName y
 
 
 SEM Alt
-  | Alt  lhs.collectedFields  =  let fieldTable =
-                                      [ (attr, makeType @lhs.allNonterminals tp)
-                                      | (attr, tp) <- @fields
+  | Alt  lhs.collectedFields  =       [ (nt, con, @fields.collectedFields)
+                                      | nt  <- Set.toList @lhs.nts
+                                      , con <- Set.toList (@names.constructors (Map.findWithDefault Set.empty nt @lhs.allConstructors))
                                       ]
-                                 in   [ (nt, con, fieldTable)
+         lhs.collectedConstraints =   [ (nt, con, @fields.collectedConstraints)
+                                      | nt  <- Set.toList @lhs.nts
+                                      , con <- Set.toList (@names.constructors (Map.findWithDefault Set.empty nt @lhs.allConstructors))
+                                      ]
+         lhs.collectedConParams   =   [ (nt, con, Set.fromList @tyvars)
                                       | nt  <- Set.toList @lhs.nts
                                       , con <- Set.toList (@names.constructors (Map.findWithDefault Set.empty nt @lhs.allConstructors))
                                       ]
@@ -256,6 +259,12 @@ SEM AG
 
          loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                            in  foldr f (Map.empty) @elems.collectedFields
+
+         loc.allConstraints = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
+                              in  foldr f (Map.empty) @elems.collectedConstraints
+
+         loc.allConParams   = let f (nt,con,fm) = Map.insertWith (Map.unionWith Set.union) nt (Map.singleton con fm)
+                              in  foldr f (Map.empty) @elems.collectedConParams
 
          loc.allConstrs  = let f (nt,con,_) = Map.insertWith (++) nt [con]
                            in  foldr f (Map.empty) @elems.collectedFields
@@ -545,6 +554,23 @@ SEM SemDef | TypeDef
                       _ -> Seq.empty
                else Seq.empty
 
+-------------------------------------------------------------------------------
+--         Collecting fields
+-------------------------------------------------------------------------------
+
+ATTR Fields Field [ | | collectedFields USE {++} {[]} : {[(Identifier, Type)]} ]
+
+SEM Field | FChild
+  lhs.collectedFields = [(@name, makeType @lhs.allNonterminals @tp)]
+
+-------------------------------------------------------------------------------
+--         Collecting constraints
+-------------------------------------------------------------------------------
+
+ATTR Fields Field [ | | collectedConstraints USE {++} {[]} : {[Type]} ]
+
+SEM Field | FCtx
+  lhs.collectedConstraints = @tps
 
 -------------------------------------------------------------------------------
 --         Collecting Set names and Nonterminal names
@@ -638,6 +664,14 @@ SEM Elem
                                                                              ])
                                                       , (Ident "Nil" @pos, [])
                                                       ]
+                                       OrdSet tp   -> [ (Ident "Entry" @pos, [ (Ident "val" @pos, tp)
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params) False) ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
+                                       IntSet      -> [ (Ident "Entry" @pos, [ (Ident "val" @pos, Haskell "Int")
+                                                                             , (Ident "tl" @pos, NT @name (map getName @params) False) ])
+                                                      , (Ident "Nil" @pos, [])
+                                                      ]
                                        Tuple xs -> [(Ident "Tuple" @pos, xs)]
           loc.argType        = case @type of
                                 Maybe tp       -> Maybe  (  makeType @lhs.allNonterminals tp)
@@ -646,6 +680,8 @@ SEM Elem
                                 Tuple xs       -> Tuple [(f,makeType @lhs.allNonterminals tp) | (f,tp) <- xs]
                                 Map tp1 tp2    -> Map    (  makeType @lhs.allNonterminals tp1) (makeType @lhs.allNonterminals tp2)
                                 IntMap tp      -> IntMap (  makeType @lhs.allNonterminals tp)
+                                OrdSet tp      -> OrdSet (  makeType @lhs.allNonterminals tp)
+                                IntSet         -> IntSet
           lhs.typeSyns       = [(@name,@argType)]
 
 -------------------------------------------------------------------------------
@@ -815,7 +851,7 @@ SEM Elem
                                          "aggressiveinlinepragmas" -> o { aggressiveInlinePragmas = True }
                                          "latehigherorderbindings" -> o { lateHigherOrderBinding = True }
 
-                                         _              -> o
+                                         s              -> trace ("uuagc: ignoring unknown pragma: " ++ s) o
                           in \o -> foldr mk o @names
 
 {
@@ -1167,7 +1203,9 @@ makeType _   tp                                 = tp
 {
 constructGrammar ::    Set NontermIdent
                     -> ParamMap
+                    -> Map NontermIdent (Map ConstructorIdent (Set Identifier))
                     -> DataTypes
+                    -> Map NontermIdent (Map ConstructorIdent [Type])
                     -> Map NontermIdent (Attributes, Attributes)
                     -> Map NontermIdent (Map Identifier (String, String, String))
                     -> Derivings
@@ -1187,7 +1225,7 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent MaybeMacro)
                     -> Grammar
 
-constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
+constructGrammar nts ntParams prodParams gram constraints attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
    let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1197,11 +1235,16 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                              params    = Map.findWithDefault []                    nt ntParams
                              mergemap  = Map.findWithDefault Map.empty             nt mergeMap
                              macromap  = Map.findWithDefault Map.empty             nt macros
+                             csmap     = Map.findWithDefault Map.empty             nt constraints
+                             psmap     = Map.findWithDefault Map.empty             nt prodParams
                              alt (con,flds) =
-                                   let rules = maybe [] id (Map.lookup con rmap)
-                                       tsigs = maybe [] id (Map.lookup con tsmap)
-                                       insts = maybe [] id (Map.lookup con instsmap)
-                                       merges = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
+                                   let rules   = Map.findWithDefault [] con rmap
+                                       tsigs   = Map.findWithDefault [] con tsmap
+                                       insts   = Map.findWithDefault [] con instsmap
+                                       merges  = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
+                                       cs      = Map.findWithDefault [] con csmap
+                                       ps      = Set.elems $ Map.findWithDefault Set.empty con psmap
+                                       mbMacro = Map.findWithDefault Nothing con macromap
 
                                        -- important: keep order of children
                                        cldrn = map child (flds ++ filter (not . existsAsField) insts ++ merges)
@@ -1223,7 +1266,7 @@ constructGrammar nts ntParams gram attrs uses derivings wrappers allrules tsigs 
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con cldrn rules tsigs (Map.findWithDefault Nothing con macromap)
+                                   in Production con ps cs cldrn rules tsigs mbMacro
                             in Nonterminal nt params inh syn (map alt alts)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }

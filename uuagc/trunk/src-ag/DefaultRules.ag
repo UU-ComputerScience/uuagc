@@ -95,12 +95,16 @@ getConName typeSyns rename nt con1
                   | con == "Nil"      = case lookup nt typeSyns of
                                           Just (Map _ _)  -> "Data.Map.empty"
                                           Just (IntMap _) -> "Data.IntMap.empty"
+                                          Just (OrdSet _) -> "Data.Set.empty"
+                                          Just IntSet     -> "Data.IntSet.empty"
                                           _               -> "[]"
                   | con == "Just"     = "Just"
                   | con == "Nothing"  = "Nothing"
                   | con == "Entry"    = case lookup nt typeSyns of
                                           Just (Map _ _)  -> "Data.Map.insert"
                                           Just (IntMap _) -> "Data.IntMap.insert"
+                                          Just (OrdSet _) -> "Data.Set.insert"
+                                          Just IntSet     -> "Data.IntSet.insert"
                   | otherwise         = normalName
 
 concatSeq = foldr (Seq.><) Seq.empty
@@ -573,7 +577,7 @@ SEM Production
       loc.extra1 = foldr addAugments (@rules.output ++ @newRls) (Map.assocs @loc.augmentsIn)
       loc.extra2 = foldr addArounds @loc.extra1 (Map.assocs @loc.aroundsIn)
       loc.extra3 = foldr addMerges @loc.extra2 (Map.assocs @loc.mergesIn)
-      lhs.output = Production @con @children.output @loc.extra3 @typeSigs.output @macro --marcos
+      lhs.output = Production @con @params @constraints @children.output @loc.extra3 @typeSigs.output @macro
 
 SEM Child | Child
   lhs.output = Child @name @tp @loc.inh1 @loc.syn1 @kind
