@@ -10,12 +10,15 @@ view A
       attrs
         inh level : Int
         syn html  : String
-    nonterm tl : Docs
+    nonterm tl : Docs "nice"
       attrs
-        inh level : Int
+        inh level : Int "oops"
         syn html  : String
+  locals
+    loc z "dit is een local"
   flows
-    syn.hd.html   -> syn.lhs.html style hoi
+    syn.hd.html   -> syn.lhs.html "hoi"
     syn.tl.html   -> syn.lhs.html
     inh.lhs.level -> inh.hd.level
-    inh.lhs.level -> inh.tl.level
+    inh.lhs.level -> inh.tl.level "blaap"
+    loc.z         -> inh.tl.level
