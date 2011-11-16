@@ -88,21 +88,25 @@
 \tikzstyle{agchldstyle}=[shape=circle,fill=red!70,minimum size=\agrelsize]
 \tikzstyle{agattrstyle}=[shape=rectangle,fill=red!95,minimum size=\agrelsize,]
 \tikzstyle{agdepstyle}=[gray]
-\newcommand{\agcoordpary}{5}
-\newcommand{\agcoordchldy}{0}
-\newcommand{\agparent}[4]{ \draw (#3 \agrelsize,\agcoordpary \agrelsize) node [style=agnontermstyle] (#2) {}; \draw (#2.north) node [anchor=south] {\footnotesize{ #1 }}; \draw (#2.south) node [anchor=north] {\footnotesize{ #4 }}; }
-\newcommand{\agparattr}[4]{ \draw (#3 \agrelsize,\agcoordpary \agrelsize) node [style=agattrstyle] (#2) {}; \draw (#2.north) node [anchor=south] {\tiny{ #1 }}; }
-\newcommand{\agchldattr}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agattrstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\tiny{ #1 }}; }
-\newcommand{\agchldnonterm}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agnontermstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\footnotesize{ #1 }};  }
-\newcommand{\agchldterm}[4]{ \draw (#3 \agrelsize,\agcoordchldy \agrelsize) node [style=agchldstyle] (#2) {}; \draw (#2.south) node [anchor=north] {\footnotesize{ #1 }}; }
-\newcommand{\agsibline}[2]{ \draw (#1.east) -- (#2.west); }
-\newcommand{\agdeplineupdown}[2]{ \draw[->,style=agdepstyle] (#1.north) .. controls +(0,1) and +(0,-1) .. (#2.south); }
-\newcommand{\agdeplineupup}[2]{ \draw[->,style=agdepstyle] (#1.north) .. controls +(0,1) and +(0,1) .. (#2.north); }
-\newcommand{\agdeplineupupbold}[2]{ \draw[->,style=agdepstyle,line width=2pt] (#1.north) .. controls +(0,1) and +(0,1) .. (#2.north); }
-\newcommand{\agdeplinedowndown}[2]{ \draw[->,style=agdepstyle] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
-\newcommand{\agdeplinedowndownbold}[2]{ \draw[->,style=agdepstyle,line width=2pt] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
-\newcommand{\agdeplinedowndowndashed}[2]{ \draw[->,style=agdepstyle, dashed] (#1.south) .. controls +(0,-1) and +(0,-1) .. (#2.south); }
-\newcommand{\agdeplinedownup}[2]{ \draw[->,style=agdepstyle] (#1.south) .. controls +(0,-1) and +(0,1) .. (#2.north); }
+\newcommand{\agcoordpary}{5}   %% y-coordinate of parent attributes
+\newcommand{\agcoordchldy}{0}  %% y-coordinate of child attributes
+\newcommand{\agcoordlocy}{3}   %% y-coordinate of local attributes
+\newcommand{\agbeginprod}[5]{} %% you could begin a picture here
+\newcommand{\agendprod}[5]{}   %% you could end a picture here
+\newcommand{\agparent}[5]{ \draw (#4 \agrelsize,\agcoordpary \agrelsize) node [style=agnontermstyle] (#3) {}; \draw (#3.north) node [anchor=south] {\footnotesize{ #2 }}; \draw (#3.south) node [anchor=north] {\footnotesize{ #5 }}; }
+\newcommand{\agparattr}[5]{ \draw (#4 \agrelsize,\agcoordpary \agrelsize) node [style=agattrstyle] (#3) {}; \draw (#3.north) node [anchor=south] {\tiny{ #2 }}; }
+\newcommand{\agchldattr}[5]{ \draw (#4 \agrelsize,\agcoordchldy \agrelsize) node [style=agattrstyle] (#3) {}; \draw (#3.south) node [anchor=north] {\tiny{ #2 }}; }
+\newcommand{\aglocattr}[5]{ \draw (#4 \agrelsize,\agcoordlocy \agrelsize) node [style=agattrstyle] (#3) {}; \draw (#3.south) node [anchor=north] {\tiny{ #2 }}; }
+\newcommand{\agchldnonterm}[5]{ \draw (#4 \agrelsize,\agcoordchldy \agrelsize) node [style=agnontermstyle] (#3) {}; \draw (#3.south) node [anchor=north] {\footnotesize{ #2 }};  }
+\newcommand{\agchldterm}[5]{ \draw (#4 \agrelsize,\agcoordchldy \agrelsize) node [style=agchldstyle] (#3) {}; \draw (#3.south) node [anchor=north] {\footnotesize{ #2 }}; }
+\newcommand{\agsibline}[3]{ \draw (#2.east) -- (#3.west); }
+\newcommand{\agdeplineupdown}[4]{ \draw[->,style=agdepstyle] (#2.north) .. controls +(0,1) and +(0,-1) .. (#3.south); }
+\newcommand{\agdeplineupup}[4]{ \draw[->,style=agdepstyle] (#2.north) .. controls +(0,1) and +(0,1) .. (#3.north); }
+\newcommand{\agdeplineupupbold}[4]{ \draw[->,style=agdepstyle,line width=2pt] (#2.north) .. controls +(0,1) and +(0,1) .. (#3.north); }
+\newcommand{\agdeplinedowndown}[4]{ \draw[->,style=agdepstyle] (#2.south) .. controls +(0,-1) and +(0,-1) .. (#3.south); }
+\newcommand{\agdeplinedowndownbold}[4]{ \draw[->,style=agdepstyle,line width=2pt] (#2.south) .. controls +(0,-1) and +(0,-1) .. (#3.south); }
+\newcommand{\agdeplinedowndowndashed}[4]{ \draw[->,style=agdepstyle, dashed] (#2.south) .. controls +(0,-1) and +(0,-1) .. (#3.south); }
+\newcommand{\agdeplinedownup}[4]{ \draw[->,style=agdepstyle] (#2.south) .. controls +(0,-1) and +(0,1) .. (#3.north); }
 \newcommand{\agpicture}[1]{ \begin{tikzpicture}\input{#1.tikz}\end{tikzpicture} }
 %% \newcommand{\agpicture}[1]{ Snip. }
 
