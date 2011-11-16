@@ -1,21 +1,23 @@
-\newcommand{\tikz.A} { %
-  \agparent{lhs}{s1}{6.6}{Docs} %
-  \agparattr{level}{s2}{4.8}{Int} %
-  \agparattr{html}{s3}{8.399999999999999}{String} %
-  \agchldnonterm{hd}{s4}{2.3}{Doc} %
-  \agchldattr{level}{s5}{0.5}{Int} %
-  \agchldattr{html}{s6}{4.1}{String} %
-  \agsibline{s5}{s4} %
-  \agsibline{s4}{s6} %
-  \agchldnonterm{tl}{s7}{8.9}{Docs} %
-  \agchldattr{level}{s8}{7.1}{Int} %
-  \agchldattr{html}{s9}{10.7}{String} %
-  \agsibline{s8}{s7} %
-  \agsibline{s7}{s9} %
-  \agsibline{s2}{s1} %
-  \agsibline{s1}{s3} %
-  \agdeplineupdown{s6}{s3} %
-  \agdeplineupdown{s9}{s3} %
-  \agdeplinedownup{s2}{s5} %
-  \agdeplinedownup{s2}{s8} %
-}
+\agbeginprod{0}{Cons}{lhs}{Docs}{11.2} %
+\agparent{0}{lhs}{lhs}{5.6}{Docs} %
+\agparattr{0}{level}{lhsIlevel}{3.8}{Int} %
+\agparattr{0}{html}{lhsShtml}{7.3999999999999995}{String} %
+\agchldnonterm{0}{hd}{hd}{2.3}{Doc} %
+\agchldattr{0}{level}{hdIlevel}{0.5}{Int} %
+\agchldattr{0}{html}{hdShtml}{4.1}{String} %
+\agsibline{0}{hdIlevel}{hd} %
+\agsibline{0}{hd}{hdShtml} %
+\agchldnonterm[nice]{1}{tl}{tl}{8.9}{Docs} %
+\agchldattr[oops]{1}{level}{tlIlevel}{7.1}{Int} %
+\agchldattr{0}{html}{tlShtml}{10.7}{String} %
+\agsibline{0}{tlIlevel}{tl} %
+\agsibline{0}{tl}{tlShtml} %
+\aglocattr[dit is een local]{1}{z}{locSz}{5.6}{LOC} %
+\agsibline{0}{lhsIlevel}{lhs} %
+\agsibline{0}{lhs}{lhsShtml} %
+\agdeplineupdown[hoi]{1}{hdShtml}{lhsShtml}{horunknown} %
+\agdeplineupdown{0}{tlShtml}{lhsShtml}{horunknown} %
+\agdeplinedownup{0}{lhsIlevel}{hdIlevel}{horunknown} %
+\agdeplinedownup[blaap]{1}{lhsIlevel}{tlIlevel}{horunknown} %
+\agdeplinedownup{0}{locSz}{tlIlevel}{horunknown} %
+\agendprod{0}{Cons}{lhs}{Docs}{11.2} %
