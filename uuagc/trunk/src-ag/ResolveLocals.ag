@@ -1,6 +1,7 @@
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
+INCLUDE "DistChildAttr.ag"
 
 
 --
@@ -80,7 +81,7 @@ SEM Production
 
 ATTR Children [ | | attributes USE {++} {[]} : {[(Identifier,Attributes,Attributes)]} ]
 SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
-  | Child lhs.attributes = [(@name, @inh, @syn)]
+  | Child lhs.attributes = [(@name, @loc.inh, @loc.syn)]
 
 SEM Child [ | | field : {(Identifier,Type,ChildKind)} ]
   | Child lhs.field = (@name, @tp, @kind)

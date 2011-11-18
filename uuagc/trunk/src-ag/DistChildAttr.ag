@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+-- Map of all inherited and synthesized attributes per nonterminal
+-------------------------------------------------------------------------------
+ATTR Nonterminals Nonterminal [ || inhMap', synMap' USE {`Map.union`} {Map.empty} : {Map Identifier Attributes} ]
+
+SEM Nonterminal
+  | Nonterminal  lhs.inhMap' = Map.singleton @nt @inh
+    		 lhs.synMap' = Map.singleton @nt @syn
+
+ATTR Nonterminals Nonterminal
+     Productions Production
+     Children Child [ inhMap, synMap : {Map Identifier Attributes} | | ]
+
+SEM Grammar
+  | Grammar nonts.inhMap = @nonts.inhMap'
+    	    nonts.synMap = @nonts.synMap'
+
+SEM Child
+  | Child loc.chnt = case @tp of
+                       NT nt _ _ -> nt
+                       Self      -> error ("The type of child " ++ show @name ++ " should not be a Self type.")
+                       Haskell t -> identifier t -- should be ignored because the child is a terminal
+	  loc.inh = Map.findWithDefault Map.empty @loc.chnt @lhs.inhMap
+    	  loc.syn = Map.findWithDefault Map.empty @loc.chnt @lhs.synMap

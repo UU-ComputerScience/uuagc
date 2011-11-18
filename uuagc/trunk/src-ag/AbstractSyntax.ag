@@ -51,8 +51,6 @@ DATA Production  | Production   con         : {ConstructorIdent}
 
 DATA Child        | Child   name        : {Identifier}
                             tp          : {Type}
-                            inh         : {Attributes}
-                            syn         : {Attributes}
                             kind        : {ChildKind}
 
 DATA Rule         | Rule    mbName   : {Maybe Identifier}

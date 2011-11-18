@@ -9,6 +9,7 @@ PRAGMA strictwrap
 
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
+INCLUDE "DistChildAttr.ag"
 
 imports
 {
@@ -148,12 +149,11 @@ SEM Nonterminal
 ATTR Nonterminals Nonterminal Productions Production [ nonterminals  : {Set NontermIdent} || ]
 SEM Grammar
   | Grammar nonts.nonterminals = @nonts.collect_nts
+
 -------------------------------------------------------------------------------
---
+-- Pass down the lhs-attributes and the USE's to each alternative of a nonterminal
 -------------------------------------------------------------------------------
 
--- Pass down the lhs-attributes and the USE's to each alternative of a nonterminal
---
 ATTR Nonterminals Nonterminal [ useMap : {UseMap} || ]
 ATTR Productions Production [ inh, syn, inhOrig, synOrig : {Attributes} useMap : {Map Identifier (String,String,String)}|| ]
 
@@ -537,9 +537,8 @@ SEM Child | Child
                            NT nt params _ -> (nt, params)
                            Self           -> error ("The type of child " ++ show @name ++ " should not be a Self type.")
                            Haskell t      -> (identifier t, []) -- should be ignored because the child is a terminal
-
-  loc.inh1 = Map.map (elimSelfStr @loc.nt @loc.params) @inh
-  loc.syn1 = Map.map (elimSelfStr @loc.nt @loc.params) @syn
+  loc.inh1 = Map.map (elimSelfStr @loc.nt @loc.params) @loc.inh
+  loc.syn1 = Map.map (elimSelfStr @loc.nt @loc.params) @loc.syn
 
 SEM TypeSig | TypeSig
   loc.tp1 = elimSelfId @lhs.nt @lhs.params @tp
@@ -580,7 +579,7 @@ SEM Production
       lhs.output = Production @con @params @constraints @children.output @loc.extra3 @typeSigs.output @macro
 
 SEM Child | Child
-  lhs.output = Child @name @tp @loc.inh1 @loc.syn1 @kind
+  lhs.output = Child @name @tp @kind
 
 SEM TypeSig | TypeSig
   lhs.output = TypeSig @name @loc.tp1

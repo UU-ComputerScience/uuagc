@@ -4,6 +4,7 @@ PRAGMA strictwrap
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 INCLUDE "AbstractSyntax.ag"
+INCLUDE "DistChildAttr.ag"
 imports
 {
 -- From uuagc
@@ -178,7 +179,7 @@ SEM  Child
                                 _         -> True
             lhs.gathAltAttrs = if  @maptolocal
                                    then [ AltAttr _LOC @name True ]                          -- sublist 2b
-                                   else [ AltAttr @name syn True | syn <- Map.keys @syn ]    -- sublist 2a
+                                   else [ AltAttr @name syn True | syn <- Map.keys @loc.syn ]    -- sublist 2a
 SEM  Pattern
   |  Alias lhs.gathAltAttrs = [AltAttr @field @attr (@field == _LOC || @field == _INST)]     -- sublist 3
 
@@ -192,7 +193,7 @@ ATTR  Children Child
               inhs USE {Seq.><} {Seq.empty} : {Seq (Identifier,Attributes)} ]
 SEM  Child
   |  Child  lhs.nts = Seq.singleton (@name,getNtName @tp)
-            lhs.inhs = Seq.singleton (@name,@inh)
+            lhs.inhs = Seq.singleton (@name,@loc.inh)
 ATTR  Rules Rule
       [  childNts : {Map Identifier NontermIdent}
          childInhs : {Map Identifier Attributes} | | ]
@@ -210,7 +211,7 @@ SEM  Production
 SEM  Child
   |  Child  loc.gathRules = if  @maptolocal
                                 then Seq.singleton (cRuleTerminal @name @lhs.nt @lhs.con @tp)
-                                else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @syn]
+                                else Seq.fromList [ cRuleRhsSyn syn @lhs.nt @lhs.con tp @name (getNtName @tp) | (syn,tp) <- Map.assocs @loc.syn]
 
 SEM  Rule
   |  Rule  loc.defines = let  tp field attr      | field == _LOC || field == _INST
@@ -340,8 +341,8 @@ SEM Production
 
 ATTR Children Child [ | | collectChildrenSyns, collectChildrenInhs USE {`Map.union`} {Map.empty} : {Map Identifier Attributes } ]
 SEM Child
-  | Child  lhs.collectChildrenSyns = Map.singleton @name @syn
-           lhs.collectChildrenInhs = Map.singleton @name @inh
+  | Child  lhs.collectChildrenSyns = Map.singleton @name @loc.syn
+           lhs.collectChildrenInhs = Map.singleton @name @loc.inh
 
 --
 -- Merge stuff
@@ -611,7 +612,7 @@ ATTR Child Children [ | | singlevisits USE {++} {[]}: {[CRule]}]
 SEM Child
   | Child lhs.singlevisits  =  if  @maptolocal
                                    then []
-                                   else [CChildVisit @name (getNtName @tp) 0 @inh @syn True]
+                                   else [CChildVisit @name (getNtName @tp) 0 @loc.inh @loc.syn True]
 
 -- Now just build the CGrammar
 SEM  Grammar [ | | output : CGrammar ]
@@ -663,7 +664,7 @@ SEM Production
 
 ATTR Children [ | | attributes USE {++} {[]} : {[(Identifier,Attributes,Attributes)]} ]
 SEM Child [ | | attributes:{[(Identifier,Attributes,Attributes)]} ]
-  | Child lhs.attributes = [(@name, @inh, @syn)]
+  | Child lhs.attributes = [(@name, @loc.inh, @loc.syn)]
 
 
 SEM Child [ | | field : {(Identifier,Type,ChildKind)} ]

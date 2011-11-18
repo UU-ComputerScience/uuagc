@@ -2,6 +2,7 @@ INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 INCLUDE "HsToken.ag"
+INCLUDE "DistChildAttr.ag"
 
 imports
 {
@@ -62,7 +63,7 @@ SEM Productions
 
 ATTR Productions Production Children Child [ | | prdInh USE {`Map.union`} {Map.empty} : {Attributes}  ]
 SEM Child
-  | Child  lhs.prdInh     = @inh
+  | Child  lhs.prdInh     = @loc.inh
 
 
 {
