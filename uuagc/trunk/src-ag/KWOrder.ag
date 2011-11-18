@@ -2,6 +2,7 @@ INCLUDE "AbstractSyntax.ag"
 INCLUDE "HsToken.ag"
 INCLUDE "Expression.ag"
 INCLUDE "Patterns.ag"
+INCLUDE "DistChildAttr.ag"
 imports
 {
 import AbstractSyntax
@@ -211,8 +212,8 @@ SEM  Pattern
 -- The behavior for merged children is a bit more complicated (and ignored for now)
 SEM  Child
   |  Child loc.vertex      = VChild @name
-     	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @syn
-     	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @inh
+     	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @loc.syn
+     	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @loc.inh
 	   lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
      	   		        NT _ _ _ -> Set.insert @loc.vertex $ Set.fromList (@loc.synvertices ++ @loc.inhvertices)
 			     	_        -> Set.empty

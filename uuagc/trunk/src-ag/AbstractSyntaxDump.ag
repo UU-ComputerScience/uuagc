@@ -32,7 +32,7 @@ SEM Production
   | Production		lhs     .  	pp    	=   ppNestInfo ["Production","Production"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
 
 SEM Child
-  | Child			lhs     .  	pp    	=   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn] []
+  | Child			lhs     .  	pp    	=   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "kind" $ ppShow @kind] []
 
 SEM Rule
   | Rule			lhs     .  	pp    	=   ppNestInfo ["Rule","Rule"] [ppShow @owrt, pp @origin] [ppF "pattern" $ @pattern.pp, ppF "rhs" $ @rhs.pp] []

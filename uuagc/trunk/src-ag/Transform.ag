@@ -1252,9 +1252,6 @@ constructGrammar nts ntParams prodParams gram constraints attrs uses derivings w
                                           let tpI = if existsAsInst nm
                                                     then fromJust $ lookup nm insts
                                                     else tp
-                                              (inh,syn) = case tpI of
-                                                 NT nt _ _ -> Map.findWithDefault (Map.empty,Map.empty) nt attrs
-                                                 _         -> (Map.empty,Map.empty)
                                               virt = if existsAsInst nm
                                                      then case lookup nm flds of
                                                             Just tp' -> ChildReplace tp'
@@ -1262,7 +1259,7 @@ constructGrammar nts ntParams prodParams gram constraints attrs uses derivings w
                                                      else if existsAsMerge nm
                                                           then ChildAttr
                                                           else ChildSyntax
-                                          in Child nm tpI inh syn virt
+                                          in Child nm tpI virt
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)

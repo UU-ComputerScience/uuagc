@@ -4,11 +4,14 @@
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
+INCLUDE "DistChildAttr.ag"
 
 imports {
 import AbstractSyntax
 import VisagePatterns
 import VisageSyntax
+import qualified Data.Map as Map
+import Data.Map (Map)
 }
 
 {
@@ -115,7 +118,7 @@ SEM Children
   | Nil		lhs.vchildren = []
 
 SEM Child
-  | Child lhs.vchild = VChild @name @tp @inh @syn (getForField (getName @name) @lhs.rulemap)
+  | Child lhs.vchild = VChild @name @tp @loc.inh @loc.syn (getForField (getName @name) @lhs.rulemap)
 
 SEM Rules
   | Cons	lhs.vrules = @hd.vrule : @tl.vrules

@@ -7,6 +7,7 @@ INCLUDE "AbstractSyntax.ag"
 INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 INCLUDE "HsToken.ag"
+INCLUDE "DistChildAttr.ag"
 
 
 imports
@@ -126,8 +127,8 @@ ATTR Rules Rule Pattern Patterns Expression HsTokensRoot HsToken HsTokens [ chil
 
 SEM Child
   | Child
-      lhs.childInhs = [(i, @name) | i <- Map.keys @inh ]
-      lhs.childSyns = [(s, @name) | s <- Map.keys @syn ]
+      lhs.childInhs = [(i, @name) | i <- Map.keys @loc.inh ]
+      lhs.childSyns = [(s, @name) | s <- Map.keys @loc.syn ]
 
 {
 maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
@@ -290,9 +291,6 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Children Child [ ma
 SEM Nonterminal | Nonterminal
   loc.extraInh = addLateAttr @lhs.options @lhs.mainName
 
-SEM Child | Child
-  loc.extraInh = addLateAttr @lhs.options @lhs.mainName
-
 {
 addLateAttr :: Options -> String -> Attributes
 addLateAttr options mainName
@@ -314,7 +312,7 @@ SEM Nonterminal | Nonterminal
                  @prods.output
 
 SEM Child | Child
-  lhs.output = Child @name @tp (@loc.extraInh `Map.union` @inh) @syn @kind
+  lhs.output = Child @name @tp @kind
 
 SEM Grammar
   | Grammar
