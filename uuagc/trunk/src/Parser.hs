@@ -194,15 +194,15 @@ parseFile agi opts searchPath file
 
     pSingleInhAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleInhAttrDef
-      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pTypeOrSelf <?> "inh attribute declaration"
+      = (\v tp -> (v,tp,("","",""))) <$> pAttrIdentifier <* pTypeColon <*> pTypeOrSelf <?> "inh attribute declaration"
 
     pSingleSynAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleSynAttrDef
-      = (\v u tp -> (v,tp,u)) <$> pIdentifier <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "syn attribute declaration"
+      = (\v u tp -> (v,tp,u)) <$> pAttrIdentifier <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "syn attribute declaration"
 
     pSingleChnAttrDef :: AGParser (Identifier,Type,(String,String,String))
     pSingleChnAttrDef
-      = (\v tp -> (v,tp,("","",""))) <$> pIdentifier <* pTypeColon <*> pTypeOrSelf <?> "chn attribute declaration"
+      = (\v tp -> (v,tp,("","",""))) <$> pAttrIdentifier <* pTypeColon <*> pTypeOrSelf <?> "chn attribute declaration"
 
     pOptAttrs :: AGParser Attrs
     pOptAttrs = pAttrs `opt` Attrs noPos [] [] []
@@ -210,12 +210,12 @@ parseFile agi opts searchPath file
     pInhAttrNames :: AGParser AttrNames
     pInhAttrNames
                    = (\vs tp -> map (\v -> (v,tp,("","",""))) vs)
-                      <$> pIdentifiers <*  pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
+                      <$> pAttrIdentifiers <*  pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAttrNames :: AGParser AttrNames
     pAttrNames
              = (\vs use tp -> map (\v -> (v,tp,use)) vs)
-                 <$> pIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
+                 <$> pAttrIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAlt :: AGParser Alt
     pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> pList_ng pIdentifier <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
@@ -228,10 +228,10 @@ parseFile agi opts searchPath file
 
     pField :: AGParser Fields
     pField
-           =   (\nms tp -> map (\nm -> FChild nm tp) nms) <$> pIdentifiers <* pTypeColon <*> pType
+           =   (\nms tp -> map (\nm -> FChild nm tp) nms) <$> pAttrIdentifiers <* pTypeColon <*> pType
            <|> (\s   -> [FChild (Ident (mklower $ getName s) (getPos s)) (NT s [] False)]) <$> pIdentifierU
            <|> (\t   -> [FCtx [t]]) <$ pSmallerEqual <*> pTypePrimitive
-
+    
     pSemAlt :: AGParser SemAlt
     pSemAlt = SemAlt <$> pBar <*> pConstructorSet <*> pSemDefs <?> "SEM alternative"
 
@@ -244,8 +244,8 @@ parseFile agi opts searchPath file
           <|>                            pLOC              *> pList1 pLocDecl
           <|>                            pINST             *> pList1 pInstDecl
           <|>  pSEMPRAGMA *> pList1 (SemPragma <$> pNames)
-          <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pIdentifier <* pAssign <*> pExpr
-          <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pIdentifier <* pAssign <*> pExpr
+          <|> (\n e -> [AugmentDef n e]) <$ pAugmentToken <*> pAttrIdentifier <* pAssign <*> pExpr
+          <|> (\n e -> [AroundDef n e]) <$ pAROUND <*> pAttrIdentifier <* pAssign <*> pExpr
           <|> (\a b -> [AttrOrderBefore a [b]]) <$> pList1 pAttrOrIdent <* pSmaller <*> pAttrOrIdent
           <|> (\sources target nt expr -> [MergeDef target nt sources expr]) <$ pMERGE <*> (pList1_ng pIdentifier <* pAS <|> pSucceed []) <*> pIdentifier <* pTypeColon <*> pIdentifierU <* pAssign <*> pExpr
           <|> (\mbNm pat (owrt,pos,pur,eager) exp -> [Def pos mbNm (pat ()) exp owrt pur eager]) <$> pMaybeRuleName <*> pPattern (const <$> pAttr) <*> pRuleSym <*> pExpr
@@ -260,7 +260,7 @@ parseFile agi opts searchPath file
       = (\pat (owrt,pos,pur,eager) exp mbNm fld -> Def pos mbNm (pat fld) exp owrt pur eager)
                <$ pDot <*> pattern <*> pRuleSym <*> pExpr
       where pattern =  pPattern pVar
-                   <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos)) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pIdentifier
+                   <|> (\ir a fld -> ir $ Alias fld a (Underscore noPos)) <$> ((Irrefutable <$ pTilde) `opt` id) <*> pAttrIdentifier
 
     pLocDecl :: AGParser SemDef
     pLocDecl = pDot <**> (pIdentifier <**> (pTypeColon <**> (   (\(tp,pos) _ ident _  -> TypeDef pos ident tp) <$> pLocType
@@ -407,6 +407,14 @@ pTypeOrSelf = pType <|> Self <$ pSELF
 pIdentifiers :: AGParser [Identifier]
 pIdentifiers =  pList1Sep pComma pIdentifier <?> "lowercase identifiers"
 
+pAttrIdentifier :: AGParser Identifier
+pAttrIdentifier = pIdentifier
+                  <|> (\pos -> Ident "imports" pos) <$> pIMPORTS
+                  <|> (\pos -> Ident "toplevel" pos) <$> pTOPLEVEL
+
+pAttrIdentifiers :: AGParser [Identifier]
+pAttrIdentifiers = pList1Sep pComma pAttrIdentifier <?> "lowercase identifiers"
+
 pUse :: AGParser (String,String,String)
 pUse = (  (\u x y->(x,y,show u)) <$> pUSE <*> pCodescrap'  <*> pCodescrap') `opt` ("","","") <?> "USE declaration"
 
@@ -434,10 +442,10 @@ pFieldIdentifier =  pIdentifier
 pAugmentToken :: AGParser ()
 pAugmentToken = () <$ (pAUGMENT <|> pPlus)
 
-pAttr = (,) <$> pFieldIdentifier <* pDot <*> pIdentifier
+pAttr = (,) <$> pFieldIdentifier <* pDot <*> pAttrIdentifier
 
 pAttrOrIdent
-  = OccAttr <$> pFieldIdentifier <* pDot <*> pIdentifier
+  = OccAttr <$> pFieldIdentifier <* pDot <*> pAttrIdentifier
   <|> OccRule <$> pIdentifier
 
 nl2sp :: Char -> Char
@@ -450,7 +458,7 @@ pLocType = (\u -> (Haskell $ getName u, getPos u)) <$> pIdentifierU
        <|> (\(s,p) -> (Haskell s,p)) <$> pCodescrap  <?> "a type"
 
 pVar :: AGParser (Identifier -> (Identifier, Identifier))
-pVar = (\att fld -> (fld,att)) <$> pIdentifier
+pVar = (\att fld -> (fld,att)) <$> pAttrIdentifier
 
 pAssign :: AGParser Bool
 pAssign =  False <$ pReserved "="
