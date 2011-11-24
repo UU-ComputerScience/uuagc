@@ -36,6 +36,7 @@ data Type = Haskell String
           | NT Identifier [String]
                Bool  -- True: deforested nonterminal, False: nonterminal type
           | Self     -- reference to the enclosing nonterminal type
+          deriving (Eq)
 
 data ComplexType = List Type
                  | Tuple [(Identifier, Type)]
@@ -220,6 +221,7 @@ data ChildKind
   = ChildSyntax        -- This child is defined by syntax
   | ChildAttr          -- This child is defined by an attribute
   | ChildReplace Type  -- This child replaces a child with type Type
+  deriving (Eq, Show)
 
 -- Given a map that represents a relation, returns the transitive closure of this relation
 closeMap :: Ord a => Map a (Set a) -> Map a (Set a)
