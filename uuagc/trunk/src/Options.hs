@@ -4,7 +4,6 @@ import System.Console.GetOpt
 import CommonTypes
 import Data.Set(Set)
 import qualified Data.Set as Set
-import Pretty
 
 options     :: [OptDescr (Options -> Options)]
 options     =  [ Option ['m']     []                (NoArg (moduleOpt Nothing)) "generate default module header"
@@ -401,30 +400,3 @@ getOptions args = let (flags,files,errors) = getOpt Permute options args
 data ModuleHeader  = NoName
                    | Name String
                    | Default deriving Show
-
-
--- not entirely sure if this is the right place to put this
--- but it needs to be in some common module
-warrenFlagsPP :: Options -> PP_Doc
-warrenFlagsPP options = vlist
-  [ pp "{-# LANGUAGE Rank2Types, GADTs #-}"
-  , if bangpats options
-    then pp "{-# LANGUAGE BangPatterns #-}"
-    else empty
-  , if noPerRuleTypeSigs options && noPerStateTypeSigs options
-    then empty
-    else pp "{-# LANGUAGE ScopedTypeVariables #-}"
-  , if tupleAsDummyToken options
-    then empty
-    else pp "{-# LANGUAGE ScopedTypeVariables, MagicHash #-}"
-  , -- not that the meaning of "unbox" is here that strict fields in data types may be
-    -- unboxed if possible. This may affect user-defined data types declared in the module.
-    -- Unfortunately, we cannot turn it on for only the AG generated data types without
-    -- causing a zillion of warnings.
-    if unbox options && bangpats options
-        then pp $ "{-# OPTIONS_GHC -funbox-strict-fields -fstrictness #-}"
-        else empty
-  , if parallelInvoke options && not (noEagerBlackholing options)
-    then pp $ "{-# OPTIONS_GHC -feager-blackholing #-}"
-    else empty
-  ]
