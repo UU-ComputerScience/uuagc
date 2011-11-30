@@ -349,7 +349,7 @@ removeBefore x ys = reverse (takeWhile (/=x) (reverse ys))
 
 isLocLoc :: Table CRule -> EdgePath -> Bool
 isLocLoc rt ((s,t),_) = isLocal (rt ! s) && isLocal (rt ! t)
-                        -- || (isInst (rt ! s) && isInst (rt ! t))
+                        --  || (isInst (rt ! s) && isInst (rt ! t))
 
 computeSequential :: Info -> [Edge] -> [Edge] -> CycleStatus
 computeSequential info dpr instToSynEdges
