@@ -26,7 +26,7 @@ import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_
 import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified ExecutionPlan2Hs   as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..))
+import qualified ExecutionPlan2Hs   as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..), warrenFlagsPP)
 import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
@@ -242,7 +242,7 @@ compile flags input output
                                                  ]
                                       else empty]
                          | kennedyWarren flags'
-                            = vlist [ warrenFlagsPP flags'
+                            = vlist [ Pass4b.warrenFlagsPP flags'
                                     , pp pragmaBlocksTxt
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
                                            then moduleHeader flags' mainName
@@ -344,8 +344,8 @@ moduleHeader flags input
 
 inputFile :: String -> String
 inputFile name
-  | hasExtension "ag" || hasExtension "lag" = name
-  | otherwise                               = replaceExtension name "ag"
+  | takeExtension name == ".ag" || takeExtension name == ".lag" = name
+  | otherwise                                                   = replaceExtension name "ag"
 
 --marcos
 agiFile :: String -> String
