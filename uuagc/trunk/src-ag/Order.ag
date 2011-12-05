@@ -5,6 +5,7 @@ INCLUDE "Patterns.ag"
 INCLUDE "Expression.ag"
 INCLUDE "AbstractSyntax.ag"
 INCLUDE "DistChildAttr.ag"
+
 imports
 {
 -- From uuagc

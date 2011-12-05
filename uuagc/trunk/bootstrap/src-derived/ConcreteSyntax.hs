@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
 {-# LINE 2 "src-ag/ConcreteSyntax.ag" #-}
 
@@ -8,7 +8,8 @@ import UU.Scanner.Position (Pos)
 import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
-{-# LINE 12 "dist/build/uuagc/uuagc-tmp/ConcreteSyntax.hs" #-}
+import Macro --marcos
+{-# LINE 13 "dist/build/uuagc/uuagc-tmp/ConcreteSyntax.hs" #-}
 -- AG ----------------------------------------------------------
 {-
    alternatives:
@@ -22,9 +23,11 @@ data AG  = AG (Elems )
       alternative Alt:
          child pos            : {Pos}
          child names          : ConstructorSet 
-         child fields         : {Fields}
+         child tyvars         : {[Identifier]}
+         child fields         : Fields 
+         child macro          : {MaybeMacro}
 -}
-data Alt  = Alt (Pos) (ConstructorSet ) (Fields) 
+data Alt  = Alt (Pos) (ConstructorSet ) (([Identifier])) (Fields ) (MaybeMacro) 
 -- Alts --------------------------------------------------------
 {-
    alternatives:
@@ -107,7 +110,7 @@ data ConstructorSet  = CAll
          child set            : NontSet 
       alternative Txt:
          child pos            : {Pos}
-         child name           : {Identifier}
+         child kind           : {BlockKind}
          child mbNt           : {Maybe NontermIdent}
          child lines          : {[String]}
       alternative Type:
@@ -128,7 +131,7 @@ data Elem  = Attr (Pos) (ClassContext) (NontSet ) (([String])) (Attrs )
            | Pragma (Pos) (([NontermIdent])) 
            | Sem (Pos) (ClassContext) (NontSet ) (Attrs ) (([String])) (SemAlts ) 
            | Set (Pos) (NontermIdent) (Bool) (NontSet ) 
-           | Txt (Pos) (Identifier) ((Maybe NontermIdent)) (([String])) 
+           | Txt (Pos) (BlockKind) ((Maybe NontermIdent)) (([String])) 
            | Type (Pos) (ClassContext) (NontermIdent) (([Identifier])) (ComplexType) 
            | Wrapper (Pos) (NontSet ) 
 -- Elems -------------------------------------------------------
@@ -140,6 +143,26 @@ data Elem  = Attr (Pos) (ClassContext) (NontSet ) (([String])) (Attrs )
       alternative Nil:
 -}
 type Elems  = [Elem ]
+-- Field -------------------------------------------------------
+{-
+   alternatives:
+      alternative FChild:
+         child name           : {Identifier}
+         child tp             : {Type}
+      alternative FCtx:
+         child tps            : {[Type]}
+-}
+data Field  = FChild (Identifier) (Type) 
+            | FCtx (([Type])) 
+-- Fields ------------------------------------------------------
+{-
+   alternatives:
+      alternative Cons:
+         child hd             : Field 
+         child tl             : Fields 
+      alternative Nil:
+-}
+type Fields  = [Field ]
 -- NontSet -----------------------------------------------------
 {-
    alternatives:
@@ -201,6 +224,8 @@ type SemAlts  = [SemAlt ]
          child pattern        : {Pattern}
          child rhs            : {Expression}
          child owrt           : {Bool}
+         child pure           : {Bool}
+         child eager          : {Bool}
       alternative MergeDef:
          child target         : {Identifier}
          child nt             : {Identifier}
@@ -219,7 +244,7 @@ type SemAlts  = [SemAlt ]
 data SemDef  = AroundDef (Identifier) (Expression) 
              | AttrOrderBefore (([Occurrence])) (([Occurrence])) 
              | AugmentDef (Identifier) (Expression) 
-             | Def (Pos) ((Maybe Identifier)) (Pattern) (Expression) (Bool) 
+             | Def (Pos) ((Maybe Identifier)) (Pattern) (Expression) (Bool) (Bool) (Bool) 
              | MergeDef (Identifier) (Identifier) (([Identifier])) (Expression) 
              | SemPragma (([NontermIdent])) 
              | TypeDef (Pos) (Identifier) (Type) 

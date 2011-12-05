@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/CodeSyntax.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/CodeSyntax.ag)
 module CodeSyntax where
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -60,10 +60,10 @@ type CNonterminals  = [CNonterminal ]
       alternative CProduction:
          child con            : {ConstructorIdent}
          child visits         : CVisits 
-         child children       : {[(Identifier,Type,Maybe (Maybe Type))]}
+         child children       : {[(Identifier,Type,ChildKind)]}
          child terminals      : {[Identifier]}
 -}
-data CProduction  = CProduction (ConstructorIdent) (CVisits ) (([(Identifier,Type,Maybe (Maybe Type))])) (([Identifier])) 
+data CProduction  = CProduction (ConstructorIdent) (CVisits ) (([(Identifier,Type,ChildKind)])) (([Identifier])) 
 -- CProductions ------------------------------------------------
 {-
    alternatives:

@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.39.0.0 (src-ag/PrintOcamlCode.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/PrintOcamlCode.ag)
 module PrintOcamlCode where
 {-# LINE 10 "src-ag/PrintOcamlCode.ag" #-}
 
@@ -54,7 +54,7 @@ toOcamlTC (c:cs) = toLower c : cs
 toOcamlTC xs = xs
 {-# LINE 56 "dist/build/uuagc/uuagc-tmp/PrintOcamlCode.hs" #-}
 
-{-# LINE 145 "src-ag/Code.ag" #-}
+{-# LINE 146 "src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -1601,7 +1601,6 @@ sem_NamedTypes_Nil  =
          child field          : {Identifier}
          child attr           : {Identifier}
          child pat            : Pattern 
-         child parts          : Patterns 
          visit 0:
             local copy        : _
       alternative Constr:
@@ -1626,8 +1625,8 @@ sem_NamedTypes_Nil  =
 -- cata
 sem_Pattern :: Pattern  ->
                T_Pattern 
-sem_Pattern !(Alias _field _attr _pat _parts )  =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) (sem_Patterns _parts ) )
+sem_Pattern !(Alias _field _attr _pat )  =
+    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) )
 sem_Pattern !(Constr _name _pats )  =
     (sem_Pattern_Constr _name (sem_Patterns _pats ) )
 sem_Pattern !(Irrefutable _pat )  =
@@ -1650,47 +1649,39 @@ wrap_Pattern !(T_Pattern sem ) !(Inh_Pattern _lhsIoptions )  =
 sem_Pattern_Alias :: Identifier ->
                      Identifier ->
                      T_Pattern  ->
-                     T_Patterns  ->
                      T_Pattern 
-sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_ ) !(T_Patterns parts_ )  =
+sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_ )  =
     (T_Pattern (\ (!_lhsIoptions) ->
                     (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                             _lhsIoptions
-                            {-# LINE 1660 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1658 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
-                     { !_partsOoptions ->
-                     (case (parts_ _partsOoptions ) of
-                      { ( !_partsIcopy,!_partsIpps) ->
-                          (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
-                                  _lhsIoptions
-                                  {-# LINE 1667 "src-ag/PrintOcamlCode.hs" #-}
+                     { !_patOoptions ->
+                     (case (pat_ _patOoptions ) of
+                      { ( !_patIcopy,!_patIisUnderscore,!_patIpp) ->
+                          (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                                  Alias field_ attr_ _patIcopy
+                                  {-# LINE 1665 "src-ag/PrintOcamlCode.hs" #-}
                                   )) of
-                           { !_patOoptions ->
-                           (case (pat_ _patOoptions ) of
-                            { ( !_patIcopy,!_patIisUnderscore,!_patIpp) ->
-                                (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                        Alias field_ attr_ _patIcopy _partsIcopy
-                                        {-# LINE 1674 "src-ag/PrintOcamlCode.hs" #-}
-                                        )) of
-                                 { !_copy ->
-                                 (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                         _copy
-                                         {-# LINE 1679 "src-ag/PrintOcamlCode.hs" #-}
-                                         )) of
-                                  { !_lhsOcopy ->
-                                  (case (({-# LINE 202 "src-ag/PrintOcamlCode.ag" #-}
-                                          False
-                                          {-# LINE 1684 "src-ag/PrintOcamlCode.hs" #-}
-                                          )) of
-                                   { !_lhsOisUnderscore ->
-                                   (case (({-# LINE 193 "src-ag/PrintOcamlCode.ag" #-}
-                                           if _patIisUnderscore
-                                            then pp (attrname False field_ attr_)
-                                            else error "pp of Pattern.Alias is only supported in the form (x@_)"
-                                           {-# LINE 1691 "src-ag/PrintOcamlCode.hs" #-}
-                                           )) of
-                                    { !_lhsOpp ->
-                                    ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) }) }) }) }) })) )
+                           { !_copy ->
+                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                                   _copy
+                                   {-# LINE 1670 "src-ag/PrintOcamlCode.hs" #-}
+                                   )) of
+                            { !_lhsOcopy ->
+                            (case (({-# LINE 202 "src-ag/PrintOcamlCode.ag" #-}
+                                    False
+                                    {-# LINE 1675 "src-ag/PrintOcamlCode.hs" #-}
+                                    )) of
+                             { !_lhsOisUnderscore ->
+                             (case (({-# LINE 193 "src-ag/PrintOcamlCode.ag" #-}
+                                     if _patIisUnderscore
+                                      then pp (attrname False field_ attr_)
+                                      else error "pp of Pattern.Alias is only supported in the form (x@_)"
+                                     {-# LINE 1682 "src-ag/PrintOcamlCode.hs" #-}
+                                     )) of
+                              { !_lhsOpp ->
+                              ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) }) }) })) )
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns  ->
                       T_Pattern 
@@ -1698,29 +1689,29 @@ sem_Pattern_Constr !name_ !(T_Patterns pats_ )  =
     (T_Pattern (\ (!_lhsIoptions) ->
                     (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                             _lhsIoptions
-                            {-# LINE 1702 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1693 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
                      { !_patsOoptions ->
                      (case (pats_ _patsOoptions ) of
                       { ( !_patsIcopy,!_patsIpps) ->
-                          (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                          (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                   Constr name_ _patsIcopy
-                                  {-# LINE 1709 "src-ag/PrintOcamlCode.hs" #-}
+                                  {-# LINE 1700 "src-ag/PrintOcamlCode.hs" #-}
                                   )) of
                            { !_copy ->
-                           (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                    _copy
-                                   {-# LINE 1714 "src-ag/PrintOcamlCode.hs" #-}
+                                   {-# LINE 1705 "src-ag/PrintOcamlCode.hs" #-}
                                    )) of
                             { !_lhsOcopy ->
                             (case (({-# LINE 200 "src-ag/PrintOcamlCode.ag" #-}
                                     False
-                                    {-# LINE 1719 "src-ag/PrintOcamlCode.hs" #-}
+                                    {-# LINE 1710 "src-ag/PrintOcamlCode.hs" #-}
                                     )) of
                              { !_lhsOisUnderscore ->
                              (case (({-# LINE 190 "src-ag/PrintOcamlCode.ag" #-}
                                      pp_parens $ name_ >#< hv_sp _patsIpps
-                                     {-# LINE 1724 "src-ag/PrintOcamlCode.hs" #-}
+                                     {-# LINE 1715 "src-ag/PrintOcamlCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
                               ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) }) }) })) )
@@ -1730,29 +1721,29 @@ sem_Pattern_Irrefutable !(T_Pattern pat_ )  =
     (T_Pattern (\ (!_lhsIoptions) ->
                     (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                             _lhsIoptions
-                            {-# LINE 1734 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1725 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
                      { !_patOoptions ->
                      (case (pat_ _patOoptions ) of
                       { ( !_patIcopy,!_patIisUnderscore,!_patIpp) ->
-                          (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                          (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                   Irrefutable _patIcopy
-                                  {-# LINE 1741 "src-ag/PrintOcamlCode.hs" #-}
+                                  {-# LINE 1732 "src-ag/PrintOcamlCode.hs" #-}
                                   )) of
                            { !_copy ->
-                           (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                    _copy
-                                   {-# LINE 1746 "src-ag/PrintOcamlCode.hs" #-}
+                                   {-# LINE 1737 "src-ag/PrintOcamlCode.hs" #-}
                                    )) of
                             { !_lhsOcopy ->
                             (case (({-# LINE 199 "src-ag/PrintOcamlCode.ag" #-}
                                     _patIisUnderscore
-                                    {-# LINE 1751 "src-ag/PrintOcamlCode.hs" #-}
+                                    {-# LINE 1742 "src-ag/PrintOcamlCode.hs" #-}
                                     )) of
                              { !_lhsOisUnderscore ->
                              (case (({-# LINE 196 "src-ag/PrintOcamlCode.ag" #-}
                                      error "pp of Pattern.Irrefutable not supported"
-                                     {-# LINE 1756 "src-ag/PrintOcamlCode.hs" #-}
+                                     {-# LINE 1747 "src-ag/PrintOcamlCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
                               ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) }) }) })) )
@@ -1763,29 +1754,29 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_ )  =
     (T_Pattern (\ (!_lhsIoptions) ->
                     (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                             _lhsIoptions
-                            {-# LINE 1767 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1758 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
                      { !_patsOoptions ->
                      (case (pats_ _patsOoptions ) of
                       { ( !_patsIcopy,!_patsIpps) ->
-                          (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                          (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                   Product pos_ _patsIcopy
-                                  {-# LINE 1774 "src-ag/PrintOcamlCode.hs" #-}
+                                  {-# LINE 1765 "src-ag/PrintOcamlCode.hs" #-}
                                   )) of
                            { !_copy ->
-                           (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                    _copy
-                                   {-# LINE 1779 "src-ag/PrintOcamlCode.hs" #-}
+                                   {-# LINE 1770 "src-ag/PrintOcamlCode.hs" #-}
                                    )) of
                             { !_lhsOcopy ->
                             (case (({-# LINE 201 "src-ag/PrintOcamlCode.ag" #-}
                                     False
-                                    {-# LINE 1784 "src-ag/PrintOcamlCode.hs" #-}
+                                    {-# LINE 1775 "src-ag/PrintOcamlCode.hs" #-}
                                     )) of
                              { !_lhsOisUnderscore ->
                              (case (({-# LINE 191 "src-ag/PrintOcamlCode.ag" #-}
                                      pp_block "(" ")" "," _patsIpps
-                                     {-# LINE 1789 "src-ag/PrintOcamlCode.hs" #-}
+                                     {-# LINE 1780 "src-ag/PrintOcamlCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
                               ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) }) }) })) )
@@ -1793,24 +1784,24 @@ sem_Pattern_Underscore :: Pos ->
                           T_Pattern 
 sem_Pattern_Underscore !pos_  =
     (T_Pattern (\ (!_lhsIoptions) ->
-                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Underscore pos_
-                            {-# LINE 1799 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1790 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
                      { !_copy ->
-                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 1804 "src-ag/PrintOcamlCode.hs" #-}
+                             {-# LINE 1795 "src-ag/PrintOcamlCode.hs" #-}
                              )) of
                       { !_lhsOcopy ->
                       (case (({-# LINE 203 "src-ag/PrintOcamlCode.ag" #-}
                               True
-                              {-# LINE 1809 "src-ag/PrintOcamlCode.hs" #-}
+                              {-# LINE 1800 "src-ag/PrintOcamlCode.hs" #-}
                               )) of
                        { !_lhsOisUnderscore ->
                        (case (({-# LINE 197 "src-ag/PrintOcamlCode.ag" #-}
                                text "_"
-                               {-# LINE 1814 "src-ag/PrintOcamlCode.hs" #-}
+                               {-# LINE 1805 "src-ag/PrintOcamlCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
                         ( _lhsOcopy,_lhsOisUnderscore,_lhsOpp) }) }) }) })) )
@@ -1855,50 +1846,50 @@ sem_Patterns_Cons !(T_Pattern hd_ ) !(T_Patterns tl_ )  =
     (T_Patterns (\ (!_lhsIoptions) ->
                      (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                              _lhsIoptions
-                             {-# LINE 1859 "src-ag/PrintOcamlCode.hs" #-}
+                             {-# LINE 1850 "src-ag/PrintOcamlCode.hs" #-}
                              )) of
                       { !_tlOoptions ->
                       (case (tl_ _tlOoptions ) of
                        { ( !_tlIcopy,!_tlIpps) ->
                            (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1866 "src-ag/PrintOcamlCode.hs" #-}
+                                   {-# LINE 1857 "src-ag/PrintOcamlCode.hs" #-}
                                    )) of
                             { !_hdOoptions ->
                             (case (hd_ _hdOoptions ) of
                              { ( !_hdIcopy,!_hdIisUnderscore,!_hdIpp) ->
-                                 (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                 (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                          (:) _hdIcopy _tlIcopy
-                                         {-# LINE 1873 "src-ag/PrintOcamlCode.hs" #-}
+                                         {-# LINE 1864 "src-ag/PrintOcamlCode.hs" #-}
                                          )) of
                                   { !_copy ->
-                                  (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                  (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                           _copy
-                                          {-# LINE 1878 "src-ag/PrintOcamlCode.hs" #-}
+                                          {-# LINE 1869 "src-ag/PrintOcamlCode.hs" #-}
                                           )) of
                                    { !_lhsOcopy ->
                                    (case (({-# LINE 88 "src-ag/PrintOcamlCode.ag" #-}
                                            _hdIpp : _tlIpps
-                                           {-# LINE 1883 "src-ag/PrintOcamlCode.hs" #-}
+                                           {-# LINE 1874 "src-ag/PrintOcamlCode.hs" #-}
                                            )) of
                                     { !_lhsOpps ->
                                     ( _lhsOcopy,_lhsOpps) }) }) }) }) }) }) })) )
 sem_Patterns_Nil :: T_Patterns 
 sem_Patterns_Nil  =
     (T_Patterns (\ (!_lhsIoptions) ->
-                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              []
-                             {-# LINE 1892 "src-ag/PrintOcamlCode.hs" #-}
+                             {-# LINE 1883 "src-ag/PrintOcamlCode.hs" #-}
                              )) of
                       { !_copy ->
-                      (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1897 "src-ag/PrintOcamlCode.hs" #-}
+                              {-# LINE 1888 "src-ag/PrintOcamlCode.hs" #-}
                               )) of
                        { !_lhsOcopy ->
                        (case (({-# LINE 89 "src-ag/PrintOcamlCode.ag" #-}
                                []
-                               {-# LINE 1902 "src-ag/PrintOcamlCode.hs" #-}
+                               {-# LINE 1893 "src-ag/PrintOcamlCode.hs" #-}
                                )) of
                         { !_lhsOpps ->
                         ( _lhsOcopy,_lhsOpps) }) }) })) )
@@ -1940,24 +1931,24 @@ sem_Program_Program !(T_Chunks chunks_ ) !ordered_  =
                   (!_lhsItextBlockMap) ->
                     (case (({-# LINE 45 "src-ag/PrintOcamlCode.ag" #-}
                             _lhsItextBlockMap
-                            {-# LINE 1944 "src-ag/PrintOcamlCode.hs" #-}
+                            {-# LINE 1935 "src-ag/PrintOcamlCode.hs" #-}
                             )) of
                      { !_chunksOtextBlockMap ->
                      (case (({-# LINE 212 "src-ag/PrintOcamlCode.ag" #-}
                              True
-                             {-# LINE 1949 "src-ag/PrintOcamlCode.hs" #-}
+                             {-# LINE 1940 "src-ag/PrintOcamlCode.hs" #-}
                              )) of
                       { !_chunksOisToplevel ->
                       (case (({-# LINE 43 "src-ag/PrintOcamlCode.ag" #-}
                               _lhsIoptions
-                              {-# LINE 1954 "src-ag/PrintOcamlCode.hs" #-}
+                              {-# LINE 1945 "src-ag/PrintOcamlCode.hs" #-}
                               )) of
                        { !_chunksOoptions ->
                        (case (chunks_ _chunksOisToplevel _chunksOoptions _chunksOtextBlockMap ) of
                         { ( !_chunksIpps) ->
                             (case (({-# LINE 57 "src-ag/PrintOcamlCode.ag" #-}
                                     _chunksIpps
-                                    {-# LINE 1961 "src-ag/PrintOcamlCode.hs" #-}
+                                    {-# LINE 1952 "src-ag/PrintOcamlCode.hs" #-}
                                     )) of
                              { !_lhsOoutput ->
                              ( _lhsOoutput) }) }) }) }) })) )
@@ -1978,6 +1969,7 @@ sem_Program_Program !(T_Chunks chunks_ ) !ordered_  =
       alternative NontermType:
          child name           : {String}
          child params         : {[String]}
+         child deforested     : {Bool}
       alternative QuantApp:
          child left           : {String}
          child right          : Type 
@@ -2010,8 +2002,8 @@ sem_Type !(CtxApp _left _right )  =
     (sem_Type_CtxApp _left (sem_Type _right ) )
 sem_Type !(List _tp )  =
     (sem_Type_List (sem_Type _tp ) )
-sem_Type !(NontermType _name _params )  =
-    (sem_Type_NontermType _name _params )
+sem_Type !(NontermType _name _params _deforested )  =
+    (sem_Type_NontermType _name _params _deforested )
 sem_Type !(QuantApp _left _right )  =
     (sem_Type_QuantApp _left (sem_Type _right ) )
 sem_Type !(SimpleType _txt )  =
@@ -2050,7 +2042,7 @@ sem_Type_Arr !(T_Type left_ ) !(T_Type right_ )  =
                   { ( !_leftIpp) ->
                       (case (({-# LINE 160 "src-ag/PrintOcamlCode.ag" #-}
                               pp_parens (_leftIpp >#< "->" >#< _rightIpp)
-                              {-# LINE 2054 "src-ag/PrintOcamlCode.hs" #-}
+                              {-# LINE 2046 "src-ag/PrintOcamlCode.hs" #-}
                               )) of
                        { !_lhsOpp ->
                        ( _lhsOpp) }) }) }) )
@@ -2060,7 +2052,7 @@ sem_Type_CtxApp :: ([(String, [String])]) ->
 sem_Type_CtxApp !left_ !(T_Type right_ )  =
     (T_Type (case (({-# LINE 161 "src-ag/PrintOcamlCode.ag" #-}
                     error "pp of Type.CtxApp not supported"
-                    {-# LINE 2064 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2056 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2071,17 +2063,18 @@ sem_Type_List !(T_Type tp_ )  =
              { ( !_tpIpp) ->
                  (case (({-# LINE 166 "src-ag/PrintOcamlCode.ag" #-}
                          _tpIpp >#< "list"
-                         {-# LINE 2075 "src-ag/PrintOcamlCode.hs" #-}
+                         {-# LINE 2067 "src-ag/PrintOcamlCode.hs" #-}
                          )) of
                   { !_lhsOpp ->
                   ( _lhsOpp) }) }) )
 sem_Type_NontermType :: String ->
                         ([String]) ->
+                        Bool ->
                         T_Type 
-sem_Type_NontermType !name_ !params_  =
+sem_Type_NontermType !name_ !params_ !deforested_  =
     (T_Type (case (({-# LINE 168 "src-ag/PrintOcamlCode.ag" #-}
                     pp_block "(" ")" " " (map text params_ ++ [text $ toOcamlTC name_])
-                    {-# LINE 2085 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2078 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2093,7 +2086,7 @@ sem_Type_QuantApp !left_ !(T_Type right_ )  =
              { ( !_rightIpp) ->
                  (case (({-# LINE 53 "src-ag/PrintOcamlCode.ag" #-}
                          _rightIpp
-                         {-# LINE 2097 "src-ag/PrintOcamlCode.hs" #-}
+                         {-# LINE 2090 "src-ag/PrintOcamlCode.hs" #-}
                          )) of
                   { !_lhsOpp ->
                   ( _lhsOpp) }) }) )
@@ -2102,7 +2095,7 @@ sem_Type_SimpleType :: String ->
 sem_Type_SimpleType !txt_  =
     (T_Type (case (({-# LINE 167 "src-ag/PrintOcamlCode.ag" #-}
                     text txt_
-                    {-# LINE 2106 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2099 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2112,7 +2105,7 @@ sem_Type_TEither :: T_Type  ->
 sem_Type_TEither !(T_Type left_ ) !(T_Type right_ )  =
     (T_Type (case (({-# LINE 170 "src-ag/PrintOcamlCode.ag" #-}
                     error "pp of Type.TEither is not supported"
-                    {-# LINE 2116 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2109 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2121,7 +2114,7 @@ sem_Type_TIntMap :: T_Type  ->
 sem_Type_TIntMap !(T_Type value_ )  =
     (T_Type (case (({-# LINE 172 "src-ag/PrintOcamlCode.ag" #-}
                     error "pp of Type.TIntMap is not supported"
-                    {-# LINE 2125 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2118 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2131,7 +2124,7 @@ sem_Type_TMap :: T_Type  ->
 sem_Type_TMap !(T_Type key_ ) !(T_Type value_ )  =
     (T_Type (case (({-# LINE 171 "src-ag/PrintOcamlCode.ag" #-}
                     error "pp of Type.TMap is not supported"
-                    {-# LINE 2135 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2128 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2142,7 +2135,7 @@ sem_Type_TMaybe !(T_Type tp_ )  =
              { ( !_tpIpp) ->
                  (case (({-# LINE 169 "src-ag/PrintOcamlCode.ag" #-}
                          _tpIpp >#< "opt"
-                         {-# LINE 2146 "src-ag/PrintOcamlCode.hs" #-}
+                         {-# LINE 2139 "src-ag/PrintOcamlCode.hs" #-}
                          )) of
                   { !_lhsOpp ->
                   ( _lhsOpp) }) }) )
@@ -2153,7 +2146,7 @@ sem_Type_TupleType !(T_Types tps_ )  =
              { ( !_tpsIpps) ->
                  (case (({-# LINE 163 "src-ag/PrintOcamlCode.ag" #-}
                          pp_block "(" ")" "," _tpsIpps
-                         {-# LINE 2157 "src-ag/PrintOcamlCode.hs" #-}
+                         {-# LINE 2150 "src-ag/PrintOcamlCode.hs" #-}
                          )) of
                   { !_lhsOpp ->
                   ( _lhsOpp) }) }) )
@@ -2167,7 +2160,7 @@ sem_Type_TypeApp !(T_Type func_ ) !(T_Types args_ )  =
                   { ( !_funcIpp) ->
                       (case (({-# LINE 162 "src-ag/PrintOcamlCode.ag" #-}
                               pp_parens (hv_sp (_argsIpps ++ [_funcIpp]))
-                              {-# LINE 2171 "src-ag/PrintOcamlCode.hs" #-}
+                              {-# LINE 2164 "src-ag/PrintOcamlCode.hs" #-}
                               )) of
                        { !_lhsOpp ->
                        ( _lhsOpp) }) }) }) )
@@ -2176,7 +2169,7 @@ sem_Type_UnboxedTupleType :: T_Types  ->
 sem_Type_UnboxedTupleType !(T_Types tps_ )  =
     (T_Type (case (({-# LINE 165 "src-ag/PrintOcamlCode.ag" #-}
                     error "pp of Type.UnboxedTupleType is not supported"
-                    {-# LINE 2180 "src-ag/PrintOcamlCode.hs" #-}
+                    {-# LINE 2173 "src-ag/PrintOcamlCode.hs" #-}
                     )) of
              { !_lhsOpp ->
              ( _lhsOpp) }) )
@@ -2216,7 +2209,7 @@ sem_Types_Cons !(T_Type hd_ ) !(T_Types tl_ )  =
                    { ( !_hdIpp) ->
                        (case (({-# LINE 72 "src-ag/PrintOcamlCode.ag" #-}
                                _hdIpp : _tlIpps
-                               {-# LINE 2220 "src-ag/PrintOcamlCode.hs" #-}
+                               {-# LINE 2213 "src-ag/PrintOcamlCode.hs" #-}
                                )) of
                         { !_lhsOpps ->
                         ( _lhsOpps) }) }) }) )
@@ -2224,7 +2217,7 @@ sem_Types_Nil :: T_Types
 sem_Types_Nil  =
     (T_Types (case (({-# LINE 73 "src-ag/PrintOcamlCode.ag" #-}
                      []
-                     {-# LINE 2228 "src-ag/PrintOcamlCode.hs" #-}
+                     {-# LINE 2221 "src-ag/PrintOcamlCode.hs" #-}
                      )) of
               { !_lhsOpps ->
               ( _lhsOpps) }) )

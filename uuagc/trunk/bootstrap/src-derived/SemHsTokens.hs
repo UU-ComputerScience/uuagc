@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/SemHsTokens.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/SemHsTokens.ag)
 module SemHsTokens where
 {-# LINE 4 "src-ag/SemHsTokens.ag" #-}
 
@@ -21,14 +21,14 @@ import UU.Scanner.Position(Pos)
 {-# LINE 22 "dist/build/uuagc/uuagc-tmp/SemHsTokens.hs" #-}
 {-# LINE 57 "src-ag/SemHsTokens.ag" #-}
 
-isNTname allnts (Just (NT nt _)) = nt `elem` allnts
-isNTname allnts _                = False
+isNTname allnts (Just (NT nt _ _)) = nt `elem` allnts
+isNTname allnts _                  = False
 {-# LINE 27 "dist/build/uuagc/uuagc-tmp/SemHsTokens.hs" #-}
 -- HsToken -----------------------------------------------------
 {-
    visit 0:
       inherited attributes:
-         allfields            : [(Identifier,Type,Maybe (Maybe Type))]
+         allfields            : [(Identifier,Type,ChildKind)]
          allnts               : [Identifier]
          attrs                : [(Identifier,Identifier)]
          con                  : Identifier
@@ -99,14 +99,14 @@ sem_HsToken (HsToken _value _pos )  =
 sem_HsToken (StrToken _value _pos )  =
     (sem_HsToken_StrToken _value _pos )
 -- semantic domain
-newtype T_HsToken  = T_HsToken (([(Identifier,Type,Maybe (Maybe Type))]) ->
+newtype T_HsToken  = T_HsToken (([(Identifier,Type,ChildKind)]) ->
                                 ([Identifier]) ->
                                 ([(Identifier,Identifier)]) ->
                                 Identifier ->
                                 ([Identifier]) ->
                                 Identifier ->
                                 ( (Seq Error),HsToken ,((Pos,String)),([(Identifier,Identifier)]),(Seq Identifier),([Identifier])))
-data Inh_HsToken  = Inh_HsToken {allfields_Inh_HsToken :: ([(Identifier,Type,Maybe (Maybe Type))]),allnts_Inh_HsToken :: ([Identifier]),attrs_Inh_HsToken :: ([(Identifier,Identifier)]),con_Inh_HsToken :: Identifier,fieldnames_Inh_HsToken :: ([Identifier]),nt_Inh_HsToken :: Identifier}
+data Inh_HsToken  = Inh_HsToken {allfields_Inh_HsToken :: ([(Identifier,Type,ChildKind)]),allnts_Inh_HsToken :: ([Identifier]),attrs_Inh_HsToken :: ([(Identifier,Identifier)]),con_Inh_HsToken :: Identifier,fieldnames_Inh_HsToken :: ([Identifier]),nt_Inh_HsToken :: Identifier}
 data Syn_HsToken  = Syn_HsToken {errors_Syn_HsToken :: (Seq Error),output_Syn_HsToken :: HsToken ,tok_Syn_HsToken :: ((Pos,String)),usedAttrs_Syn_HsToken :: ([(Identifier,Identifier)]),usedFields_Syn_HsToken :: (Seq Identifier),usedLocals_Syn_HsToken :: ([Identifier])}
 wrap_HsToken :: T_HsToken  ->
                 Inh_HsToken  ->
@@ -535,7 +535,7 @@ sem_HsToken_StrToken value_ pos_  =
 {-
    visit 0:
       inherited attributes:
-         allfields            : [(Identifier,Type,Maybe (Maybe Type))]
+         allfields            : [(Identifier,Type,ChildKind)]
          allnts               : [Identifier]
          attrs                : [(Identifier,Identifier)]
          con                  : Identifier
@@ -564,14 +564,14 @@ sem_HsTokens :: HsTokens  ->
 sem_HsTokens list  =
     (Prelude.foldr sem_HsTokens_Cons sem_HsTokens_Nil (Prelude.map sem_HsToken list) )
 -- semantic domain
-newtype T_HsTokens  = T_HsTokens (([(Identifier,Type,Maybe (Maybe Type))]) ->
+newtype T_HsTokens  = T_HsTokens (([(Identifier,Type,ChildKind)]) ->
                                   ([Identifier]) ->
                                   ([(Identifier,Identifier)]) ->
                                   Identifier ->
                                   ([Identifier]) ->
                                   Identifier ->
                                   ( (Seq Error),HsTokens ,([(Pos,String)]),([(Identifier,Identifier)]),(Seq Identifier),([Identifier])))
-data Inh_HsTokens  = Inh_HsTokens {allfields_Inh_HsTokens :: ([(Identifier,Type,Maybe (Maybe Type))]),allnts_Inh_HsTokens :: ([Identifier]),attrs_Inh_HsTokens :: ([(Identifier,Identifier)]),con_Inh_HsTokens :: Identifier,fieldnames_Inh_HsTokens :: ([Identifier]),nt_Inh_HsTokens :: Identifier}
+data Inh_HsTokens  = Inh_HsTokens {allfields_Inh_HsTokens :: ([(Identifier,Type,ChildKind)]),allnts_Inh_HsTokens :: ([Identifier]),attrs_Inh_HsTokens :: ([(Identifier,Identifier)]),con_Inh_HsTokens :: Identifier,fieldnames_Inh_HsTokens :: ([Identifier]),nt_Inh_HsTokens :: Identifier}
 data Syn_HsTokens  = Syn_HsTokens {errors_Syn_HsTokens :: (Seq Error),output_Syn_HsTokens :: HsTokens ,tks_Syn_HsTokens :: ([(Pos,String)]),usedAttrs_Syn_HsTokens :: ([(Identifier,Identifier)]),usedFields_Syn_HsTokens :: (Seq Identifier),usedLocals_Syn_HsTokens :: ([Identifier])}
 wrap_HsTokens :: T_HsTokens  ->
                  Inh_HsTokens  ->
@@ -595,13 +595,13 @@ sem_HsTokens_Cons (T_HsToken hd_ ) (T_HsTokens tl_ )  =
                           _lhsOusedFields :: (Seq Identifier)
                           _lhsOusedLocals :: ([Identifier])
                           _lhsOoutput :: HsTokens 
-                          _hdOallfields :: ([(Identifier,Type,Maybe (Maybe Type))])
+                          _hdOallfields :: ([(Identifier,Type,ChildKind)])
                           _hdOallnts :: ([Identifier])
                           _hdOattrs :: ([(Identifier,Identifier)])
                           _hdOcon :: Identifier
                           _hdOfieldnames :: ([Identifier])
                           _hdOnt :: Identifier
-                          _tlOallfields :: ([(Identifier,Type,Maybe (Maybe Type))])
+                          _tlOallfields :: ([(Identifier,Type,ChildKind)])
                           _tlOallnts :: ([Identifier])
                           _tlOattrs :: ([(Identifier,Identifier)])
                           _tlOcon :: Identifier
@@ -799,7 +799,7 @@ sem_HsTokens_Nil  =
 {-
    visit 0:
       inherited attributes:
-         allfields            : [(Identifier,Type,Maybe (Maybe Type))]
+         allfields            : [(Identifier,Type,ChildKind)]
          allnts               : [Identifier]
          attrs                : [(Identifier,Identifier)]
          con                  : Identifier
@@ -821,13 +821,13 @@ sem_HsTokensRoot :: HsTokensRoot  ->
 sem_HsTokensRoot (HsTokensRoot _tokens )  =
     (sem_HsTokensRoot_HsTokensRoot (sem_HsTokens _tokens ) )
 -- semantic domain
-newtype T_HsTokensRoot  = T_HsTokensRoot (([(Identifier,Type,Maybe (Maybe Type))]) ->
+newtype T_HsTokensRoot  = T_HsTokensRoot (([(Identifier,Type,ChildKind)]) ->
                                           ([Identifier]) ->
                                           ([(Identifier,Identifier)]) ->
                                           Identifier ->
                                           Identifier ->
                                           ( (Seq Error),([HsToken]),([String]),([(Identifier,Identifier)]),([Identifier]),([Identifier])))
-data Inh_HsTokensRoot  = Inh_HsTokensRoot {allfields_Inh_HsTokensRoot :: ([(Identifier,Type,Maybe (Maybe Type))]),allnts_Inh_HsTokensRoot :: ([Identifier]),attrs_Inh_HsTokensRoot :: ([(Identifier,Identifier)]),con_Inh_HsTokensRoot :: Identifier,nt_Inh_HsTokensRoot :: Identifier}
+data Inh_HsTokensRoot  = Inh_HsTokensRoot {allfields_Inh_HsTokensRoot :: ([(Identifier,Type,ChildKind)]),allnts_Inh_HsTokensRoot :: ([Identifier]),attrs_Inh_HsTokensRoot :: ([(Identifier,Identifier)]),con_Inh_HsTokensRoot :: Identifier,nt_Inh_HsTokensRoot :: Identifier}
 data Syn_HsTokensRoot  = Syn_HsTokensRoot {errors_Syn_HsTokensRoot :: (Seq Error),output_Syn_HsTokensRoot :: ([HsToken]),textLines_Syn_HsTokensRoot :: ([String]),usedAttrs_Syn_HsTokensRoot :: ([(Identifier,Identifier)]),usedFields_Syn_HsTokensRoot :: ([Identifier]),usedLocals_Syn_HsTokensRoot :: ([Identifier])}
 wrap_HsTokensRoot :: T_HsTokensRoot  ->
                      Inh_HsTokensRoot  ->
@@ -850,7 +850,7 @@ sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_ )  =
                               _lhsOoutput :: ([HsToken])
                               _lhsOusedAttrs :: ([(Identifier,Identifier)])
                               _lhsOusedLocals :: ([Identifier])
-                              _tokensOallfields :: ([(Identifier,Type,Maybe (Maybe Type))])
+                              _tokensOallfields :: ([(Identifier,Type,ChildKind)])
                               _tokensOallnts :: ([Identifier])
                               _tokensOattrs :: ([(Identifier,Identifier)])
                               _tokensOcon :: Identifier

@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/CodeSyntaxDump.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/CodeSyntaxDump.ag)
 module CodeSyntaxDump where
 {-# LINE 5 "src-ag/CodeSyntaxDump.ag" #-}
 
@@ -29,10 +29,10 @@ import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 30 "dist/build/uuagc/uuagc-tmp/CodeSyntaxDump.hs" #-}
 {-# LINE 15 "src-ag/CodeSyntaxDump.ag" #-}
 
-ppChild :: (Identifier,Type,Maybe (Maybe Type)) -> PP_Doc
+ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
 ppChild (nm,tp,b)
   = pp nm >#< "::" >#< pp (show tp)
-  
+
 ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc
 ppVertexMap m
   = ppVList [ ppF (show k) $ ppAttr v | (k,v) <- Map.toList m ]
@@ -288,7 +288,7 @@ sem_CNonterminals_Nil  =
       alternative CProduction:
          child con            : {ConstructorIdent}
          child visits         : CVisits 
-         child children       : {[(Identifier,Type,Maybe (Maybe Type))]}
+         child children       : {[(Identifier,Type,ChildKind)]}
          child terminals      : {[Identifier]}
 -}
 -- cata
@@ -308,7 +308,7 @@ wrap_CProduction (T_CProduction sem ) (Inh_CProduction )  =
      in  (Syn_CProduction _lhsOpp ))
 sem_CProduction_CProduction :: ConstructorIdent ->
                                T_CVisits  ->
-                               ([(Identifier,Type,Maybe (Maybe Type))]) ->
+                               ([(Identifier,Type,ChildKind)]) ->
                                ([Identifier]) ->
                                T_CProduction 
 sem_CProduction_CProduction con_ (T_CVisits visits_ ) children_ terminals_  =
@@ -725,7 +725,6 @@ sem_CVisits_Nil  =
          child field          : {Identifier}
          child attr           : {Identifier}
          child pat            : Pattern 
-         child parts          : Patterns 
          visit 0:
             local copy        : _
       alternative Constr:
@@ -750,8 +749,8 @@ sem_CVisits_Nil  =
 -- cata
 sem_Pattern :: Pattern  ->
                T_Pattern 
-sem_Pattern (Alias _field _attr _pat _parts )  =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) (sem_Patterns _parts ) )
+sem_Pattern (Alias _field _attr _pat )  =
+    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) )
 sem_Pattern (Constr _name _pats )  =
     (sem_Pattern_Constr _name (sem_Patterns _pats ) )
 sem_Pattern (Irrefutable _pat )  =
@@ -773,38 +772,32 @@ wrap_Pattern (T_Pattern sem ) (Inh_Pattern )  =
 sem_Pattern_Alias :: Identifier ->
                      Identifier ->
                      T_Pattern  ->
-                     T_Patterns  ->
                      T_Pattern 
-sem_Pattern_Alias field_ attr_ (T_Pattern pat_ ) (T_Patterns parts_ )  =
+sem_Pattern_Alias field_ attr_ (T_Pattern pat_ )  =
     (T_Pattern (let _lhsOpp :: PP_Doc
                     _lhsOcopy :: Pattern 
                     _patIcopy :: Pattern 
                     _patIpp :: PP_Doc
-                    _partsIcopy :: Patterns 
-                    _partsIpp :: PP_Doc
-                    _partsIppL :: ([PP_Doc])
                     -- "src-ag/CodeSyntaxDump.ag"(line 75, column 33)
                     _lhsOpp =
                         ({-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
-                         {-# LINE 791 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 786 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _copy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
-                         Alias field_ attr_ _patIcopy _partsIcopy
-                         {-# LINE 797 "src-ag/CodeSyntaxDump.hs" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
+                         Alias field_ attr_ _patIcopy
+                         {-# LINE 792 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 803 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 798 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_ 
-                    ( _partsIcopy,_partsIpp,_partsIppL) =
-                        parts_ 
                 in  ( _lhsOcopy,_lhsOpp)) )
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns  ->
@@ -819,19 +812,19 @@ sem_Pattern_Constr name_ (T_Patterns pats_ )  =
                     _lhsOpp =
                         ({-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 823 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 816 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _copy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 829 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 822 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 835 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 828 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_ 
@@ -847,19 +840,19 @@ sem_Pattern_Irrefutable (T_Pattern pat_ )  =
                     _lhsOpp =
                         ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                          _patIpp
-                         {-# LINE 851 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 844 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _copy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 857 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 850 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 863 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 856 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_ 
@@ -877,19 +870,19 @@ sem_Pattern_Product pos_ (T_Patterns pats_ )  =
                     _lhsOpp =
                         ({-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 881 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 874 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _copy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 887 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 880 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 893 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 886 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_ 
@@ -903,19 +896,19 @@ sem_Pattern_Underscore pos_  =
                     _lhsOpp =
                         ({-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
-                         {-# LINE 907 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 900 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _copy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 913 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 906 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
-                        ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                        ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 919 "src-ag/CodeSyntaxDump.hs" #-}
+                         {-# LINE 912 "src-ag/CodeSyntaxDump.hs" #-}
                          )
                 in  ( _lhsOcopy,_lhsOpp)) )
 -- Patterns ----------------------------------------------------
@@ -966,25 +959,25 @@ sem_Patterns_Cons (T_Pattern hd_ ) (T_Patterns tl_ )  =
                      _lhsOppL =
                          ({-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 970 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 963 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                      _lhsOpp =
                          ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp >-< _tlIpp
-                          {-# LINE 976 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 969 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- self rule
                      _copy =
-                         ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 982 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 975 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- self rule
                      _lhsOcopy =
-                         ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 988 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 981 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      ( _hdIcopy,_hdIpp) =
                          hd_ 
@@ -1000,25 +993,25 @@ sem_Patterns_Nil  =
                      _lhsOppL =
                          ({-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
                           []
-                          {-# LINE 1004 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 997 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                      _lhsOpp =
                          ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                           empty
-                          {-# LINE 1010 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 1003 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- self rule
                      _copy =
-                         ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 1016 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 1009 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      -- self rule
                      _lhsOcopy =
-                         ({-# LINE 23 "src-ag/Patterns.ag" #-}
+                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 1022 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 1015 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                  in  ( _lhsOcopy,_lhsOpp,_lhsOppL)) )
 -- Sequence ----------------------------------------------------
@@ -1058,7 +1051,7 @@ sem_Sequence_Cons (T_CRule hd_ ) (T_Sequence tl_ )  =
                      _lhsOppL =
                          ({-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 1062 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 1055 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                      ( _hdIpp) =
                          hd_ 
@@ -1072,6 +1065,6 @@ sem_Sequence_Nil  =
                      _lhsOppL =
                          ({-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
                           []
-                          {-# LINE 1076 "src-ag/CodeSyntaxDump.hs" #-}
+                          {-# LINE 1069 "src-ag/CodeSyntaxDump.hs" #-}
                           )
                  in  ( _lhsOppL)) )

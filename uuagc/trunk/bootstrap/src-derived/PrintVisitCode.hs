@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/PrintVisitCode.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/PrintVisitCode.ag)
 module PrintVisitCode where
 {-# LINE 10 "src-ag/PrintVisitCode.ag" #-}
 
@@ -212,7 +212,7 @@ sem_CNonterminals_Nil  =
       alternative CProduction:
          child con            : {ConstructorIdent}
          child visits         : CVisits 
-         child children       : {[(Identifier,Type,Maybe (Maybe Type))]}
+         child children       : {[(Identifier,Type,ChildKind)]}
          child terminals      : {[Identifier]}
 -}
 -- cata
@@ -232,7 +232,7 @@ wrap_CProduction (T_CProduction sem ) (Inh_CProduction )  =
      in  (Syn_CProduction ))
 sem_CProduction_CProduction :: ConstructorIdent ->
                                T_CVisits  ->
-                               ([(Identifier,Type,Maybe (Maybe Type))]) ->
+                               ([(Identifier,Type,ChildKind)]) ->
                                ([Identifier]) ->
                                T_CProduction 
 sem_CProduction_CProduction con_ (T_CVisits visits_ ) children_ terminals_  =
@@ -537,7 +537,6 @@ sem_DeclBlocksRoot_DeclBlocksRoot (T_DeclBlocks blocks_ )  =
          child field          : {Identifier}
          child attr           : {Identifier}
          child pat            : Pattern 
-         child parts          : Patterns 
          visit 0:
             local copy        : _
       alternative Constr:
@@ -562,8 +561,8 @@ sem_DeclBlocksRoot_DeclBlocksRoot (T_DeclBlocks blocks_ )  =
 -- cata
 sem_Pattern :: Pattern  ->
                T_Pattern 
-sem_Pattern (Alias _field _attr _pat _parts )  =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) (sem_Patterns _parts ) )
+sem_Pattern (Alias _field _attr _pat )  =
+    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) )
 sem_Pattern (Constr _name _pats )  =
     (sem_Pattern_Constr _name (sem_Patterns _pats ) )
 sem_Pattern (Irrefutable _pat )  =
@@ -585,38 +584,35 @@ wrap_Pattern (T_Pattern sem ) (Inh_Pattern )  =
 sem_Pattern_Alias :: Identifier ->
                      Identifier ->
                      T_Pattern  ->
-                     T_Patterns  ->
                      T_Pattern 
-sem_Pattern_Alias field_ attr_ (T_Pattern pat_ ) (T_Patterns parts_ )  =
-    (T_Pattern (case (parts_ ) of
-                { ( _partsIcopy) ->
-                    (case (pat_ ) of
-                     { ( _patIcopy) ->
-                         (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                 Alias field_ attr_ _patIcopy _partsIcopy
-                                 {-# LINE 598 "src-ag/PrintVisitCode.hs" #-}
-                                 )) of
-                          { _copy ->
-                          (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                  _copy
-                                  {-# LINE 603 "src-ag/PrintVisitCode.hs" #-}
-                                  )) of
-                           { _lhsOcopy ->
-                           ( _lhsOcopy) }) }) }) }) )
+sem_Pattern_Alias field_ attr_ (T_Pattern pat_ )  =
+    (T_Pattern (case (pat_ ) of
+                { ( _patIcopy) ->
+                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                            Alias field_ attr_ _patIcopy
+                            {-# LINE 594 "src-ag/PrintVisitCode.hs" #-}
+                            )) of
+                     { _copy ->
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                             _copy
+                             {-# LINE 599 "src-ag/PrintVisitCode.hs" #-}
+                             )) of
+                      { _lhsOcopy ->
+                      ( _lhsOcopy) }) }) }) )
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns  ->
                       T_Pattern 
 sem_Pattern_Constr name_ (T_Patterns pats_ )  =
     (T_Pattern (case (pats_ ) of
                 { ( _patsIcopy) ->
-                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Constr name_ _patsIcopy
-                            {-# LINE 615 "src-ag/PrintVisitCode.hs" #-}
+                            {-# LINE 611 "src-ag/PrintVisitCode.hs" #-}
                             )) of
                      { _copy ->
-                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 620 "src-ag/PrintVisitCode.hs" #-}
+                             {-# LINE 616 "src-ag/PrintVisitCode.hs" #-}
                              )) of
                       { _lhsOcopy ->
                       ( _lhsOcopy) }) }) }) )
@@ -625,14 +621,14 @@ sem_Pattern_Irrefutable :: T_Pattern  ->
 sem_Pattern_Irrefutable (T_Pattern pat_ )  =
     (T_Pattern (case (pat_ ) of
                 { ( _patIcopy) ->
-                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Irrefutable _patIcopy
-                            {-# LINE 631 "src-ag/PrintVisitCode.hs" #-}
+                            {-# LINE 627 "src-ag/PrintVisitCode.hs" #-}
                             )) of
                      { _copy ->
-                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 636 "src-ag/PrintVisitCode.hs" #-}
+                             {-# LINE 632 "src-ag/PrintVisitCode.hs" #-}
                              )) of
                       { _lhsOcopy ->
                       ( _lhsOcopy) }) }) }) )
@@ -642,28 +638,28 @@ sem_Pattern_Product :: Pos ->
 sem_Pattern_Product pos_ (T_Patterns pats_ )  =
     (T_Pattern (case (pats_ ) of
                 { ( _patsIcopy) ->
-                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Product pos_ _patsIcopy
-                            {-# LINE 648 "src-ag/PrintVisitCode.hs" #-}
+                            {-# LINE 644 "src-ag/PrintVisitCode.hs" #-}
                             )) of
                      { _copy ->
-                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 653 "src-ag/PrintVisitCode.hs" #-}
+                             {-# LINE 649 "src-ag/PrintVisitCode.hs" #-}
                              )) of
                       { _lhsOcopy ->
                       ( _lhsOcopy) }) }) }) )
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern 
 sem_Pattern_Underscore pos_  =
-    (T_Pattern (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+    (T_Pattern (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                        Underscore pos_
-                       {-# LINE 662 "src-ag/PrintVisitCode.hs" #-}
+                       {-# LINE 658 "src-ag/PrintVisitCode.hs" #-}
                        )) of
                 { _copy ->
-                (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                         _copy
-                        {-# LINE 667 "src-ag/PrintVisitCode.hs" #-}
+                        {-# LINE 663 "src-ag/PrintVisitCode.hs" #-}
                         )) of
                  { _lhsOcopy ->
                  ( _lhsOcopy) }) }) )
@@ -705,27 +701,27 @@ sem_Patterns_Cons (T_Pattern hd_ ) (T_Patterns tl_ )  =
                  { ( _tlIcopy) ->
                      (case (hd_ ) of
                       { ( _hdIcopy) ->
-                          (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                          (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                   (:) _hdIcopy _tlIcopy
-                                  {-# LINE 711 "src-ag/PrintVisitCode.hs" #-}
+                                  {-# LINE 707 "src-ag/PrintVisitCode.hs" #-}
                                   )) of
                            { _copy ->
-                           (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                    _copy
-                                   {-# LINE 716 "src-ag/PrintVisitCode.hs" #-}
+                                   {-# LINE 712 "src-ag/PrintVisitCode.hs" #-}
                                    )) of
                             { _lhsOcopy ->
                             ( _lhsOcopy) }) }) }) }) )
 sem_Patterns_Nil :: T_Patterns 
 sem_Patterns_Nil  =
-    (T_Patterns (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+    (T_Patterns (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                         []
-                        {-# LINE 724 "src-ag/PrintVisitCode.hs" #-}
+                        {-# LINE 720 "src-ag/PrintVisitCode.hs" #-}
                         )) of
                  { _copy ->
-                 (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                 (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 729 "src-ag/PrintVisitCode.hs" #-}
+                         {-# LINE 725 "src-ag/PrintVisitCode.hs" #-}
                          )) of
                   { _lhsOcopy ->
                   ( _lhsOcopy) }) }) )

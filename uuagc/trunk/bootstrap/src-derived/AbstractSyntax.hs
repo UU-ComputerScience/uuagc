@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/AbstractSyntax.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/AbstractSyntax.ag)
 module AbstractSyntax where
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -9,19 +9,19 @@ import Data.Set(Set)
 import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
+import Macro --marcos
 import CommonTypes
-{-# LINE 14 "dist/build/uuagc/uuagc-tmp/AbstractSyntax.hs" #-}
+import ErrorMessages
+{-# LINE 16 "dist/build/uuagc/uuagc-tmp/AbstractSyntax.hs" #-}
 -- Child -------------------------------------------------------
 {-
    alternatives:
       alternative Child:
          child name           : {Identifier}
          child tp             : {Type}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child virtual        : {Maybe (Maybe Type)}
+         child kind           : {ChildKind}
 -}
-data Child  = Child (Identifier) (Type) (Attributes) (Attributes) ((Maybe (Maybe Type))) 
+data Child  = Child (Identifier) (Type) (ChildKind) 
 -- Children ----------------------------------------------------
 {-
    alternatives:
@@ -76,11 +76,14 @@ type Nonterminals  = [Nonterminal ]
    alternatives:
       alternative Production:
          child con            : {ConstructorIdent}
+         child params         : {[Identifier]}
+         child constraints    : {[Type]}
          child children       : Children 
          child rules          : Rules 
          child typeSigs       : TypeSigs 
+         child macro          : {MaybeMacro}
 -}
-data Production  = Production (ConstructorIdent) (Children ) (Rules ) (TypeSigs ) 
+data Production  = Production (ConstructorIdent) (([Identifier])) (([Type])) (Children ) (Rules ) (TypeSigs ) (MaybeMacro) 
 -- Productions -------------------------------------------------
 {-
    alternatives:
@@ -100,8 +103,12 @@ type Productions  = [Production ]
          child owrt           : {Bool}
          child origin         : {String}
          child explicit       : {Bool}
+         child pure           : {Bool}
+         child identity       : {Bool}
+         child mbError        : {Maybe Error}
+         child eager          : {Bool}
 -}
-data Rule  = Rule ((Maybe Identifier)) (Pattern) (Expression) (Bool) (String) (Bool) 
+data Rule  = Rule ((Maybe Identifier)) (Pattern) (Expression) (Bool) (String) (Bool) (Bool) (Bool) ((Maybe Error)) (Bool) 
 -- Rules -------------------------------------------------------
 {-
    alternatives:

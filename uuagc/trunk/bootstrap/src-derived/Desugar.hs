@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.39.0.0 (src-ag/Desugar.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/Desugar.ag)
 module Desugar where
-{-# LINE 13 "src-ag/Desugar.ag" #-}
+{-# LINE 14 "src-ag/Desugar.ag" #-}
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -29,34 +29,36 @@ import Data.Set(Set)
 import Data.Map(Map)
 import Patterns    (Pattern(..),Patterns)
 import Expression  (Expression(..))
+import Macro --marcos
 import CommonTypes
-{-# LINE 34 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+import ErrorMessages
+{-# LINE 36 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 41 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 43 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
 {-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 47 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 49 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
 {-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
-{-# LINE 53 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
-{-# LINE 97 "src-ag/Desugar.ag" #-}
+{-# LINE 55 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 98 "src-ag/Desugar.ag" #-}
 
 addl :: Int -> Pos -> Pos
 addl n (Pos l c f) = Pos (l+n) c f
-{-# LINE 58 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 60 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
-{-# LINE 132 "src-ag/Desugar.ag" #-}
+{-# LINE 133 "src-ag/Desugar.ag" #-}
 
 maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
 maybeError def err mb
@@ -69,15 +71,15 @@ findField fld attr list
   | otherwise     = Just fld
   where
     f = lookup attr
-{-# LINE 73 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 75 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
-{-# LINE 203 "src-ag/Desugar.ag" #-}
+{-# LINE 204 "src-ag/Desugar.ag" #-}
 
 mergeAttributes :: AttrMap -> AttrMap -> AttrMap
 mergeAttributes = Map.unionWith $ Map.unionWith $ Set.union
-{-# LINE 79 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 81 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 
-{-# LINE 250 "src-ag/Desugar.ag" #-}
+{-# LINE 251 "src-ag/Desugar.ag" #-}
 
 desugarExprs :: Options -> NontermIdent -> ConstructorIdent ->
                 [(Identifier, Identifier)] -> [(Identifier, Identifier)] ->
@@ -101,10 +103,25 @@ desugarExpr options nt con childInhs childSyns errs expr
                          }
     sem = sem_Expression expr
     syn = wrap_Expression sem inh
-{-# LINE 105 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+{-# LINE 107 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
+
+{-# LINE 294 "src-ag/Desugar.ag" #-}
+
+addLateAttr :: Options -> String -> Attributes
+addLateAttr options mainName
+  | kennedyWarren options && lateHigherOrderBinding options =
+      let tp = lateBindingType mainName
+      in Map.singleton idLateBindingAttr tp
+  | otherwise = Map.empty
+{-# LINE 117 "dist/build/uuagc/uuagc-tmp/Desugar.hs" #-}
 -- Child -------------------------------------------------------
 {-
    visit 0:
+      inherited attributes:
+         inhMap               : Map Identifier Attributes
+         mainName             : String
+         options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          childInhs            : [(Identifier, Identifier)]
          childSyns            : [(Identifier, Identifier)]
@@ -113,58 +130,82 @@ desugarExpr options nt con childInhs childSyns errs expr
       alternative Child:
          child name           : {Identifier}
          child tp             : {Type}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child virtual        : {Maybe (Maybe Type)}
+         child kind           : {ChildKind}
          visit 0:
-            local output      : _
+            local chnt        : _
+            local inh         : _
+            local syn         : _
 -}
 -- cata
 sem_Child :: Child  ->
              T_Child 
-sem_Child !(Child _name _tp _inh _syn _virtual )  =
-    (sem_Child_Child _name _tp _inh _syn _virtual )
+sem_Child !(Child _name _tp _kind )  =
+    (sem_Child_Child _name _tp _kind )
 -- semantic domain
-newtype T_Child  = T_Child (( ([(Identifier, Identifier)]),([(Identifier, Identifier)]),Child ))
-data Inh_Child  = Inh_Child {}
+newtype T_Child  = T_Child ((Map Identifier Attributes) ->
+                            String ->
+                            Options ->
+                            (Map Identifier Attributes) ->
+                            ( ([(Identifier, Identifier)]),([(Identifier, Identifier)]),Child ))
+data Inh_Child  = Inh_Child {inhMap_Inh_Child :: !((Map Identifier Attributes)),mainName_Inh_Child :: !(String),options_Inh_Child :: !(Options),synMap_Inh_Child :: !((Map Identifier Attributes))}
 data Syn_Child  = Syn_Child {childInhs_Syn_Child :: !(([(Identifier, Identifier)])),childSyns_Syn_Child :: !(([(Identifier, Identifier)])),output_Syn_Child :: !(Child )}
 wrap_Child :: T_Child  ->
               Inh_Child  ->
               Syn_Child 
-wrap_Child !(T_Child sem ) !(Inh_Child )  =
-    (let ( !_lhsOchildInhs,!_lhsOchildSyns,!_lhsOoutput) = sem 
+wrap_Child !(T_Child sem ) !(Inh_Child _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOchildInhs,!_lhsOchildSyns,!_lhsOoutput) = sem _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap 
      in  (Syn_Child _lhsOchildInhs _lhsOchildSyns _lhsOoutput ))
 sem_Child_Child :: Identifier ->
                    Type ->
-                   Attributes ->
-                   Attributes ->
-                   (Maybe (Maybe Type)) ->
+                   ChildKind ->
                    T_Child 
-sem_Child_Child !name_ !tp_ !inh_ !syn_ !virtual_  =
-    (T_Child (case (({-# LINE 129 "src-ag/Desugar.ag" #-}
-                     [(i, name_) | i <- Map.keys inh_ ]
-                     {-# LINE 147 "src-ag/Desugar.hs" #-}
-                     )) of
-              { !_lhsOchildInhs ->
-              (case (({-# LINE 130 "src-ag/Desugar.ag" #-}
-                      [(s, name_) | s <- Map.keys syn_ ]
-                      {-# LINE 152 "src-ag/Desugar.hs" #-}
-                      )) of
-               { !_lhsOchildSyns ->
-               (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                       Child name_ tp_ inh_ syn_ virtual_
-                       {-# LINE 157 "src-ag/Desugar.hs" #-}
-                       )) of
-                { !_output ->
-                (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                        _output
-                        {-# LINE 162 "src-ag/Desugar.hs" #-}
-                        )) of
-                 { !_lhsOoutput ->
-                 ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) }) )
+sem_Child_Child !name_ !tp_ !kind_  =
+    (T_Child (\ (!_lhsIinhMap)
+                (!_lhsImainName)
+                (!_lhsIoptions)
+                (!_lhsIsynMap) ->
+                  (case (({-# LINE 19 "src-ag/DistChildAttr.ag" #-}
+                          case tp_ of
+                            NT nt _ _ -> nt
+                            Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
+                            Haskell t -> identifier t
+                          {-# LINE 173 "src-ag/Desugar.hs" #-}
+                          )) of
+                   { !_chnt ->
+                   (case (({-# LINE 23 "src-ag/DistChildAttr.ag" #-}
+                           Map.findWithDefault Map.empty _chnt     _lhsIinhMap
+                           {-# LINE 178 "src-ag/Desugar.hs" #-}
+                           )) of
+                    { !_inh ->
+                    (case (({-# LINE 130 "src-ag/Desugar.ag" #-}
+                            [(i, name_) | i <- Map.keys _inh     ]
+                            {-# LINE 183 "src-ag/Desugar.hs" #-}
+                            )) of
+                     { !_lhsOchildInhs ->
+                     (case (({-# LINE 24 "src-ag/DistChildAttr.ag" #-}
+                             Map.findWithDefault Map.empty _chnt     _lhsIsynMap
+                             {-# LINE 188 "src-ag/Desugar.hs" #-}
+                             )) of
+                      { !_syn ->
+                      (case (({-# LINE 131 "src-ag/Desugar.ag" #-}
+                              [(s, name_) | s <- Map.keys _syn     ]
+                              {-# LINE 193 "src-ag/Desugar.hs" #-}
+                              )) of
+                       { !_lhsOchildSyns ->
+                       (case (({-# LINE 315 "src-ag/Desugar.ag" #-}
+                               Child name_ tp_ kind_
+                               {-# LINE 198 "src-ag/Desugar.hs" #-}
+                               )) of
+                        { !_lhsOoutput ->
+                        ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) }) }) })) )
 -- Children ----------------------------------------------------
 {-
    visit 0:
+      inherited attributes:
+         inhMap               : Map Identifier Attributes
+         mainName             : String
+         options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          childInhs            : [(Identifier, Identifier)]
          childSyns            : [(Identifier, Identifier)]
@@ -185,67 +226,119 @@ sem_Children :: Children  ->
 sem_Children !list  =
     (Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.map sem_Child list) )
 -- semantic domain
-newtype T_Children  = T_Children (( ([(Identifier, Identifier)]),([(Identifier, Identifier)]),Children ))
-data Inh_Children  = Inh_Children {}
+newtype T_Children  = T_Children ((Map Identifier Attributes) ->
+                                  String ->
+                                  Options ->
+                                  (Map Identifier Attributes) ->
+                                  ( ([(Identifier, Identifier)]),([(Identifier, Identifier)]),Children ))
+data Inh_Children  = Inh_Children {inhMap_Inh_Children :: !((Map Identifier Attributes)),mainName_Inh_Children :: !(String),options_Inh_Children :: !(Options),synMap_Inh_Children :: !((Map Identifier Attributes))}
 data Syn_Children  = Syn_Children {childInhs_Syn_Children :: !(([(Identifier, Identifier)])),childSyns_Syn_Children :: !(([(Identifier, Identifier)])),output_Syn_Children :: !(Children )}
 wrap_Children :: T_Children  ->
                  Inh_Children  ->
                  Syn_Children 
-wrap_Children !(T_Children sem ) !(Inh_Children )  =
-    (let ( !_lhsOchildInhs,!_lhsOchildSyns,!_lhsOoutput) = sem 
+wrap_Children !(T_Children sem ) !(Inh_Children _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOchildInhs,!_lhsOchildSyns,!_lhsOoutput) = sem _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap 
      in  (Syn_Children _lhsOchildInhs _lhsOchildSyns _lhsOoutput ))
 sem_Children_Cons :: T_Child  ->
                      T_Children  ->
                      T_Children 
 sem_Children_Cons !(T_Child hd_ ) !(T_Children tl_ )  =
-    (T_Children (case (tl_ ) of
-                 { ( !_tlIchildInhs,!_tlIchildSyns,!_tlIoutput) ->
-                     (case (hd_ ) of
-                      { ( !_hdIchildInhs,!_hdIchildSyns,!_hdIoutput) ->
-                          (case (({-# LINE 124 "src-ag/Desugar.ag" #-}
-                                  _hdIchildInhs ++ _tlIchildInhs
-                                  {-# LINE 208 "src-ag/Desugar.hs" #-}
-                                  )) of
-                           { !_lhsOchildInhs ->
-                           (case (({-# LINE 124 "src-ag/Desugar.ag" #-}
-                                   _hdIchildSyns ++ _tlIchildSyns
-                                   {-# LINE 213 "src-ag/Desugar.hs" #-}
-                                   )) of
-                            { !_lhsOchildSyns ->
-                            (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                    (:) _hdIoutput _tlIoutput
-                                    {-# LINE 218 "src-ag/Desugar.hs" #-}
-                                    )) of
-                             { !_output ->
-                             (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                     _output
-                                     {-# LINE 223 "src-ag/Desugar.hs" #-}
-                                     )) of
-                              { !_lhsOoutput ->
-                              ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) }) }) }) )
+    (T_Children (\ (!_lhsIinhMap)
+                   (!_lhsImainName)
+                   (!_lhsIoptions)
+                   (!_lhsIsynMap) ->
+                     (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                             _lhsIinhMap
+                             {-# LINE 253 "src-ag/Desugar.hs" #-}
+                             )) of
+                      { !_tlOinhMap ->
+                      (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                              _lhsIinhMap
+                              {-# LINE 258 "src-ag/Desugar.hs" #-}
+                              )) of
+                       { !_hdOinhMap ->
+                       (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                               _lhsIsynMap
+                               {-# LINE 263 "src-ag/Desugar.hs" #-}
+                               )) of
+                        { !_tlOsynMap ->
+                        (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                _lhsIoptions
+                                {-# LINE 268 "src-ag/Desugar.hs" #-}
+                                )) of
+                         { !_tlOoptions ->
+                         (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                 _lhsImainName
+                                 {-# LINE 273 "src-ag/Desugar.hs" #-}
+                                 )) of
+                          { !_tlOmainName ->
+                          (case (tl_ _tlOinhMap _tlOmainName _tlOoptions _tlOsynMap ) of
+                           { ( !_tlIchildInhs,!_tlIchildSyns,!_tlIoutput) ->
+                               (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                       _lhsIsynMap
+                                       {-# LINE 280 "src-ag/Desugar.hs" #-}
+                                       )) of
+                                { !_hdOsynMap ->
+                                (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                        _lhsIoptions
+                                        {-# LINE 285 "src-ag/Desugar.hs" #-}
+                                        )) of
+                                 { !_hdOoptions ->
+                                 (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                         _lhsImainName
+                                         {-# LINE 290 "src-ag/Desugar.hs" #-}
+                                         )) of
+                                  { !_hdOmainName ->
+                                  (case (hd_ _hdOinhMap _hdOmainName _hdOoptions _hdOsynMap ) of
+                                   { ( !_hdIchildInhs,!_hdIchildSyns,!_hdIoutput) ->
+                                       (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                               _hdIchildInhs ++ _tlIchildInhs
+                                               {-# LINE 297 "src-ag/Desugar.hs" #-}
+                                               )) of
+                                        { !_lhsOchildInhs ->
+                                        (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                _hdIchildSyns ++ _tlIchildSyns
+                                                {-# LINE 302 "src-ag/Desugar.hs" #-}
+                                                )) of
+                                         { !_lhsOchildSyns ->
+                                         (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                 (:) _hdIoutput _tlIoutput
+                                                 {-# LINE 307 "src-ag/Desugar.hs" #-}
+                                                 )) of
+                                          { !_output ->
+                                          (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                  _output
+                                                  {-# LINE 312 "src-ag/Desugar.hs" #-}
+                                                  )) of
+                                           { !_lhsOoutput ->
+                                           ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
 sem_Children_Nil :: T_Children 
 sem_Children_Nil  =
-    (T_Children (case (({-# LINE 124 "src-ag/Desugar.ag" #-}
-                        []
-                        {-# LINE 231 "src-ag/Desugar.hs" #-}
-                        )) of
-                 { !_lhsOchildInhs ->
-                 (case (({-# LINE 124 "src-ag/Desugar.ag" #-}
-                         []
-                         {-# LINE 236 "src-ag/Desugar.hs" #-}
-                         )) of
-                  { !_lhsOchildSyns ->
-                  (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                          []
-                          {-# LINE 241 "src-ag/Desugar.hs" #-}
-                          )) of
-                   { !_output ->
-                   (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                           _output
-                           {-# LINE 246 "src-ag/Desugar.hs" #-}
-                           )) of
-                    { !_lhsOoutput ->
-                    ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) }) )
+    (T_Children (\ (!_lhsIinhMap)
+                   (!_lhsImainName)
+                   (!_lhsIoptions)
+                   (!_lhsIsynMap) ->
+                     (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                             []
+                             {-# LINE 324 "src-ag/Desugar.hs" #-}
+                             )) of
+                      { !_lhsOchildInhs ->
+                      (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                              []
+                              {-# LINE 329 "src-ag/Desugar.hs" #-}
+                              )) of
+                       { !_lhsOchildSyns ->
+                       (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                               []
+                               {-# LINE 334 "src-ag/Desugar.hs" #-}
+                               )) of
+                        { !_output ->
+                        (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                _output
+                                {-# LINE 339 "src-ag/Desugar.hs" #-}
+                                )) of
+                         { !_lhsOoutput ->
+                         ( _lhsOchildInhs,_lhsOchildSyns,_lhsOoutput) }) }) }) })) )
 -- Expression --------------------------------------------------
 {-
    visit 0:
@@ -298,7 +391,7 @@ sem_Expression_Expression !pos_ !tks_  =
                      (!_lhsInt)
                      (!_lhsIoptions)
                      (!_lhsIruleDescr) ->
-                       (case (({-# LINE 48 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 49 "src-ag/Desugar.ag" #-}
                                let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot     = _lhsIchildInhs
                                                           , childSyns_Inh_HsTokensRoot     = _lhsIchildSyns
                                                           , nt_Inh_HsTokensRoot            = _lhsInt
@@ -309,22 +402,22 @@ sem_Expression_Expression !pos_ !tks_  =
                                    sem = sem_HsTokensRoot (HsTokensRoot tks_)
                                    syn = wrap_HsTokensRoot sem inh
                                in (tks_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
-                               {-# LINE 313 "src-ag/Desugar.hs" #-}
+                               {-# LINE 406 "src-ag/Desugar.hs" #-}
                                )) of
                         { !__tup1 ->
-                        (case (({-# LINE 48 "src-ag/Desugar.ag" #-}
+                        (case (({-# LINE 49 "src-ag/Desugar.ag" #-}
                                 __tup1
-                                {-# LINE 318 "src-ag/Desugar.hs" #-}
+                                {-# LINE 411 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !(_,!_lhsOerrors) ->
-                         (case (({-# LINE 48 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 49 "src-ag/Desugar.ag" #-}
                                  __tup1
-                                 {-# LINE 323 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 416 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !(!_tks',_) ->
-                          (case (({-# LINE 58 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 59 "src-ag/Desugar.ag" #-}
                                   Expression pos_ _tks'
-                                  {-# LINE 328 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 421 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_lhsOoutput ->
                            ( _lhsOerrors,_lhsOoutput) }) }) }) })) )
@@ -333,6 +426,7 @@ sem_Expression_Expression !pos_ !tks_  =
    visit 0:
       inherited attributes:
          forcedIrrefutables   : AttrMap
+         mainName             : String
          options              : Options
       synthesized attributes:
          allAttributes        : AttrMap
@@ -362,15 +456,16 @@ sem_Grammar !(Grammar _typeSyns _useMap _derivings _wrappers _nonts _pragmas _ma
     (sem_Grammar_Grammar _typeSyns _useMap _derivings _wrappers (sem_Nonterminals _nonts ) _pragmas _manualAttrOrderMap _paramMap _contextMap _quantMap _uniqueMap _augmentsMap _aroundsMap _mergeMap )
 -- semantic domain
 newtype T_Grammar  = T_Grammar (AttrMap ->
+                                String ->
                                 Options ->
                                 ( AttrMap,(Seq Error),Grammar ))
-data Inh_Grammar  = Inh_Grammar {forcedIrrefutables_Inh_Grammar :: !(AttrMap),options_Inh_Grammar :: !(Options)}
+data Inh_Grammar  = Inh_Grammar {forcedIrrefutables_Inh_Grammar :: !(AttrMap),mainName_Inh_Grammar :: !(String),options_Inh_Grammar :: !(Options)}
 data Syn_Grammar  = Syn_Grammar {allAttributes_Syn_Grammar :: !(AttrMap),errors_Syn_Grammar :: !((Seq Error)),output_Syn_Grammar :: !(Grammar )}
 wrap_Grammar :: T_Grammar  ->
                 Inh_Grammar  ->
                 Syn_Grammar 
-wrap_Grammar !(T_Grammar sem ) !(Inh_Grammar _lhsIforcedIrrefutables _lhsIoptions )  =
-    (let ( !_lhsOallAttributes,!_lhsOerrors,!_lhsOoutput) = sem _lhsIforcedIrrefutables _lhsIoptions 
+wrap_Grammar !(T_Grammar sem ) !(Inh_Grammar _lhsIforcedIrrefutables _lhsImainName _lhsIoptions )  =
+    (let ( !_lhsOallAttributes,!_lhsOerrors,!_lhsOoutput) = sem _lhsIforcedIrrefutables _lhsImainName _lhsIoptions 
      in  (Syn_Grammar _lhsOallAttributes _lhsOerrors _lhsOoutput ))
 sem_Grammar_Grammar :: TypeSyns ->
                        UseMap ->
@@ -389,53 +484,71 @@ sem_Grammar_Grammar :: TypeSyns ->
                        T_Grammar 
 sem_Grammar_Grammar !typeSyns_ !useMap_ !derivings_ !wrappers_ !(T_Nonterminals nonts_ ) !pragmas_ !manualAttrOrderMap_ !paramMap_ !contextMap_ !quantMap_ !uniqueMap_ !augmentsMap_ !aroundsMap_ !mergeMap_  =
     (T_Grammar (\ (!_lhsIforcedIrrefutables)
+                  (!_lhsImainName)
                   (!_lhsIoptions) ->
-                    (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                            _lhsIoptions
-                            {-# LINE 396 "src-ag/Desugar.hs" #-}
-                            )) of
-                     { !_nontsOoptions ->
-                     (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                             _lhsIforcedIrrefutables
-                             {-# LINE 401 "src-ag/Desugar.hs" #-}
-                             )) of
-                      { !_nontsOforcedIrrefutables ->
-                      (case (({-# LINE 234 "src-ag/Desugar.ag" #-}
-                              augmentsMap_
-                              {-# LINE 406 "src-ag/Desugar.hs" #-}
-                              )) of
-                       { !_nontsOaugmentsIn ->
-                       (case (nonts_ _nontsOaugmentsIn _nontsOforcedIrrefutables _nontsOoptions ) of
-                        { ( !_nontsIallAttributes,!_nontsIaugmentsOut,!_nontsIerrors,!_nontsIoutput) ->
-                            (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                    _nontsIallAttributes
-                                    {-# LINE 413 "src-ag/Desugar.hs" #-}
+                    (case (nonts_ ) of
+                     { ( !_nontsIinhMap',!_nontsIsynMap',!T_Nonterminals_1 nonts_1) ->
+                         (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                 _lhsIoptions
+                                 {-# LINE 494 "src-ag/Desugar.hs" #-}
+                                 )) of
+                          { !_nontsOoptions ->
+                          (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                  _lhsImainName
+                                  {-# LINE 499 "src-ag/Desugar.hs" #-}
+                                  )) of
+                           { !_nontsOmainName ->
+                           (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                   _lhsIforcedIrrefutables
+                                   {-# LINE 504 "src-ag/Desugar.hs" #-}
+                                   )) of
+                            { !_nontsOforcedIrrefutables ->
+                            (case (({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
+                                    _nontsIsynMap'
+                                    {-# LINE 509 "src-ag/Desugar.hs" #-}
                                     )) of
-                             { !_lhsOallAttributes ->
-                             (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
-                                     _nontsIerrors
-                                     {-# LINE 418 "src-ag/Desugar.hs" #-}
+                             { !_nontsOsynMap ->
+                             (case (({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
+                                     _nontsIinhMap'
+                                     {-# LINE 514 "src-ag/Desugar.hs" #-}
                                      )) of
-                              { !_lhsOerrors ->
-                              (case (({-# LINE 290 "src-ag/Desugar.ag" #-}
-                                      Grammar typeSyns_
-                                              useMap_
-                                              derivings_
-                                              wrappers_
-                                              _nontsIoutput
-                                              pragmas_
-                                              manualAttrOrderMap_
-                                              paramMap_
-                                              contextMap_
-                                              quantMap_
-                                              uniqueMap_
-                                              _nontsIaugmentsOut
-                                              aroundsMap_
-                                              mergeMap_
-                                      {-# LINE 436 "src-ag/Desugar.hs" #-}
+                              { !_nontsOinhMap ->
+                              (case (({-# LINE 235 "src-ag/Desugar.ag" #-}
+                                      augmentsMap_
+                                      {-# LINE 519 "src-ag/Desugar.hs" #-}
                                       )) of
-                               { !_lhsOoutput ->
-                               ( _lhsOallAttributes,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) })) )
+                               { !_nontsOaugmentsIn ->
+                               (case (nonts_1 _nontsOaugmentsIn _nontsOforcedIrrefutables _nontsOinhMap _nontsOmainName _nontsOoptions _nontsOsynMap ) of
+                                { ( !_nontsIallAttributes,!_nontsIaugmentsOut,!_nontsIerrors,!_nontsIoutput) ->
+                                    (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                            _nontsIallAttributes
+                                            {-# LINE 526 "src-ag/Desugar.hs" #-}
+                                            )) of
+                                     { !_lhsOallAttributes ->
+                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
+                                             _nontsIerrors
+                                             {-# LINE 531 "src-ag/Desugar.hs" #-}
+                                             )) of
+                                      { !_lhsOerrors ->
+                                      (case (({-# LINE 319 "src-ag/Desugar.ag" #-}
+                                              Grammar typeSyns_
+                                                      useMap_
+                                                      derivings_
+                                                      wrappers_
+                                                      _nontsIoutput
+                                                      pragmas_
+                                                      manualAttrOrderMap_
+                                                      paramMap_
+                                                      contextMap_
+                                                      quantMap_
+                                                      uniqueMap_
+                                                      _nontsIaugmentsOut
+                                                      aroundsMap_
+                                                      mergeMap_
+                                              {-# LINE 549 "src-ag/Desugar.hs" #-}
+                                              )) of
+                                       { !_lhsOoutput ->
+                                       ( _lhsOallAttributes,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) })) )
 -- HsToken -----------------------------------------------------
 {-
    visit 0:
@@ -533,36 +646,36 @@ sem_HsToken_AGField !field_ !attr_ !pos_ !rdesc_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 78 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 79 "src-ag/Desugar.ag" #-}
                             findField field_ attr_ _lhsIchildSyns
-                            {-# LINE 539 "src-ag/Desugar.hs" #-}
+                            {-# LINE 652 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_mField ->
-                     (case (({-# LINE 80 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 81 "src-ag/Desugar.ag" #-}
                              maybe field_ id _mField
-                             {-# LINE 544 "src-ag/Desugar.hs" #-}
+                             {-# LINE 657 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_field' ->
-                      (case (({-# LINE 83 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 84 "src-ag/Desugar.ag" #-}
                               if _lhsIuseFieldIdent || length (getName field_) < length (getName _field'    )
                               then _lhsIaddLines + 1
                               else _lhsIaddLines
-                              {-# LINE 551 "src-ag/Desugar.hs" #-}
+                              {-# LINE 664 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_lhsOaddLines ->
-                       (case (({-# LINE 81 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 82 "src-ag/Desugar.ag" #-}
                                maybe (Seq.singleton (UndefAttr _lhsInt _lhsIcon field_ (Ident "<ANY>" (getPos field_)) False)) (const Seq.empty) _mField
-                               {-# LINE 556 "src-ag/Desugar.hs" #-}
+                               {-# LINE 669 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOerrors ->
-                        (case (({-# LINE 87 "src-ag/Desugar.ag" #-}
+                        (case (({-# LINE 88 "src-ag/Desugar.ag" #-}
                                 AGField _field'     attr_ (addl _lhsIaddLines pos_) (if _lhsIuseFieldIdent then Just _lhsIruleDescr else Nothing)
-                                {-# LINE 561 "src-ag/Desugar.hs" #-}
+                                {-# LINE 674 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_tks ->
-                         (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                  _tks
-                                 {-# LINE 566 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 679 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !_lhsOtks ->
                           ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) }) }) })) )
@@ -578,26 +691,26 @@ sem_HsToken_AGLocal !var_ !pos_ !rdesc_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 73 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 74 "src-ag/Desugar.ag" #-}
                             if _lhsIuseFieldIdent
                             then _lhsIaddLines + 1
                             else _lhsIaddLines
-                            {-# LINE 586 "src-ag/Desugar.hs" #-}
+                            {-# LINE 699 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOaddLines ->
-                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                              Seq.empty
-                             {-# LINE 591 "src-ag/Desugar.hs" #-}
+                             {-# LINE 704 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOerrors ->
-                      (case (({-# LINE 76 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 77 "src-ag/Desugar.ag" #-}
                               AGLocal var_ (addl _lhsIaddLines pos_) (if _lhsIuseFieldIdent then Just _lhsIruleDescr else Nothing)
-                              {-# LINE 596 "src-ag/Desugar.hs" #-}
+                              {-# LINE 709 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tks ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                _tks
-                               {-# LINE 601 "src-ag/Desugar.hs" #-}
+                               {-# LINE 714 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOtks ->
                         ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -612,24 +725,24 @@ sem_HsToken_CharToken !value_ !pos_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                             _lhsIaddLines
-                            {-# LINE 618 "src-ag/Desugar.hs" #-}
+                            {-# LINE 731 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOaddLines ->
-                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                              Seq.empty
-                             {-# LINE 623 "src-ag/Desugar.hs" #-}
+                             {-# LINE 736 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOerrors ->
-                      (case (({-# LINE 91 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 92 "src-ag/Desugar.ag" #-}
                               CharToken value_ (addl _lhsIaddLines pos_)
-                              {-# LINE 628 "src-ag/Desugar.hs" #-}
+                              {-# LINE 741 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tks ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                _tks
-                               {-# LINE 633 "src-ag/Desugar.hs" #-}
+                               {-# LINE 746 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOtks ->
                         ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -644,24 +757,24 @@ sem_HsToken_Err !mesg_ !pos_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                             _lhsIaddLines
-                            {-# LINE 650 "src-ag/Desugar.hs" #-}
+                            {-# LINE 763 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOaddLines ->
-                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                              Seq.empty
-                             {-# LINE 655 "src-ag/Desugar.hs" #-}
+                             {-# LINE 768 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOerrors ->
-                      (case (({-# LINE 95 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 96 "src-ag/Desugar.ag" #-}
                               Err mesg_ (addl _lhsIaddLines pos_)
-                              {-# LINE 660 "src-ag/Desugar.hs" #-}
+                              {-# LINE 773 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tks ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                _tks
-                               {-# LINE 665 "src-ag/Desugar.hs" #-}
+                               {-# LINE 778 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOtks ->
                         ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -676,24 +789,24 @@ sem_HsToken_HsToken !value_ !pos_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                             _lhsIaddLines
-                            {-# LINE 682 "src-ag/Desugar.hs" #-}
+                            {-# LINE 795 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOaddLines ->
-                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                              Seq.empty
-                             {-# LINE 687 "src-ag/Desugar.hs" #-}
+                             {-# LINE 800 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOerrors ->
-                      (case (({-# LINE 89 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 90 "src-ag/Desugar.ag" #-}
                               HsToken value_ (addl _lhsIaddLines pos_)
-                              {-# LINE 692 "src-ag/Desugar.hs" #-}
+                              {-# LINE 805 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tks ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                _tks
-                               {-# LINE 697 "src-ag/Desugar.hs" #-}
+                               {-# LINE 810 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOtks ->
                         ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -708,24 +821,24 @@ sem_HsToken_StrToken !value_ !pos_  =
                   (!_lhsInt)
                   (!_lhsIruleDescr)
                   (!_lhsIuseFieldIdent) ->
-                    (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                             _lhsIaddLines
-                            {-# LINE 714 "src-ag/Desugar.hs" #-}
+                            {-# LINE 827 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOaddLines ->
-                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                              Seq.empty
-                             {-# LINE 719 "src-ag/Desugar.hs" #-}
+                             {-# LINE 832 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOerrors ->
-                      (case (({-# LINE 93 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 94 "src-ag/Desugar.ag" #-}
                               StrToken value_ (addl _lhsIaddLines pos_)
-                              {-# LINE 724 "src-ag/Desugar.hs" #-}
+                              {-# LINE 837 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tks ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                _tks
-                               {-# LINE 729 "src-ag/Desugar.hs" #-}
+                               {-# LINE 842 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOtks ->
                         ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -787,98 +900,98 @@ sem_HsTokens_Cons !(T_HsToken hd_ ) !(T_HsTokens tl_ )  =
                    (!_lhsInt)
                    (!_lhsIruleDescr)
                    (!_lhsIuseFieldIdent) ->
-                     (case (({-# LINE 61 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 62 "src-ag/Desugar.ag" #-}
                              _lhsIuseFieldIdent
-                             {-# LINE 793 "src-ag/Desugar.hs" #-}
+                             {-# LINE 906 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_tlOuseFieldIdent ->
-                      (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                               _lhsIchildSyns
-                              {-# LINE 798 "src-ag/Desugar.hs" #-}
+                              {-# LINE 911 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_tlOchildSyns ->
-                       (case (({-# LINE 61 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 62 "src-ag/Desugar.ag" #-}
                                _lhsIuseFieldIdent
-                               {-# LINE 803 "src-ag/Desugar.hs" #-}
+                               {-# LINE 916 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_hdOuseFieldIdent ->
-                        (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                        (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                 _lhsIchildSyns
-                                {-# LINE 808 "src-ag/Desugar.hs" #-}
+                                {-# LINE 921 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_hdOchildSyns ->
-                         (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                                  _lhsIaddLines
-                                 {-# LINE 813 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 926 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !_hdOaddLines ->
-                          (case (({-# LINE 167 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 168 "src-ag/Desugar.ag" #-}
                                   _lhsIruleDescr
-                                  {-# LINE 818 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 931 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_hdOruleDescr ->
-                           (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                           (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                    _lhsInt
-                                   {-# LINE 823 "src-ag/Desugar.hs" #-}
+                                   {-# LINE 936 "src-ag/Desugar.hs" #-}
                                    )) of
                             { !_hdOnt ->
-                            (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                            (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                     _lhsIcon
-                                    {-# LINE 828 "src-ag/Desugar.hs" #-}
+                                    {-# LINE 941 "src-ag/Desugar.hs" #-}
                                     )) of
                              { !_hdOcon ->
-                             (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                             (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                      _lhsIchildInhs
-                                     {-# LINE 833 "src-ag/Desugar.hs" #-}
+                                     {-# LINE 946 "src-ag/Desugar.hs" #-}
                                      )) of
                               { !_hdOchildInhs ->
                               (case (hd_ _hdOaddLines _hdOchildInhs _hdOchildSyns _hdOcon _hdOnt _hdOruleDescr _hdOuseFieldIdent ) of
                                { ( !_hdIaddLines,!_hdIerrors,!_hdItks) ->
-                                   (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                                   (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                                            _hdIaddLines
-                                           {-# LINE 840 "src-ag/Desugar.hs" #-}
+                                           {-# LINE 953 "src-ag/Desugar.hs" #-}
                                            )) of
                                     { !_tlOaddLines ->
-                                    (case (({-# LINE 167 "src-ag/Desugar.ag" #-}
+                                    (case (({-# LINE 168 "src-ag/Desugar.ag" #-}
                                             _lhsIruleDescr
-                                            {-# LINE 845 "src-ag/Desugar.hs" #-}
+                                            {-# LINE 958 "src-ag/Desugar.hs" #-}
                                             )) of
                                      { !_tlOruleDescr ->
-                                     (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                     (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                              _lhsInt
-                                             {-# LINE 850 "src-ag/Desugar.hs" #-}
+                                             {-# LINE 963 "src-ag/Desugar.hs" #-}
                                              )) of
                                       { !_tlOnt ->
-                                      (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                      (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                               _lhsIcon
-                                              {-# LINE 855 "src-ag/Desugar.hs" #-}
+                                              {-# LINE 968 "src-ag/Desugar.hs" #-}
                                               )) of
                                        { !_tlOcon ->
-                                       (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                       (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                _lhsIchildInhs
-                                               {-# LINE 860 "src-ag/Desugar.hs" #-}
+                                               {-# LINE 973 "src-ag/Desugar.hs" #-}
                                                )) of
                                         { !_tlOchildInhs ->
                                         (case (tl_ _tlOaddLines _tlOchildInhs _tlOchildSyns _tlOcon _tlOnt _tlOruleDescr _tlOuseFieldIdent ) of
                                          { ( !_tlIaddLines,!_tlIerrors,!_tlItks) ->
-                                             (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                                             (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                                                      _tlIaddLines
-                                                     {-# LINE 867 "src-ag/Desugar.hs" #-}
+                                                     {-# LINE 980 "src-ag/Desugar.hs" #-}
                                                      )) of
                                               { !_lhsOaddLines ->
-                                              (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                              (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                       _hdIerrors Seq.>< _tlIerrors
-                                                      {-# LINE 872 "src-ag/Desugar.hs" #-}
+                                                      {-# LINE 985 "src-ag/Desugar.hs" #-}
                                                       )) of
                                                { !_lhsOerrors ->
-                                               (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                                               (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                                        (:) _hdItks _tlItks
-                                                       {-# LINE 877 "src-ag/Desugar.hs" #-}
+                                                       {-# LINE 990 "src-ag/Desugar.hs" #-}
                                                        )) of
                                                 { !_tks ->
-                                                (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                                                (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                                         _tks
-                                                        {-# LINE 882 "src-ag/Desugar.hs" #-}
+                                                        {-# LINE 995 "src-ag/Desugar.hs" #-}
                                                         )) of
                                                  { !_lhsOtks ->
                                                  ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -891,24 +1004,24 @@ sem_HsTokens_Nil  =
                    (!_lhsInt)
                    (!_lhsIruleDescr)
                    (!_lhsIuseFieldIdent) ->
-                     (case (({-# LINE 63 "src-ag/Desugar.ag" #-}
+                     (case (({-# LINE 64 "src-ag/Desugar.ag" #-}
                              _lhsIaddLines
-                             {-# LINE 897 "src-ag/Desugar.hs" #-}
+                             {-# LINE 1010 "src-ag/Desugar.hs" #-}
                              )) of
                       { !_lhsOaddLines ->
-                      (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                      (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                               Seq.empty
-                              {-# LINE 902 "src-ag/Desugar.hs" #-}
+                              {-# LINE 1015 "src-ag/Desugar.hs" #-}
                               )) of
                        { !_lhsOerrors ->
-                       (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                []
-                               {-# LINE 907 "src-ag/Desugar.hs" #-}
+                               {-# LINE 1020 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_tks ->
-                        (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
+                        (case (({-# LINE 70 "src-ag/Desugar.ag" #-}
                                 _tks
-                                {-# LINE 912 "src-ag/Desugar.hs" #-}
+                                {-# LINE 1025 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_lhsOtks ->
                          ( _lhsOaddLines,_lhsOerrors,_lhsOtks) }) }) }) })) )
@@ -959,61 +1072,68 @@ sem_HsTokensRoot_HsTokensRoot !(T_HsTokens tokens_ )  =
                        (!_lhsInt)
                        (!_lhsIruleDescr)
                        (!_lhsIuseFieldIdent) ->
-                         (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                  _lhsInt
-                                 {-# LINE 965 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 1078 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !_tokensOnt ->
-                          (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                   _lhsIcon
-                                  {-# LINE 970 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 1083 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_tokensOcon ->
-                           (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                           (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                    _lhsIchildSyns
-                                   {-# LINE 975 "src-ag/Desugar.hs" #-}
+                                   {-# LINE 1088 "src-ag/Desugar.hs" #-}
                                    )) of
                             { !_tokensOchildSyns ->
-                            (case (({-# LINE 61 "src-ag/Desugar.ag" #-}
+                            (case (({-# LINE 62 "src-ag/Desugar.ag" #-}
                                     _lhsIuseFieldIdent
-                                    {-# LINE 980 "src-ag/Desugar.hs" #-}
+                                    {-# LINE 1093 "src-ag/Desugar.hs" #-}
                                     )) of
                              { !_tokensOuseFieldIdent ->
-                             (case (({-# LINE 167 "src-ag/Desugar.ag" #-}
+                             (case (({-# LINE 168 "src-ag/Desugar.ag" #-}
                                      _lhsIruleDescr
-                                     {-# LINE 985 "src-ag/Desugar.hs" #-}
+                                     {-# LINE 1098 "src-ag/Desugar.hs" #-}
                                      )) of
                               { !_tokensOruleDescr ->
-                              (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                              (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                       _lhsIchildInhs
-                                      {-# LINE 990 "src-ag/Desugar.hs" #-}
+                                      {-# LINE 1103 "src-ag/Desugar.hs" #-}
                                       )) of
                                { !_tokensOchildInhs ->
-                               (case (({-# LINE 66 "src-ag/Desugar.ag" #-}
+                               (case (({-# LINE 67 "src-ag/Desugar.ag" #-}
                                        0
-                                       {-# LINE 995 "src-ag/Desugar.hs" #-}
+                                       {-# LINE 1108 "src-ag/Desugar.hs" #-}
                                        )) of
                                 { !_tokensOaddLines ->
                                 (case (tokens_ _tokensOaddLines _tokensOchildInhs _tokensOchildSyns _tokensOcon _tokensOnt _tokensOruleDescr _tokensOuseFieldIdent ) of
                                  { ( !_tokensIaddLines,!_tokensIerrors,!_tokensItks) ->
-                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                              _tokensIerrors
-                                             {-# LINE 1002 "src-ag/Desugar.hs" #-}
+                                             {-# LINE 1115 "src-ag/Desugar.hs" #-}
                                              )) of
                                       { !_lhsOerrors ->
-                                      (case (({-# LINE 68 "src-ag/Desugar.ag" #-}
+                                      (case (({-# LINE 69 "src-ag/Desugar.ag" #-}
                                               _tokensItks
-                                              {-# LINE 1007 "src-ag/Desugar.hs" #-}
+                                              {-# LINE 1120 "src-ag/Desugar.hs" #-}
                                               )) of
                                        { !_lhsOtks ->
                                        ( _lhsOerrors,_lhsOtks) }) }) }) }) }) }) }) }) }) })) )
 -- Nonterminal -------------------------------------------------
 {-
    visit 0:
+      synthesized attributes:
+         inhMap'              : Map Identifier Attributes
+         synMap'              : Map Identifier Attributes
+   visit 1:
       inherited attributes:
          augmentsIn           : Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
          forcedIrrefutables   : AttrMap
+         inhMap               : Map Identifier Attributes
+         mainName             : String
          options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          allAttributes        : AttrMap
          augmentsOut          : Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
@@ -1026,10 +1146,10 @@ sem_HsTokensRoot_HsTokensRoot !(T_HsTokens tokens_ )  =
          child inh            : {Attributes}
          child syn            : {Attributes}
          child prods          : Productions 
-         visit 0:
+         visit 1:
             local augmentsIn  : _
             local augmentsOut : _
-            local output      : _
+            local extraInh    : _
 -}
 -- cata
 sem_Nonterminal :: Nonterminal  ->
@@ -1037,18 +1157,23 @@ sem_Nonterminal :: Nonterminal  ->
 sem_Nonterminal !(Nonterminal _nt _params _inh _syn _prods )  =
     (sem_Nonterminal_Nonterminal _nt _params _inh _syn (sem_Productions _prods ) )
 -- semantic domain
-newtype T_Nonterminal  = T_Nonterminal ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                                        AttrMap ->
-                                        Options ->
-                                        ( AttrMap,(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))),(Seq Error),Nonterminal ))
-data Inh_Nonterminal  = Inh_Nonterminal {augmentsIn_Inh_Nonterminal :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),forcedIrrefutables_Inh_Nonterminal :: !(AttrMap),options_Inh_Nonterminal :: !(Options)}
-data Syn_Nonterminal  = Syn_Nonterminal {allAttributes_Syn_Nonterminal :: !(AttrMap),augmentsOut_Syn_Nonterminal :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),errors_Syn_Nonterminal :: !((Seq Error)),output_Syn_Nonterminal :: !(Nonterminal )}
+newtype T_Nonterminal  = T_Nonterminal (( (Map Identifier Attributes),(Map Identifier Attributes),T_Nonterminal_1 ))
+newtype T_Nonterminal_1  = T_Nonterminal_1 ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+                                            AttrMap ->
+                                            (Map Identifier Attributes) ->
+                                            String ->
+                                            Options ->
+                                            (Map Identifier Attributes) ->
+                                            ( AttrMap,(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))),(Seq Error),Nonterminal ))
+data Inh_Nonterminal  = Inh_Nonterminal {augmentsIn_Inh_Nonterminal :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),forcedIrrefutables_Inh_Nonterminal :: !(AttrMap),inhMap_Inh_Nonterminal :: !((Map Identifier Attributes)),mainName_Inh_Nonterminal :: !(String),options_Inh_Nonterminal :: !(Options),synMap_Inh_Nonterminal :: !((Map Identifier Attributes))}
+data Syn_Nonterminal  = Syn_Nonterminal {allAttributes_Syn_Nonterminal :: !(AttrMap),augmentsOut_Syn_Nonterminal :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),errors_Syn_Nonterminal :: !((Seq Error)),inhMap'_Syn_Nonterminal :: !((Map Identifier Attributes)),output_Syn_Nonterminal :: !(Nonterminal ),synMap'_Syn_Nonterminal :: !((Map Identifier Attributes))}
 wrap_Nonterminal :: T_Nonterminal  ->
                     Inh_Nonterminal  ->
                     Syn_Nonterminal 
-wrap_Nonterminal !(T_Nonterminal sem ) !(Inh_Nonterminal _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIoptions )  =
-    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIoptions 
-     in  (Syn_Nonterminal _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput ))
+wrap_Nonterminal !(T_Nonterminal sem ) !(Inh_Nonterminal _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOinhMap',!_lhsOsynMap',!T_Nonterminal_1 sem_1) = sem 
+         ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem_1 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap 
+     in  (Syn_Nonterminal _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' ))
 sem_Nonterminal_Nonterminal :: NontermIdent ->
                                ([Identifier]) ->
                                Attributes ->
@@ -1056,74 +1181,118 @@ sem_Nonterminal_Nonterminal :: NontermIdent ->
                                T_Productions  ->
                                T_Nonterminal 
 sem_Nonterminal_Nonterminal !nt_ !params_ !inh_ !syn_ !(T_Productions prods_ )  =
-    (T_Nonterminal (\ (!_lhsIaugmentsIn)
-                      (!_lhsIforcedIrrefutables)
-                      (!_lhsIoptions) ->
-                        (case (({-# LINE 156 "src-ag/Desugar.ag" #-}
-                                nt_
-                                {-# LINE 1065 "src-ag/Desugar.hs" #-}
-                                )) of
-                         { !_prodsOnt ->
-                         (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                                 _lhsIoptions
-                                 {-# LINE 1070 "src-ag/Desugar.hs" #-}
-                                 )) of
-                          { !_prodsOoptions ->
-                          (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                  _lhsIforcedIrrefutables
-                                  {-# LINE 1075 "src-ag/Desugar.hs" #-}
-                                  )) of
-                           { !_prodsOforcedIrrefutables ->
-                           (case (({-# LINE 238 "src-ag/Desugar.ag" #-}
-                                   Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
-                                   {-# LINE 1080 "src-ag/Desugar.hs" #-}
-                                   )) of
-                            { !_augmentsIn ->
-                            (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
-                                    _augmentsIn
-                                    {-# LINE 1085 "src-ag/Desugar.hs" #-}
-                                    )) of
-                             { !_prodsOaugmentsIn ->
-                             (case (prods_ _prodsOaugmentsIn _prodsOforcedIrrefutables _prodsOnt _prodsOoptions ) of
-                              { ( !_prodsIallAttributes,!_prodsIaugmentsOut,!_prodsIerrors,!_prodsIoutput) ->
-                                  (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                          _prodsIallAttributes
-                                          {-# LINE 1092 "src-ag/Desugar.hs" #-}
-                                          )) of
-                                   { !_lhsOallAttributes ->
-                                   (case (({-# LINE 239 "src-ag/Desugar.ag" #-}
-                                           Map.singleton nt_ _prodsIaugmentsOut
-                                           {-# LINE 1097 "src-ag/Desugar.hs" #-}
-                                           )) of
-                                    { !_augmentsOut ->
-                                    (case (({-# LINE 228 "src-ag/Desugar.ag" #-}
-                                            _augmentsOut
-                                            {-# LINE 1102 "src-ag/Desugar.hs" #-}
-                                            )) of
-                                     { !_lhsOaugmentsOut ->
-                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
-                                             _prodsIerrors
-                                             {-# LINE 1107 "src-ag/Desugar.hs" #-}
-                                             )) of
-                                      { !_lhsOerrors ->
-                                      (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                              Nonterminal nt_ params_ inh_ syn_ _prodsIoutput
-                                              {-# LINE 1112 "src-ag/Desugar.hs" #-}
-                                              )) of
-                                       { !_output ->
-                                       (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                               _output
-                                               {-# LINE 1117 "src-ag/Desugar.hs" #-}
-                                               )) of
-                                        { !_lhsOoutput ->
-                                        ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) })) )
+    (T_Nonterminal (case (({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
+                           Map.singleton nt_ inh_
+                           {-# LINE 1187 "src-ag/Desugar.hs" #-}
+                           )) of
+                    { !_lhsOinhMap' ->
+                    (case (({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
+                            Map.singleton nt_ syn_
+                            {-# LINE 1192 "src-ag/Desugar.hs" #-}
+                            )) of
+                     { !_lhsOsynMap' ->
+                     (case ((let sem_Nonterminal_Nonterminal_1 :: T_Nonterminal_1 
+                                 sem_Nonterminal_Nonterminal_1  =
+                                     (T_Nonterminal_1 (\ (!_lhsIaugmentsIn)
+                                                         (!_lhsIforcedIrrefutables)
+                                                         (!_lhsIinhMap)
+                                                         (!_lhsImainName)
+                                                         (!_lhsIoptions)
+                                                         (!_lhsIsynMap) ->
+                                                           (case (({-# LINE 157 "src-ag/Desugar.ag" #-}
+                                                                   nt_
+                                                                   {-# LINE 1205 "src-ag/Desugar.hs" #-}
+                                                                   )) of
+                                                            { !_prodsOnt ->
+                                                            (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                    _lhsIsynMap
+                                                                    {-# LINE 1210 "src-ag/Desugar.hs" #-}
+                                                                    )) of
+                                                             { !_prodsOsynMap ->
+                                                             (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                                                     _lhsIoptions
+                                                                     {-# LINE 1215 "src-ag/Desugar.hs" #-}
+                                                                     )) of
+                                                              { !_prodsOoptions ->
+                                                              (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                                                      _lhsImainName
+                                                                      {-# LINE 1220 "src-ag/Desugar.hs" #-}
+                                                                      )) of
+                                                               { !_prodsOmainName ->
+                                                               (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                       _lhsIinhMap
+                                                                       {-# LINE 1225 "src-ag/Desugar.hs" #-}
+                                                                       )) of
+                                                                { !_prodsOinhMap ->
+                                                                (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                                                        _lhsIforcedIrrefutables
+                                                                        {-# LINE 1230 "src-ag/Desugar.hs" #-}
+                                                                        )) of
+                                                                 { !_prodsOforcedIrrefutables ->
+                                                                 (case (({-# LINE 239 "src-ag/Desugar.ag" #-}
+                                                                         Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
+                                                                         {-# LINE 1235 "src-ag/Desugar.hs" #-}
+                                                                         )) of
+                                                                  { !_augmentsIn ->
+                                                                  (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
+                                                                          _augmentsIn
+                                                                          {-# LINE 1240 "src-ag/Desugar.hs" #-}
+                                                                          )) of
+                                                                   { !_prodsOaugmentsIn ->
+                                                                   (case (prods_ _prodsOaugmentsIn _prodsOforcedIrrefutables _prodsOinhMap _prodsOmainName _prodsOnt _prodsOoptions _prodsOsynMap ) of
+                                                                    { ( !_prodsIallAttributes,!_prodsIaugmentsOut,!_prodsIerrors,!_prodsIoutput) ->
+                                                                        (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                                                                _prodsIallAttributes
+                                                                                {-# LINE 1247 "src-ag/Desugar.hs" #-}
+                                                                                )) of
+                                                                         { !_lhsOallAttributes ->
+                                                                         (case (({-# LINE 240 "src-ag/Desugar.ag" #-}
+                                                                                 Map.singleton nt_ _prodsIaugmentsOut
+                                                                                 {-# LINE 1252 "src-ag/Desugar.hs" #-}
+                                                                                 )) of
+                                                                          { !_augmentsOut ->
+                                                                          (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
+                                                                                  _augmentsOut
+                                                                                  {-# LINE 1257 "src-ag/Desugar.hs" #-}
+                                                                                  )) of
+                                                                           { !_lhsOaugmentsOut ->
+                                                                           (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
+                                                                                   _prodsIerrors
+                                                                                   {-# LINE 1262 "src-ag/Desugar.hs" #-}
+                                                                                   )) of
+                                                                            { !_lhsOerrors ->
+                                                                            (case (({-# LINE 292 "src-ag/Desugar.ag" #-}
+                                                                                    addLateAttr _lhsIoptions _lhsImainName
+                                                                                    {-# LINE 1267 "src-ag/Desugar.hs" #-}
+                                                                                    )) of
+                                                                             { !_extraInh ->
+                                                                             (case (({-# LINE 308 "src-ag/Desugar.ag" #-}
+                                                                                     Nonterminal
+                                                                                       nt_ params_
+                                                                                       (_extraInh     `Map.union` inh_)
+                                                                                       syn_
+                                                                                       _prodsIoutput
+                                                                                     {-# LINE 1276 "src-ag/Desugar.hs" #-}
+                                                                                     )) of
+                                                                              { !_lhsOoutput ->
+                                                                              ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+                             in  sem_Nonterminal_Nonterminal_1)) of
+                      { ( !sem_Nonterminal_1) ->
+                      ( _lhsOinhMap',_lhsOsynMap',sem_Nonterminal_1) }) }) }) )
 -- Nonterminals ------------------------------------------------
 {-
    visit 0:
+      synthesized attributes:
+         inhMap'              : Map Identifier Attributes
+         synMap'              : Map Identifier Attributes
+   visit 1:
       inherited attributes:
          augmentsIn           : Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
          forcedIrrefutables   : AttrMap
+         inhMap               : Map Identifier Attributes
+         mainName             : String
          options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          allAttributes        : AttrMap
          augmentsOut          : Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))
@@ -1133,10 +1302,10 @@ sem_Nonterminal_Nonterminal !nt_ !params_ !inh_ !syn_ !(T_Productions prods_ )  
       alternative Cons:
          child hd             : Nonterminal 
          child tl             : Nonterminals 
-         visit 0:
+         visit 1:
             local output      : _
       alternative Nil:
-         visit 0:
+         visit 1:
             local output      : _
 -}
 -- cata
@@ -1145,116 +1314,191 @@ sem_Nonterminals :: Nonterminals  ->
 sem_Nonterminals !list  =
     (Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil (Prelude.map sem_Nonterminal list) )
 -- semantic domain
-newtype T_Nonterminals  = T_Nonterminals ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                                          AttrMap ->
-                                          Options ->
-                                          ( AttrMap,(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))),(Seq Error),Nonterminals ))
-data Inh_Nonterminals  = Inh_Nonterminals {augmentsIn_Inh_Nonterminals :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),forcedIrrefutables_Inh_Nonterminals :: !(AttrMap),options_Inh_Nonterminals :: !(Options)}
-data Syn_Nonterminals  = Syn_Nonterminals {allAttributes_Syn_Nonterminals :: !(AttrMap),augmentsOut_Syn_Nonterminals :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),errors_Syn_Nonterminals :: !((Seq Error)),output_Syn_Nonterminals :: !(Nonterminals )}
+newtype T_Nonterminals  = T_Nonterminals (( (Map Identifier Attributes),(Map Identifier Attributes),T_Nonterminals_1 ))
+newtype T_Nonterminals_1  = T_Nonterminals_1 ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+                                              AttrMap ->
+                                              (Map Identifier Attributes) ->
+                                              String ->
+                                              Options ->
+                                              (Map Identifier Attributes) ->
+                                              ( AttrMap,(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))),(Seq Error),Nonterminals ))
+data Inh_Nonterminals  = Inh_Nonterminals {augmentsIn_Inh_Nonterminals :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),forcedIrrefutables_Inh_Nonterminals :: !(AttrMap),inhMap_Inh_Nonterminals :: !((Map Identifier Attributes)),mainName_Inh_Nonterminals :: !(String),options_Inh_Nonterminals :: !(Options),synMap_Inh_Nonterminals :: !((Map Identifier Attributes))}
+data Syn_Nonterminals  = Syn_Nonterminals {allAttributes_Syn_Nonterminals :: !(AttrMap),augmentsOut_Syn_Nonterminals :: !((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))),errors_Syn_Nonterminals :: !((Seq Error)),inhMap'_Syn_Nonterminals :: !((Map Identifier Attributes)),output_Syn_Nonterminals :: !(Nonterminals ),synMap'_Syn_Nonterminals :: !((Map Identifier Attributes))}
 wrap_Nonterminals :: T_Nonterminals  ->
                      Inh_Nonterminals  ->
                      Syn_Nonterminals 
-wrap_Nonterminals !(T_Nonterminals sem ) !(Inh_Nonterminals _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIoptions )  =
-    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIoptions 
-     in  (Syn_Nonterminals _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput ))
+wrap_Nonterminals !(T_Nonterminals sem ) !(Inh_Nonterminals _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOinhMap',!_lhsOsynMap',!T_Nonterminals_1 sem_1) = sem 
+         ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem_1 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap 
+     in  (Syn_Nonterminals _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' ))
 sem_Nonterminals_Cons :: T_Nonterminal  ->
                          T_Nonterminals  ->
                          T_Nonterminals 
 sem_Nonterminals_Cons !(T_Nonterminal hd_ ) !(T_Nonterminals tl_ )  =
-    (T_Nonterminals (\ (!_lhsIaugmentsIn)
-                       (!_lhsIforcedIrrefutables)
-                       (!_lhsIoptions) ->
-                         (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                                 _lhsIoptions
-                                 {-# LINE 1170 "src-ag/Desugar.hs" #-}
-                                 )) of
-                          { !_tlOoptions ->
-                          (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                  _lhsIforcedIrrefutables
-                                  {-# LINE 1175 "src-ag/Desugar.hs" #-}
-                                  )) of
-                           { !_tlOforcedIrrefutables ->
-                           (case (({-# LINE 227 "src-ag/Desugar.ag" #-}
-                                   _lhsIaugmentsIn
-                                   {-# LINE 1180 "src-ag/Desugar.hs" #-}
-                                   )) of
-                            { !_tlOaugmentsIn ->
-                            (case (tl_ _tlOaugmentsIn _tlOforcedIrrefutables _tlOoptions ) of
-                             { ( !_tlIallAttributes,!_tlIaugmentsOut,!_tlIerrors,!_tlIoutput) ->
-                                 (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                                         _lhsIoptions
-                                         {-# LINE 1187 "src-ag/Desugar.hs" #-}
-                                         )) of
-                                  { !_hdOoptions ->
-                                  (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                          _lhsIforcedIrrefutables
-                                          {-# LINE 1192 "src-ag/Desugar.hs" #-}
-                                          )) of
-                                   { !_hdOforcedIrrefutables ->
-                                   (case (({-# LINE 227 "src-ag/Desugar.ag" #-}
-                                           _lhsIaugmentsIn
-                                           {-# LINE 1197 "src-ag/Desugar.hs" #-}
-                                           )) of
-                                    { !_hdOaugmentsIn ->
-                                    (case (hd_ _hdOaugmentsIn _hdOforcedIrrefutables _hdOoptions ) of
-                                     { ( !_hdIallAttributes,!_hdIaugmentsOut,!_hdIerrors,!_hdIoutput) ->
-                                         (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                                 _hdIallAttributes `mergeAttributes` _tlIallAttributes
-                                                 {-# LINE 1204 "src-ag/Desugar.hs" #-}
-                                                 )) of
-                                          { !_lhsOallAttributes ->
-                                          (case (({-# LINE 228 "src-ag/Desugar.ag" #-}
-                                                  _hdIaugmentsOut `Map.union` _tlIaugmentsOut
-                                                  {-# LINE 1209 "src-ag/Desugar.hs" #-}
-                                                  )) of
-                                           { !_lhsOaugmentsOut ->
-                                           (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
-                                                   _hdIerrors Seq.>< _tlIerrors
-                                                   {-# LINE 1214 "src-ag/Desugar.hs" #-}
-                                                   )) of
-                                            { !_lhsOerrors ->
-                                            (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                    (:) _hdIoutput _tlIoutput
-                                                    {-# LINE 1219 "src-ag/Desugar.hs" #-}
-                                                    )) of
-                                             { !_output ->
-                                             (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                     _output
-                                                     {-# LINE 1224 "src-ag/Desugar.hs" #-}
-                                                     )) of
-                                              { !_lhsOoutput ->
-                                              ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+    (T_Nonterminals (case (tl_ ) of
+                     { ( !_tlIinhMap',!_tlIsynMap',!T_Nonterminals_1 tl_1) ->
+                         (case (hd_ ) of
+                          { ( !_hdIinhMap',!_hdIsynMap',!T_Nonterminal_1 hd_1) ->
+                              (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
+                                      _hdIinhMap' `Map.union` _tlIinhMap'
+                                      {-# LINE 1345 "src-ag/Desugar.hs" #-}
+                                      )) of
+                               { !_lhsOinhMap' ->
+                               (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
+                                       _hdIsynMap' `Map.union` _tlIsynMap'
+                                       {-# LINE 1350 "src-ag/Desugar.hs" #-}
+                                       )) of
+                                { !_lhsOsynMap' ->
+                                (case ((let sem_Nonterminals_Cons_1 :: T_Nonterminals_1 
+                                            sem_Nonterminals_Cons_1  =
+                                                (T_Nonterminals_1 (\ (!_lhsIaugmentsIn)
+                                                                     (!_lhsIforcedIrrefutables)
+                                                                     (!_lhsIinhMap)
+                                                                     (!_lhsImainName)
+                                                                     (!_lhsIoptions)
+                                                                     (!_lhsIsynMap) ->
+                                                                       (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                               _lhsIsynMap
+                                                                               {-# LINE 1363 "src-ag/Desugar.hs" #-}
+                                                                               )) of
+                                                                        { !_tlOsynMap ->
+                                                                        (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                                                                _lhsIoptions
+                                                                                {-# LINE 1368 "src-ag/Desugar.hs" #-}
+                                                                                )) of
+                                                                         { !_tlOoptions ->
+                                                                         (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                                                                 _lhsImainName
+                                                                                 {-# LINE 1373 "src-ag/Desugar.hs" #-}
+                                                                                 )) of
+                                                                          { !_tlOmainName ->
+                                                                          (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                                  _lhsIinhMap
+                                                                                  {-# LINE 1378 "src-ag/Desugar.hs" #-}
+                                                                                  )) of
+                                                                           { !_tlOinhMap ->
+                                                                           (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                                                                   _lhsIforcedIrrefutables
+                                                                                   {-# LINE 1383 "src-ag/Desugar.hs" #-}
+                                                                                   )) of
+                                                                            { !_tlOforcedIrrefutables ->
+                                                                            (case (({-# LINE 228 "src-ag/Desugar.ag" #-}
+                                                                                    _lhsIaugmentsIn
+                                                                                    {-# LINE 1388 "src-ag/Desugar.hs" #-}
+                                                                                    )) of
+                                                                             { !_tlOaugmentsIn ->
+                                                                             (case (tl_1 _tlOaugmentsIn _tlOforcedIrrefutables _tlOinhMap _tlOmainName _tlOoptions _tlOsynMap ) of
+                                                                              { ( !_tlIallAttributes,!_tlIaugmentsOut,!_tlIerrors,!_tlIoutput) ->
+                                                                                  (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                                          _lhsIsynMap
+                                                                                          {-# LINE 1395 "src-ag/Desugar.hs" #-}
+                                                                                          )) of
+                                                                                   { !_hdOsynMap ->
+                                                                                   (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                                                                           _lhsIoptions
+                                                                                           {-# LINE 1400 "src-ag/Desugar.hs" #-}
+                                                                                           )) of
+                                                                                    { !_hdOoptions ->
+                                                                                    (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                                                                            _lhsImainName
+                                                                                            {-# LINE 1405 "src-ag/Desugar.hs" #-}
+                                                                                            )) of
+                                                                                     { !_hdOmainName ->
+                                                                                     (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                                                             _lhsIinhMap
+                                                                                             {-# LINE 1410 "src-ag/Desugar.hs" #-}
+                                                                                             )) of
+                                                                                      { !_hdOinhMap ->
+                                                                                      (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                                                                              _lhsIforcedIrrefutables
+                                                                                              {-# LINE 1415 "src-ag/Desugar.hs" #-}
+                                                                                              )) of
+                                                                                       { !_hdOforcedIrrefutables ->
+                                                                                       (case (({-# LINE 228 "src-ag/Desugar.ag" #-}
+                                                                                               _lhsIaugmentsIn
+                                                                                               {-# LINE 1420 "src-ag/Desugar.hs" #-}
+                                                                                               )) of
+                                                                                        { !_hdOaugmentsIn ->
+                                                                                        (case (hd_1 _hdOaugmentsIn _hdOforcedIrrefutables _hdOinhMap _hdOmainName _hdOoptions _hdOsynMap ) of
+                                                                                         { ( !_hdIallAttributes,!_hdIaugmentsOut,!_hdIerrors,!_hdIoutput) ->
+                                                                                             (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                                                                                     _hdIallAttributes `mergeAttributes` _tlIallAttributes
+                                                                                                     {-# LINE 1427 "src-ag/Desugar.hs" #-}
+                                                                                                     )) of
+                                                                                              { !_lhsOallAttributes ->
+                                                                                              (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
+                                                                                                      _hdIaugmentsOut `Map.union` _tlIaugmentsOut
+                                                                                                      {-# LINE 1432 "src-ag/Desugar.hs" #-}
+                                                                                                      )) of
+                                                                                               { !_lhsOaugmentsOut ->
+                                                                                               (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
+                                                                                                       _hdIerrors Seq.>< _tlIerrors
+                                                                                                       {-# LINE 1437 "src-ag/Desugar.hs" #-}
+                                                                                                       )) of
+                                                                                                { !_lhsOerrors ->
+                                                                                                (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                                                        (:) _hdIoutput _tlIoutput
+                                                                                                        {-# LINE 1442 "src-ag/Desugar.hs" #-}
+                                                                                                        )) of
+                                                                                                 { !_output ->
+                                                                                                 (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                                                         _output
+                                                                                                         {-# LINE 1447 "src-ag/Desugar.hs" #-}
+                                                                                                         )) of
+                                                                                                  { !_lhsOoutput ->
+                                                                                                  ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+                                        in  sem_Nonterminals_Cons_1)) of
+                                 { ( !sem_Nonterminals_1) ->
+                                 ( _lhsOinhMap',_lhsOsynMap',sem_Nonterminals_1) }) }) }) }) }) )
 sem_Nonterminals_Nil :: T_Nonterminals 
 sem_Nonterminals_Nil  =
-    (T_Nonterminals (\ (!_lhsIaugmentsIn)
-                       (!_lhsIforcedIrrefutables)
-                       (!_lhsIoptions) ->
-                         (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                 Map.empty
-                                 {-# LINE 1235 "src-ag/Desugar.hs" #-}
-                                 )) of
-                          { !_lhsOallAttributes ->
-                          (case (({-# LINE 228 "src-ag/Desugar.ag" #-}
-                                  Map.empty
-                                  {-# LINE 1240 "src-ag/Desugar.hs" #-}
-                                  )) of
-                           { !_lhsOaugmentsOut ->
-                           (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
-                                   Seq.empty
-                                   {-# LINE 1245 "src-ag/Desugar.hs" #-}
-                                   )) of
-                            { !_lhsOerrors ->
-                            (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                    []
-                                    {-# LINE 1250 "src-ag/Desugar.hs" #-}
-                                    )) of
-                             { !_output ->
-                             (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                     _output
-                                     {-# LINE 1255 "src-ag/Desugar.hs" #-}
-                                     )) of
-                              { !_lhsOoutput ->
-                              ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) })) )
+    (T_Nonterminals (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
+                            Map.empty
+                            {-# LINE 1458 "src-ag/Desugar.hs" #-}
+                            )) of
+                     { !_lhsOinhMap' ->
+                     (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
+                             Map.empty
+                             {-# LINE 1463 "src-ag/Desugar.hs" #-}
+                             )) of
+                      { !_lhsOsynMap' ->
+                      (case ((let sem_Nonterminals_Nil_1 :: T_Nonterminals_1 
+                                  sem_Nonterminals_Nil_1  =
+                                      (T_Nonterminals_1 (\ (!_lhsIaugmentsIn)
+                                                           (!_lhsIforcedIrrefutables)
+                                                           (!_lhsIinhMap)
+                                                           (!_lhsImainName)
+                                                           (!_lhsIoptions)
+                                                           (!_lhsIsynMap) ->
+                                                             (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                                                     Map.empty
+                                                                     {-# LINE 1476 "src-ag/Desugar.hs" #-}
+                                                                     )) of
+                                                              { !_lhsOallAttributes ->
+                                                              (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
+                                                                      Map.empty
+                                                                      {-# LINE 1481 "src-ag/Desugar.hs" #-}
+                                                                      )) of
+                                                               { !_lhsOaugmentsOut ->
+                                                               (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
+                                                                       Seq.empty
+                                                                       {-# LINE 1486 "src-ag/Desugar.hs" #-}
+                                                                       )) of
+                                                                { !_lhsOerrors ->
+                                                                (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                        []
+                                                                        {-# LINE 1491 "src-ag/Desugar.hs" #-}
+                                                                        )) of
+                                                                 { !_output ->
+                                                                 (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                         _output
+                                                                         {-# LINE 1496 "src-ag/Desugar.hs" #-}
+                                                                         )) of
+                                                                  { !_lhsOoutput ->
+                                                                  ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) })) )
+                              in  sem_Nonterminals_Nil_1)) of
+                       { ( !sem_Nonterminals_1) ->
+                       ( _lhsOinhMap',_lhsOsynMap',sem_Nonterminals_1) }) }) }) )
 -- Pattern -----------------------------------------------------
 {-
    visit 0:
@@ -1278,7 +1522,6 @@ sem_Nonterminals_Nil  =
          child field          : {Identifier}
          child attr           : {Identifier}
          child pat            : Pattern 
-         child parts          : Patterns 
          visit 0:
             local def         : _
          visit 1:
@@ -1314,8 +1557,8 @@ sem_Nonterminals_Nil  =
 -- cata
 sem_Pattern :: Pattern  ->
                T_Pattern 
-sem_Pattern !(Alias _field _attr _pat _parts )  =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) (sem_Patterns _parts ) )
+sem_Pattern !(Alias _field _attr _pat )  =
+    (sem_Pattern_Alias _field _attr (sem_Pattern _pat ) )
 sem_Pattern !(Constr _name _pats )  =
     (sem_Pattern_Constr _name (sem_Patterns _pats ) )
 sem_Pattern !(Irrefutable _pat )  =
@@ -1345,165 +1588,130 @@ wrap_Pattern !(T_Pattern sem ) !(Inh_Pattern _lhsIchildInhs _lhsIchildSyns _lhsI
 sem_Pattern_Alias :: Identifier ->
                      Identifier ->
                      T_Pattern  ->
-                     T_Patterns  ->
                      T_Pattern 
-sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_ ) !(T_Patterns parts_ )  =
-    (T_Pattern (case (({-# LINE 181 "src-ag/Desugar.ag" #-}
+sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_ )  =
+    (T_Pattern (case (({-# LINE 182 "src-ag/Desugar.ag" #-}
                        Set.singleton (field_, attr_)
-                       {-# LINE 1354 "src-ag/Desugar.hs" #-}
+                       {-# LINE 1596 "src-ag/Desugar.hs" #-}
                        )) of
                 { !_def ->
-                (case (parts_ ) of
-                 { ( !_partsIdefsCollect,!T_Patterns_1 parts_1) ->
-                     (case (pat_ ) of
-                      { ( !_patIdefsCollect,!T_Pattern_1 pat_1) ->
-                          (case (({-# LINE 182 "src-ag/Desugar.ag" #-}
-                                  _def     `Set.union` _patIdefsCollect `Set.union` _partsIdefsCollect
-                                  {-# LINE 1363 "src-ag/Desugar.hs" #-}
-                                  )) of
-                           { !_lhsOdefsCollect ->
-                           (case ((let sem_Pattern_Alias_1 :: T_Pattern_1 
-                                       sem_Pattern_Alias_1  =
-                                           (T_Pattern_1 (\ (!_lhsIchildInhs)
-                                                           (!_lhsIchildSyns)
-                                                           (!_lhsIcon)
-                                                           (!_lhsIdefs)
-                                                           (!_lhsIforcedIrrefutables)
-                                                           (!_lhsInt) ->
-                                                             (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
-                                                                     _lhsInt
-                                                                     {-# LINE 1376 "src-ag/Desugar.hs" #-}
+                (case (pat_ ) of
+                 { ( !_patIdefsCollect,!T_Pattern_1 pat_1) ->
+                     (case (({-# LINE 183 "src-ag/Desugar.ag" #-}
+                             _def     `Set.union` _patIdefsCollect
+                             {-# LINE 1603 "src-ag/Desugar.hs" #-}
+                             )) of
+                      { !_lhsOdefsCollect ->
+                      (case ((let sem_Pattern_Alias_1 :: T_Pattern_1 
+                                  sem_Pattern_Alias_1  =
+                                      (T_Pattern_1 (\ (!_lhsIchildInhs)
+                                                      (!_lhsIchildSyns)
+                                                      (!_lhsIcon)
+                                                      (!_lhsIdefs)
+                                                      (!_lhsIforcedIrrefutables)
+                                                      (!_lhsInt) ->
+                                                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                                _lhsInt
+                                                                {-# LINE 1616 "src-ag/Desugar.hs" #-}
+                                                                )) of
+                                                         { !_patOnt ->
+                                                         (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
+                                                                 _lhsIcon
+                                                                 {-# LINE 1621 "src-ag/Desugar.hs" #-}
+                                                                 )) of
+                                                          { !_patOcon ->
+                                                          (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                                                  _lhsIforcedIrrefutables
+                                                                  {-# LINE 1626 "src-ag/Desugar.hs" #-}
+                                                                  )) of
+                                                           { !_patOforcedIrrefutables ->
+                                                           (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
+                                                                   _lhsIdefs
+                                                                   {-# LINE 1631 "src-ag/Desugar.hs" #-}
+                                                                   )) of
+                                                            { !_patOdefs ->
+                                                            (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
+                                                                    _lhsIchildSyns
+                                                                    {-# LINE 1636 "src-ag/Desugar.hs" #-}
+                                                                    )) of
+                                                             { !_patOchildSyns ->
+                                                             (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
+                                                                     _lhsIchildInhs
+                                                                     {-# LINE 1641 "src-ag/Desugar.hs" #-}
                                                                      )) of
-                                                              { !_patOnt ->
-                                                              (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
-                                                                      _lhsIcon
-                                                                      {-# LINE 1381 "src-ag/Desugar.hs" #-}
-                                                                      )) of
-                                                               { !_patOcon ->
-                                                               (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                                                       _lhsIforcedIrrefutables
-                                                                       {-# LINE 1386 "src-ag/Desugar.hs" #-}
-                                                                       )) of
-                                                                { !_patOforcedIrrefutables ->
-                                                                (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
-                                                                        _lhsIdefs
-                                                                        {-# LINE 1391 "src-ag/Desugar.hs" #-}
-                                                                        )) of
-                                                                 { !_patOdefs ->
-                                                                 (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                                                         _lhsIchildSyns
-                                                                         {-# LINE 1396 "src-ag/Desugar.hs" #-}
-                                                                         )) of
-                                                                  { !_patOchildSyns ->
-                                                                  (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                                                          _lhsIchildInhs
-                                                                          {-# LINE 1401 "src-ag/Desugar.hs" #-}
-                                                                          )) of
-                                                                   { !_patOchildInhs ->
-                                                                   (case (pat_1 _patOchildInhs _patOchildSyns _patOcon _patOdefs _patOforcedIrrefutables _patOnt ) of
-                                                                    { ( !_patIallAttributes,!_patIcopy,!_patIerrors,!_patIoutput) ->
-                                                                        (case (({-# LINE 199 "src-ag/Desugar.ag" #-}
-                                                                                (Map.singleton _lhsInt $ Map.singleton _lhsIcon $ Set.singleton (field_, attr_)) `mergeAttributes` _patIallAttributes
-                                                                                {-# LINE 1408 "src-ag/Desugar.hs" #-}
+                                                              { !_patOchildInhs ->
+                                                              (case (pat_1 _patOchildInhs _patOchildSyns _patOcon _patOdefs _patOforcedIrrefutables _patOnt ) of
+                                                               { ( !_patIallAttributes,!_patIcopy,!_patIerrors,!_patIoutput) ->
+                                                                   (case (({-# LINE 200 "src-ag/Desugar.ag" #-}
+                                                                           (Map.singleton _lhsInt $ Map.singleton _lhsIcon $ Set.singleton (field_, attr_)) `mergeAttributes` _patIallAttributes
+                                                                           {-# LINE 1648 "src-ag/Desugar.hs" #-}
+                                                                           )) of
+                                                                    { !_lhsOallAttributes ->
+                                                                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                                                                            Alias field_ attr_ _patIcopy
+                                                                            {-# LINE 1653 "src-ag/Desugar.hs" #-}
+                                                                            )) of
+                                                                     { !_copy ->
+                                                                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
+                                                                             _copy
+                                                                             {-# LINE 1658 "src-ag/Desugar.hs" #-}
+                                                                             )) of
+                                                                      { !_lhsOcopy ->
+                                                                      (case (({-# LINE 110 "src-ag/Desugar.ag" #-}
+                                                                              maybeError field_ (UndefAttr _lhsInt _lhsIcon (Ident "<ANY>" (getPos field_)) attr_ True) $
+                                                                                findField field_ attr_ _lhsIchildInhs
+                                                                              {-# LINE 1664 "src-ag/Desugar.hs" #-}
+                                                                              )) of
+                                                                       { !__tup2 ->
+                                                                       (case (({-# LINE 110 "src-ag/Desugar.ag" #-}
+                                                                               __tup2
+                                                                               {-# LINE 1669 "src-ag/Desugar.hs" #-}
+                                                                               )) of
+                                                                        { !(!_field',_) ->
+                                                                        (case (({-# LINE 112 "src-ag/Desugar.ag" #-}
+                                                                                if _field'     == field_
+                                                                                then Seq.empty
+                                                                                else if (_field'    , attr_) `Set.member` _lhsIdefs
+                                                                                     then Seq.singleton $ DupRule _lhsInt _lhsIcon field_ attr_ _field'
+                                                                                     else Seq.empty
+                                                                                {-# LINE 1678 "src-ag/Desugar.hs" #-}
                                                                                 )) of
-                                                                         { !_lhsOallAttributes ->
-                                                                         (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
-                                                                                 _lhsInt
-                                                                                 {-# LINE 1413 "src-ag/Desugar.hs" #-}
+                                                                         { !_err2 ->
+                                                                         (case (({-# LINE 110 "src-ag/Desugar.ag" #-}
+                                                                                 __tup2
+                                                                                 {-# LINE 1683 "src-ag/Desugar.hs" #-}
                                                                                  )) of
-                                                                          { !_partsOnt ->
-                                                                          (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                                                                  _lhsIforcedIrrefutables
-                                                                                  {-# LINE 1418 "src-ag/Desugar.hs" #-}
+                                                                          { !(_,!_err1) ->
+                                                                          (case (({-# LINE 117 "src-ag/Desugar.ag" #-}
+                                                                                  _err1     Seq.>< _err2     Seq.>< _patIerrors
+                                                                                  {-# LINE 1688 "src-ag/Desugar.hs" #-}
                                                                                   )) of
-                                                                           { !_partsOforcedIrrefutables ->
-                                                                           (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
-                                                                                   _lhsIdefs
-                                                                                   {-# LINE 1423 "src-ag/Desugar.hs" #-}
+                                                                           { !_lhsOerrors ->
+                                                                           (case (({-# LINE 118 "src-ag/Desugar.ag" #-}
+                                                                                   Alias _field'     attr_ _patIoutput
+                                                                                   {-# LINE 1693 "src-ag/Desugar.hs" #-}
                                                                                    )) of
-                                                                            { !_partsOdefs ->
-                                                                            (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
-                                                                                    _lhsIcon
-                                                                                    {-# LINE 1428 "src-ag/Desugar.hs" #-}
+                                                                            { !_output ->
+                                                                            (case (({-# LINE 219 "src-ag/Desugar.ag" #-}
+                                                                                    if Set.member (field_, attr_) $ Map.findWithDefault Set.empty _lhsIcon $ Map.findWithDefault Map.empty _lhsInt $ _lhsIforcedIrrefutables
+                                                                                    then Irrefutable _output
+                                                                                    else _output
+                                                                                    {-# LINE 1700 "src-ag/Desugar.hs" #-}
                                                                                     )) of
-                                                                             { !_partsOcon ->
-                                                                             (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                                                                     _lhsIchildSyns
-                                                                                     {-# LINE 1433 "src-ag/Desugar.hs" #-}
-                                                                                     )) of
-                                                                              { !_partsOchildSyns ->
-                                                                              (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                                                                      _lhsIchildInhs
-                                                                                      {-# LINE 1438 "src-ag/Desugar.hs" #-}
-                                                                                      )) of
-                                                                               { !_partsOchildInhs ->
-                                                                               (case (parts_1 _partsOchildInhs _partsOchildSyns _partsOcon _partsOdefs _partsOforcedIrrefutables _partsOnt ) of
-                                                                                { ( !_partsIallAttributes,!_partsIcopy,!_partsIerrors,!_partsIoutput) ->
-                                                                                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                                                                            Alias field_ attr_ _patIcopy _partsIcopy
-                                                                                            {-# LINE 1445 "src-ag/Desugar.hs" #-}
-                                                                                            )) of
-                                                                                     { !_copy ->
-                                                                                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
-                                                                                             _copy
-                                                                                             {-# LINE 1450 "src-ag/Desugar.hs" #-}
-                                                                                             )) of
-                                                                                      { !_lhsOcopy ->
-                                                                                      (case (({-# LINE 109 "src-ag/Desugar.ag" #-}
-                                                                                              maybeError field_ (UndefAttr _lhsInt _lhsIcon (Ident "<ANY>" (getPos field_)) attr_ True) $
-                                                                                                findField field_ attr_ _lhsIchildInhs
-                                                                                              {-# LINE 1456 "src-ag/Desugar.hs" #-}
-                                                                                              )) of
-                                                                                       { !__tup2 ->
-                                                                                       (case (({-# LINE 109 "src-ag/Desugar.ag" #-}
-                                                                                               __tup2
-                                                                                               {-# LINE 1461 "src-ag/Desugar.hs" #-}
-                                                                                               )) of
-                                                                                        { !(!_field',_) ->
-                                                                                        (case (({-# LINE 111 "src-ag/Desugar.ag" #-}
-                                                                                                if _field'     == field_
-                                                                                                then Seq.empty
-                                                                                                else if (_field'    , attr_) `Set.member` _lhsIdefs
-                                                                                                     then Seq.singleton $ DupRule _lhsInt _lhsIcon field_ attr_ _field'
-                                                                                                     else Seq.empty
-                                                                                                {-# LINE 1470 "src-ag/Desugar.hs" #-}
-                                                                                                )) of
-                                                                                         { !_err2 ->
-                                                                                         (case (({-# LINE 109 "src-ag/Desugar.ag" #-}
-                                                                                                 __tup2
-                                                                                                 {-# LINE 1475 "src-ag/Desugar.hs" #-}
-                                                                                                 )) of
-                                                                                          { !(_,!_err1) ->
-                                                                                          (case (({-# LINE 116 "src-ag/Desugar.ag" #-}
-                                                                                                  _err1     Seq.>< _err2     Seq.>< _patIerrors Seq.>< _partsIerrors
-                                                                                                  {-# LINE 1480 "src-ag/Desugar.hs" #-}
-                                                                                                  )) of
-                                                                                           { !_lhsOerrors ->
-                                                                                           (case (({-# LINE 117 "src-ag/Desugar.ag" #-}
-                                                                                                   Alias _field'     attr_ _patIoutput _partsIoutput
-                                                                                                   {-# LINE 1485 "src-ag/Desugar.hs" #-}
-                                                                                                   )) of
-                                                                                            { !_output ->
-                                                                                            (case (({-# LINE 218 "src-ag/Desugar.ag" #-}
-                                                                                                    if Set.member (field_, attr_) $ Map.findWithDefault Set.empty _lhsIcon $ Map.findWithDefault Map.empty _lhsInt $ _lhsIforcedIrrefutables
-                                                                                                    then Irrefutable _output
-                                                                                                    else _output
-                                                                                                    {-# LINE 1492 "src-ag/Desugar.hs" #-}
-                                                                                                    )) of
-                                                                                             { !_lhsOoutput ->
-                                                                                             ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
-                                   in  sem_Pattern_Alias_1)) of
-                            { ( !sem_Pattern_1) ->
-                            ( _lhsOdefsCollect,sem_Pattern_1) }) }) }) }) }) )
+                                                                             { !_lhsOoutput ->
+                                                                             ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+                              in  sem_Pattern_Alias_1)) of
+                       { ( !sem_Pattern_1) ->
+                       ( _lhsOdefsCollect,sem_Pattern_1) }) }) }) }) )
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns  ->
                       T_Pattern 
 sem_Pattern_Constr !name_ !(T_Patterns pats_ )  =
     (T_Pattern (case (pats_ ) of
                 { ( !_patsIdefsCollect,!T_Patterns_1 pats_1) ->
-                    (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                             _patsIdefsCollect
-                            {-# LINE 1507 "src-ag/Desugar.hs" #-}
+                            {-# LINE 1715 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOdefsCollect ->
                      (case ((let sem_Pattern_Constr_1 :: T_Pattern_1 
@@ -1514,66 +1722,66 @@ sem_Pattern_Constr !name_ !(T_Patterns pats_ )  =
                                                      (!_lhsIdefs)
                                                      (!_lhsIforcedIrrefutables)
                                                      (!_lhsInt) ->
-                                                       (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                       (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                _lhsInt
-                                                               {-# LINE 1520 "src-ag/Desugar.hs" #-}
+                                                               {-# LINE 1728 "src-ag/Desugar.hs" #-}
                                                                )) of
                                                         { !_patsOnt ->
-                                                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                        (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                 _lhsIcon
-                                                                {-# LINE 1525 "src-ag/Desugar.hs" #-}
+                                                                {-# LINE 1733 "src-ag/Desugar.hs" #-}
                                                                 )) of
                                                          { !_patsOcon ->
-                                                         (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                         (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                  _lhsIforcedIrrefutables
-                                                                 {-# LINE 1530 "src-ag/Desugar.hs" #-}
+                                                                 {-# LINE 1738 "src-ag/Desugar.hs" #-}
                                                                  )) of
                                                           { !_patsOforcedIrrefutables ->
-                                                          (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                          (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                   _lhsIdefs
-                                                                  {-# LINE 1535 "src-ag/Desugar.hs" #-}
+                                                                  {-# LINE 1743 "src-ag/Desugar.hs" #-}
                                                                   )) of
                                                            { !_patsOdefs ->
-                                                           (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                           (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                    _lhsIchildSyns
-                                                                   {-# LINE 1540 "src-ag/Desugar.hs" #-}
+                                                                   {-# LINE 1748 "src-ag/Desugar.hs" #-}
                                                                    )) of
                                                             { !_patsOchildSyns ->
-                                                            (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                            (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                     _lhsIchildInhs
-                                                                    {-# LINE 1545 "src-ag/Desugar.hs" #-}
+                                                                    {-# LINE 1753 "src-ag/Desugar.hs" #-}
                                                                     )) of
                                                              { !_patsOchildInhs ->
                                                              (case (pats_1 _patsOchildInhs _patsOchildSyns _patsOcon _patsOdefs _patsOforcedIrrefutables _patsOnt ) of
                                                               { ( !_patsIallAttributes,!_patsIcopy,!_patsIerrors,!_patsIoutput) ->
-                                                                  (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                                  (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                                           _patsIallAttributes
-                                                                          {-# LINE 1552 "src-ag/Desugar.hs" #-}
+                                                                          {-# LINE 1760 "src-ag/Desugar.hs" #-}
                                                                           )) of
                                                                    { !_lhsOallAttributes ->
-                                                                   (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                   (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                            Constr name_ _patsIcopy
-                                                                           {-# LINE 1557 "src-ag/Desugar.hs" #-}
+                                                                           {-# LINE 1765 "src-ag/Desugar.hs" #-}
                                                                            )) of
                                                                     { !_copy ->
-                                                                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                             _copy
-                                                                            {-# LINE 1562 "src-ag/Desugar.hs" #-}
+                                                                            {-# LINE 1770 "src-ag/Desugar.hs" #-}
                                                                             )) of
                                                                      { !_lhsOcopy ->
-                                                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                              _patsIerrors
-                                                                             {-# LINE 1567 "src-ag/Desugar.hs" #-}
+                                                                             {-# LINE 1775 "src-ag/Desugar.hs" #-}
                                                                              )) of
                                                                       { !_lhsOerrors ->
-                                                                      (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                      (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                               Constr name_ _patsIoutput
-                                                                              {-# LINE 1572 "src-ag/Desugar.hs" #-}
+                                                                              {-# LINE 1780 "src-ag/Desugar.hs" #-}
                                                                               )) of
                                                                        { !_output ->
-                                                                       (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                       (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                _output
-                                                                               {-# LINE 1577 "src-ag/Desugar.hs" #-}
+                                                                               {-# LINE 1785 "src-ag/Desugar.hs" #-}
                                                                                )) of
                                                                         { !_lhsOoutput ->
                                                                         ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -1585,9 +1793,9 @@ sem_Pattern_Irrefutable :: T_Pattern  ->
 sem_Pattern_Irrefutable !(T_Pattern pat_ )  =
     (T_Pattern (case (pat_ ) of
                 { ( !_patIdefsCollect,!T_Pattern_1 pat_1) ->
-                    (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                             _patIdefsCollect
-                            {-# LINE 1591 "src-ag/Desugar.hs" #-}
+                            {-# LINE 1799 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOdefsCollect ->
                      (case ((let sem_Pattern_Irrefutable_1 :: T_Pattern_1 
@@ -1598,66 +1806,66 @@ sem_Pattern_Irrefutable !(T_Pattern pat_ )  =
                                                      (!_lhsIdefs)
                                                      (!_lhsIforcedIrrefutables)
                                                      (!_lhsInt) ->
-                                                       (case (({-# LINE 201 "src-ag/Desugar.ag" #-}
+                                                       (case (({-# LINE 202 "src-ag/Desugar.ag" #-}
                                                                Map.empty
-                                                               {-# LINE 1604 "src-ag/Desugar.hs" #-}
+                                                               {-# LINE 1812 "src-ag/Desugar.hs" #-}
                                                                )) of
                                                         { !_lhsOallAttributes ->
-                                                        (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                 _lhsInt
-                                                                {-# LINE 1609 "src-ag/Desugar.hs" #-}
+                                                                {-# LINE 1817 "src-ag/Desugar.hs" #-}
                                                                 )) of
                                                          { !_patOnt ->
-                                                         (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                         (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                  _lhsIforcedIrrefutables
-                                                                 {-# LINE 1614 "src-ag/Desugar.hs" #-}
+                                                                 {-# LINE 1822 "src-ag/Desugar.hs" #-}
                                                                  )) of
                                                           { !_patOforcedIrrefutables ->
-                                                          (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                          (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                   _lhsIdefs
-                                                                  {-# LINE 1619 "src-ag/Desugar.hs" #-}
+                                                                  {-# LINE 1827 "src-ag/Desugar.hs" #-}
                                                                   )) of
                                                            { !_patOdefs ->
-                                                           (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                           (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                    _lhsIcon
-                                                                   {-# LINE 1624 "src-ag/Desugar.hs" #-}
+                                                                   {-# LINE 1832 "src-ag/Desugar.hs" #-}
                                                                    )) of
                                                             { !_patOcon ->
-                                                            (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                            (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                     _lhsIchildSyns
-                                                                    {-# LINE 1629 "src-ag/Desugar.hs" #-}
+                                                                    {-# LINE 1837 "src-ag/Desugar.hs" #-}
                                                                     )) of
                                                              { !_patOchildSyns ->
-                                                             (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                             (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                      _lhsIchildInhs
-                                                                     {-# LINE 1634 "src-ag/Desugar.hs" #-}
+                                                                     {-# LINE 1842 "src-ag/Desugar.hs" #-}
                                                                      )) of
                                                               { !_patOchildInhs ->
                                                               (case (pat_1 _patOchildInhs _patOchildSyns _patOcon _patOdefs _patOforcedIrrefutables _patOnt ) of
                                                                { ( !_patIallAttributes,!_patIcopy,!_patIerrors,!_patIoutput) ->
-                                                                   (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                   (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                            Irrefutable _patIcopy
-                                                                           {-# LINE 1641 "src-ag/Desugar.hs" #-}
+                                                                           {-# LINE 1849 "src-ag/Desugar.hs" #-}
                                                                            )) of
                                                                     { !_copy ->
-                                                                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                             _copy
-                                                                            {-# LINE 1646 "src-ag/Desugar.hs" #-}
+                                                                            {-# LINE 1854 "src-ag/Desugar.hs" #-}
                                                                             )) of
                                                                      { !_lhsOcopy ->
-                                                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                              _patIerrors
-                                                                             {-# LINE 1651 "src-ag/Desugar.hs" #-}
+                                                                             {-# LINE 1859 "src-ag/Desugar.hs" #-}
                                                                              )) of
                                                                       { !_lhsOerrors ->
-                                                                      (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                      (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                               Irrefutable _patIoutput
-                                                                              {-# LINE 1656 "src-ag/Desugar.hs" #-}
+                                                                              {-# LINE 1864 "src-ag/Desugar.hs" #-}
                                                                               )) of
                                                                        { !_output ->
-                                                                       (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                       (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                _output
-                                                                               {-# LINE 1661 "src-ag/Desugar.hs" #-}
+                                                                               {-# LINE 1869 "src-ag/Desugar.hs" #-}
                                                                                )) of
                                                                         { !_lhsOoutput ->
                                                                         ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -1670,9 +1878,9 @@ sem_Pattern_Product :: Pos ->
 sem_Pattern_Product !pos_ !(T_Patterns pats_ )  =
     (T_Pattern (case (pats_ ) of
                 { ( !_patsIdefsCollect,!T_Patterns_1 pats_1) ->
-                    (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                    (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                             _patsIdefsCollect
-                            {-# LINE 1676 "src-ag/Desugar.hs" #-}
+                            {-# LINE 1884 "src-ag/Desugar.hs" #-}
                             )) of
                      { !_lhsOdefsCollect ->
                      (case ((let sem_Pattern_Product_1 :: T_Pattern_1 
@@ -1683,66 +1891,66 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_ )  =
                                                      (!_lhsIdefs)
                                                      (!_lhsIforcedIrrefutables)
                                                      (!_lhsInt) ->
-                                                       (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                       (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                _lhsInt
-                                                               {-# LINE 1689 "src-ag/Desugar.hs" #-}
+                                                               {-# LINE 1897 "src-ag/Desugar.hs" #-}
                                                                )) of
                                                         { !_patsOnt ->
-                                                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                        (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                 _lhsIcon
-                                                                {-# LINE 1694 "src-ag/Desugar.hs" #-}
+                                                                {-# LINE 1902 "src-ag/Desugar.hs" #-}
                                                                 )) of
                                                          { !_patsOcon ->
-                                                         (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                         (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                  _lhsIforcedIrrefutables
-                                                                 {-# LINE 1699 "src-ag/Desugar.hs" #-}
+                                                                 {-# LINE 1907 "src-ag/Desugar.hs" #-}
                                                                  )) of
                                                           { !_patsOforcedIrrefutables ->
-                                                          (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                          (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                   _lhsIdefs
-                                                                  {-# LINE 1704 "src-ag/Desugar.hs" #-}
+                                                                  {-# LINE 1912 "src-ag/Desugar.hs" #-}
                                                                   )) of
                                                            { !_patsOdefs ->
-                                                           (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                           (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                    _lhsIchildSyns
-                                                                   {-# LINE 1709 "src-ag/Desugar.hs" #-}
+                                                                   {-# LINE 1917 "src-ag/Desugar.hs" #-}
                                                                    )) of
                                                             { !_patsOchildSyns ->
-                                                            (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                            (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                     _lhsIchildInhs
-                                                                    {-# LINE 1714 "src-ag/Desugar.hs" #-}
+                                                                    {-# LINE 1922 "src-ag/Desugar.hs" #-}
                                                                     )) of
                                                              { !_patsOchildInhs ->
                                                              (case (pats_1 _patsOchildInhs _patsOchildSyns _patsOcon _patsOdefs _patsOforcedIrrefutables _patsOnt ) of
                                                               { ( !_patsIallAttributes,!_patsIcopy,!_patsIerrors,!_patsIoutput) ->
-                                                                  (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                                  (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                                           _patsIallAttributes
-                                                                          {-# LINE 1721 "src-ag/Desugar.hs" #-}
+                                                                          {-# LINE 1929 "src-ag/Desugar.hs" #-}
                                                                           )) of
                                                                    { !_lhsOallAttributes ->
-                                                                   (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                   (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                            Product pos_ _patsIcopy
-                                                                           {-# LINE 1726 "src-ag/Desugar.hs" #-}
+                                                                           {-# LINE 1934 "src-ag/Desugar.hs" #-}
                                                                            )) of
                                                                     { !_copy ->
-                                                                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                             _copy
-                                                                            {-# LINE 1731 "src-ag/Desugar.hs" #-}
+                                                                            {-# LINE 1939 "src-ag/Desugar.hs" #-}
                                                                             )) of
                                                                      { !_lhsOcopy ->
-                                                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                              _patsIerrors
-                                                                             {-# LINE 1736 "src-ag/Desugar.hs" #-}
+                                                                             {-# LINE 1944 "src-ag/Desugar.hs" #-}
                                                                              )) of
                                                                       { !_lhsOerrors ->
-                                                                      (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                      (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                               Product pos_ _patsIoutput
-                                                                              {-# LINE 1741 "src-ag/Desugar.hs" #-}
+                                                                              {-# LINE 1949 "src-ag/Desugar.hs" #-}
                                                                               )) of
                                                                        { !_output ->
-                                                                       (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                       (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                _output
-                                                                               {-# LINE 1746 "src-ag/Desugar.hs" #-}
+                                                                               {-# LINE 1954 "src-ag/Desugar.hs" #-}
                                                                                )) of
                                                                         { !_lhsOoutput ->
                                                                         ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -1752,9 +1960,9 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_ )  =
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern 
 sem_Pattern_Underscore !pos_  =
-    (T_Pattern (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+    (T_Pattern (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                        Set.empty
-                       {-# LINE 1758 "src-ag/Desugar.hs" #-}
+                       {-# LINE 1966 "src-ag/Desugar.hs" #-}
                        )) of
                 { !_lhsOdefsCollect ->
                 (case ((let sem_Pattern_Underscore_1 :: T_Pattern_1 
@@ -1765,34 +1973,34 @@ sem_Pattern_Underscore !pos_  =
                                                 (!_lhsIdefs)
                                                 (!_lhsIforcedIrrefutables)
                                                 (!_lhsInt) ->
-                                                  (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                  (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                           Map.empty
-                                                          {-# LINE 1771 "src-ag/Desugar.hs" #-}
+                                                          {-# LINE 1979 "src-ag/Desugar.hs" #-}
                                                           )) of
                                                    { !_lhsOallAttributes ->
-                                                   (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                   (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                            Underscore pos_
-                                                           {-# LINE 1776 "src-ag/Desugar.hs" #-}
+                                                           {-# LINE 1984 "src-ag/Desugar.hs" #-}
                                                            )) of
                                                     { !_copy ->
-                                                    (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                    (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                             _copy
-                                                            {-# LINE 1781 "src-ag/Desugar.hs" #-}
+                                                            {-# LINE 1989 "src-ag/Desugar.hs" #-}
                                                             )) of
                                                      { !_lhsOcopy ->
-                                                     (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                     (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                              Seq.empty
-                                                             {-# LINE 1786 "src-ag/Desugar.hs" #-}
+                                                             {-# LINE 1994 "src-ag/Desugar.hs" #-}
                                                              )) of
                                                       { !_lhsOerrors ->
-                                                      (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                      (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                               Underscore pos_
-                                                              {-# LINE 1791 "src-ag/Desugar.hs" #-}
+                                                              {-# LINE 1999 "src-ag/Desugar.hs" #-}
                                                               )) of
                                                        { !_output ->
-                                                       (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                       (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                _output
-                                                               {-# LINE 1796 "src-ag/Desugar.hs" #-}
+                                                               {-# LINE 2004 "src-ag/Desugar.hs" #-}
                                                                )) of
                                                         { !_lhsOoutput ->
                                                         ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) })) )
@@ -1860,9 +2068,9 @@ sem_Patterns_Cons !(T_Pattern hd_ ) !(T_Patterns tl_ )  =
                  { ( !_tlIdefsCollect,!T_Patterns_1 tl_1) ->
                      (case (hd_ ) of
                       { ( !_hdIdefsCollect,!T_Pattern_1 hd_1) ->
-                          (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                                   _hdIdefsCollect `Set.union` _tlIdefsCollect
-                                  {-# LINE 1866 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 2074 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_lhsOdefsCollect ->
                            (case ((let sem_Patterns_Cons_1 :: T_Patterns_1 
@@ -1873,98 +2081,98 @@ sem_Patterns_Cons !(T_Pattern hd_ ) !(T_Patterns tl_ )  =
                                                             (!_lhsIdefs)
                                                             (!_lhsIforcedIrrefutables)
                                                             (!_lhsInt) ->
-                                                              (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                              (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                       _lhsInt
-                                                                      {-# LINE 1879 "src-ag/Desugar.hs" #-}
+                                                                      {-# LINE 2087 "src-ag/Desugar.hs" #-}
                                                                       )) of
                                                                { !_tlOnt ->
-                                                               (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                               (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                        _lhsIcon
-                                                                       {-# LINE 1884 "src-ag/Desugar.hs" #-}
+                                                                       {-# LINE 2092 "src-ag/Desugar.hs" #-}
                                                                        )) of
                                                                 { !_tlOcon ->
-                                                                (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                                (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                         _lhsInt
-                                                                        {-# LINE 1889 "src-ag/Desugar.hs" #-}
+                                                                        {-# LINE 2097 "src-ag/Desugar.hs" #-}
                                                                         )) of
                                                                  { !_hdOnt ->
-                                                                 (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                                 (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                          _lhsIcon
-                                                                         {-# LINE 1894 "src-ag/Desugar.hs" #-}
+                                                                         {-# LINE 2102 "src-ag/Desugar.hs" #-}
                                                                          )) of
                                                                   { !_hdOcon ->
-                                                                  (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                                  (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                           _lhsIforcedIrrefutables
-                                                                          {-# LINE 1899 "src-ag/Desugar.hs" #-}
+                                                                          {-# LINE 2107 "src-ag/Desugar.hs" #-}
                                                                           )) of
                                                                    { !_tlOforcedIrrefutables ->
-                                                                   (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                                   (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                            _lhsIdefs
-                                                                           {-# LINE 1904 "src-ag/Desugar.hs" #-}
+                                                                           {-# LINE 2112 "src-ag/Desugar.hs" #-}
                                                                            )) of
                                                                     { !_tlOdefs ->
-                                                                    (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                    (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                             _lhsIchildSyns
-                                                                            {-# LINE 1909 "src-ag/Desugar.hs" #-}
+                                                                            {-# LINE 2117 "src-ag/Desugar.hs" #-}
                                                                             )) of
                                                                      { !_tlOchildSyns ->
-                                                                     (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                     (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                              _lhsIchildInhs
-                                                                             {-# LINE 1914 "src-ag/Desugar.hs" #-}
+                                                                             {-# LINE 2122 "src-ag/Desugar.hs" #-}
                                                                              )) of
                                                                       { !_tlOchildInhs ->
                                                                       (case (tl_1 _tlOchildInhs _tlOchildSyns _tlOcon _tlOdefs _tlOforcedIrrefutables _tlOnt ) of
                                                                        { ( !_tlIallAttributes,!_tlIcopy,!_tlIerrors,!_tlIoutput) ->
-                                                                           (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                                           (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                                    _lhsIforcedIrrefutables
-                                                                                   {-# LINE 1921 "src-ag/Desugar.hs" #-}
+                                                                                   {-# LINE 2129 "src-ag/Desugar.hs" #-}
                                                                                    )) of
                                                                             { !_hdOforcedIrrefutables ->
-                                                                            (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                                            (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                                     _lhsIdefs
-                                                                                    {-# LINE 1926 "src-ag/Desugar.hs" #-}
+                                                                                    {-# LINE 2134 "src-ag/Desugar.hs" #-}
                                                                                     )) of
                                                                              { !_hdOdefs ->
-                                                                             (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                             (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                                      _lhsIchildSyns
-                                                                                     {-# LINE 1931 "src-ag/Desugar.hs" #-}
+                                                                                     {-# LINE 2139 "src-ag/Desugar.hs" #-}
                                                                                      )) of
                                                                               { !_hdOchildSyns ->
-                                                                              (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                              (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                                       _lhsIchildInhs
-                                                                                      {-# LINE 1936 "src-ag/Desugar.hs" #-}
+                                                                                      {-# LINE 2144 "src-ag/Desugar.hs" #-}
                                                                                       )) of
                                                                                { !_hdOchildInhs ->
                                                                                (case (hd_1 _hdOchildInhs _hdOchildSyns _hdOcon _hdOdefs _hdOforcedIrrefutables _hdOnt ) of
                                                                                 { ( !_hdIallAttributes,!_hdIcopy,!_hdIerrors,!_hdIoutput) ->
-                                                                                    (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                                                    (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                                                             _hdIallAttributes `mergeAttributes` _tlIallAttributes
-                                                                                            {-# LINE 1943 "src-ag/Desugar.hs" #-}
+                                                                                            {-# LINE 2151 "src-ag/Desugar.hs" #-}
                                                                                             )) of
                                                                                      { !_lhsOallAttributes ->
-                                                                                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                                              (:) _hdIcopy _tlIcopy
-                                                                                             {-# LINE 1948 "src-ag/Desugar.hs" #-}
+                                                                                             {-# LINE 2156 "src-ag/Desugar.hs" #-}
                                                                                              )) of
                                                                                       { !_copy ->
-                                                                                      (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                                                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                                                               _copy
-                                                                                              {-# LINE 1953 "src-ag/Desugar.hs" #-}
+                                                                                              {-# LINE 2161 "src-ag/Desugar.hs" #-}
                                                                                               )) of
                                                                                        { !_lhsOcopy ->
-                                                                                       (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                                       (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                                                _hdIerrors Seq.>< _tlIerrors
-                                                                                               {-# LINE 1958 "src-ag/Desugar.hs" #-}
+                                                                                               {-# LINE 2166 "src-ag/Desugar.hs" #-}
                                                                                                )) of
                                                                                         { !_lhsOerrors ->
-                                                                                        (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                                        (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                                 (:) _hdIoutput _tlIoutput
-                                                                                                {-# LINE 1963 "src-ag/Desugar.hs" #-}
+                                                                                                {-# LINE 2171 "src-ag/Desugar.hs" #-}
                                                                                                 )) of
                                                                                          { !_output ->
-                                                                                         (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                                         (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                                  _output
-                                                                                                 {-# LINE 1968 "src-ag/Desugar.hs" #-}
+                                                                                                 {-# LINE 2176 "src-ag/Desugar.hs" #-}
                                                                                                  )) of
                                                                                           { !_lhsOoutput ->
                                                                                           ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -1973,9 +2181,9 @@ sem_Patterns_Cons !(T_Pattern hd_ ) !(T_Patterns tl_ )  =
                             ( _lhsOdefsCollect,sem_Patterns_1) }) }) }) }) )
 sem_Patterns_Nil :: T_Patterns 
 sem_Patterns_Nil  =
-    (T_Patterns (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+    (T_Patterns (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                         Set.empty
-                        {-# LINE 1979 "src-ag/Desugar.hs" #-}
+                        {-# LINE 2187 "src-ag/Desugar.hs" #-}
                         )) of
                  { !_lhsOdefsCollect ->
                  (case ((let sem_Patterns_Nil_1 :: T_Patterns_1 
@@ -1986,34 +2194,34 @@ sem_Patterns_Nil  =
                                                   (!_lhsIdefs)
                                                   (!_lhsIforcedIrrefutables)
                                                   (!_lhsInt) ->
-                                                    (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                    (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                             Map.empty
-                                                            {-# LINE 1992 "src-ag/Desugar.hs" #-}
+                                                            {-# LINE 2200 "src-ag/Desugar.hs" #-}
                                                             )) of
                                                      { !_lhsOallAttributes ->
-                                                     (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                              []
-                                                             {-# LINE 1997 "src-ag/Desugar.hs" #-}
+                                                             {-# LINE 2205 "src-ag/Desugar.hs" #-}
                                                              )) of
                                                       { !_copy ->
-                                                      (case (({-# LINE 23 "src-ag/Patterns.ag" #-}
+                                                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                                               _copy
-                                                              {-# LINE 2002 "src-ag/Desugar.hs" #-}
+                                                              {-# LINE 2210 "src-ag/Desugar.hs" #-}
                                                               )) of
                                                        { !_lhsOcopy ->
-                                                       (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                       (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                Seq.empty
-                                                               {-# LINE 2007 "src-ag/Desugar.hs" #-}
+                                                               {-# LINE 2215 "src-ag/Desugar.hs" #-}
                                                                )) of
                                                         { !_lhsOerrors ->
-                                                        (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                        (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                 []
-                                                                {-# LINE 2012 "src-ag/Desugar.hs" #-}
+                                                                {-# LINE 2220 "src-ag/Desugar.hs" #-}
                                                                 )) of
                                                          { !_output ->
-                                                         (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                         (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                  _output
-                                                                 {-# LINE 2017 "src-ag/Desugar.hs" #-}
+                                                                 {-# LINE 2225 "src-ag/Desugar.hs" #-}
                                                                  )) of
                                                           { !_lhsOoutput ->
                                                           ( _lhsOallAttributes,_lhsOcopy,_lhsOerrors,_lhsOoutput) }) }) }) }) }) })) )
@@ -2026,8 +2234,11 @@ sem_Patterns_Nil  =
       inherited attributes:
          augmentsIn           : Map ConstructorIdent (Map Identifier [Expression])
          forcedIrrefutables   : AttrMap
+         inhMap               : Map Identifier Attributes
+         mainName             : String
          nt                   : NontermIdent
          options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          allAttributes        : AttrMap
          augmentsOut          : Map ConstructorIdent (Map Identifier [Expression])
@@ -2036,9 +2247,12 @@ sem_Patterns_Nil  =
    alternatives:
       alternative Production:
          child con            : {ConstructorIdent}
+         child params         : {[Identifier]}
+         child constraints    : {[Type]}
          child children       : Children 
          child rules          : Rules 
          child typeSigs       : TypeSigs 
+         child macro          : {MaybeMacro}
          visit 0:
             local augmentsIn  : _
             local _tup3       : _
@@ -2050,134 +2264,166 @@ sem_Patterns_Nil  =
 -- cata
 sem_Production :: Production  ->
                   T_Production 
-sem_Production !(Production _con _children _rules _typeSigs )  =
-    (sem_Production_Production _con (sem_Children _children ) (sem_Rules _rules ) (sem_TypeSigs _typeSigs ) )
+sem_Production !(Production _con _params _constraints _children _rules _typeSigs _macro )  =
+    (sem_Production_Production _con _params _constraints (sem_Children _children ) (sem_Rules _rules ) (sem_TypeSigs _typeSigs ) _macro )
 -- semantic domain
 newtype T_Production  = T_Production ((Map ConstructorIdent (Map Identifier [Expression])) ->
                                       AttrMap ->
+                                      (Map Identifier Attributes) ->
+                                      String ->
                                       NontermIdent ->
                                       Options ->
+                                      (Map Identifier Attributes) ->
                                       ( AttrMap,(Map ConstructorIdent (Map Identifier [Expression])),(Seq Error),Production ))
-data Inh_Production  = Inh_Production {augmentsIn_Inh_Production :: !((Map ConstructorIdent (Map Identifier [Expression]))),forcedIrrefutables_Inh_Production :: !(AttrMap),nt_Inh_Production :: !(NontermIdent),options_Inh_Production :: !(Options)}
+data Inh_Production  = Inh_Production {augmentsIn_Inh_Production :: !((Map ConstructorIdent (Map Identifier [Expression]))),forcedIrrefutables_Inh_Production :: !(AttrMap),inhMap_Inh_Production :: !((Map Identifier Attributes)),mainName_Inh_Production :: !(String),nt_Inh_Production :: !(NontermIdent),options_Inh_Production :: !(Options),synMap_Inh_Production :: !((Map Identifier Attributes))}
 data Syn_Production  = Syn_Production {allAttributes_Syn_Production :: !(AttrMap),augmentsOut_Syn_Production :: !((Map ConstructorIdent (Map Identifier [Expression]))),errors_Syn_Production :: !((Seq Error)),output_Syn_Production :: !(Production )}
 wrap_Production :: T_Production  ->
                    Inh_Production  ->
                    Syn_Production 
-wrap_Production !(T_Production sem ) !(Inh_Production _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsInt _lhsIoptions )  =
-    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsInt _lhsIoptions 
+wrap_Production !(T_Production sem ) !(Inh_Production _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap 
      in  (Syn_Production _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput ))
 sem_Production_Production :: ConstructorIdent ->
+                             ([Identifier]) ->
+                             ([Type]) ->
                              T_Children  ->
                              T_Rules  ->
                              T_TypeSigs  ->
+                             MaybeMacro ->
                              T_Production 
-sem_Production_Production !con_ !(T_Children children_ ) !(T_Rules rules_ ) !(T_TypeSigs typeSigs_ )  =
+sem_Production_Production !con_ !params_ !constraints_ !(T_Children children_ ) !(T_Rules rules_ ) !(T_TypeSigs typeSigs_ ) !macro_  =
     (T_Production (\ (!_lhsIaugmentsIn)
                      (!_lhsIforcedIrrefutables)
+                     (!_lhsIinhMap)
+                     (!_lhsImainName)
                      (!_lhsInt)
-                     (!_lhsIoptions) ->
-                       (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                     (!_lhsIoptions)
+                     (!_lhsIsynMap) ->
+                       (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                _lhsInt
-                               {-# LINE 2082 "src-ag/Desugar.hs" #-}
+                               {-# LINE 2305 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_rulesOnt ->
-                        (case (({-# LINE 160 "src-ag/Desugar.ag" #-}
+                        (case (({-# LINE 161 "src-ag/Desugar.ag" #-}
                                 con_
-                                {-# LINE 2087 "src-ag/Desugar.hs" #-}
+                                {-# LINE 2310 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_rulesOcon ->
                          (case (rules_ ) of
                           { ( !_rulesIdefsCollect,!T_Rules_1 rules_1) ->
-                              (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
+                              (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
                                       _lhsIoptions
-                                      {-# LINE 2094 "src-ag/Desugar.hs" #-}
+                                      {-# LINE 2317 "src-ag/Desugar.hs" #-}
                                       )) of
                                { !_rulesOoptions ->
-                               (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                               (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                        _lhsIforcedIrrefutables
-                                       {-# LINE 2099 "src-ag/Desugar.hs" #-}
+                                       {-# LINE 2322 "src-ag/Desugar.hs" #-}
                                        )) of
                                 { !_rulesOforcedIrrefutables ->
-                                (case (children_ ) of
-                                 { ( !_childrenIchildInhs,!_childrenIchildSyns,!_childrenIoutput) ->
-                                     (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                             _childrenIchildSyns
-                                             {-# LINE 2106 "src-ag/Desugar.hs" #-}
-                                             )) of
-                                      { !_rulesOchildSyns ->
-                                      (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
-                                              _childrenIchildInhs
-                                              {-# LINE 2111 "src-ag/Desugar.hs" #-}
-                                              )) of
-                                       { !_rulesOchildInhs ->
-                                       (case (({-# LINE 187 "src-ag/Desugar.ag" #-}
-                                               _rulesIdefsCollect
-                                               {-# LINE 2116 "src-ag/Desugar.hs" #-}
-                                               )) of
-                                        { !_rulesOdefs ->
-                                        (case (rules_1 _rulesOchildInhs _rulesOchildSyns _rulesOcon _rulesOdefs _rulesOforcedIrrefutables _rulesOnt _rulesOoptions ) of
-                                         { ( !_rulesIallAttributes,!_rulesIerrors,!_rulesIoutput) ->
-                                             (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                                     _rulesIallAttributes
-                                                     {-# LINE 2123 "src-ag/Desugar.hs" #-}
-                                                     )) of
-                                              { !_lhsOallAttributes ->
-                                              (case (({-# LINE 243 "src-ag/Desugar.ag" #-}
-                                                      Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
-                                                      {-# LINE 2128 "src-ag/Desugar.hs" #-}
-                                                      )) of
-                                               { !_augmentsIn ->
-                                               (case (({-# LINE 246 "src-ag/Desugar.ag" #-}
-                                                       Map.mapAccum (desugarExprs _lhsIoptions _lhsInt con_ _childrenIchildInhs _childrenIchildSyns) Seq.empty _augmentsIn
-                                                       {-# LINE 2133 "src-ag/Desugar.hs" #-}
-                                                       )) of
-                                                { !__tup3 ->
-                                                (case (({-# LINE 246 "src-ag/Desugar.ag" #-}
-                                                        __tup3
-                                                        {-# LINE 2138 "src-ag/Desugar.hs" #-}
-                                                        )) of
-                                                 { !(_,!_augmentsOut1) ->
-                                                 (case (({-# LINE 244 "src-ag/Desugar.ag" #-}
-                                                         Map.singleton con_ _augmentsOut1
-                                                         {-# LINE 2143 "src-ag/Desugar.hs" #-}
+                                (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                        _lhsIsynMap
+                                        {-# LINE 2327 "src-ag/Desugar.hs" #-}
+                                        )) of
+                                 { !_childrenOsynMap ->
+                                 (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                         _lhsIoptions
+                                         {-# LINE 2332 "src-ag/Desugar.hs" #-}
+                                         )) of
+                                  { !_childrenOoptions ->
+                                  (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                          _lhsImainName
+                                          {-# LINE 2337 "src-ag/Desugar.hs" #-}
+                                          )) of
+                                   { !_childrenOmainName ->
+                                   (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                           _lhsIinhMap
+                                           {-# LINE 2342 "src-ag/Desugar.hs" #-}
+                                           )) of
+                                    { !_childrenOinhMap ->
+                                    (case (children_ _childrenOinhMap _childrenOmainName _childrenOoptions _childrenOsynMap ) of
+                                     { ( !_childrenIchildInhs,!_childrenIchildSyns,!_childrenIoutput) ->
+                                         (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
+                                                 _childrenIchildSyns
+                                                 {-# LINE 2349 "src-ag/Desugar.hs" #-}
+                                                 )) of
+                                          { !_rulesOchildSyns ->
+                                          (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
+                                                  _childrenIchildInhs
+                                                  {-# LINE 2354 "src-ag/Desugar.hs" #-}
+                                                  )) of
+                                           { !_rulesOchildInhs ->
+                                           (case (({-# LINE 188 "src-ag/Desugar.ag" #-}
+                                                   _rulesIdefsCollect
+                                                   {-# LINE 2359 "src-ag/Desugar.hs" #-}
+                                                   )) of
+                                            { !_rulesOdefs ->
+                                            (case (rules_1 _rulesOchildInhs _rulesOchildSyns _rulesOcon _rulesOdefs _rulesOforcedIrrefutables _rulesOnt _rulesOoptions ) of
+                                             { ( !_rulesIallAttributes,!_rulesIerrors,!_rulesIoutput) ->
+                                                 (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                                         _rulesIallAttributes
+                                                         {-# LINE 2366 "src-ag/Desugar.hs" #-}
                                                          )) of
-                                                  { !_augmentsOut ->
-                                                  (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
-                                                          _augmentsOut
-                                                          {-# LINE 2148 "src-ag/Desugar.hs" #-}
+                                                  { !_lhsOallAttributes ->
+                                                  (case (({-# LINE 244 "src-ag/Desugar.ag" #-}
+                                                          Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
+                                                          {-# LINE 2371 "src-ag/Desugar.hs" #-}
                                                           )) of
-                                                   { !_lhsOaugmentsOut ->
-                                                   (case (({-# LINE 246 "src-ag/Desugar.ag" #-}
-                                                           __tup3
-                                                           {-# LINE 2153 "src-ag/Desugar.hs" #-}
+                                                   { !_augmentsIn ->
+                                                   (case (({-# LINE 247 "src-ag/Desugar.ag" #-}
+                                                           Map.mapAccum (desugarExprs _lhsIoptions _lhsInt con_ _childrenIchildInhs _childrenIchildSyns) Seq.empty _augmentsIn
+                                                           {-# LINE 2376 "src-ag/Desugar.hs" #-}
                                                            )) of
-                                                    { !(!_augmentErrs,_) ->
-                                                    (case (({-# LINE 282 "src-ag/Desugar.ag" #-}
-                                                            _rulesIerrors Seq.>< _augmentErrs
-                                                            {-# LINE 2158 "src-ag/Desugar.hs" #-}
+                                                    { !__tup3 ->
+                                                    (case (({-# LINE 247 "src-ag/Desugar.ag" #-}
+                                                            __tup3
+                                                            {-# LINE 2381 "src-ag/Desugar.hs" #-}
                                                             )) of
-                                                     { !_lhsOerrors ->
-                                                     (case (typeSigs_ ) of
-                                                      { ( !_typeSigsIoutput) ->
-                                                          (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                                  Production con_ _childrenIoutput _rulesIoutput _typeSigsIoutput
-                                                                  {-# LINE 2165 "src-ag/Desugar.hs" #-}
-                                                                  )) of
-                                                           { !_output ->
-                                                           (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                                   _output
-                                                                   {-# LINE 2170 "src-ag/Desugar.hs" #-}
-                                                                   )) of
-                                                            { !_lhsOoutput ->
-                                                            ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+                                                     { !(_,!_augmentsOut1) ->
+                                                     (case (({-# LINE 245 "src-ag/Desugar.ag" #-}
+                                                             Map.singleton con_ _augmentsOut1
+                                                             {-# LINE 2386 "src-ag/Desugar.hs" #-}
+                                                             )) of
+                                                      { !_augmentsOut ->
+                                                      (case (({-# LINE 231 "src-ag/Desugar.ag" #-}
+                                                              _augmentsOut
+                                                              {-# LINE 2391 "src-ag/Desugar.hs" #-}
+                                                              )) of
+                                                       { !_lhsOaugmentsOut ->
+                                                       (case (({-# LINE 247 "src-ag/Desugar.ag" #-}
+                                                               __tup3
+                                                               {-# LINE 2396 "src-ag/Desugar.hs" #-}
+                                                               )) of
+                                                        { !(!_augmentErrs,_) ->
+                                                        (case (({-# LINE 283 "src-ag/Desugar.ag" #-}
+                                                                _rulesIerrors Seq.>< _augmentErrs
+                                                                {-# LINE 2401 "src-ag/Desugar.hs" #-}
+                                                                )) of
+                                                         { !_lhsOerrors ->
+                                                         (case (typeSigs_ ) of
+                                                          { ( !_typeSigsIoutput) ->
+                                                              (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                      Production con_ params_ constraints_ _childrenIoutput _rulesIoutput _typeSigsIoutput macro_
+                                                                      {-# LINE 2408 "src-ag/Desugar.hs" #-}
+                                                                      )) of
+                                                               { !_output ->
+                                                               (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                       _output
+                                                                       {-# LINE 2413 "src-ag/Desugar.hs" #-}
+                                                                       )) of
+                                                                { !_lhsOoutput ->
+                                                                ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
 -- Productions -------------------------------------------------
 {-
    visit 0:
       inherited attributes:
          augmentsIn           : Map ConstructorIdent (Map Identifier [Expression])
          forcedIrrefutables   : AttrMap
+         inhMap               : Map Identifier Attributes
+         mainName             : String
          nt                   : NontermIdent
          options              : Options
+         synMap               : Map Identifier Attributes
       synthesized attributes:
          allAttributes        : AttrMap
          augmentsOut          : Map ConstructorIdent (Map Identifier [Expression])
@@ -2201,16 +2447,19 @@ sem_Productions !list  =
 -- semantic domain
 newtype T_Productions  = T_Productions ((Map ConstructorIdent (Map Identifier [Expression])) ->
                                         AttrMap ->
+                                        (Map Identifier Attributes) ->
+                                        String ->
                                         NontermIdent ->
                                         Options ->
+                                        (Map Identifier Attributes) ->
                                         ( AttrMap,(Map ConstructorIdent (Map Identifier [Expression])),(Seq Error),Productions ))
-data Inh_Productions  = Inh_Productions {augmentsIn_Inh_Productions :: !((Map ConstructorIdent (Map Identifier [Expression]))),forcedIrrefutables_Inh_Productions :: !(AttrMap),nt_Inh_Productions :: !(NontermIdent),options_Inh_Productions :: !(Options)}
+data Inh_Productions  = Inh_Productions {augmentsIn_Inh_Productions :: !((Map ConstructorIdent (Map Identifier [Expression]))),forcedIrrefutables_Inh_Productions :: !(AttrMap),inhMap_Inh_Productions :: !((Map Identifier Attributes)),mainName_Inh_Productions :: !(String),nt_Inh_Productions :: !(NontermIdent),options_Inh_Productions :: !(Options),synMap_Inh_Productions :: !((Map Identifier Attributes))}
 data Syn_Productions  = Syn_Productions {allAttributes_Syn_Productions :: !(AttrMap),augmentsOut_Syn_Productions :: !((Map ConstructorIdent (Map Identifier [Expression]))),errors_Syn_Productions :: !((Seq Error)),output_Syn_Productions :: !(Productions )}
 wrap_Productions :: T_Productions  ->
                     Inh_Productions  ->
                     Syn_Productions 
-wrap_Productions !(T_Productions sem ) !(Inh_Productions _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsInt _lhsIoptions )  =
-    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsInt _lhsIoptions 
+wrap_Productions !(T_Productions sem ) !(Inh_Productions _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap )  =
+    (let ( !_lhsOallAttributes,!_lhsOaugmentsOut,!_lhsOerrors,!_lhsOoutput) = sem _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap 
      in  (Syn_Productions _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput ))
 sem_Productions_Cons :: T_Production  ->
                         T_Productions  ->
@@ -2218,107 +2467,143 @@ sem_Productions_Cons :: T_Production  ->
 sem_Productions_Cons !(T_Production hd_ ) !(T_Productions tl_ )  =
     (T_Productions (\ (!_lhsIaugmentsIn)
                       (!_lhsIforcedIrrefutables)
+                      (!_lhsIinhMap)
+                      (!_lhsImainName)
                       (!_lhsInt)
-                      (!_lhsIoptions) ->
-                        (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                      (!_lhsIoptions)
+                      (!_lhsIsynMap) ->
+                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                 _lhsInt
-                                {-# LINE 2226 "src-ag/Desugar.hs" #-}
+                                {-# LINE 2478 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_tlOnt ->
-                         (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                  _lhsInt
-                                 {-# LINE 2231 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 2483 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !_hdOnt ->
-                          (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                                  _lhsIoptions
-                                  {-# LINE 2236 "src-ag/Desugar.hs" #-}
+                          (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                  _lhsIsynMap
+                                  {-# LINE 2488 "src-ag/Desugar.hs" #-}
                                   )) of
-                           { !_tlOoptions ->
-                           (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                   _lhsIforcedIrrefutables
-                                   {-# LINE 2241 "src-ag/Desugar.hs" #-}
+                           { !_tlOsynMap ->
+                           (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                   _lhsIoptions
+                                   {-# LINE 2493 "src-ag/Desugar.hs" #-}
                                    )) of
-                            { !_tlOforcedIrrefutables ->
-                            (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
-                                    _lhsIaugmentsIn
-                                    {-# LINE 2246 "src-ag/Desugar.hs" #-}
+                            { !_tlOoptions ->
+                            (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                    _lhsImainName
+                                    {-# LINE 2498 "src-ag/Desugar.hs" #-}
                                     )) of
-                             { !_tlOaugmentsIn ->
-                             (case (tl_ _tlOaugmentsIn _tlOforcedIrrefutables _tlOnt _tlOoptions ) of
-                              { ( !_tlIallAttributes,!_tlIaugmentsOut,!_tlIerrors,!_tlIoutput) ->
-                                  (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
-                                          _lhsIoptions
-                                          {-# LINE 2253 "src-ag/Desugar.hs" #-}
-                                          )) of
-                                   { !_hdOoptions ->
-                                   (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
-                                           _lhsIforcedIrrefutables
-                                           {-# LINE 2258 "src-ag/Desugar.hs" #-}
-                                           )) of
-                                    { !_hdOforcedIrrefutables ->
-                                    (case (({-# LINE 229 "src-ag/Desugar.ag" #-}
-                                            _lhsIaugmentsIn
-                                            {-# LINE 2263 "src-ag/Desugar.hs" #-}
-                                            )) of
-                                     { !_hdOaugmentsIn ->
-                                     (case (hd_ _hdOaugmentsIn _hdOforcedIrrefutables _hdOnt _hdOoptions ) of
-                                      { ( !_hdIallAttributes,!_hdIaugmentsOut,!_hdIerrors,!_hdIoutput) ->
-                                          (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
-                                                  _hdIallAttributes `mergeAttributes` _tlIallAttributes
-                                                  {-# LINE 2270 "src-ag/Desugar.hs" #-}
+                             { !_tlOmainName ->
+                             (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                     _lhsIinhMap
+                                     {-# LINE 2503 "src-ag/Desugar.hs" #-}
+                                     )) of
+                              { !_tlOinhMap ->
+                              (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                      _lhsIforcedIrrefutables
+                                      {-# LINE 2508 "src-ag/Desugar.hs" #-}
+                                      )) of
+                               { !_tlOforcedIrrefutables ->
+                               (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
+                                       _lhsIaugmentsIn
+                                       {-# LINE 2513 "src-ag/Desugar.hs" #-}
+                                       )) of
+                                { !_tlOaugmentsIn ->
+                                (case (tl_ _tlOaugmentsIn _tlOforcedIrrefutables _tlOinhMap _tlOmainName _tlOnt _tlOoptions _tlOsynMap ) of
+                                 { ( !_tlIallAttributes,!_tlIaugmentsOut,!_tlIerrors,!_tlIoutput) ->
+                                     (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                             _lhsIsynMap
+                                             {-# LINE 2520 "src-ag/Desugar.hs" #-}
+                                             )) of
+                                      { !_hdOsynMap ->
+                                      (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
+                                              _lhsIoptions
+                                              {-# LINE 2525 "src-ag/Desugar.hs" #-}
+                                              )) of
+                                       { !_hdOoptions ->
+                                       (case (({-# LINE 289 "src-ag/Desugar.ag" #-}
+                                               _lhsImainName
+                                               {-# LINE 2530 "src-ag/Desugar.hs" #-}
+                                               )) of
+                                        { !_hdOmainName ->
+                                        (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
+                                                _lhsIinhMap
+                                                {-# LINE 2535 "src-ag/Desugar.hs" #-}
+                                                )) of
+                                         { !_hdOinhMap ->
+                                         (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
+                                                 _lhsIforcedIrrefutables
+                                                 {-# LINE 2540 "src-ag/Desugar.hs" #-}
+                                                 )) of
+                                          { !_hdOforcedIrrefutables ->
+                                          (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
+                                                  _lhsIaugmentsIn
+                                                  {-# LINE 2545 "src-ag/Desugar.hs" #-}
                                                   )) of
-                                           { !_lhsOallAttributes ->
-                                           (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
-                                                   _hdIaugmentsOut `Map.union` _tlIaugmentsOut
-                                                   {-# LINE 2275 "src-ag/Desugar.hs" #-}
-                                                   )) of
-                                            { !_lhsOaugmentsOut ->
-                                            (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
-                                                    _hdIerrors Seq.>< _tlIerrors
-                                                    {-# LINE 2280 "src-ag/Desugar.hs" #-}
-                                                    )) of
-                                             { !_lhsOerrors ->
-                                             (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                     (:) _hdIoutput _tlIoutput
-                                                     {-# LINE 2285 "src-ag/Desugar.hs" #-}
-                                                     )) of
-                                              { !_output ->
-                                              (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                      _output
-                                                      {-# LINE 2290 "src-ag/Desugar.hs" #-}
-                                                      )) of
-                                               { !_lhsOoutput ->
-                                               ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
+                                           { !_hdOaugmentsIn ->
+                                           (case (hd_ _hdOaugmentsIn _hdOforcedIrrefutables _hdOinhMap _hdOmainName _hdOnt _hdOoptions _hdOsynMap ) of
+                                            { ( !_hdIallAttributes,!_hdIaugmentsOut,!_hdIerrors,!_hdIoutput) ->
+                                                (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
+                                                        _hdIallAttributes `mergeAttributes` _tlIallAttributes
+                                                        {-# LINE 2552 "src-ag/Desugar.hs" #-}
+                                                        )) of
+                                                 { !_lhsOallAttributes ->
+                                                 (case (({-# LINE 231 "src-ag/Desugar.ag" #-}
+                                                         _hdIaugmentsOut `Map.union` _tlIaugmentsOut
+                                                         {-# LINE 2557 "src-ag/Desugar.hs" #-}
+                                                         )) of
+                                                  { !_lhsOaugmentsOut ->
+                                                  (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
+                                                          _hdIerrors Seq.>< _tlIerrors
+                                                          {-# LINE 2562 "src-ag/Desugar.hs" #-}
+                                                          )) of
+                                                   { !_lhsOerrors ->
+                                                   (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                           (:) _hdIoutput _tlIoutput
+                                                           {-# LINE 2567 "src-ag/Desugar.hs" #-}
+                                                           )) of
+                                                    { !_output ->
+                                                    (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                            _output
+                                                            {-# LINE 2572 "src-ag/Desugar.hs" #-}
+                                                            )) of
+                                                     { !_lhsOoutput ->
+                                                     ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
 sem_Productions_Nil :: T_Productions 
 sem_Productions_Nil  =
     (T_Productions (\ (!_lhsIaugmentsIn)
                       (!_lhsIforcedIrrefutables)
+                      (!_lhsIinhMap)
+                      (!_lhsImainName)
                       (!_lhsInt)
-                      (!_lhsIoptions) ->
-                        (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                      (!_lhsIoptions)
+                      (!_lhsIsynMap) ->
+                        (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                 Map.empty
-                                {-# LINE 2302 "src-ag/Desugar.hs" #-}
+                                {-# LINE 2587 "src-ag/Desugar.hs" #-}
                                 )) of
                          { !_lhsOallAttributes ->
-                         (case (({-# LINE 230 "src-ag/Desugar.ag" #-}
+                         (case (({-# LINE 231 "src-ag/Desugar.ag" #-}
                                  Map.empty
-                                 {-# LINE 2307 "src-ag/Desugar.hs" #-}
+                                 {-# LINE 2592 "src-ag/Desugar.hs" #-}
                                  )) of
                           { !_lhsOaugmentsOut ->
-                          (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                   Seq.empty
-                                  {-# LINE 2312 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 2597 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_lhsOerrors ->
-                           (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                           (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                    []
-                                   {-# LINE 2317 "src-ag/Desugar.hs" #-}
+                                   {-# LINE 2602 "src-ag/Desugar.hs" #-}
                                    )) of
                             { !_output ->
-                            (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                            (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                     _output
-                                    {-# LINE 2322 "src-ag/Desugar.hs" #-}
+                                    {-# LINE 2607 "src-ag/Desugar.hs" #-}
                                     )) of
                              { !_lhsOoutput ->
                              ( _lhsOallAttributes,_lhsOaugmentsOut,_lhsOerrors,_lhsOoutput) }) }) }) }) })) )
@@ -2348,6 +2633,10 @@ sem_Productions_Nil  =
          child owrt           : {Bool}
          child origin         : {String}
          child explicit       : {Bool}
+         child pure           : {Bool}
+         child identity       : {Bool}
+         child mbError        : {Maybe Error}
+         child eager          : {Bool}
          visit 1:
             local ruleDescr   : _
             local output      : _
@@ -2355,8 +2644,8 @@ sem_Productions_Nil  =
 -- cata
 sem_Rule :: Rule  ->
             T_Rule 
-sem_Rule !(Rule _mbName _pattern _rhs _owrt _origin _explicit )  =
-    (sem_Rule_Rule _mbName (sem_Pattern _pattern ) (sem_Expression _rhs ) _owrt _origin _explicit )
+sem_Rule !(Rule _mbName _pattern _rhs _owrt _origin _explicit _pure _identity _mbError _eager )  =
+    (sem_Rule_Rule _mbName (sem_Pattern _pattern ) (sem_Expression _rhs ) _owrt _origin _explicit _pure _identity _mbError _eager )
 -- semantic domain
 newtype T_Rule  = T_Rule (( (Set (Identifier, Identifier)),T_Rule_1 ))
 newtype T_Rule_1  = T_Rule_1 (([(Identifier, Identifier)]) ->
@@ -2382,13 +2671,17 @@ sem_Rule_Rule :: (Maybe Identifier) ->
                  Bool ->
                  String ->
                  Bool ->
+                 Bool ->
+                 Bool ->
+                 (Maybe Error) ->
+                 Bool ->
                  T_Rule 
-sem_Rule_Rule !mbName_ !(T_Pattern pattern_ ) !(T_Expression rhs_ ) !owrt_ !origin_ !explicit_  =
+sem_Rule_Rule !mbName_ !(T_Pattern pattern_ ) !(T_Expression rhs_ ) !owrt_ !origin_ !explicit_ !pure_ !identity_ !mbError_ !eager_  =
     (T_Rule (case (pattern_ ) of
              { ( !_patternIdefsCollect,!T_Pattern_1 pattern_1) ->
-                 (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                 (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                          _patternIdefsCollect
-                         {-# LINE 2392 "src-ag/Desugar.hs" #-}
+                         {-# LINE 2685 "src-ag/Desugar.hs" #-}
                          )) of
                   { !_lhsOdefsCollect ->
                   (case ((let sem_Rule_Rule_1 :: T_Rule_1 
@@ -2400,93 +2693,93 @@ sem_Rule_Rule !mbName_ !(T_Pattern pattern_ ) !(T_Expression rhs_ ) !owrt_ !orig
                                                (!_lhsIforcedIrrefutables)
                                                (!_lhsInt)
                                                (!_lhsIoptions) ->
-                                                 (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                 (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                          _lhsInt
-                                                         {-# LINE 2406 "src-ag/Desugar.hs" #-}
+                                                         {-# LINE 2699 "src-ag/Desugar.hs" #-}
                                                          )) of
                                                   { !_patternOnt ->
-                                                  (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                  (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                           _lhsIcon
-                                                          {-# LINE 2411 "src-ag/Desugar.hs" #-}
+                                                          {-# LINE 2704 "src-ag/Desugar.hs" #-}
                                                           )) of
                                                    { !_patternOcon ->
-                                                   (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                   (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                            _lhsIforcedIrrefutables
-                                                           {-# LINE 2416 "src-ag/Desugar.hs" #-}
+                                                           {-# LINE 2709 "src-ag/Desugar.hs" #-}
                                                            )) of
                                                     { !_patternOforcedIrrefutables ->
-                                                    (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                    (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                             _lhsIdefs
-                                                            {-# LINE 2421 "src-ag/Desugar.hs" #-}
+                                                            {-# LINE 2714 "src-ag/Desugar.hs" #-}
                                                             )) of
                                                      { !_patternOdefs ->
-                                                     (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                     (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                              _lhsIchildSyns
-                                                             {-# LINE 2426 "src-ag/Desugar.hs" #-}
+                                                             {-# LINE 2719 "src-ag/Desugar.hs" #-}
                                                              )) of
                                                       { !_patternOchildSyns ->
-                                                      (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                      (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                               _lhsIchildInhs
-                                                              {-# LINE 2431 "src-ag/Desugar.hs" #-}
+                                                              {-# LINE 2724 "src-ag/Desugar.hs" #-}
                                                               )) of
                                                        { !_patternOchildInhs ->
                                                        (case (pattern_1 _patternOchildInhs _patternOchildSyns _patternOcon _patternOdefs _patternOforcedIrrefutables _patternOnt ) of
                                                         { ( !_patternIallAttributes,!_patternIcopy,!_patternIerrors,!_patternIoutput) ->
-                                                            (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                            (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                                     _patternIallAttributes
-                                                                    {-# LINE 2438 "src-ag/Desugar.hs" #-}
+                                                                    {-# LINE 2731 "src-ag/Desugar.hs" #-}
                                                                     )) of
                                                              { !_lhsOallAttributes ->
-                                                             (case (({-# LINE 171 "src-ag/Desugar.ag" #-}
+                                                             (case (({-# LINE 172 "src-ag/Desugar.ag" #-}
                                                                      show _lhsInt ++ " :: " ++ show _lhsIcon ++ " :: " ++ (concat $ intersperse "," $ map (\(f,a) -> show f ++ "." ++ show a) $ Set.toList _patternIdefsCollect)
-                                                                     {-# LINE 2443 "src-ag/Desugar.hs" #-}
+                                                                     {-# LINE 2736 "src-ag/Desugar.hs" #-}
                                                                      )) of
                                                               { !_ruleDescr ->
-                                                              (case (({-# LINE 167 "src-ag/Desugar.ag" #-}
+                                                              (case (({-# LINE 168 "src-ag/Desugar.ag" #-}
                                                                       _ruleDescr
-                                                                      {-# LINE 2448 "src-ag/Desugar.hs" #-}
+                                                                      {-# LINE 2741 "src-ag/Desugar.hs" #-}
                                                                       )) of
                                                                { !_rhsOruleDescr ->
-                                                               (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
+                                                               (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
                                                                        _lhsIoptions
-                                                                       {-# LINE 2453 "src-ag/Desugar.hs" #-}
+                                                                       {-# LINE 2746 "src-ag/Desugar.hs" #-}
                                                                        )) of
                                                                 { !_rhsOoptions ->
-                                                                (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                                (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                         _lhsInt
-                                                                        {-# LINE 2458 "src-ag/Desugar.hs" #-}
+                                                                        {-# LINE 2751 "src-ag/Desugar.hs" #-}
                                                                         )) of
                                                                  { !_rhsOnt ->
-                                                                 (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                                 (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                          _lhsIcon
-                                                                         {-# LINE 2463 "src-ag/Desugar.hs" #-}
+                                                                         {-# LINE 2756 "src-ag/Desugar.hs" #-}
                                                                          )) of
                                                                   { !_rhsOcon ->
-                                                                  (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                  (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                           _lhsIchildSyns
-                                                                          {-# LINE 2468 "src-ag/Desugar.hs" #-}
+                                                                          {-# LINE 2761 "src-ag/Desugar.hs" #-}
                                                                           )) of
                                                                    { !_rhsOchildSyns ->
-                                                                   (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                   (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                            _lhsIchildInhs
-                                                                           {-# LINE 2473 "src-ag/Desugar.hs" #-}
+                                                                           {-# LINE 2766 "src-ag/Desugar.hs" #-}
                                                                            )) of
                                                                     { !_rhsOchildInhs ->
                                                                     (case (rhs_ _rhsOchildInhs _rhsOchildSyns _rhsOcon _rhsOnt _rhsOoptions _rhsOruleDescr ) of
                                                                      { ( !_rhsIerrors,!_rhsIoutput) ->
-                                                                         (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                         (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                                  _patternIerrors Seq.>< _rhsIerrors
-                                                                                 {-# LINE 2480 "src-ag/Desugar.hs" #-}
+                                                                                 {-# LINE 2773 "src-ag/Desugar.hs" #-}
                                                                                  )) of
                                                                           { !_lhsOerrors ->
-                                                                          (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
-                                                                                  Rule mbName_ _patternIoutput _rhsIoutput owrt_ origin_ explicit_
-                                                                                  {-# LINE 2485 "src-ag/Desugar.hs" #-}
+                                                                          (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
+                                                                                  Rule mbName_ _patternIoutput _rhsIoutput owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
+                                                                                  {-# LINE 2778 "src-ag/Desugar.hs" #-}
                                                                                   )) of
                                                                            { !_output ->
-                                                                           (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                           (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                    _output
-                                                                                   {-# LINE 2490 "src-ag/Desugar.hs" #-}
+                                                                                   {-# LINE 2783 "src-ag/Desugar.hs" #-}
                                                                                    )) of
                                                                             { !_lhsOoutput ->
                                                                             ( _lhsOallAttributes,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -2553,9 +2846,9 @@ sem_Rules_Cons !(T_Rule hd_ ) !(T_Rules tl_ )  =
               { ( !_tlIdefsCollect,!T_Rules_1 tl_1) ->
                   (case (hd_ ) of
                    { ( !_hdIdefsCollect,!T_Rule_1 hd_1) ->
-                       (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+                       (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                                _hdIdefsCollect `Set.union` _tlIdefsCollect
-                               {-# LINE 2559 "src-ag/Desugar.hs" #-}
+                               {-# LINE 2852 "src-ag/Desugar.hs" #-}
                                )) of
                         { !_lhsOdefsCollect ->
                         (case ((let sem_Rules_Cons_1 :: T_Rules_1 
@@ -2567,98 +2860,98 @@ sem_Rules_Cons !(T_Rule hd_ ) !(T_Rules tl_ )  =
                                                       (!_lhsIforcedIrrefutables)
                                                       (!_lhsInt)
                                                       (!_lhsIoptions) ->
-                                                        (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                        (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                 _lhsInt
-                                                                {-# LINE 2573 "src-ag/Desugar.hs" #-}
+                                                                {-# LINE 2866 "src-ag/Desugar.hs" #-}
                                                                 )) of
                                                          { !_tlOnt ->
-                                                         (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                         (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                  _lhsIcon
-                                                                 {-# LINE 2578 "src-ag/Desugar.hs" #-}
+                                                                 {-# LINE 2871 "src-ag/Desugar.hs" #-}
                                                                  )) of
                                                           { !_tlOcon ->
-                                                          (case (({-# LINE 151 "src-ag/Desugar.ag" #-}
+                                                          (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
                                                                   _lhsInt
-                                                                  {-# LINE 2583 "src-ag/Desugar.hs" #-}
+                                                                  {-# LINE 2876 "src-ag/Desugar.hs" #-}
                                                                   )) of
                                                            { !_hdOnt ->
-                                                           (case (({-# LINE 152 "src-ag/Desugar.ag" #-}
+                                                           (case (({-# LINE 153 "src-ag/Desugar.ag" #-}
                                                                    _lhsIcon
-                                                                   {-# LINE 2588 "src-ag/Desugar.hs" #-}
+                                                                   {-# LINE 2881 "src-ag/Desugar.hs" #-}
                                                                    )) of
                                                             { !_hdOcon ->
-                                                            (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
+                                                            (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
                                                                     _lhsIoptions
-                                                                    {-# LINE 2593 "src-ag/Desugar.hs" #-}
+                                                                    {-# LINE 2886 "src-ag/Desugar.hs" #-}
                                                                     )) of
                                                              { !_tlOoptions ->
-                                                             (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                             (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                      _lhsIforcedIrrefutables
-                                                                     {-# LINE 2598 "src-ag/Desugar.hs" #-}
+                                                                     {-# LINE 2891 "src-ag/Desugar.hs" #-}
                                                                      )) of
                                                               { !_tlOforcedIrrefutables ->
-                                                              (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                              (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                       _lhsIdefs
-                                                                      {-# LINE 2603 "src-ag/Desugar.hs" #-}
+                                                                      {-# LINE 2896 "src-ag/Desugar.hs" #-}
                                                                       )) of
                                                                { !_tlOdefs ->
-                                                               (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                               (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                        _lhsIchildSyns
-                                                                       {-# LINE 2608 "src-ag/Desugar.hs" #-}
+                                                                       {-# LINE 2901 "src-ag/Desugar.hs" #-}
                                                                        )) of
                                                                 { !_tlOchildSyns ->
-                                                                (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                         _lhsIchildInhs
-                                                                        {-# LINE 2613 "src-ag/Desugar.hs" #-}
+                                                                        {-# LINE 2906 "src-ag/Desugar.hs" #-}
                                                                         )) of
                                                                  { !_tlOchildInhs ->
                                                                  (case (tl_1 _tlOchildInhs _tlOchildSyns _tlOcon _tlOdefs _tlOforcedIrrefutables _tlOnt _tlOoptions ) of
                                                                   { ( !_tlIallAttributes,!_tlIerrors,!_tlIoutput) ->
-                                                                      (case (({-# LINE 35 "src-ag/Desugar.ag" #-}
+                                                                      (case (({-# LINE 36 "src-ag/Desugar.ag" #-}
                                                                               _lhsIoptions
-                                                                              {-# LINE 2620 "src-ag/Desugar.hs" #-}
+                                                                              {-# LINE 2913 "src-ag/Desugar.hs" #-}
                                                                               )) of
                                                                        { !_hdOoptions ->
-                                                                       (case (({-# LINE 214 "src-ag/Desugar.ag" #-}
+                                                                       (case (({-# LINE 215 "src-ag/Desugar.ag" #-}
                                                                                _lhsIforcedIrrefutables
-                                                                               {-# LINE 2625 "src-ag/Desugar.hs" #-}
+                                                                               {-# LINE 2918 "src-ag/Desugar.hs" #-}
                                                                                )) of
                                                                         { !_hdOforcedIrrefutables ->
-                                                                        (case (({-# LINE 184 "src-ag/Desugar.ag" #-}
+                                                                        (case (({-# LINE 185 "src-ag/Desugar.ag" #-}
                                                                                 _lhsIdefs
-                                                                                {-# LINE 2630 "src-ag/Desugar.hs" #-}
+                                                                                {-# LINE 2923 "src-ag/Desugar.hs" #-}
                                                                                 )) of
                                                                          { !_hdOdefs ->
-                                                                         (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                         (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                                  _lhsIchildSyns
-                                                                                 {-# LINE 2635 "src-ag/Desugar.hs" #-}
+                                                                                 {-# LINE 2928 "src-ag/Desugar.hs" #-}
                                                                                  )) of
                                                                           { !_hdOchildSyns ->
-                                                                          (case (({-# LINE 125 "src-ag/Desugar.ag" #-}
+                                                                          (case (({-# LINE 126 "src-ag/Desugar.ag" #-}
                                                                                   _lhsIchildInhs
-                                                                                  {-# LINE 2640 "src-ag/Desugar.hs" #-}
+                                                                                  {-# LINE 2933 "src-ag/Desugar.hs" #-}
                                                                                   )) of
                                                                            { !_hdOchildInhs ->
                                                                            (case (hd_1 _hdOchildInhs _hdOchildSyns _hdOcon _hdOdefs _hdOforcedIrrefutables _hdOnt _hdOoptions ) of
                                                                             { ( !_hdIallAttributes,!_hdIerrors,!_hdIoutput) ->
-                                                                                (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                                                                (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                                                         _hdIallAttributes `mergeAttributes` _tlIallAttributes
-                                                                                        {-# LINE 2647 "src-ag/Desugar.hs" #-}
+                                                                                        {-# LINE 2940 "src-ag/Desugar.hs" #-}
                                                                                         )) of
                                                                                  { !_lhsOallAttributes ->
-                                                                                 (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                                                                 (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                                                          _hdIerrors Seq.>< _tlIerrors
-                                                                                         {-# LINE 2652 "src-ag/Desugar.hs" #-}
+                                                                                         {-# LINE 2945 "src-ag/Desugar.hs" #-}
                                                                                          )) of
                                                                                   { !_lhsOerrors ->
-                                                                                  (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                                  (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                           (:) _hdIoutput _tlIoutput
-                                                                                          {-# LINE 2657 "src-ag/Desugar.hs" #-}
+                                                                                          {-# LINE 2950 "src-ag/Desugar.hs" #-}
                                                                                           )) of
                                                                                    { !_output ->
-                                                                                   (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                                                   (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                                                            _output
-                                                                                           {-# LINE 2662 "src-ag/Desugar.hs" #-}
+                                                                                           {-# LINE 2955 "src-ag/Desugar.hs" #-}
                                                                                            )) of
                                                                                     { !_lhsOoutput ->
                                                                                     ( _lhsOallAttributes,_lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })) )
@@ -2667,9 +2960,9 @@ sem_Rules_Cons !(T_Rule hd_ ) !(T_Rules tl_ )  =
                          ( _lhsOdefsCollect,sem_Rules_1) }) }) }) }) )
 sem_Rules_Nil :: T_Rules 
 sem_Rules_Nil  =
-    (T_Rules (case (({-# LINE 178 "src-ag/Desugar.ag" #-}
+    (T_Rules (case (({-# LINE 179 "src-ag/Desugar.ag" #-}
                      Set.empty
-                     {-# LINE 2673 "src-ag/Desugar.hs" #-}
+                     {-# LINE 2966 "src-ag/Desugar.hs" #-}
                      )) of
               { !_lhsOdefsCollect ->
               (case ((let sem_Rules_Nil_1 :: T_Rules_1 
@@ -2681,24 +2974,24 @@ sem_Rules_Nil  =
                                             (!_lhsIforcedIrrefutables)
                                             (!_lhsInt)
                                             (!_lhsIoptions) ->
-                                              (case (({-# LINE 195 "src-ag/Desugar.ag" #-}
+                                              (case (({-# LINE 196 "src-ag/Desugar.ag" #-}
                                                       Map.empty
-                                                      {-# LINE 2687 "src-ag/Desugar.hs" #-}
+                                                      {-# LINE 2980 "src-ag/Desugar.hs" #-}
                                                       )) of
                                                { !_lhsOallAttributes ->
-                                               (case (({-# LINE 37 "src-ag/Desugar.ag" #-}
+                                               (case (({-# LINE 38 "src-ag/Desugar.ag" #-}
                                                        Seq.empty
-                                                       {-# LINE 2692 "src-ag/Desugar.hs" #-}
+                                                       {-# LINE 2985 "src-ag/Desugar.hs" #-}
                                                        )) of
                                                 { !_lhsOerrors ->
-                                                (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                         []
-                                                        {-# LINE 2697 "src-ag/Desugar.hs" #-}
+                                                        {-# LINE 2990 "src-ag/Desugar.hs" #-}
                                                         )) of
                                                  { !_output ->
-                                                 (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                                                 (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                                          _output
-                                                         {-# LINE 2702 "src-ag/Desugar.hs" #-}
+                                                         {-# LINE 2995 "src-ag/Desugar.hs" #-}
                                                          )) of
                                                   { !_lhsOoutput ->
                                                   ( _lhsOallAttributes,_lhsOerrors,_lhsOoutput) }) }) }) })) )
@@ -2736,14 +3029,14 @@ sem_TypeSig_TypeSig :: Identifier ->
                        Type ->
                        T_TypeSig 
 sem_TypeSig_TypeSig !name_ !tp_  =
-    (T_TypeSig (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+    (T_TypeSig (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                        TypeSig name_ tp_
-                       {-# LINE 2742 "src-ag/Desugar.hs" #-}
+                       {-# LINE 3035 "src-ag/Desugar.hs" #-}
                        )) of
                 { !_output ->
-                (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                         _output
-                        {-# LINE 2747 "src-ag/Desugar.hs" #-}
+                        {-# LINE 3040 "src-ag/Desugar.hs" #-}
                         )) of
                  { !_lhsOoutput ->
                  ( _lhsOoutput) }) }) )
@@ -2785,27 +3078,27 @@ sem_TypeSigs_Cons !(T_TypeSig hd_ ) !(T_TypeSigs tl_ )  =
                  { ( !_tlIoutput) ->
                      (case (hd_ ) of
                       { ( !_hdIoutput) ->
-                          (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                          (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                   (:) _hdIoutput _tlIoutput
-                                  {-# LINE 2791 "src-ag/Desugar.hs" #-}
+                                  {-# LINE 3084 "src-ag/Desugar.hs" #-}
                                   )) of
                            { !_output ->
-                           (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                           (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                                    _output
-                                   {-# LINE 2796 "src-ag/Desugar.hs" #-}
+                                   {-# LINE 3089 "src-ag/Desugar.hs" #-}
                                    )) of
                             { !_lhsOoutput ->
                             ( _lhsOoutput) }) }) }) }) )
 sem_TypeSigs_Nil :: T_TypeSigs 
 sem_TypeSigs_Nil  =
-    (T_TypeSigs (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+    (T_TypeSigs (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                         []
-                        {-# LINE 2804 "src-ag/Desugar.hs" #-}
+                        {-# LINE 3097 "src-ag/Desugar.hs" #-}
                         )) of
                  { !_output ->
-                 (case (({-# LINE 39 "src-ag/Desugar.ag" #-}
+                 (case (({-# LINE 40 "src-ag/Desugar.ag" #-}
                          _output
-                         {-# LINE 2809 "src-ag/Desugar.hs" #-}
+                         {-# LINE 3102 "src-ag/Desugar.hs" #-}
                          )) of
                   { !_lhsOoutput ->
                   ( _lhsOoutput) }) }) )

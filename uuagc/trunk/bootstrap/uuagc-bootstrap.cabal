@@ -1,7 +1,7 @@
 cabal-version: >= 1.8
 build-type: Simple
 name: uuagc-bootstrap
-version: 0.9.39.1.0
+version: 0.9.39.3.0
 license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
@@ -66,6 +66,7 @@ executable uuagc-bootstrap
     , VisageSyntax
     , VisagePatterns
     , AG2AspectAG
+    , Macro
     , RhsCheck
     , ResolveLocals
     , Knuth1
