@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/Code.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/Code.ag)
 module Code where
 {-# LINE 2 "src-ag/Code.ag" #-}
 
@@ -12,7 +12,7 @@ import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
 {-# LINE 15 "dist/build/uuagc/uuagc-tmp/Code.hs" #-}
-{-# LINE 145 "src-ag/Code.ag" #-}
+{-# LINE 146 "src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -304,6 +304,7 @@ data Program  = Program (Chunks ) (Bool)
       alternative NontermType:
          child name           : {String}
          child params         : {[String]}
+         child deforested     : {Bool}
       alternative QuantApp:
          child left           : {String}
          child right          : Type 
@@ -330,7 +331,7 @@ data Program  = Program (Chunks ) (Bool)
 data Type  = Arr (Type ) (Type ) 
            | CtxApp (([(String, [String])])) (Type ) 
            | List (Type ) 
-           | NontermType (String) (([String])) 
+           | NontermType (String) (([String])) (Bool) 
            | QuantApp (String) (Type ) 
            | SimpleType (String) 
            | TEither (Type ) (Type ) 

@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.39.0.0 (src-ag/InterfacesRules.lag)
+-- UUAGC 0.9.39.1.0 (src-ag/InterfacesRules.lag)
 module InterfacesRules where
 {-# LINE 10 "src-ag/InterfacesRules.lag" #-}
 
@@ -83,7 +83,7 @@ ccv name nt n table
   =  CChildVisit name nt n inh syn last
      where  CInterface segs = Map.findWithDefault (error ("InterfacesRules::ccv::interfaces not in table for nt: " ++ show nt)) nt table
             (seg:remain) = drop n segs
-            CSegment inh syn = seg           
+            CSegment inh syn = seg
             last = null remain
 {-# LINE 89 "dist/build/uuagc/uuagc-tmp/InterfacesRules.hs" #-}
 -- IRoot -------------------------------------------------------
@@ -887,8 +887,8 @@ sem_Segment_Segment !inh_ !syn_  =
                                                                                                                                           Just _ -> id
                                                                                                                                           _      -> (v:)
                                                                                                                                  cmp (fld,attr,tp) = getField cr == fld && getAttr cr == attr && sameNT (getType cr) tp
-                                                                                                                                 sameNT (Just (NT ntA _)) (Just (NT ntB _)) = ntA == ntB
-                                                                                                                                 sameNT _          _                        = False
+                                                                                                                                 sameNT (Just (NT ntA _ _)) (Just (NT ntB _ _)) = ntA == ntB
+                                                                                                                                 sameNT _          _                            = False
                                                                                                                                  def = Map.elems (getDefines cr)
                                                                                                                             in addV (rem (def ++ prev) vs)
                                                                                                                       | otherwise = v:rem prev vs

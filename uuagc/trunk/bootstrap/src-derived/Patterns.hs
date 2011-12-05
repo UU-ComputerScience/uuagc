@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.0.0 (src-ag/Patterns.ag)
+-- UUAGC 0.9.39.1.0 (src-ag/Patterns.ag)
 module Patterns where
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
@@ -18,7 +18,6 @@ import CommonTypes (ConstructorIdent,Identifier)
          child field          : {Identifier}
          child attr           : {Identifier}
          child pat            : Pattern 
-         child parts          : Patterns 
          visit 0:
             local copy        : _
       alternative Constr:
@@ -40,7 +39,7 @@ import CommonTypes (ConstructorIdent,Identifier)
          visit 0:
             local copy        : _
 -}
-data Pattern  = Alias (Identifier) (Identifier) (Pattern ) (Patterns ) 
+data Pattern  = Alias (Identifier) (Identifier) (Pattern ) 
               | Constr (ConstructorIdent) (Patterns ) 
               | Irrefutable (Pattern ) 
               | Product (Pos) (Patterns ) 
