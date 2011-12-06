@@ -1,6 +1,7 @@
-module CommonTypes where
+module CommonTypes (module Options, module CommonTypes) where
 
 import Pretty
+import Options
 import UU.Scanner.Position(Pos,noPos)
 import qualified Data.Map as Map
 import Data.Map(Map)
@@ -17,17 +18,6 @@ data BlockKind
   | BlockMain
   | BlockOther
   deriving (Eq, Ord, Show)
-
-data Identifier = Ident { getName::String, getPos::Pos }
-
-instance Eq Identifier where
- Ident x _ == Ident y _ = x == y
-
-instance Ord Identifier where
- compare (Ident x _) (Ident y _) = compare x y
-
-instance Show Identifier where
-  show ident = getName ident
 
 instance PP Identifier where
   pp = text . getName
@@ -73,7 +63,6 @@ type ClassContext = [(Identifier, [String])]
 type ContextMap  = Map NontermIdent ClassContext
 type QuantMap    = Map NontermIdent [String]
 type Strings     = [String]
-type NontermIdent     = Identifier
 type ConstructorIdent = Identifier
 type AttrOrderMap = Map NontermIdent (Map ConstructorIdent (Set Dependency))
 type VisitIdentifier = Int
@@ -88,7 +77,6 @@ type AttrEnv = ( [Identifier]
                , [(Identifier,Identifier)]
                )
 
-identifier x   = Ident x noPos
 nullIdent = identifier ""
 _LHS   = identifier "lhs"
 _SELF  = identifier "SELF"

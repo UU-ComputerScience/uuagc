@@ -5,7 +5,7 @@
 
 echo "updating src-derived with ../dist/build/uuagc/uuagc-tmp/*.hs"
 
-cp -f ../dist/build/uuagc/uuagc-tmp/*.hs src-derived/
+cp -f ../dist/build/*.hs src-derived/
 
 echo "src-derived updated."
 echo "this is the SVN status on src-derived:"

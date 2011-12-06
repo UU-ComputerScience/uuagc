@@ -10,7 +10,7 @@ import Data.Maybe
 import Data.List
 import Data.Char
 import UU.Scanner.GenToken
-import Options
+import Options (Options (..))
 
 data Input = Input !Pos String (Maybe (Token, Input))
 

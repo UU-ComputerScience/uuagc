@@ -1,4 +1,4 @@
-module Main where
+module Ag (uuagcLib, uuagcExe) where
 
 import System.Environment            (getArgs, getProgName)
 import System.Exit                   (exitFailure)
@@ -44,9 +44,28 @@ import ErrorMessages (Error(ParserError), Errors)
 import CommonTypes
 import ATermWrite
 
+-- Library version
+import System.Exit (ExitCode(..))
 
-main :: IO ()
-main
+uuagcLib :: [String] -> FilePath -> IO (ExitCode, [FilePath])
+uuagcLib args file
+  = do let (flags,_,errs) = getOptions args
+       if showVersion flags || showHelp flags 
+         then do putStrLn "Cannot display help or version in library mode."
+                 return (ExitFailure 1, [])
+         else if (not.null) errs
+              then do putStrLn "One or more errors occured:"
+                      mapM_ putStrLn errs
+                      return (ExitFailure 2, [])
+              else if genFileDeps flags
+                   then do deps <- getDeps flags [file]
+                           return (ExitSuccess, deps)
+                   else do compile flags file (head $ outputFiles flags++repeat "")
+                           return (ExitSuccess, [])
+
+-- Executable version
+uuagcExe :: IO ()
+uuagcExe
  = do args     <- getArgs
       progName <- getProgName
 
@@ -382,12 +401,17 @@ mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExport
 
 reportDeps :: Options -> [String] -> IO ()
 reportDeps flags files
+  = do deps <- getDeps flags files
+       mapM_ putStrLn deps
+
+getDeps :: Options -> [String] -> IO [String]
+getDeps flags files
   = do results <- mapM (depsAG flags (searchPath flags)) files
        let (fs, mesgs) = foldr combine ([],[]) results
        let errs = take (min 1 (wmaxerrs flags)) (map message2error mesgs)
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags, PrErr.dups_Inh_Errors = []}
        if null errs
-        then mapM_ putStrLn fs
+        then return fs
         else do putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
                 exitFailure
   where
