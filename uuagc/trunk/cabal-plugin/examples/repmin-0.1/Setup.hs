@@ -1,6 +1,7 @@
 module Main where
 
 import Distribution.Simple
-import Distribution.Simple.UUAGC
+import Distribution.Simple.UUAGC (uuagcLibUserHook)
+import UU.UUAGC (uuagc)
 
-main = defaultMainWithHooks uuagcUserHook
+main = defaultMainWithHooks (uuagcLibUserHook uuagc)
