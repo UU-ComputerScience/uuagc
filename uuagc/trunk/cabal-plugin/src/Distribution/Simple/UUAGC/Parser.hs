@@ -9,7 +9,8 @@ module Distribution.Simple.UUAGC.Parser(parserAG,
 import UU.Parsing
 import UU.Scanner
 import Distribution.Simple.UUAGC.AbsSyn
-import Distribution.Simple.UUAGC.Options
+import Options
+import System.Console.GetOpt
 import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
 import Control.Monad.Error
@@ -20,53 +21,10 @@ data ParserError = DefParserError String
 instance Error ParserError where
     strMsg x = DefParserError x
 
--- Add boolean flags to this list, which will then be handled generically.
--- Requires that this flag is also an option of uuagc (case sensitive)
-booleanFlags
-  = [ "helpinlining","dummytokenvisit","tupleasdummytoken","stateasdummytoken","strictdummytoken","noperruletypesigs"
-    , "noperstatetypesigs", "noeagerblackholing","noperrulecostcentres","nopervisitcostcentres"
-    , "noinlinepragmas","aggressiveinlinepragmas","latehigherorderbinding", "monadicwrappers"
-    ]
+uFlags :: [String]
+uFlags = concat [ filter (not . null) x | Option _ x _ _ <- options]
 
-uFlags = [odata, ostrictdata, ostrictwrap, ocatas, osemfuns, osignatures
-         ,onewtypes, opretty
-         ,owrappers, orename, omodcopy, onest, osyntaxmacro, overbose
-         ,ohelp, ocycle, oversion, ovisit, oseq, ounbox, obangpats
-         ,ocase, ostrictcase, ostrictercase, olocalcps, osplitsems
-         ,owerrors, owignore, odumpgrammar, odumpcgrammar, ogentraces
-         ,ogenusetraces, ogencostcentres, ogenlinepragmas, osepsemmods
-         ,ogenfiledeps, ogenvisage, ogenaspectag, ogenattrlist, olckeywords
-         ,odoublecolons, oself
-         ,ocheckparserhs,ocheckparsetys,ocheckparseblocks,ocheckparsehaskell
-         ,okennedywarren,oparallel] ++ booleanFlags
-
-uabsFlags = [UData, UStrictData, UStrictWData, UCatas, USemFuns, USignatures
-            ,UNewTypes, UPretty
-            ,UWrappers, URename, UModCopy, UNest, USyntaxMacro, UVerbose
-            ,UHelp, UCycle, UVersion, UVisit, USeq, UUnbox, UBangPats
-            ,UCase, UStrictCase, UStricterCase, ULocalCPS, USplitSems
-            ,UWErrors, UWIgnore, UDumpGrammar, UDumpCGrammar, UGenTraces
-            ,UGenUseTraces, UGenCostCentres, UGenLinePragmas, USepSemMods
-            ,UGenFileDeps, UGenVisage, UGenAspectAG, UGenAttrList, ULCKeyWords
-            ,UDoubleColons, USelf
-            ,UCheckParseRhs, UCheckParseTys, UCheckParseBlocks, UCheckParseHaskell
-            ,UKennedyWarren,UParallel] ++ [ UGenericBoolFlag fl | fl <- booleanFlags ]
-
-gFlags = [(oall, [odata, ocatas, osemfuns, osignatures, opretty, orename])
-         ,(ooptimize, [ovisit,ocase])
-         ,(ohaskellsyntax, [olckeywords, odoublecolons,ogenlinepragmas])
-         ]
-
-gabsFlags = [UAll, UOptimize, UHaskellSyntax]
-
-
-aFlags = [omodule, ooutput, osearch, oprefix, owmax, oforceirrefutable, ouniquedispenser, ostatistics]
-
-ugFlags = uFlags ++ (map (fst) gFlags)
-
-ugabsFlags = uabsFlags ++ gabsFlags
-
-kwtxt = uFlags ++ (map fst gFlags) ++ aFlags ++ ["file", "options", "class", "with"]
+kwtxt = uFlags ++ ["file", "options", "class", "with"]
 kwotxt = ["=",":","..","."]
 sctxt  = "..,"
 octxt = "=:.,"
@@ -74,42 +32,17 @@ octxt = "=:.,"
 posTxt :: Pos
 posTxt = Pos 0 0 ""
 
-puFlag :: UUAGCOption -> String -> Parser Token UUAGCOption
-puFlag opt sopt = opt <$ pKey sopt
+puFlag :: OptDescr (Options -> Options) -> Parser Token (Options -> Options)
+puFlag (Option _ []  _            _) = pFail
+puFlag (Option _ kws (NoArg f)    _) = pAny (\kw -> const f <$> pKey kw) kws
+puFlag (Option _ kws (ReqArg f _) _) = pAny (\kw -> f <$ pKey kw <*> pString) kws
+puFlag (Option _ kws (OptArg f _) _) = pAny (\kw -> const (f Nothing) <$> pKey kw
+                                                    <|> f . Just <$ pKey kw <*> pString) kws
 
+pugFlags :: [Parser Token (Options -> Options)]
+pugFlags = map puFlag options
 
-pugFlags :: [Parser Token UUAGCOption]
-pugFlags = zipWith puFlag ugabsFlags ugFlags
-
-pModule :: Parser Token UUAGCOption
-pModule =  UModuleDefault <$ pKey omodule
-       <|> UModule <$> (pKey omodule *> pString)
-
-pOutput :: Parser Token UUAGCOption
-pOutput = UOutput <$> (pKey ooutput *> pString)
-
-pSearch :: Parser Token UUAGCOption
-pSearch = USearchPath <$> (pKey osearch *> pString)
-
-pPrefix :: Parser Token UUAGCOption
-pPrefix = UPrefix <$> (pKey oprefix *> pString)
-
-pWmax :: Parser Token UUAGCOption
-pWmax = f <$> (pKey owmax *> pInteger)
-    where f x = UWMax (read x)
-
-pForceIrrefutable :: Parser Token UUAGCOption
-pForceIrrefutable = UForceIrrefutable <$> (pKey oforceirrefutable *> pString)
-
-pUniqueDispenser :: Parser Token UUAGCOption
-pUniqueDispenser = UUniqueDispenser <$> (pKey ouniquedispenser *> pString)
-
-pStatistics :: Parser Token UUAGCOption
-pStatistics = UStatistics <$> (pKey ostatistics *> pString)
-
-pAllFlags = pugFlags ++ [pModule,pOutput,pSearch,pPrefix,pWmax,pForceIrrefutable,pUniqueDispenser,pStatistics]
-
-pAnyFlag = pAny id pAllFlags
+pAnyFlag = pAny id pugFlags
 
 pSep :: Parser Token String
 pSep = pKey ":" <|> pKey "="
@@ -118,17 +51,16 @@ pFileClasses :: Parser Token [String]
 pFileClasses = pKey "with" *> (pCommas pString)
              <|> pSucceed []
 
-pLiftOptions :: (String -> [UUAGCOption] -> a) -> String ->  Parser Token a
-pLiftOptions f n = f <$> (pKey n *> pSep *> pString)
-                <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
-
 pAGFileOption :: Parser Token AGFileOption
-pAGFileOption = AGFileOption <$> (pKey "file" *> pSep *> pString)
+pAGFileOption = (\f cl opt -> AGFileOption f cl (constructOptions opt))
+                <$> (pKey "file" *> pSep *> pString)
                 <*> pFileClasses
                 <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
 pAGOptionsClass :: Parser Token AGOptionsClass
-pAGOptionsClass = pLiftOptions AGOptionsClass "class"
+pAGOptionsClass = (\c opt -> AGOptionsClass c (constructOptions opt))
+                  <$> (pKey "class" *> pSep *> pString)
+                  <*> (pKey "options" *> pSep *> pCommas pAnyFlag)
 
 pAGFileOptions :: Parser Token AGFileOptions
 pAGFileOptions = pList pAGFileOption

@@ -8,7 +8,7 @@ sed -e '/^name\:/d' \
     -e '/^build\-type\:/d' \
     -e '/ exposed\-modules\:/d' \
     -e '/ hs\-source\-dirs\:/d' \
-    -e '/build\-depends\: uuagc-bootstrap/d' \
+    -e '/ build\-depends\: uuagc/d' \
     -e '/uuagc\-cabal/d' \
     -e '/^extra\-source\-files: uuagc_options/d' \
     -e '/ other\-modules: Paths/d' \
