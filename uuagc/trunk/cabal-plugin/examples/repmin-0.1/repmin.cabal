@@ -2,7 +2,7 @@
 name:          repmin
 version:       0.2
 cabal-version: >=1.6
-build-type:    Simple
+build-type:    Custom
 license:       GPL
 license-file:  LICENSE
 copyright:     Copyright: (C) Juan Francisco Cardona McCormick
@@ -14,7 +14,7 @@ description:   An example of the use of the PPUUAGC preprocesor
 extra-source-files:   src/RepMax.ag
 
 Executable repmin
-   build-depends:   base
+   build-depends:   base, uuagc-cabal >= 1.0.1.0, uuagc >= 0.9.40.0
    hs-source-dirs:  src
    main-is:         RepMinMain.hs
    other-modules:   RepMin
@@ -22,7 +22,7 @@ Executable repmin
 
 
 Executable repminHS
-   build-depends:   base
+   build-depends:   base, uuagc-cabal >= 1.0.1.0, uuagc >= 0.9.40.0
    hs-source-dirs:  src
    main-is:         RepMinMainHS.hs
    other-modules:   RepMinHS
