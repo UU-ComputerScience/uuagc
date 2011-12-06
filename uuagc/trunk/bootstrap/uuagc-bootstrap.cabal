@@ -15,7 +15,6 @@ author: Software Technology at Universiteit Utrecht
 bug-reports: hut-developers@cs.uu.nl
 tested-with: GHC >= 6.12
 extra-source-files: README
-extra-source-files: src-ag/DistChildAttr.ag
 
 executable uuagc-bootstrap
   build-depends: uuagc-bootstrap == 0.9.40.0
