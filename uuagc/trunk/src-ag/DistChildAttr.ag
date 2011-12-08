@@ -19,6 +19,6 @@ SEM Child
   | Child loc.chnt = case @tp of
                        NT nt _ _ -> nt
                        Self      -> error ("The type of child " ++ show @name ++ " should not be a Self type.")
-                       Haskell t -> identifier t -- should be ignored because the child is a terminal
+                       Haskell t -> identifier "" -- should be ignored because the child is a terminal
 	  loc.inh = Map.findWithDefault Map.empty @loc.chnt @lhs.inhMap
     	  loc.syn = Map.findWithDefault Map.empty @loc.chnt @lhs.synMap
