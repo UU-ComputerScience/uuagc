@@ -314,6 +314,7 @@ ATTR ExecutionPlan
 
 ATTR EProductions EProduction
      ERules ERule
+     Patterns Pattern
      Visits
      Visit   [ inhmap : {Attributes}
                synmap : {Attributes}
@@ -1033,7 +1034,10 @@ SEM ERule | ERule
                                           then Right $ let oper | @pure     = "="
                                                                 | otherwise = "<-"
                                                            decl = @pattern.sem_lhs >#< oper >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options (Map.null @rhs.attrs)
-                                                       in fmtDecl @pure fmtMode decl
+							   tp   = if @pure && not (noPerRuleTypeSigs @lhs.options)
+							   	  then @pattern.attrTypes
+								  else empty
+                                                       in fmtDecl @pure fmtMode (tp >-< decl)
                                           else Left $ IncompatibleRuleKind @name kind
 
       lhs.mrules       = Map.singleton @name @loc.stepcode
@@ -1109,6 +1113,17 @@ SEM Pattern
 ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM Pattern | Alias
   lhs.attrs     = Set.insert (attrname False @field @attr) @pat.attrs
+
+-- All attribute types of this pattern
+ATTR Pattern Patterns  [ | | attrTypes USE {>-<} {empty} : {PP_Doc} ]
+SEM Pattern | Alias
+  loc.mbTp      = if @field == _LHS
+  		  then Map.lookup @attr @lhs.synmap
+		  else if @field == _LOC
+		       then Map.lookup @attr @lhs.localAttrTypes
+		       else Nothing
+  lhs.attrTypes = maybe empty (\tp -> (attrname False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
+  		  >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
@@ -1555,7 +1570,7 @@ SEM EChild | EChild ETerm
 
 ATTR ExecutionPlan ENonterminals ENonterminal  [ localAttrTypes : {Map NontermIdent (Map ConstructorIdent (Map Identifier Type))} | | ]
 ATTR EProductions EProduction                  [ localAttrTypes : {Map ConstructorIdent (Map Identifier Type)} | | ]
-ATTR ERules ERule                              [ localAttrTypes : {Map Identifier Type} | | ]
+ATTR ERules ERule Pattern Patterns             [ localAttrTypes : {Map Identifier Type} | | ]
 
 SEM ENonterminal | ENonterminal
   prods.localAttrTypes = Map.findWithDefault Map.empty @nt @lhs.localAttrTypes
