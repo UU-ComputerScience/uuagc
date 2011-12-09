@@ -488,11 +488,11 @@ SEM Chunk
         = [ [@comment.pp]
           , @dataDef.pps
           , @semDom.pps
+          , @semWrapper.pps
           ]
       lhs.appendMain
         = [ [@comment.pp]
           , @cataFun.pps
-          , @semWrapper.pps
           ]
 
 ATTR Chunk Chunks [ | | genSems USE {>>} {return ()} : {IO ()} ]
