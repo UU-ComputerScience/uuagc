@@ -1412,7 +1412,7 @@ SEM ExecutionPlan
                                           )
                   loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
                   loc.genCommonModule = writeModule @loc.commonFile
-                                          ( [ pp $ "{-# LANGUAGE GADTs #-}"  -- the common module only needs GADTs
+                                          ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs #-}"  -- the common module only needs GADTs and Rank2Types
 					    , pp $ @lhs.pragmaBlocks
                                             , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
                                             , @loc.ppMonadImports
