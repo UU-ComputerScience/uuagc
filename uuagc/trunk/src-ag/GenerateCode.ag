@@ -451,7 +451,7 @@ SEM  CVisit
                                    else [Decl lhs rhs (Set.fromList @nextVisitName) @lhs.nextIntraVars]
             loc.isOneVisit  = @lhs.isLast && @lhs.nr == 0
             loc.hasWrappers = @lhs.nt `Set.member` @lhs.wrappers
-            loc.refDecls = if @loc.isOneVisit && @loc.hasWrappers
+            loc.refDecls = if @loc.isOneVisit && @loc.hasWrappers && reference @lhs.options
                            then let synAttrs = Map.toList @syn
                                     synNT = "Syn" ++ "_" ++ getName @lhs.nt
                                     synVars = [ SimpleExpr (attrname False _LHS a) | (a,_) <- synAttrs ]
