@@ -113,6 +113,7 @@ allOptions =
   , MyOpt []        ["lckeywords"]    (NoArg lcKeywordsOpt)       (boolOpt lcKeywords)  "Use lowercase keywords (sem, attr) instead of the uppercase ones (SEM, ATTR)"
   , MyOpt []        ["doublecolons"]  (NoArg doubleColonsOpt)     (boolOpt doubleColons)"Use double colons for type signatures instead of single colons"
   , MyOpt ['H']     ["haskellsyntax"] (NoArg haskellSyntaxOpt)    noOpt                 "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
+  , MyOpt []        ["reference"]     (NoArg referenceOpt)        (boolOpt reference)   "Use reference attributes"
   , MyOpt []        ["monadic"]       (NoArg monadicOpt)          (boolOpt monadic)     "Experimental: generate monadic code"
   , MyOpt []        ["ocaml"]         (NoArg ocamlOpt)            (boolOpt ocaml)       "Experimental: generate Ocaml code"
   , MyOpt []        ["breadthfirst"]  (NoArg breadthfirstOpt)     (boolOpt breadthFirst)"Experimental: generate breadth-first code"
@@ -213,8 +214,8 @@ data Options = Options{ moduleName :: ModuleHeader
                       , checkParseTy :: Bool
                       , checkParseBlock :: Bool
                       , nocatas :: Set NontermIdent
-
                       , noOptimizations :: Bool
+                      , reference :: Bool
 
                       -- KW code path
                       , kennedyWarren       :: Bool
@@ -302,6 +303,7 @@ noOptions = Options { moduleName    = NoName
                     , checkParseBlock = False
                     , nocatas         = Set.empty
                     , noOptimizations = False
+                    , reference       = False
 
                     -- defaults for the KW-code path
                     , kennedyWarren       = False
@@ -395,6 +397,7 @@ noInlinePragmasOpt opts         = opts { noInlinePragmas = True }
 aggressiveInlinePragmasOpt opts = opts { aggressiveInlinePragmas = True }
 lateHigherOrderBindingOpt opts  = opts { lateHigherOrderBinding = True }
 monadicWrappersOpt opts         = opts { monadicWrappers = True }
+referenceOpt opts               = opts { reference = True }
 
 noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
   where extract s = case dropWhile isSeparator s of
