@@ -77,10 +77,11 @@ ATTR Nonterminals Nonterminal Productions Production [ typeSyns : {TypeSyns} | |
 {
 fieldName n       = '@' : getName n
 
-locName n         = '@' : getName n
+locName n         = "@loc." ++ getName n
 
 attrName fld attr
- | fld == _LOC    = '@' :                       getName attr
+ | fld == _LOC    = locName attr
+ | fld == _FIELD  = fieldName attr
  | otherwise      = '@' : getName fld ++ "." ++ getName attr
 
 _ACHILD = Ident "(" noPos -- hack
@@ -273,7 +274,7 @@ useRule locals ch_outs (n,(op,e,pos))
 
 
 
-
+selfRule :: Bool -> Identifier -> String -> Rule
 selfRule lhsNecLoc attr x
  = let expr | lhsNecLoc  = locName attr
             | otherwise  = x
@@ -400,7 +401,7 @@ SEM Production
              where
                childSelf self nm tp
                  = case tp of NT nt _ _                       -> attrName nm self
-                              _      | nm `Set.member` locals -> locname nm
+                              _      | nm `Set.member` locals -> locName nm
                                      | otherwise              -> fieldName nm
                constructor fs
                 | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns
