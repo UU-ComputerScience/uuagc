@@ -7,7 +7,7 @@ INCLUDE "DistChildAttr.ag"
 --
 -- Checks right-hand sides for missing attributes.
 -- Attribute references @xxx are now explicitly mapped to @loc.xxx if there is such
--- an attribute in scope.
+-- an attribute in scope and there is no terminal @xxx.
 --
 
 

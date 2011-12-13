@@ -299,10 +299,10 @@ ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
 
 SEM EChild
   | EChild lhs.argnamesw = case @kind of
-                             ChildSyntax     -> "(" >#< "sem_" >|< @loc.nt >#< "field_" >|< @name >#< ")"
+                             ChildSyntax     -> "(" >#< "sem_" >|< @loc.nt >#< @name >|< "_" >#< ")"
                              ChildAttr       -> empty  -- no sem-case for a higher-order child
-                             ChildReplace tp -> "(" >#< "sem_" >|< extractNonterminal tp >#< "field_" >|< @name >#< ")"
-  | ETerm  lhs.argnamesw = text $ locname @name
+                             ChildReplace tp -> "(" >#< "sem_" >|< extractNonterminal tp >#< @name >|< "_" >#< ")"
+  | ETerm  lhs.argnamesw = text $ fieldname @name
 
 -------------------------------------------------------------------------------
 --  Types of attributes
@@ -570,11 +570,11 @@ SEM EChild
                             ChildReplace tp -> ppDefor tp >#< "->"
                             _               -> empty  -- higher order attribute
            loc.argpats = case @kind of
-                           ChildSyntax    -> "field_" >|< @name                    -- no strictification of children semantics to allow infinite trees
-                           ChildReplace _ -> "field_" >|< @name
+                           ChildSyntax    -> @name >|< "_"                    -- no strictification of children semantics to allow infinite trees
+                           ChildReplace _ -> @name >|< "_"
                            _              -> empty
   | ETerm  lhs.argtps  = (pp_parens $ show @tp) >#< "->"
-           loc.argpats = @loc.addbang $ text $ locname @name   -- terminals may be strict (perhaps this should become an option)
+           loc.argpats = @loc.addbang $ text $ fieldname @name   -- terminals may be strict (perhaps this should become an option)
 
 {
 ppDefor :: Type -> PP_Doc
@@ -896,12 +896,13 @@ SEM EProduction
   | EProduction visits.childintros = @children.childintros
 
 SEM EChild
+  | ETerm  lhs.childintros = Map.singleton @name (\_ _ -> Right (empty, Set.empty, Map.empty))
   | EChild lhs.childintros = Map.singleton @name @loc.introcode
            loc.isDefor     = case @tp of
                                NT _ _ defor -> defor
                                _            -> False
            loc.valcode     = case @kind of
-                               ChildSyntax -> "field_" >|< @name
+                               ChildSyntax -> @name >|< "_"
                                ChildAttr   -> -- decide if we need to invoke the sem-function under the hood
                                               let prefix | not @loc.isDefor = if lateHigherOrderBinding @lhs.options -- && sepsemmods @lhs.options  -- when sepsemmods is not enabled, the indirection can be optimized away
                                                                               then lateSemNtLabel @loc.nt >#< lhsname True idLateBindingAttr
@@ -910,7 +911,7 @@ SEM EChild
                                               in pp_parens (prefix >#< instname @name)
                                ChildReplace _ -> -- the higher-order attribute is actually a function that transforms
                                                  -- the semantics of the child (always deforested)
-                                                 pp_parens (instname @name >#< "field_" >|< @name)
+                                                 pp_parens (instname @name >#< @name >|< "_")
            loc.aroundcode  = if @hasAround
                              then locname @name >|< "_around"
                              else empty
@@ -1042,6 +1043,10 @@ SEM ERule | ERule
 
       lhs.mrules       = Map.singleton @name @loc.stepcode
 
+ATTR Expression [ | | tks : {[HsToken]} ]
+SEM Expression
+  | Expression lhs.tks = @tks
+
 {
 dummyPat :: Options -> Bool -> PP_Doc
 dummyPat opts noArgs
@@ -1128,7 +1133,7 @@ SEM Pattern | Alias
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
 SEM HsToken
-  | AGLocal   lhs.attrs   = Map.singleton (locname @var) Nothing
+  | AGLocal   lhs.attrs   = Map.singleton (fieldname @var) Nothing
   | AGField   loc.mbAttr  = if @field == _INST || @field == _FIELD || @field == _INST'
                             then Nothing  -- should not be used in the first place
                             else Just $ mkNonLocalAttr (@field == _LHS) @field @attr
@@ -1137,7 +1142,7 @@ SEM HsToken
 {
 data NonLocalAttr
   = AttrInh Identifier Identifier
-  | AttrSyn Identifier Identifier
+  | AttrSyn Identifier Identifier deriving Show
 
 mkNonLocalAttr :: Bool -> Identifier -> Identifier -> NonLocalAttr
 mkNonLocalAttr True  = AttrInh  -- True: inherited attr
@@ -1279,7 +1284,7 @@ ATTR Visit Visits [ terminaldefs : {Set String} | | ]
 ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set String} ]
 
 SEM EChild | ETerm
-  lhs.terminaldefs = Set.singleton $ locname @name
+  lhs.terminaldefs = Set.singleton $ fieldname @name
 
 SEM EProduction | EProduction
   visits.allintramap  = @visits.intramap
@@ -1373,7 +1378,7 @@ SEM HsTokens [ || tks : {[(Pos,String)]} ]
   | Nil  lhs.tks = []
 
 SEM HsToken
-  | AGLocal   loc.tok = (@pos,locname @var)
+  | AGLocal   loc.tok = (@pos,fieldname @var)
 
 SEM HsToken [ || tok:{(Pos,String)}]
    | AGField

@@ -190,7 +190,7 @@ ATTR HsToken Expression
 
 -- All vertices from the righthandside of a rule
 SEM  HsToken
-  |  AGLocal lhs.vertices = Set.singleton $ VAttr Loc _LOC @var
+  |  AGLocal lhs.vertices = Set.singleton $ VChild @var
   |  AGField lhs.vertices = Set.singleton $ VAttr (if      @field == _LHS then Inh
      	     		    		    	   else if @field == _LOC then Loc
 						   else    	     	       Syn) @field @attr
