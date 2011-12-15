@@ -585,7 +585,7 @@ SEM Grammar
                                                                      , error "No visit sub-sequences for AG with induced cycles"
                                                                      , inducedCycleErrs @attrTable @ruleTable cim errs
                                                                      )
-            lhs.errors := (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty)
+            lhs.errors = (if withCycle @lhs.options then Seq.fromList @cyclesErrors else Seq.empty)
                           Seq.>< @nonts.errors
 
 ------------------------------------------------------------------

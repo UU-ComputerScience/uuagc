@@ -3,7 +3,7 @@ module Ag (uuagcLib, uuagcExe) where
 import System.Environment            (getArgs, getProgName)
 import System.Exit                   (exitFailure)
 import System.Console.GetOpt         (usageInfo)
-import Data.List                     (isSuffixOf,nub)
+import Data.List                     (isSuffixOf,nub,partition)
 import Control.Monad                 (zipWithM_)
 import Data.Maybe
 import System.FilePath
@@ -50,7 +50,7 @@ import System.Exit (ExitCode(..))
 uuagcLib :: [String] -> FilePath -> IO (ExitCode, [FilePath])
 uuagcLib args file
   = do let (flags,_,errs) = getOptions args
-       if showVersion flags || showHelp flags 
+       if showVersion flags || showHelp flags
          then do putStrLn "Cannot display help or version in library mode."
                  return (ExitFailure 1, [])
          else if (not.null) errs
@@ -131,7 +131,7 @@ compile flags input output
 
           errorList        = if null parseErrorList
                              then mainErrors
-                                  ++ if null mainErrors || null (filter (PrErr.isError flags') mainErrors)
+                                  ++ if null (filter (PrErr.isError flags') mainErrors)
                                      then furtherErrors
                                      else []
                              else [head parseErrorList]
@@ -212,7 +212,7 @@ compile flags input output
             then putStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
             else return ()
 
-      if not (null fatalErrorList)
+      if not (null errorsToStopOn)  -- note: this may already run quite a part of the compilation...
        then exitFailure
        else
         do
@@ -350,8 +350,8 @@ message2error (Msg expect pos action) = ParserError pos (show expect) actionStri
               Other ms -> ms
 
 errorsToFront :: Options -> [Error] -> [Error]
-errorsToFront flags mesgs = filter (PrErr.isError flags) mesgs ++ filter (not.(PrErr.isError flags)) mesgs
-
+errorsToFront flags mesgs = errs ++ warnings
+  where (errs,warnings) = partition (PrErr.isError flags) mesgs
 
 moduleHeader :: Options -> String -> String
 moduleHeader flags input
