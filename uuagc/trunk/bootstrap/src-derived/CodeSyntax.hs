@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/CodeSyntax.ag)
+-- UUAGC 0.9.40.1 (src-ag/CodeSyntax.ag)
 module CodeSyntax where
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -8,7 +8,7 @@ import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 12 "dist/build/uuagc/uuagc-tmp/CodeSyntax.hs" #-}
+{-# LINE 12 "dist/build/CodeSyntax.hs" #-}
 -- CGrammar ----------------------------------------------------
 {-
    alternatives:
@@ -25,14 +25,14 @@ import Data.Set(Set)
          child mergeMap       : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))}
          child multivisit     : {Bool}
 -}
-data CGrammar  = CGrammar (TypeSyns) (Derivings) ((Set NontermIdent)) (CNonterminals ) (PragmaMap) (ParamMap) (ContextMap) (QuantMap) ((Map NontermIdent (Map ConstructorIdent (Set Identifier)))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))))) (Bool) 
+data CGrammar = CGrammar (TypeSyns) (Derivings) ((Set NontermIdent)) (CNonterminals) (PragmaMap) (ParamMap) (ContextMap) (QuantMap) ((Map NontermIdent (Map ConstructorIdent (Set Identifier)))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))))) (Bool)
 -- CInterface --------------------------------------------------
 {-
    alternatives:
       alternative CInterface:
          child seg            : CSegments 
 -}
-data CInterface  = CInterface (CSegments ) 
+data CInterface = CInterface (CSegments)
 -- CNonterminal ------------------------------------------------
 {-
    alternatives:
@@ -44,7 +44,7 @@ data CInterface  = CInterface (CSegments )
          child prods          : CProductions 
          child inter          : CInterface 
 -}
-data CNonterminal  = CNonterminal (NontermIdent) (([Identifier])) (Attributes) (Attributes) (CProductions ) (CInterface ) 
+data CNonterminal = CNonterminal (NontermIdent) (([Identifier])) (Attributes) (Attributes) (CProductions) (CInterface)
 -- CNonterminals -----------------------------------------------
 {-
    alternatives:
@@ -53,7 +53,7 @@ data CNonterminal  = CNonterminal (NontermIdent) (([Identifier])) (Attributes) (
          child tl             : CNonterminals 
       alternative Nil:
 -}
-type CNonterminals  = [CNonterminal ]
+type CNonterminals = [CNonterminal]
 -- CProduction -------------------------------------------------
 {-
    alternatives:
@@ -63,7 +63,7 @@ type CNonterminals  = [CNonterminal ]
          child children       : {[(Identifier,Type,ChildKind)]}
          child terminals      : {[Identifier]}
 -}
-data CProduction  = CProduction (ConstructorIdent) (CVisits ) (([(Identifier,Type,ChildKind)])) (([Identifier])) 
+data CProduction = CProduction (ConstructorIdent) (CVisits) (([(Identifier,Type,ChildKind)])) (([Identifier]))
 -- CProductions ------------------------------------------------
 {-
    alternatives:
@@ -72,7 +72,7 @@ data CProduction  = CProduction (ConstructorIdent) (CVisits ) (([(Identifier,Typ
          child tl             : CProductions 
       alternative Nil:
 -}
-type CProductions  = [CProduction ]
+type CProductions = [CProduction]
 -- CRule -------------------------------------------------------
 {-
    alternatives:
@@ -101,8 +101,8 @@ type CProductions  = [CProduction ]
          child explicit       : {Bool}
          child mbNamed        : {Maybe Identifier}
 -}
-data CRule  = CChildVisit (Identifier) (NontermIdent) (Int) (Attributes) (Attributes) (Bool) 
-            | CRule (Identifier) (Bool) (Bool) (NontermIdent) (ConstructorIdent) (Identifier) ((Maybe NontermIdent)) ((Maybe Type)) (Pattern) (([String])) ((Map Int (Identifier,Identifier,Maybe Type))) (Bool) (String) ((Set (Identifier, Identifier))) (Bool) ((Maybe Identifier)) 
+data CRule = CChildVisit (Identifier) (NontermIdent) (Int) (Attributes) (Attributes) (Bool)
+           | CRule (Identifier) (Bool) (Bool) (NontermIdent) (ConstructorIdent) (Identifier) ((Maybe NontermIdent)) ((Maybe Type)) (Pattern) (([String])) ((Map Int (Identifier,Identifier,Maybe Type))) (Bool) (String) ((Set (Identifier, Identifier))) (Bool) ((Maybe Identifier))
 -- CSegment ----------------------------------------------------
 {-
    alternatives:
@@ -110,7 +110,7 @@ data CRule  = CChildVisit (Identifier) (NontermIdent) (Int) (Attributes) (Attrib
          child inh            : {Attributes}
          child syn            : {Attributes}
 -}
-data CSegment  = CSegment (Attributes) (Attributes) 
+data CSegment = CSegment (Attributes) (Attributes)
 -- CSegments ---------------------------------------------------
 {-
    alternatives:
@@ -119,7 +119,7 @@ data CSegment  = CSegment (Attributes) (Attributes)
          child tl             : CSegments 
       alternative Nil:
 -}
-type CSegments  = [CSegment ]
+type CSegments = [CSegment]
 -- CVisit ------------------------------------------------------
 {-
    alternatives:
@@ -130,7 +130,7 @@ type CSegments  = [CSegment ]
          child intra          : Sequence 
          child ordered        : {Bool}
 -}
-data CVisit  = CVisit (Attributes) (Attributes) (Sequence ) (Sequence ) (Bool) 
+data CVisit = CVisit (Attributes) (Attributes) (Sequence) (Sequence) (Bool)
 -- CVisits -----------------------------------------------------
 {-
    alternatives:
@@ -139,7 +139,7 @@ data CVisit  = CVisit (Attributes) (Attributes) (Sequence ) (Sequence ) (Bool)
          child tl             : CVisits 
       alternative Nil:
 -}
-type CVisits  = [CVisit ]
+type CVisits = [CVisit]
 -- Sequence ----------------------------------------------------
 {-
    alternatives:
@@ -148,4 +148,4 @@ type CVisits  = [CVisit ]
          child tl             : Sequence 
       alternative Nil:
 -}
-type Sequence  = [CRule ]
+type Sequence = [CRule]

@@ -3,8 +3,8 @@ build-type: Custom
 x-bootstrap-build-type: Simple
 name: uuagc
 x-bootstrap-name: uuagc-bootstrap
-version: 0.9.40.0
-x-bootstrap-version: 0.9.40.0
+version: 0.9.40.1
+x-bootstrap-version: 0.9.40.1
 license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
@@ -22,8 +22,8 @@ extra-source-files: uuagc_options
 extra-source-files: src-ag/DistChildAttr.ag
 
 executable uuagc
-  x-bootstrap-build-depends: uuagc-bootstrap == 0.9.40.0
-  build-depends: uuagc == 0.9.40.0
+  x-bootstrap-build-depends: uuagc-bootstrap == 0.9.40.1
+  build-depends: uuagc == 0.9.40.1
   build-depends: base >= 4, base < 5
   main-is: Main.hs
   hs-source-dirs: src-main
@@ -31,7 +31,7 @@ executable uuagc
 
 library
    build-depends: uuagc-bootstrap >= 0.9.40.0
-   build-depends: uuagc-cabal >= 1.0.1.0
+   build-depends: uuagc-cabal >= 1.0.2.0
    build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
    build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
    build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1

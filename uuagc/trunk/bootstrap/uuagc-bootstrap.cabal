@@ -1,7 +1,7 @@
 cabal-version: >= 1.8
 build-type: Simple
 name: uuagc-bootstrap
-version: 0.9.40.0
+version: 0.9.40.1
 license: BSD3
 license-file: LICENSE
 maintainer: Arie Middelkoop <ariem@cs.uu.nl>
@@ -17,7 +17,7 @@ tested-with: GHC >= 6.12
 extra-source-files: README
 
 executable uuagc-bootstrap
-  build-depends: uuagc-bootstrap == 0.9.40.0
+  build-depends: uuagc-bootstrap == 0.9.40.1
   build-depends: base >= 4, base < 5
   main-is: Main.hs
   hs-source-dirs: src-main

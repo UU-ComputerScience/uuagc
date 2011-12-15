@@ -1,11 +1,11 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/Macro.ag)
+-- UUAGC 0.9.40.1 (src-ag/Macro.ag)
 module Macro where
 {-# LINE 4 "src-ag/Macro.ag" #-}
 
 import CommonTypes
-{-# LINE 9 "dist/build/uuagc/uuagc-tmp/Macro.hs" #-}
+{-# LINE 9 "dist/build/Macro.hs" #-}
 -- Macro -------------------------------------------------------
 {-
    alternatives:
@@ -14,9 +14,9 @@ import CommonTypes
          child children       : MacroChildren 
       alternative None:
 -}
-data Macro  = Macro (ConstructorIdent) (MacroChildren ) 
-            | None 
-            deriving ( Show)
+data Macro = Macro (ConstructorIdent) (MacroChildren)
+           | None
+           deriving ( Show)
 -- MacroChild --------------------------------------------------
 {-
    alternatives:
@@ -30,10 +30,10 @@ data Macro  = Macro (ConstructorIdent) (MacroChildren )
          child name           : {Identifier}
          child value          : {String}
 -}
-data MacroChild  = ChildChild (Identifier) (Identifier) 
-                 | RuleChild (Identifier) (Macro ) 
-                 | ValueChild (Identifier) (String) 
-                 deriving ( Show)
+data MacroChild = ChildChild (Identifier) (Identifier)
+                | RuleChild (Identifier) (Macro)
+                | ValueChild (Identifier) (String)
+                deriving ( Show)
 -- MacroChildren -----------------------------------------------
 {-
    alternatives:
@@ -42,7 +42,7 @@ data MacroChild  = ChildChild (Identifier) (Identifier)
          child tl             : MacroChildren 
       alternative Nil:
 -}
-type MacroChildren  = [MacroChild ]
+type MacroChildren = [MacroChild]
 -- MaybeMacro --------------------------------------------------
 {-
    alternatives:
@@ -50,4 +50,4 @@ type MacroChildren  = [MacroChild ]
          child just           : Macro 
       alternative Nothing:
 -}
-type MaybeMacro  = Maybe Macro 
+type MaybeMacro = Maybe Macro

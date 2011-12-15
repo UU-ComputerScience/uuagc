@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.40.1 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
 {-# LINE 2 "src-ag/ConcreteSyntax.ag" #-}
 
@@ -9,14 +9,14 @@ import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
 import Macro --marcos
-{-# LINE 13 "dist/build/uuagc/uuagc-tmp/ConcreteSyntax.hs" #-}
+{-# LINE 13 "dist/build/ConcreteSyntax.hs" #-}
 -- AG ----------------------------------------------------------
 {-
    alternatives:
       alternative AG:
          child elems          : Elems 
 -}
-data AG  = AG (Elems ) 
+data AG = AG (Elems)
 -- Alt ---------------------------------------------------------
 {-
    alternatives:
@@ -27,7 +27,7 @@ data AG  = AG (Elems )
          child fields         : Fields 
          child macro          : {MaybeMacro}
 -}
-data Alt  = Alt (Pos) (ConstructorSet ) (([Identifier])) (Fields ) (MaybeMacro) 
+data Alt = Alt (Pos) (ConstructorSet) (([Identifier])) (Fields) (MaybeMacro)
 -- Alts --------------------------------------------------------
 {-
    alternatives:
@@ -36,7 +36,7 @@ data Alt  = Alt (Pos) (ConstructorSet ) (([Identifier])) (Fields ) (MaybeMacro)
          child tl             : Alts 
       alternative Nil:
 -}
-type Alts  = [Alt ]
+type Alts = [Alt]
 -- Attrs -------------------------------------------------------
 {-
    alternatives:
@@ -46,7 +46,7 @@ type Alts  = [Alt ]
          child chn            : {AttrNames}
          child syn            : {AttrNames}
 -}
-data Attrs  = Attrs (Pos) (AttrNames) (AttrNames) (AttrNames) 
+data Attrs = Attrs (Pos) (AttrNames) (AttrNames) (AttrNames)
 -- ConstructorSet ----------------------------------------------
 {-
    alternatives:
@@ -60,10 +60,10 @@ data Attrs  = Attrs (Pos) (AttrNames) (AttrNames) (AttrNames)
          child set1           : ConstructorSet 
          child set2           : ConstructorSet 
 -}
-data ConstructorSet  = CAll 
-                     | CDifference (ConstructorSet ) (ConstructorSet ) 
-                     | CName (ConstructorIdent) 
-                     | CUnion (ConstructorSet ) (ConstructorSet ) 
+data ConstructorSet = CAll
+                    | CDifference (ConstructorSet) (ConstructorSet)
+                    | CName (ConstructorIdent)
+                    | CUnion (ConstructorSet) (ConstructorSet)
 -- Elem --------------------------------------------------------
 {-
    alternatives:
@@ -123,17 +123,17 @@ data ConstructorSet  = CAll
          child pos            : {Pos}
          child set            : NontSet 
 -}
-data Elem  = Attr (Pos) (ClassContext) (NontSet ) (([String])) (Attrs ) 
-           | Data (Pos) (ClassContext) (NontSet ) (([Identifier])) (Attrs ) (Alts ) (Bool) 
-           | Deriving (Pos) (NontSet ) (([NontermIdent])) 
-           | Module (Pos) (String) (String) (String) 
-           | Nocatas (Pos) (NontSet ) 
-           | Pragma (Pos) (([NontermIdent])) 
-           | Sem (Pos) (ClassContext) (NontSet ) (Attrs ) (([String])) (SemAlts ) 
-           | Set (Pos) (NontermIdent) (Bool) (NontSet ) 
-           | Txt (Pos) (BlockKind) ((Maybe NontermIdent)) (([String])) 
-           | Type (Pos) (ClassContext) (NontermIdent) (([Identifier])) (ComplexType) 
-           | Wrapper (Pos) (NontSet ) 
+data Elem = Attr (Pos) (ClassContext) (NontSet) (([String])) (Attrs)
+          | Data (Pos) (ClassContext) (NontSet) (([Identifier])) (Attrs) (Alts) (Bool)
+          | Deriving (Pos) (NontSet) (([NontermIdent]))
+          | Module (Pos) (String) (String) (String)
+          | Nocatas (Pos) (NontSet)
+          | Pragma (Pos) (([NontermIdent]))
+          | Sem (Pos) (ClassContext) (NontSet) (Attrs) (([String])) (SemAlts)
+          | Set (Pos) (NontermIdent) (Bool) (NontSet)
+          | Txt (Pos) (BlockKind) ((Maybe NontermIdent)) (([String]))
+          | Type (Pos) (ClassContext) (NontermIdent) (([Identifier])) (ComplexType)
+          | Wrapper (Pos) (NontSet)
 -- Elems -------------------------------------------------------
 {-
    alternatives:
@@ -142,7 +142,7 @@ data Elem  = Attr (Pos) (ClassContext) (NontSet ) (([String])) (Attrs )
          child tl             : Elems 
       alternative Nil:
 -}
-type Elems  = [Elem ]
+type Elems = [Elem]
 -- Field -------------------------------------------------------
 {-
    alternatives:
@@ -152,8 +152,8 @@ type Elems  = [Elem ]
       alternative FCtx:
          child tps            : {[Type]}
 -}
-data Field  = FChild (Identifier) (Type) 
-            | FCtx (([Type])) 
+data Field = FChild (Identifier) (Type)
+           | FCtx (([Type]))
 -- Fields ------------------------------------------------------
 {-
    alternatives:
@@ -162,7 +162,7 @@ data Field  = FChild (Identifier) (Type)
          child tl             : Fields 
       alternative Nil:
 -}
-type Fields  = [Field ]
+type Fields = [Field]
 -- NontSet -----------------------------------------------------
 {-
    alternatives:
@@ -182,12 +182,12 @@ type Fields  = [Field ]
          child set1           : NontSet 
          child set2           : NontSet 
 -}
-data NontSet  = All 
-              | Difference (NontSet ) (NontSet ) 
-              | Intersect (NontSet ) (NontSet ) 
-              | NamedSet (NontermIdent) 
-              | Path (NontermIdent) (NontermIdent) 
-              | Union (NontSet ) (NontSet ) 
+data NontSet = All
+             | Difference (NontSet) (NontSet)
+             | Intersect (NontSet) (NontSet)
+             | NamedSet (NontermIdent)
+             | Path (NontermIdent) (NontermIdent)
+             | Union (NontSet) (NontSet)
 -- SemAlt ------------------------------------------------------
 {-
    alternatives:
@@ -196,7 +196,7 @@ data NontSet  = All
          child constructorSet : ConstructorSet 
          child rules          : SemDefs 
 -}
-data SemAlt  = SemAlt (Pos) (ConstructorSet ) (SemDefs ) 
+data SemAlt = SemAlt (Pos) (ConstructorSet) (SemDefs)
 -- SemAlts -----------------------------------------------------
 {-
    alternatives:
@@ -205,7 +205,7 @@ data SemAlt  = SemAlt (Pos) (ConstructorSet ) (SemDefs )
          child tl             : SemAlts 
       alternative Nil:
 -}
-type SemAlts  = [SemAlt ]
+type SemAlts = [SemAlt]
 -- SemDef ------------------------------------------------------
 {-
    alternatives:
@@ -241,14 +241,14 @@ type SemAlts  = [SemAlt ]
          child ident          : {Identifier}
          child ref            : {Identifier}
 -}
-data SemDef  = AroundDef (Identifier) (Expression) 
-             | AttrOrderBefore (([Occurrence])) (([Occurrence])) 
-             | AugmentDef (Identifier) (Expression) 
-             | Def (Pos) ((Maybe Identifier)) (Pattern) (Expression) (Bool) (Bool) (Bool) 
-             | MergeDef (Identifier) (Identifier) (([Identifier])) (Expression) 
-             | SemPragma (([NontermIdent])) 
-             | TypeDef (Pos) (Identifier) (Type) 
-             | UniqueDef (Identifier) (Identifier) 
+data SemDef = AroundDef (Identifier) (Expression)
+            | AttrOrderBefore (([Occurrence])) (([Occurrence]))
+            | AugmentDef (Identifier) (Expression)
+            | Def (Pos) ((Maybe Identifier)) (Pattern) (Expression) (Bool) (Bool) (Bool)
+            | MergeDef (Identifier) (Identifier) (([Identifier])) (Expression)
+            | SemPragma (([NontermIdent]))
+            | TypeDef (Pos) (Identifier) (Type)
+            | UniqueDef (Identifier) (Identifier)
 -- SemDefs -----------------------------------------------------
 {-
    alternatives:
@@ -257,4 +257,4 @@ data SemDef  = AroundDef (Identifier) (Expression)
          child tl             : SemDefs 
       alternative Nil:
 -}
-type SemDefs  = [SemDef ]
+type SemDefs = [SemDef]

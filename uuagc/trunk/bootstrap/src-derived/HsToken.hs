@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/HsToken.ag)
+-- UUAGC 0.9.40.1 (src-ag/HsToken.ag)
 module HsToken where
 {-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
-{-# LINE 10 "dist/build/uuagc/uuagc-tmp/HsToken.hs" #-}
+{-# LINE 10 "dist/build/HsToken.hs" #-}
 -- HsToken -----------------------------------------------------
 {-
    alternatives:
@@ -32,13 +32,13 @@ import UU.Scanner.Position(Pos)
          child value          : {String}
          child pos            : {Pos}
 -}
-data HsToken  = AGField (Identifier) (Identifier) (Pos) ((Maybe String)) 
-              | AGLocal (Identifier) (Pos) ((Maybe String)) 
-              | CharToken (String) (Pos) 
-              | Err (String) (Pos) 
-              | HsToken (String) (Pos) 
-              | StrToken (String) (Pos) 
-              deriving ( Show)
+data HsToken = AGField (Identifier) (Identifier) (Pos) ((Maybe String))
+             | AGLocal (Identifier) (Pos) ((Maybe String))
+             | CharToken (String) (Pos)
+             | Err (String) (Pos)
+             | HsToken (String) (Pos)
+             | StrToken (String) (Pos)
+             deriving ( Show)
 -- HsTokens ----------------------------------------------------
 {-
    alternatives:
@@ -47,11 +47,11 @@ data HsToken  = AGField (Identifier) (Identifier) (Pos) ((Maybe String))
          child tl             : HsTokens 
       alternative Nil:
 -}
-type HsTokens  = [HsToken ]
+type HsTokens = [HsToken]
 -- HsTokensRoot ------------------------------------------------
 {-
    alternatives:
       alternative HsTokensRoot:
          child tokens         : HsTokens 
 -}
-data HsTokensRoot  = HsTokensRoot (HsTokens ) 
+data HsTokensRoot = HsTokensRoot (HsTokens)

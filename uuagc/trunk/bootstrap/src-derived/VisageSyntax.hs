@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/VisageSyntax.ag)
+-- UUAGC 0.9.40.1 (src-ag/VisageSyntax.ag)
 module VisageSyntax where
 {-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 
@@ -9,7 +9,7 @@ import UU.Pretty
 import AbstractSyntax
 import VisagePatterns
 import Expression
-{-# LINE 13 "dist/build/uuagc/uuagc-tmp/VisageSyntax.hs" #-}
+{-# LINE 13 "dist/build/VisageSyntax.hs" #-}
 -- VisageChild -------------------------------------------------
 {-
    alternatives:
@@ -20,7 +20,7 @@ import Expression
          child syn            : {Attributes}
          child rules          : VisageRules 
 -}
-data VisageChild  = VChild (Identifier) (Type) (Attributes) (Attributes) (VisageRules ) 
+data VisageChild = VChild (Identifier) (Type) (Attributes) (Attributes) (VisageRules)
 -- VisageChildren ----------------------------------------------
 {-
    alternatives:
@@ -29,14 +29,14 @@ data VisageChild  = VChild (Identifier) (Type) (Attributes) (Attributes) (Visage
          child tl             : VisageChildren 
       alternative Nil:
 -}
-type VisageChildren  = [VisageChild ]
+type VisageChildren = [VisageChild]
 -- VisageGrammar -----------------------------------------------
 {-
    alternatives:
       alternative VGrammar:
          child nonts          : VisageNonterminals 
 -}
-data VisageGrammar  = VGrammar (VisageNonterminals ) 
+data VisageGrammar = VGrammar (VisageNonterminals)
 -- VisageNonterminal -------------------------------------------
 {-
    alternatives:
@@ -46,7 +46,7 @@ data VisageGrammar  = VGrammar (VisageNonterminals )
          child syn            : {Attributes}
          child alts           : VisageProductions 
 -}
-data VisageNonterminal  = VNonterminal (NontermIdent) (Attributes) (Attributes) (VisageProductions ) 
+data VisageNonterminal = VNonterminal (NontermIdent) (Attributes) (Attributes) (VisageProductions)
 -- VisageNonterminals ------------------------------------------
 {-
    alternatives:
@@ -55,7 +55,7 @@ data VisageNonterminal  = VNonterminal (NontermIdent) (Attributes) (Attributes) 
          child tl             : VisageNonterminals 
       alternative Nil:
 -}
-type VisageNonterminals  = [VisageNonterminal ]
+type VisageNonterminals = [VisageNonterminal]
 -- VisageProduction --------------------------------------------
 {-
    alternatives:
@@ -65,7 +65,7 @@ type VisageNonterminals  = [VisageNonterminal ]
          child rules          : VisageRules 
          child locrules       : VisageRules 
 -}
-data VisageProduction  = VProduction (ConstructorIdent) (VisageChildren ) (VisageRules ) (VisageRules ) 
+data VisageProduction = VProduction (ConstructorIdent) (VisageChildren) (VisageRules) (VisageRules)
 -- VisageProductions -------------------------------------------
 {-
    alternatives:
@@ -74,7 +74,7 @@ data VisageProduction  = VProduction (ConstructorIdent) (VisageChildren ) (Visag
          child tl             : VisageProductions 
       alternative Nil:
 -}
-type VisageProductions  = [VisageProduction ]
+type VisageProductions = [VisageProduction]
 -- VisageRule --------------------------------------------------
 {-
    alternatives:
@@ -85,7 +85,7 @@ type VisageProductions  = [VisageProduction ]
          child rhs            : {Expression}
          child owrt           : {Bool}
 -}
-data VisageRule  = VRule (([(Identifier,Identifier)])) (Identifier) (VisagePattern) (Expression) (Bool) 
+data VisageRule = VRule (([(Identifier,Identifier)])) (Identifier) (VisagePattern) (Expression) (Bool)
 -- VisageRules -------------------------------------------------
 {-
    alternatives:
@@ -94,4 +94,4 @@ data VisageRule  = VRule (([(Identifier,Identifier)])) (Identifier) (VisagePatte
          child tl             : VisageRules 
       alternative Nil:
 -}
-type VisageRules  = [VisageRule ]
+type VisageRules = [VisageRule]

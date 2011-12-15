@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/Expression.ag)
+-- UUAGC 0.9.40.1 (src-ag/Expression.ag)
 module Expression where
 {-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 10 "dist/build/uuagc/uuagc-tmp/Expression.hs" #-}
+{-# LINE 10 "dist/build/Expression.hs" #-}
 -- Expression --------------------------------------------------
 {-
    alternatives:
@@ -14,4 +14,4 @@ import HsToken
          child pos            : {Pos}
          child tks            : {[HsToken]}
 -}
-data Expression  = Expression (Pos) (([HsToken])) 
+data Expression = Expression (Pos) (([HsToken]))

@@ -10,11 +10,11 @@ DATA HsTokensRoot
 TYPE HsTokens = [HsToken]
 
 DATA HsToken
-   | AGLocal   var   : {Identifier}
+   | AGLocal   var   : {Identifier}    -- either a local or a terminal
                pos   : {Pos}
                rdesc : {Maybe String}  -- description of the rule the local reference appears in
 
-   | AGField   field : {Identifier}
+   | AGField   field : {Identifier}    -- Misnomer: this is actually a reference to an attribute, not a terminal!
                attr  : {Identifier}
                pos   : {Pos}
                rdesc : {Maybe String}  -- description of the rule the attribute reference appears in

@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/ErrorMessages.ag)
+-- UUAGC 0.9.40.1 (src-ag/ErrorMessages.ag)
 module ErrorMessages where
 {-# LINE 2 "src-ag/ErrorMessages.ag" #-}
 
@@ -8,7 +8,7 @@ import UU.Scanner.Position(Pos)
 import Pretty
 import CodeSyntax
 import CommonTypes
-{-# LINE 12 "dist/build/uuagc/uuagc-tmp/ErrorMessages.hs" #-}
+{-# LINE 12 "dist/build/ErrorMessages.hs" #-}
 -- Error -------------------------------------------------------
 {-
    alternatives:
@@ -153,41 +153,41 @@ import CommonTypes
       alternative UndefNont:
          child nt             : {NontermIdent}
 -}
-data Error  = ChildAsLocal (NontermIdent) (ConstructorIdent) (Identifier) 
-            | CustomError (Bool) (Pos) (PP_Doc) 
-            | Cyclic (NontermIdent) ((Maybe ConstructorIdent)) (([String])) 
-            | CyclicSet (Identifier) 
-            | DirectCirc (NontermIdent) (Bool) (([((Identifier,Identifier),[String],[String])])) 
-            | DupAlt (NontermIdent) (ConstructorIdent) (ConstructorIdent) 
-            | DupChild (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) 
-            | DupInhAttr (NontermIdent) (Identifier) (Identifier) 
-            | DupRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) (Identifier) 
-            | DupRuleName (NontermIdent) (ConstructorIdent) (Identifier) 
-            | DupSet (NontermIdent) (NontermIdent) 
-            | DupSig (NontermIdent) (ConstructorIdent) (Identifier) 
-            | DupSynAttr (NontermIdent) (Identifier) (Identifier) 
-            | DupSynonym (NontermIdent) (NontermIdent) 
-            | DupUnique (NontermIdent) (ConstructorIdent) (Identifier) 
-            | HsParseError (Pos) (String) 
-            | IncompatibleAttachKind (Identifier) (VisitKind) 
-            | IncompatibleRuleKind (Identifier) (VisitKind) 
-            | IncompatibleVisitKind (Identifier) (VisitIdentifier) (VisitKind) (VisitKind) 
-            | InducedCirc (NontermIdent) (CInterface) (([((Identifier,Identifier),[String],[String])])) 
-            | InstCirc (NontermIdent) (ConstructorIdent) (Identifier) (Bool) (([String])) 
-            | LocalCirc (NontermIdent) (ConstructorIdent) (Identifier) (Bool) (([String])) 
-            | MissingInstSig (NontermIdent) (ConstructorIdent) (Identifier) 
-            | MissingNamedRule (NontermIdent) (Identifier) (Identifier) 
-            | MissingRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) 
-            | MissingSyn (NontermIdent) (Identifier) 
-            | MissingTypeSig (NontermIdent) (ConstructorIdent) (Identifier) 
-            | MissingUnique (NontermIdent) (Identifier) 
-            | ParserError (Pos) (String) (String) 
-            | SuperfluousRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) 
-            | UndefAlt (NontermIdent) (ConstructorIdent) 
-            | UndefAttr (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) (Bool) 
-            | UndefChild (NontermIdent) (ConstructorIdent) (Identifier) 
-            | UndefLocal (NontermIdent) (ConstructorIdent) (Identifier) 
-            | UndefNont (NontermIdent) 
+data Error = ChildAsLocal (NontermIdent) (ConstructorIdent) (Identifier)
+           | CustomError (Bool) (Pos) (PP_Doc)
+           | Cyclic (NontermIdent) ((Maybe ConstructorIdent)) (([String]))
+           | CyclicSet (Identifier)
+           | DirectCirc (NontermIdent) (Bool) (([((Identifier,Identifier),[String],[String])]))
+           | DupAlt (NontermIdent) (ConstructorIdent) (ConstructorIdent)
+           | DupChild (NontermIdent) (ConstructorIdent) (Identifier) (Identifier)
+           | DupInhAttr (NontermIdent) (Identifier) (Identifier)
+           | DupRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) (Identifier)
+           | DupRuleName (NontermIdent) (ConstructorIdent) (Identifier)
+           | DupSet (NontermIdent) (NontermIdent)
+           | DupSig (NontermIdent) (ConstructorIdent) (Identifier)
+           | DupSynAttr (NontermIdent) (Identifier) (Identifier)
+           | DupSynonym (NontermIdent) (NontermIdent)
+           | DupUnique (NontermIdent) (ConstructorIdent) (Identifier)
+           | HsParseError (Pos) (String)
+           | IncompatibleAttachKind (Identifier) (VisitKind)
+           | IncompatibleRuleKind (Identifier) (VisitKind)
+           | IncompatibleVisitKind (Identifier) (VisitIdentifier) (VisitKind) (VisitKind)
+           | InducedCirc (NontermIdent) (CInterface) (([((Identifier,Identifier),[String],[String])]))
+           | InstCirc (NontermIdent) (ConstructorIdent) (Identifier) (Bool) (([String]))
+           | LocalCirc (NontermIdent) (ConstructorIdent) (Identifier) (Bool) (([String]))
+           | MissingInstSig (NontermIdent) (ConstructorIdent) (Identifier)
+           | MissingNamedRule (NontermIdent) (Identifier) (Identifier)
+           | MissingRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier)
+           | MissingSyn (NontermIdent) (Identifier)
+           | MissingTypeSig (NontermIdent) (ConstructorIdent) (Identifier)
+           | MissingUnique (NontermIdent) (Identifier)
+           | ParserError (Pos) (String) (String)
+           | SuperfluousRule (NontermIdent) (ConstructorIdent) (Identifier) (Identifier)
+           | UndefAlt (NontermIdent) (ConstructorIdent)
+           | UndefAttr (NontermIdent) (ConstructorIdent) (Identifier) (Identifier) (Bool)
+           | UndefChild (NontermIdent) (ConstructorIdent) (Identifier)
+           | UndefLocal (NontermIdent) (ConstructorIdent) (Identifier)
+           | UndefNont (NontermIdent)
 -- Errors ------------------------------------------------------
 {-
    alternatives:
@@ -196,4 +196,4 @@ data Error  = ChildAsLocal (NontermIdent) (ConstructorIdent) (Identifier)
          child tl             : Errors 
       alternative Nil:
 -}
-type Errors  = [Error ]
+type Errors = [Error]
