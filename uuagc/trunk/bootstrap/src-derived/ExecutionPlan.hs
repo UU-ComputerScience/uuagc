@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/ExecutionPlan.ag)
+-- UUAGC 0.9.40.1 (src-ag/ExecutionPlan.ag)
 module ExecutionPlan where
 {-# LINE 2 "src-ag/ExecutionPlan.ag" #-}
 
@@ -14,7 +14,7 @@ import qualified Data.Set as Set
 import Data.Set(Set)
 import qualified Data.Map as Map
 import Data.Map(Map)
-{-# LINE 18 "dist/build/uuagc/uuagc-tmp/ExecutionPlan.hs" #-}
+{-# LINE 18 "dist/build/ExecutionPlan.hs" #-}
 -- EChild ------------------------------------------------------
 {-
    alternatives:
@@ -29,8 +29,8 @@ import Data.Map(Map)
          child name           : {Identifier}
          child tp             : {Type}
 -}
-data EChild  = EChild (Identifier) (Type) (ChildKind) (Bool) ((Maybe [Identifier])) (Bool) 
-             | ETerm (Identifier) (Type) 
+data EChild = EChild (Identifier) (Type) (ChildKind) (Bool) ((Maybe [Identifier])) (Bool)
+            | ETerm (Identifier) (Type)
 -- EChildren ---------------------------------------------------
 {-
    alternatives:
@@ -39,7 +39,7 @@ data EChild  = EChild (Identifier) (Type) (ChildKind) (Bool) ((Maybe [Identifier
          child tl             : EChildren 
       alternative Nil:
 -}
-type EChildren  = [EChild ]
+type EChildren = [EChild]
 -- ENonterminal ------------------------------------------------
 {-
    alternatives:
@@ -55,7 +55,7 @@ type EChildren  = [EChild ]
          child recursive      : {Bool}
          child hoInfo         : {HigherOrderInfo}
 -}
-data ENonterminal  = ENonterminal (NontermIdent) (([Identifier])) (ClassContext) (StateIdentifier) ((Maybe VisitIdentifier)) ((Map StateIdentifier StateCtx)) ((Map StateIdentifier StateCtx)) (EProductions ) (Bool) (HigherOrderInfo) 
+data ENonterminal = ENonterminal (NontermIdent) (([Identifier])) (ClassContext) (StateIdentifier) ((Maybe VisitIdentifier)) ((Map StateIdentifier StateCtx)) ((Map StateIdentifier StateCtx)) (EProductions) (Bool) (HigherOrderInfo)
 -- ENonterminals -----------------------------------------------
 {-
    alternatives:
@@ -64,7 +64,7 @@ data ENonterminal  = ENonterminal (NontermIdent) (([Identifier])) (ClassContext)
          child tl             : ENonterminals 
       alternative Nil:
 -}
-type ENonterminals  = [ENonterminal ]
+type ENonterminals = [ENonterminal]
 -- EProduction -------------------------------------------------
 {-
    alternatives:
@@ -76,7 +76,7 @@ type ENonterminals  = [ENonterminal ]
          child children       : EChildren 
          child visits         : Visits 
 -}
-data EProduction  = EProduction (ConstructorIdent) (([Identifier])) (([Type])) (ERules ) (EChildren ) (Visits ) 
+data EProduction = EProduction (ConstructorIdent) (([Identifier])) (([Type])) (ERules) (EChildren) (Visits)
 -- EProductions ------------------------------------------------
 {-
    alternatives:
@@ -85,7 +85,7 @@ data EProduction  = EProduction (ConstructorIdent) (([Identifier])) (([Type])) (
          child tl             : EProductions 
       alternative Nil:
 -}
-type EProductions  = [EProduction ]
+type EProductions = [EProduction]
 -- ERule -------------------------------------------------------
 {-
    alternatives:
@@ -99,7 +99,7 @@ type EProductions  = [EProduction ]
          child pure           : {Bool}
          child mbError        : {Maybe Error}
 -}
-data ERule  = ERule (Identifier) (Pattern) (Expression) (Bool) (String) (Bool) (Bool) ((Maybe Error)) 
+data ERule = ERule (Identifier) (Pattern) (Expression) (Bool) (String) (Bool) (Bool) ((Maybe Error))
 -- ERules ------------------------------------------------------
 {-
    alternatives:
@@ -108,7 +108,7 @@ data ERule  = ERule (Identifier) (Pattern) (Expression) (Bool) (String) (Bool) (
          child tl             : ERules 
       alternative Nil:
 -}
-type ERules  = [ERule ]
+type ERules = [ERule]
 -- ExecutionPlan -----------------------------------------------
 {-
    alternatives:
@@ -118,7 +118,7 @@ type ERules  = [ERule ]
          child wrappers       : {Set NontermIdent}
          child derivings      : {Derivings}
 -}
-data ExecutionPlan  = ExecutionPlan (ENonterminals ) (TypeSyns) ((Set NontermIdent)) (Derivings) 
+data ExecutionPlan = ExecutionPlan (ENonterminals) (TypeSyns) ((Set NontermIdent)) (Derivings)
 -- Visit -------------------------------------------------------
 {-
    alternatives:
@@ -131,7 +131,7 @@ data ExecutionPlan  = ExecutionPlan (ENonterminals ) (TypeSyns) ((Set NontermIde
          child steps          : VisitSteps 
          child kind           : {VisitKind}
 -}
-data Visit  = Visit (VisitIdentifier) (StateIdentifier) (StateIdentifier) ((Set Identifier)) ((Set Identifier)) (VisitSteps ) (VisitKind) 
+data Visit = Visit (VisitIdentifier) (StateIdentifier) (StateIdentifier) ((Set Identifier)) ((Set Identifier)) (VisitSteps) (VisitKind)
 -- VisitStep ---------------------------------------------------
 {-
    alternatives:
@@ -149,11 +149,11 @@ data Visit  = Visit (VisitIdentifier) (StateIdentifier) (StateIdentifier) ((Set 
       alternative Sim:
          child steps          : VisitSteps 
 -}
-data VisitStep  = ChildIntro (Identifier) 
-                | ChildVisit (Identifier) (NontermIdent) (VisitIdentifier) 
-                | PureGroup (VisitSteps ) (Bool) 
-                | Sem (Identifier) 
-                | Sim (VisitSteps ) 
+data VisitStep = ChildIntro (Identifier)
+               | ChildVisit (Identifier) (NontermIdent) (VisitIdentifier)
+               | PureGroup (VisitSteps) (Bool)
+               | Sem (Identifier)
+               | Sim (VisitSteps)
 -- VisitSteps --------------------------------------------------
 {-
    alternatives:
@@ -162,7 +162,7 @@ data VisitStep  = ChildIntro (Identifier)
          child tl             : VisitSteps 
       alternative Nil:
 -}
-type VisitSteps  = [VisitStep ]
+type VisitSteps = [VisitStep]
 -- Visits ------------------------------------------------------
 {-
    alternatives:
@@ -171,4 +171,4 @@ type VisitSteps  = [VisitStep ]
          child tl             : Visits 
       alternative Nil:
 -}
-type Visits  = [Visit ]
+type Visits = [Visit]

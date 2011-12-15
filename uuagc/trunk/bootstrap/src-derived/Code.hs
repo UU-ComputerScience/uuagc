@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/Code.ag)
+-- UUAGC 0.9.40.1 (src-ag/Code.ag)
 module Code where
 {-# LINE 2 "src-ag/Code.ag" #-}
 
@@ -11,7 +11,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 15 "dist/build/uuagc/uuagc-tmp/Code.hs" #-}
+{-# LINE 15 "dist/build/Code.hs" #-}
 {-# LINE 146 "src-ag/Code.ag" #-}
 
 -- Unboxed tuples
@@ -29,7 +29,7 @@ mkTupleType unbox noInh tps | not unbox || noInh || length tps == 1 = TupleType 
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
 mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleLhs comps
                               | otherwise                               = UnboxedTupleLhs comps
-{-# LINE 33 "dist/build/uuagc/uuagc-tmp/Code.hs" #-}
+{-# LINE 33 "dist/build/Code.hs" #-}
 -- CaseAlt -----------------------------------------------------
 {-
    alternatives:
@@ -37,7 +37,7 @@ mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleL
          child left           : Lhs 
          child expr           : Expr 
 -}
-data CaseAlt  = CaseAlt (Lhs ) (Expr ) 
+data CaseAlt = CaseAlt (Lhs) (Expr)
 -- CaseAlts ----------------------------------------------------
 {-
    alternatives:
@@ -46,7 +46,7 @@ data CaseAlt  = CaseAlt (Lhs ) (Expr )
          child tl             : CaseAlts 
       alternative Nil:
 -}
-type CaseAlts  = [CaseAlt ]
+type CaseAlts = [CaseAlt]
 -- Chunk -------------------------------------------------------
 {-
    alternatives:
@@ -61,7 +61,7 @@ type CaseAlts  = [CaseAlt ]
          child semFunctions   : Decls 
          child semNames       : {[String]}
 -}
-data Chunk  = Chunk (String) (Decl ) (Decls ) (Decls ) (Decls ) (Decls ) (Decls ) (Decls ) (([String])) 
+data Chunk = Chunk (String) (Decl) (Decls) (Decls) (Decls) (Decls) (Decls) (Decls) (([String]))
 -- Chunks ------------------------------------------------------
 {-
    alternatives:
@@ -70,7 +70,7 @@ data Chunk  = Chunk (String) (Decl ) (Decls ) (Decls ) (Decls ) (Decls ) (Decls 
          child tl             : Chunks 
       alternative Nil:
 -}
-type Chunks  = [Chunk ]
+type Chunks = [Chunk]
 -- DataAlt -----------------------------------------------------
 {-
    alternatives:
@@ -81,8 +81,8 @@ type Chunks  = [Chunk ]
          child name           : {String}
          child args           : NamedTypes 
 -}
-data DataAlt  = DataAlt (String) (Types ) 
-              | Record (String) (NamedTypes ) 
+data DataAlt = DataAlt (String) (Types)
+             | Record (String) (NamedTypes)
 -- DataAlts ----------------------------------------------------
 {-
    alternatives:
@@ -91,7 +91,7 @@ data DataAlt  = DataAlt (String) (Types )
          child tl             : DataAlts 
       alternative Nil:
 -}
-type DataAlts  = [DataAlt ]
+type DataAlts = [DataAlt]
 -- Decl --------------------------------------------------------
 {-
    alternatives:
@@ -138,17 +138,17 @@ type DataAlts  = [DataAlt ]
          child params         : {[String]}
          child tp             : Type 
 -}
-data Decl  = Bind (Lhs ) (Expr ) 
-           | BindLet (Lhs ) (Expr ) 
-           | Comment (String) 
-           | Data (String) (([String])) (DataAlts ) (Bool) (([String])) 
-           | Decl (Lhs ) (Expr ) ((Set String)) ((Set String)) 
-           | EvalDecl (String) (Lhs ) (Expr ) 
-           | NewType (String) (([String])) (String) (Type ) 
-           | PragmaDecl (String) 
-           | Resume (Bool) (String) (Lhs ) (Expr ) 
-           | TSig (String) (Type ) 
-           | Type (String) (([String])) (Type ) 
+data Decl = Bind (Lhs) (Expr)
+          | BindLet (Lhs) (Expr)
+          | Comment (String)
+          | Data (String) (([String])) (DataAlts) (Bool) (([String]))
+          | Decl (Lhs) (Expr) ((Set String)) ((Set String))
+          | EvalDecl (String) (Lhs) (Expr)
+          | NewType (String) (([String])) (String) (Type)
+          | PragmaDecl (String)
+          | Resume (Bool) (String) (Lhs) (Expr)
+          | TSig (String) (Type)
+          | Type (String) (([String])) (Type)
 -- Decls -------------------------------------------------------
 {-
    alternatives:
@@ -157,7 +157,7 @@ data Decl  = Bind (Lhs ) (Expr )
          child tl             : Decls 
       alternative Nil:
 -}
-type Decls  = [Decl ]
+type Decls = [Decl]
 -- Expr --------------------------------------------------------
 {-
    alternatives:
@@ -214,23 +214,23 @@ type Decls  = [Decl ]
       alternative UnboxedTupleExpr:
          child exprs          : Exprs 
 -}
-data Expr  = App (String) (Exprs ) 
-           | Case (Expr ) (CaseAlts ) 
-           | Do (Decls ) (Expr ) 
-           | InvokeExpr (String) (Expr ) (Exprs ) 
-           | Lambda (Exprs ) (Expr ) 
-           | Let (Decls ) (Expr ) 
-           | LineExpr (Expr ) 
-           | PragmaExpr (Bool) (Bool) (String) (Expr ) 
-           | ResultExpr (String) (Expr ) 
-           | ResumeExpr (String) (Expr ) (Lhs ) (Expr ) 
-           | SemFun (String) (Exprs ) (Expr ) 
-           | SimpleExpr (String) 
-           | TextExpr (([String])) 
-           | Trace (String) (Expr ) 
-           | TupleExpr (Exprs ) 
-           | TypedExpr (Expr ) (Type ) 
-           | UnboxedTupleExpr (Exprs ) 
+data Expr = App (String) (Exprs)
+          | Case (Expr) (CaseAlts)
+          | Do (Decls) (Expr)
+          | InvokeExpr (String) (Expr) (Exprs)
+          | Lambda (Exprs) (Expr)
+          | Let (Decls) (Expr)
+          | LineExpr (Expr)
+          | PragmaExpr (Bool) (Bool) (String) (Expr)
+          | ResultExpr (String) (Expr)
+          | ResumeExpr (String) (Expr) (Lhs) (Expr)
+          | SemFun (String) (Exprs) (Expr)
+          | SimpleExpr (String)
+          | TextExpr (([String]))
+          | Trace (String) (Expr)
+          | TupleExpr (Exprs)
+          | TypedExpr (Expr) (Type)
+          | UnboxedTupleExpr (Exprs)
 -- Exprs -------------------------------------------------------
 {-
    alternatives:
@@ -239,7 +239,7 @@ data Expr  = App (String) (Exprs )
          child tl             : Exprs 
       alternative Nil:
 -}
-type Exprs  = [Expr ]
+type Exprs = [Expr]
 -- Lhs ---------------------------------------------------------
 {-
    alternatives:
@@ -258,12 +258,12 @@ type Exprs  = [Expr ]
          child name           : {String}
          child sub            : Lhs 
 -}
-data Lhs  = Fun (String) (Exprs ) 
-          | Pattern3 (Pattern) 
-          | Pattern3SM (Pattern) 
-          | TupleLhs (([String])) 
-          | UnboxedTupleLhs (([String])) 
-          | Unwrap (String) (Lhs ) 
+data Lhs = Fun (String) (Exprs)
+         | Pattern3 (Pattern)
+         | Pattern3SM (Pattern)
+         | TupleLhs (([String]))
+         | UnboxedTupleLhs (([String]))
+         | Unwrap (String) (Lhs)
 -- NamedType ---------------------------------------------------
 {-
    alternatives:
@@ -272,7 +272,7 @@ data Lhs  = Fun (String) (Exprs )
          child name           : {String}
          child tp             : Type 
 -}
-data NamedType  = Named (Bool) (String) (Type ) 
+data NamedType = Named (Bool) (String) (Type)
 -- NamedTypes --------------------------------------------------
 {-
    alternatives:
@@ -281,7 +281,7 @@ data NamedType  = Named (Bool) (String) (Type )
          child tl             : NamedTypes 
       alternative Nil:
 -}
-type NamedTypes  = [NamedType ]
+type NamedTypes = [NamedType]
 -- Program -----------------------------------------------------
 {-
    alternatives:
@@ -289,7 +289,7 @@ type NamedTypes  = [NamedType ]
          child chunks         : Chunks 
          child ordered        : {Bool}
 -}
-data Program  = Program (Chunks ) (Bool) 
+data Program = Program (Chunks) (Bool)
 -- Type --------------------------------------------------------
 {-
    alternatives:
@@ -328,20 +328,20 @@ data Program  = Program (Chunks ) (Bool)
       alternative UnboxedTupleType:
          child tps            : Types 
 -}
-data Type  = Arr (Type ) (Type ) 
-           | CtxApp (([(String, [String])])) (Type ) 
-           | List (Type ) 
-           | NontermType (String) (([String])) (Bool) 
-           | QuantApp (String) (Type ) 
-           | SimpleType (String) 
-           | TEither (Type ) (Type ) 
-           | TIntMap (Type ) 
-           | TMap (Type ) (Type ) 
-           | TMaybe (Type ) 
-           | TupleType (Types ) 
-           | TypeApp (Type ) (Types ) 
-           | UnboxedTupleType (Types ) 
-           deriving ( Show)
+data Type = Arr (Type) (Type)
+          | CtxApp (([(String, [String])])) (Type)
+          | List (Type)
+          | NontermType (String) (([String])) (Bool)
+          | QuantApp (String) (Type)
+          | SimpleType (String)
+          | TEither (Type) (Type)
+          | TIntMap (Type)
+          | TMap (Type) (Type)
+          | TMaybe (Type)
+          | TupleType (Types)
+          | TypeApp (Type) (Types)
+          | UnboxedTupleType (Types)
+          deriving ( Show)
 -- Types -------------------------------------------------------
 {-
    alternatives:
@@ -350,4 +350,4 @@ data Type  = Arr (Type ) (Type )
          child tl             : Types 
       alternative Nil:
 -}
-type Types  = [Type ]
+type Types = [Type]

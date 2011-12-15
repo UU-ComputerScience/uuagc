@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/AbstractSyntax.ag)
+-- UUAGC 0.9.40.1 (src-ag/AbstractSyntax.ag)
 module AbstractSyntax where
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -12,7 +12,7 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 16 "dist/build/uuagc/uuagc-tmp/AbstractSyntax.hs" #-}
+{-# LINE 16 "dist/build/AbstractSyntax.hs" #-}
 -- Child -------------------------------------------------------
 {-
    alternatives:
@@ -21,7 +21,7 @@ import ErrorMessages
          child tp             : {Type}
          child kind           : {ChildKind}
 -}
-data Child  = Child (Identifier) (Type) (ChildKind) 
+data Child = Child (Identifier) (Type) (ChildKind)
 -- Children ----------------------------------------------------
 {-
    alternatives:
@@ -30,7 +30,7 @@ data Child  = Child (Identifier) (Type) (ChildKind)
          child tl             : Children 
       alternative Nil:
 -}
-type Children  = [Child ]
+type Children = [Child]
 -- Grammar -----------------------------------------------------
 {-
    alternatives:
@@ -50,7 +50,7 @@ type Children  = [Child ]
          child aroundsMap     : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
          child mergeMap       : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))}
 -}
-data Grammar  = Grammar (TypeSyns) (UseMap) (Derivings) ((Set NontermIdent)) (Nonterminals ) (PragmaMap) (AttrOrderMap) (ParamMap) (ContextMap) (QuantMap) (UniqueMap) ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression))))) 
+data Grammar = Grammar (TypeSyns) (UseMap) (Derivings) ((Set NontermIdent)) (Nonterminals) (PragmaMap) (AttrOrderMap) (ParamMap) (ContextMap) (QuantMap) (UniqueMap) ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression])))) ((Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))))
 -- Nonterminal -------------------------------------------------
 {-
    alternatives:
@@ -61,7 +61,7 @@ data Grammar  = Grammar (TypeSyns) (UseMap) (Derivings) ((Set NontermIdent)) (No
          child syn            : {Attributes}
          child prods          : Productions 
 -}
-data Nonterminal  = Nonterminal (NontermIdent) (([Identifier])) (Attributes) (Attributes) (Productions ) 
+data Nonterminal = Nonterminal (NontermIdent) (([Identifier])) (Attributes) (Attributes) (Productions)
 -- Nonterminals ------------------------------------------------
 {-
    alternatives:
@@ -70,7 +70,7 @@ data Nonterminal  = Nonterminal (NontermIdent) (([Identifier])) (Attributes) (At
          child tl             : Nonterminals 
       alternative Nil:
 -}
-type Nonterminals  = [Nonterminal ]
+type Nonterminals = [Nonterminal]
 -- Production --------------------------------------------------
 {-
    alternatives:
@@ -83,7 +83,7 @@ type Nonterminals  = [Nonterminal ]
          child typeSigs       : TypeSigs 
          child macro          : {MaybeMacro}
 -}
-data Production  = Production (ConstructorIdent) (([Identifier])) (([Type])) (Children ) (Rules ) (TypeSigs ) (MaybeMacro) 
+data Production = Production (ConstructorIdent) (([Identifier])) (([Type])) (Children) (Rules) (TypeSigs) (MaybeMacro)
 -- Productions -------------------------------------------------
 {-
    alternatives:
@@ -92,7 +92,7 @@ data Production  = Production (ConstructorIdent) (([Identifier])) (([Type])) (Ch
          child tl             : Productions 
       alternative Nil:
 -}
-type Productions  = [Production ]
+type Productions = [Production]
 -- Rule --------------------------------------------------------
 {-
    alternatives:
@@ -108,7 +108,7 @@ type Productions  = [Production ]
          child mbError        : {Maybe Error}
          child eager          : {Bool}
 -}
-data Rule  = Rule ((Maybe Identifier)) (Pattern) (Expression) (Bool) (String) (Bool) (Bool) (Bool) ((Maybe Error)) (Bool) 
+data Rule = Rule ((Maybe Identifier)) (Pattern) (Expression) (Bool) (String) (Bool) (Bool) (Bool) ((Maybe Error)) (Bool)
 -- Rules -------------------------------------------------------
 {-
    alternatives:
@@ -117,7 +117,7 @@ data Rule  = Rule ((Maybe Identifier)) (Pattern) (Expression) (Bool) (String) (B
          child tl             : Rules 
       alternative Nil:
 -}
-type Rules  = [Rule ]
+type Rules = [Rule]
 -- TypeSig -----------------------------------------------------
 {-
    alternatives:
@@ -125,7 +125,7 @@ type Rules  = [Rule ]
          child name           : {Identifier}
          child tp             : {Type}
 -}
-data TypeSig  = TypeSig (Identifier) (Type) 
+data TypeSig = TypeSig (Identifier) (Type)
 -- TypeSigs ----------------------------------------------------
 {-
    alternatives:
@@ -134,4 +134,4 @@ data TypeSig  = TypeSig (Identifier) (Type)
          child tl             : TypeSigs 
       alternative Nil:
 -}
-type TypeSigs  = [TypeSig ]
+type TypeSigs = [TypeSig]

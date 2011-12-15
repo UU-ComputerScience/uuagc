@@ -1,18 +1,18 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/Patterns.ag)
+-- UUAGC 0.9.40.1 (src-ag/Patterns.ag)
 module Patterns where
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 11 "dist/build/uuagc/uuagc-tmp/Patterns.hs" #-}
+{-# LINE 11 "dist/build/Patterns.hs" #-}
 -- Pattern -----------------------------------------------------
 {-
    visit 0:
       synthesized attribute:
-         copy                 : SELF 
+         copy                 : Pattern 
    alternatives:
       alternative Alias:
          child field          : {Identifier}
@@ -39,17 +39,17 @@ import CommonTypes (ConstructorIdent,Identifier)
          visit 0:
             local copy        : _
 -}
-data Pattern  = Alias (Identifier) (Identifier) (Pattern ) 
-              | Constr (ConstructorIdent) (Patterns ) 
-              | Irrefutable (Pattern ) 
-              | Product (Pos) (Patterns ) 
-              | Underscore (Pos) 
-              deriving ( Show)
+data Pattern = Alias (Identifier) (Identifier) (Pattern)
+             | Constr (ConstructorIdent) (Patterns)
+             | Irrefutable (Pattern)
+             | Product (Pos) (Patterns)
+             | Underscore (Pos)
+             deriving ( Show)
 -- Patterns ----------------------------------------------------
 {-
    visit 0:
       synthesized attribute:
-         copy                 : SELF 
+         copy                 : Patterns 
    alternatives:
       alternative Cons:
          child hd             : Pattern 
@@ -60,4 +60,4 @@ data Pattern  = Alias (Identifier) (Identifier) (Pattern )
          visit 0:
             local copy        : _
 -}
-type Patterns  = [Pattern ]
+type Patterns = [Pattern]

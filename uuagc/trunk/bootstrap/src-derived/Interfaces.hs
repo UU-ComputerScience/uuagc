@@ -1,19 +1,19 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/Interfaces.ag)
+-- UUAGC 0.9.40.1 (src-ag/Interfaces.ag)
 module Interfaces where
 {-# LINE 2 "src-ag/Interfaces.ag" #-}
 
 import CommonTypes
 import SequentialTypes
-{-# LINE 10 "dist/build/uuagc/uuagc-tmp/Interfaces.hs" #-}
+{-# LINE 10 "dist/build/Interfaces.hs" #-}
 -- IRoot -------------------------------------------------------
 {-
    alternatives:
       alternative IRoot:
          child inters         : Interfaces 
 -}
-data IRoot  = IRoot (Interfaces ) 
+data IRoot = IRoot (Interfaces)
 -- Interface ---------------------------------------------------
 {-
    alternatives:
@@ -22,7 +22,7 @@ data IRoot  = IRoot (Interfaces )
          child cons           : {[ConstructorIdent]}
          child seg            : Segments 
 -}
-data Interface  = Interface (NontermIdent) (([ConstructorIdent])) (Segments ) 
+data Interface = Interface (NontermIdent) (([ConstructorIdent])) (Segments)
 -- Interfaces --------------------------------------------------
 {-
    alternatives:
@@ -31,7 +31,7 @@ data Interface  = Interface (NontermIdent) (([ConstructorIdent])) (Segments )
          child tl             : Interfaces 
       alternative Nil:
 -}
-type Interfaces  = [Interface ]
+type Interfaces = [Interface]
 -- Segment -----------------------------------------------------
 {-
    alternatives:
@@ -39,7 +39,7 @@ type Interfaces  = [Interface ]
          child inh            : {[Vertex]}
          child syn            : {[Vertex]}
 -}
-data Segment  = Segment (([Vertex])) (([Vertex])) 
+data Segment = Segment (([Vertex])) (([Vertex]))
 -- Segments ----------------------------------------------------
 {-
    alternatives:
@@ -48,4 +48,4 @@ data Segment  = Segment (([Vertex])) (([Vertex]))
          child tl             : Segments 
       alternative Nil:
 -}
-type Segments  = [Segment ]
+type Segments = [Segment]

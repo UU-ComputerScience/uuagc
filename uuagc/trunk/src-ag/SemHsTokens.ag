@@ -60,24 +60,25 @@ isNTname allnts _                  = False
 }
 
 
+-- An AGLocal is either a local variable or a terminal
 SEM HsToken
-  | AGLocal   loc.tkAsLocal = AGLocal @var @pos @rdesc
-              loc.tkAsField = AGField _LOC @var @pos @rdesc
+  | AGLocal   loc.tkAsLocal = AGLocal @var @pos @rdesc        -- refers to the terminal
+              loc.tkAsField = AGField _LOC @var @pos @rdesc   -- refers to the (local) attribute
               loc.(errors,output,tok,usedLocals) =
-                     if @var `elem` @lhs.fieldnames
+                     if @var `elem` @lhs.fieldnames   -- check if @var occurs as a terminal
                      then if  isNTname @lhs.allnts (lookup @var (map (\(n,t,_) -> (n,t)) @lhs.allfields))
                           then (Seq.singleton(ChildAsLocal @lhs.nt @lhs.con @var), @loc.tkAsLocal,(@pos,fieldname @var), []    )
                           else (Seq.empty, @loc.tkAsLocal, (@pos,fieldname @var), []    )
                      else if (_LOC,@var) `elem` @lhs.attrs
-                     then (Seq.empty                                      , @loc.tkAsField, (@pos,locname   @var), [@var])
-                     else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), @loc.tkAsField, (@pos,locname   @var), []    )
+                          then (Seq.empty                                      , @loc.tkAsField, (@pos,locname   @var), [@var])
+                          else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), @loc.tkAsField, (@pos,locname   @var), []    )
 
 SEM HsToken
   | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
-                                 then Seq.empty
-                                 else if not(@field `elem` (_LHS : _LOC: @lhs.fieldnames))
-                                         then Seq.singleton (UndefChild @lhs.nt @lhs.con @field)
-                                         else Seq.singleton (UndefAttr @lhs.nt @lhs.con @field @attr False)
+                           then Seq.empty
+                           else if not(@field `elem` (_LHS : _LOC: @lhs.fieldnames))
+                                then Seq.singleton (UndefChild @lhs.nt @lhs.con @field)
+                                else Seq.singleton (UndefAttr @lhs.nt @lhs.con @field @attr False)
 
 -------------------------------------------------------------------------------
 --         Used variables
@@ -87,7 +88,11 @@ ATTR HsTokens HsToken [ | | usedLocals USE {++} {[]} : {[Identifier]}
                             usedAttrs  USE {++} {[]} : {[(Identifier,Identifier)]} ]
 
 SEM HsToken
-  | AGField lhs.usedAttrs  = [(@field,@attr)]
+  | AGField (lhs.usedAttrs,lhs.usedLocals)
+              = if @field == _LOC
+                then ([], [@attr])
+                else ([(@field,@attr)], [])
+
 
 -------------------------------------------------------------------------------
 --         Used fields

@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.39.1.0 (src-ag/VisagePatterns.ag)
+-- UUAGC 0.9.40.1 (src-ag/VisagePatterns.ag)
 module VisagePatterns where
 {-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import CommonTypes
-{-# LINE 10 "dist/build/uuagc/uuagc-tmp/VisagePatterns.hs" #-}
+{-# LINE 10 "dist/build/VisagePatterns.hs" #-}
 -- VisagePattern -----------------------------------------------
 {-
    alternatives:
@@ -26,11 +26,11 @@ import CommonTypes
          child field          : {Identifier}
          child attr           : {Identifier}
 -}
-data VisagePattern  = VAlias (Identifier) (Identifier) (VisagePattern ) 
-                    | VConstr (ConstructorIdent) (VisagePatterns ) 
-                    | VProduct (Pos) (VisagePatterns ) 
-                    | VUnderscore (Pos) 
-                    | VVar (Identifier) (Identifier) 
+data VisagePattern = VAlias (Identifier) (Identifier) (VisagePattern)
+                   | VConstr (ConstructorIdent) (VisagePatterns)
+                   | VProduct (Pos) (VisagePatterns)
+                   | VUnderscore (Pos)
+                   | VVar (Identifier) (Identifier)
 -- VisagePatterns ----------------------------------------------
 {-
    alternatives:
@@ -39,4 +39,4 @@ data VisagePattern  = VAlias (Identifier) (Identifier) (VisagePattern )
          child tl             : VisagePatterns 
       alternative Nil:
 -}
-type VisagePatterns  = [VisagePattern ]
+type VisagePatterns = [VisagePattern]

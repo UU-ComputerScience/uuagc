@@ -86,6 +86,8 @@ attrName fld attr
 
 _ACHILD = Ident "(" noPos -- hack
 
+mkLocVar = AGField _LOC
+
 
 getConName typeSyns rename nt con1
  | nt `elem` map fst typeSyns  =  synonym
@@ -259,7 +261,7 @@ useRule locals ch_outs (n,(op,e,pos))
              | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y)
                                               (map (flip attrName n) elems)
 
-        tks | Set.member n locals  =  [AGLocal n noPos Nothing]
+        tks | Set.member n locals  =  [mkLocVar n noPos Nothing]
             | null elems           =  lexTokens noPos e
             | otherwise            =  lexTokens noPos str
                                       where
@@ -273,16 +275,9 @@ useRule locals ch_outs (n,(op,e,pos))
                 Nothing
 
 
-
-selfRule :: Bool -> Identifier -> String -> Rule
-selfRule lhsNecLoc attr x
- = let expr | lhsNecLoc  = locName attr
-            | otherwise  = x
-
-       tks | lhsNecLoc   = [AGLocal attr noPos Nothing]
-           | otherwise   = lexTokens noPos x
-
-   in makeRule (if lhsNecLoc then _LHS else _LOC,attr)
+selfRule :: Bool -> Identifier -> [HsToken] -> Rule
+selfRule lhsNecLoc attr tks
+ = makeRule (if lhsNecLoc then _LHS else _LOC,attr)
                (Expression noPos tks)
                "self rule"
                False
@@ -359,7 +354,7 @@ SEM Production
    loc.(newRls, errs)
    =
     let locals       = @rules.locals
-        initenv      = Map.fromList (  [ (a,_ACHILD)
+        initenv      = Map.fromList (  [ (a,_ACHILD)  -- _ACHILD is used to mark identifiers in the environment that are terminals
                                        | (a,_,_) <- @children.fields
                                        ]
                                     ++ attrs(_LHS, @lhs.inh)
@@ -393,8 +388,13 @@ SEM Production
         uRules
           = map (useRule locals @children.outputs) useAttrs
 
+        -- creates a loc.xxx if there is a synthesized attr xxx of type SELF and no
+        -- loc.xxx exists yet. If there exists a terminal yyy and a local loc.yyy, then
+        -- the local is chosen as value for the terminal.
         selfLocRules
-          =  [ selfRule False attr (constructor [childSelf attr nm tp | (nm,tp,virt) <- @children.fields, childExists virt])
+          =  [ selfRule False attr $
+                 lexTokens noPos $  -- building a string and lexing it again is not so nice... but practical here
+                 constructor [childSelf attr nm tp | (nm,tp,virt) <- @children.fields, childExists virt]
              | attr <- Map.keys selfAttrs
              , not (Set.member attr locals)
              ]
@@ -413,7 +413,7 @@ SEM Production
                childExists _         = True
 
         selfRules
-          = [ selfRule True attr undefined
+          = [ selfRule True attr [mkLocVar attr noPos Nothing]
             | attr <- Map.keys selfAttrs
             , not (Set.member (_LHS,attr) @rules.definedAttrs)
             ]
@@ -437,8 +437,8 @@ addAugments (syn, exprs) rules
   where
     rule = Rule Nothing (Alias _LHS syn (Underscore noPos)) rhs False "augmented rule" False True False Nothing False
     rhs  = Expression noPos tks
-    tks  = [ HsToken "foldr ($) " noPos, AGLocal substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
-    funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
+    tks  = [ HsToken "foldr ($) " noPos, mkLocVar substSyn noPos Nothing, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
+    funs = intersperse (HsToken ", " noPos) (map (\n -> mkLocVar n noPos Nothing) funNames)
 
     substSyn = Ident (show syn ++ "_augmented_syn") (getPos syn)
     funNames = zipWith (\i _ -> Ident (show syn ++ "_augmented_f" ++ show i) (getPos syn)) [1..] exprs
@@ -475,7 +475,7 @@ addArounds (child, exprs) rules
     rule = Rule Nothing (Alias _LOC childLoc (Underscore noPos)) rhs False "around rule" False True False Nothing False
     rhs  = Expression noPos tks
     tks  = [ HsToken "\\s -> foldr ($) s " noPos, HsToken " [" noPos] ++ funs ++ [HsToken "]" noPos]
-    funs = intersperse (HsToken ", " noPos) (map (\n -> AGLocal n noPos Nothing) funNames)
+    funs = intersperse (HsToken ", " noPos) (map (\n -> mkLocVar n noPos Nothing) funNames)
 
     childLoc = Ident (show child ++ "_around") (getPos child)
     funNames = zipWith (\i _ -> Ident (show child ++ "_around_f" ++ show i) (getPos child)) [1..] exprs
@@ -606,7 +606,7 @@ mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity mbErr eager)
   alias = Rule Nothing (Alias _LOC (Ident ("_rule_" ++ show nm) pos) (Underscore pos)) expr owrt origin expl pure identity mbErr eager
   pos   = getPos nm
   expr' = Expression pos tks
-  tks   = [AGLocal (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
+  tks   = [mkLocVar (Ident ("_rule_" ++ show nm) pos) pos (Just ("Indirection to rule " ++ show nm))]
   r'    = Rule Nothing pat expr' owrt origin False True identity Nothing False
 }
 
