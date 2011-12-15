@@ -201,7 +201,7 @@ SEM Grammar
   | Grammar             nonts     .     derivs  =  @derivings
 
 
-ATTR Nonterminals Nonterminal [ | | ppD USE {>-<} {empty} : {PP_Doc} ppDI USE {++} {[]} : {[PP_Doc]} ]
+ATTR Nonterminals Nonterminal Production [ | | ppD USE {>-<} {empty} : {PP_Doc} ppDI USE {++} {[]} : {[PP_Doc]} ]
 
 SEM Nonterminal
   | Nonterminal		lhs     .  	ppD    	=
@@ -209,10 +209,10 @@ SEM Nonterminal
                                      then  case (lookup @nt @lhs.tSyns) of
                                                     -- if it's a data type
                                                     Nothing ->  "data " >|< @loc.ppNt
-                                                                {- >|< " = " >|< vlist_sep " | " @prods.ppDL >-<
+                                                                 >|< " = " >|< vlist_sep " | " @prods.ppDL >-<
                                                                 case (Map.lookup @nt @lhs.derivs) of
                                                                  Just ntds -> pp "  deriving " >|<  (ppListSep "(" ")" ", " $ Set.elems ntds)
-                                                                 Nothing   -> empty -}
+                                                                 Nothing   -> empty -- uncommented for testing purposes 
                                                     -- if it's a type synonym
                                                     Just tp ->  "type " >|< @loc.ppNt >|< " = " >|< ppShow tp
                                      else  empty
@@ -221,7 +221,8 @@ SEM Nonterminal
                                      if (not $ Set.member @nt @lhs.newNTs)
                                      then  [ @loc.ppNt ]
                                      else  [ ]
-{-
+-- uncommented for testing purposes
+
 SEM Production
   | Production		lhs     .  	ppD    	= @loc.conName >|< ppListSep " {" "}" ", " @children.ppDL
 
@@ -240,7 +241,7 @@ SEM Child
   | Child	        lhs     .  	ppDL   	= case @kind of
                                                    ChildSyntax    ->  [ @loc.chName  >|< pp " :: " >|< @loc.ppTCh ]
                                                    _              ->  []
--}
+
 
 
 ATTR Nonterminals Nonterminal  [ tSyns : {TypeSyns} | |  ]
