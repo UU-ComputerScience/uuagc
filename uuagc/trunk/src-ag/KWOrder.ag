@@ -358,7 +358,7 @@ ATTR Grammar [ | | output : {ExecutionPlan}
 SEM  Grammar
   |  Grammar  (lhs.output, lhs.depgraphs, lhs.visitgraph, lhs.errors)
                 = let lazyPlan = kennedyWarrenLazy @lhs.options @wrappers @nonts.depinfo @typeSyns @derivings
-                  in if visit @lhs.options
+                  in if visit @lhs.options && withCycle @lhs.options
                      then case kennedyWarrenOrder @lhs.options @wrappers @nonts.depinfo @typeSyns @derivings of
                             Left e        -> (lazyPlan,empty,empty,Seq.singleton e)
                             Right (o,d,v) -> (o,d,v,Seq.empty)
