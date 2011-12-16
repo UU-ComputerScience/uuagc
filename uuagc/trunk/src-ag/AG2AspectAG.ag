@@ -129,7 +129,7 @@ SEM Grammar
                                                    "import Data.HList.TypeEqGeneric1" >-<
                                                    "import Data.HList.TypeCastGeneric1" >-<
                                                    maybe empty ("import qualified" >#<) @lhs.ext >-<
-                                                   maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (@nonts.ppDI ++ @nonts.ppLI ++ @loc.ppAI)) @lhs.ext
+                                                   maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (@nonts.ppDI ++ @nonts.ppLI ++ @loc.ppAI ++ @loc.ppANT)) @lhs.ext
 
 -- CODE
 
@@ -312,6 +312,10 @@ SEM Grammar
                                                       otherwise  ->  [ attName "inh", attName "syn", attTName "inh", attTName "syn" ]) ++
                                                     @nonts.ppAI
 
+
+        		loc     .  	ppANT 	=
+                                                let atts =  filterNotAtts @loc.newAtts @loc.o_noGroup
+                                                in  (foldr (\a as -> ("nts_" >|< a) : as) [] atts)
 
 ATTR Nonterminals Nonterminal Productions Production [ | | ppA USE {>-<} {empty} : PP_Doc ]
 
@@ -783,7 +787,7 @@ SEM Nonterminal
                                                   synAtts >|<
                                                   "(HCons (LVPair (Proxy Att_syn) SynG_" >|< @loc.ppNt >|< ") HNil))" >|<
                                                   replicate (length synAtts) ")" >-<
-                                                  "instance SemType T_" >|< @loc.ppNt >|< " " >|< @loc.ppNt >-<
+                                                  "-- instance SemType T_" >|< @loc.ppNt >|< " " >|< @loc.ppNt >-<
                                                   "-- sem_" >|< @loc.ppNt >|< " :: " >|< @loc.ppNt >|< " -> T_" >|<  @loc.ppNt >-<
                                                   @prods.ppSPF -- >-<
                                                   -- @prods.ppSF
