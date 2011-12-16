@@ -312,8 +312,6 @@ sem_Child_Child name_ tp_ kind_ =
                             _refNts
                             {-# LINE 314 "dist/build/KWOrder" #-}
                             )
-                       ___node =
-                           (Syn_Child _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices)
                    in  ( _lhsOechilds,_lhsOedges,_lhsOnontnames,_lhsOrefHoNts,_lhsOrefNts,_lhsOvertices))))
 -- Children ----------------------------------------------------
 {-
@@ -403,116 +401,114 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                           _lhsOechilds =
                               ({-# LINE 175 "src-ag/KWOrder.ag" #-}
                                _hdIechilds : _tlIechilds
-                               {-# LINE 407 "dist/build/KWOrder" #-}
+                               {-# LINE 405 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 233, column 33)
                           _lhsOedges =
                               ({-# LINE 233 "src-ag/KWOrder.ag" #-}
                                _hdIedges `Set.union` _tlIedges
-                               {-# LINE 413 "dist/build/KWOrder" #-}
+                               {-# LINE 411 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 298, column 37)
                           _lhsOnontnames =
                               ({-# LINE 298 "src-ag/KWOrder.ag" #-}
                                _hdInontnames ++ _tlInontnames
-                               {-# LINE 419 "dist/build/KWOrder" #-}
+                               {-# LINE 417 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                           _lhsOrefHoNts =
                               ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                _hdIrefHoNts `mappend` _tlIrefHoNts
-                               {-# LINE 425 "dist/build/KWOrder" #-}
+                               {-# LINE 423 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                           _lhsOrefNts =
                               ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                _hdIrefNts `mappend` _tlIrefNts
-                               {-# LINE 431 "dist/build/KWOrder" #-}
+                               {-# LINE 429 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 189, column 36)
                           _lhsOvertices =
                               ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                                _hdIvertices `Set.union` _tlIvertices
-                               {-# LINE 437 "dist/build/KWOrder" #-}
+                               {-# LINE 435 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOaroundMap =
                               ({-# LINE 99 "src-ag/KWOrder.ag" #-}
                                _lhsIaroundMap
-                               {-# LINE 443 "dist/build/KWOrder" #-}
+                               {-# LINE 441 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 449 "dist/build/KWOrder" #-}
+                               {-# LINE 447 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOmergeMap =
                               ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 455 "dist/build/KWOrder" #-}
+                               {-# LINE 453 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOmergedChildren =
                               ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                _lhsImergedChildren
-                               {-# LINE 461 "dist/build/KWOrder" #-}
+                               {-# LINE 459 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOoptions =
                               ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                _lhsIoptions
-                               {-# LINE 467 "dist/build/KWOrder" #-}
+                               {-# LINE 465 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _hdOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 473 "dist/build/KWOrder" #-}
+                               {-# LINE 471 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOaroundMap =
                               ({-# LINE 99 "src-ag/KWOrder.ag" #-}
                                _lhsIaroundMap
-                               {-# LINE 479 "dist/build/KWOrder" #-}
+                               {-# LINE 477 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 485 "dist/build/KWOrder" #-}
+                               {-# LINE 483 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOmergeMap =
                               ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 491 "dist/build/KWOrder" #-}
+                               {-# LINE 489 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOmergedChildren =
                               ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                _lhsImergedChildren
-                               {-# LINE 497 "dist/build/KWOrder" #-}
+                               {-# LINE 495 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOoptions =
                               ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                _lhsIoptions
-                               {-# LINE 503 "dist/build/KWOrder" #-}
+                               {-# LINE 501 "dist/build/KWOrder" #-}
                                )
                           -- copy rule (down)
                           _tlOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 509 "dist/build/KWOrder" #-}
+                               {-# LINE 507 "dist/build/KWOrder" #-}
                                )
                           ( _hdIechilds,_hdIedges,_hdInontnames,_hdIrefHoNts,_hdIrefNts,_hdIvertices) =
                               hd_ _hdOaroundMap _hdOinhMap _hdOmergeMap _hdOmergedChildren _hdOoptions _hdOsynMap
                           ( _tlIechilds,_tlIedges,_tlInontnames,_tlIrefHoNts,_tlIrefNts,_tlIvertices) =
                               tl_ _tlOaroundMap _tlOinhMap _tlOmergeMap _tlOmergedChildren _tlOoptions _tlOsynMap
-                          ___node =
-                              (Syn_Children _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices)
                       in  ( _lhsOechilds,_lhsOedges,_lhsOnontnames,_lhsOrefHoNts,_lhsOrefNts,_lhsOvertices))))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -532,40 +528,38 @@ sem_Children_Nil =
                           _lhsOechilds =
                               ({-# LINE 175 "src-ag/KWOrder.ag" #-}
                                []
-                               {-# LINE 536 "dist/build/KWOrder" #-}
+                               {-# LINE 532 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 233, column 33)
                           _lhsOedges =
                               ({-# LINE 233 "src-ag/KWOrder.ag" #-}
                                Set.empty
-                               {-# LINE 542 "dist/build/KWOrder" #-}
+                               {-# LINE 538 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 298, column 37)
                           _lhsOnontnames =
                               ({-# LINE 298 "src-ag/KWOrder.ag" #-}
                                []
-                               {-# LINE 548 "dist/build/KWOrder" #-}
+                               {-# LINE 544 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                           _lhsOrefHoNts =
                               ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                mempty
-                               {-# LINE 554 "dist/build/KWOrder" #-}
+                               {-# LINE 550 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                           _lhsOrefNts =
                               ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                mempty
-                               {-# LINE 560 "dist/build/KWOrder" #-}
+                               {-# LINE 556 "dist/build/KWOrder" #-}
                                )
                           -- use rule "src-ag/KWOrder.ag"(line 189, column 36)
                           _lhsOvertices =
                               ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                                Set.empty
-                               {-# LINE 566 "dist/build/KWOrder" #-}
+                               {-# LINE 562 "dist/build/KWOrder" #-}
                                )
-                          ___node =
-                              (Syn_Children _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices)
                       in  ( _lhsOechilds,_lhsOedges,_lhsOnontnames,_lhsOrefHoNts,_lhsOrefNts,_lhsOvertices))))
 -- Expression --------------------------------------------------
 {-
@@ -606,22 +600,20 @@ sem_Expression_Expression pos_ tks_ =
                            ({-# LINE 200 "src-ag/KWOrder.ag" #-}
                             Set.unions $ map (\tok -> vertices_Syn_HsToken
                                          (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                            {-# LINE 610 "dist/build/KWOrder" #-}
+                            {-# LINE 604 "dist/build/KWOrder" #-}
                             )
                        -- self rule
                        _copy =
                            ({-# LINE 154 "src-ag/KWOrder.ag" #-}
                             Expression pos_ tks_
-                            {-# LINE 616 "dist/build/KWOrder" #-}
+                            {-# LINE 610 "dist/build/KWOrder" #-}
                             )
                        -- self rule
                        _lhsOcopy =
                            ({-# LINE 154 "src-ag/KWOrder.ag" #-}
                             _copy
-                            {-# LINE 622 "dist/build/KWOrder" #-}
+                            {-# LINE 616 "dist/build/KWOrder" #-}
                             )
-                       ___node =
-                           (Syn_Expression _lhsOcopy _lhsOvertices)
                    in  ( _lhsOcopy,_lhsOvertices)))
 -- Grammar -----------------------------------------------------
 {-
@@ -721,119 +713,117 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                          _nontsOrulenumber =
                              ({-# LINE 44 "src-ag/KWOrder.ag" #-}
                               0
-                              {-# LINE 725 "dist/build/KWOrder" #-}
+                              {-# LINE 717 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 83, column 3)
                          _closedNtDeps =
                              ({-# LINE 83 "src-ag/KWOrder.ag" #-}
                               closeMap _nontsIntDeps
-                              {-# LINE 731 "dist/build/KWOrder" #-}
+                              {-# LINE 723 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 84, column 3)
                          _closedHoNtDeps =
                              ({-# LINE 84 "src-ag/KWOrder.ag" #-}
                               closeMap _nontsIntHoDeps
-                              {-# LINE 737 "dist/build/KWOrder" #-}
+                              {-# LINE 729 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 85, column 3)
                          _closedHoNtRevDeps =
                              ({-# LINE 85 "src-ag/KWOrder.ag" #-}
                               revDeps _closedHoNtDeps
-                              {-# LINE 743 "dist/build/KWOrder" #-}
+                              {-# LINE 735 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 105, column 3)
                          _nontsOaroundMap =
                              ({-# LINE 105 "src-ag/KWOrder.ag" #-}
                               aroundsMap_
-                              {-# LINE 749 "dist/build/KWOrder" #-}
+                              {-# LINE 741 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 130, column 3)
                          _nontsOmergeMap =
                              ({-# LINE 130 "src-ag/KWOrder.ag" #-}
                               mergeMap_
-                              {-# LINE 755 "dist/build/KWOrder" #-}
+                              {-# LINE 747 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 146, column 3)
                          _nontsOclassContexts =
                              ({-# LINE 146 "src-ag/KWOrder.ag" #-}
                               contextMap_
-                              {-# LINE 761 "dist/build/KWOrder" #-}
+                              {-# LINE 753 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 269, column 31)
                          _nontsOmanualDeps =
                              ({-# LINE 269 "src-ag/KWOrder.ag" #-}
                               manualAttrOrderMap_
-                              {-# LINE 767 "dist/build/KWOrder" #-}
+                              {-# LINE 759 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/KWOrder.ag"(line 359, column 15)
                          (_lhsOoutput,_lhsOdepgraphs,_lhsOvisitgraph,_lhsOerrors) =
                              ({-# LINE 359 "src-ag/KWOrder.ag" #-}
                               let lazyPlan = kennedyWarrenLazy _lhsIoptions wrappers_ _nontsIdepinfo typeSyns_ derivings_
-                              in if visit _lhsIoptions
+                              in if visit _lhsIoptions && withCycle _lhsIoptions
                                  then case kennedyWarrenOrder _lhsIoptions wrappers_ _nontsIdepinfo typeSyns_ derivings_ of
                                         Left e        -> (lazyPlan,empty,empty,Seq.singleton e)
                                         Right (o,d,v) -> (o,d,v,Seq.empty)
                                  else (lazyPlan,empty,empty,Seq.empty)
-                              {-# LINE 778 "dist/build/KWOrder" #-}
+                              {-# LINE 770 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 15, column 13)
                          _nontsOinhMap =
                              ({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                               _nontsIinhMap'
-                              {-# LINE 784 "dist/build/KWOrder" #-}
+                              {-# LINE 776 "dist/build/KWOrder" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 16, column 13)
                          _nontsOsynMap =
                              ({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                               _nontsIsynMap'
-                              {-# LINE 790 "dist/build/KWOrder" #-}
+                              {-# LINE 782 "dist/build/KWOrder" #-}
                               )
                          -- use rule "src-ag/KWOrder.ag"(line 371, column 33)
                          _lhsOinhmap =
                              ({-# LINE 371 "src-ag/KWOrder.ag" #-}
                               _nontsIinhmap
-                              {-# LINE 796 "dist/build/KWOrder" #-}
+                              {-# LINE 788 "dist/build/KWOrder" #-}
                               )
                          -- use rule "src-ag/KWOrder.ag"(line 383, column 57)
                          _lhsOlocalSigMap =
                              ({-# LINE 383 "src-ag/KWOrder.ag" #-}
                               _nontsIlocalSigMap
-                              {-# LINE 802 "dist/build/KWOrder" #-}
+                              {-# LINE 794 "dist/build/KWOrder" #-}
                               )
                          -- use rule "src-ag/KWOrder.ag"(line 372, column 33)
                          _lhsOsynmap =
                              ({-# LINE 372 "src-ag/KWOrder.ag" #-}
                               _nontsIsynmap
-                              {-# LINE 808 "dist/build/KWOrder" #-}
+                              {-# LINE 800 "dist/build/KWOrder" #-}
                               )
                          -- copy rule (from local)
                          _nontsOclosedHoNtDeps =
                              ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                               _closedHoNtDeps
-                              {-# LINE 814 "dist/build/KWOrder" #-}
+                              {-# LINE 806 "dist/build/KWOrder" #-}
                               )
                          -- copy rule (from local)
                          _nontsOclosedHoNtRevDeps =
                              ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                               _closedHoNtRevDeps
-                              {-# LINE 820 "dist/build/KWOrder" #-}
+                              {-# LINE 812 "dist/build/KWOrder" #-}
                               )
                          -- copy rule (from local)
                          _nontsOclosedNtDeps =
                              ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                               _closedNtDeps
-                              {-# LINE 826 "dist/build/KWOrder" #-}
+                              {-# LINE 818 "dist/build/KWOrder" #-}
                               )
                          -- copy rule (down)
                          _nontsOoptions =
                              ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                               _lhsIoptions
-                              {-# LINE 832 "dist/build/KWOrder" #-}
+                              {-# LINE 824 "dist/build/KWOrder" #-}
                               )
                          ( _nontsIdepinfo,_nontsIinhMap',_nontsIinhmap,_nontsIlocalSigMap,_nontsIntDeps,_nontsIntHoDeps,_nontsIrulenumber,_nontsIsynMap',_nontsIsynmap) =
                              nonts_ _nontsOaroundMap _nontsOclassContexts _nontsOclosedHoNtDeps _nontsOclosedHoNtRevDeps _nontsOclosedNtDeps _nontsOinhMap _nontsOmanualDeps _nontsOmergeMap _nontsOoptions _nontsOrulenumber _nontsOsynMap
-                         ___node =
-                             (Syn_Grammar _lhsOdepgraphs _lhsOerrors _lhsOinhmap _lhsOlocalSigMap _lhsOoutput _lhsOsynmap _lhsOvisitgraph)
                      in  ( _lhsOdepgraphs,_lhsOerrors,_lhsOinhmap,_lhsOlocalSigMap,_lhsOoutput,_lhsOsynmap,_lhsOvisitgraph))))
 -- HsToken -----------------------------------------------------
 {-
@@ -901,10 +891,8 @@ sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
                          Set.singleton $ VAttr (if      field_ == _LHS then Inh
                                                 else if field_ == _LOC then Loc
                                                 else                        Syn) field_ attr_
-                         {-# LINE 905 "dist/build/KWOrder" #-}
+                         {-# LINE 895 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 sem_HsToken_AGLocal :: Identifier ->
                        Pos ->
@@ -916,10 +904,8 @@ sem_HsToken_AGLocal var_ pos_ rdesc_ =
                     _lhsOvertices =
                         ({-# LINE 193 "src-ag/KWOrder.ag" #-}
                          Set.singleton $ VChild var_
-                         {-# LINE 920 "dist/build/KWOrder" #-}
+                         {-# LINE 908 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 sem_HsToken_CharToken :: String ->
                          Pos ->
@@ -930,10 +916,8 @@ sem_HsToken_CharToken value_ pos_ =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          Set.empty
-                         {-# LINE 934 "dist/build/KWOrder" #-}
+                         {-# LINE 920 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 sem_HsToken_Err :: String ->
                    Pos ->
@@ -944,10 +928,8 @@ sem_HsToken_Err mesg_ pos_ =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          Set.empty
-                         {-# LINE 948 "dist/build/KWOrder" #-}
+                         {-# LINE 932 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 sem_HsToken_HsToken :: String ->
                        Pos ->
@@ -958,10 +940,8 @@ sem_HsToken_HsToken value_ pos_ =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          Set.empty
-                         {-# LINE 962 "dist/build/KWOrder" #-}
+                         {-# LINE 944 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 sem_HsToken_StrToken :: String ->
                         Pos ->
@@ -972,10 +952,8 @@ sem_HsToken_StrToken value_ pos_ =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          Set.empty
-                         {-# LINE 976 "dist/build/KWOrder" #-}
+                         {-# LINE 956 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOvertices)
                 in  ( _lhsOvertices)))
 -- HsTokens ----------------------------------------------------
 {-
@@ -1007,13 +985,10 @@ sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
     (T_HsTokens (let _hdIvertices :: (Set.Set Vertex)
                      ( _hdIvertices) =
                          hd_
-                     ___node =
-                         (Syn_HsTokens)
                  in  ( )))
 sem_HsTokens_Nil :: T_HsTokens
 sem_HsTokens_Nil =
-    (T_HsTokens (let ___node =
-                         (Syn_HsTokens)
+    (T_HsTokens (let
                  in  ( )))
 -- HsTokensRoot ------------------------------------------------
 {-
@@ -1039,8 +1014,7 @@ wrap_HsTokensRoot (T_HsTokensRoot sem) (Inh_HsTokensRoot) =
 sem_HsTokensRoot_HsTokensRoot :: T_HsTokens ->
                                  T_HsTokensRoot
 sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_) =
-    (T_HsTokensRoot (let ___node =
-                             (Syn_HsTokensRoot)
+    (T_HsTokensRoot (let
                      in  ( )))
 -- Nonterminal -------------------------------------------------
 {-
@@ -1158,43 +1132,43 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                              _lhsOntDeps =
                                  ({-# LINE 59 "src-ag/KWOrder.ag" #-}
                                   Map.singleton nt_ _prodsIrefNts
-                                  {-# LINE 1162 "dist/build/KWOrder" #-}
+                                  {-# LINE 1136 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 60, column 3)
                              _lhsOntHoDeps =
                                  ({-# LINE 60 "src-ag/KWOrder.ag" #-}
                                   Map.singleton nt_ _prodsIrefHoNts
-                                  {-# LINE 1168 "dist/build/KWOrder" #-}
+                                  {-# LINE 1142 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 62, column 3)
                              _closedNtDeps =
                                  ({-# LINE 62 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Set.empty nt_ _lhsIclosedNtDeps
-                                  {-# LINE 1174 "dist/build/KWOrder" #-}
+                                  {-# LINE 1148 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 63, column 3)
                              _closedHoNtDeps =
                                  ({-# LINE 63 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtDeps
-                                  {-# LINE 1180 "dist/build/KWOrder" #-}
+                                  {-# LINE 1154 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 64, column 3)
                              _closedHoNtRevDeps =
                                  ({-# LINE 64 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtRevDeps
-                                  {-# LINE 1186 "dist/build/KWOrder" #-}
+                                  {-# LINE 1160 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 66, column 3)
                              _recursive =
                                  ({-# LINE 66 "src-ag/KWOrder.ag" #-}
                                   nt_ `Set.member` _closedNtDeps
-                                  {-# LINE 1192 "dist/build/KWOrder" #-}
+                                  {-# LINE 1166 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 67, column 3)
                              _nontrivAcyc =
                                  ({-# LINE 67 "src-ag/KWOrder.ag" #-}
                                   nt_ `Set.member` _closedHoNtDeps
-                                  {-# LINE 1198 "dist/build/KWOrder" #-}
+                                  {-# LINE 1172 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 68, column 3)
                              _hoInfo =
@@ -1203,56 +1177,56 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                                   , hoNtRevDeps         = _closedHoNtRevDeps
                                                   , hoAcyclic           = _nontrivAcyc
                                                   }
-                                  {-# LINE 1207 "dist/build/KWOrder" #-}
+                                  {-# LINE 1181 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 101, column 32)
                              _aroundMap =
                                  ({-# LINE 101 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                  {-# LINE 1213 "dist/build/KWOrder" #-}
+                                  {-# LINE 1187 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 126, column 32)
                              _mergeMap =
                                  ({-# LINE 126 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                  {-# LINE 1219 "dist/build/KWOrder" #-}
+                                  {-# LINE 1193 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 149, column 3)
                              _classContexts =
                                  ({-# LINE 149 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault [] nt_ _lhsIclassContexts
-                                  {-# LINE 1225 "dist/build/KWOrder" #-}
+                                  {-# LINE 1199 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 270, column 31)
                              _prodsOmanualDeps =
                                  ({-# LINE 270 "src-ag/KWOrder.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsImanualDeps
-                                  {-# LINE 1231 "dist/build/KWOrder" #-}
+                                  {-# LINE 1205 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 325, column 18)
                              _synvertices =
                                  ({-# LINE 325 "src-ag/KWOrder.ag" #-}
                                   map (VAttr Syn nt_) . Map.keys $ syn_
-                                  {-# LINE 1237 "dist/build/KWOrder" #-}
+                                  {-# LINE 1211 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 326, column 18)
                              _inhvertices =
                                  ({-# LINE 326 "src-ag/KWOrder.ag" #-}
                                   map (VAttr Inh nt_) . Map.keys $ inh_
-                                  {-# LINE 1243 "dist/build/KWOrder" #-}
+                                  {-# LINE 1217 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 327, column 18)
                              _vertices =
                                  ({-# LINE 327 "src-ag/KWOrder.ag" #-}
                                   _synvertices     ++ _inhvertices
-                                  {-# LINE 1249 "dist/build/KWOrder" #-}
+                                  {-# LINE 1223 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 331, column 18)
                              _nontgraph =
                                  ({-# LINE 331 "src-ag/KWOrder.ag" #-}
                                   NontDependencyGraph { ndgVertices = _vertices
                                                       , ndgEdges    = [] }
-                                  {-# LINE 1256 "dist/build/KWOrder" #-}
+                                  {-# LINE 1230 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 339, column 18)
                              _lhsOdepinfo =
@@ -1267,84 +1241,82 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                                             , ndiHoInfo      = _hoInfo
                                                             , ndiClassCtxs   = _classContexts
                                                             }
-                                  {-# LINE 1271 "dist/build/KWOrder" #-}
+                                  {-# LINE 1245 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 377, column 17)
                              _lhsOinhmap =
                                  ({-# LINE 377 "src-ag/KWOrder.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 1277 "dist/build/KWOrder" #-}
+                                  {-# LINE 1251 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 378, column 17)
                              _lhsOsynmap =
                                  ({-# LINE 378 "src-ag/KWOrder.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 1283 "dist/build/KWOrder" #-}
+                                  {-# LINE 1257 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/KWOrder.ag"(line 387, column 32)
                              _lhsOlocalSigMap =
                                  ({-# LINE 387 "src-ag/KWOrder.ag" #-}
                                   Map.singleton nt_ _prodsIlocalSigMap
-                                  {-# LINE 1289 "dist/build/KWOrder" #-}
+                                  {-# LINE 1263 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 7, column 18)
                              _lhsOinhMap' =
                                  ({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 1295 "dist/build/KWOrder" #-}
+                                  {-# LINE 1269 "dist/build/KWOrder" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 8, column 18)
                              _lhsOsynMap' =
                                  ({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 1301 "dist/build/KWOrder" #-}
+                                  {-# LINE 1275 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (up)
                              _lhsOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _prodsIrulenumber
-                                  {-# LINE 1307 "dist/build/KWOrder" #-}
+                                  {-# LINE 1281 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (from local)
                              _prodsOaroundMap =
                                  ({-# LINE 96 "src-ag/KWOrder.ag" #-}
                                   _aroundMap
-                                  {-# LINE 1313 "dist/build/KWOrder" #-}
+                                  {-# LINE 1287 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _prodsOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 1319 "dist/build/KWOrder" #-}
+                                  {-# LINE 1293 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (from local)
                              _prodsOmergeMap =
                                  ({-# LINE 121 "src-ag/KWOrder.ag" #-}
                                   _mergeMap
-                                  {-# LINE 1325 "dist/build/KWOrder" #-}
+                                  {-# LINE 1299 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _prodsOoptions =
                                  ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 1331 "dist/build/KWOrder" #-}
+                                  {-# LINE 1305 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _prodsOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _lhsIrulenumber
-                                  {-# LINE 1337 "dist/build/KWOrder" #-}
+                                  {-# LINE 1311 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _prodsOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 1343 "dist/build/KWOrder" #-}
+                                  {-# LINE 1317 "dist/build/KWOrder" #-}
                                   )
                              ( _prodsIdepgraph,_prodsIlocalSigMap,_prodsIrefHoNts,_prodsIrefNts,_prodsIrulenumber) =
                                  prods_ _prodsOaroundMap _prodsOinhMap _prodsOmanualDeps _prodsOmergeMap _prodsOoptions _prodsOrulenumber _prodsOsynMap
-                             ___node =
-                                 (Syn_Nonterminal _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap)
                          in  ( _lhsOdepinfo,_lhsOinhMap',_lhsOinhmap,_lhsOlocalSigMap,_lhsOntDeps,_lhsOntHoDeps,_lhsOrulenumber,_lhsOsynMap',_lhsOsynmap))))
 -- Nonterminals ------------------------------------------------
 {-
@@ -1471,194 +1443,192 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                               _lhsOdepinfo =
                                   ({-# LINE 336 "src-ag/KWOrder.ag" #-}
                                    _hdIdepinfo : _tlIdepinfo
-                                   {-# LINE 1475 "dist/build/KWOrder" #-}
+                                   {-# LINE 1447 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 1481 "dist/build/KWOrder" #-}
+                                   {-# LINE 1453 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 371, column 33)
                               _lhsOinhmap =
                                   ({-# LINE 371 "src-ag/KWOrder.ag" #-}
                                    _hdIinhmap `Map.union` _tlIinhmap
-                                   {-# LINE 1487 "dist/build/KWOrder" #-}
+                                   {-# LINE 1459 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 383, column 57)
                               _lhsOlocalSigMap =
                                   ({-# LINE 383 "src-ag/KWOrder.ag" #-}
                                    _hdIlocalSigMap `Map.union` _tlIlocalSigMap
-                                   {-# LINE 1493 "dist/build/KWOrder" #-}
+                                   {-# LINE 1465 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 54, column 54)
                               _lhsOntDeps =
                                   ({-# LINE 54 "src-ag/KWOrder.ag" #-}
                                    _hdIntDeps `mappend` _tlIntDeps
-                                   {-# LINE 1499 "dist/build/KWOrder" #-}
+                                   {-# LINE 1471 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 54, column 54)
                               _lhsOntHoDeps =
                                   ({-# LINE 54 "src-ag/KWOrder.ag" #-}
                                    _hdIntHoDeps `mappend` _tlIntHoDeps
-                                   {-# LINE 1505 "dist/build/KWOrder" #-}
+                                   {-# LINE 1477 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 1511 "dist/build/KWOrder" #-}
+                                   {-# LINE 1483 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 372, column 33)
                               _lhsOsynmap =
                                   ({-# LINE 372 "src-ag/KWOrder.ag" #-}
                                    _hdIsynmap `Map.union` _tlIsynmap
-                                   {-# LINE 1517 "dist/build/KWOrder" #-}
+                                   {-# LINE 1489 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (up)
                               _lhsOrulenumber =
                                   ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                    _tlIrulenumber
-                                   {-# LINE 1523 "dist/build/KWOrder" #-}
+                                   {-# LINE 1495 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOaroundMap =
                                   ({-# LINE 93 "src-ag/KWOrder.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 1529 "dist/build/KWOrder" #-}
+                                   {-# LINE 1501 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOclassContexts =
                                   ({-# LINE 143 "src-ag/KWOrder.ag" #-}
                                    _lhsIclassContexts
-                                   {-# LINE 1535 "dist/build/KWOrder" #-}
+                                   {-# LINE 1507 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOclosedHoNtDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedHoNtDeps
-                                   {-# LINE 1541 "dist/build/KWOrder" #-}
+                                   {-# LINE 1513 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOclosedHoNtRevDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedHoNtRevDeps
-                                   {-# LINE 1547 "dist/build/KWOrder" #-}
+                                   {-# LINE 1519 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOclosedNtDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedNtDeps
-                                   {-# LINE 1553 "dist/build/KWOrder" #-}
+                                   {-# LINE 1525 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 1559 "dist/build/KWOrder" #-}
+                                   {-# LINE 1531 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOmanualDeps =
                                   ({-# LINE 266 "src-ag/KWOrder.ag" #-}
                                    _lhsImanualDeps
-                                   {-# LINE 1565 "dist/build/KWOrder" #-}
+                                   {-# LINE 1537 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOmergeMap =
                                   ({-# LINE 118 "src-ag/KWOrder.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 1571 "dist/build/KWOrder" #-}
+                                   {-# LINE 1543 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOoptions =
                                   ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1577 "dist/build/KWOrder" #-}
+                                   {-# LINE 1549 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOrulenumber =
                                   ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                    _lhsIrulenumber
-                                   {-# LINE 1583 "dist/build/KWOrder" #-}
+                                   {-# LINE 1555 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 1589 "dist/build/KWOrder" #-}
+                                   {-# LINE 1561 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOaroundMap =
                                   ({-# LINE 93 "src-ag/KWOrder.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 1595 "dist/build/KWOrder" #-}
+                                   {-# LINE 1567 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOclassContexts =
                                   ({-# LINE 143 "src-ag/KWOrder.ag" #-}
                                    _lhsIclassContexts
-                                   {-# LINE 1601 "dist/build/KWOrder" #-}
+                                   {-# LINE 1573 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOclosedHoNtDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedHoNtDeps
-                                   {-# LINE 1607 "dist/build/KWOrder" #-}
+                                   {-# LINE 1579 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOclosedHoNtRevDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedHoNtRevDeps
-                                   {-# LINE 1613 "dist/build/KWOrder" #-}
+                                   {-# LINE 1585 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOclosedNtDeps =
                                   ({-# LINE 55 "src-ag/KWOrder.ag" #-}
                                    _lhsIclosedNtDeps
-                                   {-# LINE 1619 "dist/build/KWOrder" #-}
+                                   {-# LINE 1591 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 1625 "dist/build/KWOrder" #-}
+                                   {-# LINE 1597 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOmanualDeps =
                                   ({-# LINE 266 "src-ag/KWOrder.ag" #-}
                                    _lhsImanualDeps
-                                   {-# LINE 1631 "dist/build/KWOrder" #-}
+                                   {-# LINE 1603 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOmergeMap =
                                   ({-# LINE 118 "src-ag/KWOrder.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 1637 "dist/build/KWOrder" #-}
+                                   {-# LINE 1609 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOoptions =
                                   ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1643 "dist/build/KWOrder" #-}
+                                   {-# LINE 1615 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (chain)
                               _tlOrulenumber =
                                   ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                    _hdIrulenumber
-                                   {-# LINE 1649 "dist/build/KWOrder" #-}
+                                   {-# LINE 1621 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 1655 "dist/build/KWOrder" #-}
+                                   {-# LINE 1627 "dist/build/KWOrder" #-}
                                    )
                               ( _hdIdepinfo,_hdIinhMap',_hdIinhmap,_hdIlocalSigMap,_hdIntDeps,_hdIntHoDeps,_hdIrulenumber,_hdIsynMap',_hdIsynmap) =
                                   hd_ _hdOaroundMap _hdOclassContexts _hdOclosedHoNtDeps _hdOclosedHoNtRevDeps _hdOclosedNtDeps _hdOinhMap _hdOmanualDeps _hdOmergeMap _hdOoptions _hdOrulenumber _hdOsynMap
                               ( _tlIdepinfo,_tlIinhMap',_tlIinhmap,_tlIlocalSigMap,_tlIntDeps,_tlIntHoDeps,_tlIrulenumber,_tlIsynMap',_tlIsynmap) =
                                   tl_ _tlOaroundMap _tlOclassContexts _tlOclosedHoNtDeps _tlOclosedHoNtRevDeps _tlOclosedNtDeps _tlOinhMap _tlOmanualDeps _tlOmergeMap _tlOoptions _tlOrulenumber _tlOsynMap
-                              ___node =
-                                  (Syn_Nonterminals _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap)
                           in  ( _lhsOdepinfo,_lhsOinhMap',_lhsOinhmap,_lhsOlocalSigMap,_lhsOntDeps,_lhsOntHoDeps,_lhsOrulenumber,_lhsOsynMap',_lhsOsynmap))))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -1686,58 +1656,56 @@ sem_Nonterminals_Nil =
                               _lhsOdepinfo =
                                   ({-# LINE 336 "src-ag/KWOrder.ag" #-}
                                    []
-                                   {-# LINE 1690 "dist/build/KWOrder" #-}
+                                   {-# LINE 1660 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 1696 "dist/build/KWOrder" #-}
+                                   {-# LINE 1666 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 371, column 33)
                               _lhsOinhmap =
                                   ({-# LINE 371 "src-ag/KWOrder.ag" #-}
                                    Map.empty
-                                   {-# LINE 1702 "dist/build/KWOrder" #-}
+                                   {-# LINE 1672 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 383, column 57)
                               _lhsOlocalSigMap =
                                   ({-# LINE 383 "src-ag/KWOrder.ag" #-}
                                    Map.empty
-                                   {-# LINE 1708 "dist/build/KWOrder" #-}
+                                   {-# LINE 1678 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 54, column 54)
                               _lhsOntDeps =
                                   ({-# LINE 54 "src-ag/KWOrder.ag" #-}
                                    mempty
-                                   {-# LINE 1714 "dist/build/KWOrder" #-}
+                                   {-# LINE 1684 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 54, column 54)
                               _lhsOntHoDeps =
                                   ({-# LINE 54 "src-ag/KWOrder.ag" #-}
                                    mempty
-                                   {-# LINE 1720 "dist/build/KWOrder" #-}
+                                   {-# LINE 1690 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 1726 "dist/build/KWOrder" #-}
+                                   {-# LINE 1696 "dist/build/KWOrder" #-}
                                    )
                               -- use rule "src-ag/KWOrder.ag"(line 372, column 33)
                               _lhsOsynmap =
                                   ({-# LINE 372 "src-ag/KWOrder.ag" #-}
                                    Map.empty
-                                   {-# LINE 1732 "dist/build/KWOrder" #-}
+                                   {-# LINE 1702 "dist/build/KWOrder" #-}
                                    )
                               -- copy rule (chain)
                               _lhsOrulenumber =
                                   ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                    _lhsIrulenumber
-                                   {-# LINE 1738 "dist/build/KWOrder" #-}
+                                   {-# LINE 1708 "dist/build/KWOrder" #-}
                                    )
-                              ___node =
-                                  (Syn_Nonterminals _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap)
                           in  ( _lhsOdepinfo,_lhsOinhMap',_lhsOinhmap,_lhsOlocalSigMap,_lhsOntDeps,_lhsOntHoDeps,_lhsOrulenumber,_lhsOsynMap',_lhsOsynmap))))
 -- Pattern -----------------------------------------------------
 {-
@@ -1811,30 +1779,28 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                          else VAttr (if      field_ == _LHS  then Syn
                                      else if field_ == _LOC  then Loc
                                      else                         Inh) field_ attr_
-                         {-# LINE 1815 "dist/build/KWOrder" #-}
+                         {-# LINE 1783 "dist/build/KWOrder" #-}
                          )
                     -- "src-ag/KWOrder.ag"(line 209, column 12)
                     _lhsOvertices =
                         ({-# LINE 209 "src-ag/KWOrder.ag" #-}
                          Set.insert _vertex     _patIvertices
-                         {-# LINE 1821 "dist/build/KWOrder" #-}
+                         {-# LINE 1789 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 1827 "dist/build/KWOrder" #-}
+                         {-# LINE 1795 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 1833 "dist/build/KWOrder" #-}
+                         {-# LINE 1801 "dist/build/KWOrder" #-}
                          )
                     ( _patIcopy,_patIvertices) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOvertices)
                 in  ( _lhsOcopy,_lhsOvertices)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -1848,24 +1814,22 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          _patsIvertices
-                         {-# LINE 1852 "dist/build/KWOrder" #-}
+                         {-# LINE 1818 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 1858 "dist/build/KWOrder" #-}
+                         {-# LINE 1824 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 1864 "dist/build/KWOrder" #-}
+                         {-# LINE 1830 "dist/build/KWOrder" #-}
                          )
                     ( _patsIcopy,_patsIvertices) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOvertices)
                 in  ( _lhsOcopy,_lhsOvertices)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -1878,24 +1842,22 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          _patIvertices
-                         {-# LINE 1882 "dist/build/KWOrder" #-}
+                         {-# LINE 1846 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 1888 "dist/build/KWOrder" #-}
+                         {-# LINE 1852 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 1894 "dist/build/KWOrder" #-}
+                         {-# LINE 1858 "dist/build/KWOrder" #-}
                          )
                     ( _patIcopy,_patIvertices) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOvertices)
                 in  ( _lhsOcopy,_lhsOvertices)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -1909,24 +1871,22 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          _patsIvertices
-                         {-# LINE 1913 "dist/build/KWOrder" #-}
+                         {-# LINE 1875 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 1919 "dist/build/KWOrder" #-}
+                         {-# LINE 1881 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 1925 "dist/build/KWOrder" #-}
+                         {-# LINE 1887 "dist/build/KWOrder" #-}
                          )
                     ( _patsIcopy,_patsIvertices) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOvertices)
                 in  ( _lhsOcopy,_lhsOvertices)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -1937,22 +1897,20 @@ sem_Pattern_Underscore pos_ =
                     _lhsOvertices =
                         ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                          Set.empty
-                         {-# LINE 1941 "dist/build/KWOrder" #-}
+                         {-# LINE 1901 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 1947 "dist/build/KWOrder" #-}
+                         {-# LINE 1907 "dist/build/KWOrder" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 1953 "dist/build/KWOrder" #-}
+                         {-# LINE 1913 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOvertices)
                 in  ( _lhsOcopy,_lhsOvertices)))
 -- Patterns ----------------------------------------------------
 {-
@@ -1999,26 +1957,24 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _lhsOvertices =
                          ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                           _hdIvertices `Set.union` _tlIvertices
-                          {-# LINE 2003 "dist/build/KWOrder" #-}
+                          {-# LINE 1961 "dist/build/KWOrder" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 2009 "dist/build/KWOrder" #-}
+                          {-# LINE 1967 "dist/build/KWOrder" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 2015 "dist/build/KWOrder" #-}
+                          {-# LINE 1973 "dist/build/KWOrder" #-}
                           )
                      ( _hdIcopy,_hdIvertices) =
                          hd_
                      ( _tlIcopy,_tlIvertices) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOvertices)
                  in  ( _lhsOcopy,_lhsOvertices)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -2028,22 +1984,20 @@ sem_Patterns_Nil =
                      _lhsOvertices =
                          ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                           Set.empty
-                          {-# LINE 2032 "dist/build/KWOrder" #-}
+                          {-# LINE 1988 "dist/build/KWOrder" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 2038 "dist/build/KWOrder" #-}
+                          {-# LINE 1994 "dist/build/KWOrder" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 2044 "dist/build/KWOrder" #-}
+                          {-# LINE 2000 "dist/build/KWOrder" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOvertices)
                  in  ( _lhsOcopy,_lhsOvertices)))
 -- Production --------------------------------------------------
 {-
@@ -2145,43 +2099,43 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                             _aroundMap =
                                 ({-# LINE 102 "src-ag/KWOrder.ag" #-}
                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
-                                 {-# LINE 2149 "dist/build/KWOrder" #-}
+                                 {-# LINE 2103 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 127, column 32)
                             _mergeMap =
                                 ({-# LINE 127 "src-ag/KWOrder.ag" #-}
                                  Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                 {-# LINE 2155 "dist/build/KWOrder" #-}
+                                 {-# LINE 2109 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 133, column 3)
                             _mergedChildren =
                                 ({-# LINE 133 "src-ag/KWOrder.ag" #-}
                                  Set.unions [ Set.fromList ms | (_,ms,_) <- Map.elems _mergeMap     ]
-                                 {-# LINE 2161 "dist/build/KWOrder" #-}
+                                 {-# LINE 2115 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 229, column 17)
                             _vertices =
                                 ({-# LINE 229 "src-ag/KWOrder.ag" #-}
                                  _rulesIvertices `Set.union` _childrenIvertices
-                                 {-# LINE 2167 "dist/build/KWOrder" #-}
+                                 {-# LINE 2121 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 272, column 3)
                             _manualDeps =
                                 ({-# LINE 272 "src-ag/KWOrder.ag" #-}
                                  Map.findWithDefault Set.empty con_ _lhsImanualDeps
-                                 {-# LINE 2173 "dist/build/KWOrder" #-}
+                                 {-# LINE 2127 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 273, column 3)
                             _manualEdges =
                                 ({-# LINE 273 "src-ag/KWOrder.ag" #-}
                                  Set.map depToEdge _manualDeps
-                                 {-# LINE 2179 "dist/build/KWOrder" #-}
+                                 {-# LINE 2133 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 295, column 17)
                             _edges =
                                 ({-# LINE 295 "src-ag/KWOrder.ag" #-}
                                  _rulesIedges `Set.union` _childrenIedges
-                                 {-# LINE 2185 "dist/build/KWOrder" #-}
+                                 {-# LINE 2139 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 310, column 17)
                             _lhsOdepgraph =
@@ -2194,73 +2148,73 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                                      , pdgChildMap    = _childrenInontnames
                                                      , pdgConstraints = constraints_
                                                      , pdgParams      = params_ }
-                                 {-# LINE 2198 "dist/build/KWOrder" #-}
+                                 {-# LINE 2152 "dist/build/KWOrder" #-}
                                  )
                             -- "src-ag/KWOrder.ag"(line 388, column 32)
                             _lhsOlocalSigMap =
                                 ({-# LINE 388 "src-ag/KWOrder.ag" #-}
                                  Map.singleton con_ _typeSigsIlocalSigMap
-                                 {-# LINE 2204 "dist/build/KWOrder" #-}
+                                 {-# LINE 2158 "dist/build/KWOrder" #-}
                                  )
                             -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                             _lhsOrefHoNts =
                                 ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                  _childrenIrefHoNts
-                                 {-# LINE 2210 "dist/build/KWOrder" #-}
+                                 {-# LINE 2164 "dist/build/KWOrder" #-}
                                  )
                             -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                             _lhsOrefNts =
                                 ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                  _childrenIrefNts
-                                 {-# LINE 2216 "dist/build/KWOrder" #-}
+                                 {-# LINE 2170 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (up)
                             _lhsOrulenumber =
                                 ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                  _rulesIrulenumber
-                                 {-# LINE 2222 "dist/build/KWOrder" #-}
+                                 {-# LINE 2176 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOaroundMap =
                                 ({-# LINE 99 "src-ag/KWOrder.ag" #-}
                                  _aroundMap
-                                 {-# LINE 2228 "dist/build/KWOrder" #-}
+                                 {-# LINE 2182 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 2234 "dist/build/KWOrder" #-}
+                                 {-# LINE 2188 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOmergeMap =
                                 ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                  _mergeMap
-                                 {-# LINE 2240 "dist/build/KWOrder" #-}
+                                 {-# LINE 2194 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOmergedChildren =
                                 ({-# LINE 124 "src-ag/KWOrder.ag" #-}
                                  _mergedChildren
-                                 {-# LINE 2246 "dist/build/KWOrder" #-}
+                                 {-# LINE 2200 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (down)
                             _childrenOoptions =
                                 ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 2252 "dist/build/KWOrder" #-}
+                                 {-# LINE 2206 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIsynMap
-                                 {-# LINE 2258 "dist/build/KWOrder" #-}
+                                 {-# LINE 2212 "dist/build/KWOrder" #-}
                                  )
                             -- copy rule (down)
                             _rulesOrulenumber =
                                 ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                  _lhsIrulenumber
-                                 {-# LINE 2264 "dist/build/KWOrder" #-}
+                                 {-# LINE 2218 "dist/build/KWOrder" #-}
                                  )
                             ( _childrenIechilds,_childrenIedges,_childrenInontnames,_childrenIrefHoNts,_childrenIrefNts,_childrenIvertices) =
                                 children_ _childrenOaroundMap _childrenOinhMap _childrenOmergeMap _childrenOmergedChildren _childrenOoptions _childrenOsynMap
@@ -2268,8 +2222,6 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                 rules_ _rulesOrulenumber
                             ( _typeSigsIlocalSigMap) =
                                 typeSigs_
-                            ___node =
-                                (Syn_Production _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber)
                         in  ( _lhsOdepgraph,_lhsOlocalSigMap,_lhsOrefHoNts,_lhsOrefNts,_lhsOrulenumber))))
 -- Productions -------------------------------------------------
 {-
@@ -2360,122 +2312,120 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                              _lhsOdepgraph =
                                  ({-# LINE 307 "src-ag/KWOrder.ag" #-}
                                   _hdIdepgraph : _tlIdepgraph
-                                  {-# LINE 2364 "dist/build/KWOrder" #-}
+                                  {-# LINE 2316 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 384, column 57)
                              _lhsOlocalSigMap =
                                  ({-# LINE 384 "src-ag/KWOrder.ag" #-}
                                   _hdIlocalSigMap `Map.union` _tlIlocalSigMap
-                                  {-# LINE 2370 "dist/build/KWOrder" #-}
+                                  {-# LINE 2322 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                              _lhsOrefHoNts =
                                  ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                   _hdIrefHoNts `mappend` _tlIrefHoNts
-                                  {-# LINE 2376 "dist/build/KWOrder" #-}
+                                  {-# LINE 2328 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                              _lhsOrefNts =
                                  ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                   _hdIrefNts `mappend` _tlIrefNts
-                                  {-# LINE 2382 "dist/build/KWOrder" #-}
+                                  {-# LINE 2334 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (up)
                              _lhsOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _tlIrulenumber
-                                  {-# LINE 2388 "dist/build/KWOrder" #-}
+                                  {-# LINE 2340 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOaroundMap =
                                  ({-# LINE 96 "src-ag/KWOrder.ag" #-}
                                   _lhsIaroundMap
-                                  {-# LINE 2394 "dist/build/KWOrder" #-}
+                                  {-# LINE 2346 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 2400 "dist/build/KWOrder" #-}
+                                  {-# LINE 2352 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOmanualDeps =
                                  ({-# LINE 267 "src-ag/KWOrder.ag" #-}
                                   _lhsImanualDeps
-                                  {-# LINE 2406 "dist/build/KWOrder" #-}
+                                  {-# LINE 2358 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOmergeMap =
                                  ({-# LINE 121 "src-ag/KWOrder.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 2412 "dist/build/KWOrder" #-}
+                                  {-# LINE 2364 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOoptions =
                                  ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2418 "dist/build/KWOrder" #-}
+                                  {-# LINE 2370 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _lhsIrulenumber
-                                  {-# LINE 2424 "dist/build/KWOrder" #-}
+                                  {-# LINE 2376 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 2430 "dist/build/KWOrder" #-}
+                                  {-# LINE 2382 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOaroundMap =
                                  ({-# LINE 96 "src-ag/KWOrder.ag" #-}
                                   _lhsIaroundMap
-                                  {-# LINE 2436 "dist/build/KWOrder" #-}
+                                  {-# LINE 2388 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 2442 "dist/build/KWOrder" #-}
+                                  {-# LINE 2394 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOmanualDeps =
                                  ({-# LINE 267 "src-ag/KWOrder.ag" #-}
                                   _lhsImanualDeps
-                                  {-# LINE 2448 "dist/build/KWOrder" #-}
+                                  {-# LINE 2400 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOmergeMap =
                                  ({-# LINE 121 "src-ag/KWOrder.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 2454 "dist/build/KWOrder" #-}
+                                  {-# LINE 2406 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOoptions =
                                  ({-# LINE 34 "src-ag/KWOrder.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2460 "dist/build/KWOrder" #-}
+                                  {-# LINE 2412 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (chain)
                              _tlOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _hdIrulenumber
-                                  {-# LINE 2466 "dist/build/KWOrder" #-}
+                                  {-# LINE 2418 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 2472 "dist/build/KWOrder" #-}
+                                  {-# LINE 2424 "dist/build/KWOrder" #-}
                                   )
                              ( _hdIdepgraph,_hdIlocalSigMap,_hdIrefHoNts,_hdIrefNts,_hdIrulenumber) =
                                  hd_ _hdOaroundMap _hdOinhMap _hdOmanualDeps _hdOmergeMap _hdOoptions _hdOrulenumber _hdOsynMap
                              ( _tlIdepgraph,_tlIlocalSigMap,_tlIrefHoNts,_tlIrefNts,_tlIrulenumber) =
                                  tl_ _tlOaroundMap _tlOinhMap _tlOmanualDeps _tlOmergeMap _tlOoptions _tlOrulenumber _tlOsynMap
-                             ___node =
-                                 (Syn_Productions _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber)
                          in  ( _lhsOdepgraph,_lhsOlocalSigMap,_lhsOrefHoNts,_lhsOrefNts,_lhsOrulenumber))))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -2495,34 +2445,32 @@ sem_Productions_Nil =
                              _lhsOdepgraph =
                                  ({-# LINE 307 "src-ag/KWOrder.ag" #-}
                                   []
-                                  {-# LINE 2499 "dist/build/KWOrder" #-}
+                                  {-# LINE 2449 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 384, column 57)
                              _lhsOlocalSigMap =
                                  ({-# LINE 384 "src-ag/KWOrder.ag" #-}
                                   Map.empty
-                                  {-# LINE 2505 "dist/build/KWOrder" #-}
+                                  {-# LINE 2455 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                              _lhsOrefHoNts =
                                  ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                   mempty
-                                  {-# LINE 2511 "dist/build/KWOrder" #-}
+                                  {-# LINE 2461 "dist/build/KWOrder" #-}
                                   )
                              -- use rule "src-ag/KWOrder.ag"(line 56, column 67)
                              _lhsOrefNts =
                                  ({-# LINE 56 "src-ag/KWOrder.ag" #-}
                                   mempty
-                                  {-# LINE 2517 "dist/build/KWOrder" #-}
+                                  {-# LINE 2467 "dist/build/KWOrder" #-}
                                   )
                              -- copy rule (chain)
                              _lhsOrulenumber =
                                  ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                                   _lhsIrulenumber
-                                  {-# LINE 2523 "dist/build/KWOrder" #-}
+                                  {-# LINE 2473 "dist/build/KWOrder" #-}
                                   )
-                             ___node =
-                                 (Syn_Productions _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber)
                          in  ( _lhsOdepgraph,_lhsOlocalSigMap,_lhsOrefHoNts,_lhsOrefNts,_lhsOrulenumber))))
 -- Rule --------------------------------------------------------
 {-
@@ -2592,13 +2540,13 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                       _lhsOrulenumber =
                           ({-# LINE 47 "src-ag/KWOrder.ag" #-}
                            _lhsIrulenumber + 1
-                           {-# LINE 2596 "dist/build/KWOrder" #-}
+                           {-# LINE 2544 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 48, column 11)
                       _rulename =
                           ({-# LINE 48 "src-ag/KWOrder.ag" #-}
                            maybe (identifier $ "rule" ++ show _lhsIrulenumber) id mbName_
-                           {-# LINE 2602 "dist/build/KWOrder" #-}
+                           {-# LINE 2550 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 160, column 10)
                       _lhsOerules =
@@ -2611,44 +2559,42 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                  explicit_
                                  pure_
                                  mbError_
-                           {-# LINE 2615 "dist/build/KWOrder" #-}
+                           {-# LINE 2563 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 224, column 11)
                       _vertex =
                           ({-# LINE 224 "src-ag/KWOrder.ag" #-}
                            VRule _rulename
-                           {-# LINE 2621 "dist/build/KWOrder" #-}
+                           {-# LINE 2569 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 225, column 11)
                       _lhsOvertices =
                           ({-# LINE 225 "src-ag/KWOrder.ag" #-}
                            Set.insert _vertex     $ _patternIvertices `Set.union` _rhsIvertices
-                           {-# LINE 2627 "dist/build/KWOrder" #-}
+                           {-# LINE 2575 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 237, column 11)
                       _edgesout =
                           ({-# LINE 237 "src-ag/KWOrder.ag" #-}
                            map ((,) _vertex    ) (Set.toList _rhsIvertices)
-                           {-# LINE 2633 "dist/build/KWOrder" #-}
+                           {-# LINE 2581 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 238, column 11)
                       _edgesin =
                           ({-# LINE 238 "src-ag/KWOrder.ag" #-}
                            map (flip (,) _vertex    ) (Set.toList _patternIvertices)
-                           {-# LINE 2639 "dist/build/KWOrder" #-}
+                           {-# LINE 2587 "dist/build/KWOrder" #-}
                            )
                       -- "src-ag/KWOrder.ag"(line 239, column 11)
                       _lhsOedges =
                           ({-# LINE 239 "src-ag/KWOrder.ag" #-}
                            Set.fromList $ _edgesout     ++ _edgesin
-                           {-# LINE 2645 "dist/build/KWOrder" #-}
+                           {-# LINE 2593 "dist/build/KWOrder" #-}
                            )
                       ( _patternIcopy,_patternIvertices) =
                           pattern_
                       ( _rhsIcopy,_rhsIvertices) =
                           rhs_
-                      ___node =
-                          (Syn_Rule _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices)
                   in  ( _lhsOedges,_lhsOerules,_lhsOrulenumber,_lhsOvertices))))
 -- Rules -------------------------------------------------------
 {-
@@ -2704,44 +2650,42 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                        _lhsOedges =
                            ({-# LINE 233 "src-ag/KWOrder.ag" #-}
                             _hdIedges `Set.union` _tlIedges
-                            {-# LINE 2708 "dist/build/KWOrder" #-}
+                            {-# LINE 2654 "dist/build/KWOrder" #-}
                             )
                        -- use rule "src-ag/KWOrder.ag"(line 157, column 25)
                        _lhsOerules =
                            ({-# LINE 157 "src-ag/KWOrder.ag" #-}
                             _hdIerules : _tlIerules
-                            {-# LINE 2714 "dist/build/KWOrder" #-}
+                            {-# LINE 2660 "dist/build/KWOrder" #-}
                             )
                        -- use rule "src-ag/KWOrder.ag"(line 189, column 36)
                        _lhsOvertices =
                            ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                             _hdIvertices `Set.union` _tlIvertices
-                            {-# LINE 2720 "dist/build/KWOrder" #-}
+                            {-# LINE 2666 "dist/build/KWOrder" #-}
                             )
                        -- copy rule (up)
                        _lhsOrulenumber =
                            ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                             _tlIrulenumber
-                            {-# LINE 2726 "dist/build/KWOrder" #-}
+                            {-# LINE 2672 "dist/build/KWOrder" #-}
                             )
                        -- copy rule (down)
                        _hdOrulenumber =
                            ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                             _lhsIrulenumber
-                            {-# LINE 2732 "dist/build/KWOrder" #-}
+                            {-# LINE 2678 "dist/build/KWOrder" #-}
                             )
                        -- copy rule (chain)
                        _tlOrulenumber =
                            ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                             _hdIrulenumber
-                            {-# LINE 2738 "dist/build/KWOrder" #-}
+                            {-# LINE 2684 "dist/build/KWOrder" #-}
                             )
                        ( _hdIedges,_hdIerules,_hdIrulenumber,_hdIvertices) =
                            hd_ _hdOrulenumber
                        ( _tlIedges,_tlIerules,_tlIrulenumber,_tlIvertices) =
                            tl_ _tlOrulenumber
-                       ___node =
-                           (Syn_Rules _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices)
                    in  ( _lhsOedges,_lhsOerules,_lhsOrulenumber,_lhsOvertices))))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -2754,28 +2698,26 @@ sem_Rules_Nil =
                        _lhsOedges =
                            ({-# LINE 233 "src-ag/KWOrder.ag" #-}
                             Set.empty
-                            {-# LINE 2758 "dist/build/KWOrder" #-}
+                            {-# LINE 2702 "dist/build/KWOrder" #-}
                             )
                        -- use rule "src-ag/KWOrder.ag"(line 157, column 25)
                        _lhsOerules =
                            ({-# LINE 157 "src-ag/KWOrder.ag" #-}
                             []
-                            {-# LINE 2764 "dist/build/KWOrder" #-}
+                            {-# LINE 2708 "dist/build/KWOrder" #-}
                             )
                        -- use rule "src-ag/KWOrder.ag"(line 189, column 36)
                        _lhsOvertices =
                            ({-# LINE 189 "src-ag/KWOrder.ag" #-}
                             Set.empty
-                            {-# LINE 2770 "dist/build/KWOrder" #-}
+                            {-# LINE 2714 "dist/build/KWOrder" #-}
                             )
                        -- copy rule (chain)
                        _lhsOrulenumber =
                            ({-# LINE 41 "src-ag/KWOrder.ag" #-}
                             _lhsIrulenumber
-                            {-# LINE 2776 "dist/build/KWOrder" #-}
+                            {-# LINE 2720 "dist/build/KWOrder" #-}
                             )
-                       ___node =
-                           (Syn_Rules _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices)
                    in  ( _lhsOedges,_lhsOerules,_lhsOrulenumber,_lhsOvertices))))
 -- TypeSig -----------------------------------------------------
 {-
@@ -2811,10 +2753,8 @@ sem_TypeSig_TypeSig name_ tp_ =
                     _lhsOlocalSigMap =
                         ({-# LINE 389 "src-ag/KWOrder.ag" #-}
                          Map.singleton name_ tp_
-                         {-# LINE 2815 "dist/build/KWOrder" #-}
+                         {-# LINE 2757 "dist/build/KWOrder" #-}
                          )
-                    ___node =
-                        (Syn_TypeSig _lhsOlocalSigMap)
                 in  ( _lhsOlocalSigMap)))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -2853,14 +2793,12 @@ sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
                      _lhsOlocalSigMap =
                          ({-# LINE 385 "src-ag/KWOrder.ag" #-}
                           _hdIlocalSigMap `Map.union` _tlIlocalSigMap
-                          {-# LINE 2857 "dist/build/KWOrder" #-}
+                          {-# LINE 2797 "dist/build/KWOrder" #-}
                           )
                      ( _hdIlocalSigMap) =
                          hd_
                      ( _tlIlocalSigMap) =
                          tl_
-                     ___node =
-                         (Syn_TypeSigs _lhsOlocalSigMap)
                  in  ( _lhsOlocalSigMap)))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
@@ -2869,8 +2807,6 @@ sem_TypeSigs_Nil =
                      _lhsOlocalSigMap =
                          ({-# LINE 385 "src-ag/KWOrder.ag" #-}
                           Map.empty
-                          {-# LINE 2873 "dist/build/KWOrder" #-}
+                          {-# LINE 2811 "dist/build/KWOrder" #-}
                           )
-                     ___node =
-                         (Syn_TypeSigs _lhsOlocalSigMap)
                  in  ( _lhsOlocalSigMap)))

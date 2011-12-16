@@ -426,8 +426,6 @@ sem_Child_Child name_ tp_ kind_ =
                             _gathRules
                             {-# LINE 428 "dist/build/Order" #-}
                             )
-                       ___node =
-                           (Syn_Child _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals)
                    in  ( _lhsOattributes,_lhsOcollectChildrenInhs,_lhsOcollectChildrenSyns,_lhsOerrors,_lhsOfield,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinhs,_lhsOnts,_lhsOsinglevisits,_lhsOterminals))))
 -- Children ----------------------------------------------------
 {-
@@ -562,206 +560,204 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                           _lhsOfields =
                               ({-# LINE 675 "src-ag/Order.ag" #-}
                                _hdIfield : _tlIfields
-                               {-# LINE 566 "dist/build/Order" #-}
+                               {-# LINE 564 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 666, column 32)
                           _lhsOattributes =
                               ({-# LINE 666 "src-ag/Order.ag" #-}
                                _hdIattributes ++ _tlIattributes
-                               {-# LINE 572 "dist/build/Order" #-}
+                               {-# LINE 570 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 343, column 68)
                           _lhsOcollectChildrenInhs =
                               ({-# LINE 343 "src-ag/Order.ag" #-}
                                _hdIcollectChildrenInhs `Map.union` _tlIcollectChildrenInhs
-                               {-# LINE 578 "dist/build/Order" #-}
+                               {-# LINE 576 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 343, column 68)
                           _lhsOcollectChildrenSyns =
                               ({-# LINE 343 "src-ag/Order.ag" #-}
                                _hdIcollectChildrenSyns `Map.union` _tlIcollectChildrenSyns
-                               {-# LINE 584 "dist/build/Order" #-}
+                               {-# LINE 582 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 85, column 70)
                           _lhsOerrors =
                               ({-# LINE 85 "src-ag/Order.ag" #-}
                                _hdIerrors Seq.>< _tlIerrors
-                               {-# LINE 590 "dist/build/Order" #-}
+                               {-# LINE 588 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 171, column 68)
                           _lhsOgathAltAttrs =
                               ({-# LINE 171 "src-ag/Order.ag" #-}
                                _hdIgathAltAttrs ++ _tlIgathAltAttrs
-                               {-# LINE 596 "dist/build/Order" #-}
+                               {-# LINE 594 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 207, column 23)
                           _lhsOgathRules =
                               ({-# LINE 207 "src-ag/Order.ag" #-}
                                _hdIgathRules Seq.>< _tlIgathRules
-                               {-# LINE 602 "dist/build/Order" #-}
+                               {-# LINE 600 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 194, column 20)
                           _lhsOinhs =
                               ({-# LINE 194 "src-ag/Order.ag" #-}
                                _hdIinhs Seq.>< _tlIinhs
-                               {-# LINE 608 "dist/build/Order" #-}
+                               {-# LINE 606 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 193, column 19)
                           _lhsOnts =
                               ({-# LINE 193 "src-ag/Order.ag" #-}
                                _hdInts Seq.>< _tlInts
-                               {-# LINE 614 "dist/build/Order" #-}
+                               {-# LINE 612 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 612, column 40)
                           _lhsOsinglevisits =
                               ({-# LINE 612 "src-ag/Order.ag" #-}
                                _hdIsinglevisits ++ _tlIsinglevisits
-                               {-# LINE 620 "dist/build/Order" #-}
+                               {-# LINE 618 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 637, column 38)
                           _lhsOterminals =
                               ({-# LINE 637 "src-ag/Order.ag" #-}
                                _hdIterminals ++ _tlIterminals
-                               {-# LINE 626 "dist/build/Order" #-}
+                               {-# LINE 624 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOallfields =
                               ({-# LINE 655 "src-ag/Order.ag" #-}
                                _lhsIallfields
-                               {-# LINE 632 "dist/build/Order" #-}
+                               {-# LINE 630 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOallnts =
                               ({-# LINE 648 "src-ag/Order.ag" #-}
                                _lhsIallnts
-                               {-# LINE 638 "dist/build/Order" #-}
+                               {-# LINE 636 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOattrs =
                               ({-# LINE 655 "src-ag/Order.ag" #-}
                                _lhsIattrs
-                               {-# LINE 644 "dist/build/Order" #-}
+                               {-# LINE 642 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 91 "src-ag/Order.ag" #-}
                                _lhsIcon
-                               {-# LINE 650 "dist/build/Order" #-}
+                               {-# LINE 648 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOinh =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIinh
-                               {-# LINE 656 "dist/build/Order" #-}
+                               {-# LINE 654 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 662 "dist/build/Order" #-}
+                               {-# LINE 660 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOmergeMap =
                               ({-# LINE 361 "src-ag/Order.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 668 "dist/build/Order" #-}
+                               {-# LINE 666 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsInt
-                               {-# LINE 674 "dist/build/Order" #-}
+                               {-# LINE 672 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOo_unbox =
                               ({-# LINE 120 "src-ag/Order.ag" #-}
                                _lhsIo_unbox
-                               {-# LINE 680 "dist/build/Order" #-}
+                               {-# LINE 678 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOsyn =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIsyn
-                               {-# LINE 686 "dist/build/Order" #-}
+                               {-# LINE 684 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 692 "dist/build/Order" #-}
+                               {-# LINE 690 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOallfields =
                               ({-# LINE 655 "src-ag/Order.ag" #-}
                                _lhsIallfields
-                               {-# LINE 698 "dist/build/Order" #-}
+                               {-# LINE 696 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOallnts =
                               ({-# LINE 648 "src-ag/Order.ag" #-}
                                _lhsIallnts
-                               {-# LINE 704 "dist/build/Order" #-}
+                               {-# LINE 702 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOattrs =
                               ({-# LINE 655 "src-ag/Order.ag" #-}
                                _lhsIattrs
-                               {-# LINE 710 "dist/build/Order" #-}
+                               {-# LINE 708 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 91 "src-ag/Order.ag" #-}
                                _lhsIcon
-                               {-# LINE 716 "dist/build/Order" #-}
+                               {-# LINE 714 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOinh =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIinh
-                               {-# LINE 722 "dist/build/Order" #-}
+                               {-# LINE 720 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 728 "dist/build/Order" #-}
+                               {-# LINE 726 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOmergeMap =
                               ({-# LINE 361 "src-ag/Order.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 734 "dist/build/Order" #-}
+                               {-# LINE 732 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsInt
-                               {-# LINE 740 "dist/build/Order" #-}
+                               {-# LINE 738 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOo_unbox =
                               ({-# LINE 120 "src-ag/Order.ag" #-}
                                _lhsIo_unbox
-                               {-# LINE 746 "dist/build/Order" #-}
+                               {-# LINE 744 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOsyn =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIsyn
-                               {-# LINE 752 "dist/build/Order" #-}
+                               {-# LINE 750 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 758 "dist/build/Order" #-}
+                               {-# LINE 756 "dist/build/Order" #-}
                                )
                           ( _hdIattributes,_hdIcollectChildrenInhs,_hdIcollectChildrenSyns,_hdIerrors,_hdIfield,_hdIgathAltAttrs,_hdIgathRules,_hdIinhs,_hdInts,_hdIsinglevisits,_hdIterminals) =
                               hd_ _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOinh _hdOinhMap _hdOmergeMap _hdOnt _hdOo_unbox _hdOsyn _hdOsynMap
                           ( _tlIattributes,_tlIcollectChildrenInhs,_tlIcollectChildrenSyns,_tlIerrors,_tlIfields,_tlIgathAltAttrs,_tlIgathRules,_tlIinhs,_tlInts,_tlIsinglevisits,_tlIterminals) =
                               tl_ _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOinh _tlOinhMap _tlOmergeMap _tlOnt _tlOo_unbox _tlOsyn _tlOsynMap
-                          ___node =
-                              (Syn_Children _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals)
                       in  ( _lhsOattributes,_lhsOcollectChildrenInhs,_lhsOcollectChildrenSyns,_lhsOerrors,_lhsOfields,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinhs,_lhsOnts,_lhsOsinglevisits,_lhsOterminals))))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -791,70 +787,68 @@ sem_Children_Nil =
                           _lhsOfields =
                               ({-# LINE 676 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 795 "dist/build/Order" #-}
+                               {-# LINE 791 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 666, column 32)
                           _lhsOattributes =
                               ({-# LINE 666 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 801 "dist/build/Order" #-}
+                               {-# LINE 797 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 343, column 68)
                           _lhsOcollectChildrenInhs =
                               ({-# LINE 343 "src-ag/Order.ag" #-}
                                Map.empty
-                               {-# LINE 807 "dist/build/Order" #-}
+                               {-# LINE 803 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 343, column 68)
                           _lhsOcollectChildrenSyns =
                               ({-# LINE 343 "src-ag/Order.ag" #-}
                                Map.empty
-                               {-# LINE 813 "dist/build/Order" #-}
+                               {-# LINE 809 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 85, column 70)
                           _lhsOerrors =
                               ({-# LINE 85 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 819 "dist/build/Order" #-}
+                               {-# LINE 815 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 171, column 68)
                           _lhsOgathAltAttrs =
                               ({-# LINE 171 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 825 "dist/build/Order" #-}
+                               {-# LINE 821 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 207, column 23)
                           _lhsOgathRules =
                               ({-# LINE 207 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 831 "dist/build/Order" #-}
+                               {-# LINE 827 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 194, column 20)
                           _lhsOinhs =
                               ({-# LINE 194 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 837 "dist/build/Order" #-}
+                               {-# LINE 833 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 193, column 19)
                           _lhsOnts =
                               ({-# LINE 193 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 843 "dist/build/Order" #-}
+                               {-# LINE 839 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 612, column 40)
                           _lhsOsinglevisits =
                               ({-# LINE 612 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 849 "dist/build/Order" #-}
+                               {-# LINE 845 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 637, column 38)
                           _lhsOterminals =
                               ({-# LINE 637 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 855 "dist/build/Order" #-}
+                               {-# LINE 851 "dist/build/Order" #-}
                                )
-                          ___node =
-                              (Syn_Children _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals)
                       in  ( _lhsOattributes,_lhsOcollectChildrenInhs,_lhsOcollectChildrenSyns,_lhsOerrors,_lhsOfields,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinhs,_lhsOnts,_lhsOsinglevisits,_lhsOterminals))))
 -- Expression --------------------------------------------------
 {-
@@ -947,13 +941,13 @@ sem_Expression_Expression pos_ tks_ =
                                                               , let (Just (_, srcs)) = mbMerged, src <- srcs ]
                                                  usedAttrs' = usedAttrs ++ extraAttrs
                                              in (textLines,usedAttrs',usedLocals,usedFields)
-                                 {-# LINE 951 "dist/build/Order" #-}
+                                 {-# LINE 945 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 488, column 17)
                             _lhsOerrors =
                                 ({-# LINE 488 "src-ag/Order.ag" #-}
                                  Seq.empty
-                                 {-# LINE 957 "dist/build/Order" #-}
+                                 {-# LINE 951 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 489, column 17)
                             _lhsOallRhsVars =
@@ -963,46 +957,44 @@ sem_Expression_Expression pos_ tks_ =
                                  Set.fromList [ (_LOC, l) | l <- _usedLocals    ]
                                  `Set.union`
                                  Set.fromList [ (_FIELD, fld) | fld <- _usedFields    ]
-                                 {-# LINE 967 "dist/build/Order" #-}
+                                 {-# LINE 961 "dist/build/Order" #-}
                                  )
                             -- self rule
                             _copy =
                                 ({-# LINE 456 "src-ag/Order.ag" #-}
                                  Expression pos_ tks_
-                                 {-# LINE 973 "dist/build/Order" #-}
+                                 {-# LINE 967 "dist/build/Order" #-}
                                  )
                             -- self rule
                             _lhsOcopy =
                                 ({-# LINE 456 "src-ag/Order.ag" #-}
                                  _copy
-                                 {-# LINE 979 "dist/build/Order" #-}
+                                 {-# LINE 973 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOtextLines =
                                 ({-# LINE 455 "src-ag/Order.ag" #-}
                                  _textLines
-                                 {-# LINE 985 "dist/build/Order" #-}
+                                 {-# LINE 979 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOusedAttrs =
                                 ({-# LINE 453 "src-ag/Order.ag" #-}
                                  _usedAttrs
-                                 {-# LINE 991 "dist/build/Order" #-}
+                                 {-# LINE 985 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOusedFields =
                                 ({-# LINE 454 "src-ag/Order.ag" #-}
                                  _usedFields
-                                 {-# LINE 997 "dist/build/Order" #-}
+                                 {-# LINE 991 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOusedLocals =
                                 ({-# LINE 452 "src-ag/Order.ag" #-}
                                  _usedLocals
-                                 {-# LINE 1003 "dist/build/Order" #-}
+                                 {-# LINE 997 "dist/build/Order" #-}
                                  )
-                            ___node =
-                                (Syn_Expression _lhsOallRhsVars _lhsOcopy _lhsOerrors _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                         in  ( _lhsOallRhsVars,_lhsOcopy,_lhsOerrors,_lhsOtextLines,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 -- Grammar -----------------------------------------------------
 {-
@@ -1127,116 +1119,116 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                          _o_dovisit =
                              ({-# LINE 124 "src-ag/Order.ag" #-}
                               visit     _lhsIoptions && null _cyclesErrors
-                              {-# LINE 1131 "dist/build/Order" #-}
+                              {-# LINE 1123 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_cata =
                              ({-# LINE 125 "src-ag/Order.ag" #-}
                               folds     _lhsIoptions
-                              {-# LINE 1137 "dist/build/Order" #-}
+                              {-# LINE 1129 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_data =
                              ({-# LINE 126 "src-ag/Order.ag" #-}
                               dataTypes _lhsIoptions
-                              {-# LINE 1143 "dist/build/Order" #-}
+                              {-# LINE 1135 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_sig =
                              ({-# LINE 127 "src-ag/Order.ag" #-}
                               typeSigs  _lhsIoptions
-                              {-# LINE 1149 "dist/build/Order" #-}
+                              {-# LINE 1141 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_sem =
                              ({-# LINE 128 "src-ag/Order.ag" #-}
                               semfuns   _lhsIoptions
-                              {-# LINE 1155 "dist/build/Order" #-}
+                              {-# LINE 1147 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_rename =
                              ({-# LINE 129 "src-ag/Order.ag" #-}
                               rename    _lhsIoptions
-                              {-# LINE 1161 "dist/build/Order" #-}
+                              {-# LINE 1153 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_newtypes =
                              ({-# LINE 130 "src-ag/Order.ag" #-}
                               newtypes  _lhsIoptions
-                              {-# LINE 1167 "dist/build/Order" #-}
+                              {-# LINE 1159 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_wantvisit =
                              ({-# LINE 131 "src-ag/Order.ag" #-}
                               visit   _lhsIoptions
-                              {-# LINE 1173 "dist/build/Order" #-}
+                              {-# LINE 1165 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_unbox =
                              ({-# LINE 132 "src-ag/Order.ag" #-}
                               unbox     _lhsIoptions
-                              {-# LINE 1179 "dist/build/Order" #-}
+                              {-# LINE 1171 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOo_case =
                              ({-# LINE 133 "src-ag/Order.ag" #-}
                               cases     _lhsIoptions
-                              {-# LINE 1185 "dist/build/Order" #-}
+                              {-# LINE 1177 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 125, column 17)
                          _nontsOprefix =
                              ({-# LINE 134 "src-ag/Order.ag" #-}
                               prefix    _lhsIoptions
-                              {-# LINE 1191 "dist/build/Order" #-}
+                              {-# LINE 1183 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 260, column 15)
                          _nontsOvcount =
                              ({-# LINE 260 "src-ag/Order.ag" #-}
                               0
-                              {-# LINE 1197 "dist/build/Order" #-}
+                              {-# LINE 1189 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 286, column 7)
                          _nontsOmanualAttrDepMap =
                              ({-# LINE 286 "src-ag/Order.ag" #-}
                               manualAttrOrderMap_
-                              {-# LINE 1203 "dist/build/Order" #-}
+                              {-# LINE 1195 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 415, column 14)
                          _nontsOaroundMap =
                              ({-# LINE 415 "src-ag/Order.ag" #-}
                               aroundsMap_
-                              {-# LINE 1209 "dist/build/Order" #-}
+                              {-# LINE 1201 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 504, column 13)
                          _nontsOacount =
                              ({-# LINE 504 "src-ag/Order.ag" #-}
                               0
-                              {-# LINE 1215 "dist/build/Order" #-}
+                              {-# LINE 1207 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 542, column 13)
                          _ruleTable =
                              ({-# LINE 542 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIvcount-1) (toList _nontsIrules)
-                              {-# LINE 1221 "dist/build/Order" #-}
+                              {-# LINE 1213 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 543, column 13)
                          _attrTable =
                              ({-# LINE 543 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIacount-1) (toList _nontsIntattrs)
-                              {-# LINE 1227 "dist/build/Order" #-}
+                              {-# LINE 1219 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 544, column 13)
                          _attrVertex =
                              ({-# LINE 544 "src-ag/Order.ag" #-}
                               Map.fromList (map swap (toList _nontsIntattrs))
-                              {-# LINE 1233 "dist/build/Order" #-}
+                              {-# LINE 1225 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 545, column 13)
                          _tdpToTds =
                              ({-# LINE 545 "src-ag/Order.ag" #-}
                               [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v _attrVertex) (ntattr cr))
                               | (s,cr) <- toList _nontsIrules]
-                              {-# LINE 1240 "dist/build/Order" #-}
+                              {-# LINE 1232 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 547, column 13)
                          _tdsToTdp =
@@ -1245,31 +1237,31 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                                    conv ((s,v):svs)  | v == -1 = Nothing
                                                      | otherwise = Just (v,s:map fst svs)
                               in mapMaybe conv (eqClasses eq _tdpToTds)
-                              {-# LINE 1249 "dist/build/Order" #-}
+                              {-# LINE 1241 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 551, column 13)
                          _directDep =
                              ({-# LINE 551 "src-ag/Order.ag" #-}
                               toList (_nontsIdirectDep Seq.>< _nontsIadditionalDep)
-                              {-# LINE 1255 "dist/build/Order" #-}
+                              {-# LINE 1247 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 552, column 13)
                          _instDep =
                              ({-# LINE 552 "src-ag/Order.ag" #-}
                               toList _nontsIinstDep
-                              {-# LINE 1261 "dist/build/Order" #-}
+                              {-# LINE 1253 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 553, column 13)
                          _aroundDep =
                              ({-# LINE 553 "src-ag/Order.ag" #-}
                               toList _nontsIaroundDep
-                              {-# LINE 1267 "dist/build/Order" #-}
+                              {-# LINE 1259 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 554, column 13)
                          _mergeDep =
                              ({-# LINE 554 "src-ag/Order.ag" #-}
                               toList _nontsImergeDep
-                              {-# LINE 1273 "dist/build/Order" #-}
+                              {-# LINE 1265 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 555, column 13)
                          _info =
@@ -1284,7 +1276,7 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                                        , nonts      = _nontsInonts
                                        , wraps      = wrappers_
                                        }
-                              {-# LINE 1288 "dist/build/Order" #-}
+                              {-# LINE 1280 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 566, column 17)
                          (_cInterfaceMap,_cVisitsMap,_cyclesErrors) =
@@ -1310,91 +1302,89 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                                                                      , error "No visit sub-sequences for AG with induced cycles"
                                                                      , inducedCycleErrs _attrTable _ruleTable cim errs
                                                                      )
-                              {-# LINE 1314 "dist/build/Order" #-}
+                              {-# LINE 1306 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 588, column 13)
                          _lhsOerrors =
                              ({-# LINE 588 "src-ag/Order.ag" #-}
                               (if withCycle _lhsIoptions then Seq.fromList _cyclesErrors else Seq.empty)
-                              Seq.>< _nontsIerrors
-                              {-# LINE 1321 "dist/build/Order" #-}
+                               Seq.>< _nontsIerrors
+                              {-# LINE 1313 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 620, column 15)
                          _lhsOoutput =
                              ({-# LINE 620 "src-ag/Order.ag" #-}
                               CGrammar typeSyns_ derivings_ wrappers_ _nontsIcNonterminals pragmas_ paramMap_ contextMap_ quantMap_ _aroundMap     _mergeMap     _o_dovisit
-                              {-# LINE 1327 "dist/build/Order" #-}
+                              {-# LINE 1319 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 633, column 14)
                          _aroundMap =
                              ({-# LINE 633 "src-ag/Order.ag" #-}
                               Map.map (Map.map Map.keysSet) aroundsMap_
-                              {-# LINE 1333 "dist/build/Order" #-}
+                              {-# LINE 1325 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 634, column 14)
                          _mergeMap =
                              ({-# LINE 634 "src-ag/Order.ag" #-}
                               Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
-                              {-# LINE 1339 "dist/build/Order" #-}
+                              {-# LINE 1331 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 651, column 13)
                          _nontsOallnts =
                              ({-# LINE 651 "src-ag/Order.ag" #-}
                               map fst (_nontsInonts)
-                              {-# LINE 1345 "dist/build/Order" #-}
+                              {-# LINE 1337 "dist/build/Order" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 15, column 13)
                          _nontsOinhMap =
                              ({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                               _nontsIinhMap'
-                              {-# LINE 1351 "dist/build/Order" #-}
+                              {-# LINE 1343 "dist/build/Order" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 16, column 13)
                          _nontsOsynMap =
                              ({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                               _nontsIsynMap'
-                              {-# LINE 1357 "dist/build/Order" #-}
+                              {-# LINE 1349 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 62, column 105)
                          _lhsOnAutoRules =
                              ({-# LINE 62 "src-ag/Order.ag" #-}
                               _nontsInAutoRules
-                              {-# LINE 1363 "dist/build/Order" #-}
+                              {-# LINE 1355 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 62, column 105)
                          _lhsOnExplicitRules =
                              ({-# LINE 62 "src-ag/Order.ag" #-}
                               _nontsInExplicitRules
-                              {-# LINE 1369 "dist/build/Order" #-}
+                              {-# LINE 1361 "dist/build/Order" #-}
                               )
                          -- copy rule (from local)
                          _nontsOcInterfaceMap =
                              ({-# LINE 595 "src-ag/Order.ag" #-}
                               _cInterfaceMap
-                              {-# LINE 1375 "dist/build/Order" #-}
+                              {-# LINE 1367 "dist/build/Order" #-}
                               )
                          -- copy rule (from local)
                          _nontsOcVisitsMap =
                              ({-# LINE 602 "src-ag/Order.ag" #-}
                               _cVisitsMap
-                              {-# LINE 1381 "dist/build/Order" #-}
+                              {-# LINE 1373 "dist/build/Order" #-}
                               )
                          -- copy rule (from local)
                          _nontsOmergeMap =
                              ({-# LINE 353 "src-ag/Order.ag" #-}
                               _mergeMap
-                              {-# LINE 1387 "dist/build/Order" #-}
+                              {-# LINE 1379 "dist/build/Order" #-}
                               )
                          -- copy rule (from local)
                          _nontsOo_dovisit =
                              ({-# LINE 117 "src-ag/Order.ag" #-}
                               _o_dovisit
-                              {-# LINE 1393 "dist/build/Order" #-}
+                              {-# LINE 1385 "dist/build/Order" #-}
                               )
                          ( _nontsIacount,_nontsIadditionalDep,_nontsIaranges,_nontsIaroundDep,_nontsIcNonterminals,_nontsIdirectDep,_nontsIerrors,_nontsIinhMap',_nontsIinstDep,_nontsImergeDep,_nontsInAutoRules,_nontsInExplicitRules,_nontsInonts,_nontsIntattrs,_nontsIrules,_nontsIsynMap',_nontsIvcount) =
                              nonts_ _nontsOacount _nontsOallnts _nontsOaroundMap _nontsOcInterfaceMap _nontsOcVisitsMap _nontsOinhMap _nontsOmanualAttrDepMap _nontsOmergeMap _nontsOo_case _nontsOo_cata _nontsOo_data _nontsOo_dovisit _nontsOo_newtypes _nontsOo_rename _nontsOo_sem _nontsOo_sig _nontsOo_unbox _nontsOo_wantvisit _nontsOprefix _nontsOsynMap _nontsOvcount
-                         ___node =
-                             (Syn_Grammar _lhsOerrors _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput)
                      in  ( _lhsOerrors,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOoutput))))
 -- Nonterminal -------------------------------------------------
 {-
@@ -1569,50 +1559,50 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                              _prodsOnt =
                                  ({-# LINE 98 "src-ag/Order.ag" #-}
                                   nt_
-                                  {-# LINE 1573 "dist/build/Order" #-}
+                                  {-# LINE 1563 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 101, column 17)
                              _prodsOinh =
                                  ({-# LINE 101 "src-ag/Order.ag" #-}
                                   inh_
-                                  {-# LINE 1579 "dist/build/Order" #-}
+                                  {-# LINE 1569 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 102, column 17)
                              _prodsOsyn =
                                  ({-# LINE 102 "src-ag/Order.ag" #-}
                                   syn_
-                                  {-# LINE 1585 "dist/build/Order" #-}
+                                  {-# LINE 1575 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 358, column 32)
                              _mergeMap =
                                  ({-# LINE 358 "src-ag/Order.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                  {-# LINE 1591 "dist/build/Order" #-}
+                                  {-# LINE 1581 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 411, column 32)
                              _aroundMap =
                                  ({-# LINE 411 "src-ag/Order.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                  {-# LINE 1597 "dist/build/Order" #-}
+                                  {-# LINE 1587 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 507, column 17)
                              _ntattrs =
                                  ({-# LINE 507 "src-ag/Order.ag" #-}
                                   [ NTAInh nt_ inh tp | (inh,tp) <- Map.assocs inh_ ]
                                   ++ [NTASyn nt_ syn tp | (syn,tp) <- Map.assocs syn_ ]
-                                  {-# LINE 1604 "dist/build/Order" #-}
+                                  {-# LINE 1594 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 509, column 17)
                              _lhsOntattrs =
                                  ({-# LINE 509 "src-ag/Order.ag" #-}
                                   Seq.fromList (zip [_lhsIacount ..] _ntattrs)
-                                  {-# LINE 1610 "dist/build/Order" #-}
+                                  {-# LINE 1600 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 510, column 17)
                              _lhsOacount =
                                  ({-# LINE 510 "src-ag/Order.ag" #-}
                                   _lhsIacount + Map.size inh_ + Map.size syn_
-                                  {-# LINE 1616 "dist/build/Order" #-}
+                                  {-# LINE 1606 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 511, column 17)
                              _lhsOaranges =
@@ -1621,13 +1611,13 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                    (_lhsIacount
                                    ,_lhsIacount + Map.size inh_
                                    ,_lhsIacount + Map.size syn_ + Map.size inh_ - 1)
-                                  {-# LINE 1625 "dist/build/Order" #-}
+                                  {-# LINE 1615 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 520, column 19)
                              _lhsOnonts =
                                  ({-# LINE 520 "src-ag/Order.ag" #-}
                                   [(nt_,_prodsIcons)]
-                                  {-# LINE 1631 "dist/build/Order" #-}
+                                  {-# LINE 1621 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 597, column 19)
                              _cInter =
@@ -1635,198 +1625,196 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                   if  _lhsIo_dovisit
                                          then findWithErr1 "Nonterminal.cInter" nt_ _lhsIcInterfaceMap
                                          else CInterface [CSegment inh_ syn_]
-                                  {-# LINE 1639 "dist/build/Order" #-}
+                                  {-# LINE 1629 "dist/build/Order" #-}
                                   )
                              -- "src-ag/Order.ag"(line 625, column 19)
                              _lhsOcNonterminal =
                                  ({-# LINE 625 "src-ag/Order.ag" #-}
                                   CNonterminal nt_ params_ inh_ syn_ _prodsIcProductions _cInter
-                                  {-# LINE 1645 "dist/build/Order" #-}
+                                  {-# LINE 1635 "dist/build/Order" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 7, column 18)
                              _lhsOinhMap' =
                                  ({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 1651 "dist/build/Order" #-}
+                                  {-# LINE 1641 "dist/build/Order" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 8, column 18)
                              _lhsOsynMap' =
                                  ({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 1657 "dist/build/Order" #-}
+                                  {-# LINE 1647 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 282, column 60)
                              _lhsOadditionalDep =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   _prodsIadditionalDep
-                                  {-# LINE 1663 "dist/build/Order" #-}
+                                  {-# LINE 1653 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 403, column 24)
                              _lhsOaroundDep =
                                  ({-# LINE 403 "src-ag/Order.ag" #-}
                                   _prodsIaroundDep
-                                  {-# LINE 1669 "dist/build/Order" #-}
+                                  {-# LINE 1659 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 268, column 33)
                              _lhsOdirectDep =
                                  ({-# LINE 268 "src-ag/Order.ag" #-}
                                   _prodsIdirectDep
-                                  {-# LINE 1675 "dist/build/Order" #-}
+                                  {-# LINE 1665 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 85, column 70)
                              _lhsOerrors =
                                  ({-# LINE 85 "src-ag/Order.ag" #-}
                                   _prodsIerrors
-                                  {-# LINE 1681 "dist/build/Order" #-}
+                                  {-# LINE 1671 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 311, column 31)
                              _lhsOinstDep =
                                  ({-# LINE 311 "src-ag/Order.ag" #-}
                                   _prodsIinstDep
-                                  {-# LINE 1687 "dist/build/Order" #-}
+                                  {-# LINE 1677 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 366, column 18)
                              _lhsOmergeDep =
                                  ({-# LINE 366 "src-ag/Order.ag" #-}
                                   _prodsImergeDep
-                                  {-# LINE 1693 "dist/build/Order" #-}
+                                  {-# LINE 1683 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnAutoRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   _prodsInAutoRules
-                                  {-# LINE 1699 "dist/build/Order" #-}
+                                  {-# LINE 1689 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnExplicitRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   _prodsInExplicitRules
-                                  {-# LINE 1705 "dist/build/Order" #-}
+                                  {-# LINE 1695 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 258, column 18)
                              _lhsOrules =
                                  ({-# LINE 258 "src-ag/Order.ag" #-}
                                   _prodsIrules
-                                  {-# LINE 1711 "dist/build/Order" #-}
+                                  {-# LINE 1701 "dist/build/Order" #-}
                                   )
                              -- copy rule (up)
                              _lhsOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _prodsIvcount
-                                  {-# LINE 1717 "dist/build/Order" #-}
+                                  {-# LINE 1707 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOallnts =
                                  ({-# LINE 648 "src-ag/Order.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 1723 "dist/build/Order" #-}
+                                  {-# LINE 1713 "dist/build/Order" #-}
                                   )
                              -- copy rule (from local)
                              _prodsOaroundMap =
                                  ({-# LINE 409 "src-ag/Order.ag" #-}
                                   _aroundMap
-                                  {-# LINE 1729 "dist/build/Order" #-}
+                                  {-# LINE 1719 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOcVisitsMap =
                                  ({-# LINE 602 "src-ag/Order.ag" #-}
                                   _lhsIcVisitsMap
-                                  {-# LINE 1735 "dist/build/Order" #-}
+                                  {-# LINE 1725 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 1741 "dist/build/Order" #-}
+                                  {-# LINE 1731 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOmanualAttrDepMap =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   _lhsImanualAttrDepMap
-                                  {-# LINE 1747 "dist/build/Order" #-}
+                                  {-# LINE 1737 "dist/build/Order" #-}
                                   )
                              -- copy rule (from local)
                              _prodsOmergeMap =
                                  ({-# LINE 356 "src-ag/Order.ag" #-}
                                   _mergeMap
-                                  {-# LINE 1753 "dist/build/Order" #-}
+                                  {-# LINE 1743 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_case =
                                  ({-# LINE 118 "src-ag/Order.ag" #-}
                                   _lhsIo_case
-                                  {-# LINE 1759 "dist/build/Order" #-}
+                                  {-# LINE 1749 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_cata =
                                  ({-# LINE 112 "src-ag/Order.ag" #-}
                                   _lhsIo_cata
-                                  {-# LINE 1765 "dist/build/Order" #-}
+                                  {-# LINE 1755 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_dovisit =
                                  ({-# LINE 117 "src-ag/Order.ag" #-}
                                   _lhsIo_dovisit
-                                  {-# LINE 1771 "dist/build/Order" #-}
+                                  {-# LINE 1761 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_newtypes =
                                  ({-# LINE 111 "src-ag/Order.ag" #-}
                                   _lhsIo_newtypes
-                                  {-# LINE 1777 "dist/build/Order" #-}
+                                  {-# LINE 1767 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_rename =
                                  ({-# LINE 115 "src-ag/Order.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 1783 "dist/build/Order" #-}
+                                  {-# LINE 1773 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_sem =
                                  ({-# LINE 114 "src-ag/Order.ag" #-}
                                   _lhsIo_sem
-                                  {-# LINE 1789 "dist/build/Order" #-}
+                                  {-# LINE 1779 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_sig =
                                  ({-# LINE 113 "src-ag/Order.ag" #-}
                                   _lhsIo_sig
-                                  {-# LINE 1795 "dist/build/Order" #-}
+                                  {-# LINE 1785 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_unbox =
                                  ({-# LINE 120 "src-ag/Order.ag" #-}
                                   _lhsIo_unbox
-                                  {-# LINE 1801 "dist/build/Order" #-}
+                                  {-# LINE 1791 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_wantvisit =
                                  ({-# LINE 116 "src-ag/Order.ag" #-}
                                   _lhsIo_wantvisit
-                                  {-# LINE 1807 "dist/build/Order" #-}
+                                  {-# LINE 1797 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOprefix =
                                  ({-# LINE 119 "src-ag/Order.ag" #-}
                                   _lhsIprefix
-                                  {-# LINE 1813 "dist/build/Order" #-}
+                                  {-# LINE 1803 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 1819 "dist/build/Order" #-}
+                                  {-# LINE 1809 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _prodsOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _lhsIvcount
-                                  {-# LINE 1825 "dist/build/Order" #-}
+                                  {-# LINE 1815 "dist/build/Order" #-}
                                   )
                              ( _prodsIadditionalDep,_prodsIaroundDep,_prodsIcProductions,_prodsIcons,_prodsIdirectDep,_prodsIerrors,_prodsIinstDep,_prodsImergeDep,_prodsInAutoRules,_prodsInExplicitRules,_prodsIrules,_prodsIvcount) =
                                  prods_ _prodsOallnts _prodsOaroundMap _prodsOcVisitsMap _prodsOinh _prodsOinhMap _prodsOmanualAttrDepMap _prodsOmergeMap _prodsOnt _prodsOo_case _prodsOo_cata _prodsOo_dovisit _prodsOo_newtypes _prodsOo_rename _prodsOo_sem _prodsOo_sig _prodsOo_unbox _prodsOo_wantvisit _prodsOprefix _prodsOsyn _prodsOsynMap _prodsOvcount
-                             ___node =
-                                 (Syn_Nonterminal _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
                          in  ( _lhsOacount,_lhsOadditionalDep,_lhsOaranges,_lhsOaroundDep,_lhsOcNonterminal,_lhsOdirectDep,_lhsOerrors,_lhsOinhMap',_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOnonts,_lhsOntattrs,_lhsOrules,_lhsOsynMap',_lhsOvcount))))
 -- Nonterminals ------------------------------------------------
 {-
@@ -2034,362 +2022,360 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                               _lhsOcNonterminals =
                                   ({-# LINE 622 "src-ag/Order.ag" #-}
                                    _hdIcNonterminal : _tlIcNonterminals
-                                   {-# LINE 2038 "dist/build/Order" #-}
+                                   {-# LINE 2026 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 282, column 60)
                               _lhsOadditionalDep =
                                   ({-# LINE 282 "src-ag/Order.ag" #-}
                                    _hdIadditionalDep Seq.>< _tlIadditionalDep
-                                   {-# LINE 2044 "dist/build/Order" #-}
+                                   {-# LINE 2032 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 501, column 36)
                               _lhsOaranges =
                                   ({-# LINE 501 "src-ag/Order.ag" #-}
                                    _hdIaranges Seq.>< _tlIaranges
-                                   {-# LINE 2050 "dist/build/Order" #-}
+                                   {-# LINE 2038 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 403, column 24)
                               _lhsOaroundDep =
                                   ({-# LINE 403 "src-ag/Order.ag" #-}
                                    _hdIaroundDep Seq.>< _tlIaroundDep
-                                   {-# LINE 2056 "dist/build/Order" #-}
+                                   {-# LINE 2044 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 268, column 33)
                               _lhsOdirectDep =
                                   ({-# LINE 268 "src-ag/Order.ag" #-}
                                    _hdIdirectDep Seq.>< _tlIdirectDep
-                                   {-# LINE 2062 "dist/build/Order" #-}
+                                   {-# LINE 2050 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 85, column 70)
                               _lhsOerrors =
                                   ({-# LINE 85 "src-ag/Order.ag" #-}
                                    _hdIerrors Seq.>< _tlIerrors
-                                   {-# LINE 2068 "dist/build/Order" #-}
+                                   {-# LINE 2056 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 2074 "dist/build/Order" #-}
+                                   {-# LINE 2062 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 311, column 31)
                               _lhsOinstDep =
                                   ({-# LINE 311 "src-ag/Order.ag" #-}
                                    _hdIinstDep Seq.>< _tlIinstDep
-                                   {-# LINE 2080 "dist/build/Order" #-}
+                                   {-# LINE 2068 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 366, column 18)
                               _lhsOmergeDep =
                                   ({-# LINE 366 "src-ag/Order.ag" #-}
                                    _hdImergeDep Seq.>< _tlImergeDep
-                                   {-# LINE 2086 "dist/build/Order" #-}
+                                   {-# LINE 2074 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 62, column 105)
                               _lhsOnAutoRules =
                                   ({-# LINE 62 "src-ag/Order.ag" #-}
                                    _hdInAutoRules + _tlInAutoRules
-                                   {-# LINE 2092 "dist/build/Order" #-}
+                                   {-# LINE 2080 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 62, column 105)
                               _lhsOnExplicitRules =
                                   ({-# LINE 62 "src-ag/Order.ag" #-}
                                    _hdInExplicitRules + _tlInExplicitRules
-                                   {-# LINE 2098 "dist/build/Order" #-}
+                                   {-# LINE 2086 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 518, column 43)
                               _lhsOnonts =
                                   ({-# LINE 518 "src-ag/Order.ag" #-}
                                    _hdInonts ++ _tlInonts
-                                   {-# LINE 2104 "dist/build/Order" #-}
+                                   {-# LINE 2092 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 500, column 35)
                               _lhsOntattrs =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    _hdIntattrs Seq.>< _tlIntattrs
-                                   {-# LINE 2110 "dist/build/Order" #-}
+                                   {-# LINE 2098 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 258, column 18)
                               _lhsOrules =
                                   ({-# LINE 258 "src-ag/Order.ag" #-}
                                    _hdIrules Seq.>< _tlIrules
-                                   {-# LINE 2116 "dist/build/Order" #-}
+                                   {-# LINE 2104 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 2122 "dist/build/Order" #-}
+                                   {-# LINE 2110 "dist/build/Order" #-}
                                    )
                               -- copy rule (up)
                               _lhsOacount =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    _tlIacount
-                                   {-# LINE 2128 "dist/build/Order" #-}
+                                   {-# LINE 2116 "dist/build/Order" #-}
                                    )
                               -- copy rule (up)
                               _lhsOvcount =
                                   ({-# LINE 257 "src-ag/Order.ag" #-}
                                    _tlIvcount
-                                   {-# LINE 2134 "dist/build/Order" #-}
+                                   {-# LINE 2122 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOacount =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    _lhsIacount
-                                   {-# LINE 2140 "dist/build/Order" #-}
+                                   {-# LINE 2128 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOallnts =
                                   ({-# LINE 648 "src-ag/Order.ag" #-}
                                    _lhsIallnts
-                                   {-# LINE 2146 "dist/build/Order" #-}
+                                   {-# LINE 2134 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOaroundMap =
                                   ({-# LINE 406 "src-ag/Order.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 2152 "dist/build/Order" #-}
+                                   {-# LINE 2140 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOcInterfaceMap =
                                   ({-# LINE 595 "src-ag/Order.ag" #-}
                                    _lhsIcInterfaceMap
-                                   {-# LINE 2158 "dist/build/Order" #-}
+                                   {-# LINE 2146 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOcVisitsMap =
                                   ({-# LINE 602 "src-ag/Order.ag" #-}
                                    _lhsIcVisitsMap
-                                   {-# LINE 2164 "dist/build/Order" #-}
+                                   {-# LINE 2152 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 2170 "dist/build/Order" #-}
+                                   {-# LINE 2158 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOmanualAttrDepMap =
                                   ({-# LINE 282 "src-ag/Order.ag" #-}
                                    _lhsImanualAttrDepMap
-                                   {-# LINE 2176 "dist/build/Order" #-}
+                                   {-# LINE 2164 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOmergeMap =
                                   ({-# LINE 353 "src-ag/Order.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 2182 "dist/build/Order" #-}
+                                   {-# LINE 2170 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_case =
                                   ({-# LINE 118 "src-ag/Order.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 2188 "dist/build/Order" #-}
+                                   {-# LINE 2176 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_cata =
                                   ({-# LINE 112 "src-ag/Order.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 2194 "dist/build/Order" #-}
+                                   {-# LINE 2182 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_data =
                                   ({-# LINE 121 "src-ag/Order.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 2200 "dist/build/Order" #-}
+                                   {-# LINE 2188 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_dovisit =
                                   ({-# LINE 117 "src-ag/Order.ag" #-}
                                    _lhsIo_dovisit
-                                   {-# LINE 2206 "dist/build/Order" #-}
+                                   {-# LINE 2194 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_newtypes =
                                   ({-# LINE 111 "src-ag/Order.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 2212 "dist/build/Order" #-}
+                                   {-# LINE 2200 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_rename =
                                   ({-# LINE 115 "src-ag/Order.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 2218 "dist/build/Order" #-}
+                                   {-# LINE 2206 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_sem =
                                   ({-# LINE 114 "src-ag/Order.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 2224 "dist/build/Order" #-}
+                                   {-# LINE 2212 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_sig =
                                   ({-# LINE 113 "src-ag/Order.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 2230 "dist/build/Order" #-}
+                                   {-# LINE 2218 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_unbox =
                                   ({-# LINE 120 "src-ag/Order.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 2236 "dist/build/Order" #-}
+                                   {-# LINE 2224 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_wantvisit =
                                   ({-# LINE 116 "src-ag/Order.ag" #-}
                                    _lhsIo_wantvisit
-                                   {-# LINE 2242 "dist/build/Order" #-}
+                                   {-# LINE 2230 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOprefix =
                                   ({-# LINE 119 "src-ag/Order.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 2248 "dist/build/Order" #-}
+                                   {-# LINE 2236 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 2254 "dist/build/Order" #-}
+                                   {-# LINE 2242 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _hdOvcount =
                                   ({-# LINE 257 "src-ag/Order.ag" #-}
                                    _lhsIvcount
-                                   {-# LINE 2260 "dist/build/Order" #-}
+                                   {-# LINE 2248 "dist/build/Order" #-}
                                    )
                               -- copy rule (chain)
                               _tlOacount =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    _hdIacount
-                                   {-# LINE 2266 "dist/build/Order" #-}
+                                   {-# LINE 2254 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOallnts =
                                   ({-# LINE 648 "src-ag/Order.ag" #-}
                                    _lhsIallnts
-                                   {-# LINE 2272 "dist/build/Order" #-}
+                                   {-# LINE 2260 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOaroundMap =
                                   ({-# LINE 406 "src-ag/Order.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 2278 "dist/build/Order" #-}
+                                   {-# LINE 2266 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOcInterfaceMap =
                                   ({-# LINE 595 "src-ag/Order.ag" #-}
                                    _lhsIcInterfaceMap
-                                   {-# LINE 2284 "dist/build/Order" #-}
+                                   {-# LINE 2272 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOcVisitsMap =
                                   ({-# LINE 602 "src-ag/Order.ag" #-}
                                    _lhsIcVisitsMap
-                                   {-# LINE 2290 "dist/build/Order" #-}
+                                   {-# LINE 2278 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 2296 "dist/build/Order" #-}
+                                   {-# LINE 2284 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOmanualAttrDepMap =
                                   ({-# LINE 282 "src-ag/Order.ag" #-}
                                    _lhsImanualAttrDepMap
-                                   {-# LINE 2302 "dist/build/Order" #-}
+                                   {-# LINE 2290 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOmergeMap =
                                   ({-# LINE 353 "src-ag/Order.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 2308 "dist/build/Order" #-}
+                                   {-# LINE 2296 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_case =
                                   ({-# LINE 118 "src-ag/Order.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 2314 "dist/build/Order" #-}
+                                   {-# LINE 2302 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_cata =
                                   ({-# LINE 112 "src-ag/Order.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 2320 "dist/build/Order" #-}
+                                   {-# LINE 2308 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_data =
                                   ({-# LINE 121 "src-ag/Order.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 2326 "dist/build/Order" #-}
+                                   {-# LINE 2314 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_dovisit =
                                   ({-# LINE 117 "src-ag/Order.ag" #-}
                                    _lhsIo_dovisit
-                                   {-# LINE 2332 "dist/build/Order" #-}
+                                   {-# LINE 2320 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_newtypes =
                                   ({-# LINE 111 "src-ag/Order.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 2338 "dist/build/Order" #-}
+                                   {-# LINE 2326 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_rename =
                                   ({-# LINE 115 "src-ag/Order.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 2344 "dist/build/Order" #-}
+                                   {-# LINE 2332 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_sem =
                                   ({-# LINE 114 "src-ag/Order.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 2350 "dist/build/Order" #-}
+                                   {-# LINE 2338 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_sig =
                                   ({-# LINE 113 "src-ag/Order.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 2356 "dist/build/Order" #-}
+                                   {-# LINE 2344 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_unbox =
                                   ({-# LINE 120 "src-ag/Order.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 2362 "dist/build/Order" #-}
+                                   {-# LINE 2350 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_wantvisit =
                                   ({-# LINE 116 "src-ag/Order.ag" #-}
                                    _lhsIo_wantvisit
-                                   {-# LINE 2368 "dist/build/Order" #-}
+                                   {-# LINE 2356 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOprefix =
                                   ({-# LINE 119 "src-ag/Order.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 2374 "dist/build/Order" #-}
+                                   {-# LINE 2362 "dist/build/Order" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 2380 "dist/build/Order" #-}
+                                   {-# LINE 2368 "dist/build/Order" #-}
                                    )
                               -- copy rule (chain)
                               _tlOvcount =
                                   ({-# LINE 257 "src-ag/Order.ag" #-}
                                    _hdIvcount
-                                   {-# LINE 2386 "dist/build/Order" #-}
+                                   {-# LINE 2374 "dist/build/Order" #-}
                                    )
                               ( _hdIacount,_hdIadditionalDep,_hdIaranges,_hdIaroundDep,_hdIcNonterminal,_hdIdirectDep,_hdIerrors,_hdIinhMap',_hdIinstDep,_hdImergeDep,_hdInAutoRules,_hdInExplicitRules,_hdInonts,_hdIntattrs,_hdIrules,_hdIsynMap',_hdIvcount) =
                                   hd_ _hdOacount _hdOallnts _hdOaroundMap _hdOcInterfaceMap _hdOcVisitsMap _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOo_case _hdOo_cata _hdOo_data _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOprefix _hdOsynMap _hdOvcount
                               ( _tlIacount,_tlIadditionalDep,_tlIaranges,_tlIaroundDep,_tlIcNonterminals,_tlIdirectDep,_tlIerrors,_tlIinhMap',_tlIinstDep,_tlImergeDep,_tlInAutoRules,_tlInExplicitRules,_tlInonts,_tlIntattrs,_tlIrules,_tlIsynMap',_tlIvcount) =
                                   tl_ _tlOacount _tlOallnts _tlOaroundMap _tlOcInterfaceMap _tlOcVisitsMap _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOo_case _tlOo_cata _tlOo_data _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOprefix _tlOsynMap _tlOvcount
-                              ___node =
-                                  (Syn_Nonterminals _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
                           in  ( _lhsOacount,_lhsOadditionalDep,_lhsOaranges,_lhsOaroundDep,_lhsOcNonterminals,_lhsOdirectDep,_lhsOerrors,_lhsOinhMap',_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOnonts,_lhsOntattrs,_lhsOrules,_lhsOsynMap',_lhsOvcount))))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -2435,106 +2421,104 @@ sem_Nonterminals_Nil =
                               _lhsOcNonterminals =
                                   ({-# LINE 623 "src-ag/Order.ag" #-}
                                    []
-                                   {-# LINE 2439 "dist/build/Order" #-}
+                                   {-# LINE 2425 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 282, column 60)
                               _lhsOadditionalDep =
                                   ({-# LINE 282 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2445 "dist/build/Order" #-}
+                                   {-# LINE 2431 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 501, column 36)
                               _lhsOaranges =
                                   ({-# LINE 501 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2451 "dist/build/Order" #-}
+                                   {-# LINE 2437 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 403, column 24)
                               _lhsOaroundDep =
                                   ({-# LINE 403 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2457 "dist/build/Order" #-}
+                                   {-# LINE 2443 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 268, column 33)
                               _lhsOdirectDep =
                                   ({-# LINE 268 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2463 "dist/build/Order" #-}
+                                   {-# LINE 2449 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 85, column 70)
                               _lhsOerrors =
                                   ({-# LINE 85 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2469 "dist/build/Order" #-}
+                                   {-# LINE 2455 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 2475 "dist/build/Order" #-}
+                                   {-# LINE 2461 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 311, column 31)
                               _lhsOinstDep =
                                   ({-# LINE 311 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2481 "dist/build/Order" #-}
+                                   {-# LINE 2467 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 366, column 18)
                               _lhsOmergeDep =
                                   ({-# LINE 366 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2487 "dist/build/Order" #-}
+                                   {-# LINE 2473 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 62, column 105)
                               _lhsOnAutoRules =
                                   ({-# LINE 62 "src-ag/Order.ag" #-}
                                    0
-                                   {-# LINE 2493 "dist/build/Order" #-}
+                                   {-# LINE 2479 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 62, column 105)
                               _lhsOnExplicitRules =
                                   ({-# LINE 62 "src-ag/Order.ag" #-}
                                    0
-                                   {-# LINE 2499 "dist/build/Order" #-}
+                                   {-# LINE 2485 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 518, column 43)
                               _lhsOnonts =
                                   ({-# LINE 518 "src-ag/Order.ag" #-}
                                    []
-                                   {-# LINE 2505 "dist/build/Order" #-}
+                                   {-# LINE 2491 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 500, column 35)
                               _lhsOntattrs =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2511 "dist/build/Order" #-}
+                                   {-# LINE 2497 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/Order.ag"(line 258, column 18)
                               _lhsOrules =
                                   ({-# LINE 258 "src-ag/Order.ag" #-}
                                    Seq.empty
-                                   {-# LINE 2517 "dist/build/Order" #-}
+                                   {-# LINE 2503 "dist/build/Order" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 2523 "dist/build/Order" #-}
+                                   {-# LINE 2509 "dist/build/Order" #-}
                                    )
                               -- copy rule (chain)
                               _lhsOacount =
                                   ({-# LINE 500 "src-ag/Order.ag" #-}
                                    _lhsIacount
-                                   {-# LINE 2529 "dist/build/Order" #-}
+                                   {-# LINE 2515 "dist/build/Order" #-}
                                    )
                               -- copy rule (chain)
                               _lhsOvcount =
                                   ({-# LINE 257 "src-ag/Order.ag" #-}
                                    _lhsIvcount
-                                   {-# LINE 2535 "dist/build/Order" #-}
+                                   {-# LINE 2521 "dist/build/Order" #-}
                                    )
-                              ___node =
-                                  (Syn_Nonterminals _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
                           in  ( _lhsOacount,_lhsOadditionalDep,_lhsOaranges,_lhsOaroundDep,_lhsOcNonterminals,_lhsOdirectDep,_lhsOerrors,_lhsOinhMap',_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOnonts,_lhsOntattrs,_lhsOrules,_lhsOsynMap',_lhsOvcount))))
 -- Pattern -----------------------------------------------------
 {-
@@ -2641,13 +2625,13 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                          _lhsOgathAltAttrs =
                              ({-# LINE 185 "src-ag/Order.ag" #-}
                               [AltAttr field_ attr_ (field_ == _LOC || field_ == _INST)]
-                              {-# LINE 2645 "dist/build/Order" #-}
+                              {-# LINE 2629 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 251, column 12)
                          _lhsOpatternAttrs =
                              ({-# LINE 251 "src-ag/Order.ag" #-}
                               [(field_,attr_,(field_ == _LOC || field_ == _INST))]
-                              {-# LINE 2651 "dist/build/Order" #-}
+                              {-# LINE 2635 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 681, column 14)
                          _lhsOlocVars =
@@ -2655,7 +2639,7 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               if field_ == _LOC
                                  then [attr_]
                                  else []
-                              {-# LINE 2659 "dist/build/Order" #-}
+                              {-# LINE 2643 "dist/build/Order" #-}
                               )
                          -- "src-ag/Order.ag"(line 684, column 14)
                          _lhsOinstVars =
@@ -2663,66 +2647,64 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               if field_ == _INST
                                  then [attr_]
                                  else []
-                              {-# LINE 2667 "dist/build/Order" #-}
+                              {-# LINE 2651 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 85, column 70)
                          _lhsOerrors =
                              ({-# LINE 85 "src-ag/Order.ag" #-}
                               _patIerrors
-                              {-# LINE 2673 "dist/build/Order" #-}
+                              {-# LINE 2657 "dist/build/Order" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Alias field_ attr_ _patIcopy
-                              {-# LINE 2679 "dist/build/Order" #-}
+                              {-# LINE 2663 "dist/build/Order" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 2685 "dist/build/Order" #-}
+                              {-# LINE 2669 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOallTypeSigs =
                              ({-# LINE 534 "src-ag/Order.ag" #-}
                               _lhsIallTypeSigs
-                              {-# LINE 2691 "dist/build/Order" #-}
+                              {-# LINE 2675 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOaltAttrs =
                              ({-# LINE 187 "src-ag/Order.ag" #-}
                               _lhsIaltAttrs
-                              {-# LINE 2697 "dist/build/Order" #-}
+                              {-# LINE 2681 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOcon =
                              ({-# LINE 91 "src-ag/Order.ag" #-}
                               _lhsIcon
-                              {-# LINE 2703 "dist/build/Order" #-}
+                              {-# LINE 2687 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOinh =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIinh
-                              {-# LINE 2709 "dist/build/Order" #-}
+                              {-# LINE 2693 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOnt =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsInt
-                              {-# LINE 2715 "dist/build/Order" #-}
+                              {-# LINE 2699 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOsyn =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIsyn
-                              {-# LINE 2721 "dist/build/Order" #-}
+                              {-# LINE 2705 "dist/build/Order" #-}
                               )
                          ( _patIcopy,_patIerrors,_patIgathAltAttrs,_patIinstVars,_patIlocVars,_patIpatternAttrs) =
                              pat_ _patOallTypeSigs _patOaltAttrs _patOcon _patOinh _patOnt _patOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -2756,84 +2738,82 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                          _lhsOerrors =
                              ({-# LINE 85 "src-ag/Order.ag" #-}
                               _patsIerrors
-                              {-# LINE 2760 "dist/build/Order" #-}
+                              {-# LINE 2742 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 171, column 68)
                          _lhsOgathAltAttrs =
                              ({-# LINE 171 "src-ag/Order.ag" #-}
                               _patsIgathAltAttrs
-                              {-# LINE 2766 "dist/build/Order" #-}
+                              {-# LINE 2748 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 86)
                          _lhsOinstVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patsIinstVars
-                              {-# LINE 2772 "dist/build/Order" #-}
+                              {-# LINE 2754 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 48)
                          _lhsOlocVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patsIlocVars
-                              {-# LINE 2778 "dist/build/Order" #-}
+                              {-# LINE 2760 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 248, column 42)
                          _lhsOpatternAttrs =
                              ({-# LINE 248 "src-ag/Order.ag" #-}
                               _patsIpatternAttrs
-                              {-# LINE 2784 "dist/build/Order" #-}
+                              {-# LINE 2766 "dist/build/Order" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Constr name_ _patsIcopy
-                              {-# LINE 2790 "dist/build/Order" #-}
+                              {-# LINE 2772 "dist/build/Order" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 2796 "dist/build/Order" #-}
+                              {-# LINE 2778 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOallTypeSigs =
                              ({-# LINE 534 "src-ag/Order.ag" #-}
                               _lhsIallTypeSigs
-                              {-# LINE 2802 "dist/build/Order" #-}
+                              {-# LINE 2784 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOaltAttrs =
                              ({-# LINE 187 "src-ag/Order.ag" #-}
                               _lhsIaltAttrs
-                              {-# LINE 2808 "dist/build/Order" #-}
+                              {-# LINE 2790 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOcon =
                              ({-# LINE 91 "src-ag/Order.ag" #-}
                               _lhsIcon
-                              {-# LINE 2814 "dist/build/Order" #-}
+                              {-# LINE 2796 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOinh =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIinh
-                              {-# LINE 2820 "dist/build/Order" #-}
+                              {-# LINE 2802 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOnt =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsInt
-                              {-# LINE 2826 "dist/build/Order" #-}
+                              {-# LINE 2808 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOsyn =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIsyn
-                              {-# LINE 2832 "dist/build/Order" #-}
+                              {-# LINE 2814 "dist/build/Order" #-}
                               )
                          ( _patsIcopy,_patsIerrors,_patsIgathAltAttrs,_patsIinstVars,_patsIlocVars,_patsIpatternAttrs) =
                              pats_ _patsOallTypeSigs _patsOaltAttrs _patsOcon _patsOinh _patsOnt _patsOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -2866,84 +2846,82 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                          _lhsOerrors =
                              ({-# LINE 85 "src-ag/Order.ag" #-}
                               _patIerrors
-                              {-# LINE 2870 "dist/build/Order" #-}
+                              {-# LINE 2850 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 171, column 68)
                          _lhsOgathAltAttrs =
                              ({-# LINE 171 "src-ag/Order.ag" #-}
                               _patIgathAltAttrs
-                              {-# LINE 2876 "dist/build/Order" #-}
+                              {-# LINE 2856 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 86)
                          _lhsOinstVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patIinstVars
-                              {-# LINE 2882 "dist/build/Order" #-}
+                              {-# LINE 2862 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 48)
                          _lhsOlocVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patIlocVars
-                              {-# LINE 2888 "dist/build/Order" #-}
+                              {-# LINE 2868 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 248, column 42)
                          _lhsOpatternAttrs =
                              ({-# LINE 248 "src-ag/Order.ag" #-}
                               _patIpatternAttrs
-                              {-# LINE 2894 "dist/build/Order" #-}
+                              {-# LINE 2874 "dist/build/Order" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Irrefutable _patIcopy
-                              {-# LINE 2900 "dist/build/Order" #-}
+                              {-# LINE 2880 "dist/build/Order" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 2906 "dist/build/Order" #-}
+                              {-# LINE 2886 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOallTypeSigs =
                              ({-# LINE 534 "src-ag/Order.ag" #-}
                               _lhsIallTypeSigs
-                              {-# LINE 2912 "dist/build/Order" #-}
+                              {-# LINE 2892 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOaltAttrs =
                              ({-# LINE 187 "src-ag/Order.ag" #-}
                               _lhsIaltAttrs
-                              {-# LINE 2918 "dist/build/Order" #-}
+                              {-# LINE 2898 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOcon =
                              ({-# LINE 91 "src-ag/Order.ag" #-}
                               _lhsIcon
-                              {-# LINE 2924 "dist/build/Order" #-}
+                              {-# LINE 2904 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOinh =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIinh
-                              {-# LINE 2930 "dist/build/Order" #-}
+                              {-# LINE 2910 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOnt =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsInt
-                              {-# LINE 2936 "dist/build/Order" #-}
+                              {-# LINE 2916 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patOsyn =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIsyn
-                              {-# LINE 2942 "dist/build/Order" #-}
+                              {-# LINE 2922 "dist/build/Order" #-}
                               )
                          ( _patIcopy,_patIerrors,_patIgathAltAttrs,_patIinstVars,_patIlocVars,_patIpatternAttrs) =
                              pat_ _patOallTypeSigs _patOaltAttrs _patOcon _patOinh _patOnt _patOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -2977,84 +2955,82 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                          _lhsOerrors =
                              ({-# LINE 85 "src-ag/Order.ag" #-}
                               _patsIerrors
-                              {-# LINE 2981 "dist/build/Order" #-}
+                              {-# LINE 2959 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 171, column 68)
                          _lhsOgathAltAttrs =
                              ({-# LINE 171 "src-ag/Order.ag" #-}
                               _patsIgathAltAttrs
-                              {-# LINE 2987 "dist/build/Order" #-}
+                              {-# LINE 2965 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 86)
                          _lhsOinstVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patsIinstVars
-                              {-# LINE 2993 "dist/build/Order" #-}
+                              {-# LINE 2971 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 48)
                          _lhsOlocVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               _patsIlocVars
-                              {-# LINE 2999 "dist/build/Order" #-}
+                              {-# LINE 2977 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 248, column 42)
                          _lhsOpatternAttrs =
                              ({-# LINE 248 "src-ag/Order.ag" #-}
                               _patsIpatternAttrs
-                              {-# LINE 3005 "dist/build/Order" #-}
+                              {-# LINE 2983 "dist/build/Order" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Product pos_ _patsIcopy
-                              {-# LINE 3011 "dist/build/Order" #-}
+                              {-# LINE 2989 "dist/build/Order" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 3017 "dist/build/Order" #-}
+                              {-# LINE 2995 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOallTypeSigs =
                              ({-# LINE 534 "src-ag/Order.ag" #-}
                               _lhsIallTypeSigs
-                              {-# LINE 3023 "dist/build/Order" #-}
+                              {-# LINE 3001 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOaltAttrs =
                              ({-# LINE 187 "src-ag/Order.ag" #-}
                               _lhsIaltAttrs
-                              {-# LINE 3029 "dist/build/Order" #-}
+                              {-# LINE 3007 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOcon =
                              ({-# LINE 91 "src-ag/Order.ag" #-}
                               _lhsIcon
-                              {-# LINE 3035 "dist/build/Order" #-}
+                              {-# LINE 3013 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOinh =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIinh
-                              {-# LINE 3041 "dist/build/Order" #-}
+                              {-# LINE 3019 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOnt =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsInt
-                              {-# LINE 3047 "dist/build/Order" #-}
+                              {-# LINE 3025 "dist/build/Order" #-}
                               )
                          -- copy rule (down)
                          _patsOsyn =
                              ({-# LINE 90 "src-ag/Order.ag" #-}
                               _lhsIsyn
-                              {-# LINE 3053 "dist/build/Order" #-}
+                              {-# LINE 3031 "dist/build/Order" #-}
                               )
                          ( _patsIcopy,_patsIerrors,_patsIgathAltAttrs,_patsIinstVars,_patsIlocVars,_patsIpatternAttrs) =
                              pats_ _patsOallTypeSigs _patsOaltAttrs _patsOcon _patsOinh _patsOnt _patsOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -3075,46 +3051,44 @@ sem_Pattern_Underscore pos_ =
                          _lhsOerrors =
                              ({-# LINE 85 "src-ag/Order.ag" #-}
                               Seq.empty
-                              {-# LINE 3079 "dist/build/Order" #-}
+                              {-# LINE 3055 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 171, column 68)
                          _lhsOgathAltAttrs =
                              ({-# LINE 171 "src-ag/Order.ag" #-}
                               []
-                              {-# LINE 3085 "dist/build/Order" #-}
+                              {-# LINE 3061 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 86)
                          _lhsOinstVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               []
-                              {-# LINE 3091 "dist/build/Order" #-}
+                              {-# LINE 3067 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 678, column 48)
                          _lhsOlocVars =
                              ({-# LINE 678 "src-ag/Order.ag" #-}
                               []
-                              {-# LINE 3097 "dist/build/Order" #-}
+                              {-# LINE 3073 "dist/build/Order" #-}
                               )
                          -- use rule "src-ag/Order.ag"(line 248, column 42)
                          _lhsOpatternAttrs =
                              ({-# LINE 248 "src-ag/Order.ag" #-}
                               []
-                              {-# LINE 3103 "dist/build/Order" #-}
+                              {-# LINE 3079 "dist/build/Order" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Underscore pos_
-                              {-# LINE 3109 "dist/build/Order" #-}
+                              {-# LINE 3085 "dist/build/Order" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 3115 "dist/build/Order" #-}
+                              {-# LINE 3091 "dist/build/Order" #-}
                               )
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 -- Patterns ----------------------------------------------------
 {-
@@ -3208,122 +3182,120 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                           _lhsOerrors =
                               ({-# LINE 85 "src-ag/Order.ag" #-}
                                _hdIerrors Seq.>< _tlIerrors
-                               {-# LINE 3212 "dist/build/Order" #-}
+                               {-# LINE 3186 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 171, column 68)
                           _lhsOgathAltAttrs =
                               ({-# LINE 171 "src-ag/Order.ag" #-}
                                _hdIgathAltAttrs ++ _tlIgathAltAttrs
-                               {-# LINE 3218 "dist/build/Order" #-}
+                               {-# LINE 3192 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 678, column 86)
                           _lhsOinstVars =
                               ({-# LINE 678 "src-ag/Order.ag" #-}
                                _hdIinstVars ++ _tlIinstVars
-                               {-# LINE 3224 "dist/build/Order" #-}
+                               {-# LINE 3198 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 678, column 48)
                           _lhsOlocVars =
                               ({-# LINE 678 "src-ag/Order.ag" #-}
                                _hdIlocVars ++ _tlIlocVars
-                               {-# LINE 3230 "dist/build/Order" #-}
+                               {-# LINE 3204 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 248, column 42)
                           _lhsOpatternAttrs =
                               ({-# LINE 248 "src-ag/Order.ag" #-}
                                _hdIpatternAttrs ++ _tlIpatternAttrs
-                               {-# LINE 3236 "dist/build/Order" #-}
+                               {-# LINE 3210 "dist/build/Order" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                (:) _hdIcopy _tlIcopy
-                               {-# LINE 3242 "dist/build/Order" #-}
+                               {-# LINE 3216 "dist/build/Order" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 3248 "dist/build/Order" #-}
+                               {-# LINE 3222 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOallTypeSigs =
                               ({-# LINE 534 "src-ag/Order.ag" #-}
                                _lhsIallTypeSigs
-                               {-# LINE 3254 "dist/build/Order" #-}
+                               {-# LINE 3228 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOaltAttrs =
                               ({-# LINE 187 "src-ag/Order.ag" #-}
                                _lhsIaltAttrs
-                               {-# LINE 3260 "dist/build/Order" #-}
+                               {-# LINE 3234 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 91 "src-ag/Order.ag" #-}
                                _lhsIcon
-                               {-# LINE 3266 "dist/build/Order" #-}
+                               {-# LINE 3240 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOinh =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIinh
-                               {-# LINE 3272 "dist/build/Order" #-}
+                               {-# LINE 3246 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsInt
-                               {-# LINE 3278 "dist/build/Order" #-}
+                               {-# LINE 3252 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOsyn =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIsyn
-                               {-# LINE 3284 "dist/build/Order" #-}
+                               {-# LINE 3258 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOallTypeSigs =
                               ({-# LINE 534 "src-ag/Order.ag" #-}
                                _lhsIallTypeSigs
-                               {-# LINE 3290 "dist/build/Order" #-}
+                               {-# LINE 3264 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOaltAttrs =
                               ({-# LINE 187 "src-ag/Order.ag" #-}
                                _lhsIaltAttrs
-                               {-# LINE 3296 "dist/build/Order" #-}
+                               {-# LINE 3270 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 91 "src-ag/Order.ag" #-}
                                _lhsIcon
-                               {-# LINE 3302 "dist/build/Order" #-}
+                               {-# LINE 3276 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOinh =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIinh
-                               {-# LINE 3308 "dist/build/Order" #-}
+                               {-# LINE 3282 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsInt
-                               {-# LINE 3314 "dist/build/Order" #-}
+                               {-# LINE 3288 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _tlOsyn =
                               ({-# LINE 90 "src-ag/Order.ag" #-}
                                _lhsIsyn
-                               {-# LINE 3320 "dist/build/Order" #-}
+                               {-# LINE 3294 "dist/build/Order" #-}
                                )
                           ( _hdIcopy,_hdIerrors,_hdIgathAltAttrs,_hdIinstVars,_hdIlocVars,_hdIpatternAttrs) =
                               hd_ _hdOallTypeSigs _hdOaltAttrs _hdOcon _hdOinh _hdOnt _hdOsyn
                           ( _tlIcopy,_tlIerrors,_tlIgathAltAttrs,_tlIinstVars,_tlIlocVars,_tlIpatternAttrs) =
                               tl_ _tlOallTypeSigs _tlOaltAttrs _tlOcon _tlOinh _tlOnt _tlOsyn
-                          ___node =
-                              (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                       in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -3343,46 +3315,44 @@ sem_Patterns_Nil =
                           _lhsOerrors =
                               ({-# LINE 85 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 3347 "dist/build/Order" #-}
+                               {-# LINE 3319 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 171, column 68)
                           _lhsOgathAltAttrs =
                               ({-# LINE 171 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 3353 "dist/build/Order" #-}
+                               {-# LINE 3325 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 678, column 86)
                           _lhsOinstVars =
                               ({-# LINE 678 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 3359 "dist/build/Order" #-}
+                               {-# LINE 3331 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 678, column 48)
                           _lhsOlocVars =
                               ({-# LINE 678 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 3365 "dist/build/Order" #-}
+                               {-# LINE 3337 "dist/build/Order" #-}
                                )
                           -- use rule "src-ag/Order.ag"(line 248, column 42)
                           _lhsOpatternAttrs =
                               ({-# LINE 248 "src-ag/Order.ag" #-}
                                []
-                               {-# LINE 3371 "dist/build/Order" #-}
+                               {-# LINE 3343 "dist/build/Order" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                []
-                               {-# LINE 3377 "dist/build/Order" #-}
+                               {-# LINE 3349 "dist/build/Order" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 3383 "dist/build/Order" #-}
+                               {-# LINE 3355 "dist/build/Order" #-}
                                )
-                          ___node =
-                              (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
                       in  ( _lhsOcopy,_lhsOerrors,_lhsOgathAltAttrs,_lhsOinstVars,_lhsOlocVars,_lhsOpatternAttrs))))
 -- Production --------------------------------------------------
 {-
@@ -3587,13 +3557,13 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                             _childrenOcon =
                                 ({-# LINE 94 "src-ag/Order.ag" #-}
                                  con_
-                                 {-# LINE 3591 "dist/build/Order" #-}
+                                 {-# LINE 3561 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 96, column 16)
                             _rulesOcon =
                                 ({-# LINE 96 "src-ag/Order.ag" #-}
                                  con_
-                                 {-# LINE 3597 "dist/build/Order" #-}
+                                 {-# LINE 3567 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 173, column 18)
                             _gathAltAttrs =
@@ -3601,55 +3571,55 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  [ AltAttr _LHS inh True | inh <- Map.keys _lhsIinh ]
                                   ++ _childrenIgathAltAttrs
                                   ++ _rulesIgathAltAttrs
-                                 {-# LINE 3605 "dist/build/Order" #-}
+                                 {-# LINE 3575 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 189, column 17)
                             _altAttrs =
                                 ({-# LINE 189 "src-ag/Order.ag" #-}
                                  Map.fromList (zip _gathAltAttrs [_lhsIvcount..])
-                                 {-# LINE 3611 "dist/build/Order" #-}
+                                 {-# LINE 3581 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 202, column 18)
                             _rulesOchildNts =
                                 ({-# LINE 202 "src-ag/Order.ag" #-}
                                  Map.fromList (toList _childrenInts)
-                                 {-# LINE 3617 "dist/build/Order" #-}
+                                 {-# LINE 3587 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 203, column 19)
                             _rulesOchildInhs =
                                 ({-# LINE 203 "src-ag/Order.ag" #-}
                                  Map.fromList (toList _childrenIinhs)
-                                 {-# LINE 3623 "dist/build/Order" #-}
+                                 {-# LINE 3593 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 209, column 18)
                             _inhRules =
                                 ({-# LINE 209 "src-ag/Order.ag" #-}
                                  [ cRuleLhsInh inh _lhsInt con_ tp | (inh,tp) <- Map.assocs _lhsIinh ]
-                                 {-# LINE 3629 "dist/build/Order" #-}
+                                 {-# LINE 3599 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 210, column 19)
                             _gathRules =
                                 ({-# LINE 210 "src-ag/Order.ag" #-}
                                  _inhRules ++ toList (_childrenIgathRules Seq.>< _rulesIgathRules)
-                                 {-# LINE 3635 "dist/build/Order" #-}
+                                 {-# LINE 3605 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 262, column 18)
                             _lhsOrules =
                                 ({-# LINE 262 "src-ag/Order.ag" #-}
                                  Seq.fromList (zip [_lhsIvcount..] _gathRules)
-                                 {-# LINE 3641 "dist/build/Order" #-}
+                                 {-# LINE 3611 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 263, column 19)
                             _lhsOvcount =
                                 ({-# LINE 263 "src-ag/Order.ag" #-}
                                  _lhsIvcount + length _gathRules
-                                 {-# LINE 3647 "dist/build/Order" #-}
+                                 {-# LINE 3617 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 290, column 7)
                             _manualDeps =
                                 ({-# LINE 290 "src-ag/Order.ag" #-}
                                  Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrDepMap
-                                 {-# LINE 3653 "dist/build/Order" #-}
+                                 {-# LINE 3623 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 293, column 7)
                             _lhsOadditionalDep =
@@ -3662,31 +3632,31 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                                     vertex _ (OccRule nm)
                                                       = findWithErr2 (AltAttr _LOC (Ident ("_rule_" ++ show nm) (getPos nm)) True) _altAttrs
                                               ]
-                                 {-# LINE 3666 "dist/build/Order" #-}
+                                 {-# LINE 3636 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 340, column 17)
                             _rulesOsynsOfChildren =
                                 ({-# LINE 340 "src-ag/Order.ag" #-}
                                  _childrenIcollectChildrenSyns
-                                 {-# LINE 3672 "dist/build/Order" #-}
+                                 {-# LINE 3642 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 341, column 17)
                             _rulesOinhsOfChildren =
                                 ({-# LINE 341 "src-ag/Order.ag" #-}
                                  _childrenIcollectChildrenInhs
-                                 {-# LINE 3678 "dist/build/Order" #-}
+                                 {-# LINE 3648 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 359, column 32)
                             _mergeMap =
                                 ({-# LINE 359 "src-ag/Order.ag" #-}
                                  Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                 {-# LINE 3684 "dist/build/Order" #-}
+                                 {-# LINE 3654 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 370, column 7)
                             _lhsOmergeDep =
                                 ({-# LINE 370 "src-ag/Order.ag" #-}
                                  _mergeDep1     Seq.>< _mergeDep2
-                                 {-# LINE 3690 "dist/build/Order" #-}
+                                 {-# LINE 3660 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 371, column 7)
                             _mergeDep1 =
@@ -3701,7 +3671,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                           childVert = findWithErr2 childAttr _altAttrs
                                           synVert  = findWithErr2 synAttr _altAttrs
                                     ]
-                                 {-# LINE 3705 "dist/build/Order" #-}
+                                 {-# LINE 3675 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 382, column 7)
                             _mergeDep2 =
@@ -3716,13 +3686,13 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                           sourceVert = findWithErr2 sourceAttr _altAttrs
                                           mergedVert = findWithErr2 mergedAttr _altAttrs
                                     ]
-                                 {-# LINE 3720 "dist/build/Order" #-}
+                                 {-# LINE 3690 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 412, column 32)
                             _aroundMap =
                                 ({-# LINE 412 "src-ag/Order.ag" #-}
                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
-                                 {-# LINE 3726 "dist/build/Order" #-}
+                                 {-# LINE 3696 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 419, column 6)
                             _aroundDep1 =
@@ -3737,7 +3707,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                          childVert = findWithErr2 childAttr _altAttrs
                                          synVert  = findWithErr2 synAttr _altAttrs
                                    ]
-                                 {-# LINE 3741 "dist/build/Order" #-}
+                                 {-# LINE 3711 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 430, column 6)
                             _aroundDep2 =
@@ -3752,31 +3722,31 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                          childVert = findWithErr2 childAttr _altAttrs
                                          inhVert   = findWithErr2 inhAttr _altAttrs
                                    ]
-                                 {-# LINE 3756 "dist/build/Order" #-}
+                                 {-# LINE 3726 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 441, column 6)
                             _lhsOaroundDep =
                                 ({-# LINE 441 "src-ag/Order.ag" #-}
                                  _aroundDep1     Seq.>< _aroundDep2
-                                 {-# LINE 3762 "dist/build/Order" #-}
+                                 {-# LINE 3732 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 523, column 18)
                             _lhsOcons =
                                 ({-# LINE 523 "src-ag/Order.ag" #-}
                                  [con_]
-                                 {-# LINE 3768 "dist/build/Order" #-}
+                                 {-# LINE 3738 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 530, column 16)
                             _typeSigsOtypeSigs =
                                 ({-# LINE 530 "src-ag/Order.ag" #-}
                                  Map.empty
-                                 {-# LINE 3774 "dist/build/Order" #-}
+                                 {-# LINE 3744 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 536, column 17)
                             _rulesOallTypeSigs =
                                 ({-# LINE 536 "src-ag/Order.ag" #-}
                                  _typeSigsItypeSigs
-                                 {-# LINE 3780 "dist/build/Order" #-}
+                                 {-# LINE 3750 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 604, column 17)
                             _cVisits =
@@ -3787,19 +3757,19 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                             in visits
                                       else  let  vss = nubBy eqCRuleDefines _gathRules ++ _childrenIsinglevisits
                                             in  [CVisit _lhsIinh _lhsIsyn vss [] False]
-                                 {-# LINE 3791 "dist/build/Order" #-}
+                                 {-# LINE 3761 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 630, column 18)
                             _lhsOcProduction =
                                 ({-# LINE 630 "src-ag/Order.ag" #-}
                                  CProduction con_ _cVisits _childrenIfields _childrenIterminals
-                                 {-# LINE 3797 "dist/build/Order" #-}
+                                 {-# LINE 3767 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 658, column 16)
                             _allfields =
                                 ({-# LINE 658 "src-ag/Order.ag" #-}
                                  _childrenIfields
-                                 {-# LINE 3803 "dist/build/Order" #-}
+                                 {-# LINE 3773 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 658, column 16)
                             _attrs =
@@ -3808,211 +3778,211 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  map ((,) _INST) _rulesIinstVars ++
                                  map ((,) _LHS)  _inhnames ++
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
-                                 {-# LINE 3812 "dist/build/Order" #-}
+                                 {-# LINE 3782 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 658, column 16)
                             _inhnames =
                                 ({-# LINE 663 "src-ag/Order.ag" #-}
                                  Map.keys _lhsIinh
-                                 {-# LINE 3818 "dist/build/Order" #-}
+                                 {-# LINE 3788 "dist/build/Order" #-}
                                  )
                             -- "src-ag/Order.ag"(line 658, column 16)
                             _synnames =
                                 ({-# LINE 664 "src-ag/Order.ag" #-}
                                  Map.keys _lhsIsyn
-                                 {-# LINE 3824 "dist/build/Order" #-}
+                                 {-# LINE 3794 "dist/build/Order" #-}
                                  )
                             -- use rule "src-ag/Order.ag"(line 268, column 33)
                             _lhsOdirectDep =
                                 ({-# LINE 268 "src-ag/Order.ag" #-}
                                  _rulesIdirectDep
-                                 {-# LINE 3830 "dist/build/Order" #-}
+                                 {-# LINE 3800 "dist/build/Order" #-}
                                  )
                             -- use rule "src-ag/Order.ag"(line 85, column 70)
                             _lhsOerrors =
                                 ({-# LINE 85 "src-ag/Order.ag" #-}
                                  _childrenIerrors Seq.>< _rulesIerrors
-                                 {-# LINE 3836 "dist/build/Order" #-}
+                                 {-# LINE 3806 "dist/build/Order" #-}
                                  )
                             -- use rule "src-ag/Order.ag"(line 311, column 31)
                             _lhsOinstDep =
                                 ({-# LINE 311 "src-ag/Order.ag" #-}
                                  _rulesIinstDep
-                                 {-# LINE 3842 "dist/build/Order" #-}
+                                 {-# LINE 3812 "dist/build/Order" #-}
                                  )
                             -- use rule "src-ag/Order.ag"(line 62, column 105)
                             _lhsOnAutoRules =
                                 ({-# LINE 62 "src-ag/Order.ag" #-}
                                  _rulesInAutoRules
-                                 {-# LINE 3848 "dist/build/Order" #-}
+                                 {-# LINE 3818 "dist/build/Order" #-}
                                  )
                             -- use rule "src-ag/Order.ag"(line 62, column 105)
                             _lhsOnExplicitRules =
                                 ({-# LINE 62 "src-ag/Order.ag" #-}
                                  _rulesInExplicitRules
-                                 {-# LINE 3854 "dist/build/Order" #-}
+                                 {-# LINE 3824 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOallfields =
                                 ({-# LINE 655 "src-ag/Order.ag" #-}
                                  _allfields
-                                 {-# LINE 3860 "dist/build/Order" #-}
+                                 {-# LINE 3830 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOallnts =
                                 ({-# LINE 648 "src-ag/Order.ag" #-}
                                  _lhsIallnts
-                                 {-# LINE 3866 "dist/build/Order" #-}
+                                 {-# LINE 3836 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOattrs =
                                 ({-# LINE 655 "src-ag/Order.ag" #-}
                                  _attrs
-                                 {-# LINE 3872 "dist/build/Order" #-}
+                                 {-# LINE 3842 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinh =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsIinh
-                                 {-# LINE 3878 "dist/build/Order" #-}
+                                 {-# LINE 3848 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 3884 "dist/build/Order" #-}
+                                 {-# LINE 3854 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOmergeMap =
                                 ({-# LINE 361 "src-ag/Order.ag" #-}
                                  _mergeMap
-                                 {-# LINE 3890 "dist/build/Order" #-}
+                                 {-# LINE 3860 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOnt =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsInt
-                                 {-# LINE 3896 "dist/build/Order" #-}
+                                 {-# LINE 3866 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOo_unbox =
                                 ({-# LINE 120 "src-ag/Order.ag" #-}
                                  _lhsIo_unbox
-                                 {-# LINE 3902 "dist/build/Order" #-}
+                                 {-# LINE 3872 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsyn =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsIsyn
-                                 {-# LINE 3908 "dist/build/Order" #-}
+                                 {-# LINE 3878 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIsynMap
-                                 {-# LINE 3914 "dist/build/Order" #-}
+                                 {-# LINE 3884 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOallfields =
                                 ({-# LINE 655 "src-ag/Order.ag" #-}
                                  _allfields
-                                 {-# LINE 3920 "dist/build/Order" #-}
+                                 {-# LINE 3890 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOallnts =
                                 ({-# LINE 648 "src-ag/Order.ag" #-}
                                  _lhsIallnts
-                                 {-# LINE 3926 "dist/build/Order" #-}
+                                 {-# LINE 3896 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOaltAttrs =
                                 ({-# LINE 187 "src-ag/Order.ag" #-}
                                  _altAttrs
-                                 {-# LINE 3932 "dist/build/Order" #-}
+                                 {-# LINE 3902 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOattrs =
                                 ({-# LINE 655 "src-ag/Order.ag" #-}
                                  _attrs
-                                 {-# LINE 3938 "dist/build/Order" #-}
+                                 {-# LINE 3908 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOinh =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsIinh
-                                 {-# LINE 3944 "dist/build/Order" #-}
+                                 {-# LINE 3914 "dist/build/Order" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOmergeMap =
                                 ({-# LINE 361 "src-ag/Order.ag" #-}
                                  _mergeMap
-                                 {-# LINE 3950 "dist/build/Order" #-}
+                                 {-# LINE 3920 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOnt =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsInt
-                                 {-# LINE 3956 "dist/build/Order" #-}
+                                 {-# LINE 3926 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_case =
                                 ({-# LINE 118 "src-ag/Order.ag" #-}
                                  _lhsIo_case
-                                 {-# LINE 3962 "dist/build/Order" #-}
+                                 {-# LINE 3932 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_cata =
                                 ({-# LINE 112 "src-ag/Order.ag" #-}
                                  _lhsIo_cata
-                                 {-# LINE 3968 "dist/build/Order" #-}
+                                 {-# LINE 3938 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_dovisit =
                                 ({-# LINE 117 "src-ag/Order.ag" #-}
                                  _lhsIo_dovisit
-                                 {-# LINE 3974 "dist/build/Order" #-}
+                                 {-# LINE 3944 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_newtypes =
                                 ({-# LINE 111 "src-ag/Order.ag" #-}
                                  _lhsIo_newtypes
-                                 {-# LINE 3980 "dist/build/Order" #-}
+                                 {-# LINE 3950 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_rename =
                                 ({-# LINE 115 "src-ag/Order.ag" #-}
                                  _lhsIo_rename
-                                 {-# LINE 3986 "dist/build/Order" #-}
+                                 {-# LINE 3956 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_sem =
                                 ({-# LINE 114 "src-ag/Order.ag" #-}
                                  _lhsIo_sem
-                                 {-# LINE 3992 "dist/build/Order" #-}
+                                 {-# LINE 3962 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_sig =
                                 ({-# LINE 113 "src-ag/Order.ag" #-}
                                  _lhsIo_sig
-                                 {-# LINE 3998 "dist/build/Order" #-}
+                                 {-# LINE 3968 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_wantvisit =
                                 ({-# LINE 116 "src-ag/Order.ag" #-}
                                  _lhsIo_wantvisit
-                                 {-# LINE 4004 "dist/build/Order" #-}
+                                 {-# LINE 3974 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOprefix =
                                 ({-# LINE 119 "src-ag/Order.ag" #-}
                                  _lhsIprefix
-                                 {-# LINE 4010 "dist/build/Order" #-}
+                                 {-# LINE 3980 "dist/build/Order" #-}
                                  )
                             -- copy rule (down)
                             _rulesOsyn =
                                 ({-# LINE 90 "src-ag/Order.ag" #-}
                                  _lhsIsyn
-                                 {-# LINE 4016 "dist/build/Order" #-}
+                                 {-# LINE 3986 "dist/build/Order" #-}
                                  )
                             ( _childrenIattributes,_childrenIcollectChildrenInhs,_childrenIcollectChildrenSyns,_childrenIerrors,_childrenIfields,_childrenIgathAltAttrs,_childrenIgathRules,_childrenIinhs,_childrenInts,_childrenIsinglevisits,_childrenIterminals) =
                                 children_ _childrenOallfields _childrenOallnts _childrenOattrs _childrenOcon _childrenOinh _childrenOinhMap _childrenOmergeMap _childrenOnt _childrenOo_unbox _childrenOsyn _childrenOsynMap
@@ -4020,8 +3990,6 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                 rules_ _rulesOallTypeSigs _rulesOallfields _rulesOallnts _rulesOaltAttrs _rulesOattrs _rulesOchildInhs _rulesOchildNts _rulesOcon _rulesOinh _rulesOinhsOfChildren _rulesOmergeMap _rulesOnt _rulesOo_case _rulesOo_cata _rulesOo_dovisit _rulesOo_newtypes _rulesOo_rename _rulesOo_sem _rulesOo_sig _rulesOo_wantvisit _rulesOprefix _rulesOsyn _rulesOsynsOfChildren
                             ( _typeSigsItypeSigs) =
                                 typeSigs_ _typeSigsOtypeSigs
-                            ___node =
-                                (Syn_Production _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
                         in  ( _lhsOadditionalDep,_lhsOaroundDep,_lhsOcProduction,_lhsOcons,_lhsOdirectDep,_lhsOerrors,_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOrules,_lhsOvcount))))
 -- Productions -------------------------------------------------
 {-
@@ -4210,332 +4178,330 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                              _lhsOcProductions =
                                  ({-# LINE 627 "src-ag/Order.ag" #-}
                                   _hdIcProduction : _tlIcProductions
-                                  {-# LINE 4214 "dist/build/Order" #-}
+                                  {-# LINE 4182 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 282, column 60)
                              _lhsOadditionalDep =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   _hdIadditionalDep Seq.>< _tlIadditionalDep
-                                  {-# LINE 4220 "dist/build/Order" #-}
+                                  {-# LINE 4188 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 403, column 24)
                              _lhsOaroundDep =
                                  ({-# LINE 403 "src-ag/Order.ag" #-}
                                   _hdIaroundDep Seq.>< _tlIaroundDep
-                                  {-# LINE 4226 "dist/build/Order" #-}
+                                  {-# LINE 4194 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 521, column 40)
                              _lhsOcons =
                                  ({-# LINE 521 "src-ag/Order.ag" #-}
                                   _hdIcons ++ _tlIcons
-                                  {-# LINE 4232 "dist/build/Order" #-}
+                                  {-# LINE 4200 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 268, column 33)
                              _lhsOdirectDep =
                                  ({-# LINE 268 "src-ag/Order.ag" #-}
                                   _hdIdirectDep Seq.>< _tlIdirectDep
-                                  {-# LINE 4238 "dist/build/Order" #-}
+                                  {-# LINE 4206 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 85, column 70)
                              _lhsOerrors =
                                  ({-# LINE 85 "src-ag/Order.ag" #-}
                                   _hdIerrors Seq.>< _tlIerrors
-                                  {-# LINE 4244 "dist/build/Order" #-}
+                                  {-# LINE 4212 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 311, column 31)
                              _lhsOinstDep =
                                  ({-# LINE 311 "src-ag/Order.ag" #-}
                                   _hdIinstDep Seq.>< _tlIinstDep
-                                  {-# LINE 4250 "dist/build/Order" #-}
+                                  {-# LINE 4218 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 366, column 18)
                              _lhsOmergeDep =
                                  ({-# LINE 366 "src-ag/Order.ag" #-}
                                   _hdImergeDep Seq.>< _tlImergeDep
-                                  {-# LINE 4256 "dist/build/Order" #-}
+                                  {-# LINE 4224 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnAutoRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   _hdInAutoRules + _tlInAutoRules
-                                  {-# LINE 4262 "dist/build/Order" #-}
+                                  {-# LINE 4230 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnExplicitRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   _hdInExplicitRules + _tlInExplicitRules
-                                  {-# LINE 4268 "dist/build/Order" #-}
+                                  {-# LINE 4236 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 258, column 18)
                              _lhsOrules =
                                  ({-# LINE 258 "src-ag/Order.ag" #-}
                                   _hdIrules Seq.>< _tlIrules
-                                  {-# LINE 4274 "dist/build/Order" #-}
+                                  {-# LINE 4242 "dist/build/Order" #-}
                                   )
                              -- copy rule (up)
                              _lhsOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _tlIvcount
-                                  {-# LINE 4280 "dist/build/Order" #-}
+                                  {-# LINE 4248 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOallnts =
                                  ({-# LINE 648 "src-ag/Order.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 4286 "dist/build/Order" #-}
+                                  {-# LINE 4254 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOaroundMap =
                                  ({-# LINE 409 "src-ag/Order.ag" #-}
                                   _lhsIaroundMap
-                                  {-# LINE 4292 "dist/build/Order" #-}
+                                  {-# LINE 4260 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOcVisitsMap =
                                  ({-# LINE 602 "src-ag/Order.ag" #-}
                                   _lhsIcVisitsMap
-                                  {-# LINE 4298 "dist/build/Order" #-}
+                                  {-# LINE 4266 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOinh =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 4304 "dist/build/Order" #-}
+                                  {-# LINE 4272 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 4310 "dist/build/Order" #-}
+                                  {-# LINE 4278 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOmanualAttrDepMap =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   _lhsImanualAttrDepMap
-                                  {-# LINE 4316 "dist/build/Order" #-}
+                                  {-# LINE 4284 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOmergeMap =
                                  ({-# LINE 356 "src-ag/Order.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 4322 "dist/build/Order" #-}
+                                  {-# LINE 4290 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOnt =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsInt
-                                  {-# LINE 4328 "dist/build/Order" #-}
+                                  {-# LINE 4296 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_case =
                                  ({-# LINE 118 "src-ag/Order.ag" #-}
                                   _lhsIo_case
-                                  {-# LINE 4334 "dist/build/Order" #-}
+                                  {-# LINE 4302 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_cata =
                                  ({-# LINE 112 "src-ag/Order.ag" #-}
                                   _lhsIo_cata
-                                  {-# LINE 4340 "dist/build/Order" #-}
+                                  {-# LINE 4308 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_dovisit =
                                  ({-# LINE 117 "src-ag/Order.ag" #-}
                                   _lhsIo_dovisit
-                                  {-# LINE 4346 "dist/build/Order" #-}
+                                  {-# LINE 4314 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_newtypes =
                                  ({-# LINE 111 "src-ag/Order.ag" #-}
                                   _lhsIo_newtypes
-                                  {-# LINE 4352 "dist/build/Order" #-}
+                                  {-# LINE 4320 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_rename =
                                  ({-# LINE 115 "src-ag/Order.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 4358 "dist/build/Order" #-}
+                                  {-# LINE 4326 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_sem =
                                  ({-# LINE 114 "src-ag/Order.ag" #-}
                                   _lhsIo_sem
-                                  {-# LINE 4364 "dist/build/Order" #-}
+                                  {-# LINE 4332 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_sig =
                                  ({-# LINE 113 "src-ag/Order.ag" #-}
                                   _lhsIo_sig
-                                  {-# LINE 4370 "dist/build/Order" #-}
+                                  {-# LINE 4338 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_unbox =
                                  ({-# LINE 120 "src-ag/Order.ag" #-}
                                   _lhsIo_unbox
-                                  {-# LINE 4376 "dist/build/Order" #-}
+                                  {-# LINE 4344 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_wantvisit =
                                  ({-# LINE 116 "src-ag/Order.ag" #-}
                                   _lhsIo_wantvisit
-                                  {-# LINE 4382 "dist/build/Order" #-}
+                                  {-# LINE 4350 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOprefix =
                                  ({-# LINE 119 "src-ag/Order.ag" #-}
                                   _lhsIprefix
-                                  {-# LINE 4388 "dist/build/Order" #-}
+                                  {-# LINE 4356 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOsyn =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 4394 "dist/build/Order" #-}
+                                  {-# LINE 4362 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 4400 "dist/build/Order" #-}
+                                  {-# LINE 4368 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _hdOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _lhsIvcount
-                                  {-# LINE 4406 "dist/build/Order" #-}
+                                  {-# LINE 4374 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOallnts =
                                  ({-# LINE 648 "src-ag/Order.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 4412 "dist/build/Order" #-}
+                                  {-# LINE 4380 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOaroundMap =
                                  ({-# LINE 409 "src-ag/Order.ag" #-}
                                   _lhsIaroundMap
-                                  {-# LINE 4418 "dist/build/Order" #-}
+                                  {-# LINE 4386 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOcVisitsMap =
                                  ({-# LINE 602 "src-ag/Order.ag" #-}
                                   _lhsIcVisitsMap
-                                  {-# LINE 4424 "dist/build/Order" #-}
+                                  {-# LINE 4392 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOinh =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 4430 "dist/build/Order" #-}
+                                  {-# LINE 4398 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 4436 "dist/build/Order" #-}
+                                  {-# LINE 4404 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOmanualAttrDepMap =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   _lhsImanualAttrDepMap
-                                  {-# LINE 4442 "dist/build/Order" #-}
+                                  {-# LINE 4410 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOmergeMap =
                                  ({-# LINE 356 "src-ag/Order.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 4448 "dist/build/Order" #-}
+                                  {-# LINE 4416 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOnt =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsInt
-                                  {-# LINE 4454 "dist/build/Order" #-}
+                                  {-# LINE 4422 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_case =
                                  ({-# LINE 118 "src-ag/Order.ag" #-}
                                   _lhsIo_case
-                                  {-# LINE 4460 "dist/build/Order" #-}
+                                  {-# LINE 4428 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_cata =
                                  ({-# LINE 112 "src-ag/Order.ag" #-}
                                   _lhsIo_cata
-                                  {-# LINE 4466 "dist/build/Order" #-}
+                                  {-# LINE 4434 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_dovisit =
                                  ({-# LINE 117 "src-ag/Order.ag" #-}
                                   _lhsIo_dovisit
-                                  {-# LINE 4472 "dist/build/Order" #-}
+                                  {-# LINE 4440 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_newtypes =
                                  ({-# LINE 111 "src-ag/Order.ag" #-}
                                   _lhsIo_newtypes
-                                  {-# LINE 4478 "dist/build/Order" #-}
+                                  {-# LINE 4446 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_rename =
                                  ({-# LINE 115 "src-ag/Order.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 4484 "dist/build/Order" #-}
+                                  {-# LINE 4452 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_sem =
                                  ({-# LINE 114 "src-ag/Order.ag" #-}
                                   _lhsIo_sem
-                                  {-# LINE 4490 "dist/build/Order" #-}
+                                  {-# LINE 4458 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_sig =
                                  ({-# LINE 113 "src-ag/Order.ag" #-}
                                   _lhsIo_sig
-                                  {-# LINE 4496 "dist/build/Order" #-}
+                                  {-# LINE 4464 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_unbox =
                                  ({-# LINE 120 "src-ag/Order.ag" #-}
                                   _lhsIo_unbox
-                                  {-# LINE 4502 "dist/build/Order" #-}
+                                  {-# LINE 4470 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_wantvisit =
                                  ({-# LINE 116 "src-ag/Order.ag" #-}
                                   _lhsIo_wantvisit
-                                  {-# LINE 4508 "dist/build/Order" #-}
+                                  {-# LINE 4476 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOprefix =
                                  ({-# LINE 119 "src-ag/Order.ag" #-}
                                   _lhsIprefix
-                                  {-# LINE 4514 "dist/build/Order" #-}
+                                  {-# LINE 4482 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOsyn =
                                  ({-# LINE 90 "src-ag/Order.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 4520 "dist/build/Order" #-}
+                                  {-# LINE 4488 "dist/build/Order" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 4526 "dist/build/Order" #-}
+                                  {-# LINE 4494 "dist/build/Order" #-}
                                   )
                              -- copy rule (chain)
                              _tlOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _hdIvcount
-                                  {-# LINE 4532 "dist/build/Order" #-}
+                                  {-# LINE 4500 "dist/build/Order" #-}
                                   )
                              ( _hdIadditionalDep,_hdIaroundDep,_hdIcProduction,_hdIcons,_hdIdirectDep,_hdIerrors,_hdIinstDep,_hdImergeDep,_hdInAutoRules,_hdInExplicitRules,_hdIrules,_hdIvcount) =
                                  hd_ _hdOallnts _hdOaroundMap _hdOcVisitsMap _hdOinh _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOprefix _hdOsyn _hdOsynMap _hdOvcount
                              ( _tlIadditionalDep,_tlIaroundDep,_tlIcProductions,_tlIcons,_tlIdirectDep,_tlIerrors,_tlIinstDep,_tlImergeDep,_tlInAutoRules,_tlInExplicitRules,_tlIrules,_tlIvcount) =
                                  tl_ _tlOallnts _tlOaroundMap _tlOcVisitsMap _tlOinh _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOprefix _tlOsyn _tlOsynMap _tlOvcount
-                             ___node =
-                                 (Syn_Productions _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
                          in  ( _lhsOadditionalDep,_lhsOaroundDep,_lhsOcProductions,_lhsOcons,_lhsOdirectDep,_lhsOerrors,_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOrules,_lhsOvcount))))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -4576,76 +4542,74 @@ sem_Productions_Nil =
                              _lhsOcProductions =
                                  ({-# LINE 628 "src-ag/Order.ag" #-}
                                   []
-                                  {-# LINE 4580 "dist/build/Order" #-}
+                                  {-# LINE 4546 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 282, column 60)
                              _lhsOadditionalDep =
                                  ({-# LINE 282 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4586 "dist/build/Order" #-}
+                                  {-# LINE 4552 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 403, column 24)
                              _lhsOaroundDep =
                                  ({-# LINE 403 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4592 "dist/build/Order" #-}
+                                  {-# LINE 4558 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 521, column 40)
                              _lhsOcons =
                                  ({-# LINE 521 "src-ag/Order.ag" #-}
                                   []
-                                  {-# LINE 4598 "dist/build/Order" #-}
+                                  {-# LINE 4564 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 268, column 33)
                              _lhsOdirectDep =
                                  ({-# LINE 268 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4604 "dist/build/Order" #-}
+                                  {-# LINE 4570 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 85, column 70)
                              _lhsOerrors =
                                  ({-# LINE 85 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4610 "dist/build/Order" #-}
+                                  {-# LINE 4576 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 311, column 31)
                              _lhsOinstDep =
                                  ({-# LINE 311 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4616 "dist/build/Order" #-}
+                                  {-# LINE 4582 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 366, column 18)
                              _lhsOmergeDep =
                                  ({-# LINE 366 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4622 "dist/build/Order" #-}
+                                  {-# LINE 4588 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnAutoRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   0
-                                  {-# LINE 4628 "dist/build/Order" #-}
+                                  {-# LINE 4594 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 62, column 105)
                              _lhsOnExplicitRules =
                                  ({-# LINE 62 "src-ag/Order.ag" #-}
                                   0
-                                  {-# LINE 4634 "dist/build/Order" #-}
+                                  {-# LINE 4600 "dist/build/Order" #-}
                                   )
                              -- use rule "src-ag/Order.ag"(line 258, column 18)
                              _lhsOrules =
                                  ({-# LINE 258 "src-ag/Order.ag" #-}
                                   Seq.empty
-                                  {-# LINE 4640 "dist/build/Order" #-}
+                                  {-# LINE 4606 "dist/build/Order" #-}
                                   )
                              -- copy rule (chain)
                              _lhsOvcount =
                                  ({-# LINE 257 "src-ag/Order.ag" #-}
                                   _lhsIvcount
-                                  {-# LINE 4646 "dist/build/Order" #-}
+                                  {-# LINE 4612 "dist/build/Order" #-}
                                   )
-                             ___node =
-                                 (Syn_Productions _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
                          in  ( _lhsOadditionalDep,_lhsOaroundDep,_lhsOcProductions,_lhsOcons,_lhsOdirectDep,_lhsOerrors,_lhsOinstDep,_lhsOmergeDep,_lhsOnAutoRules,_lhsOnExplicitRules,_lhsOrules,_lhsOvcount))))
 -- Rule --------------------------------------------------------
 {-
@@ -4815,7 +4779,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                            if explicit_
                            then 1
                            else 0
-                           {-# LINE 4819 "dist/build/Order" #-}
+                           {-# LINE 4783 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 68, column 11)
                       _lhsOnAutoRules =
@@ -4823,7 +4787,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                            if startsWith "use rule" origin_ || startsWith "copy rule" origin_
                            then 1
                            else 0
-                           {-# LINE 4827 "dist/build/Order" #-}
+                           {-# LINE 4791 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 218, column 12)
                       _defines =
@@ -4840,7 +4804,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                             | (field,attr,isLocalOrInst) <- _patternIpatternAttrs
                                             , let aa = AltAttr field attr isLocalOrInst
                                             ]
-                           {-# LINE 4844 "dist/build/Order" #-}
+                           {-# LINE 4808 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 232, column 12)
                       _gathRules =
@@ -4849,7 +4813,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                            in Seq.fromList [ CRule attr False True _lhsInt _lhsIcon field (childnt field) tp _patternIcopy _rhsItextLines _defines owrt_ origin_ _rhsIallRhsVars explicit_ mbName_
                                            | (field,attr,tp) <- Map.elems _defines
                                            ]
-                           {-# LINE 4853 "dist/build/Order" #-}
+                           {-# LINE 4817 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 270, column 12)
                       _lhsOdirectDep =
@@ -4858,7 +4822,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                 used =  [ Map.lookup (AltAttr field attr True) _lhsIaltAttrs | (field,attr) <- _rhsIusedAttrs]
                                         ++ [ Map.lookup (AltAttr _LOC attr True) _lhsIaltAttrs | attr <- _rhsIusedLocals ++ _rhsIusedFields ]
                            in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
-                           {-# LINE 4862 "dist/build/Order" #-}
+                           {-# LINE 4826 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 314, column 6)
                       _instDep1 =
@@ -4873,7 +4837,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                    instVert = findWithErr2 instAttr _lhsIaltAttrs
                                    synVert  = findWithErr2 synAttr _lhsIaltAttrs
                              ]
-                           {-# LINE 4877 "dist/build/Order" #-}
+                           {-# LINE 4841 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 325, column 6)
                       _instDep2 =
@@ -4888,122 +4852,120 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                    instVert = findWithErr2 instAttr _lhsIaltAttrs
                                    inhVert  = findWithErr2 inhAttr _lhsIaltAttrs
                              ]
-                           {-# LINE 4892 "dist/build/Order" #-}
+                           {-# LINE 4856 "dist/build/Order" #-}
                            )
                       -- "src-ag/Order.ag"(line 336, column 6)
                       _lhsOinstDep =
                           ({-# LINE 336 "src-ag/Order.ag" #-}
                            _instDep1     Seq.>< _instDep2
-                           {-# LINE 4898 "dist/build/Order" #-}
+                           {-# LINE 4862 "dist/build/Order" #-}
                            )
                       -- use rule "src-ag/Order.ag"(line 85, column 70)
                       _lhsOerrors =
                           ({-# LINE 85 "src-ag/Order.ag" #-}
                            _patternIerrors Seq.>< _rhsIerrors
-                           {-# LINE 4904 "dist/build/Order" #-}
+                           {-# LINE 4868 "dist/build/Order" #-}
                            )
                       -- use rule "src-ag/Order.ag"(line 171, column 68)
                       _lhsOgathAltAttrs =
                           ({-# LINE 171 "src-ag/Order.ag" #-}
                            _patternIgathAltAttrs
-                           {-# LINE 4910 "dist/build/Order" #-}
+                           {-# LINE 4874 "dist/build/Order" #-}
                            )
                       -- use rule "src-ag/Order.ag"(line 207, column 23)
                       _lhsOgathRules =
                           ({-# LINE 207 "src-ag/Order.ag" #-}
                            _gathRules
-                           {-# LINE 4916 "dist/build/Order" #-}
+                           {-# LINE 4880 "dist/build/Order" #-}
                            )
                       -- use rule "src-ag/Order.ag"(line 678, column 86)
                       _lhsOinstVars =
                           ({-# LINE 678 "src-ag/Order.ag" #-}
                            _patternIinstVars
-                           {-# LINE 4922 "dist/build/Order" #-}
+                           {-# LINE 4886 "dist/build/Order" #-}
                            )
                       -- use rule "src-ag/Order.ag"(line 678, column 48)
                       _lhsOlocVars =
                           ({-# LINE 678 "src-ag/Order.ag" #-}
                            _patternIlocVars
-                           {-# LINE 4928 "dist/build/Order" #-}
+                           {-# LINE 4892 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOallTypeSigs =
                           ({-# LINE 534 "src-ag/Order.ag" #-}
                            _lhsIallTypeSigs
-                           {-# LINE 4934 "dist/build/Order" #-}
+                           {-# LINE 4898 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOaltAttrs =
                           ({-# LINE 187 "src-ag/Order.ag" #-}
                            _lhsIaltAttrs
-                           {-# LINE 4940 "dist/build/Order" #-}
+                           {-# LINE 4904 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOcon =
                           ({-# LINE 91 "src-ag/Order.ag" #-}
                            _lhsIcon
-                           {-# LINE 4946 "dist/build/Order" #-}
+                           {-# LINE 4910 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOinh =
                           ({-# LINE 90 "src-ag/Order.ag" #-}
                            _lhsIinh
-                           {-# LINE 4952 "dist/build/Order" #-}
+                           {-# LINE 4916 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOnt =
                           ({-# LINE 90 "src-ag/Order.ag" #-}
                            _lhsInt
-                           {-# LINE 4958 "dist/build/Order" #-}
+                           {-# LINE 4922 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _patternOsyn =
                           ({-# LINE 90 "src-ag/Order.ag" #-}
                            _lhsIsyn
-                           {-# LINE 4964 "dist/build/Order" #-}
+                           {-# LINE 4928 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOallfields =
                           ({-# LINE 447 "src-ag/Order.ag" #-}
                            _lhsIallfields
-                           {-# LINE 4970 "dist/build/Order" #-}
+                           {-# LINE 4934 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOallnts =
                           ({-# LINE 448 "src-ag/Order.ag" #-}
                            _lhsIallnts
-                           {-# LINE 4976 "dist/build/Order" #-}
+                           {-# LINE 4940 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOattrs =
                           ({-# LINE 449 "src-ag/Order.ag" #-}
                            _lhsIattrs
-                           {-# LINE 4982 "dist/build/Order" #-}
+                           {-# LINE 4946 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOcon =
                           ({-# LINE 446 "src-ag/Order.ag" #-}
                            _lhsIcon
-                           {-# LINE 4988 "dist/build/Order" #-}
+                           {-# LINE 4952 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOmergeMap =
                           ({-# LINE 361 "src-ag/Order.ag" #-}
                            _lhsImergeMap
-                           {-# LINE 4994 "dist/build/Order" #-}
+                           {-# LINE 4958 "dist/build/Order" #-}
                            )
                       -- copy rule (down)
                       _rhsOnt =
                           ({-# LINE 446 "src-ag/Order.ag" #-}
                            _lhsInt
-                           {-# LINE 5000 "dist/build/Order" #-}
+                           {-# LINE 4964 "dist/build/Order" #-}
                            )
                       ( _patternIcopy,_patternIerrors,_patternIgathAltAttrs,_patternIinstVars,_patternIlocVars,_patternIpatternAttrs) =
                           pattern_ _patternOallTypeSigs _patternOaltAttrs _patternOcon _patternOinh _patternOnt _patternOsyn
                       ( _rhsIallRhsVars,_rhsIcopy,_rhsIerrors,_rhsItextLines,_rhsIusedAttrs,_rhsIusedFields,_rhsIusedLocals) =
                           rhs_ _rhsOallfields _rhsOallnts _rhsOattrs _rhsOcon _rhsOmergeMap _rhsOnt
-                      ___node =
-                          (Syn_Rule _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
                   in  ( _lhsOdirectDep,_lhsOerrors,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinstDep,_lhsOinstVars,_lhsOlocVars,_lhsOnAutoRules,_lhsOnExplicitRules))))
 -- Rules -------------------------------------------------------
 {-
@@ -5190,338 +5152,336 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                        _lhsOdirectDep =
                            ({-# LINE 268 "src-ag/Order.ag" #-}
                             _hdIdirectDep Seq.>< _tlIdirectDep
-                            {-# LINE 5194 "dist/build/Order" #-}
+                            {-# LINE 5156 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 85, column 70)
                        _lhsOerrors =
                            ({-# LINE 85 "src-ag/Order.ag" #-}
                             _hdIerrors Seq.>< _tlIerrors
-                            {-# LINE 5200 "dist/build/Order" #-}
+                            {-# LINE 5162 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 171, column 68)
                        _lhsOgathAltAttrs =
                            ({-# LINE 171 "src-ag/Order.ag" #-}
                             _hdIgathAltAttrs ++ _tlIgathAltAttrs
-                            {-# LINE 5206 "dist/build/Order" #-}
+                            {-# LINE 5168 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 207, column 23)
                        _lhsOgathRules =
                            ({-# LINE 207 "src-ag/Order.ag" #-}
                             _hdIgathRules Seq.>< _tlIgathRules
-                            {-# LINE 5212 "dist/build/Order" #-}
+                            {-# LINE 5174 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 311, column 31)
                        _lhsOinstDep =
                            ({-# LINE 311 "src-ag/Order.ag" #-}
                             _hdIinstDep Seq.>< _tlIinstDep
-                            {-# LINE 5218 "dist/build/Order" #-}
+                            {-# LINE 5180 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 678, column 86)
                        _lhsOinstVars =
                            ({-# LINE 678 "src-ag/Order.ag" #-}
                             _hdIinstVars ++ _tlIinstVars
-                            {-# LINE 5224 "dist/build/Order" #-}
+                            {-# LINE 5186 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 678, column 48)
                        _lhsOlocVars =
                            ({-# LINE 678 "src-ag/Order.ag" #-}
                             _hdIlocVars ++ _tlIlocVars
-                            {-# LINE 5230 "dist/build/Order" #-}
+                            {-# LINE 5192 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 62, column 105)
                        _lhsOnAutoRules =
                            ({-# LINE 62 "src-ag/Order.ag" #-}
                             _hdInAutoRules + _tlInAutoRules
-                            {-# LINE 5236 "dist/build/Order" #-}
+                            {-# LINE 5198 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 62, column 105)
                        _lhsOnExplicitRules =
                            ({-# LINE 62 "src-ag/Order.ag" #-}
                             _hdInExplicitRules + _tlInExplicitRules
-                            {-# LINE 5242 "dist/build/Order" #-}
+                            {-# LINE 5204 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOallTypeSigs =
                            ({-# LINE 534 "src-ag/Order.ag" #-}
                             _lhsIallTypeSigs
-                            {-# LINE 5248 "dist/build/Order" #-}
+                            {-# LINE 5210 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOallfields =
                            ({-# LINE 655 "src-ag/Order.ag" #-}
                             _lhsIallfields
-                            {-# LINE 5254 "dist/build/Order" #-}
+                            {-# LINE 5216 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOallnts =
                            ({-# LINE 648 "src-ag/Order.ag" #-}
                             _lhsIallnts
-                            {-# LINE 5260 "dist/build/Order" #-}
+                            {-# LINE 5222 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOaltAttrs =
                            ({-# LINE 187 "src-ag/Order.ag" #-}
                             _lhsIaltAttrs
-                            {-# LINE 5266 "dist/build/Order" #-}
+                            {-# LINE 5228 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOattrs =
                            ({-# LINE 655 "src-ag/Order.ag" #-}
                             _lhsIattrs
-                            {-# LINE 5272 "dist/build/Order" #-}
+                            {-# LINE 5234 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOchildInhs =
                            ({-# LINE 200 "src-ag/Order.ag" #-}
                             _lhsIchildInhs
-                            {-# LINE 5278 "dist/build/Order" #-}
+                            {-# LINE 5240 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOchildNts =
                            ({-# LINE 199 "src-ag/Order.ag" #-}
                             _lhsIchildNts
-                            {-# LINE 5284 "dist/build/Order" #-}
+                            {-# LINE 5246 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOcon =
                            ({-# LINE 91 "src-ag/Order.ag" #-}
                             _lhsIcon
-                            {-# LINE 5290 "dist/build/Order" #-}
+                            {-# LINE 5252 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOinh =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsIinh
-                            {-# LINE 5296 "dist/build/Order" #-}
+                            {-# LINE 5258 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOinhsOfChildren =
                            ({-# LINE 338 "src-ag/Order.ag" #-}
                             _lhsIinhsOfChildren
-                            {-# LINE 5302 "dist/build/Order" #-}
+                            {-# LINE 5264 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOmergeMap =
                            ({-# LINE 361 "src-ag/Order.ag" #-}
                             _lhsImergeMap
-                            {-# LINE 5308 "dist/build/Order" #-}
+                            {-# LINE 5270 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOnt =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsInt
-                            {-# LINE 5314 "dist/build/Order" #-}
+                            {-# LINE 5276 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_case =
                            ({-# LINE 118 "src-ag/Order.ag" #-}
                             _lhsIo_case
-                            {-# LINE 5320 "dist/build/Order" #-}
+                            {-# LINE 5282 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_cata =
                            ({-# LINE 112 "src-ag/Order.ag" #-}
                             _lhsIo_cata
-                            {-# LINE 5326 "dist/build/Order" #-}
+                            {-# LINE 5288 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_dovisit =
                            ({-# LINE 117 "src-ag/Order.ag" #-}
                             _lhsIo_dovisit
-                            {-# LINE 5332 "dist/build/Order" #-}
+                            {-# LINE 5294 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_newtypes =
                            ({-# LINE 111 "src-ag/Order.ag" #-}
                             _lhsIo_newtypes
-                            {-# LINE 5338 "dist/build/Order" #-}
+                            {-# LINE 5300 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_rename =
                            ({-# LINE 115 "src-ag/Order.ag" #-}
                             _lhsIo_rename
-                            {-# LINE 5344 "dist/build/Order" #-}
+                            {-# LINE 5306 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_sem =
                            ({-# LINE 114 "src-ag/Order.ag" #-}
                             _lhsIo_sem
-                            {-# LINE 5350 "dist/build/Order" #-}
+                            {-# LINE 5312 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_sig =
                            ({-# LINE 113 "src-ag/Order.ag" #-}
                             _lhsIo_sig
-                            {-# LINE 5356 "dist/build/Order" #-}
+                            {-# LINE 5318 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOo_wantvisit =
                            ({-# LINE 116 "src-ag/Order.ag" #-}
                             _lhsIo_wantvisit
-                            {-# LINE 5362 "dist/build/Order" #-}
+                            {-# LINE 5324 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOprefix =
                            ({-# LINE 119 "src-ag/Order.ag" #-}
                             _lhsIprefix
-                            {-# LINE 5368 "dist/build/Order" #-}
+                            {-# LINE 5330 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOsyn =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsIsyn
-                            {-# LINE 5374 "dist/build/Order" #-}
+                            {-# LINE 5336 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _hdOsynsOfChildren =
                            ({-# LINE 338 "src-ag/Order.ag" #-}
                             _lhsIsynsOfChildren
-                            {-# LINE 5380 "dist/build/Order" #-}
+                            {-# LINE 5342 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOallTypeSigs =
                            ({-# LINE 534 "src-ag/Order.ag" #-}
                             _lhsIallTypeSigs
-                            {-# LINE 5386 "dist/build/Order" #-}
+                            {-# LINE 5348 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOallfields =
                            ({-# LINE 655 "src-ag/Order.ag" #-}
                             _lhsIallfields
-                            {-# LINE 5392 "dist/build/Order" #-}
+                            {-# LINE 5354 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOallnts =
                            ({-# LINE 648 "src-ag/Order.ag" #-}
                             _lhsIallnts
-                            {-# LINE 5398 "dist/build/Order" #-}
+                            {-# LINE 5360 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOaltAttrs =
                            ({-# LINE 187 "src-ag/Order.ag" #-}
                             _lhsIaltAttrs
-                            {-# LINE 5404 "dist/build/Order" #-}
+                            {-# LINE 5366 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOattrs =
                            ({-# LINE 655 "src-ag/Order.ag" #-}
                             _lhsIattrs
-                            {-# LINE 5410 "dist/build/Order" #-}
+                            {-# LINE 5372 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOchildInhs =
                            ({-# LINE 200 "src-ag/Order.ag" #-}
                             _lhsIchildInhs
-                            {-# LINE 5416 "dist/build/Order" #-}
+                            {-# LINE 5378 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOchildNts =
                            ({-# LINE 199 "src-ag/Order.ag" #-}
                             _lhsIchildNts
-                            {-# LINE 5422 "dist/build/Order" #-}
+                            {-# LINE 5384 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOcon =
                            ({-# LINE 91 "src-ag/Order.ag" #-}
                             _lhsIcon
-                            {-# LINE 5428 "dist/build/Order" #-}
+                            {-# LINE 5390 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOinh =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsIinh
-                            {-# LINE 5434 "dist/build/Order" #-}
+                            {-# LINE 5396 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOinhsOfChildren =
                            ({-# LINE 338 "src-ag/Order.ag" #-}
                             _lhsIinhsOfChildren
-                            {-# LINE 5440 "dist/build/Order" #-}
+                            {-# LINE 5402 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOmergeMap =
                            ({-# LINE 361 "src-ag/Order.ag" #-}
                             _lhsImergeMap
-                            {-# LINE 5446 "dist/build/Order" #-}
+                            {-# LINE 5408 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOnt =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsInt
-                            {-# LINE 5452 "dist/build/Order" #-}
+                            {-# LINE 5414 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_case =
                            ({-# LINE 118 "src-ag/Order.ag" #-}
                             _lhsIo_case
-                            {-# LINE 5458 "dist/build/Order" #-}
+                            {-# LINE 5420 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_cata =
                            ({-# LINE 112 "src-ag/Order.ag" #-}
                             _lhsIo_cata
-                            {-# LINE 5464 "dist/build/Order" #-}
+                            {-# LINE 5426 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_dovisit =
                            ({-# LINE 117 "src-ag/Order.ag" #-}
                             _lhsIo_dovisit
-                            {-# LINE 5470 "dist/build/Order" #-}
+                            {-# LINE 5432 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_newtypes =
                            ({-# LINE 111 "src-ag/Order.ag" #-}
                             _lhsIo_newtypes
-                            {-# LINE 5476 "dist/build/Order" #-}
+                            {-# LINE 5438 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_rename =
                            ({-# LINE 115 "src-ag/Order.ag" #-}
                             _lhsIo_rename
-                            {-# LINE 5482 "dist/build/Order" #-}
+                            {-# LINE 5444 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_sem =
                            ({-# LINE 114 "src-ag/Order.ag" #-}
                             _lhsIo_sem
-                            {-# LINE 5488 "dist/build/Order" #-}
+                            {-# LINE 5450 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_sig =
                            ({-# LINE 113 "src-ag/Order.ag" #-}
                             _lhsIo_sig
-                            {-# LINE 5494 "dist/build/Order" #-}
+                            {-# LINE 5456 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOo_wantvisit =
                            ({-# LINE 116 "src-ag/Order.ag" #-}
                             _lhsIo_wantvisit
-                            {-# LINE 5500 "dist/build/Order" #-}
+                            {-# LINE 5462 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOprefix =
                            ({-# LINE 119 "src-ag/Order.ag" #-}
                             _lhsIprefix
-                            {-# LINE 5506 "dist/build/Order" #-}
+                            {-# LINE 5468 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOsyn =
                            ({-# LINE 90 "src-ag/Order.ag" #-}
                             _lhsIsyn
-                            {-# LINE 5512 "dist/build/Order" #-}
+                            {-# LINE 5474 "dist/build/Order" #-}
                             )
                        -- copy rule (down)
                        _tlOsynsOfChildren =
                            ({-# LINE 338 "src-ag/Order.ag" #-}
                             _lhsIsynsOfChildren
-                            {-# LINE 5518 "dist/build/Order" #-}
+                            {-# LINE 5480 "dist/build/Order" #-}
                             )
                        ( _hdIdirectDep,_hdIerrors,_hdIgathAltAttrs,_hdIgathRules,_hdIinstDep,_hdIinstVars,_hdIlocVars,_hdInAutoRules,_hdInExplicitRules) =
                            hd_ _hdOallTypeSigs _hdOallfields _hdOallnts _hdOaltAttrs _hdOattrs _hdOchildInhs _hdOchildNts _hdOcon _hdOinh _hdOinhsOfChildren _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_wantvisit _hdOprefix _hdOsyn _hdOsynsOfChildren
                        ( _tlIdirectDep,_tlIerrors,_tlIgathAltAttrs,_tlIgathRules,_tlIinstDep,_tlIinstVars,_tlIlocVars,_tlInAutoRules,_tlInExplicitRules) =
                            tl_ _tlOallTypeSigs _tlOallfields _tlOallnts _tlOaltAttrs _tlOattrs _tlOchildInhs _tlOchildNts _tlOcon _tlOinh _tlOinhsOfChildren _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_wantvisit _tlOprefix _tlOsyn _tlOsynsOfChildren
-                       ___node =
-                           (Syn_Rules _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
                    in  ( _lhsOdirectDep,_lhsOerrors,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinstDep,_lhsOinstVars,_lhsOlocVars,_lhsOnAutoRules,_lhsOnExplicitRules))))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -5561,58 +5521,56 @@ sem_Rules_Nil =
                        _lhsOdirectDep =
                            ({-# LINE 268 "src-ag/Order.ag" #-}
                             Seq.empty
-                            {-# LINE 5565 "dist/build/Order" #-}
+                            {-# LINE 5525 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 85, column 70)
                        _lhsOerrors =
                            ({-# LINE 85 "src-ag/Order.ag" #-}
                             Seq.empty
-                            {-# LINE 5571 "dist/build/Order" #-}
+                            {-# LINE 5531 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 171, column 68)
                        _lhsOgathAltAttrs =
                            ({-# LINE 171 "src-ag/Order.ag" #-}
                             []
-                            {-# LINE 5577 "dist/build/Order" #-}
+                            {-# LINE 5537 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 207, column 23)
                        _lhsOgathRules =
                            ({-# LINE 207 "src-ag/Order.ag" #-}
                             Seq.empty
-                            {-# LINE 5583 "dist/build/Order" #-}
+                            {-# LINE 5543 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 311, column 31)
                        _lhsOinstDep =
                            ({-# LINE 311 "src-ag/Order.ag" #-}
                             Seq.empty
-                            {-# LINE 5589 "dist/build/Order" #-}
+                            {-# LINE 5549 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 678, column 86)
                        _lhsOinstVars =
                            ({-# LINE 678 "src-ag/Order.ag" #-}
                             []
-                            {-# LINE 5595 "dist/build/Order" #-}
+                            {-# LINE 5555 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 678, column 48)
                        _lhsOlocVars =
                            ({-# LINE 678 "src-ag/Order.ag" #-}
                             []
-                            {-# LINE 5601 "dist/build/Order" #-}
+                            {-# LINE 5561 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 62, column 105)
                        _lhsOnAutoRules =
                            ({-# LINE 62 "src-ag/Order.ag" #-}
                             0
-                            {-# LINE 5607 "dist/build/Order" #-}
+                            {-# LINE 5567 "dist/build/Order" #-}
                             )
                        -- use rule "src-ag/Order.ag"(line 62, column 105)
                        _lhsOnExplicitRules =
                            ({-# LINE 62 "src-ag/Order.ag" #-}
                             0
-                            {-# LINE 5613 "dist/build/Order" #-}
+                            {-# LINE 5573 "dist/build/Order" #-}
                             )
-                       ___node =
-                           (Syn_Rules _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
                    in  ( _lhsOdirectDep,_lhsOerrors,_lhsOgathAltAttrs,_lhsOgathRules,_lhsOinstDep,_lhsOinstVars,_lhsOlocVars,_lhsOnAutoRules,_lhsOnExplicitRules))))
 -- TypeSig -----------------------------------------------------
 {-
@@ -5650,10 +5608,8 @@ sem_TypeSig_TypeSig name_ tp_ =
                          _lhsOtypeSigs =
                              ({-# LINE 532 "src-ag/Order.ag" #-}
                               Map.insert name_ tp_ _lhsItypeSigs
-                              {-# LINE 5654 "dist/build/Order" #-}
+                              {-# LINE 5612 "dist/build/Order" #-}
                               )
-                         ___node =
-                             (Syn_TypeSig _lhsOtypeSigs)
                      in  ( _lhsOtypeSigs))))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -5696,26 +5652,24 @@ sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
                           _lhsOtypeSigs =
                               ({-# LINE 528 "src-ag/Order.ag" #-}
                                _tlItypeSigs
-                               {-# LINE 5700 "dist/build/Order" #-}
+                               {-# LINE 5656 "dist/build/Order" #-}
                                )
                           -- copy rule (down)
                           _hdOtypeSigs =
                               ({-# LINE 528 "src-ag/Order.ag" #-}
                                _lhsItypeSigs
-                               {-# LINE 5706 "dist/build/Order" #-}
+                               {-# LINE 5662 "dist/build/Order" #-}
                                )
                           -- copy rule (chain)
                           _tlOtypeSigs =
                               ({-# LINE 528 "src-ag/Order.ag" #-}
                                _hdItypeSigs
-                               {-# LINE 5712 "dist/build/Order" #-}
+                               {-# LINE 5668 "dist/build/Order" #-}
                                )
                           ( _hdItypeSigs) =
                               hd_ _hdOtypeSigs
                           ( _tlItypeSigs) =
                               tl_ _tlOtypeSigs
-                          ___node =
-                              (Syn_TypeSigs _lhsOtypeSigs)
                       in  ( _lhsOtypeSigs))))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
@@ -5725,8 +5679,6 @@ sem_TypeSigs_Nil =
                           _lhsOtypeSigs =
                               ({-# LINE 528 "src-ag/Order.ag" #-}
                                _lhsItypeSigs
-                               {-# LINE 5729 "dist/build/Order" #-}
+                               {-# LINE 5683 "dist/build/Order" #-}
                                )
-                          ___node =
-                              (Syn_TypeSigs _lhsOtypeSigs)
                       in  ( _lhsOtypeSigs))))

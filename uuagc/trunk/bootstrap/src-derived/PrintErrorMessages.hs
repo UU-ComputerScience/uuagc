@@ -513,8 +513,6 @@ sem_Error_ChildAsLocal nt_ con_ var_ =
                             _me
                             {-# LINE 515 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_CustomError :: Bool ->
                          Pos ->
@@ -532,22 +530,20 @@ sem_Error_CustomError isWarning_ pos_ mesg_ =
                                 help = wfill ["not available."]
                                 act  = wfill ["unknown"]
                             in ppError (isError _lhsIoptions _me) pos_ mesg_ pat help act False
-                            {-# LINE 536 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 534 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             CustomError isWarning_ pos_ mesg_
-                            {-# LINE 542 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 540 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 548 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 546 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_Cyclic :: NontermIdent ->
                     (Maybe ConstructorIdent) ->
@@ -575,22 +571,20 @@ sem_Error_Cyclic nt_ mbCon_ verts_ =
                                 help = hlist (text "The following attributes are all cyclic: " : map text verts_)
                                 act  = wfill ["code cannot be generated until the cycle is removed."]
                             in ppError (isError _lhsIoptions _me) pos mesg pat help act False
-                            {-# LINE 579 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 575 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             Cyclic nt_ mbCon_ verts_
-                            {-# LINE 585 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 581 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 591 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 587 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_CyclicSet :: Identifier ->
                        T_Error
@@ -610,22 +604,20 @@ sem_Error_CyclicSet name_ =
                                               ]
                                 act  = wfill ["The nonterminal set", getName name_, "is considered to be empty."]
                             in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 614 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 608 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             CyclicSet name_
-                            {-# LINE 620 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 614 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 626 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 620 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DirectCirc :: NontermIdent ->
                         Bool ->
@@ -646,22 +638,20 @@ sem_Error_DirectCirc nt_ o_visit_ cyclic_ =
                                 act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                       | otherwise = text "The generated program might hang when run."
                             in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                            {-# LINE 650 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 642 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DirectCirc nt_ o_visit_ cyclic_
-                            {-# LINE 656 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 648 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 662 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 654 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupAlt :: NontermIdent ->
                     ConstructorIdent ->
@@ -693,22 +683,20 @@ sem_Error_DupAlt nt_ con_ occ1_ =
                                              ,"is considered valid. All other alternatives have been discarded."
                                              ]
                             in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                            {-# LINE 697 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 687 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupAlt nt_ con_ occ1_
-                            {-# LINE 703 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 693 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 709 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 699 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupChild :: NontermIdent ->
                       ConstructorIdent ->
@@ -740,22 +728,20 @@ sem_Error_DupChild nt_ con_ name_ occ1_ =
                                              ,"All others have been discarded."
                                              ]
                             in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 744 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 732 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupChild nt_ con_ name_ occ1_
-                            {-# LINE 750 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 738 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 756 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 744 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupInhAttr :: NontermIdent ->
                         Identifier ->
@@ -785,22 +771,20 @@ sem_Error_DupInhAttr nt_ attr_ occ1_ =
                                              ,"All others have been discarded. The generated program will probably not run."
                                              ]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 789 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 775 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupInhAttr nt_ attr_ occ1_
-                            {-# LINE 795 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 781 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 801 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 787 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupRule :: NontermIdent ->
                      ConstructorIdent ->
@@ -831,22 +815,20 @@ sem_Error_DupRule nt_ con_ field_ attr_ occ1_ =
                                                       ]
                                 act  = wfill ["The last rule given is considered valid. All others have been discarded."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 835 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 819 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupRule nt_ con_ field_ attr_ occ1_
-                            {-# LINE 841 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 825 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 847 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 831 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupRuleName :: NontermIdent ->
                          ConstructorIdent ->
@@ -872,22 +854,20 @@ sem_Error_DupRuleName nt_ con_ nm_ =
                                                       ]
                                 act  = wfill ["Compilation cannot continue."]
                             in ppError (isError _lhsIoptions _me) (getPos nm_) mesg pat help act _lhsIverbose
-                            {-# LINE 876 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 858 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupRuleName nt_ con_ nm_
-                            {-# LINE 882 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 864 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 888 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 870 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupSet :: NontermIdent ->
                     NontermIdent ->
@@ -915,22 +895,20 @@ sem_Error_DupSet name_ occ1_ =
                                 act  = wfill [ "The clashing nonterminal set will be ignored."
                                              ]
                             in ppError (isError _lhsIoptions _me)  (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 919 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 899 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupSet name_ occ1_
-                            {-# LINE 925 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 905 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 931 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 911 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupSig :: NontermIdent ->
                     ConstructorIdent ->
@@ -958,22 +936,20 @@ sem_Error_DupSig nt_ con_ attr_ =
                                                       ]
                                 act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 962 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 940 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupSig nt_ con_ attr_
-                            {-# LINE 968 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 946 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 974 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 952 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupSynAttr :: NontermIdent ->
                         Identifier ->
@@ -1003,22 +979,20 @@ sem_Error_DupSynAttr nt_ attr_ occ1_ =
                                              ,"All others have been discarded. The generated program will probably not run."
                                              ]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1007 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 983 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupSynAttr nt_ attr_ occ1_
-                            {-# LINE 1013 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 989 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1019 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 995 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupSynonym :: NontermIdent ->
                         NontermIdent ->
@@ -1047,22 +1021,20 @@ sem_Error_DupSynonym nt_ occ1_ =
                                 act  = wfill [ "The clashing type synonym will be ignored."
                                              ]
                             in ppError (isError _lhsIoptions _me)  (getPos nt_) mesg pat help act _lhsIverbose
-                            {-# LINE 1051 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1025 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupSynonym nt_ occ1_
-                            {-# LINE 1057 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1031 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1063 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1037 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_DupUnique :: NontermIdent ->
                        ConstructorIdent ->
@@ -1090,22 +1062,20 @@ sem_Error_DupUnique nt_ con_ attr_ =
                                                       ]
                                 act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1094 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1066 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             DupUnique nt_ con_ attr_
-                            {-# LINE 1100 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1072 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1106 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1078 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_HsParseError :: Pos ->
                           String ->
@@ -1119,22 +1089,20 @@ sem_Error_HsParseError pos_ msg_ =
                        _lhsOpp =
                            ({-# LINE 95 "src-ag/PrintErrorMessages.ag" #-}
                             ppError True pos_ (text msg_) (text "") (text "") (text "Correct the syntax of the Haskell code.") _lhsIverbose
-                            {-# LINE 1123 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1093 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             HsParseError pos_ msg_
-                            {-# LINE 1129 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1099 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1135 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1105 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_IncompatibleAttachKind :: Identifier ->
                                     VisitKind ->
@@ -1152,22 +1120,20 @@ sem_Error_IncompatibleAttachKind child_ kind_ =
                                 help  = empty
                                 act   = text "It is not possible to proceed without fixing this kind error."
                             in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                            {-# LINE 1156 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1124 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             IncompatibleAttachKind child_ kind_
-                            {-# LINE 1162 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1130 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1168 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1136 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_IncompatibleRuleKind :: Identifier ->
                                   VisitKind ->
@@ -1185,22 +1151,20 @@ sem_Error_IncompatibleRuleKind rule_ kind_ =
                                 help  = empty
                                 act   = text "It is not possible to proceed without fixing this kind error."
                             in ppError (isError _lhsIoptions _me) (getPos rule_) mesg pat help act _lhsIverbose
-                            {-# LINE 1189 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1155 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             IncompatibleRuleKind rule_ kind_
-                            {-# LINE 1195 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1161 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1201 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1167 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_IncompatibleVisitKind :: Identifier ->
                                    VisitIdentifier ->
@@ -1220,22 +1184,20 @@ sem_Error_IncompatibleVisitKind child_ vis_ from_ to_ =
                                 help  = empty
                                 act   = text "It is not possible to proceed without fixing this kind error."
                             in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                            {-# LINE 1224 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1188 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             IncompatibleVisitKind child_ vis_ from_ to_
-                            {-# LINE 1230 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1194 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1236 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1200 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_InducedCirc :: NontermIdent ->
                          CInterface ->
@@ -1257,22 +1219,20 @@ sem_Error_InducedCirc nt_ cinter_ cyclic_ =
                                         >-< vlist (map showEdgeLong cyclic_)
                                 act   = text "An unoptimized version was generated. It might hang when run."
                             in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                            {-# LINE 1261 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1223 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             InducedCirc nt_ cinter_ cyclic_
-                            {-# LINE 1267 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1229 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1273 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1235 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_InstCirc :: NontermIdent ->
                       ConstructorIdent ->
@@ -1299,22 +1259,20 @@ sem_Error_InstCirc nt_ con_ attr_ o_visit_ path_ =
                                 act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                       | otherwise = text "The generated program might hang when run."
                             in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                            {-# LINE 1303 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1263 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             InstCirc nt_ con_ attr_ o_visit_ path_
-                            {-# LINE 1309 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1269 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1315 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1275 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_LocalCirc :: NontermIdent ->
                        ConstructorIdent ->
@@ -1341,22 +1299,20 @@ sem_Error_LocalCirc nt_ con_ attr_ o_visit_ path_ =
                                 act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                       | otherwise = text "The generated program might hang when run."
                             in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                            {-# LINE 1345 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1303 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             LocalCirc nt_ con_ attr_ o_visit_ path_
-                            {-# LINE 1351 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1309 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1357 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1315 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingInstSig :: NontermIdent ->
                             ConstructorIdent ->
@@ -1383,22 +1339,20 @@ sem_Error_MissingInstSig nt_ con_ attr_ =
                                               ]
                                 act  = wfill ["It is not possible to proceed without this signature."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1387 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1343 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingInstSig nt_ con_ attr_
-                            {-# LINE 1393 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1349 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1399 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1355 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingNamedRule :: NontermIdent ->
                               Identifier ->
@@ -1422,22 +1376,20 @@ sem_Error_MissingNamedRule nt_ con_ name_ =
                                               ]
                                 act  = wfill ["Compilation cannot continue."]
                             in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 1426 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1380 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingNamedRule nt_ con_ name_
-                            {-# LINE 1432 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1386 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1438 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1392 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingRule :: NontermIdent ->
                          ConstructorIdent ->
@@ -1463,22 +1415,20 @@ sem_Error_MissingRule nt_ con_ field_ attr_ =
                                               ]
                                 act  = wfill ["The value of the attribute has been set to undefined."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1467 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1419 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingRule nt_ con_ field_ attr_
-                            {-# LINE 1473 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1425 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1479 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1431 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingSyn :: NontermIdent ->
                         Identifier ->
@@ -1505,22 +1455,20 @@ sem_Error_MissingSyn nt_ attr_ =
                                               ]
                                 act  = wfill ["It is not possible to proceed without this declaration."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1509 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1459 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingSyn nt_ attr_
-                            {-# LINE 1515 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1465 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1521 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1471 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingTypeSig :: NontermIdent ->
                             ConstructorIdent ->
@@ -1547,22 +1495,20 @@ sem_Error_MissingTypeSig nt_ con_ attr_ =
                                               ]
                                 act  = wfill ["The type signatures of semantic functions are not generated."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1551 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1499 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingTypeSig nt_ con_ attr_
-                            {-# LINE 1557 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1505 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1563 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1511 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_MissingUnique :: NontermIdent ->
                            Identifier ->
@@ -1589,22 +1535,20 @@ sem_Error_MissingUnique nt_ attr_ =
                                               ]
                                 act  = wfill ["It is not possible to proceed without this declaration."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1593 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1539 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             MissingUnique nt_ attr_
-                            {-# LINE 1599 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1545 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1605 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1551 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_ParserError :: Pos ->
                          String ->
@@ -1623,22 +1567,20 @@ sem_Error_ParserError pos_ problem_ action_ =
                                 help = text ""
                                 act  = text action_
                              in ppError (isError _lhsIoptions _me) pos_ mesg pat help act _lhsIverbose
-                            {-# LINE 1627 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1571 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             ParserError pos_ problem_ action_
-                            {-# LINE 1633 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1577 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1639 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1583 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_SuperfluousRule :: NontermIdent ->
                              ConstructorIdent ->
@@ -1664,22 +1606,20 @@ sem_Error_SuperfluousRule nt_ con_ field_ attr_ =
                                               ]
                                 act  = wfill ["The rule has been ignored."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1668 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1610 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             SuperfluousRule nt_ con_ field_ attr_
-                            {-# LINE 1674 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1616 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1680 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1622 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_UndefAlt :: NontermIdent ->
                       ConstructorIdent ->
@@ -1702,22 +1642,20 @@ sem_Error_UndefAlt nt_ con_ =
                                                       ]
                                 act  = wfill ["All rules for the unknown alternative have been ignored."]
                             in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                            {-# LINE 1706 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1646 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             UndefAlt nt_ con_
-                            {-# LINE 1712 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1652 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1718 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1658 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_UndefAttr :: NontermIdent ->
                        ConstructorIdent ->
@@ -1750,22 +1688,20 @@ sem_Error_UndefAttr nt_ con_ field_ attr_ isOut_ =
                                               ]
                                 act  = wfill ["The generated program will not run."]
                             in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1754 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1692 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             UndefAttr nt_ con_ field_ attr_ isOut_
-                            {-# LINE 1760 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1698 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1766 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1704 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_UndefChild :: NontermIdent ->
                         ConstructorIdent ->
@@ -1792,22 +1728,20 @@ sem_Error_UndefChild nt_ con_ name_ =
                                                       ]
                                 act  = wfill ["All rules for the unknown field have been ignored."]
                             in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 1796 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1732 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             UndefChild nt_ con_ name_
-                            {-# LINE 1802 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1738 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1808 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1744 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_UndefLocal :: NontermIdent ->
                         ConstructorIdent ->
@@ -1834,22 +1768,20 @@ sem_Error_UndefLocal nt_ con_ var_ =
                                               ]
                                 act  = wfill ["The generated program will not run."]
                             in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
-                            {-# LINE 1838 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1772 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             UndefLocal nt_ con_ var_
-                            {-# LINE 1844 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1778 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1850 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1784 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 sem_Error_UndefNont :: NontermIdent ->
                        T_Error
@@ -1869,22 +1801,20 @@ sem_Error_UndefNont nt_ =
                                                       ]
                                 act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
                             in ppError (isError _lhsIoptions _me) (getPos nt_) mesg pat help act _lhsIverbose
-                            {-# LINE 1873 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1805 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _me =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             UndefNont nt_
-                            {-# LINE 1879 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1811 "dist/build/PrintErrorMessages" #-}
                             )
                        -- self rule
                        _lhsOme =
                            ({-# LINE 71 "src-ag/PrintErrorMessages.ag" #-}
                             _me
-                            {-# LINE 1885 "dist/build/PrintErrorMessages" #-}
+                            {-# LINE 1817 "dist/build/PrintErrorMessages" #-}
                             )
-                       ___node =
-                           (Syn_Error _lhsOme _lhsOpp)
                    in  ( _lhsOme,_lhsOpp))))
 -- Errors ------------------------------------------------------
 {-
@@ -1940,13 +1870,13 @@ sem_Errors_Cons (T_Error hd_) (T_Errors tl_) =
                         _verbose =
                             ({-# LINE 78 "src-ag/PrintErrorMessages.ag" #-}
                              verbose _lhsIoptions
-                             {-# LINE 1944 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1874 "dist/build/PrintErrorMessages" #-}
                              )
                         -- "src-ag/PrintErrorMessages.ag"(line 79, column 11)
                         _str =
                             ({-# LINE 79 "src-ag/PrintErrorMessages.ag" #-}
                              disp _hdIpp 5000 ""
-                             {-# LINE 1950 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1880 "dist/build/PrintErrorMessages" #-}
                              )
                         -- "src-ag/PrintErrorMessages.ag"(line 81, column 11)
                         _lhsOpp =
@@ -1954,38 +1884,36 @@ sem_Errors_Cons (T_Error hd_) (T_Errors tl_) =
                              if _str     `elem` _lhsIdups
                              then _tlIpp
                              else _hdIpp >-< _tlIpp
-                             {-# LINE 1958 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1888 "dist/build/PrintErrorMessages" #-}
                              )
                         -- "src-ag/PrintErrorMessages.ag"(line 84, column 11)
                         _tlOdups =
                             ({-# LINE 84 "src-ag/PrintErrorMessages.ag" #-}
                              _str     : _lhsIdups
-                             {-# LINE 1964 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1894 "dist/build/PrintErrorMessages" #-}
                              )
                         -- copy rule (down)
                         _hdOoptions =
                             ({-# LINE 70 "src-ag/PrintErrorMessages.ag" #-}
                              _lhsIoptions
-                             {-# LINE 1970 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1900 "dist/build/PrintErrorMessages" #-}
                              )
                         -- copy rule (from local)
                         _hdOverbose =
                             ({-# LINE 70 "src-ag/PrintErrorMessages.ag" #-}
                              _verbose
-                             {-# LINE 1976 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1906 "dist/build/PrintErrorMessages" #-}
                              )
                         -- copy rule (down)
                         _tlOoptions =
                             ({-# LINE 74 "src-ag/PrintErrorMessages.ag" #-}
                              _lhsIoptions
-                             {-# LINE 1982 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1912 "dist/build/PrintErrorMessages" #-}
                              )
                         ( _hdIme,_hdIpp) =
                             hd_ _hdOoptions _hdOverbose
                         ( _tlIpp) =
                             tl_ _tlOdups _tlOoptions
-                        ___node =
-                            (Syn_Errors _lhsOpp)
                     in  ( _lhsOpp))))
 sem_Errors_Nil :: T_Errors
 sem_Errors_Nil =
@@ -1996,14 +1924,12 @@ sem_Errors_Nil =
                         _verbose =
                             ({-# LINE 78 "src-ag/PrintErrorMessages.ag" #-}
                              verbose _lhsIoptions
-                             {-# LINE 2000 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1928 "dist/build/PrintErrorMessages" #-}
                              )
                         -- "src-ag/PrintErrorMessages.ag"(line 85, column 11)
                         _lhsOpp =
                             ({-# LINE 85 "src-ag/PrintErrorMessages.ag" #-}
                              text ""
-                             {-# LINE 2006 "dist/build/PrintErrorMessages" #-}
+                             {-# LINE 1934 "dist/build/PrintErrorMessages" #-}
                              )
-                        ___node =
-                            (Syn_Errors _lhsOpp)
                     in  ( _lhsOpp))))

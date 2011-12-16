@@ -162,8 +162,6 @@ sem_Child_Child name_ tp_ kind_ =
                             _output
                             {-# LINE 164 "dist/build/ResolveLocals" #-}
                             )
-                       ___node =
-                           (Syn_Child _lhsOattributes _lhsOfield _lhsOoutput)
                    in  ( _lhsOattributes,_lhsOfield,_lhsOoutput))))
 -- Children ----------------------------------------------------
 {-
@@ -265,152 +263,150 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                           _lhsOfields =
                               ({-# LINE 90 "src-ag/ResolveLocals.ag" #-}
                                _hdIfield : _tlIfields
-                               {-# LINE 269 "dist/build/ResolveLocals" #-}
+                               {-# LINE 267 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 82, column 32)
                           _lhsOattributes =
                               ({-# LINE 82 "src-ag/ResolveLocals.ag" #-}
                                _hdIattributes ++ _tlIattributes
-                               {-# LINE 275 "dist/build/ResolveLocals" #-}
+                               {-# LINE 273 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _output =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                (:) _hdIoutput _tlIoutput
-                               {-# LINE 281 "dist/build/ResolveLocals" #-}
+                               {-# LINE 279 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOoutput =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                _output
-                               {-# LINE 287 "dist/build/ResolveLocals" #-}
+                               {-# LINE 285 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOallfields =
                               ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                _lhsIallfields
-                               {-# LINE 293 "dist/build/ResolveLocals" #-}
+                               {-# LINE 291 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOallnts =
                               ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                _lhsIallnts
-                               {-# LINE 299 "dist/build/ResolveLocals" #-}
+                               {-# LINE 297 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOattrs =
                               ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                _lhsIattrs
-                               {-# LINE 305 "dist/build/ResolveLocals" #-}
+                               {-# LINE 303 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                                _lhsIcon
-                               {-# LINE 311 "dist/build/ResolveLocals" #-}
+                               {-# LINE 309 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOinh =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIinh
-                               {-# LINE 317 "dist/build/ResolveLocals" #-}
+                               {-# LINE 315 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 323 "dist/build/ResolveLocals" #-}
+                               {-# LINE 321 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOmergeMap =
                               ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 329 "dist/build/ResolveLocals" #-}
+                               {-# LINE 327 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsInt
-                               {-# LINE 335 "dist/build/ResolveLocals" #-}
+                               {-# LINE 333 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOsyn =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIsyn
-                               {-# LINE 341 "dist/build/ResolveLocals" #-}
+                               {-# LINE 339 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 347 "dist/build/ResolveLocals" #-}
+                               {-# LINE 345 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOallfields =
                               ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                _lhsIallfields
-                               {-# LINE 353 "dist/build/ResolveLocals" #-}
+                               {-# LINE 351 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOallnts =
                               ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                _lhsIallnts
-                               {-# LINE 359 "dist/build/ResolveLocals" #-}
+                               {-# LINE 357 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOattrs =
                               ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                _lhsIattrs
-                               {-# LINE 365 "dist/build/ResolveLocals" #-}
+                               {-# LINE 363 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                                _lhsIcon
-                               {-# LINE 371 "dist/build/ResolveLocals" #-}
+                               {-# LINE 369 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOinh =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIinh
-                               {-# LINE 377 "dist/build/ResolveLocals" #-}
+                               {-# LINE 375 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 383 "dist/build/ResolveLocals" #-}
+                               {-# LINE 381 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOmergeMap =
                               ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 389 "dist/build/ResolveLocals" #-}
+                               {-# LINE 387 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsInt
-                               {-# LINE 395 "dist/build/ResolveLocals" #-}
+                               {-# LINE 393 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOsyn =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIsyn
-                               {-# LINE 401 "dist/build/ResolveLocals" #-}
+                               {-# LINE 399 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 407 "dist/build/ResolveLocals" #-}
+                               {-# LINE 405 "dist/build/ResolveLocals" #-}
                                )
                           ( _hdIattributes,_hdIfield,_hdIoutput) =
                               hd_ _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOinh _hdOinhMap _hdOmergeMap _hdOnt _hdOsyn _hdOsynMap
                           ( _tlIattributes,_tlIfields,_tlIoutput) =
                               tl_ _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOinh _tlOinhMap _tlOmergeMap _tlOnt _tlOsyn _tlOsynMap
-                          ___node =
-                              (Syn_Children _lhsOattributes _lhsOfields _lhsOoutput)
                       in  ( _lhsOattributes,_lhsOfields,_lhsOoutput))))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -431,28 +427,26 @@ sem_Children_Nil =
                           _lhsOfields =
                               ({-# LINE 91 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 435 "dist/build/ResolveLocals" #-}
+                               {-# LINE 431 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 82, column 32)
                           _lhsOattributes =
                               ({-# LINE 82 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 441 "dist/build/ResolveLocals" #-}
+                               {-# LINE 437 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _output =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 447 "dist/build/ResolveLocals" #-}
+                               {-# LINE 443 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOoutput =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                _output
-                               {-# LINE 453 "dist/build/ResolveLocals" #-}
+                               {-# LINE 449 "dist/build/ResolveLocals" #-}
                                )
-                          ___node =
-                              (Syn_Children _lhsOattributes _lhsOfields _lhsOoutput)
                       in  ( _lhsOattributes,_lhsOfields,_lhsOoutput))))
 -- Expression --------------------------------------------------
 {-
@@ -526,28 +520,26 @@ sem_Expression_Expression pos_ tks_ =
                                                  }
                                      synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot tks_)) inherited
                                  in (errors_Syn_HsTokensRoot synthesized, output_Syn_HsTokensRoot synthesized)
-                                 {-# LINE 530 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 524 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 157, column 17)
                             _lhsOoutput =
                                 ({-# LINE 157 "src-ag/ResolveLocals.ag" #-}
                                  Expression pos_ _newTks
-                                 {-# LINE 536 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 530 "dist/build/ResolveLocals" #-}
                                  )
                             -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                             _lhsOerrors =
                                 ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                  _errors
-                                 {-# LINE 542 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 536 "dist/build/ResolveLocals" #-}
                                  )
                             -- self rule
                             _output =
                                 ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                  Expression pos_ tks_
-                                 {-# LINE 548 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 542 "dist/build/ResolveLocals" #-}
                                  )
-                            ___node =
-                                (Syn_Expression _lhsOerrors _lhsOoutput)
                         in  ( _lhsOerrors,_lhsOoutput))))
 -- Grammar -----------------------------------------------------
 {-
@@ -625,54 +617,52 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                          _nontsOallnts =
                              ({-# LINE 60 "src-ag/ResolveLocals.ag" #-}
                               map fst (_nontsInonts)
-                              {-# LINE 629 "dist/build/ResolveLocals" #-}
+                              {-# LINE 621 "dist/build/ResolveLocals" #-}
                               )
                          -- "src-ag/ResolveLocals.ag"(line 120, column 14)
                          _nontsOmergeMap =
                              ({-# LINE 120 "src-ag/ResolveLocals.ag" #-}
                               Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
-                              {-# LINE 635 "dist/build/ResolveLocals" #-}
+                              {-# LINE 627 "dist/build/ResolveLocals" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 15, column 13)
                          _nontsOinhMap =
                              ({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                               _nontsIinhMap'
-                              {-# LINE 641 "dist/build/ResolveLocals" #-}
+                              {-# LINE 633 "dist/build/ResolveLocals" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 16, column 13)
                          _nontsOsynMap =
                              ({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                               _nontsIsynMap'
-                              {-# LINE 647 "dist/build/ResolveLocals" #-}
+                              {-# LINE 639 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               _nontsIerrors
-                              {-# LINE 653 "dist/build/ResolveLocals" #-}
+                              {-# LINE 645 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Grammar typeSyns_ useMap_ derivings_ wrappers_ _nontsIoutput pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_
-                              {-# LINE 659 "dist/build/ResolveLocals" #-}
+                              {-# LINE 651 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 665 "dist/build/ResolveLocals" #-}
+                              {-# LINE 657 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _nontsOoptions =
                              ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                               _lhsIoptions
-                              {-# LINE 671 "dist/build/ResolveLocals" #-}
+                              {-# LINE 663 "dist/build/ResolveLocals" #-}
                               )
                          ( _nontsIerrors,_nontsIinhMap',_nontsInonts,_nontsIoutput,_nontsIsynMap') =
                              nonts_ _nontsOallnts _nontsOinhMap _nontsOmergeMap _nontsOoptions _nontsOsynMap
-                         ___node =
-                             (Syn_Grammar _lhsOerrors _lhsOoutput)
                      in  ( _lhsOerrors,_lhsOoutput))))
 -- Nonterminal -------------------------------------------------
 {-
@@ -752,96 +742,94 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                              _lhsOnonts =
                                  ({-# LINE 64 "src-ag/ResolveLocals.ag" #-}
                                   [(nt_,_prodsIcons)]
-                                  {-# LINE 756 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 746 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/ResolveLocals.ag"(line 112, column 17)
                              _prodsOnt =
                                  ({-# LINE 112 "src-ag/ResolveLocals.ag" #-}
                                   nt_
-                                  {-# LINE 762 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 752 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/ResolveLocals.ag"(line 115, column 17)
                              _prodsOinh =
                                  ({-# LINE 115 "src-ag/ResolveLocals.ag" #-}
                                   inh_
-                                  {-# LINE 768 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 758 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/ResolveLocals.ag"(line 116, column 17)
                              _prodsOsyn =
                                  ({-# LINE 116 "src-ag/ResolveLocals.ag" #-}
                                   syn_
-                                  {-# LINE 774 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 764 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/ResolveLocals.ag"(line 128, column 32)
                              _mergeMap =
                                  ({-# LINE 128 "src-ag/ResolveLocals.ag" #-}
                                   Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                  {-# LINE 780 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 770 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 7, column 18)
                              _lhsOinhMap' =
                                  ({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 786 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 776 "dist/build/ResolveLocals" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 8, column 18)
                              _lhsOsynMap' =
                                  ({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 792 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 782 "dist/build/ResolveLocals" #-}
                                   )
                              -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                              _lhsOerrors =
                                  ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                   _prodsIerrors
-                                  {-# LINE 798 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 788 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _output =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   Nonterminal nt_ params_ inh_ syn_ _prodsIoutput
-                                  {-# LINE 804 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 794 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _lhsOoutput =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   _output
-                                  {-# LINE 810 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 800 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _prodsOallnts =
                                  ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 816 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 806 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _prodsOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 822 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 812 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (from local)
                              _prodsOmergeMap =
                                  ({-# LINE 126 "src-ag/ResolveLocals.ag" #-}
                                   _mergeMap
-                                  {-# LINE 828 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 818 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _prodsOoptions =
                                  ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 834 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 824 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _prodsOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 840 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 830 "dist/build/ResolveLocals" #-}
                                   )
                              ( _prodsIcons,_prodsIerrors,_prodsIoutput) =
                                  prods_ _prodsOallnts _prodsOinh _prodsOinhMap _prodsOmergeMap _prodsOnt _prodsOoptions _prodsOsyn _prodsOsynMap
-                             ___node =
-                                 (Syn_Nonterminal _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap')
                          in  ( _lhsOerrors,_lhsOinhMap',_lhsOnonts,_lhsOoutput,_lhsOsynMap'))))
 -- Nonterminals ------------------------------------------------
 {-
@@ -926,104 +914,102 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                               _lhsOerrors =
                                   ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                    _hdIerrors Seq.>< _tlIerrors
-                                   {-# LINE 930 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 918 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 936 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 924 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/ResolveLocals.ag"(line 62, column 43)
                               _lhsOnonts =
                                   ({-# LINE 62 "src-ag/ResolveLocals.ag" #-}
                                    _hdInonts ++ _tlInonts
-                                   {-# LINE 942 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 930 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 948 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 936 "dist/build/ResolveLocals" #-}
                                    )
                               -- self rule
                               _output =
                                   ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                    (:) _hdIoutput _tlIoutput
-                                   {-# LINE 954 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 942 "dist/build/ResolveLocals" #-}
                                    )
                               -- self rule
                               _lhsOoutput =
                                   ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                    _output
-                                   {-# LINE 960 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 948 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _hdOallnts =
                                   ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                    _lhsIallnts
-                                   {-# LINE 966 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 954 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 972 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 960 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _hdOmergeMap =
                                   ({-# LINE 123 "src-ag/ResolveLocals.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 978 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 966 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _hdOoptions =
                                   ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 984 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 972 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 990 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 978 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _tlOallnts =
                                   ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                    _lhsIallnts
-                                   {-# LINE 996 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 984 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 1002 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 990 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _tlOmergeMap =
                                   ({-# LINE 123 "src-ag/ResolveLocals.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 1008 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 996 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _tlOoptions =
                                   ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1014 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1002 "dist/build/ResolveLocals" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 1020 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1008 "dist/build/ResolveLocals" #-}
                                    )
                               ( _hdIerrors,_hdIinhMap',_hdInonts,_hdIoutput,_hdIsynMap') =
                                   hd_ _hdOallnts _hdOinhMap _hdOmergeMap _hdOoptions _hdOsynMap
                               ( _tlIerrors,_tlIinhMap',_tlInonts,_tlIoutput,_tlIsynMap') =
                                   tl_ _tlOallnts _tlOinhMap _tlOmergeMap _tlOoptions _tlOsynMap
-                              ___node =
-                                  (Syn_Nonterminals _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap')
                           in  ( _lhsOerrors,_lhsOinhMap',_lhsOnonts,_lhsOoutput,_lhsOsynMap'))))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -1041,40 +1027,38 @@ sem_Nonterminals_Nil =
                               _lhsOerrors =
                                   ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                    Seq.empty
-                                   {-# LINE 1045 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1031 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 1051 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1037 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/ResolveLocals.ag"(line 62, column 43)
                               _lhsOnonts =
                                   ({-# LINE 62 "src-ag/ResolveLocals.ag" #-}
                                    []
-                                   {-# LINE 1057 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1043 "dist/build/ResolveLocals" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 1063 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1049 "dist/build/ResolveLocals" #-}
                                    )
                               -- self rule
                               _output =
                                   ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                    []
-                                   {-# LINE 1069 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1055 "dist/build/ResolveLocals" #-}
                                    )
                               -- self rule
                               _lhsOoutput =
                                   ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                    _output
-                                   {-# LINE 1075 "dist/build/ResolveLocals" #-}
+                                   {-# LINE 1061 "dist/build/ResolveLocals" #-}
                                    )
-                              ___node =
-                                  (Syn_Nonterminals _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap')
                           in  ( _lhsOerrors,_lhsOinhMap',_lhsOnonts,_lhsOoutput,_lhsOsynMap'))))
 -- Pattern -----------------------------------------------------
 {-
@@ -1177,7 +1161,7 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               if field_ == _LOC
                                  then [attr_]
                                  else []
-                              {-# LINE 1181 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1165 "dist/build/ResolveLocals" #-}
                               )
                          -- "src-ag/ResolveLocals.ag"(line 99, column 14)
                          _lhsOinstVars =
@@ -1185,66 +1169,64 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               if field_ == _INST
                                  then [attr_]
                                  else []
-                              {-# LINE 1189 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1173 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               _patIerrors
-                              {-# LINE 1195 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1179 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Alias field_ attr_ _patIcopy
-                              {-# LINE 1201 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1185 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Alias field_ attr_ _patIoutput
-                              {-# LINE 1207 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1191 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1213 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1197 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 1219 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1203 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOcon =
                              ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                               _lhsIcon
-                              {-# LINE 1225 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1209 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOinh =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIinh
-                              {-# LINE 1231 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1215 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOnt =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsInt
-                              {-# LINE 1237 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1221 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOsyn =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIsyn
-                              {-# LINE 1243 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1227 "dist/build/ResolveLocals" #-}
                               )
                          ( _patIcopy,_patIerrors,_patIinstVars,_patIlocVars,_patIoutput) =
                              pat_ _patOcon _patOinh _patOnt _patOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -1272,72 +1254,70 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               _patsIerrors
-                              {-# LINE 1276 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1258 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                          _lhsOinstVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patsIinstVars
-                              {-# LINE 1282 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1264 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                          _lhsOlocVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patsIlocVars
-                              {-# LINE 1288 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1270 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Constr name_ _patsIcopy
-                              {-# LINE 1294 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1276 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Constr name_ _patsIoutput
-                              {-# LINE 1300 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1282 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1306 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1288 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 1312 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1294 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOcon =
                              ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                               _lhsIcon
-                              {-# LINE 1318 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1300 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOinh =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIinh
-                              {-# LINE 1324 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1306 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOnt =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsInt
-                              {-# LINE 1330 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1312 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOsyn =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIsyn
-                              {-# LINE 1336 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1318 "dist/build/ResolveLocals" #-}
                               )
                          ( _patsIcopy,_patsIerrors,_patsIinstVars,_patsIlocVars,_patsIoutput) =
                              pats_ _patsOcon _patsOinh _patsOnt _patsOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -1364,72 +1344,70 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               _patIerrors
-                              {-# LINE 1368 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1348 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                          _lhsOinstVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patIinstVars
-                              {-# LINE 1374 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1354 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                          _lhsOlocVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patIlocVars
-                              {-# LINE 1380 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1360 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Irrefutable _patIcopy
-                              {-# LINE 1386 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1366 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Irrefutable _patIoutput
-                              {-# LINE 1392 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1372 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1398 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1378 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 1404 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1384 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOcon =
                              ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                               _lhsIcon
-                              {-# LINE 1410 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1390 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOinh =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIinh
-                              {-# LINE 1416 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1396 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOnt =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsInt
-                              {-# LINE 1422 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1402 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patOsyn =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIsyn
-                              {-# LINE 1428 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1408 "dist/build/ResolveLocals" #-}
                               )
                          ( _patIcopy,_patIerrors,_patIinstVars,_patIlocVars,_patIoutput) =
                              pat_ _patOcon _patOinh _patOnt _patOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -1457,72 +1435,70 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               _patsIerrors
-                              {-# LINE 1461 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1439 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                          _lhsOinstVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patsIinstVars
-                              {-# LINE 1467 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1445 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                          _lhsOlocVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               _patsIlocVars
-                              {-# LINE 1473 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1451 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Product pos_ _patsIcopy
-                              {-# LINE 1479 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1457 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Product pos_ _patsIoutput
-                              {-# LINE 1485 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1463 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1491 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1469 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 1497 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1475 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOcon =
                              ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                               _lhsIcon
-                              {-# LINE 1503 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1481 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOinh =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIinh
-                              {-# LINE 1509 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1487 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOnt =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsInt
-                              {-# LINE 1515 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1493 "dist/build/ResolveLocals" #-}
                               )
                          -- copy rule (down)
                          _patsOsyn =
                              ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                               _lhsIsyn
-                              {-# LINE 1521 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1499 "dist/build/ResolveLocals" #-}
                               )
                          ( _patsIcopy,_patsIerrors,_patsIinstVars,_patsIlocVars,_patsIoutput) =
                              pats_ _patsOcon _patsOinh _patsOnt _patsOsyn
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -1540,46 +1516,44 @@ sem_Pattern_Underscore pos_ =
                          _lhsOerrors =
                              ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                               Seq.empty
-                              {-# LINE 1544 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1520 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                          _lhsOinstVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               []
-                              {-# LINE 1550 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1526 "dist/build/ResolveLocals" #-}
                               )
                          -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                          _lhsOlocVars =
                              ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                               []
-                              {-# LINE 1556 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1532 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Underscore pos_
-                              {-# LINE 1562 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1538 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _output =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               Underscore pos_
-                              {-# LINE 1568 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1544 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1574 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1550 "dist/build/ResolveLocals" #-}
                               )
                          -- self rule
                          _lhsOoutput =
                              ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                               _output
-                              {-# LINE 1580 "dist/build/ResolveLocals" #-}
+                              {-# LINE 1556 "dist/build/ResolveLocals" #-}
                               )
-                         ___node =
-                             (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                      in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 -- Patterns ----------------------------------------------------
 {-
@@ -1661,98 +1635,96 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                           _lhsOerrors =
                               ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                _hdIerrors Seq.>< _tlIerrors
-                               {-# LINE 1665 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1639 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                           _lhsOinstVars =
                               ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                                _hdIinstVars ++ _tlIinstVars
-                               {-# LINE 1671 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1645 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                           _lhsOlocVars =
                               ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                                _hdIlocVars ++ _tlIlocVars
-                               {-# LINE 1677 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1651 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                (:) _hdIcopy _tlIcopy
-                               {-# LINE 1683 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1657 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _output =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                (:) _hdIoutput _tlIoutput
-                               {-# LINE 1689 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1663 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 1695 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1669 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOoutput =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                _output
-                               {-# LINE 1701 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1675 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                                _lhsIcon
-                               {-# LINE 1707 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1681 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOinh =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIinh
-                               {-# LINE 1713 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1687 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsInt
-                               {-# LINE 1719 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1693 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _hdOsyn =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIsyn
-                               {-# LINE 1725 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1699 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                                _lhsIcon
-                               {-# LINE 1731 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1705 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOinh =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIinh
-                               {-# LINE 1737 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1711 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsInt
-                               {-# LINE 1743 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1717 "dist/build/ResolveLocals" #-}
                                )
                           -- copy rule (down)
                           _tlOsyn =
                               ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                _lhsIsyn
-                               {-# LINE 1749 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1723 "dist/build/ResolveLocals" #-}
                                )
                           ( _hdIcopy,_hdIerrors,_hdIinstVars,_hdIlocVars,_hdIoutput) =
                               hd_ _hdOcon _hdOinh _hdOnt _hdOsyn
                           ( _tlIcopy,_tlIerrors,_tlIinstVars,_tlIlocVars,_tlIoutput) =
                               tl_ _tlOcon _tlOinh _tlOnt _tlOsyn
-                          ___node =
-                              (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                       in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -1769,46 +1741,44 @@ sem_Patterns_Nil =
                           _lhsOerrors =
                               ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                Seq.empty
-                               {-# LINE 1773 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1745 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                           _lhsOinstVars =
                               ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 1779 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1751 "dist/build/ResolveLocals" #-}
                                )
                           -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                           _lhsOlocVars =
                               ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 1785 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1757 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                []
-                               {-# LINE 1791 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1763 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _output =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                []
-                               {-# LINE 1797 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1769 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 1803 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1775 "dist/build/ResolveLocals" #-}
                                )
                           -- self rule
                           _lhsOoutput =
                               ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                _output
-                               {-# LINE 1809 "dist/build/ResolveLocals" #-}
+                               {-# LINE 1781 "dist/build/ResolveLocals" #-}
                                )
-                          ___node =
-                              (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                       in  ( _lhsOcopy,_lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 -- Production --------------------------------------------------
 {-
@@ -1917,13 +1887,13 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                             _lhsOcons =
                                 ({-# LINE 67 "src-ag/ResolveLocals.ag" #-}
                                  [con_]
-                                 {-# LINE 1921 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1891 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 74, column 16)
                             _allfields =
                                 ({-# LINE 74 "src-ag/ResolveLocals.ag" #-}
                                  _childrenIfields
-                                 {-# LINE 1927 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1897 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 74, column 16)
                             _attrs =
@@ -1932,157 +1902,157 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  map ((,) _INST) _rulesIinstVars ++
                                  map ((,) _LHS)  _inhnames ++
                                  concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
-                                 {-# LINE 1936 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1906 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 74, column 16)
                             _inhnames =
                                 ({-# LINE 79 "src-ag/ResolveLocals.ag" #-}
                                  Map.keys _lhsIinh
-                                 {-# LINE 1942 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1912 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 74, column 16)
                             _synnames =
                                 ({-# LINE 80 "src-ag/ResolveLocals.ag" #-}
                                  Map.keys _lhsIsyn
-                                 {-# LINE 1948 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1918 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 108, column 16)
                             _childrenOcon =
                                 ({-# LINE 108 "src-ag/ResolveLocals.ag" #-}
                                  con_
-                                 {-# LINE 1954 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1924 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 110, column 16)
                             _rulesOcon =
                                 ({-# LINE 110 "src-ag/ResolveLocals.ag" #-}
                                  con_
-                                 {-# LINE 1960 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1930 "dist/build/ResolveLocals" #-}
                                  )
                             -- "src-ag/ResolveLocals.ag"(line 129, column 32)
                             _mergeMap =
                                 ({-# LINE 129 "src-ag/ResolveLocals.ag" #-}
                                  Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                 {-# LINE 1966 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1936 "dist/build/ResolveLocals" #-}
                                  )
                             -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                             _lhsOerrors =
                                 ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                  _rulesIerrors
-                                 {-# LINE 1972 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1942 "dist/build/ResolveLocals" #-}
                                  )
                             -- self rule
                             _output =
                                 ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                  Production con_ params_ constraints_ _childrenIoutput _rulesIoutput _typeSigsIoutput macro_
-                                 {-# LINE 1978 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1948 "dist/build/ResolveLocals" #-}
                                  )
                             -- self rule
                             _lhsOoutput =
                                 ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                  _output
-                                 {-# LINE 1984 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1954 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOallfields =
                                 ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                  _allfields
-                                 {-# LINE 1990 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1960 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOallnts =
                                 ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIallnts
-                                 {-# LINE 1996 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1966 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOattrs =
                                 ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                  _attrs
-                                 {-# LINE 2002 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1972 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinh =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIinh
-                                 {-# LINE 2008 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1978 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 2014 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1984 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _childrenOmergeMap =
                                 ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                                  _mergeMap
-                                 {-# LINE 2020 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1990 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOnt =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsInt
-                                 {-# LINE 2026 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 1996 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsyn =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIsyn
-                                 {-# LINE 2032 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2002 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIsynMap
-                                 {-# LINE 2038 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2008 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOallfields =
                                 ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                  _allfields
-                                 {-# LINE 2044 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2014 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _rulesOallnts =
                                 ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIallnts
-                                 {-# LINE 2050 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2020 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOattrs =
                                 ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                                  _attrs
-                                 {-# LINE 2056 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2026 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _rulesOinh =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIinh
-                                 {-# LINE 2062 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2032 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOmergeMap =
                                 ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                                  _mergeMap
-                                 {-# LINE 2068 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2038 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _rulesOnt =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsInt
-                                 {-# LINE 2074 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2044 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _rulesOoptions =
                                 ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 2080 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2050 "dist/build/ResolveLocals" #-}
                                  )
                             -- copy rule (down)
                             _rulesOsyn =
                                 ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                  _lhsIsyn
-                                 {-# LINE 2086 "dist/build/ResolveLocals" #-}
+                                 {-# LINE 2056 "dist/build/ResolveLocals" #-}
                                  )
                             ( _childrenIattributes,_childrenIfields,_childrenIoutput) =
                                 children_ _childrenOallfields _childrenOallnts _childrenOattrs _childrenOcon _childrenOinh _childrenOinhMap _childrenOmergeMap _childrenOnt _childrenOsyn _childrenOsynMap
@@ -2090,8 +2060,6 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                 rules_ _rulesOallfields _rulesOallnts _rulesOattrs _rulesOcon _rulesOinh _rulesOmergeMap _rulesOnt _rulesOoptions _rulesOsyn
                             ( _typeSigsIoutput) =
                                 typeSigs_
-                            ___node =
-                                (Syn_Production _lhsOcons _lhsOerrors _lhsOoutput)
                         in  ( _lhsOcons,_lhsOerrors,_lhsOoutput))))
 -- Productions -------------------------------------------------
 {-
@@ -2183,128 +2151,126 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                              _lhsOcons =
                                  ({-# LINE 65 "src-ag/ResolveLocals.ag" #-}
                                   _hdIcons ++ _tlIcons
-                                  {-# LINE 2187 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2155 "dist/build/ResolveLocals" #-}
                                   )
                              -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                              _lhsOerrors =
                                  ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                   _hdIerrors Seq.>< _tlIerrors
-                                  {-# LINE 2193 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2161 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _output =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   (:) _hdIoutput _tlIoutput
-                                  {-# LINE 2199 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2167 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _lhsOoutput =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   _output
-                                  {-# LINE 2205 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2173 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOallnts =
                                  ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 2211 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2179 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOinh =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 2217 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2185 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 2223 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2191 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOmergeMap =
                                  ({-# LINE 126 "src-ag/ResolveLocals.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 2229 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2197 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOnt =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2235 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2203 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOoptions =
                                  ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2241 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2209 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOsyn =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 2247 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2215 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 2253 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2221 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOallnts =
                                  ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIallnts
-                                  {-# LINE 2259 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2227 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOinh =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 2265 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2233 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 2271 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2239 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOmergeMap =
                                  ({-# LINE 126 "src-ag/ResolveLocals.ag" #-}
                                   _lhsImergeMap
-                                  {-# LINE 2277 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2245 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOnt =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2283 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2251 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOoptions =
                                  ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2289 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2257 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOsyn =
                                  ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 2295 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2263 "dist/build/ResolveLocals" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 2301 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2269 "dist/build/ResolveLocals" #-}
                                   )
                              ( _hdIcons,_hdIerrors,_hdIoutput) =
                                  hd_ _hdOallnts _hdOinh _hdOinhMap _hdOmergeMap _hdOnt _hdOoptions _hdOsyn _hdOsynMap
                              ( _tlIcons,_tlIerrors,_tlIoutput) =
                                  tl_ _tlOallnts _tlOinh _tlOinhMap _tlOmergeMap _tlOnt _tlOoptions _tlOsyn _tlOsynMap
-                             ___node =
-                                 (Syn_Productions _lhsOcons _lhsOerrors _lhsOoutput)
                          in  ( _lhsOcons,_lhsOerrors,_lhsOoutput))))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -2323,28 +2289,26 @@ sem_Productions_Nil =
                              _lhsOcons =
                                  ({-# LINE 65 "src-ag/ResolveLocals.ag" #-}
                                   []
-                                  {-# LINE 2327 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2293 "dist/build/ResolveLocals" #-}
                                   )
                              -- use rule "src-ag/ResolveLocals.ag"(line 44, column 16)
                              _lhsOerrors =
                                  ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                                   Seq.empty
-                                  {-# LINE 2333 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2299 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _output =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   []
-                                  {-# LINE 2339 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2305 "dist/build/ResolveLocals" #-}
                                   )
                              -- self rule
                              _lhsOoutput =
                                  ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                                   _output
-                                  {-# LINE 2345 "dist/build/ResolveLocals" #-}
+                                  {-# LINE 2311 "dist/build/ResolveLocals" #-}
                                   )
-                             ___node =
-                                 (Syn_Productions _lhsOcons _lhsOerrors _lhsOoutput)
                          in  ( _lhsOcons,_lhsOerrors,_lhsOoutput))))
 -- Rule --------------------------------------------------------
 {-
@@ -2450,104 +2414,102 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                       _lhsOerrors =
                           ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                            _patternIerrors Seq.>< _rhsIerrors
-                           {-# LINE 2454 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2418 "dist/build/ResolveLocals" #-}
                            )
                       -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                       _lhsOinstVars =
                           ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                            _patternIinstVars
-                           {-# LINE 2460 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2424 "dist/build/ResolveLocals" #-}
                            )
                       -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                       _lhsOlocVars =
                           ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                            _patternIlocVars
-                           {-# LINE 2466 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2430 "dist/build/ResolveLocals" #-}
                            )
                       -- self rule
                       _output =
                           ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                            Rule mbName_ _patternIoutput _rhsIoutput owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
-                           {-# LINE 2472 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2436 "dist/build/ResolveLocals" #-}
                            )
                       -- self rule
                       _lhsOoutput =
                           ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                            _output
-                           {-# LINE 2478 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2442 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _patternOcon =
                           ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                            _lhsIcon
-                           {-# LINE 2484 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2448 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _patternOinh =
                           ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                            _lhsIinh
-                           {-# LINE 2490 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2454 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _patternOnt =
                           ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                            _lhsInt
-                           {-# LINE 2496 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2460 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _patternOsyn =
                           ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                            _lhsIsyn
-                           {-# LINE 2502 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2466 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOallfields =
                           ({-# LINE 139 "src-ag/ResolveLocals.ag" #-}
                            _lhsIallfields
-                           {-# LINE 2508 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2472 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOallnts =
                           ({-# LINE 140 "src-ag/ResolveLocals.ag" #-}
                            _lhsIallnts
-                           {-# LINE 2514 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2478 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOattrs =
                           ({-# LINE 141 "src-ag/ResolveLocals.ag" #-}
                            _lhsIattrs
-                           {-# LINE 2520 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2484 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOcon =
                           ({-# LINE 138 "src-ag/ResolveLocals.ag" #-}
                            _lhsIcon
-                           {-# LINE 2526 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2490 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOmergeMap =
                           ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                            _lhsImergeMap
-                           {-# LINE 2532 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2496 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOnt =
                           ({-# LINE 138 "src-ag/ResolveLocals.ag" #-}
                            _lhsInt
-                           {-# LINE 2538 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2502 "dist/build/ResolveLocals" #-}
                            )
                       -- copy rule (down)
                       _rhsOoptions =
                           ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                            _lhsIoptions
-                           {-# LINE 2544 "dist/build/ResolveLocals" #-}
+                           {-# LINE 2508 "dist/build/ResolveLocals" #-}
                            )
                       ( _patternIcopy,_patternIerrors,_patternIinstVars,_patternIlocVars,_patternIoutput) =
                           pattern_ _patternOcon _patternOinh _patternOnt _patternOsyn
                       ( _rhsIerrors,_rhsIoutput) =
                           rhs_ _rhsOallfields _rhsOallnts _rhsOattrs _rhsOcon _rhsOmergeMap _rhsOnt _rhsOoptions
-                      ___node =
-                          (Syn_Rule _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                   in  ( _lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 -- Rules -------------------------------------------------------
 {-
@@ -2648,146 +2610,144 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                        _lhsOerrors =
                            ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                             _hdIerrors Seq.>< _tlIerrors
-                            {-# LINE 2652 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2614 "dist/build/ResolveLocals" #-}
                             )
                        -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                        _lhsOinstVars =
                            ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                             _hdIinstVars ++ _tlIinstVars
-                            {-# LINE 2658 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2620 "dist/build/ResolveLocals" #-}
                             )
                        -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                        _lhsOlocVars =
                            ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                             _hdIlocVars ++ _tlIlocVars
-                            {-# LINE 2664 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2626 "dist/build/ResolveLocals" #-}
                             )
                        -- self rule
                        _output =
                            ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                             (:) _hdIoutput _tlIoutput
-                            {-# LINE 2670 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2632 "dist/build/ResolveLocals" #-}
                             )
                        -- self rule
                        _lhsOoutput =
                            ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                             _output
-                            {-# LINE 2676 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2638 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOallfields =
                            ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                             _lhsIallfields
-                            {-# LINE 2682 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2644 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOallnts =
                            ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                             _lhsIallnts
-                            {-# LINE 2688 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2650 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOattrs =
                            ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                             _lhsIattrs
-                            {-# LINE 2694 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2656 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOcon =
                            ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                             _lhsIcon
-                            {-# LINE 2700 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2662 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOinh =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsIinh
-                            {-# LINE 2706 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2668 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOmergeMap =
                            ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                             _lhsImergeMap
-                            {-# LINE 2712 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2674 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOnt =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsInt
-                            {-# LINE 2718 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2680 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOoptions =
                            ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                             _lhsIoptions
-                            {-# LINE 2724 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2686 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _hdOsyn =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsIsyn
-                            {-# LINE 2730 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2692 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOallfields =
                            ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                             _lhsIallfields
-                            {-# LINE 2736 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2698 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOallnts =
                            ({-# LINE 57 "src-ag/ResolveLocals.ag" #-}
                             _lhsIallnts
-                            {-# LINE 2742 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2704 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOattrs =
                            ({-# LINE 71 "src-ag/ResolveLocals.ag" #-}
                             _lhsIattrs
-                            {-# LINE 2748 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2710 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOcon =
                            ({-# LINE 105 "src-ag/ResolveLocals.ag" #-}
                             _lhsIcon
-                            {-# LINE 2754 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2716 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOinh =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsIinh
-                            {-# LINE 2760 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2722 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOmergeMap =
                            ({-# LINE 131 "src-ag/ResolveLocals.ag" #-}
                             _lhsImergeMap
-                            {-# LINE 2766 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2728 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOnt =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsInt
-                            {-# LINE 2772 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2734 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOoptions =
                            ({-# LINE 41 "src-ag/ResolveLocals.ag" #-}
                             _lhsIoptions
-                            {-# LINE 2778 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2740 "dist/build/ResolveLocals" #-}
                             )
                        -- copy rule (down)
                        _tlOsyn =
                            ({-# LINE 104 "src-ag/ResolveLocals.ag" #-}
                             _lhsIsyn
-                            {-# LINE 2784 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2746 "dist/build/ResolveLocals" #-}
                             )
                        ( _hdIerrors,_hdIinstVars,_hdIlocVars,_hdIoutput) =
                            hd_ _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOinh _hdOmergeMap _hdOnt _hdOoptions _hdOsyn
                        ( _tlIerrors,_tlIinstVars,_tlIlocVars,_tlIoutput) =
                            tl_ _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOinh _tlOmergeMap _tlOnt _tlOoptions _tlOsyn
-                       ___node =
-                           (Syn_Rules _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                    in  ( _lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -2808,34 +2768,32 @@ sem_Rules_Nil =
                        _lhsOerrors =
                            ({-# LINE 44 "src-ag/ResolveLocals.ag" #-}
                             Seq.empty
-                            {-# LINE 2812 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2772 "dist/build/ResolveLocals" #-}
                             )
                        -- use rule "src-ag/ResolveLocals.ag"(line 93, column 86)
                        _lhsOinstVars =
                            ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                             []
-                            {-# LINE 2818 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2778 "dist/build/ResolveLocals" #-}
                             )
                        -- use rule "src-ag/ResolveLocals.ag"(line 93, column 48)
                        _lhsOlocVars =
                            ({-# LINE 93 "src-ag/ResolveLocals.ag" #-}
                             []
-                            {-# LINE 2824 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2784 "dist/build/ResolveLocals" #-}
                             )
                        -- self rule
                        _output =
                            ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                             []
-                            {-# LINE 2830 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2790 "dist/build/ResolveLocals" #-}
                             )
                        -- self rule
                        _lhsOoutput =
                            ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                             _output
-                            {-# LINE 2836 "dist/build/ResolveLocals" #-}
+                            {-# LINE 2796 "dist/build/ResolveLocals" #-}
                             )
-                       ___node =
-                           (Syn_Rules _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
                    in  ( _lhsOerrors,_lhsOinstVars,_lhsOlocVars,_lhsOoutput))))
 -- TypeSig -----------------------------------------------------
 {-
@@ -2873,16 +2831,14 @@ sem_TypeSig_TypeSig name_ tp_ =
                     _output =
                         ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                          TypeSig name_ tp_
-                         {-# LINE 2877 "dist/build/ResolveLocals" #-}
+                         {-# LINE 2835 "dist/build/ResolveLocals" #-}
                          )
                     -- self rule
                     _lhsOoutput =
                         ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                          _output
-                         {-# LINE 2883 "dist/build/ResolveLocals" #-}
+                         {-# LINE 2841 "dist/build/ResolveLocals" #-}
                          )
-                    ___node =
-                        (Syn_TypeSig _lhsOoutput)
                 in  ( _lhsOoutput)))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -2925,20 +2881,18 @@ sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
                      _output =
                          ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                           (:) _hdIoutput _tlIoutput
-                          {-# LINE 2929 "dist/build/ResolveLocals" #-}
+                          {-# LINE 2885 "dist/build/ResolveLocals" #-}
                           )
                      -- self rule
                      _lhsOoutput =
                          ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                           _output
-                          {-# LINE 2935 "dist/build/ResolveLocals" #-}
+                          {-# LINE 2891 "dist/build/ResolveLocals" #-}
                           )
                      ( _hdIoutput) =
                          hd_
                      ( _tlIoutput) =
                          tl_
-                     ___node =
-                         (Syn_TypeSigs _lhsOoutput)
                  in  ( _lhsOoutput)))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
@@ -2947,14 +2901,12 @@ sem_TypeSigs_Nil =
                      _output =
                          ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                           []
-                          {-# LINE 2951 "dist/build/ResolveLocals" #-}
+                          {-# LINE 2905 "dist/build/ResolveLocals" #-}
                           )
                      -- self rule
                      _lhsOoutput =
                          ({-# LINE 47 "src-ag/ResolveLocals.ag" #-}
                           _output
-                          {-# LINE 2957 "dist/build/ResolveLocals" #-}
+                          {-# LINE 2911 "dist/build/ResolveLocals" #-}
                           )
-                     ___node =
-                         (Syn_TypeSigs _lhsOoutput)
                  in  ( _lhsOoutput)))

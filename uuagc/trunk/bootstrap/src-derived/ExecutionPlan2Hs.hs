@@ -598,8 +598,6 @@ sem_EChild_EChild name_ tp_ kind_ hasAround_ merges_ isMerged_ =
                              _argpats
                              {-# LINE 600 "dist/build/ExecutionPlan2Hs" #-}
                              )
-                        ___node =
-                            (Syn_EChild _lhsOargnamesw _lhsOargpats _lhsOargtps _lhsOchildTypes _lhsOchildintros _lhsOdatatype _lhsOterminaldefs)
                     in  ( _lhsOargnamesw,_lhsOargpats,_lhsOargtps,_lhsOchildTypes,_lhsOchildintros,_lhsOdatatype,_lhsOterminaldefs))))
 sem_EChild_ETerm :: Identifier ->
                     Type ->
@@ -626,13 +624,13 @@ sem_EChild_ETerm name_ tp_ =
                         _tpDoc =
                             ({-# LINE 204 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _addStrict     $ pp_parens $ ppTp $ removeDeforested tp_
-                             {-# LINE 630 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 628 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 205, column 7)
                         _strNm =
                             ({-# LINE 205 "src-ag/ExecutionPlan2Hs.ag" #-}
                              recordFieldname _lhsInt _lhsIcon name_
-                             {-# LINE 636 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 634 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 206, column 7)
                         _field =
@@ -640,70 +638,68 @@ sem_EChild_ETerm name_ tp_ =
                              if dataRecords _lhsIoptions
                              then _strNm     >#< "::" >#< _tpDoc
                              else _tpDoc
-                             {-# LINE 644 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 642 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 209, column 7)
                         _addStrict =
                             ({-# LINE 209 "src-ag/ExecutionPlan2Hs.ag" #-}
                              \x -> if strictData _lhsIoptions then "!" >|< x else x
-                             {-# LINE 650 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 648 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 214, column 13)
                         _lhsOdatatype =
                             ({-# LINE 214 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _field
-                             {-# LINE 656 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 654 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 305, column 12)
                         _lhsOargnamesw =
                             ({-# LINE 305 "src-ag/ExecutionPlan2Hs.ag" #-}
                              text $ fieldname name_
-                             {-# LINE 662 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 660 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 576, column 12)
                         _lhsOargtps =
                             ({-# LINE 576 "src-ag/ExecutionPlan2Hs.ag" #-}
                              (pp_parens $ show tp_) >#< "->"
-                             {-# LINE 668 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 666 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 577, column 12)
                         _argpats =
                             ({-# LINE 577 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _addbang     $ text $ fieldname name_
-                             {-# LINE 674 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 672 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 899, column 12)
                         _lhsOchildintros =
                             ({-# LINE 899 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.singleton name_ (\_ _ -> Right (empty, Set.empty, Map.empty))
-                             {-# LINE 680 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 678 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 1287, column 3)
                         _lhsOterminaldefs =
                             ({-# LINE 1287 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Set.singleton $ fieldname name_
-                             {-# LINE 686 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 684 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 1519, column 37)
                         _addbang =
                             ({-# LINE 1519 "src-ag/ExecutionPlan2Hs.ag" #-}
                              \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                             {-# LINE 692 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 690 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- "src-ag/ExecutionPlan2Hs.ag"(line 1570, column 3)
                         _lhsOchildTypes =
                             ({-# LINE 1570 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.singleton name_ tp_
-                             {-# LINE 698 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 696 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (from local)
                         _lhsOargpats =
                             ({-# LINE 563 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _argpats
-                             {-# LINE 704 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 702 "dist/build/ExecutionPlan2Hs" #-}
                              )
-                        ___node =
-                            (Syn_EChild _lhsOargnamesw _lhsOargpats _lhsOargtps _lhsOchildTypes _lhsOchildintros _lhsOdatatype _lhsOterminaldefs)
                     in  ( _lhsOargnamesw,_lhsOargpats,_lhsOargtps,_lhsOchildTypes,_lhsOchildintros,_lhsOdatatype,_lhsOterminaldefs))))
 -- EChildren ---------------------------------------------------
 {-
@@ -817,170 +813,168 @@ sem_EChildren_Cons (T_EChild hd_) (T_EChildren tl_) =
                            _lhsOargnamesw =
                                ({-# LINE 298 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIargnamesw : _tlIargnamesw
-                                {-# LINE 821 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 817 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 565, column 30)
                            _lhsOargpats =
                                ({-# LINE 565 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIargpats : _tlIargpats
-                                {-# LINE 827 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 823 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 564, column 30)
                            _lhsOargtps =
                                ({-# LINE 564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIargtps : _tlIargtps
-                                {-# LINE 833 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 829 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1563, column 40)
                            _lhsOchildTypes =
                                ({-# LINE 1563 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIchildTypes `mappend` _tlIchildTypes
-                                {-# LINE 839 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 835 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 890, column 41)
                            _lhsOchildintros =
                                ({-# LINE 890 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIchildintros `Map.union` _tlIchildintros
-                                {-# LINE 845 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 841 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 199, column 31)
                            _lhsOdatatype =
                                ({-# LINE 199 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIdatatype : _tlIdatatype
-                                {-# LINE 851 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 847 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1284, column 42)
                            _lhsOterminaldefs =
                                ({-# LINE 1284 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _hdIterminaldefs `Set.union` _tlIterminaldefs
-                                {-# LINE 857 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 853 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOallInitStates =
                                ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 863 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 859 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOcon =
                                ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIcon
-                                {-# LINE 869 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 865 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOimportBlocks =
                                ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIimportBlocks
-                                {-# LINE 875 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 871 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOmainFile =
                                ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImainFile
-                                {-# LINE 881 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 877 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOmainName =
                                ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImainName
-                                {-# LINE 887 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 883 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOmoduleHeader =
                                ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImoduleHeader
-                                {-# LINE 893 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 889 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOnt =
                                ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsInt
-                                {-# LINE 899 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 895 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOoptions =
                                ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 905 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 901 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOpragmaBlocks =
                                ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIpragmaBlocks
-                                {-# LINE 911 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 907 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOtextBlocks =
                                ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsItextBlocks
-                                {-# LINE 917 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 913 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOallInitStates =
                                ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 923 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 919 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOcon =
                                ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIcon
-                                {-# LINE 929 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 925 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOimportBlocks =
                                ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIimportBlocks
-                                {-# LINE 935 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 931 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOmainFile =
                                ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImainFile
-                                {-# LINE 941 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 937 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOmainName =
                                ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImainName
-                                {-# LINE 947 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 943 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOmoduleHeader =
                                ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImoduleHeader
-                                {-# LINE 953 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 949 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOnt =
                                ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsInt
-                                {-# LINE 959 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 955 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOoptions =
                                ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 965 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 961 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOpragmaBlocks =
                                ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIpragmaBlocks
-                                {-# LINE 971 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 967 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _tlOtextBlocks =
                                ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsItextBlocks
-                                {-# LINE 977 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 973 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            ( _hdIargnamesw,_hdIargpats,_hdIargtps,_hdIchildTypes,_hdIchildintros,_hdIdatatype,_hdIterminaldefs) =
                                hd_ _hdOallInitStates _hdOcon _hdOimportBlocks _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOnt _hdOoptions _hdOpragmaBlocks _hdOtextBlocks
                            ( _tlIargnamesw,_tlIargpats,_tlIargtps,_tlIchildTypes,_tlIchildintros,_tlIdatatype,_tlIterminaldefs) =
                                tl_ _tlOallInitStates _tlOcon _tlOimportBlocks _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOnt _tlOoptions _tlOpragmaBlocks _tlOtextBlocks
-                           ___node =
-                               (Syn_EChildren _lhsOargnamesw _lhsOargpats _lhsOargtps _lhsOchildTypes _lhsOchildintros _lhsOdatatype _lhsOterminaldefs)
                        in  ( _lhsOargnamesw,_lhsOargpats,_lhsOargtps,_lhsOchildTypes,_lhsOchildintros,_lhsOdatatype,_lhsOterminaldefs))))
 sem_EChildren_Nil :: T_EChildren
 sem_EChildren_Nil =
@@ -1005,46 +999,44 @@ sem_EChildren_Nil =
                            _lhsOargnamesw =
                                ({-# LINE 298 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 []
-                                {-# LINE 1009 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1003 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 565, column 30)
                            _lhsOargpats =
                                ({-# LINE 565 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 []
-                                {-# LINE 1015 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1009 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 564, column 30)
                            _lhsOargtps =
                                ({-# LINE 564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 []
-                                {-# LINE 1021 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1015 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1563, column 40)
                            _lhsOchildTypes =
                                ({-# LINE 1563 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 mempty
-                                {-# LINE 1027 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1021 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 890, column 41)
                            _lhsOchildintros =
                                ({-# LINE 890 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.empty
-                                {-# LINE 1033 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1027 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 199, column 31)
                            _lhsOdatatype =
                                ({-# LINE 199 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 []
-                                {-# LINE 1039 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1033 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1284, column 42)
                            _lhsOterminaldefs =
                                ({-# LINE 1284 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Set.empty
-                                {-# LINE 1045 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 1039 "dist/build/ExecutionPlan2Hs" #-}
                                 )
-                           ___node =
-                               (Syn_EChildren _lhsOargnamesw _lhsOargpats _lhsOargtps _lhsOchildTypes _lhsOchildintros _lhsOdatatype _lhsOterminaldefs)
                        in  ( _lhsOargnamesw,_lhsOargpats,_lhsOargtps,_lhsOchildTypes,_lhsOchildintros,_lhsOdatatype,_lhsOterminaldefs))))
 -- ENonterminal ------------------------------------------------
 {-
@@ -1270,25 +1262,25 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                               _prodsOrename =
                                   ({-# LINE 55 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    rename _lhsIoptions
-                                   {-# LINE 1274 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1266 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 63, column 18)
                               _prodsOnt =
                                   ({-# LINE 63 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    nt_
-                                   {-# LINE 1280 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1272 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 75, column 3)
                               _prodsOparams =
                                   ({-# LINE 75 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    params_
-                                   {-# LINE 1286 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1278 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 79, column 3)
                               _prodsOclassCtxs =
                                   ({-# LINE 79 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    classCtxs_
-                                   {-# LINE 1292 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1284 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 96, column 18)
                               _lhsOoutput =
@@ -1320,25 +1312,25 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                              >-< _prodsIsem_prod
                                              >-< ""
                                         else empty)
-                                   {-# LINE 1324 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1316 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 123, column 18)
                               _hasWrapper =
                                   ({-# LINE 123 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    nt_ `Set.member` _lhsIwrappers
-                                   {-# LINE 1330 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1322 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 136, column 18)
                               _classPP =
                                   ({-# LINE 136 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    ppClasses $ classCtxsToDocs classCtxs_
-                                   {-# LINE 1336 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1328 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 137, column 18)
                               _aliasPre =
                                   ({-# LINE 137 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "type" >#< _classPP     >#< nt_ >#< _t_params     >#< "="
-                                   {-# LINE 1342 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1334 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 138, column 18)
                               _datatype =
@@ -1359,7 +1351,7 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                       Just (IntMap t)   -> _aliasPre     >#< "Data.IntMap.IntMap" >#< show t
                                       Just (OrdSet t)   -> _aliasPre     >#< "Data.Set.Set" >#< show t
                                       Just IntSet       -> _aliasPre     >#< "Data.IntSet.IntSet"
-                                   {-# LINE 1363 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1355 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 155, column 18)
                               _derivings =
@@ -1369,19 +1361,19 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                       Just s  -> if   Set.null s
                                                  then empty
                                                  else "deriving" >#< (pp_parens $ ppCommas $ map pp $ Set.toList s)
-                                   {-# LINE 1373 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1365 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 228, column 18)
                               _fsemname =
                                   ({-# LINE 228 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    \x -> "sem_" ++ show x
-                                   {-# LINE 1379 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1371 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 229, column 18)
                               _semname =
                                   ({-# LINE 229 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _fsemname     nt_
-                                   {-# LINE 1385 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1377 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 230, column 18)
                               _frecarg =
@@ -1389,19 +1381,19 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    \t x -> case t of
                                               NT nt _ _ -> pp_parens (_fsemname nt >#< x)
                                               _         -> pp x
-                                   {-# LINE 1393 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1385 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 236, column 18)
                               _sem_tp =
                                   ({-# LINE 236 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _quantPP     >#< _classPP     >#< nt_ >#< _t_params     >#< "->" >#< _t_type     >#< _t_params
-                                   {-# LINE 1399 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1391 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 237, column 18)
                               _quantPP =
                                   ({-# LINE 237 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    ppQuants params_
-                                   {-# LINE 1405 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1397 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 238, column 18)
                               _sem_nt =
@@ -1443,13 +1435,13 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                           Just IntSet     -> _semname     >#< "s" >#< "=" >#< "Prelude.foldr" >#< _semname     >|< "_Entry"
                                                              >#< _semname     >|< "_Nil"
                                                              >#< pp_parens ("Data.IntSet.elems" >#< "s")
-                                   {-# LINE 1447 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1439 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 278, column 17)
                               _inlineNt =
                                   ({-# LINE 278 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    not (lateHigherOrderBinding _lhsIoptions) && not recursive_ && (_prodsIcount == 1 || (aggressiveInlinePragmas _lhsIoptions && not _hasWrapper    ))
-                                   {-# LINE 1453 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1445 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 279, column 17)
                               _semPragma =
@@ -1461,67 +1453,67 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                         else if helpInlining _lhsIoptions && not (lateHigherOrderBinding _lhsIoptions)
                                              then ppInlinable _semname
                                              else ppNoInline _semname
-                                   {-# LINE 1465 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1457 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 325, column 19)
                               (Just _prodsOinhmap) =
                                   ({-# LINE 325 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.lookup nt_ _lhsIinhmap
-                                   {-# LINE 1471 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1463 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 326, column 19)
                               (Just _prodsOsynmap) =
                                   ({-# LINE 326 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.lookup nt_ _lhsIsynmap
-                                   {-# LINE 1477 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1469 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 327, column 18)
                               _prodsOallInhmap =
                                   ({-# LINE 327 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIinhmap
-                                   {-# LINE 1483 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1475 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 328, column 18)
                               _prodsOallSynmap =
                                   ({-# LINE 328 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 1489 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1481 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 349, column 18)
                               _outedges =
                                   ({-# LINE 349 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.fromList $ map (\(_,f,_) -> f) _prodsIallvisits
-                                   {-# LINE 1495 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1487 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 350, column 18)
                               _inedges =
                                   ({-# LINE 350 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.fromList $ map (\(_,_,t) -> t) _prodsIallvisits
-                                   {-# LINE 1501 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1493 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 351, column 18)
                               _allstates =
                                   ({-# LINE 351 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.insert initial_ $ _inedges     `Set.union` _outedges
-                                   {-# LINE 1507 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1499 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 352, column 18)
                               _stvisits =
                                   ({-# LINE 352 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    \st -> filter (\(v,f,t) -> f == st) _prodsIallvisits
-                                   {-# LINE 1513 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1505 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 353, column 18)
                               _t_type =
                                   ({-# LINE 353 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "T_" >|< nt_
-                                   {-# LINE 1519 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1511 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 354, column 18)
                               _t_params =
                                   ({-# LINE 354 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    ppSpaced params_
-                                   {-# LINE 1525 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1517 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 355, column 18)
                               _t_init =
@@ -1530,7 +1522,7 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                      pp_braces (
                                        "attach_">|< _t_type     >#< "::"
                                          >#< ppMonadType _lhsIoptions >#< pp_parens (_t_type     >|< "_s" >|< initial_ >#< _t_params    ))
-                                   {-# LINE 1534 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1526 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 359, column 18)
                               _t_states =
@@ -1550,13 +1542,13 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                                             >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< _t_params     >#< "t" >#< "->" >#< "t"))
                                                             >#< "->" >#< t_st >#< _t_params
                                           ) $ Set.toList _allstates
-                                   {-# LINE 1554 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1546 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 377, column 18)
                               _k_type =
                                   ({-# LINE 377 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "K_" ++ show nt_
-                                   {-# LINE 1560 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1552 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 378, column 18)
                               _k_states =
@@ -1575,19 +1567,19 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                             OneVis _ -> empty
                                             ManyVis  -> decl
                                       ) $ Set.toList _allstates
-                                   {-# LINE 1579 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1571 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 445, column 18)
                               _wr_inh =
                                   ({-# LINE 445 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _genwrap     "Inh" _wr_inhs
-                                   {-# LINE 1585 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1577 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 446, column 18)
                               _wr_syn =
                                   ({-# LINE 446 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _genwrap     "Syn" _wr_syns
-                                   {-# LINE 1591 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1583 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 447, column 18)
                               _genwrap =
@@ -1595,25 +1587,25 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    \nm attr -> "data" >#< nm >|< "_" >|< nt_ >#< _t_params     >#< "=" >#< nm >|< "_" >|< nt_ >#< "{"
                                                >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< nt_ >#< "::"
                                                >#< (_addbang     $ pp_parens $ typeToHaskellString (Just nt_) [] t)) attr) >#< "}"
-                                   {-# LINE 1599 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1591 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 450, column 18)
                               _synAttrs =
                                   ({-# LINE 450 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    fromJust $ Map.lookup nt_ _lhsIinhmap
-                                   {-# LINE 1605 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1597 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 451, column 18)
                               _wr_inhs =
                                   ({-# LINE 451 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.toList $ _wr_filter     $ _synAttrs
-                                   {-# LINE 1611 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1603 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 452, column 18)
                               _wr_inhs1 =
                                   ({-# LINE 452 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.toList _synAttrs
-                                   {-# LINE 1617 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1609 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 453, column 18)
                               _wr_filter =
@@ -1621,55 +1613,55 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    if kennedyWarren _lhsIoptions && lateHigherOrderBinding _lhsIoptions
                                    then Map.delete idLateBindingAttr
                                    else id
-                                   {-# LINE 1625 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1617 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 456, column 18)
                               _wr_syns =
                                   ({-# LINE 456 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.toList $ fromJust $ Map.lookup nt_ _lhsIsynmap
-                                   {-# LINE 1631 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1623 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 457, column 18)
                               _inhlist =
                                   ({-# LINE 457 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    map (lhsname True . fst) _wr_inhs
-                                   {-# LINE 1637 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1629 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 458, column 18)
                               _inhlist1 =
                                   ({-# LINE 458 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    map (lhsname True . fst) _wr_inhs1
-                                   {-# LINE 1643 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1635 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 459, column 18)
                               _synlist =
                                   ({-# LINE 459 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    map (lhsname False . fst) _wr_syns
-                                   {-# LINE 1649 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1641 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 460, column 18)
                               _wrapname =
                                   ({-# LINE 460 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "wrap_" ++ show nt_
-                                   {-# LINE 1655 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1647 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 461, column 18)
                               _inhname =
                                   ({-# LINE 461 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "Inh_" ++ show nt_
-                                   {-# LINE 1661 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1653 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 462, column 18)
                               _synname =
                                   ({-# LINE 462 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    "Syn_" ++ show nt_
-                                   {-# LINE 1667 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1659 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 463, column 18)
                               _firstVisitInfo =
                                   ({-# LINE 463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.findWithDefault ManyVis initial_ nextVisits_
-                                   {-# LINE 1673 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1665 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 464, column 18)
                               _wrapper =
@@ -1714,7 +1706,7 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    >-< if kennedyWarren _lhsIoptions && lateHigherOrderBinding _lhsIoptions
                                        then indent 2 ("where" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm _lhsImainName)
                                        else empty
-                                   {-# LINE 1718 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1710 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 505, column 18)
                               _wrapPragma =
@@ -1724,49 +1716,49 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    else if noInlinePragmas _lhsIoptions
                                         then empty
                                         else ppInlinable _wrapname
-                                   {-# LINE 1728 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1720 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 517, column 3)
                               _lhsOsemFunBndDefs =
                                   ({-# LINE 517 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _semFunBndDef     Seq.<| _prodsIsemFunBndDefs
-                                   {-# LINE 1734 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1726 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 518, column 3)
                               _lhsOsemFunBndTps =
                                   ({-# LINE 518 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _semFunBndTp     Seq.<| _prodsIsemFunBndTps
-                                   {-# LINE 1740 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1732 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 519, column 3)
                               _semFunBndDef =
                                   ({-# LINE 519 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _semFunBndNm     >#< "=" >#< _semname
-                                   {-# LINE 1746 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1738 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 520, column 3)
                               _semFunBndTp =
                                   ({-# LINE 520 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _semFunBndNm     >#< "::" >#< _sem_tp
-                                   {-# LINE 1752 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1744 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 521, column 3)
                               _semFunBndNm =
                                   ({-# LINE 521 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    lateSemNtLabel nt_
-                                   {-# LINE 1758 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1750 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 559, column 18)
                               _prodsOinitial =
                                   ({-# LINE 559 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    initial_
-                                   {-# LINE 1764 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1756 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 560, column 18)
                               _prodsOallstates =
                                   ({-# LINE 560 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _allstates
-                                   {-# LINE 1770 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1762 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1450, column 18)
                               _lhsOappendMain =
@@ -1777,7 +1769,7 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                          >-< _wrapper
                                     else empty)
                                    >-< _sem_nt
-                                   {-# LINE 1781 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1773 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1456, column 18)
                               _lhsOappendCommon =
@@ -1787,186 +1779,184 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                    >-< _t_states
                                    >-< _k_states
                                    >-< _prodsIt_visits
-                                   {-# LINE 1791 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1783 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1516, column 37)
                               _addbang =
                                   ({-# LINE 1516 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                   {-# LINE 1797 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1789 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1524, column 37)
                               _addbangWrap =
                                   ({-# LINE 1524 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    if strictWrap _lhsIoptions then _addbang     else id
-                                   {-# LINE 1803 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1795 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1536, column 3)
                               _prodsOnextVisits =
                                   ({-# LINE 1536 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    nextVisits_
-                                   {-# LINE 1809 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1801 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1537, column 3)
                               _prodsOprevVisits =
                                   ({-# LINE 1537 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    prevVisits_
-                                   {-# LINE 1815 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1807 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1581, column 3)
                               _prodsOlocalAttrTypes =
                                   ({-# LINE 1581 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.findWithDefault Map.empty nt_ _lhsIlocalAttrTypes
-                                   {-# LINE 1821 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1813 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1608, column 3)
                               _lhsOinitStates =
                                   ({-# LINE 1608 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.singleton nt_ initial_
-                                   {-# LINE 1827 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1819 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 1622, column 3)
                               _ntType =
                                   ({-# LINE 1622 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    NT nt_ (map show params_) False
-                                   {-# LINE 1833 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1825 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                               _lhsOchildvisit =
                                   ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIchildvisit
-                                   {-# LINE 1839 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1831 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                               _lhsOerrors =
                                   ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIerrors
-                                   {-# LINE 1845 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1837 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                               _lhsOfromToStates =
                                   ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIfromToStates
-                                   {-# LINE 1851 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1843 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1464, column 49)
                               _lhsOgenProdIO =
                                   ({-# LINE 1464 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIgenProdIO
-                                   {-# LINE 1857 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1849 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1463, column 47)
                               _lhsOimports =
                                   ({-# LINE 1463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIimports
-                                   {-# LINE 1863 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1855 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                               _lhsOvisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIvisitKinds
-                                   {-# LINE 1869 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1861 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                               _lhsOvisitdefs =
                                   ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIvisitdefs
-                                   {-# LINE 1875 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1867 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                               _lhsOvisituses =
                                   ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _prodsIvisituses
-                                   {-# LINE 1881 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1873 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallFromToStates =
                                   ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 1887 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1879 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallInitStates =
                                   ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 1893 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1885 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallVisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 1899 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1891 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallchildvisit =
                                   ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 1905 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1897 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOavisitdefs =
                                   ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 1911 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1903 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOavisituses =
                                   ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 1917 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1909 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOimportBlocks =
                                   ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIimportBlocks
-                                   {-# LINE 1923 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1915 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOmainFile =
                                   ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 1929 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1921 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOmainName =
                                   ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 1935 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1927 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOmoduleHeader =
                                   ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImoduleHeader
-                                   {-# LINE 1941 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1933 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (from local)
                               _prodsOntType =
                                   ({-# LINE 1620 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _ntType
-                                   {-# LINE 1947 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1939 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOoptions =
                                   ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1953 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1945 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOpragmaBlocks =
                                   ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIpragmaBlocks
-                                   {-# LINE 1959 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1951 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOtextBlocks =
                                   ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsItextBlocks
-                                   {-# LINE 1965 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 1957 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               ( _prodsIallvisits,_prodsIchildvisit,_prodsIcount,_prodsIdatatype,_prodsIerrors,_prodsIfromToStates,_prodsIgenProdIO,_prodsIimports,_prodsIsemFunBndDefs,_prodsIsemFunBndTps,_prodsIsem_nt,_prodsIsem_prod,_prodsIt_visits,_prodsIvisitKinds,_prodsIvisitdefs,_prodsIvisituses) =
                                   prods_ _prodsOallFromToStates _prodsOallInhmap _prodsOallInitStates _prodsOallSynmap _prodsOallVisitKinds _prodsOallchildvisit _prodsOallstates _prodsOavisitdefs _prodsOavisituses _prodsOclassCtxs _prodsOimportBlocks _prodsOinhmap _prodsOinitial _prodsOlocalAttrTypes _prodsOmainFile _prodsOmainName _prodsOmoduleHeader _prodsOnextVisits _prodsOnt _prodsOntType _prodsOoptions _prodsOparams _prodsOpragmaBlocks _prodsOprevVisits _prodsOrename _prodsOsynmap _prodsOtextBlocks
-                              ___node =
-                                  (Syn_ENonterminal _lhsOappendCommon _lhsOappendMain _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOinitStates _lhsOoutput _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                           in  ( _lhsOappendCommon,_lhsOappendMain,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOinitStates,_lhsOoutput,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- ENonterminals -----------------------------------------------
 {-
@@ -2153,320 +2143,318 @@ sem_ENonterminals_Cons (T_ENonterminal hd_) (T_ENonterminals tl_) =
                                _lhsOappendCommon =
                                    ({-# LINE 1447 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIappendCommon : _tlIappendCommon
-                                    {-# LINE 2157 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2147 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1447, column 51)
                                _lhsOappendMain =
                                    ({-# LINE 1447 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIappendMain : _tlIappendMain
-                                    {-# LINE 2163 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2153 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                                _lhsOchildvisit =
                                    ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIchildvisit `Map.union` _tlIchildvisit
-                                    {-# LINE 2169 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2159 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                                _lhsOerrors =
                                    ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIerrors Seq.>< _tlIerrors
-                                    {-# LINE 2175 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2165 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                                _lhsOfromToStates =
                                    ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIfromToStates `mappend` _tlIfromToStates
-                                    {-# LINE 2181 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2171 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1464, column 49)
                                _lhsOgenProdIO =
                                    ({-# LINE 1464 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIgenProdIO >> _tlIgenProdIO
-                                    {-# LINE 2187 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2177 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1463, column 47)
                                _lhsOimports =
                                    ({-# LINE 1463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIimports ++ _tlIimports
-                                    {-# LINE 2193 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2183 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1603, column 50)
                                _lhsOinitStates =
                                    ({-# LINE 1603 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIinitStates `mappend` _tlIinitStates
-                                    {-# LINE 2199 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2189 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 90, column 45)
                                _lhsOoutput =
                                    ({-# LINE 90 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIoutput >-< _tlIoutput
-                                    {-# LINE 2205 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2195 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                                _lhsOsemFunBndDefs =
                                    ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIsemFunBndDefs Seq.>< _tlIsemFunBndDefs
-                                    {-# LINE 2211 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2201 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                                _lhsOsemFunBndTps =
                                    ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIsemFunBndTps Seq.>< _tlIsemFunBndTps
-                                    {-# LINE 2217 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2207 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                                _lhsOvisitKinds =
                                    ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIvisitKinds `mappend` _tlIvisitKinds
-                                    {-# LINE 2223 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2213 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                                _lhsOvisitdefs =
                                    ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                                    {-# LINE 2229 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2219 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                                _lhsOvisituses =
                                    ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _hdIvisituses `uwSetUnion` _tlIvisituses
-                                    {-# LINE 2235 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2225 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallFromToStates =
                                    ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallFromToStates
-                                    {-# LINE 2241 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2231 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallInitStates =
                                    ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallInitStates
-                                    {-# LINE 2247 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2237 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallVisitKinds =
                                    ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallVisitKinds
-                                    {-# LINE 2253 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2243 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallchildvisit =
                                    ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallchildvisit
-                                    {-# LINE 2259 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2249 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOavisitdefs =
                                    ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIavisitdefs
-                                    {-# LINE 2265 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2255 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOavisituses =
                                    ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIavisituses
-                                    {-# LINE 2271 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2261 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOderivings =
                                    ({-# LINE 129 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIderivings
-                                    {-# LINE 2277 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2267 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOimportBlocks =
                                    ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIimportBlocks
-                                    {-# LINE 2283 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2273 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOinhmap =
                                    ({-# LINE 312 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 2289 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2279 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOlocalAttrTypes =
                                    ({-# LINE 1576 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 2295 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2285 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOmainFile =
                                    ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 2301 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2291 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOmainName =
                                    ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 2307 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2297 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOmoduleHeader =
                                    ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImoduleHeader
-                                    {-# LINE 2313 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2303 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOoptions =
                                    ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 2319 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2309 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOpragmaBlocks =
                                    ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIpragmaBlocks
-                                    {-# LINE 2325 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2315 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOsynmap =
                                    ({-# LINE 313 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 2331 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2321 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOtextBlocks =
                                    ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsItextBlocks
-                                    {-# LINE 2337 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2327 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOtypeSyns =
                                    ({-# LINE 128 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 2343 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2333 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOwrappers =
                                    ({-# LINE 89 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 2349 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2339 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallFromToStates =
                                    ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallFromToStates
-                                    {-# LINE 2355 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2345 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallInitStates =
                                    ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallInitStates
-                                    {-# LINE 2361 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2351 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallVisitKinds =
                                    ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallVisitKinds
-                                    {-# LINE 2367 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2357 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallchildvisit =
                                    ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIallchildvisit
-                                    {-# LINE 2373 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2363 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOavisitdefs =
                                    ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIavisitdefs
-                                    {-# LINE 2379 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2369 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOavisituses =
                                    ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIavisituses
-                                    {-# LINE 2385 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2375 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOderivings =
                                    ({-# LINE 129 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIderivings
-                                    {-# LINE 2391 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2381 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOimportBlocks =
                                    ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIimportBlocks
-                                    {-# LINE 2397 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2387 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOinhmap =
                                    ({-# LINE 312 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 2403 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2393 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOlocalAttrTypes =
                                    ({-# LINE 1576 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 2409 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2399 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOmainFile =
                                    ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 2415 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2405 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOmainName =
                                    ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 2421 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2411 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOmoduleHeader =
                                    ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImoduleHeader
-                                    {-# LINE 2427 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2417 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOoptions =
                                    ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 2433 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2423 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOpragmaBlocks =
                                    ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIpragmaBlocks
-                                    {-# LINE 2439 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2429 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOsynmap =
                                    ({-# LINE 313 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 2445 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2435 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOtextBlocks =
                                    ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsItextBlocks
-                                    {-# LINE 2451 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2441 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOtypeSyns =
                                    ({-# LINE 128 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 2457 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2447 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOwrappers =
                                    ({-# LINE 89 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 2463 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2453 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                ( _hdIappendCommon,_hdIappendMain,_hdIchildvisit,_hdIerrors,_hdIfromToStates,_hdIgenProdIO,_hdIimports,_hdIinitStates,_hdIoutput,_hdIsemFunBndDefs,_hdIsemFunBndTps,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                                    hd_ _hdOallFromToStates _hdOallInitStates _hdOallVisitKinds _hdOallchildvisit _hdOavisitdefs _hdOavisituses _hdOderivings _hdOimportBlocks _hdOinhmap _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOoptions _hdOpragmaBlocks _hdOsynmap _hdOtextBlocks _hdOtypeSyns _hdOwrappers
                                ( _tlIappendCommon,_tlIappendMain,_tlIchildvisit,_tlIerrors,_tlIfromToStates,_tlIgenProdIO,_tlIimports,_tlIinitStates,_tlIoutput,_tlIsemFunBndDefs,_tlIsemFunBndTps,_tlIvisitKinds,_tlIvisitdefs,_tlIvisituses) =
                                    tl_ _tlOallFromToStates _tlOallInitStates _tlOallVisitKinds _tlOallchildvisit _tlOavisitdefs _tlOavisituses _tlOderivings _tlOimportBlocks _tlOinhmap _tlOlocalAttrTypes _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOoptions _tlOpragmaBlocks _tlOsynmap _tlOtextBlocks _tlOtypeSyns _tlOwrappers
-                               ___node =
-                                   (Syn_ENonterminals _lhsOappendCommon _lhsOappendMain _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOinitStates _lhsOoutput _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                            in  ( _lhsOappendCommon,_lhsOappendMain,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOinitStates,_lhsOoutput,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 sem_ENonterminals_Nil :: T_ENonterminals
 sem_ENonterminals_Nil =
@@ -2507,88 +2495,86 @@ sem_ENonterminals_Nil =
                                _lhsOappendCommon =
                                    ({-# LINE 1447 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     []
-                                    {-# LINE 2511 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2499 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1447, column 51)
                                _lhsOappendMain =
                                    ({-# LINE 1447 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     []
-                                    {-# LINE 2517 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2505 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                                _lhsOchildvisit =
                                    ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Map.empty
-                                    {-# LINE 2523 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2511 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                                _lhsOerrors =
                                    ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2529 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2517 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                                _lhsOfromToStates =
                                    ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     mempty
-                                    {-# LINE 2535 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2523 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1464, column 49)
                                _lhsOgenProdIO =
                                    ({-# LINE 1464 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     return ()
-                                    {-# LINE 2541 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2529 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1463, column 47)
                                _lhsOimports =
                                    ({-# LINE 1463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     []
-                                    {-# LINE 2547 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2535 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1603, column 50)
                                _lhsOinitStates =
                                    ({-# LINE 1603 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     mempty
-                                    {-# LINE 2553 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2541 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 90, column 45)
                                _lhsOoutput =
                                    ({-# LINE 90 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     empty
-                                    {-# LINE 2559 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2547 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                                _lhsOsemFunBndDefs =
                                    ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2565 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2553 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                                _lhsOsemFunBndTps =
                                    ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2571 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2559 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                                _lhsOvisitKinds =
                                    ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     mempty
-                                    {-# LINE 2577 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2565 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                                _lhsOvisitdefs =
                                    ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Map.empty
-                                    {-# LINE 2583 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2571 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                                _lhsOvisituses =
                                    ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     Map.empty
-                                    {-# LINE 2589 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 2577 "dist/build/ExecutionPlan2Hs" #-}
                                     )
-                               ___node =
-                                   (Syn_ENonterminals _lhsOappendCommon _lhsOappendMain _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOinitStates _lhsOoutput _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                            in  ( _lhsOappendCommon,_lhsOappendMain,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOinitStates,_lhsOoutput,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- EProduction -------------------------------------------------
 {-
@@ -2853,19 +2839,19 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                              _childrenOcon =
                                  ({-# LINE 69 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   con_
-                                  {-# LINE 2857 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2843 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 70, column 17)
                              _rulesOcon =
                                  ({-# LINE 70 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   con_
-                                  {-# LINE 2863 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2849 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 71, column 17)
                              _visitsOcon =
                                  ({-# LINE 71 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   con_
-                                  {-# LINE 2869 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2855 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 184, column 17)
                              _lhsOdatatype =
@@ -2873,104 +2859,104 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                   _quantPP1     >#< _classPP1
                                   >#< conname _lhsIrename _lhsInt con_
                                   >#< ppConFields (dataRecords _lhsIoptions) _childrenIdatatype
-                                  {-# LINE 2877 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2863 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 187, column 17)
                              _classPP1 =
                                  ({-# LINE 187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppClasses (classConstrsToDocs constraints_)
-                                  {-# LINE 2883 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2869 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 188, column 17)
                              _quantPP1 =
                                  ({-# LINE 188 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppQuants params_
-                                  {-# LINE 2889 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2875 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 289, column 32)
                              _lhsOcount =
                                  ({-# LINE 289 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   1
-                                  {-# LINE 2895 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2881 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 294, column 17)
                              _lhsOsem_nt =
                                  ({-# LINE 294 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   "sem_" >|< _lhsInt >#< "(" >#< conname _lhsIrename _lhsInt con_ >#< ppSpaced _childrenIargpats >#< ")"
                                   >#< "=" >#< "sem_" >|< _lhsInt >|< "_" >|< con_ >#< ppSpaced _childrenIargnamesw
-                                  {-# LINE 2902 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2888 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 524, column 3)
                              _lhsOsemFunBndDefs =
                                  ({-# LINE 524 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   Seq.singleton _semFunBndDef
-                                  {-# LINE 2908 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2894 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 525, column 3)
                              _lhsOsemFunBndTps =
                                  ({-# LINE 525 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   Seq.singleton _semFunBndTp
-                                  {-# LINE 2914 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2900 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 526, column 3)
                              _semFunBndDef =
                                  ({-# LINE 526 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _semFunBndNm     >#< "=" >#< _semname
-                                  {-# LINE 2920 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2906 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 527, column 3)
                              _semFunBndTp =
                                  ({-# LINE 527 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _semFunBndNm     >#< "::" >#< _sem_tp
-                                  {-# LINE 2926 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2912 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 528, column 3)
                              _semFunBndNm =
                                  ({-# LINE 528 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   lateSemConLabel _lhsInt con_
-                                  {-# LINE 2932 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2918 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 586, column 17)
                              _t_type =
                                  ({-# LINE 586 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   "T_" >|< _lhsInt
-                                  {-# LINE 2938 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2924 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 587, column 17)
                              _t_params =
                                  ({-# LINE 587 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppSpaced _lhsIparams
-                                  {-# LINE 2944 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2930 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 588, column 17)
                              _args =
                                  ({-# LINE 588 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _childrenIargpats
-                                  {-# LINE 2950 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2936 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 589, column 17)
                              _semname =
                                  ({-# LINE 589 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   "sem_" ++ show _lhsInt ++ "_" ++ show con_
-                                  {-# LINE 2956 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2942 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 590, column 17)
                              _sem_tp =
                                  ({-# LINE 590 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _quantPP2     >#< _classPP2     >#< ppSpaced _childrenIargtps >#< _t_type     >#< _t_params
-                                  {-# LINE 2962 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2948 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 591, column 17)
                              _classPP2 =
                                  ({-# LINE 591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppClasses (classCtxsToDocs _lhsIclassCtxs ++ classConstrsToDocs constraints_)
-                                  {-# LINE 2968 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2954 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 592, column 17)
                              _quantPP2 =
                                  ({-# LINE 592 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppQuants (_lhsIparams ++ params_)
-                                  {-# LINE 2974 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2960 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 593, column 17)
                              _sem_prod =
@@ -2979,7 +2965,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                   >-< _semname     >#< "::" >#< _sem_tp
                                   >-< _mkSemBody     (_semname     >#< ppSpaced _args     >#< "=" >#< _scc     >#< _t_type    )
                                                      _mbInitializer     _outerlet     ("return" >#< "st" >|< _lhsIinitial)
-                                  {-# LINE 2983 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2969 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 597, column 17)
                              _mkSemBody =
@@ -2995,7 +2981,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                                        >-< indent 2 outerlet
                                                        >-< ret )
                                                  >-< indent 1 ")"
-                                  {-# LINE 2999 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2985 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 609, column 17)
                              _mbInitializer =
@@ -3003,7 +2989,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                   if parallelInvoke _lhsIoptions
                                   then (Nothing :: Maybe PP_Doc)
                                   else Nothing
-                                  {-# LINE 3007 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 2993 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 615, column 17)
                              _scc =
@@ -3011,7 +2997,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                   if genCostCentres _lhsIoptions
                                   then ppCostCentre _semname
                                   else empty
-                                  {-# LINE 3015 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3001 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 618, column 17)
                              _semInlinePragma =
@@ -3019,19 +3005,19 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                   if noInlinePragmas _lhsIoptions
                                   then empty
                                   else ppNoInline _semname
-                                  {-# LINE 3023 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3009 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 621, column 17)
                              _outerlet =
                                  ({-# LINE 621 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   vlist _statefns     >-< _rulesIsem_rules
-                                  {-# LINE 3029 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3015 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 622, column 17)
                              _statefns =
                                  ({-# LINE 622 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   map _genstfn     $ Set.toList _lhsIallstates
-                                  {-# LINE 3035 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3021 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 623, column 17)
                              _genstfn =
@@ -3069,7 +3055,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                                             else empty
                                               OneVis vId -> mklet lhs (_stvs     st False) (cCon >#< "v" >|< vId)
                                               ManyVis    -> mklet lhs (_stks     st >-< _stvs     st True) (cCon >#< "k" >|< st)
-                                  {-# LINE 3073 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3059 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 665, column 17)
                              _stargs =
@@ -3089,7 +3075,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                                             _ -> match
                                                     | (str,mbAttr) <- Map.assocs attrs
                                                     ] >#< dummyPat _lhsIoptions (Map.null attrs)
-                                  {-# LINE 3093 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3079 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 681, column 17)
                              _stks =
@@ -3103,97 +3089,97 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                               >-< "k" >|< st >#< "::" >#< "K_" >|< _lhsInt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
                                               >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< _lhsInt >|< "_v" >|< v >#< "="
                                                                      >#< "v" >|< v) $ _stvisits     st)
-                                  {-# LINE 3107 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3093 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 690, column 17)
                              _stvisits =
                                  ({-# LINE 690 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   \st -> filter (\(v,f,t) -> f == st) _visitsIallvisits
-                                  {-# LINE 3113 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3099 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 691, column 17)
                              _stvs =
                                  ({-# LINE 691 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   \st inlinePragma -> vlist [ppf inlinePragma | (f,ppf) <- _visitsIsem_visit, f == st]
-                                  {-# LINE 3119 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3105 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 692, column 17)
                              _visitsOmrules =
                                  ({-# LINE 692 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _rulesImrules
-                                  {-# LINE 3125 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3111 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 896, column 17)
                              _visitsOchildintros =
                                  ({-# LINE 896 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _childrenIchildintros
-                                  {-# LINE 3131 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3117 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1246, column 32)
                              _rulesOusageInfo =
                                  ({-# LINE 1246 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIruleUsage
-                                  {-# LINE 3137 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3123 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1261, column 3)
                              _rulesOruleKinds =
                                  ({-# LINE 1261 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIruleKinds
-                                  {-# LINE 3143 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3129 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1290, column 3)
                              _visitsOallintramap =
                                  ({-# LINE 1290 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIintramap
-                                  {-# LINE 3149 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3135 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1291, column 3)
                              _visitsOterminaldefs =
                                  ({-# LINE 1291 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _childrenIterminaldefs
-                                  {-# LINE 3155 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3141 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1315, column 17)
                              _visitsOruledefs =
                                  ({-# LINE 1315 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _rulesIruledefs
-                                  {-# LINE 3161 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3147 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1316, column 17)
                              _visitsOruleuses =
                                  ({-# LINE 1316 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _rulesIruleuses
-                                  {-# LINE 3167 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3153 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1370, column 3)
                              _lazyIntras =
                                  ({-# LINE 1370 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIlazyIntras
-                                  {-# LINE 3173 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3159 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1467, column 17)
                              _lhsOimports =
                                  ({-# LINE 1467 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   [pp $ "import " ++ _moduleName    ]
-                                  {-# LINE 3179 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3165 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1468, column 17)
                              _moduleName =
                                  ({-# LINE 1468 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImainName ++ _suffix
-                                  {-# LINE 3185 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3171 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1469, column 17)
                              _suffix =
                                  ({-# LINE 1469 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   "_" ++ show _lhsInt ++ "_" ++ show con_
-                                  {-# LINE 3191 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3177 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1470, column 17)
                              _outputfile =
                                  ({-# LINE 1470 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ _suffix    )
-                                  {-# LINE 3197 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3183 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1471, column 17)
                              _ppMonadImports =
@@ -3203,7 +3189,7 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                        >-< pp "import System.IO(IO)"
                                        >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                   else pp "import Control.Monad.Identity"
-                                  {-# LINE 3207 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3193 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1476, column 17)
                              _lhsOgenProdIO =
@@ -3221,319 +3207,319 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                       , pp $ "import " ++ _lhsImainName ++ "_common"
                                       , _sem_prod
                                       ]
-                                  {-# LINE 3225 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3211 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1517, column 37)
                              _addbang =
                                  ({-# LINE 1517 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                  {-# LINE 3231 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3217 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1567, column 3)
                              _childTypes =
                                  ({-# LINE 1567 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   Map.singleton _LHS _lhsIntType `Map.union` _childrenIchildTypes
-                                  {-# LINE 3237 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3223 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- "src-ag/ExecutionPlan2Hs.ag"(line 1584, column 3)
                              _localAttrTypes =
                                  ({-# LINE 1584 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   Map.findWithDefault Map.empty con_ _lhsIlocalAttrTypes
-                                  {-# LINE 3243 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3229 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                              _lhsOchildvisit =
                                  ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIchildvisit
-                                  {-# LINE 3249 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3235 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                              _lhsOerrors =
                                  ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _rulesIerrors Seq.>< _visitsIerrors
-                                  {-# LINE 3255 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3241 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                              _lhsOfromToStates =
                                  ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIfromToStates
-                                  {-# LINE 3261 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3247 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 394, column 59)
                              _lhsOt_visits =
                                  ({-# LINE 394 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIt_visits
-                                  {-# LINE 3267 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3253 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                              _lhsOvisitKinds =
                                  ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIvisitKinds
-                                  {-# LINE 3273 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3259 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                              _lhsOvisitdefs =
                                  ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIvisitdefs
-                                  {-# LINE 3279 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3265 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                              _lhsOvisituses =
                                  ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIvisituses
-                                  {-# LINE 3285 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3271 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (up)
                              _lhsOallvisits =
                                  ({-# LINE 338 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _visitsIallvisits
-                                  {-# LINE 3291 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3277 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (from local)
                              _lhsOsem_prod =
                                  ({-# LINE 553 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _sem_prod
-                                  {-# LINE 3297 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3283 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOallInhmap =
                                  ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallInhmap
-                                  {-# LINE 3303 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3289 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOallSynmap =
                                  ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallSynmap
-                                  {-# LINE 3309 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3295 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOchildTypes =
                                  ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _childTypes
-                                  {-# LINE 3315 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3301 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOimportBlocks =
                                  ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIimportBlocks
-                                  {-# LINE 3321 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3307 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOinhmap =
                                  ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIinhmap
-                                  {-# LINE 3327 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3313 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOlazyIntras =
                                  ({-# LINE 1356 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lazyIntras
-                                  {-# LINE 3333 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3319 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOlocalAttrTypes =
                                  ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _localAttrTypes
-                                  {-# LINE 3339 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3325 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOmainFile =
                                  ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImainFile
-                                  {-# LINE 3345 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3331 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOmainName =
                                  ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImainName
-                                  {-# LINE 3351 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3337 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOmoduleHeader =
                                  ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImoduleHeader
-                                  {-# LINE 3357 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3343 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOnt =
                                  ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsInt
-                                  {-# LINE 3363 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3349 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOoptions =
                                  ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 3369 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3355 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOpragmaBlocks =
                                  ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIpragmaBlocks
-                                  {-# LINE 3375 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3361 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOsynmap =
                                  ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIsynmap
-                                  {-# LINE 3381 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3367 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOtextBlocks =
                                  ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsItextBlocks
-                                  {-# LINE 3387 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3373 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOallInitStates =
                                  ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallInitStates
-                                  {-# LINE 3393 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3379 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOimportBlocks =
                                  ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIimportBlocks
-                                  {-# LINE 3399 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3385 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOmainFile =
                                  ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImainFile
-                                  {-# LINE 3405 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3391 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOmainName =
                                  ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImainName
-                                  {-# LINE 3411 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3397 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOmoduleHeader =
                                  ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsImoduleHeader
-                                  {-# LINE 3417 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3403 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOnt =
                                  ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsInt
-                                  {-# LINE 3423 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3409 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOoptions =
                                  ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 3429 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3415 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOpragmaBlocks =
                                  ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIpragmaBlocks
-                                  {-# LINE 3435 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3421 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOtextBlocks =
                                  ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsItextBlocks
-                                  {-# LINE 3441 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3427 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallFromToStates =
                                  ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallFromToStates
-                                  {-# LINE 3447 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3433 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallInhmap =
                                  ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallInhmap
-                                  {-# LINE 3453 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3439 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallInitStates =
                                  ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallInitStates
-                                  {-# LINE 3459 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3445 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallSynmap =
                                  ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallSynmap
-                                  {-# LINE 3465 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3451 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallVisitKinds =
                                  ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallVisitKinds
-                                  {-# LINE 3471 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3457 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallchildvisit =
                                  ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIallchildvisit
-                                  {-# LINE 3477 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3463 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOavisitdefs =
                                  ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIavisitdefs
-                                  {-# LINE 3483 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3469 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOavisituses =
                                  ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIavisituses
-                                  {-# LINE 3489 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3475 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (from local)
                              _visitsOchildTypes =
                                  ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _childTypes
-                                  {-# LINE 3495 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3481 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOinhmap =
                                  ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIinhmap
-                                  {-# LINE 3501 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3487 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOnextVisits =
                                  ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsInextVisits
-                                  {-# LINE 3507 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3493 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOnt =
                                  ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsInt
-                                  {-# LINE 3513 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3499 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOoptions =
                                  ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 3519 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3505 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOparams =
                                  ({-# LINE 73 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIparams
-                                  {-# LINE 3525 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3511 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOprevVisits =
                                  ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIprevVisits
-                                  {-# LINE 3531 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3517 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOsynmap =
                                  ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                   _lhsIsynmap
-                                  {-# LINE 3537 "dist/build/ExecutionPlan2Hs" #-}
+                                  {-# LINE 3523 "dist/build/ExecutionPlan2Hs" #-}
                                   )
                              ( _rulesIerrors,_rulesImrules,_rulesIruledefs,_rulesIruleuses,_rulesIsem_rules) =
                                  rules_ _rulesOallInhmap _rulesOallSynmap _rulesOchildTypes _rulesOcon _rulesOimportBlocks _rulesOinhmap _rulesOlazyIntras _rulesOlocalAttrTypes _rulesOmainFile _rulesOmainName _rulesOmoduleHeader _rulesOnt _rulesOoptions _rulesOpragmaBlocks _rulesOruleKinds _rulesOsynmap _rulesOtextBlocks _rulesOusageInfo
@@ -3541,8 +3527,6 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                  children_ _childrenOallInitStates _childrenOcon _childrenOimportBlocks _childrenOmainFile _childrenOmainName _childrenOmoduleHeader _childrenOnt _childrenOoptions _childrenOpragmaBlocks _childrenOtextBlocks
                              ( _visitsIallvisits,_visitsIchildvisit,_visitsIerrors,_visitsIfromToStates,_visitsIintramap,_visitsIlazyIntras,_visitsIruleKinds,_visitsIruleUsage,_visitsIsem_visit,_visitsIt_visits,_visitsIvisitKinds,_visitsIvisitdefs,_visitsIvisituses) =
                                  visits_ _visitsOallFromToStates _visitsOallInhmap _visitsOallInitStates _visitsOallSynmap _visitsOallVisitKinds _visitsOallchildvisit _visitsOallintramap _visitsOavisitdefs _visitsOavisituses _visitsOchildTypes _visitsOchildintros _visitsOcon _visitsOinhmap _visitsOmrules _visitsOnextVisits _visitsOnt _visitsOoptions _visitsOparams _visitsOprevVisits _visitsOruledefs _visitsOruleuses _visitsOsynmap _visitsOterminaldefs
-                             ___node =
-                                 (Syn_EProduction _lhsOallvisits _lhsOchildvisit _lhsOcount _lhsOdatatype _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOsem_nt _lhsOsem_prod _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                          in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOcount,_lhsOdatatype,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOsem_nt,_lhsOsem_prod,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- EProductions ------------------------------------------------
 {-
@@ -3777,428 +3761,426 @@ sem_EProductions_Cons (T_EProduction hd_) (T_EProductions tl_) =
                               _lhsOallvisits =
                                   ({-# LINE 344 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIallvisits
-                                   {-# LINE 3781 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3765 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- "src-ag/ExecutionPlan2Hs.ag"(line 397, column 10)
                               _lhsOt_visits =
                                   ({-# LINE 397 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIt_visits
-                                   {-# LINE 3787 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3771 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                               _lhsOchildvisit =
                                   ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIchildvisit `Map.union` _tlIchildvisit
-                                   {-# LINE 3793 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3777 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 288, column 43)
                               _lhsOcount =
                                   ({-# LINE 288 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIcount + _tlIcount
-                                   {-# LINE 3799 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3783 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 179, column 34)
                               _lhsOdatatype =
                                   ({-# LINE 179 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIdatatype : _tlIdatatype
-                                   {-# LINE 3805 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3789 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                               _lhsOerrors =
                                   ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIerrors Seq.>< _tlIerrors
-                                   {-# LINE 3811 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3795 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                               _lhsOfromToStates =
                                   ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIfromToStates `mappend` _tlIfromToStates
-                                   {-# LINE 3817 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3801 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1464, column 49)
                               _lhsOgenProdIO =
                                   ({-# LINE 1464 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIgenProdIO >> _tlIgenProdIO
-                                   {-# LINE 3823 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3807 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1463, column 47)
                               _lhsOimports =
                                   ({-# LINE 1463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIimports ++ _tlIimports
-                                   {-# LINE 3829 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3813 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                               _lhsOsemFunBndDefs =
                                   ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIsemFunBndDefs Seq.>< _tlIsemFunBndDefs
-                                   {-# LINE 3835 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3819 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                               _lhsOsemFunBndTps =
                                   ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIsemFunBndTps Seq.>< _tlIsemFunBndTps
-                                   {-# LINE 3841 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3825 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 292, column 44)
                               _lhsOsem_nt =
                                   ({-# LINE 292 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIsem_nt >-< _tlIsem_nt
-                                   {-# LINE 3847 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3831 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 554, column 34)
                               _lhsOsem_prod =
                                   ({-# LINE 554 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIsem_prod >-< _tlIsem_prod
-                                   {-# LINE 3853 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3837 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                               _lhsOvisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIvisitKinds `mappend` _tlIvisitKinds
-                                   {-# LINE 3859 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3843 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                               _lhsOvisitdefs =
                                   ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                                   {-# LINE 3865 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3849 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                               _lhsOvisituses =
                                   ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _hdIvisituses `uwSetUnion` _tlIvisituses
-                                   {-# LINE 3871 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3855 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallFromToStates =
                                   ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 3877 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3861 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallInhmap =
                                   ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallInhmap
-                                   {-# LINE 3883 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3867 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallInitStates =
                                   ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 3889 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3873 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallSynmap =
                                   ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallSynmap
-                                   {-# LINE 3895 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3879 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallVisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 3901 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3885 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallchildvisit =
                                   ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 3907 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3891 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallstates =
                                   ({-# LINE 557 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallstates
-                                   {-# LINE 3913 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3897 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOavisitdefs =
                                   ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 3919 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3903 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOavisituses =
                                   ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 3925 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3909 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOclassCtxs =
                                   ({-# LINE 77 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIclassCtxs
-                                   {-# LINE 3931 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3915 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOimportBlocks =
                                   ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIimportBlocks
-                                   {-# LINE 3937 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3921 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhmap =
                                   ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIinhmap
-                                   {-# LINE 3943 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3927 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOinitial =
                                   ({-# LINE 556 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIinitial
-                                   {-# LINE 3949 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3933 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOlocalAttrTypes =
                                   ({-# LINE 1577 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIlocalAttrTypes
-                                   {-# LINE 3955 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3939 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOmainFile =
                                   ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 3961 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3945 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOmainName =
                                   ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 3967 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3951 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOmoduleHeader =
                                   ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImoduleHeader
-                                   {-# LINE 3973 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3957 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOnextVisits =
                                   ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsInextVisits
-                                   {-# LINE 3979 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3963 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOnt =
                                   ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsInt
-                                   {-# LINE 3985 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3969 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOntType =
                                   ({-# LINE 1620 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIntType
-                                   {-# LINE 3991 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3975 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOoptions =
                                   ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 3997 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3981 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOparams =
                                   ({-# LINE 73 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIparams
-                                   {-# LINE 4003 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3987 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOpragmaBlocks =
                                   ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIpragmaBlocks
-                                   {-# LINE 4009 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3993 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOprevVisits =
                                   ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIprevVisits
-                                   {-# LINE 4015 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 3999 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOrename =
                                   ({-# LINE 52 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIrename
-                                   {-# LINE 4021 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4005 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynmap =
                                   ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 4027 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4011 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOtextBlocks =
                                   ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsItextBlocks
-                                   {-# LINE 4033 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4017 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallFromToStates =
                                   ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 4039 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4023 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallInhmap =
                                   ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallInhmap
-                                   {-# LINE 4045 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4029 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallInitStates =
                                   ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 4051 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4035 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallSynmap =
                                   ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallSynmap
-                                   {-# LINE 4057 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4041 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallVisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 4063 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4047 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallchildvisit =
                                   ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 4069 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4053 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallstates =
                                   ({-# LINE 557 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIallstates
-                                   {-# LINE 4075 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4059 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOavisitdefs =
                                   ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 4081 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4065 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOavisituses =
                                   ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 4087 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4071 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOclassCtxs =
                                   ({-# LINE 77 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIclassCtxs
-                                   {-# LINE 4093 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4077 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOimportBlocks =
                                   ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIimportBlocks
-                                   {-# LINE 4099 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4083 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhmap =
                                   ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIinhmap
-                                   {-# LINE 4105 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4089 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOinitial =
                                   ({-# LINE 556 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIinitial
-                                   {-# LINE 4111 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4095 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOlocalAttrTypes =
                                   ({-# LINE 1577 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIlocalAttrTypes
-                                   {-# LINE 4117 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4101 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOmainFile =
                                   ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 4123 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4107 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOmainName =
                                   ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 4129 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4113 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOmoduleHeader =
                                   ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImoduleHeader
-                                   {-# LINE 4135 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4119 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOnextVisits =
                                   ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsInextVisits
-                                   {-# LINE 4141 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4125 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOnt =
                                   ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsInt
-                                   {-# LINE 4147 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4131 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOntType =
                                   ({-# LINE 1620 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIntType
-                                   {-# LINE 4153 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4137 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOoptions =
                                   ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 4159 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4143 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOparams =
                                   ({-# LINE 73 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIparams
-                                   {-# LINE 4165 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4149 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOpragmaBlocks =
                                   ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIpragmaBlocks
-                                   {-# LINE 4171 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4155 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOprevVisits =
                                   ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIprevVisits
-                                   {-# LINE 4177 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4161 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOrename =
                                   ({-# LINE 52 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIrename
-                                   {-# LINE 4183 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4167 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynmap =
                                   ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 4189 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4173 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOtextBlocks =
                                   ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsItextBlocks
-                                   {-# LINE 4195 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4179 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               ( _hdIallvisits,_hdIchildvisit,_hdIcount,_hdIdatatype,_hdIerrors,_hdIfromToStates,_hdIgenProdIO,_hdIimports,_hdIsemFunBndDefs,_hdIsemFunBndTps,_hdIsem_nt,_hdIsem_prod,_hdIt_visits,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                                   hd_ _hdOallFromToStates _hdOallInhmap _hdOallInitStates _hdOallSynmap _hdOallVisitKinds _hdOallchildvisit _hdOallstates _hdOavisitdefs _hdOavisituses _hdOclassCtxs _hdOimportBlocks _hdOinhmap _hdOinitial _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOnextVisits _hdOnt _hdOntType _hdOoptions _hdOparams _hdOpragmaBlocks _hdOprevVisits _hdOrename _hdOsynmap _hdOtextBlocks
                               ( _tlIallvisits,_tlIchildvisit,_tlIcount,_tlIdatatype,_tlIerrors,_tlIfromToStates,_tlIgenProdIO,_tlIimports,_tlIsemFunBndDefs,_tlIsemFunBndTps,_tlIsem_nt,_tlIsem_prod,_tlIt_visits,_tlIvisitKinds,_tlIvisitdefs,_tlIvisituses) =
                                   tl_ _tlOallFromToStates _tlOallInhmap _tlOallInitStates _tlOallSynmap _tlOallVisitKinds _tlOallchildvisit _tlOallstates _tlOavisitdefs _tlOavisituses _tlOclassCtxs _tlOimportBlocks _tlOinhmap _tlOinitial _tlOlocalAttrTypes _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOnextVisits _tlOnt _tlOntType _tlOoptions _tlOparams _tlOpragmaBlocks _tlOprevVisits _tlOrename _tlOsynmap _tlOtextBlocks
-                              ___node =
-                                  (Syn_EProductions _lhsOallvisits _lhsOchildvisit _lhsOcount _lhsOdatatype _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOsem_nt _lhsOsem_prod _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                           in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOcount,_lhsOdatatype,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOsem_nt,_lhsOsem_prod,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 sem_EProductions_Nil :: T_EProductions
 sem_EProductions_Nil =
@@ -4249,100 +4231,98 @@ sem_EProductions_Nil =
                               _lhsOallvisits =
                                   ({-# LINE 345 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    error "Every nonterminal should have at least 1 production"
-                                   {-# LINE 4253 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4235 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                               _lhsOchildvisit =
                                   ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.empty
-                                   {-# LINE 4259 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4241 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 288, column 43)
                               _lhsOcount =
                                   ({-# LINE 288 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    0
-                                   {-# LINE 4265 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4247 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 179, column 34)
                               _lhsOdatatype =
                                   ({-# LINE 179 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    []
-                                   {-# LINE 4271 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4253 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                               _lhsOerrors =
                                   ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Seq.empty
-                                   {-# LINE 4277 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4259 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                               _lhsOfromToStates =
                                   ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    mempty
-                                   {-# LINE 4283 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4265 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1464, column 49)
                               _lhsOgenProdIO =
                                   ({-# LINE 1464 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    return ()
-                                   {-# LINE 4289 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4271 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1463, column 47)
                               _lhsOimports =
                                   ({-# LINE 1463 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    []
-                                   {-# LINE 4295 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4277 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                               _lhsOsemFunBndDefs =
                                   ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Seq.empty
-                                   {-# LINE 4301 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4283 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 515, column 92)
                               _lhsOsemFunBndTps =
                                   ({-# LINE 515 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Seq.empty
-                                   {-# LINE 4307 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4289 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 292, column 44)
                               _lhsOsem_nt =
                                   ({-# LINE 292 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    empty
-                                   {-# LINE 4313 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4295 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 554, column 34)
                               _lhsOsem_prod =
                                   ({-# LINE 554 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    empty
-                                   {-# LINE 4319 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4301 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 394, column 59)
                               _lhsOt_visits =
                                   ({-# LINE 394 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    empty
-                                   {-# LINE 4325 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4307 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                               _lhsOvisitKinds =
                                   ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    mempty
-                                   {-# LINE 4331 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4313 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                               _lhsOvisitdefs =
                                   ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.empty
-                                   {-# LINE 4337 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4319 "dist/build/ExecutionPlan2Hs" #-}
                                    )
                               -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                               _lhsOvisituses =
                                   ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                                    Map.empty
-                                   {-# LINE 4343 "dist/build/ExecutionPlan2Hs" #-}
+                                   {-# LINE 4325 "dist/build/ExecutionPlan2Hs" #-}
                                    )
-                              ___node =
-                                  (Syn_EProductions _lhsOallvisits _lhsOchildvisit _lhsOcount _lhsOdatatype _lhsOerrors _lhsOfromToStates _lhsOgenProdIO _lhsOimports _lhsOsemFunBndDefs _lhsOsemFunBndTps _lhsOsem_nt _lhsOsem_prod _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                           in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOcount,_lhsOdatatype,_lhsOerrors,_lhsOfromToStates,_lhsOgenProdIO,_lhsOimports,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOsem_nt,_lhsOsem_prod,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- ERule -------------------------------------------------------
 {-
@@ -4488,7 +4468,7 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                             if _used     == 0
                             then empty
                             else _rulePragma     >-< _rulecode
-                            {-# LINE 4492 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4472 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 968, column 6)
                        _rulecode =
@@ -4503,7 +4483,7 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                     then _pragma     >-< _rhsIsemfunc >-< _endpragma
                                     else _rhsIsemfunc
                                   )
-                            {-# LINE 4507 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4487 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 980, column 7)
                        _rulePragma =
@@ -4530,7 +4510,7 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                                  then ppPragmaBinding "NOINLINE[1]" name_
                                                  else ppNoInline name_
                                 )
-                            {-# LINE 4534 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4514 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1002, column 7)
                        _scc =
@@ -4538,37 +4518,37 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                             if genCostCentres _lhsIoptions && explicit_ && pure_ && not (noPerRuleCostCentres _lhsIoptions)
                             then ppCostCentre (name_ >|< "_" >|< line _rhsIpos >|< "_" >|< _lhsInt >|< "_" >|< _lhsIcon)
                             else empty
-                            {-# LINE 4542 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4522 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1005, column 7)
                        _pragma =
                            ({-# LINE 1005 "src-ag/ExecutionPlan2Hs.ag" #-}
                             "{-# LINE" >#< show (line _rhsIpos) >#< show (file _rhsIpos) >#< "#-}"
-                            {-# LINE 4548 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4528 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1006, column 7)
                        _endpragma =
                            ({-# LINE 1006 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show _lhsImainFile ++ "#-}")
-                            {-# LINE 4554 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4534 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1007, column 7)
                        _genpragma =
                            ({-# LINE 1007 "src-ag/ExecutionPlan2Hs.ag" #-}
                             genLinePragmas _lhsIoptions && explicit_ && _haspos
-                            {-# LINE 4560 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4540 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1008, column 7)
                        _haspos =
                            ({-# LINE 1008 "src-ag/ExecutionPlan2Hs.ag" #-}
                             line _rhsIpos > 0 && column _rhsIpos >= 0 && not (null (file _rhsIpos))
-                            {-# LINE 4566 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4546 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1017, column 7)
                        _lambda =
                            ({-# LINE 1017 "src-ag/ExecutionPlan2Hs.ag" #-}
                             name_ >#< "=" >#< "\\" >#< _argPats     >#< dummyPat _lhsIoptions (Map.null _rhsIattrs) >#< "->"
-                            {-# LINE 4572 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4552 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1019, column 7)
                        _argPats =
@@ -4587,13 +4567,13 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                             _ -> match
                                      | (str,mbAttr) <- Map.assocs _rhsIattrs
                                      ]
-                            {-# LINE 4591 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4571 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1033, column 7)
                        _argExprs =
                            ({-# LINE 1033 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced $ Map.keys _rhsIattrs
-                            {-# LINE 4597 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4577 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1034, column 7)
                        _stepcode =
@@ -4607,55 +4587,55 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                                                      else empty
                                                           in fmtDecl pure_ fmtMode (tp >-< decl)
                                              else Left $ IncompatibleRuleKind name_ kind
-                            {-# LINE 4611 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4591 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1044, column 7)
                        _lhsOmrules =
                            ({-# LINE 1044 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton name_ _stepcode
-                            {-# LINE 4617 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4597 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1248, column 32)
                        _used =
                            ({-# LINE 1248 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.findWithDefault 0 name_ _lhsIusageInfo
-                            {-# LINE 4623 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4603 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1264, column 3)
                        _kinds =
                            ({-# LINE 1264 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.findWithDefault Set.empty name_ _lhsIruleKinds
-                            {-# LINE 4629 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4609 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1265, column 3)
                        _anyLazyKind =
                            ({-# LINE 1265 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Set.fold (\k r -> isLazyKind k || r) False _kinds
-                            {-# LINE 4635 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4615 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1311, column 11)
                        _lhsOruledefs =
                            ({-# LINE 1311 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton name_ _patternIattrs
-                            {-# LINE 4641 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4621 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1312, column 11)
                        _lhsOruleuses =
                            ({-# LINE 1312 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton name_ _rhsIattrs
-                            {-# LINE 4647 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4627 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1514, column 37)
                        _addbang =
                            ({-# LINE 1514 "src-ag/ExecutionPlan2Hs.ag" #-}
                             \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                            {-# LINE 4653 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4633 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1525, column 37)
                        _addbang1 =
                            ({-# LINE 1525 "src-ag/ExecutionPlan2Hs.ag" #-}
                             if _anyLazyKind     then id else _addbang
-                            {-# LINE 4659 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4639 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1631, column 3)
                        _lhsOerrors =
@@ -4663,56 +4643,54 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                             case mbError_ of
                               Just e | _used     > 0 -> Seq.singleton e
                               _                      -> Seq.empty
-                            {-# LINE 4667 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4647 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOallInhmap =
                            ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallInhmap
-                            {-# LINE 4673 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4653 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOallSynmap =
                            ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallSynmap
-                            {-# LINE 4679 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4659 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (from local)
                        _patternOanyLazyKind =
                            ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _anyLazyKind
-                            {-# LINE 4685 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4665 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOinhmap =
                            ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIinhmap
-                            {-# LINE 4691 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4671 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOlocalAttrTypes =
                            ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIlocalAttrTypes
-                            {-# LINE 4697 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4677 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOoptions =
                            ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIoptions
-                            {-# LINE 4703 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4683 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _patternOsynmap =
                            ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIsynmap
-                            {-# LINE 4709 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 4689 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        ( _patternIattrTypes,_patternIattrs,_patternIcopy,_patternIisUnderscore,_patternIsem_lhs) =
                            pattern_ _patternOallInhmap _patternOallSynmap _patternOanyLazyKind _patternOinhmap _patternOlocalAttrTypes _patternOoptions _patternOsynmap
                        ( _rhsIattrs,_rhsIpos,_rhsIsemfunc,_rhsItks) =
                            rhs_
-                       ___node =
-                           (Syn_ERule _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules)
                    in  ( _lhsOerrors,_lhsOmrules,_lhsOruledefs,_lhsOruleuses,_lhsOsem_rules))))
 -- ERules ------------------------------------------------------
 {-
@@ -4858,254 +4836,252 @@ sem_ERules_Cons (T_ERule hd_) (T_ERules tl_) =
                         _lhsOerrors =
                             ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIerrors Seq.>< _tlIerrors
-                             {-# LINE 4862 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4840 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 962, column 32)
                         _lhsOmrules =
                             ({-# LINE 962 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdImrules `Map.union` _tlImrules
-                             {-# LINE 4868 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4846 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1304, column 34)
                         _lhsOruledefs =
                             ({-# LINE 1304 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIruledefs `uwSetUnion` _tlIruledefs
-                             {-# LINE 4874 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4852 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1305, column 34)
                         _lhsOruleuses =
                             ({-# LINE 1305 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIruleuses `uwMapUnion` _tlIruleuses
-                             {-# LINE 4880 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4858 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 961, column 35)
                         _lhsOsem_rules =
                             ({-# LINE 961 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIsem_rules >-< _tlIsem_rules
-                             {-# LINE 4886 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4864 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInhmap =
                             ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 4892 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4870 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallSynmap =
                             ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 4898 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4876 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildTypes =
                             ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 4904 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4882 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOcon =
                             ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIcon
-                             {-# LINE 4910 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4888 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOimportBlocks =
                             ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIimportBlocks
-                             {-# LINE 4916 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4894 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOinhmap =
                             ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 4922 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4900 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOlazyIntras =
                             ({-# LINE 1356 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIlazyIntras
-                             {-# LINE 4928 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4906 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOlocalAttrTypes =
                             ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIlocalAttrTypes
-                             {-# LINE 4934 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4912 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmainFile =
                             ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImainFile
-                             {-# LINE 4940 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4918 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmainName =
                             ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImainName
-                             {-# LINE 4946 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4924 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmoduleHeader =
                             ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImoduleHeader
-                             {-# LINE 4952 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4930 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnt =
                             ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInt
-                             {-# LINE 4958 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4936 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOoptions =
                             ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIoptions
-                             {-# LINE 4964 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4942 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOpragmaBlocks =
                             ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIpragmaBlocks
-                             {-# LINE 4970 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4948 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruleKinds =
                             ({-# LINE 1259 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruleKinds
-                             {-# LINE 4976 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4954 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOsynmap =
                             ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 4982 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4960 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOtextBlocks =
                             ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsItextBlocks
-                             {-# LINE 4988 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4966 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOusageInfo =
                             ({-# LINE 1244 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIusageInfo
-                             {-# LINE 4994 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4972 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInhmap =
                             ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 5000 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4978 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallSynmap =
                             ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 5006 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4984 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildTypes =
                             ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 5012 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4990 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOcon =
                             ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIcon
-                             {-# LINE 5018 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 4996 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOimportBlocks =
                             ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIimportBlocks
-                             {-# LINE 5024 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5002 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOinhmap =
                             ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 5030 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5008 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOlazyIntras =
                             ({-# LINE 1356 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIlazyIntras
-                             {-# LINE 5036 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5014 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOlocalAttrTypes =
                             ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIlocalAttrTypes
-                             {-# LINE 5042 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5020 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmainFile =
                             ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImainFile
-                             {-# LINE 5048 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5026 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmainName =
                             ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImainName
-                             {-# LINE 5054 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5032 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmoduleHeader =
                             ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImoduleHeader
-                             {-# LINE 5060 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5038 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnt =
                             ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInt
-                             {-# LINE 5066 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5044 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOoptions =
                             ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIoptions
-                             {-# LINE 5072 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5050 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOpragmaBlocks =
                             ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIpragmaBlocks
-                             {-# LINE 5078 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5056 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruleKinds =
                             ({-# LINE 1259 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruleKinds
-                             {-# LINE 5084 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5062 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOsynmap =
                             ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 5090 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5068 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOtextBlocks =
                             ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsItextBlocks
-                             {-# LINE 5096 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5074 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOusageInfo =
                             ({-# LINE 1244 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIusageInfo
-                             {-# LINE 5102 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5080 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         ( _hdIerrors,_hdImrules,_hdIruledefs,_hdIruleuses,_hdIsem_rules) =
                             hd_ _hdOallInhmap _hdOallSynmap _hdOchildTypes _hdOcon _hdOimportBlocks _hdOinhmap _hdOlazyIntras _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOnt _hdOoptions _hdOpragmaBlocks _hdOruleKinds _hdOsynmap _hdOtextBlocks _hdOusageInfo
                         ( _tlIerrors,_tlImrules,_tlIruledefs,_tlIruleuses,_tlIsem_rules) =
                             tl_ _tlOallInhmap _tlOallSynmap _tlOchildTypes _tlOcon _tlOimportBlocks _tlOinhmap _tlOlazyIntras _tlOlocalAttrTypes _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOnt _tlOoptions _tlOpragmaBlocks _tlOruleKinds _tlOsynmap _tlOtextBlocks _tlOusageInfo
-                        ___node =
-                            (Syn_ERules _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules)
                     in  ( _lhsOerrors,_lhsOmrules,_lhsOruledefs,_lhsOruleuses,_lhsOsem_rules))))
 sem_ERules_Nil :: T_ERules
 sem_ERules_Nil =
@@ -5136,34 +5112,32 @@ sem_ERules_Nil =
                         _lhsOerrors =
                             ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Seq.empty
-                             {-# LINE 5140 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5116 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 962, column 32)
                         _lhsOmrules =
                             ({-# LINE 962 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 5146 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5122 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1304, column 34)
                         _lhsOruledefs =
                             ({-# LINE 1304 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 5152 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5128 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1305, column 34)
                         _lhsOruleuses =
                             ({-# LINE 1305 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 5158 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5134 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 961, column 35)
                         _lhsOsem_rules =
                             ({-# LINE 961 "src-ag/ExecutionPlan2Hs.ag" #-}
                              empty
-                             {-# LINE 5164 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 5140 "dist/build/ExecutionPlan2Hs" #-}
                              )
-                        ___node =
-                            (Syn_ERules _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules)
                     in  ( _lhsOerrors,_lhsOmrules,_lhsOruledefs,_lhsOruleuses,_lhsOsem_rules))))
 -- ExecutionPlan -----------------------------------------------
 {-
@@ -5287,25 +5261,25 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                _lhsOoutput =
                                    ({-# LINE 87 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIoutput >-< _commonExtra     >-< _wrappersExtra
-                                    {-# LINE 5291 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5265 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 93, column 19)
                                _nontsOwrappers =
                                    ({-# LINE 93 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     wrappers_
-                                    {-# LINE 5297 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5271 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 132, column 19)
                                _nontsOtypeSyns =
                                    ({-# LINE 132 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     typeSyns_
-                                    {-# LINE 5303 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5277 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 133, column 19)
                                _nontsOderivings =
                                    ({-# LINE 133 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     derivings_
-                                    {-# LINE 5309 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5283 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 532, column 3)
                                _wrappersExtra =
@@ -5313,7 +5287,7 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                     if kennedyWarren _lhsIoptions && lateHigherOrderBinding _lhsIoptions
                                     then _lateSemBndDef
                                     else empty
-                                    {-# LINE 5317 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5291 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 535, column 3)
                                _commonExtra =
@@ -5321,14 +5295,14 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                     if kennedyWarren _lhsIoptions && lateHigherOrderBinding _lhsIoptions
                                     then _lateSemBndTp
                                     else empty
-                                    {-# LINE 5325 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5299 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 538, column 3)
                                _lateSemBndTp =
                                    ({-# LINE 538 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     "data" >#< lateBindingTypeNm _lhsImainName >#< "=" >#< lateBindingTypeNm _lhsImainName
                                      >-< (indent 2 $ pp_block "{" "}" "," $ toList _nontsIsemFunBndTps)
-                                    {-# LINE 5332 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5306 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 540, column 3)
                                _lateSemBndDef =
@@ -5342,25 +5316,25 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                     >-< lateBindingFieldNm _lhsImainName >#< "::" >#< lateBindingTypeNm _lhsImainName
                                     >-< lateBindingFieldNm _lhsImainName >#< "=" >#< lateBindingTypeNm _lhsImainName
                                     >-< (indent 2 $ pp_block "{" "}" "," $ toList _nontsIsemFunBndDefs )
-                                    {-# LINE 5346 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5320 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1192, column 19)
                                _nontsOallchildvisit =
                                    ({-# LINE 1192 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIchildvisit
-                                    {-# LINE 5352 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5326 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1336, column 19)
                                _nontsOavisitdefs =
                                    ({-# LINE 1336 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIvisitdefs
-                                    {-# LINE 5358 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5332 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1337, column 19)
                                _nontsOavisituses =
                                    ({-# LINE 1337 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIvisituses
-                                    {-# LINE 5364 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5338 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1408, column 19)
                                _lhsOgenIO =
@@ -5368,13 +5342,13 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                     do _genMainModule
                                        _genCommonModule
                                        _nontsIgenProdIO
-                                    {-# LINE 5372 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5346 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1411, column 19)
                                _mainModuleFile =
                                    ({-# LINE 1411 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 5378 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5352 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1412, column 19)
                                _ppMonadImports =
@@ -5388,7 +5362,7 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                              >-< pp "import System.IO(IO)"
                                              >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                         else pp "import Control.Monad.Identity"
-                                    {-# LINE 5392 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5366 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1421, column 19)
                                _genMainModule =
@@ -5405,13 +5379,13 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                         ++ [_wrappersExtra    ]
                                         ++ _nontsIappendMain
                                       )
-                                    {-# LINE 5409 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5383 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1433, column 19)
                                _commonFile =
                                    ({-# LINE 1433 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_common")
-                                    {-# LINE 5415 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5389 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1434, column 19)
                                _genCommonModule =
@@ -5427,96 +5401,94 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                         ]
                                         ++ _nontsIappendCommon
                                       )
-                                    {-# LINE 5431 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5405 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1553, column 3)
                                _nontsOallFromToStates =
                                    ({-# LINE 1553 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIfromToStates
-                                    {-# LINE 5437 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5411 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1597, column 3)
                                _nontsOallVisitKinds =
                                    ({-# LINE 1597 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIvisitKinds
-                                    {-# LINE 5443 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5417 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- "src-ag/ExecutionPlan2Hs.ag"(line 1611, column 3)
                                _nontsOallInitStates =
                                    ({-# LINE 1611 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIinitStates
-                                    {-# LINE 5449 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5423 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                                _lhsOerrors =
                                    ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _nontsIerrors
-                                    {-# LINE 5455 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5429 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOimportBlocks =
                                    ({-# LINE 34 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIimportBlocks
-                                    {-# LINE 5461 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5435 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOinhmap =
                                    ({-# LINE 312 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 5467 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5441 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOlocalAttrTypes =
                                    ({-# LINE 1576 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 5473 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5447 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOmainFile =
                                    ({-# LINE 38 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 5479 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5453 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOmainName =
                                    ({-# LINE 39 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 5485 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5459 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOmoduleHeader =
                                    ({-# LINE 37 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsImoduleHeader
-                                    {-# LINE 5491 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5465 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOoptions =
                                    ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 5497 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5471 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOpragmaBlocks =
                                    ({-# LINE 35 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIpragmaBlocks
-                                    {-# LINE 5503 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5477 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOsynmap =
                                    ({-# LINE 313 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 5509 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5483 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOtextBlocks =
                                    ({-# LINE 36 "src-ag/ExecutionPlan2Hs.ag" #-}
                                     _lhsItextBlocks
-                                    {-# LINE 5515 "dist/build/ExecutionPlan2Hs" #-}
+                                    {-# LINE 5489 "dist/build/ExecutionPlan2Hs" #-}
                                     )
                                ( _nontsIappendCommon,_nontsIappendMain,_nontsIchildvisit,_nontsIerrors,_nontsIfromToStates,_nontsIgenProdIO,_nontsIimports,_nontsIinitStates,_nontsIoutput,_nontsIsemFunBndDefs,_nontsIsemFunBndTps,_nontsIvisitKinds,_nontsIvisitdefs,_nontsIvisituses) =
                                    nonts_ _nontsOallFromToStates _nontsOallInitStates _nontsOallVisitKinds _nontsOallchildvisit _nontsOavisitdefs _nontsOavisituses _nontsOderivings _nontsOimportBlocks _nontsOinhmap _nontsOlocalAttrTypes _nontsOmainFile _nontsOmainName _nontsOmoduleHeader _nontsOoptions _nontsOpragmaBlocks _nontsOsynmap _nontsOtextBlocks _nontsOtypeSyns _nontsOwrappers
-                               ___node =
-                                   (Syn_ExecutionPlan _lhsOerrors _lhsOgenIO _lhsOoutput)
                            in  ( _lhsOerrors,_lhsOgenIO,_lhsOoutput))))
 -- Expression --------------------------------------------------
 {-
@@ -5558,28 +5530,26 @@ sem_Expression_Expression pos_ tks_ =
                        _lhsOtks =
                            ({-# LINE 1048 "src-ag/ExecutionPlan2Hs.ag" #-}
                             tks_
-                            {-# LINE 5562 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 5534 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1091, column 29)
                        _lhsOpos =
                            ({-# LINE 1091 "src-ag/ExecutionPlan2Hs.ag" #-}
                             pos_
-                            {-# LINE 5568 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 5540 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1177, column 16)
                        _lhsOattrs =
                            ({-# LINE 1177 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                            {-# LINE 5574 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 5546 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1178, column 16)
                        _lhsOsemfunc =
                            ({-# LINE 1178 "src-ag/ExecutionPlan2Hs.ag" #-}
                             vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                            {-# LINE 5580 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 5552 "dist/build/ExecutionPlan2Hs" #-}
                             )
-                       ___node =
-                           (Syn_Expression _lhsOattrs _lhsOpos _lhsOsemfunc _lhsOtks)
                    in  ( _lhsOattrs,_lhsOpos,_lhsOsemfunc,_lhsOtks)))
 -- HsToken -----------------------------------------------------
 {-
@@ -5654,13 +5624,13 @@ sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
                          if field_ == _INST || field_ == _FIELD || field_ == _INST'
                          then Nothing
                          else Just $ mkNonLocalAttr (field_ == _LHS) field_ attr_
-                         {-# LINE 5658 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5628 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- "src-ag/ExecutionPlan2Hs.ag"(line 1140, column 15)
                     _lhsOattrs =
                         ({-# LINE 1140 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.singleton (attrname True field_ attr_) _mbAttr
-                         {-# LINE 5664 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5634 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- "src-ag/ExecutionPlan2Hs.ag"(line 1385, column 8)
                     _addTrace =
@@ -5668,16 +5638,14 @@ sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
                          case rdesc_ of
                            Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show field_ ++ "." ++ show attr_) ++ " (" ++ x ++ "))"
                            Nothing -> id
-                         {-# LINE 5672 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5642 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- "src-ag/ExecutionPlan2Hs.ag"(line 1388, column 8)
                     _lhsOtok =
                         ({-# LINE 1388 "src-ag/ExecutionPlan2Hs.ag" #-}
                          (pos_, _addTrace     $ attrname True field_ attr_)
-                         {-# LINE 5678 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5648 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_AGLocal :: Identifier ->
                        Pos ->
@@ -5690,22 +5658,20 @@ sem_HsToken_AGLocal var_ pos_ rdesc_ =
                     _lhsOattrs =
                         ({-# LINE 1136 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.singleton (fieldname var_) Nothing
-                         {-# LINE 5694 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5662 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- "src-ag/ExecutionPlan2Hs.ag"(line 1381, column 15)
                     _tok =
                         ({-# LINE 1381 "src-ag/ExecutionPlan2Hs.ag" #-}
                          (pos_,fieldname var_)
-                         {-# LINE 5700 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5668 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- copy rule (from local)
                     _lhsOtok =
                         ({-# LINE 1383 "src-ag/ExecutionPlan2Hs.ag" #-}
                          _tok
-                         {-# LINE 5706 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5674 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_CharToken :: String ->
                          Pos ->
@@ -5720,16 +5686,14 @@ sem_HsToken_CharToken value_ pos_ =
                                    then ""
                                    else showCharShort (head value_)
                          )
-                         {-# LINE 5724 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5690 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1134, column 37)
                     _lhsOattrs =
                         ({-# LINE 1134 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.empty
-                         {-# LINE 5730 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5696 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_Err :: String ->
                    Pos ->
@@ -5741,16 +5705,14 @@ sem_HsToken_Err mesg_ pos_ =
                     _lhsOtok =
                         ({-# LINE 1398 "src-ag/ExecutionPlan2Hs.ag" #-}
                          (pos_, "")
-                         {-# LINE 5745 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5709 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1134, column 37)
                     _lhsOattrs =
                         ({-# LINE 1134 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.empty
-                         {-# LINE 5751 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5715 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_HsToken :: String ->
                        Pos ->
@@ -5762,16 +5724,14 @@ sem_HsToken_HsToken value_ pos_ =
                     _lhsOtok =
                         ({-# LINE 1390 "src-ag/ExecutionPlan2Hs.ag" #-}
                          (pos_, value_)
-                         {-# LINE 5766 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5728 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1134, column 37)
                     _lhsOattrs =
                         ({-# LINE 1134 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.empty
-                         {-# LINE 5772 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5734 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_StrToken :: String ->
                         Pos ->
@@ -5783,16 +5743,14 @@ sem_HsToken_StrToken value_ pos_ =
                     _lhsOtok =
                         ({-# LINE 1397 "src-ag/ExecutionPlan2Hs.ag" #-}
                          (pos_, showStrShort value_)
-                         {-# LINE 5787 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5747 "dist/build/ExecutionPlan2Hs" #-}
                          )
                     -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1134, column 37)
                     _lhsOattrs =
                         ({-# LINE 1134 "src-ag/ExecutionPlan2Hs.ag" #-}
                          Map.empty
-                         {-# LINE 5793 "dist/build/ExecutionPlan2Hs" #-}
+                         {-# LINE 5753 "dist/build/ExecutionPlan2Hs" #-}
                          )
-                    ___node =
-                        (Syn_HsToken _lhsOattrs _lhsOtok)
                 in  ( _lhsOattrs,_lhsOtok)))
 -- HsTokens ----------------------------------------------------
 {-
@@ -5832,14 +5790,12 @@ sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
                      _lhsOtks =
                          ({-# LINE 1377 "src-ag/ExecutionPlan2Hs.ag" #-}
                           _hdItok : _tlItks
-                          {-# LINE 5836 "dist/build/ExecutionPlan2Hs" #-}
+                          {-# LINE 5794 "dist/build/ExecutionPlan2Hs" #-}
                           )
                      ( _hdIattrs,_hdItok) =
                          hd_
                      ( _tlItks) =
                          tl_
-                     ___node =
-                         (Syn_HsTokens _lhsOtks)
                  in  ( _lhsOtks)))
 sem_HsTokens_Nil :: T_HsTokens
 sem_HsTokens_Nil =
@@ -5848,10 +5804,8 @@ sem_HsTokens_Nil =
                      _lhsOtks =
                          ({-# LINE 1378 "src-ag/ExecutionPlan2Hs.ag" #-}
                           []
-                          {-# LINE 5852 "dist/build/ExecutionPlan2Hs" #-}
+                          {-# LINE 5808 "dist/build/ExecutionPlan2Hs" #-}
                           )
-                     ___node =
-                         (Syn_HsTokens _lhsOtks)
                  in  ( _lhsOtks)))
 -- HsTokensRoot ------------------------------------------------
 {-
@@ -5880,8 +5834,6 @@ sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_) =
     (T_HsTokensRoot (let _tokensItks :: ([(Pos,String)])
                          ( _tokensItks) =
                              tokens_
-                         ___node =
-                             (Syn_HsTokensRoot)
                      in  ( )))
 -- Pattern -----------------------------------------------------
 {-
@@ -5998,7 +5950,7 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                          _varPat =
                              ({-# LINE 1099 "src-ag/ExecutionPlan2Hs.ag" #-}
                               text $ attrname False field_ attr_
-                              {-# LINE 6002 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5954 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1100, column 17)
                          _patExpr =
@@ -6006,25 +5958,25 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               if _patIisUnderscore
                               then _varPat
                               else _varPat     >|< "@" >|< _patIsem_lhs
-                              {-# LINE 6010 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5962 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1103, column 17)
                          _lhsOsem_lhs =
                              ({-# LINE 1103 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _addbang1     _patExpr
-                              {-# LINE 6016 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5968 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1114, column 16)
                          _lhsOisUnderscore =
                              ({-# LINE 1114 "src-ag/ExecutionPlan2Hs.ag" #-}
                               False
-                              {-# LINE 6022 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5974 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1120, column 3)
                          _lhsOattrs =
                              ({-# LINE 1120 "src-ag/ExecutionPlan2Hs.ag" #-}
                               Set.insert (attrname False field_ attr_) _patIattrs
-                              {-# LINE 6028 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5980 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1125, column 3)
                          _mbTp =
@@ -6034,85 +5986,83 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                               else if field_ == _LOC
                                    then Map.lookup attr_ _lhsIlocalAttrTypes
                                    else Nothing
-                              {-# LINE 6038 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5990 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1130, column 3)
                          _lhsOattrTypes =
                              ({-# LINE 1130 "src-ag/ExecutionPlan2Hs.ag" #-}
                               maybe empty (\tp -> (attrname False field_ attr_) >#< "::" >#< ppTp tp) _mbTp
                               >-< _patIattrTypes
-                              {-# LINE 6045 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 5997 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1521, column 37)
                          _addbang =
                              ({-# LINE 1521 "src-ag/ExecutionPlan2Hs.ag" #-}
                               \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                              {-# LINE 6051 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6003 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1526, column 37)
                          _addbang1 =
                              ({-# LINE 1526 "src-ag/ExecutionPlan2Hs.ag" #-}
                               if _lhsIanyLazyKind then id else _addbang
-                              {-# LINE 6057 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6009 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Alias field_ attr_ _patIcopy
-                              {-# LINE 6063 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6015 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 6069 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6021 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOallInhmap =
                              ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 6075 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6027 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOallSynmap =
                              ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 6081 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6033 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOanyLazyKind =
                              ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 6087 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6039 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOinhmap =
                              ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 6093 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6045 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOlocalAttrTypes =
                              ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 6099 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6051 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOoptions =
                              ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6105 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6057 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOsynmap =
                              ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 6111 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6063 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          ( _patIattrTypes,_patIattrs,_patIcopy,_patIisUnderscore,_patIsem_lhs) =
                              pat_ _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap
-                         ___node =
-                             (Syn_Pattern _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs)
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOisUnderscore,_lhsOsem_lhs))))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -6145,96 +6095,94 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                          _lhsOsem_lhs =
                              ({-# LINE 1105 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _addbang1     $ pp_parens $ name_ >#< hv_sp _patsIsem_lhs
-                              {-# LINE 6149 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6099 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1112, column 16)
                          _lhsOisUnderscore =
                              ({-# LINE 1112 "src-ag/ExecutionPlan2Hs.ag" #-}
                               False
-                              {-# LINE 6155 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6105 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1521, column 37)
                          _addbang =
                              ({-# LINE 1521 "src-ag/ExecutionPlan2Hs.ag" #-}
                               \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                              {-# LINE 6161 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6111 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1526, column 37)
                          _addbang1 =
                              ({-# LINE 1526 "src-ag/ExecutionPlan2Hs.ag" #-}
                               if _lhsIanyLazyKind then id else _addbang
-                              {-# LINE 6167 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6117 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1123, column 40)
                          _lhsOattrTypes =
                              ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patsIattrTypes
-                              {-# LINE 6173 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6123 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                          _lhsOattrs =
                              ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patsIattrs
-                              {-# LINE 6179 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6129 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Constr name_ _patsIcopy
-                              {-# LINE 6185 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6135 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 6191 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6141 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallInhmap =
                              ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 6197 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6147 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallSynmap =
                              ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 6203 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6153 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOanyLazyKind =
                              ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 6209 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6159 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOinhmap =
                              ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 6215 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6165 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOlocalAttrTypes =
                              ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 6221 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6171 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOoptions =
                              ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6227 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6177 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOsynmap =
                              ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 6233 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6183 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          ( _patsIattrTypes,_patsIattrs,_patsIcopy,_patsIsem_lhs) =
                              pats_ _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap
-                         ___node =
-                             (Syn_Pattern _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs)
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOisUnderscore,_lhsOsem_lhs))))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -6267,84 +6215,82 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                          _lhsOsem_lhs =
                              ({-# LINE 1107 "src-ag/ExecutionPlan2Hs.ag" #-}
                               text "~" >|< pp_parens _patIsem_lhs
-                              {-# LINE 6271 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6219 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1123, column 40)
                          _lhsOattrTypes =
                              ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patIattrTypes
-                              {-# LINE 6277 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6225 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                          _lhsOattrs =
                              ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patIattrs
-                              {-# LINE 6283 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6231 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Irrefutable _patIcopy
-                              {-# LINE 6289 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6237 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 6295 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6243 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (up)
                          _lhsOisUnderscore =
                              ({-# LINE 1110 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patIisUnderscore
-                              {-# LINE 6301 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6249 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOallInhmap =
                              ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 6307 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6255 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOallSynmap =
                              ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 6313 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6261 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOanyLazyKind =
                              ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 6319 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6267 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOinhmap =
                              ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 6325 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6273 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOlocalAttrTypes =
                              ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 6331 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6279 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOoptions =
                              ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6337 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6285 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patOsynmap =
                              ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 6343 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6291 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          ( _patIattrTypes,_patIattrs,_patIcopy,_patIisUnderscore,_patIsem_lhs) =
                              pat_ _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap
-                         ___node =
-                             (Syn_Pattern _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs)
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOisUnderscore,_lhsOsem_lhs))))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -6377,96 +6323,94 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                          _lhsOsem_lhs =
                              ({-# LINE 1104 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _addbang1     $ pp_block "(" ")" "," _patsIsem_lhs
-                              {-# LINE 6381 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6327 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1113, column 16)
                          _lhsOisUnderscore =
                              ({-# LINE 1113 "src-ag/ExecutionPlan2Hs.ag" #-}
                               False
-                              {-# LINE 6387 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6333 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1521, column 37)
                          _addbang =
                              ({-# LINE 1521 "src-ag/ExecutionPlan2Hs.ag" #-}
                               \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                              {-# LINE 6393 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6339 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1526, column 37)
                          _addbang1 =
                              ({-# LINE 1526 "src-ag/ExecutionPlan2Hs.ag" #-}
                               if _lhsIanyLazyKind then id else _addbang
-                              {-# LINE 6399 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6345 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1123, column 40)
                          _lhsOattrTypes =
                              ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patsIattrTypes
-                              {-# LINE 6405 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6351 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                          _lhsOattrs =
                              ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _patsIattrs
-                              {-# LINE 6411 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6357 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Product pos_ _patsIcopy
-                              {-# LINE 6417 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6363 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 6423 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6369 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallInhmap =
                              ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 6429 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6375 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallSynmap =
                              ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 6435 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6381 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOanyLazyKind =
                              ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 6441 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6387 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOinhmap =
                              ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 6447 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6393 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOlocalAttrTypes =
                              ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 6453 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6399 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOoptions =
                              ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6459 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6405 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- copy rule (down)
                          _patsOsynmap =
                              ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 6465 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6411 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          ( _patsIattrTypes,_patsIattrs,_patsIcopy,_patsIsem_lhs) =
                              pats_ _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap
-                         ___node =
-                             (Syn_Pattern _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs)
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOisUnderscore,_lhsOsem_lhs))))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -6487,40 +6431,38 @@ sem_Pattern_Underscore pos_ =
                          _lhsOsem_lhs =
                              ({-# LINE 1106 "src-ag/ExecutionPlan2Hs.ag" #-}
                               text "_"
-                              {-# LINE 6491 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6435 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- "src-ag/ExecutionPlan2Hs.ag"(line 1115, column 16)
                          _lhsOisUnderscore =
                              ({-# LINE 1115 "src-ag/ExecutionPlan2Hs.ag" #-}
                               True
-                              {-# LINE 6497 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6441 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1123, column 40)
                          _lhsOattrTypes =
                              ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                               empty
-                              {-# LINE 6503 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6447 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                          _lhsOattrs =
                              ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                               Set.empty
-                              {-# LINE 6509 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6453 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               Underscore pos_
-                              {-# LINE 6515 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6459 "dist/build/ExecutionPlan2Hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 6521 "dist/build/ExecutionPlan2Hs" #-}
+                              {-# LINE 6465 "dist/build/ExecutionPlan2Hs" #-}
                               )
-                         ___node =
-                             (Syn_Pattern _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs)
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOisUnderscore,_lhsOsem_lhs))))
 -- Patterns ----------------------------------------------------
 {-
@@ -6612,122 +6554,120 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                           _lhsOattrTypes =
                               ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _hdIattrTypes >-< _tlIattrTypes
-                               {-# LINE 6616 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6558 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                           _lhsOattrs =
                               ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _hdIattrs `Set.union` _tlIattrs
-                               {-# LINE 6622 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6564 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1095, column 29)
                           _lhsOsem_lhs =
                               ({-# LINE 1095 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _hdIsem_lhs : _tlIsem_lhs
-                               {-# LINE 6628 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6570 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                (:) _hdIcopy _tlIcopy
-                               {-# LINE 6634 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6576 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 6640 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6582 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOallInhmap =
                               ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIallInhmap
-                               {-# LINE 6646 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6588 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOallSynmap =
                               ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIallSynmap
-                               {-# LINE 6652 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6594 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOanyLazyKind =
                               ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIanyLazyKind
-                               {-# LINE 6658 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6600 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOinhmap =
                               ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIinhmap
-                               {-# LINE 6664 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6606 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOlocalAttrTypes =
                               ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIlocalAttrTypes
-                               {-# LINE 6670 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6612 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOoptions =
                               ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIoptions
-                               {-# LINE 6676 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6618 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _hdOsynmap =
                               ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIsynmap
-                               {-# LINE 6682 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6624 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOallInhmap =
                               ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIallInhmap
-                               {-# LINE 6688 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6630 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOallSynmap =
                               ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIallSynmap
-                               {-# LINE 6694 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6636 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOanyLazyKind =
                               ({-# LINE 1267 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIanyLazyKind
-                               {-# LINE 6700 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6642 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOinhmap =
                               ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIinhmap
-                               {-# LINE 6706 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6648 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOlocalAttrTypes =
                               ({-# LINE 1578 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIlocalAttrTypes
-                               {-# LINE 6712 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6654 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOoptions =
                               ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIoptions
-                               {-# LINE 6718 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6660 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- copy rule (down)
                           _tlOsynmap =
                               ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                                _lhsIsynmap
-                               {-# LINE 6724 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6666 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           ( _hdIattrTypes,_hdIattrs,_hdIcopy,_hdIisUnderscore,_hdIsem_lhs) =
                               hd_ _hdOallInhmap _hdOallSynmap _hdOanyLazyKind _hdOinhmap _hdOlocalAttrTypes _hdOoptions _hdOsynmap
                           ( _tlIattrTypes,_tlIattrs,_tlIcopy,_tlIsem_lhs) =
                               tl_ _tlOallInhmap _tlOallSynmap _tlOanyLazyKind _tlOinhmap _tlOlocalAttrTypes _tlOoptions _tlOsynmap
-                          ___node =
-                              (Syn_Patterns _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOsem_lhs)
                       in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOsem_lhs))))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -6746,34 +6686,32 @@ sem_Patterns_Nil =
                           _lhsOattrTypes =
                               ({-# LINE 1123 "src-ag/ExecutionPlan2Hs.ag" #-}
                                empty
-                               {-# LINE 6750 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6690 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1118, column 36)
                           _lhsOattrs =
                               ({-# LINE 1118 "src-ag/ExecutionPlan2Hs.ag" #-}
                                Set.empty
-                               {-# LINE 6756 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6696 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1095, column 29)
                           _lhsOsem_lhs =
                               ({-# LINE 1095 "src-ag/ExecutionPlan2Hs.ag" #-}
                                []
-                               {-# LINE 6762 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6702 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                []
-                               {-# LINE 6768 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6708 "dist/build/ExecutionPlan2Hs" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 6774 "dist/build/ExecutionPlan2Hs" #-}
+                               {-# LINE 6714 "dist/build/ExecutionPlan2Hs" #-}
                                )
-                          ___node =
-                              (Syn_Patterns _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOsem_lhs)
                       in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOsem_lhs))))
 -- Visit -------------------------------------------------------
 {-
@@ -6977,37 +6915,37 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                        _lhsOallvisits =
                            ({-# LINE 341 "src-ag/ExecutionPlan2Hs.ag" #-}
                             (ident_, from_, to_)
-                            {-# LINE 6981 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6919 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 400, column 11)
                        _nameT_visit =
                            ({-# LINE 400 "src-ag/ExecutionPlan2Hs.ag" #-}
                             conNmTVisit _lhsInt ident_
-                            {-# LINE 6987 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6925 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 401, column 11)
                        _nameTIn_visit =
                            ({-# LINE 401 "src-ag/ExecutionPlan2Hs.ag" #-}
                             conNmTVisitIn _lhsInt ident_
-                            {-# LINE 6993 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6931 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 402, column 11)
                        _nameTOut_visit =
                            ({-# LINE 402 "src-ag/ExecutionPlan2Hs.ag" #-}
                             conNmTVisitOut _lhsInt ident_
-                            {-# LINE 6999 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6937 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 403, column 11)
                        _nameTNext_visit =
                            ({-# LINE 403 "src-ag/ExecutionPlan2Hs.ag" #-}
                             conNmTNextVisit _lhsInt to_
-                            {-# LINE 7005 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6943 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 405, column 11)
                        _nextVisitInfo =
                            ({-# LINE 405 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.findWithDefault ManyVis to_ _lhsInextVisits
-                            {-# LINE 7011 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6949 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 406, column 11)
                        _typecon =
@@ -7015,13 +6953,13 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                             case kind_ of
                               VisitPure _  -> empty
                               VisitMonadic -> ppMonadType _lhsIoptions
-                            {-# LINE 7019 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6957 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 410, column 11)
                        _t_params =
                            ({-# LINE 410 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced _lhsIparams
-                            {-# LINE 7025 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6963 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 411, column 11)
                        _lhsOt_visits =
@@ -7039,26 +6977,26 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                                  _synpart     >#< case _nextVisitInfo     of
                                                     NoneVis    -> empty
                                                     _          -> _addbang1     $ pp_parens (_nameTNext_visit     >#< _t_params    )
-                            {-# LINE 7043 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6981 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 424, column 11)
                        _inhpart =
                            ({-# LINE 424 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _ppTypeList     inh_ _lhsIinhmap
-                            {-# LINE 7049 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6987 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 425, column 11)
                        _synpart =
                            ({-# LINE 425 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _ppTypeList     syn_ _lhsIsynmap
-                            {-# LINE 7055 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 6993 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 426, column 11)
                        _ppTypeList =
                            ({-# LINE 426 "src-ag/ExecutionPlan2Hs.ag" #-}
                             \s m -> ppSpaced $ map (\i -> _addbang1     $ pp_parens $ case Map.lookup i m of
                                                                                        Just tp -> ppTp tp ) $ Set.toList s
-                            {-# LINE 7062 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7000 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 709, column 11)
                        _lhsOsem_visit =
@@ -7086,7 +7024,7 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                                      ) >#< "(" >#< _stepsInitial
                                  >-< indent 3 (_stepsIsem_steps >-< _stepsClosing     >#< ")")
                             )
-                            {-# LINE 7090 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7028 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 734, column 11)
                        _stepsInitial =
@@ -7095,7 +7033,7 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                               VisitPure False -> text "let"
                               VisitPure True  -> empty
                               VisitMonadic    -> text "do"
-                            {-# LINE 7099 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7037 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 738, column 11)
                        _stepsClosing =
@@ -7109,55 +7047,55 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                                                     >-< indent 1 ("in" >#< resultValName)
                                  VisitMonadic    -> "let" >#< decls
                                                     >-< "return" >#< resultValName
-                            {-# LINE 7113 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7051 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 747, column 11)
                        _vname =
                            ({-# LINE 747 "src-ag/ExecutionPlan2Hs.ag" #-}
                             "v" >|< ident_
-                            {-# LINE 7119 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7057 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 748, column 11)
                        _inhpats =
                            ({-# LINE 748 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced $ map (\arg -> _addbang     $ pp $ attrname True _LHS arg) $ Set.toList inh_
-                            {-# LINE 7125 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7063 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 749, column 11)
                        _inhargs =
                            ({-# LINE 749 "src-ag/ExecutionPlan2Hs.ag" #-}
                             \chn -> ppSpaced $ map (attrname False chn) $ Set.toList inh_
-                            {-# LINE 7131 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7069 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 750, column 11)
                        _synargs =
                            ({-# LINE 750 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced $ map (\arg -> attrname False _LHS arg) $ Set.toList syn_
-                            {-# LINE 7137 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7075 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 751, column 11)
                        _nextargsMp =
                            ({-# LINE 751 "src-ag/ExecutionPlan2Hs.ag" #-}
                             maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                            {-# LINE 7143 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7081 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 752, column 11)
                        _nextargs =
                            ({-# LINE 752 "src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced $ Map.keys $ _nextargsMp
-                            {-# LINE 7149 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7087 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 753, column 11)
                        _nextst =
                            ({-# LINE 753 "src-ag/ExecutionPlan2Hs.ag" #-}
                             "st" >|< to_ >#< _nextargs     >#< dummyArg _lhsIoptions (Map.null _nextargsMp    )
-                            {-# LINE 7155 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7093 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 754, column 11)
                        _resultval =
                            ({-# LINE 754 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _nameTOut_visit     >#< _synargs     >#< _nextStRef
-                            {-# LINE 7161 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7099 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 755, column 11)
                        (_nextStBuild,_nextStRef) =
@@ -7165,13 +7103,13 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                             case _nextVisitInfo     of
                               NoneVis  -> (empty, empty)
                               _        -> (_addbang     (pp nextStName) >#< "=" >#< _nextst    , pp nextStName)
-                            {-# LINE 7169 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7107 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 770, column 20)
                        _stepsOkind =
                            ({-# LINE 770 "src-ag/ExecutionPlan2Hs.ag" #-}
                             kind_
-                            {-# LINE 7175 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7113 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 821, column 3)
                        _stepsOfmtMode =
@@ -7180,37 +7118,37 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                               VisitPure False -> FormatLetDecl
                               VisitPure True  -> FormatLetLine
                               VisitMonadic    -> FormatDo
-                            {-# LINE 7184 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7122 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 859, column 22)
                        _stepsOindex =
                            ({-# LINE 859 "src-ag/ExecutionPlan2Hs.ag" #-}
                             0
-                            {-# LINE 7190 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7128 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 866, column 22)
                        _stepsOprevMaxSimRefs =
                            ({-# LINE 866 "src-ag/ExecutionPlan2Hs.ag" #-}
                             0
-                            {-# LINE 7196 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7134 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 882, column 22)
                        _stepsOuseParallel =
                            ({-# LINE 882 "src-ag/ExecutionPlan2Hs.ag" #-}
                             False
-                            {-# LINE 7202 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7140 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1196, column 6)
                        _prevVisitInfo =
                            ({-# LINE 1196 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.findWithDefault ManyVis from_ _lhsInextVisits
-                            {-# LINE 7208 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7146 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1197, column 6)
                        _lhsOchildvisit =
                            ({-# LINE 1197 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton ident_ _invokecode
-                            {-# LINE 7214 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7152 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1198, column 6)
                        _invokecode =
@@ -7244,25 +7182,25 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                                           | otherwise                    = empty
                                 in (pat, expr)
                               else Left $ IncompatibleVisitKind chn ident_ kind kind_
-                            {-# LINE 7248 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7186 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1294, column 11)
                        _thisintra =
                            ({-# LINE 1294 "src-ag/ExecutionPlan2Hs.ag" #-}
                             (_uses     `Map.union` _nextintra    ) `Map.difference` _defsAsMap
-                            {-# LINE 7254 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7192 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1295, column 11)
                        _lhsOintramap =
                            ({-# LINE 1295 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton from_ _thisintra
-                            {-# LINE 7260 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7198 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1296, column 11)
                        _nextintra =
                            ({-# LINE 1296 "src-ag/ExecutionPlan2Hs.ag" #-}
                             maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                            {-# LINE 7266 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7204 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1297, column 11)
                        _uses =
@@ -7270,37 +7208,37 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                             let mp1 = _stepsIuses
                                 mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems syn_ ]
                             in mp1 `Map.union` mp2
-                            {-# LINE 7274 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7212 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1300, column 11)
                        _inhVarNms =
                            ({-# LINE 1300 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Set.map (lhsname True) inh_
-                            {-# LINE 7280 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7218 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1301, column 11)
                        _defs =
                            ({-# LINE 1301 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _stepsIdefs `Set.union` _inhVarNms     `Set.union` _lhsIterminaldefs
-                            {-# LINE 7286 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7224 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1302, column 11)
                        _defsAsMap =
                            ({-# LINE 1302 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.fromList [ (a, Nothing) | a <- Set.elems _defs     ]
-                            {-# LINE 7292 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7230 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1326, column 11)
                        _lhsOvisitdefs =
                            ({-# LINE 1326 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton ident_ syn_
-                            {-# LINE 7298 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7236 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1327, column 11)
                        _lhsOvisituses =
                            ({-# LINE 1327 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton ident_ inh_
-                            {-# LINE 7304 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7242 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1359, column 3)
                        _lazyIntrasInh =
@@ -7308,132 +7246,130 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                             case kind_ of
                               VisitPure False -> _inhVarNms     `Set.union` _stepsIdefs
                               _               -> Set.empty
-                            {-# LINE 7312 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7250 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1362, column 3)
                        _lhsOlazyIntras =
                            ({-# LINE 1362 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lazyIntrasInh     `Set.union` _stepsIlazyIntras
-                            {-# LINE 7318 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7256 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1515, column 37)
                        _addbang =
                            ({-# LINE 1515 "src-ag/ExecutionPlan2Hs.ag" #-}
                             \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                            {-# LINE 7324 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7262 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1523, column 37)
                        _addbang1 =
                            ({-# LINE 1523 "src-ag/ExecutionPlan2Hs.ag" #-}
                             if isLazyKind kind_ then id else _addbang
-                            {-# LINE 7330 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7268 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1550, column 3)
                        _lhsOfromToStates =
                            ({-# LINE 1550 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton ident_ (from_, to_)
-                            {-# LINE 7336 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7274 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- "src-ag/ExecutionPlan2Hs.ag"(line 1594, column 3)
                        _lhsOvisitKinds =
                            ({-# LINE 1594 "src-ag/ExecutionPlan2Hs.ag" #-}
                             Map.singleton ident_ kind_
-                            {-# LINE 7342 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7280 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                        _lhsOerrors =
                            ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _stepsIerrors
-                            {-# LINE 7348 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7286 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                        _lhsOruleKinds =
                            ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _stepsIruleKinds
-                            {-# LINE 7354 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7292 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                        _lhsOruleUsage =
                            ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _stepsIruleUsage
-                            {-# LINE 7360 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7298 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallFromToStates =
                            ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallFromToStates
-                            {-# LINE 7366 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7304 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallInitStates =
                            ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallInitStates
-                            {-# LINE 7372 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7310 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallVisitKinds =
                            ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallVisitKinds
-                            {-# LINE 7378 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7316 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallchildvisit =
                            ({-# LINE 1189 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIallchildvisit
-                            {-# LINE 7384 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7322 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOavisitdefs =
                            ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIavisitdefs
-                            {-# LINE 7390 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7328 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOavisituses =
                            ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIavisituses
-                            {-# LINE 7396 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7334 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOchildTypes =
                            ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIchildTypes
-                            {-# LINE 7402 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7340 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOchildintros =
                            ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIchildintros
-                            {-# LINE 7408 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7346 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOmrules =
                            ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsImrules
-                            {-# LINE 7414 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7352 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOoptions =
                            ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIoptions
-                            {-# LINE 7420 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7358 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOruledefs =
                            ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIruledefs
-                            {-# LINE 7426 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7364 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOruleuses =
                            ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                             _lhsIruleuses
-                            {-# LINE 7432 "dist/build/ExecutionPlan2Hs" #-}
+                            {-# LINE 7370 "dist/build/ExecutionPlan2Hs" #-}
                             )
                        ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIsync_steps,_stepsIuses,_stepsIvisitKinds) =
                            steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
-                       ___node =
-                           (Syn_Visit _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                    in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOintramap,_lhsOlazyIntras,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_visit,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- VisitStep ---------------------------------------------------
 {-
@@ -7579,7 +7515,7 @@ sem_VisitStep_ChildIntro child_ =
                            _attachItf =
                                ({-# LINE 783 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error $ "Child " ++ show child_ ++ " not found") child_ _lhsIchildintros
-                                {-# LINE 7583 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7519 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 784, column 16)
                            (_lhsOerrors,_lhsOsem_steps,_lhsOdefs,_lhsOuses) =
@@ -7587,58 +7523,56 @@ sem_VisitStep_ChildIntro child_ =
                                 case _attachItf     _lhsIkind _lhsIfmtMode of
                                   Left e                   -> (Seq.singleton e, empty, Set.empty, Map.empty)
                                   Right (code, defs, uses) -> (Seq.empty, code, defs, uses)
-                                {-# LINE 7591 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7527 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                            _lhsOlazyIntras =
                                ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Set.empty
-                                {-# LINE 7597 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7533 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                            _lhsOruleKinds =
                                ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.empty
-                                {-# LINE 7603 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7539 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                            _lhsOruleUsage =
                                ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.empty
-                                {-# LINE 7609 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7545 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                            _lhsOsync_steps =
                                ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 empty
-                                {-# LINE 7615 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7551 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                            _lhsOvisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 mempty
-                                {-# LINE 7621 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7557 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
                                ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIindex
-                                {-# LINE 7627 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7563 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
                                ({-# LINE 873 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 7633 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7569 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 7639 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7575 "dist/build/ExecutionPlan2Hs" #-}
                                 )
-                           ___node =
-                               (Syn_VisitStep _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_ChildVisit :: Identifier ->
                             NontermIdent ->
@@ -7679,7 +7613,7 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                            _visitItf =
                                ({-# LINE 788 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error $ "Visit " ++ show visit_ ++ " not found") visit_ _lhsIallchildvisit
-                                {-# LINE 7683 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7617 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 789, column 16)
                            (_lhsOerrors,_patPP,_exprPP) =
@@ -7687,13 +7621,13 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                                 case _visitItf     child_ _lhsIkind of
                                   Left e           -> (Seq.singleton e, empty, empty)
                                   Right (pat,expr) -> (Seq.empty, pat, expr)
-                                {-# LINE 7691 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7625 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 793, column 16)
                            _useParallel =
                                ({-# LINE 793 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIuseParallel && not _lhsIisLast
-                                {-# LINE 7697 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7631 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 794, column 16)
                            _lhsOsem_steps =
@@ -7705,7 +7639,7 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                                                   VisitPure _  -> _patPP     >#< "=" >#< _exprPP
                                                   VisitMonadic -> _patPP     >#< "<-" >#< _exprPP
                                      in fmtDecl False _lhsIfmtMode decl
-                                {-# LINE 7709 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7643 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 801, column 16)
                            _convToMonad =
@@ -7713,13 +7647,13 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                                 case _callKind     of
                                   VisitPure _  -> text "return"
                                   VisitMonadic -> empty
-                                {-# LINE 7717 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7651 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 804, column 16)
                            _callKind =
                                ({-# LINE 804 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error "visit kind should be in the map") visit_ _lhsIallVisitKinds
-                                {-# LINE 7723 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7657 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 812, column 3)
                            _lhsOsync_steps =
@@ -7727,13 +7661,13 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                                 if _useParallel
                                 then _patPP     >#< "<-" >#< "takeMVar sync_" >|< _lhsIindex
                                 else empty
-                                {-# LINE 7731 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7665 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1344, column 16)
                            _lhsOdefs =
                                ({-# LINE 1344 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Set.insert (stname child_ _to) $ maybe (error "Visit not found") (Set.map $ attrname True child_) $ Map.lookup visit_ _lhsIavisitdefs
-                                {-# LINE 7737 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7671 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1345, column 16)
                            _lhsOuses =
@@ -7741,64 +7675,62 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                                 let convert attrs = Map.fromList [ (attrname False child_ attr, Just $ mkNonLocalAttr True child_ attr) | attr <- Set.elems attrs ]
                                 in Map.insert (stname child_ _from) Nothing $ convert $
                                      maybe (error "Visit not found") id $ Map.lookup visit_ _lhsIavisituses
-                                {-# LINE 7745 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7679 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1520, column 37)
                            _addbang =
                                ({-# LINE 1520 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                {-# LINE 7751 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7685 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1556, column 3)
                            (_from,_to) =
                                ({-# LINE 1556 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error "visit not in allFromToStates") visit_ _lhsIallFromToStates
-                                {-# LINE 7757 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7691 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                            _lhsOlazyIntras =
                                ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Set.empty
-                                {-# LINE 7763 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7697 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                            _lhsOruleKinds =
                                ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.empty
-                                {-# LINE 7769 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7703 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                            _lhsOruleUsage =
                                ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.empty
-                                {-# LINE 7775 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7709 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                            _lhsOvisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 mempty
-                                {-# LINE 7781 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7715 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
                                ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIindex
-                                {-# LINE 7787 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7721 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
                                ({-# LINE 873 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 7793 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7727 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 7799 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7733 "dist/build/ExecutionPlan2Hs" #-}
                                 )
-                           ___node =
-                               (Syn_VisitStep _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_PureGroup :: T_VisitSteps ->
                            Bool ->
@@ -7868,7 +7800,7 @@ sem_VisitStep_PureGroup (T_VisitSteps steps_) ordered_ =
                            _stepsOkind =
                                ({-# LINE 774 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 VisitPure ordered_
-                                {-# LINE 7872 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7804 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 806, column 16)
                            _lhsOsem_steps =
@@ -7876,7 +7808,7 @@ sem_VisitStep_PureGroup (T_VisitSteps steps_) ordered_ =
                                 case _lhsIfmtMode of
                                   FormatDo -> "let" >#< _stepsIsem_steps
                                   _        -> _stepsIsem_steps
-                                {-# LINE 7880 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7812 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 827, column 3)
                            _stepsOfmtMode =
@@ -7884,7 +7816,7 @@ sem_VisitStep_PureGroup (T_VisitSteps steps_) ordered_ =
                                 case _lhsIfmtMode of
                                   FormatDo      -> FormatLetDecl
                                   mode          -> mode
-                                {-# LINE 7888 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7820 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1365, column 3)
                            _lhsOlazyIntras =
@@ -7892,162 +7824,160 @@ sem_VisitStep_PureGroup (T_VisitSteps steps_) ordered_ =
                                 if ordered_
                                 then _stepsIlazyIntras
                                 else _stepsIdefs
-                                {-# LINE 7896 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7828 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1339, column 38)
                            _lhsOdefs =
                                ({-# LINE 1339 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIdefs
-                                {-# LINE 7902 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7834 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                            _lhsOerrors =
                                ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIerrors
-                                {-# LINE 7908 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7840 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                            _lhsOruleKinds =
                                ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIruleKinds
-                                {-# LINE 7914 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7846 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                            _lhsOruleUsage =
                                ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIruleUsage
-                                {-# LINE 7920 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7852 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                            _lhsOsync_steps =
                                ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIsync_steps
-                                {-# LINE 7926 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7858 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1340, column 38)
                            _lhsOuses =
                                ({-# LINE 1340 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIuses
-                                {-# LINE 7932 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7864 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                            _lhsOvisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIvisitKinds
-                                {-# LINE 7938 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7870 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOindex =
                                ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIindex
-                                {-# LINE 7944 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7876 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOisLast =
                                ({-# LINE 873 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIisLast
-                                {-# LINE 7950 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7882 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIprevMaxSimRefs
-                                {-# LINE 7956 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7888 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallFromToStates =
                                ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallFromToStates
-                                {-# LINE 7962 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7894 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallInitStates =
                                ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 7968 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7900 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallVisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallVisitKinds
-                                {-# LINE 7974 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7906 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallchildvisit =
                                ({-# LINE 1189 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallchildvisit
-                                {-# LINE 7980 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7912 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisitdefs =
                                ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIavisitdefs
-                                {-# LINE 7986 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7918 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisituses =
                                ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIavisituses
-                                {-# LINE 7992 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7924 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildTypes =
                                ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIchildTypes
-                                {-# LINE 7998 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7930 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildintros =
                                ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIchildintros
-                                {-# LINE 8004 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7936 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOindex =
                                ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIindex
-                                {-# LINE 8010 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7942 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOmrules =
                                ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImrules
-                                {-# LINE 8016 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7948 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOoptions =
                                ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 8022 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7954 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 8028 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7960 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruledefs =
                                ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIruledefs
-                                {-# LINE 8034 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7966 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruleuses =
                                ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIruleuses
-                                {-# LINE 8040 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7972 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOuseParallel =
                                ({-# LINE 881 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIuseParallel
-                                {-# LINE 8046 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 7978 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIsync_steps,_stepsIuses,_stepsIvisitKinds) =
                                steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
-                           ___node =
-                               (Syn_VisitStep _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_Sem :: Identifier ->
                      T_VisitStep
@@ -8086,7 +8016,7 @@ sem_VisitStep_Sem name_ =
                            _ruleItf =
                                ({-# LINE 779 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error $ "Rule "  ++ show name_  ++ " not found") name_ _lhsImrules
-                                {-# LINE 8090 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8020 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 780, column 16)
                            (_lhsOerrors,_sem_steps) =
@@ -8094,76 +8024,74 @@ sem_VisitStep_Sem name_ =
                                 case _ruleItf     _lhsIkind _lhsIfmtMode of
                                   Left e     -> (Seq.singleton e, empty)
                                   Right stmt -> (Seq.empty, stmt)
-                                {-# LINE 8098 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8028 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1247, column 32)
                            _lhsOruleUsage =
                                ({-# LINE 1247 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.singleton name_ 1
-                                {-# LINE 8104 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8034 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1257, column 3)
                            _lhsOruleKinds =
                                ({-# LINE 1257 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.singleton name_ (Set.singleton _lhsIkind)
-                                {-# LINE 8110 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8040 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1342, column 16)
                            _lhsOdefs =
                                ({-# LINE 1342 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruledefs
-                                {-# LINE 8116 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8046 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 1343, column 16)
                            _lhsOuses =
                                ({-# LINE 1343 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruleuses
-                                {-# LINE 8122 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8052 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                            _lhsOlazyIntras =
                                ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 Set.empty
-                                {-# LINE 8128 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8058 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 777, column 43)
                            _lhsOsem_steps =
                                ({-# LINE 777 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _sem_steps
-                                {-# LINE 8134 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8064 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                            _lhsOsync_steps =
                                ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 empty
-                                {-# LINE 8140 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8070 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                            _lhsOvisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 mempty
-                                {-# LINE 8146 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8076 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
                                ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIindex
-                                {-# LINE 8152 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8082 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
                                ({-# LINE 873 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 8158 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8088 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 8164 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8094 "dist/build/ExecutionPlan2Hs" #-}
                                 )
-                           ___node =
-                               (Syn_VisitStep _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_Sim :: T_VisitSteps ->
                      T_VisitStep
@@ -8232,19 +8160,19 @@ sem_VisitStep_Sim (T_VisitSteps steps_) =
                            _lhsOsem_steps =
                                ({-# LINE 805 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIsem_steps >-< _stepsIsync_steps
-                                {-# LINE 8236 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8164 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 860, column 22)
                            _stepsOindex =
                                ({-# LINE 860 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 0
-                                {-# LINE 8242 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8170 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 861, column 22)
                            _lhsOindex =
                                ({-# LINE 861 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIindex
-                                {-# LINE 8248 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8176 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 868, column 3)
                            _lhsOprevMaxSimRefs =
@@ -8252,13 +8180,13 @@ sem_VisitStep_Sim (T_VisitSteps steps_) =
                                 if _useParallel
                                 then _lhsIprevMaxSimRefs `max` (_stepsIindex - 1)
                                 else _lhsIprevMaxSimRefs
-                                {-# LINE 8256 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8184 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 883, column 22)
                            _useParallel =
                                ({-# LINE 883 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 parallelInvoke _lhsIoptions && _stepsIsize > 1 && _isMonadic
-                                {-# LINE 8262 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8190 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- "src-ag/ExecutionPlan2Hs.ag"(line 884, column 22)
                            _isMonadic =
@@ -8266,162 +8194,160 @@ sem_VisitStep_Sim (T_VisitSteps steps_) =
                                 case _lhsIkind of
                                   VisitMonadic -> True
                                   _            -> False
-                                {-# LINE 8270 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8198 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1339, column 38)
                            _lhsOdefs =
                                ({-# LINE 1339 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIdefs
-                                {-# LINE 8276 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8204 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                            _lhsOerrors =
                                ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIerrors
-                                {-# LINE 8282 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8210 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                            _lhsOlazyIntras =
                                ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIlazyIntras
-                                {-# LINE 8288 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8216 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                            _lhsOruleKinds =
                                ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIruleKinds
-                                {-# LINE 8294 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8222 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                            _lhsOruleUsage =
                                ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIruleUsage
-                                {-# LINE 8300 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8228 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                            _lhsOsync_steps =
                                ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIsync_steps
-                                {-# LINE 8306 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8234 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1340, column 38)
                            _lhsOuses =
                                ({-# LINE 1340 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIuses
-                                {-# LINE 8312 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8240 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                            _lhsOvisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIvisitKinds
-                                {-# LINE 8318 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8246 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOisLast =
                                ({-# LINE 873 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _stepsIisLast
-                                {-# LINE 8324 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8252 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallFromToStates =
                                ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallFromToStates
-                                {-# LINE 8330 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8258 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallInitStates =
                                ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 8336 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8264 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallVisitKinds =
                                ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallVisitKinds
-                                {-# LINE 8342 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8270 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallchildvisit =
                                ({-# LINE 1189 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIallchildvisit
-                                {-# LINE 8348 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8276 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisitdefs =
                                ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIavisitdefs
-                                {-# LINE 8354 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8282 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisituses =
                                ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIavisituses
-                                {-# LINE 8360 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8288 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildTypes =
                                ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIchildTypes
-                                {-# LINE 8366 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8294 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildintros =
                                ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIchildintros
-                                {-# LINE 8372 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8300 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOfmtMode =
                                ({-# LINE 819 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIfmtMode
-                                {-# LINE 8378 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8306 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOkind =
                                ({-# LINE 769 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIkind
-                                {-# LINE 8384 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8312 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOmrules =
                                ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsImrules
-                                {-# LINE 8390 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8318 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOoptions =
                                ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 8396 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8324 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOprevMaxSimRefs =
                                ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 8402 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8330 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruledefs =
                                ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIruledefs
-                                {-# LINE 8408 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8336 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruleuses =
                                ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _lhsIruleuses
-                                {-# LINE 8414 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8342 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            -- copy rule (from local)
                            _stepsOuseParallel =
                                ({-# LINE 881 "src-ag/ExecutionPlan2Hs.ag" #-}
                                 _useParallel
-                                {-# LINE 8420 "dist/build/ExecutionPlan2Hs" #-}
+                                {-# LINE 8348 "dist/build/ExecutionPlan2Hs" #-}
                                 )
                            ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIsync_steps,_stepsIuses,_stepsIvisitKinds) =
                                steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
-                           ___node =
-                               (Syn_VisitStep _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 -- VisitSteps --------------------------------------------------
 {-
@@ -8593,296 +8519,294 @@ sem_VisitSteps_Cons (T_VisitStep hd_) (T_VisitSteps tl_) =
                             _lhsOsize =
                                 ({-# LINE 851 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  1 + _tlIsize
-                                 {-# LINE 8597 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8523 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 856, column 3)
                             _hdOindex =
                                 ({-# LINE 856 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIindex
-                                 {-# LINE 8603 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8529 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 857, column 3)
                             _tlOindex =
                                 ({-# LINE 857 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  1 + _lhsIindex
-                                 {-# LINE 8609 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8535 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 858, column 3)
                             _lhsOindex =
                                 ({-# LINE 858 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _tlIindex
-                                 {-# LINE 8615 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8541 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 877, column 11)
                             _lhsOisLast =
                                 ({-# LINE 877 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  False
-                                 {-# LINE 8621 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8547 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 878, column 11)
                             _hdOisLast =
                                 ({-# LINE 878 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _tlIisLast
-                                 {-# LINE 8627 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8553 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1339, column 38)
                             _lhsOdefs =
                                 ({-# LINE 1339 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIdefs `Set.union` _tlIdefs
-                                 {-# LINE 8633 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8559 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                             _lhsOerrors =
                                 ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIerrors Seq.>< _tlIerrors
-                                 {-# LINE 8639 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8565 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                             _lhsOlazyIntras =
                                 ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIlazyIntras `Set.union` _tlIlazyIntras
-                                 {-# LINE 8645 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8571 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                             _lhsOruleKinds =
                                 ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIruleKinds `unionWithMappend` _tlIruleKinds
-                                 {-# LINE 8651 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8577 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                             _lhsOruleUsage =
                                 ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIruleUsage `unionWithSum` _tlIruleUsage
-                                 {-# LINE 8657 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8583 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 777, column 43)
                             _lhsOsem_steps =
                                 ({-# LINE 777 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIsem_steps >-< _tlIsem_steps
-                                 {-# LINE 8663 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8589 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                             _lhsOsync_steps =
                                 ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIsync_steps >-< _tlIsync_steps
-                                 {-# LINE 8669 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8595 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1340, column 38)
                             _lhsOuses =
                                 ({-# LINE 1340 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIuses `Map.union` _tlIuses
-                                 {-# LINE 8675 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8601 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                             _lhsOvisitKinds =
                                 ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIvisitKinds `mappend` _tlIvisitKinds
-                                 {-# LINE 8681 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8607 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (up)
                             _lhsOprevMaxSimRefs =
                                 ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _tlIprevMaxSimRefs
-                                 {-# LINE 8687 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8613 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallFromToStates =
                                 ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallFromToStates
-                                 {-# LINE 8693 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8619 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallInitStates =
                                 ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallInitStates
-                                 {-# LINE 8699 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8625 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallVisitKinds =
                                 ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallVisitKinds
-                                 {-# LINE 8705 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8631 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallchildvisit =
                                 ({-# LINE 1189 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallchildvisit
-                                 {-# LINE 8711 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8637 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOavisitdefs =
                                 ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIavisitdefs
-                                 {-# LINE 8717 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8643 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOavisituses =
                                 ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIavisituses
-                                 {-# LINE 8723 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8649 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOchildTypes =
                                 ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIchildTypes
-                                 {-# LINE 8729 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8655 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOchildintros =
                                 ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIchildintros
-                                 {-# LINE 8735 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8661 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOfmtMode =
                                 ({-# LINE 819 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIfmtMode
-                                 {-# LINE 8741 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8667 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOkind =
                                 ({-# LINE 769 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIkind
-                                 {-# LINE 8747 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8673 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOmrules =
                                 ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsImrules
-                                 {-# LINE 8753 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8679 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOoptions =
                                 ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 8759 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8685 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOprevMaxSimRefs =
                                 ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIprevMaxSimRefs
-                                 {-# LINE 8765 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8691 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOruledefs =
                                 ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIruledefs
-                                 {-# LINE 8771 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8697 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOruleuses =
                                 ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIruleuses
-                                 {-# LINE 8777 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8703 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOuseParallel =
                                 ({-# LINE 881 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIuseParallel
-                                 {-# LINE 8783 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8709 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallFromToStates =
                                 ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallFromToStates
-                                 {-# LINE 8789 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8715 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallInitStates =
                                 ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallInitStates
-                                 {-# LINE 8795 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8721 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallVisitKinds =
                                 ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallVisitKinds
-                                 {-# LINE 8801 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8727 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallchildvisit =
                                 ({-# LINE 1189 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIallchildvisit
-                                 {-# LINE 8807 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8733 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOavisitdefs =
                                 ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIavisitdefs
-                                 {-# LINE 8813 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8739 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOavisituses =
                                 ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIavisituses
-                                 {-# LINE 8819 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8745 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOchildTypes =
                                 ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIchildTypes
-                                 {-# LINE 8825 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8751 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOchildintros =
                                 ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIchildintros
-                                 {-# LINE 8831 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8757 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOfmtMode =
                                 ({-# LINE 819 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIfmtMode
-                                 {-# LINE 8837 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8763 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOkind =
                                 ({-# LINE 769 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIkind
-                                 {-# LINE 8843 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8769 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOmrules =
                                 ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsImrules
-                                 {-# LINE 8849 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8775 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOoptions =
                                 ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 8855 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8781 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (chain)
                             _tlOprevMaxSimRefs =
                                 ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _hdIprevMaxSimRefs
-                                 {-# LINE 8861 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8787 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOruledefs =
                                 ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIruledefs
-                                 {-# LINE 8867 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8793 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOruleuses =
                                 ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIruleuses
-                                 {-# LINE 8873 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8799 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOuseParallel =
                                 ({-# LINE 881 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIuseParallel
-                                 {-# LINE 8879 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8805 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             ( _hdIdefs,_hdIerrors,_hdIindex,_hdIisLast,_hdIlazyIntras,_hdIprevMaxSimRefs,_hdIruleKinds,_hdIruleUsage,_hdIsem_steps,_hdIsync_steps,_hdIuses,_hdIvisitKinds) =
                                 hd_ _hdOallFromToStates _hdOallInitStates _hdOallVisitKinds _hdOallchildvisit _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOfmtMode _hdOindex _hdOisLast _hdOkind _hdOmrules _hdOoptions _hdOprevMaxSimRefs _hdOruledefs _hdOruleuses _hdOuseParallel
                             ( _tlIdefs,_tlIerrors,_tlIindex,_tlIisLast,_tlIlazyIntras,_tlIprevMaxSimRefs,_tlIruleKinds,_tlIruleUsage,_tlIsem_steps,_tlIsize,_tlIsync_steps,_tlIuses,_tlIvisitKinds) =
                                 tl_ _tlOallFromToStates _tlOallInitStates _tlOallVisitKinds _tlOallchildvisit _tlOavisitdefs _tlOavisituses _tlOchildTypes _tlOchildintros _tlOfmtMode _tlOindex _tlOkind _tlOmrules _tlOoptions _tlOprevMaxSimRefs _tlOruledefs _tlOruleuses _tlOuseParallel
-                            ___node =
-                                (Syn_VisitSteps _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsize _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                         in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsize,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitSteps_Nil :: T_VisitSteps
 sem_VisitSteps_Nil =
@@ -8920,82 +8844,80 @@ sem_VisitSteps_Nil =
                             _lhsOsize =
                                 ({-# LINE 850 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  0
-                                 {-# LINE 8924 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8848 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- "src-ag/ExecutionPlan2Hs.ag"(line 876, column 11)
                             _lhsOisLast =
                                 ({-# LINE 876 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  True
-                                 {-# LINE 8930 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8854 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1339, column 38)
                             _lhsOdefs =
                                 ({-# LINE 1339 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Set.empty
-                                 {-# LINE 8936 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8860 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                             _lhsOerrors =
                                 ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Seq.empty
-                                 {-# LINE 8942 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8866 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                             _lhsOlazyIntras =
                                 ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Set.empty
-                                 {-# LINE 8948 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8872 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                             _lhsOruleKinds =
                                 ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Map.empty
-                                 {-# LINE 8954 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8878 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                             _lhsOruleUsage =
                                 ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Map.empty
-                                 {-# LINE 8960 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8884 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 777, column 43)
                             _lhsOsem_steps =
                                 ({-# LINE 777 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  empty
-                                 {-# LINE 8966 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8890 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 810, column 44)
                             _lhsOsync_steps =
                                 ({-# LINE 810 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  empty
-                                 {-# LINE 8972 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8896 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1340, column 38)
                             _lhsOuses =
                                 ({-# LINE 1340 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  Map.empty
-                                 {-# LINE 8978 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8902 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                             _lhsOvisitKinds =
                                 ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  mempty
-                                 {-# LINE 8984 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8908 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (chain)
                             _lhsOindex =
                                 ({-# LINE 854 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIindex
-                                 {-# LINE 8990 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8914 "dist/build/ExecutionPlan2Hs" #-}
                                  )
                             -- copy rule (chain)
                             _lhsOprevMaxSimRefs =
                                 ({-# LINE 865 "src-ag/ExecutionPlan2Hs.ag" #-}
                                  _lhsIprevMaxSimRefs
-                                 {-# LINE 8996 "dist/build/ExecutionPlan2Hs" #-}
+                                 {-# LINE 8920 "dist/build/ExecutionPlan2Hs" #-}
                                  )
-                            ___node =
-                                (Syn_VisitSteps _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsize _lhsOsync_steps _lhsOuses _lhsOvisitKinds)
                         in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsize,_lhsOsync_steps,_lhsOuses,_lhsOvisitKinds))))
 -- Visits ------------------------------------------------------
 {-
@@ -9198,362 +9120,360 @@ sem_Visits_Cons (T_Visit hd_) (T_Visits tl_) =
                         _lhsOallvisits =
                             ({-# LINE 336 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIallvisits : _tlIallvisits
-                             {-# LINE 9202 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9124 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                         _lhsOchildvisit =
                             ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIchildvisit `Map.union` _tlIchildvisit
-                             {-# LINE 9208 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9130 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                         _lhsOerrors =
                             ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIerrors Seq.>< _tlIerrors
-                             {-# LINE 9214 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9136 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                         _lhsOfromToStates =
                             ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIfromToStates `mappend` _tlIfromToStates
-                             {-# LINE 9220 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9142 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1281, column 34)
                         _lhsOintramap =
                             ({-# LINE 1281 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIintramap `uwMapUnion` _tlIintramap
-                             {-# LINE 9226 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9148 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                         _lhsOlazyIntras =
                             ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIlazyIntras `Set.union` _tlIlazyIntras
-                             {-# LINE 9232 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9154 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                         _lhsOruleKinds =
                             ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIruleKinds `unionWithMappend` _tlIruleKinds
-                             {-# LINE 9238 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9160 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                         _lhsOruleUsage =
                             ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIruleUsage `unionWithSum` _tlIruleUsage
-                             {-# LINE 9244 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9166 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 706, column 29)
                         _lhsOsem_visit =
                             ({-# LINE 706 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIsem_visit : _tlIsem_visit
-                             {-# LINE 9250 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9172 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 394, column 59)
                         _lhsOt_visits =
                             ({-# LINE 394 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIt_visits >-< _tlIt_visits
-                             {-# LINE 9256 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9178 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                         _lhsOvisitKinds =
                             ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIvisitKinds `mappend` _tlIvisitKinds
-                             {-# LINE 9262 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9184 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                         _lhsOvisitdefs =
                             ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                             {-# LINE 9268 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9190 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                         _lhsOvisituses =
                             ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _hdIvisituses `uwSetUnion` _tlIvisituses
-                             {-# LINE 9274 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9196 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallFromToStates =
                             ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallFromToStates
-                             {-# LINE 9280 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9202 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInhmap =
                             ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 9286 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9208 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInitStates =
                             ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInitStates
-                             {-# LINE 9292 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9214 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallSynmap =
                             ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 9298 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9220 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallVisitKinds =
                             ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallVisitKinds
-                             {-# LINE 9304 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9226 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallchildvisit =
                             ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallchildvisit
-                             {-# LINE 9310 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9232 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallintramap =
                             ({-# LINE 1280 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallintramap
-                             {-# LINE 9316 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9238 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOavisitdefs =
                             ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIavisitdefs
-                             {-# LINE 9322 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9244 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOavisituses =
                             ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIavisituses
-                             {-# LINE 9328 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9250 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildTypes =
                             ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 9334 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9256 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildintros =
                             ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildintros
-                             {-# LINE 9340 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9262 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOcon =
                             ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIcon
-                             {-# LINE 9346 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9268 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOinhmap =
                             ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 9352 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9274 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmrules =
                             ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImrules
-                             {-# LINE 9358 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9280 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnextVisits =
                             ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInextVisits
-                             {-# LINE 9364 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9286 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnt =
                             ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInt
-                             {-# LINE 9370 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9292 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOoptions =
                             ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIoptions
-                             {-# LINE 9376 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9298 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOparams =
                             ({-# LINE 73 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIparams
-                             {-# LINE 9382 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9304 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOprevVisits =
                             ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIprevVisits
-                             {-# LINE 9388 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9310 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruledefs =
                             ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruledefs
-                             {-# LINE 9394 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9316 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruleuses =
                             ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruleuses
-                             {-# LINE 9400 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9322 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOsynmap =
                             ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 9406 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9328 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _hdOterminaldefs =
                             ({-# LINE 1283 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIterminaldefs
-                             {-# LINE 9412 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9334 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallFromToStates =
                             ({-# LINE 1547 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallFromToStates
-                             {-# LINE 9418 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9340 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInhmap =
                             ({-# LINE 321 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 9424 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9346 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInitStates =
                             ({-# LINE 1605 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallInitStates
-                             {-# LINE 9430 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9352 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallSynmap =
                             ({-# LINE 322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 9436 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9358 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallVisitKinds =
                             ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallVisitKinds
-                             {-# LINE 9442 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9364 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallchildvisit =
                             ({-# LINE 1186 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallchildvisit
-                             {-# LINE 9448 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9370 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallintramap =
                             ({-# LINE 1280 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIallintramap
-                             {-# LINE 9454 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9376 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOavisitdefs =
                             ({-# LINE 1332 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIavisitdefs
-                             {-# LINE 9460 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9382 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOavisituses =
                             ({-# LINE 1333 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIavisituses
-                             {-# LINE 9466 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9388 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildTypes =
                             ({-# LINE 1564 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 9472 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9394 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildintros =
                             ({-# LINE 893 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIchildintros
-                             {-# LINE 9478 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9400 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOcon =
                             ({-# LINE 66 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIcon
-                             {-# LINE 9484 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9406 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOinhmap =
                             ({-# LINE 319 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 9490 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9412 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmrules =
                             ({-# LINE 776 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsImrules
-                             {-# LINE 9496 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9418 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnextVisits =
                             ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInextVisits
-                             {-# LINE 9502 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9424 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnt =
                             ({-# LINE 61 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsInt
-                             {-# LINE 9508 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9430 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOoptions =
                             ({-# LINE 51 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIoptions
-                             {-# LINE 9514 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9436 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOparams =
                             ({-# LINE 73 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIparams
-                             {-# LINE 9520 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9442 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOprevVisits =
                             ({-# LINE 1533 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIprevVisits
-                             {-# LINE 9526 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9448 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruledefs =
                             ({-# LINE 1307 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruledefs
-                             {-# LINE 9532 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9454 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruleuses =
                             ({-# LINE 1308 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIruleuses
-                             {-# LINE 9538 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9460 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOsynmap =
                             ({-# LINE 320 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 9544 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9466 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- copy rule (down)
                         _tlOterminaldefs =
                             ({-# LINE 1283 "src-ag/ExecutionPlan2Hs.ag" #-}
                              _lhsIterminaldefs
-                             {-# LINE 9550 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9472 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         ( _hdIallvisits,_hdIchildvisit,_hdIerrors,_hdIfromToStates,_hdIintramap,_hdIlazyIntras,_hdIruleKinds,_hdIruleUsage,_hdIsem_visit,_hdIt_visits,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                             hd_ _hdOallFromToStates _hdOallInhmap _hdOallInitStates _hdOallSynmap _hdOallVisitKinds _hdOallchildvisit _hdOallintramap _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOcon _hdOinhmap _hdOmrules _hdOnextVisits _hdOnt _hdOoptions _hdOparams _hdOprevVisits _hdOruledefs _hdOruleuses _hdOsynmap _hdOterminaldefs
                         ( _tlIallvisits,_tlIchildvisit,_tlIerrors,_tlIfromToStates,_tlIintramap,_tlIlazyIntras,_tlIruleKinds,_tlIruleUsage,_tlIsem_visit,_tlIt_visits,_tlIvisitKinds,_tlIvisitdefs,_tlIvisituses) =
                             tl_ _tlOallFromToStates _tlOallInhmap _tlOallInitStates _tlOallSynmap _tlOallVisitKinds _tlOallchildvisit _tlOallintramap _tlOavisitdefs _tlOavisituses _tlOchildTypes _tlOchildintros _tlOcon _tlOinhmap _tlOmrules _tlOnextVisits _tlOnt _tlOoptions _tlOparams _tlOprevVisits _tlOruledefs _tlOruleuses _tlOsynmap _tlOterminaldefs
-                        ___node =
-                            (Syn_Visits _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                     in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOintramap,_lhsOlazyIntras,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_visit,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 sem_Visits_Nil :: T_Visits
 sem_Visits_Nil =
@@ -9597,80 +9517,78 @@ sem_Visits_Nil =
                         _lhsOallvisits =
                             ({-# LINE 336 "src-ag/ExecutionPlan2Hs.ag" #-}
                              []
-                             {-# LINE 9601 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9521 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1187, column 37)
                         _lhsOchildvisit =
                             ({-# LINE 1187 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9607 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9527 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1629, column 132)
                         _lhsOerrors =
                             ({-# LINE 1629 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Seq.empty
-                             {-# LINE 9613 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9533 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1544, column 22)
                         _lhsOfromToStates =
                             ({-# LINE 1544 "src-ag/ExecutionPlan2Hs.ag" #-}
                              mempty
-                             {-# LINE 9619 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9539 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1281, column 34)
                         _lhsOintramap =
                             ({-# LINE 1281 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9625 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9545 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1355, column 57)
                         _lhsOlazyIntras =
                             ({-# LINE 1355 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Set.empty
-                             {-# LINE 9631 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9551 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1255, column 56)
                         _lhsOruleKinds =
                             ({-# LINE 1255 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9637 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9557 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1243, column 56)
                         _lhsOruleUsage =
                             ({-# LINE 1243 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9643 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9563 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 706, column 29)
                         _lhsOsem_visit =
                             ({-# LINE 706 "src-ag/ExecutionPlan2Hs.ag" #-}
                              []
-                             {-# LINE 9649 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9569 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 394, column 59)
                         _lhsOt_visits =
                             ({-# LINE 394 "src-ag/ExecutionPlan2Hs.ag" #-}
                              empty
-                             {-# LINE 9655 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9575 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1591, column 68)
                         _lhsOvisitKinds =
                             ({-# LINE 1591 "src-ag/ExecutionPlan2Hs.ag" #-}
                              mempty
-                             {-# LINE 9661 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9581 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1322, column 36)
                         _lhsOvisitdefs =
                             ({-# LINE 1322 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9667 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9587 "dist/build/ExecutionPlan2Hs" #-}
                              )
                         -- use rule "src-ag/ExecutionPlan2Hs.ag"(line 1323, column 36)
                         _lhsOvisituses =
                             ({-# LINE 1323 "src-ag/ExecutionPlan2Hs.ag" #-}
                              Map.empty
-                             {-# LINE 9673 "dist/build/ExecutionPlan2Hs" #-}
+                             {-# LINE 9593 "dist/build/ExecutionPlan2Hs" #-}
                              )
-                        ___node =
-                            (Syn_Visits _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses)
                     in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOintramap,_lhsOlazyIntras,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_visit,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))

@@ -117,8 +117,6 @@ sem_CGrammar_CGrammar typeSyns_ derivings_ wrappers_ (T_CNonterminals nonts_) pr
                           )
                      ( _nontsIpp,_nontsIppL) =
                          nonts_
-                     ___node =
-                         (Syn_CGrammar _lhsOpp)
                  in  ( _lhsOpp)))
 -- CInterface --------------------------------------------------
 {-
@@ -154,12 +152,10 @@ sem_CInterface_CInterface (T_CSegments seg_) =
                        _lhsOpp =
                            ({-# LINE 57 "src-ag/CodeSyntaxDump.ag" #-}
                             ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList _segIppL] []
-                            {-# LINE 158 "dist/build/CodeSyntaxDump" #-}
+                            {-# LINE 156 "dist/build/CodeSyntaxDump" #-}
                             )
                        ( _segIpp,_segIppL) =
                            seg_
-                       ___node =
-                           (Syn_CInterface _lhsOpp)
                    in  ( _lhsOpp)))
 -- CNonterminal ------------------------------------------------
 {-
@@ -206,14 +202,12 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                          _lhsOpp =
                              ({-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
                               ppNestInfo ["CNonterminal","CNonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL, ppF "inter" _interIpp] []
-                              {-# LINE 210 "dist/build/CodeSyntaxDump" #-}
+                              {-# LINE 206 "dist/build/CodeSyntaxDump" #-}
                               )
                          ( _prodsIpp,_prodsIppL) =
                              prods_
                          ( _interIpp) =
                              inter_
-                         ___node =
-                             (Syn_CNonterminal _lhsOpp)
                      in  ( _lhsOpp)))
 -- CNonterminals -----------------------------------------------
 {-
@@ -255,20 +249,18 @@ sem_CNonterminals_Cons (T_CNonterminal hd_) (T_CNonterminals tl_) =
                           _lhsOppL =
                               ({-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
                                _hdIpp : _tlIppL
-                               {-# LINE 259 "dist/build/CodeSyntaxDump" #-}
+                               {-# LINE 253 "dist/build/CodeSyntaxDump" #-}
                                )
                           -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                           _lhsOpp =
                               ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                                _hdIpp >-< _tlIpp
-                               {-# LINE 265 "dist/build/CodeSyntaxDump" #-}
+                               {-# LINE 259 "dist/build/CodeSyntaxDump" #-}
                                )
                           ( _hdIpp) =
                               hd_
                           ( _tlIpp,_tlIppL) =
                               tl_
-                          ___node =
-                              (Syn_CNonterminals _lhsOpp _lhsOppL)
                       in  ( _lhsOpp,_lhsOppL)))
 sem_CNonterminals_Nil :: T_CNonterminals
 sem_CNonterminals_Nil =
@@ -278,16 +270,14 @@ sem_CNonterminals_Nil =
                           _lhsOppL =
                               ({-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
                                []
-                               {-# LINE 282 "dist/build/CodeSyntaxDump" #-}
+                               {-# LINE 274 "dist/build/CodeSyntaxDump" #-}
                                )
                           -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                           _lhsOpp =
                               ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                                empty
-                               {-# LINE 288 "dist/build/CodeSyntaxDump" #-}
+                               {-# LINE 280 "dist/build/CodeSyntaxDump" #-}
                                )
-                          ___node =
-                              (Syn_CNonterminals _lhsOpp _lhsOppL)
                       in  ( _lhsOpp,_lhsOppL)))
 -- CProduction -------------------------------------------------
 {-
@@ -329,12 +319,10 @@ sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
                         _lhsOpp =
                             ({-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
                              ppNestInfo ["CProduction","CProduction"] [pp con_] [ppF "visits" $ ppVList _visitsIppL, ppF "children" $ ppVList (map ppChild children_),ppF "terminals" $ ppVList (map ppShow terminals_)] []
-                             {-# LINE 333 "dist/build/CodeSyntaxDump" #-}
+                             {-# LINE 323 "dist/build/CodeSyntaxDump" #-}
                              )
                         ( _visitsIpp,_visitsIppL) =
                             visits_
-                        ___node =
-                            (Syn_CProduction _lhsOpp)
                     in  ( _lhsOpp)))
 -- CProductions ------------------------------------------------
 {-
@@ -376,20 +364,18 @@ sem_CProductions_Cons (T_CProduction hd_) (T_CProductions tl_) =
                          _lhsOppL =
                              ({-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
                               _hdIpp : _tlIppL
-                              {-# LINE 380 "dist/build/CodeSyntaxDump" #-}
+                              {-# LINE 368 "dist/build/CodeSyntaxDump" #-}
                               )
                          -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                          _lhsOpp =
                              ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                               _hdIpp >-< _tlIpp
-                              {-# LINE 386 "dist/build/CodeSyntaxDump" #-}
+                              {-# LINE 374 "dist/build/CodeSyntaxDump" #-}
                               )
                          ( _hdIpp) =
                              hd_
                          ( _tlIpp,_tlIppL) =
                              tl_
-                         ___node =
-                             (Syn_CProductions _lhsOpp _lhsOppL)
                      in  ( _lhsOpp,_lhsOppL)))
 sem_CProductions_Nil :: T_CProductions
 sem_CProductions_Nil =
@@ -399,16 +385,14 @@ sem_CProductions_Nil =
                          _lhsOppL =
                              ({-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
                               []
-                              {-# LINE 403 "dist/build/CodeSyntaxDump" #-}
+                              {-# LINE 389 "dist/build/CodeSyntaxDump" #-}
                               )
                          -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                          _lhsOpp =
                              ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                               empty
-                              {-# LINE 409 "dist/build/CodeSyntaxDump" #-}
+                              {-# LINE 395 "dist/build/CodeSyntaxDump" #-}
                               )
-                         ___node =
-                             (Syn_CProductions _lhsOpp _lhsOppL)
                      in  ( _lhsOpp,_lhsOppL)))
 -- CRule -------------------------------------------------------
 {-
@@ -471,10 +455,8 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                   _lhsOpp =
                       ({-# LINE 70 "src-ag/CodeSyntaxDump.ag" #-}
                        ppNestInfo ["CRule","CChildVisit"] [pp name_] [ppF "nt" $ pp nt_, ppF "nr" $ ppShow nr_, ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "last" $ ppBool isLast_] []
-                       {-# LINE 475 "dist/build/CodeSyntaxDump" #-}
+                       {-# LINE 459 "dist/build/CodeSyntaxDump" #-}
                        )
-                  ___node =
-                      (Syn_CRule _lhsOpp)
               in  ( _lhsOpp)))
 sem_CRule_CRule :: Identifier ->
                    Bool ->
@@ -501,12 +483,10 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                   _lhsOpp =
                       ({-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
                        ppNestInfo ["CRule","CRule"] [pp name_] [ppF "isIn" $ ppBool isIn_, ppF "hasCode" $ ppBool hasCode_, ppF "nt" $ pp nt_, ppF "con" $ pp con_, ppF "field" $ pp field_, ppF "childnt" $ ppMaybeShow childnt_, ppF "tp" $ ppMaybeShow tp_, ppF "pattern" $ if isIn_ then pp "<no pat because In>" else _patternIpp, ppF "rhs" $ ppStrings rhs_, ppF "defines" $ ppVertexMap defines_, ppF "owrt" $ ppBool owrt_, ppF "origin" $ pp origin_] []
-                       {-# LINE 505 "dist/build/CodeSyntaxDump" #-}
+                       {-# LINE 487 "dist/build/CodeSyntaxDump" #-}
                        )
                   ( _patternIcopy,_patternIpp) =
                       pattern_
-                  ___node =
-                      (Syn_CRule _lhsOpp)
               in  ( _lhsOpp)))
 -- CSegment ----------------------------------------------------
 {-
@@ -542,10 +522,8 @@ sem_CSegment_CSegment inh_ syn_ =
                      _lhsOpp =
                          ({-# LINE 60 "src-ag/CodeSyntaxDump.ag" #-}
                           ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_] []
-                          {-# LINE 546 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 526 "dist/build/CodeSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_CSegment _lhsOpp)
                  in  ( _lhsOpp)))
 -- CSegments ---------------------------------------------------
 {-
@@ -587,20 +565,18 @@ sem_CSegments_Cons (T_CSegment hd_) (T_CSegments tl_) =
                       _lhsOppL =
                           ({-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
                            _hdIpp : _tlIppL
-                           {-# LINE 591 "dist/build/CodeSyntaxDump" #-}
+                           {-# LINE 569 "dist/build/CodeSyntaxDump" #-}
                            )
                       -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                       _lhsOpp =
                           ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                            _hdIpp >-< _tlIpp
-                           {-# LINE 597 "dist/build/CodeSyntaxDump" #-}
+                           {-# LINE 575 "dist/build/CodeSyntaxDump" #-}
                            )
                       ( _hdIpp) =
                           hd_
                       ( _tlIpp,_tlIppL) =
                           tl_
-                      ___node =
-                          (Syn_CSegments _lhsOpp _lhsOppL)
                   in  ( _lhsOpp,_lhsOppL)))
 sem_CSegments_Nil :: T_CSegments
 sem_CSegments_Nil =
@@ -610,16 +586,14 @@ sem_CSegments_Nil =
                       _lhsOppL =
                           ({-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
                            []
-                           {-# LINE 614 "dist/build/CodeSyntaxDump" #-}
+                           {-# LINE 590 "dist/build/CodeSyntaxDump" #-}
                            )
                       -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                       _lhsOpp =
                           ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                            empty
-                           {-# LINE 620 "dist/build/CodeSyntaxDump" #-}
+                           {-# LINE 596 "dist/build/CodeSyntaxDump" #-}
                            )
-                      ___node =
-                          (Syn_CSegments _lhsOpp _lhsOppL)
                   in  ( _lhsOpp,_lhsOppL)))
 -- CVisit ------------------------------------------------------
 {-
@@ -663,14 +637,12 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                    _lhsOpp =
                        ({-# LINE 66 "src-ag/CodeSyntaxDump.ag" #-}
                         ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "sequence" $ ppVList _vssIppL, ppF "intra" $ ppVList _intraIppL, ppF "ordered" $ ppBool ordered_] []
-                        {-# LINE 667 "dist/build/CodeSyntaxDump" #-}
+                        {-# LINE 641 "dist/build/CodeSyntaxDump" #-}
                         )
                    ( _vssIppL) =
                        vss_
                    ( _intraIppL) =
                        intra_
-                   ___node =
-                       (Syn_CVisit _lhsOpp)
                in  ( _lhsOpp)))
 -- CVisits -----------------------------------------------------
 {-
@@ -712,20 +684,18 @@ sem_CVisits_Cons (T_CVisit hd_) (T_CVisits tl_) =
                     _lhsOppL =
                         ({-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
                          _hdIpp : _tlIppL
-                         {-# LINE 716 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 688 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                     _lhsOpp =
                         ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                          _hdIpp >-< _tlIpp
-                         {-# LINE 722 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 694 "dist/build/CodeSyntaxDump" #-}
                          )
                     ( _hdIpp) =
                         hd_
                     ( _tlIpp,_tlIppL) =
                         tl_
-                    ___node =
-                        (Syn_CVisits _lhsOpp _lhsOppL)
                 in  ( _lhsOpp,_lhsOppL)))
 sem_CVisits_Nil :: T_CVisits
 sem_CVisits_Nil =
@@ -735,16 +705,14 @@ sem_CVisits_Nil =
                     _lhsOppL =
                         ({-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
                          []
-                         {-# LINE 739 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 709 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                     _lhsOpp =
                         ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                          empty
-                         {-# LINE 745 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 715 "dist/build/CodeSyntaxDump" #-}
                          )
-                    ___node =
-                        (Syn_CVisits _lhsOpp _lhsOppL)
                 in  ( _lhsOpp,_lhsOppL)))
 -- Pattern -----------------------------------------------------
 {-
@@ -814,24 +782,22 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                     _lhsOpp =
                         ({-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
-                         {-# LINE 818 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 786 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 824 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 792 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 830 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 798 "dist/build/CodeSyntaxDump" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -846,24 +812,22 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOpp =
                         ({-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 850 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 816 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 856 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 822 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 862 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 828 "dist/build/CodeSyntaxDump" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -876,24 +840,22 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _lhsOpp =
                         ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                          _patIpp
-                         {-# LINE 880 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 844 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 886 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 850 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 892 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 856 "dist/build/CodeSyntaxDump" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -908,24 +870,22 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOpp =
                         ({-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 912 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 874 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 918 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 880 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 924 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 886 "dist/build/CodeSyntaxDump" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -936,22 +896,20 @@ sem_Pattern_Underscore pos_ =
                     _lhsOpp =
                         ({-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
-                         {-# LINE 940 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 900 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 946 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 906 "dist/build/CodeSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 952 "dist/build/CodeSyntaxDump" #-}
+                         {-# LINE 912 "dist/build/CodeSyntaxDump" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 -- Patterns ----------------------------------------------------
 {-
@@ -1001,32 +959,30 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _lhsOppL =
                          ({-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 1005 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 963 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                      _lhsOpp =
                          ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp >-< _tlIpp
-                          {-# LINE 1011 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 969 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 1017 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 975 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 1023 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 981 "dist/build/CodeSyntaxDump" #-}
                           )
                      ( _hdIcopy,_hdIpp) =
                          hd_
                      ( _tlIcopy,_tlIpp,_tlIppL) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
                  in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -1037,28 +993,26 @@ sem_Patterns_Nil =
                      _lhsOppL =
                          ({-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
                           []
-                          {-# LINE 1041 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 997 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- use rule "src-ag/CodeSyntaxDump.ag"(line 44, column 40)
                      _lhsOpp =
                          ({-# LINE 44 "src-ag/CodeSyntaxDump.ag" #-}
                           empty
-                          {-# LINE 1047 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 1003 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 1053 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 1009 "dist/build/CodeSyntaxDump" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 1059 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 1015 "dist/build/CodeSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
                  in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
 -- Sequence ----------------------------------------------------
 {-
@@ -1097,14 +1051,12 @@ sem_Sequence_Cons (T_CRule hd_) (T_Sequence tl_) =
                      _lhsOppL =
                          ({-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 1101 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 1055 "dist/build/CodeSyntaxDump" #-}
                           )
                      ( _hdIpp) =
                          hd_
                      ( _tlIppL) =
                          tl_
-                     ___node =
-                         (Syn_Sequence _lhsOppL)
                  in  ( _lhsOppL)))
 sem_Sequence_Nil :: T_Sequence
 sem_Sequence_Nil =
@@ -1113,8 +1065,6 @@ sem_Sequence_Nil =
                      _lhsOppL =
                          ({-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
                           []
-                          {-# LINE 1117 "dist/build/CodeSyntaxDump" #-}
+                          {-# LINE 1069 "dist/build/CodeSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_Sequence _lhsOppL)
                  in  ( _lhsOppL)))

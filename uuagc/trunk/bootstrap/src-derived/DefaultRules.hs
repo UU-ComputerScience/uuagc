@@ -541,9 +541,7 @@ sem_Child_Child !name_ !tp_ !kind_ =
                                        {-# LINE 542 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOsynthesized ->
-                                (case ((Syn_Child _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized)) of
-                                 { ___node ->
-                                 ( _lhsOerrors,_lhsOfield,_lhsOinherited,_lhsOname,_lhsOoutput,_lhsOsynthesized) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                ( _lhsOerrors,_lhsOfield,_lhsOinherited,_lhsOname,_lhsOoutput,_lhsOsynthesized) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 -- Children ----------------------------------------------------
 {-
    visit 0:
@@ -606,111 +604,109 @@ sem_Children_Cons !(T_Child hd_) !(T_Children tl_) =
                    (!_lhsIsynMap) ->
                      (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                              _lhsIsynMap
-                             {-# LINE 610 "dist/build/DefaultRules" #-}
+                             {-# LINE 608 "dist/build/DefaultRules" #-}
                              )) of
                       { !_tlOsynMap ->
                       (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                               _lhsIparams
-                              {-# LINE 615 "dist/build/DefaultRules" #-}
+                              {-# LINE 613 "dist/build/DefaultRules" #-}
                               )) of
                        { !_tlOparams ->
                        (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                _lhsInt
-                               {-# LINE 620 "dist/build/DefaultRules" #-}
+                               {-# LINE 618 "dist/build/DefaultRules" #-}
                                )) of
                         { !_tlOnt ->
                         (case (({-# LINE 757 "src-ag/DefaultRules.ag" #-}
                                 _lhsImerged
-                                {-# LINE 625 "dist/build/DefaultRules" #-}
+                                {-# LINE 623 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_tlOmerged ->
                          (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 630 "dist/build/DefaultRules" #-}
+                                 {-# LINE 628 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_tlOinhMap ->
                           (case (({-# LINE 55 "src-ag/DefaultRules.ag" #-}
                                   _lhsIcr
-                                  {-# LINE 635 "dist/build/DefaultRules" #-}
+                                  {-# LINE 633 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_tlOcr ->
                            (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                                    _lhsIcon
-                                   {-# LINE 640 "dist/build/DefaultRules" #-}
+                                   {-# LINE 638 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_tlOcon ->
                             (case (tl_ _tlOcon _tlOcr _tlOinhMap _tlOmerged _tlOnt _tlOparams _tlOsynMap) of
                              { ( !_tlIerrors,!_tlIfields,!_tlIinputs,!_tlIoutput,!_tlIoutputs) ->
                                  (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                          _lhsIsynMap
-                                         {-# LINE 647 "dist/build/DefaultRules" #-}
+                                         {-# LINE 645 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_hdOsynMap ->
                                   (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                           _lhsIparams
-                                          {-# LINE 652 "dist/build/DefaultRules" #-}
+                                          {-# LINE 650 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_hdOparams ->
                                    (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                            _lhsInt
-                                           {-# LINE 657 "dist/build/DefaultRules" #-}
+                                           {-# LINE 655 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !_hdOnt ->
                                     (case (({-# LINE 757 "src-ag/DefaultRules.ag" #-}
                                             _lhsImerged
-                                            {-# LINE 662 "dist/build/DefaultRules" #-}
+                                            {-# LINE 660 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_hdOmerged ->
                                      (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                              _lhsIinhMap
-                                             {-# LINE 667 "dist/build/DefaultRules" #-}
+                                             {-# LINE 665 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_hdOinhMap ->
                                       (case (({-# LINE 55 "src-ag/DefaultRules.ag" #-}
                                               _lhsIcr
-                                              {-# LINE 672 "dist/build/DefaultRules" #-}
+                                              {-# LINE 670 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_hdOcr ->
                                        (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                                                _lhsIcon
-                                               {-# LINE 677 "dist/build/DefaultRules" #-}
+                                               {-# LINE 675 "dist/build/DefaultRules" #-}
                                                )) of
                                         { !_hdOcon ->
                                         (case (hd_ _hdOcon _hdOcr _hdOinhMap _hdOmerged _hdOnt _hdOparams _hdOsynMap) of
                                          { ( !_hdIerrors,!_hdIfield,!_hdIinherited,!_hdIname,!_hdIoutput,!_hdIsynthesized) ->
                                              (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                      _hdIerrors Seq.>< _tlIerrors
-                                                     {-# LINE 684 "dist/build/DefaultRules" #-}
+                                                     {-# LINE 682 "dist/build/DefaultRules" #-}
                                                      )) of
                                               { !_lhsOerrors ->
                                               (case (({-# LINE 511 "src-ag/DefaultRules.ag" #-}
                                                       _hdIfield : _tlIfields
-                                                      {-# LINE 689 "dist/build/DefaultRules" #-}
+                                                      {-# LINE 687 "dist/build/DefaultRules" #-}
                                                       )) of
                                                { !_lhsOfields ->
                                                (case (({-# LINE 189 "src-ag/DefaultRules.ag" #-}
                                                        (_hdIname, _hdIinherited) : _tlIinputs
-                                                       {-# LINE 694 "dist/build/DefaultRules" #-}
+                                                       {-# LINE 692 "dist/build/DefaultRules" #-}
                                                        )) of
                                                 { !_lhsOinputs ->
                                                 (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                         (:) _hdIoutput _tlIoutput
-                                                        {-# LINE 699 "dist/build/DefaultRules" #-}
+                                                        {-# LINE 697 "dist/build/DefaultRules" #-}
                                                         )) of
                                                  { !_output ->
                                                  (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                          _output
-                                                         {-# LINE 704 "dist/build/DefaultRules" #-}
+                                                         {-# LINE 702 "dist/build/DefaultRules" #-}
                                                          )) of
                                                   { !_lhsOoutput ->
                                                   (case (({-# LINE 190 "src-ag/DefaultRules.ag" #-}
                                                           (_hdIname, _hdIsynthesized) : _tlIoutputs
-                                                          {-# LINE 709 "dist/build/DefaultRules" #-}
+                                                          {-# LINE 707 "dist/build/DefaultRules" #-}
                                                           )) of
                                                    { !_lhsOoutputs ->
-                                                   (case ((Syn_Children _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs)) of
-                                                    { ___node ->
-                                                    ( _lhsOerrors,_lhsOfields,_lhsOinputs,_lhsOoutput,_lhsOoutputs) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                                   ( _lhsOerrors,_lhsOfields,_lhsOinputs,_lhsOoutput,_lhsOoutputs) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
     (T_Children (\ (!_lhsIcon)
@@ -722,37 +718,35 @@ sem_Children_Nil =
                    (!_lhsIsynMap) ->
                      (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                              Seq.empty
-                             {-# LINE 726 "dist/build/DefaultRules" #-}
+                             {-# LINE 722 "dist/build/DefaultRules" #-}
                              )) of
                       { !_lhsOerrors ->
                       (case (({-# LINE 512 "src-ag/DefaultRules.ag" #-}
                               []
-                              {-# LINE 731 "dist/build/DefaultRules" #-}
+                              {-# LINE 727 "dist/build/DefaultRules" #-}
                               )) of
                        { !_lhsOfields ->
                        (case (({-# LINE 191 "src-ag/DefaultRules.ag" #-}
                                []
-                               {-# LINE 736 "dist/build/DefaultRules" #-}
+                               {-# LINE 732 "dist/build/DefaultRules" #-}
                                )) of
                         { !_lhsOinputs ->
                         (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                 []
-                                {-# LINE 741 "dist/build/DefaultRules" #-}
+                                {-# LINE 737 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_output ->
                          (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                  _output
-                                 {-# LINE 746 "dist/build/DefaultRules" #-}
+                                 {-# LINE 742 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_lhsOoutput ->
                           (case (({-# LINE 192 "src-ag/DefaultRules.ag" #-}
                                   []
-                                  {-# LINE 751 "dist/build/DefaultRules" #-}
+                                  {-# LINE 747 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_lhsOoutputs ->
-                           (case ((Syn_Children _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs)) of
-                            { ___node ->
-                            ( _lhsOerrors,_lhsOfields,_lhsOinputs,_lhsOoutput,_lhsOoutputs) }) }) }) }) }) }) })))
+                           ( _lhsOerrors,_lhsOfields,_lhsOinputs,_lhsOoutput,_lhsOoutputs) }) }) }) }) }) })))
 -- Grammar -----------------------------------------------------
 {-
    visit 0:
@@ -815,96 +809,94 @@ sem_Grammar_Grammar !typeSyns_ !useMap_ !derivings_ !wrappers_ !(T_Nonterminals 
     (T_Grammar (\ (!_lhsIoptions) ->
                     (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                             _lhsIoptions
-                            {-# LINE 819 "dist/build/DefaultRules" #-}
+                            {-# LINE 813 "dist/build/DefaultRules" #-}
                             )) of
                      { !_nontsOoptions ->
                      (case (nonts_) of
                       { ( !_nontsIcollect_nts,!_nontsIinhMap',!_nontsIsynMap',!T_Nonterminals_1 nonts_1) ->
                           (case (({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                                   _nontsIsynMap'
-                                  {-# LINE 826 "dist/build/DefaultRules" #-}
+                                  {-# LINE 820 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_nontsOsynMap ->
                            (case (({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                                    _nontsIinhMap'
-                                   {-# LINE 831 "dist/build/DefaultRules" #-}
+                                   {-# LINE 825 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_nontsOinhMap ->
                             (case (({-# LINE 759 "src-ag/DefaultRules.ag" #-}
                                     mergeMap_
-                                    {-# LINE 836 "dist/build/DefaultRules" #-}
+                                    {-# LINE 830 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_nontsOmergesIn ->
                              (case (({-# LINE 678 "src-ag/DefaultRules.ag" #-}
                                      manualAttrOrderMap_
-                                     {-# LINE 841 "dist/build/DefaultRules" #-}
+                                     {-# LINE 835 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_nontsOmanualAttrOrderMap ->
                               (case (({-# LINE 178 "src-ag/DefaultRules.ag" #-}
                                       typeSyns_
-                                      {-# LINE 846 "dist/build/DefaultRules" #-}
+                                      {-# LINE 840 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_nontsOtypeSyns ->
                                (case (({-# LINE 176 "src-ag/DefaultRules.ag" #-}
                                        useMap_
-                                       {-# LINE 851 "dist/build/DefaultRules" #-}
+                                       {-# LINE 845 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_nontsOuseMap ->
                                 (case (({-# LINE 66 "src-ag/DefaultRules.ag" #-}
                                         wrappers_
-                                        {-# LINE 856 "dist/build/DefaultRules" #-}
+                                        {-# LINE 850 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_nontsOwrappers ->
                                  (case (({-# LINE 58 "src-ag/DefaultRules.ag" #-}
                                          modcopy   _lhsIoptions
-                                         {-# LINE 861 "dist/build/DefaultRules" #-}
+                                         {-# LINE 855 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_nontsOcr ->
                                   (case (({-# LINE 57 "src-ag/DefaultRules.ag" #-}
                                           rename    _lhsIoptions
-                                          {-# LINE 866 "dist/build/DefaultRules" #-}
+                                          {-# LINE 860 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_nontsOo_rename ->
                                    (case (({-# LINE 751 "src-ag/DefaultRules.ag" #-}
                                            aroundsMap_
-                                           {-# LINE 871 "dist/build/DefaultRules" #-}
+                                           {-# LINE 865 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !_nontsOaroundsIn ->
                                     (case (({-# LINE 744 "src-ag/DefaultRules.ag" #-}
                                             augmentsMap_
-                                            {-# LINE 876 "dist/build/DefaultRules" #-}
+                                            {-# LINE 870 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_nontsOaugmentsIn ->
                                      (case (({-# LINE 564 "src-ag/DefaultRules.ag" #-}
                                              1
-                                             {-# LINE 881 "dist/build/DefaultRules" #-}
+                                             {-# LINE 875 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_nontsOuniq ->
                                       (case (({-# LINE 154 "src-ag/DefaultRules.ag" #-}
                                               _nontsIcollect_nts
-                                              {-# LINE 886 "dist/build/DefaultRules" #-}
+                                              {-# LINE 880 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_nontsOnonterminals ->
                                        (case (nonts_1 _nontsOaroundsIn _nontsOaugmentsIn _nontsOcr _nontsOinhMap _nontsOmanualAttrOrderMap _nontsOmergesIn _nontsOnonterminals _nontsOo_rename _nontsOoptions _nontsOsynMap _nontsOtypeSyns _nontsOuniq _nontsOuseMap _nontsOwrappers) of
                                         { ( !_nontsIerrors,!_nontsIoutput,!_nontsIuniq) ->
                                             (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                     _nontsIerrors
-                                                    {-# LINE 893 "dist/build/DefaultRules" #-}
+                                                    {-# LINE 887 "dist/build/DefaultRules" #-}
                                                     )) of
                                              { !_lhsOerrors ->
                                              (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                      Grammar typeSyns_ useMap_ derivings_ wrappers_ _nontsIoutput pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_
-                                                     {-# LINE 898 "dist/build/DefaultRules" #-}
+                                                     {-# LINE 892 "dist/build/DefaultRules" #-}
                                                      )) of
                                               { !_output ->
                                               (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                       _output
-                                                      {-# LINE 903 "dist/build/DefaultRules" #-}
+                                                      {-# LINE 897 "dist/build/DefaultRules" #-}
                                                       )) of
                                                { !_lhsOoutput ->
-                                               (case ((Syn_Grammar _lhsOerrors _lhsOoutput)) of
-                                                { ___node ->
-                                                ( _lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                               ( _lhsOerrors,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 -- Nonterminal -------------------------------------------------
 {-
    visit 0:
@@ -986,17 +978,17 @@ sem_Nonterminal_Nonterminal :: NontermIdent ->
 sem_Nonterminal_Nonterminal !nt_ !params_ !inh_ !syn_ !(T_Productions prods_) =
     (T_Nonterminal (case (({-# LINE 150 "src-ag/DefaultRules.ag" #-}
                            Set.singleton nt_
-                           {-# LINE 990 "dist/build/DefaultRules" #-}
+                           {-# LINE 982 "dist/build/DefaultRules" #-}
                            )) of
                     { !_lhsOcollect_nts ->
                     (case (({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                             Map.singleton nt_ inh_
-                            {-# LINE 995 "dist/build/DefaultRules" #-}
+                            {-# LINE 987 "dist/build/DefaultRules" #-}
                             )) of
                      { !_lhsOinhMap' ->
                      (case (({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                              Map.singleton nt_ syn_
-                             {-# LINE 1000 "dist/build/DefaultRules" #-}
+                             {-# LINE 992 "dist/build/DefaultRules" #-}
                              )) of
                       { !_lhsOsynMap' ->
                       (case ((let sem_Nonterminal_Nonterminal_1 :: T_Nonterminal_1
@@ -1017,144 +1009,144 @@ sem_Nonterminal_Nonterminal !nt_ !params_ !inh_ !syn_ !(T_Productions prods_) =
                                                           (!_lhsIwrappers) ->
                                                             (case (({-# LINE 64 "src-ag/DefaultRules.ag" #-}
                                                                     _lhsIwrappers
-                                                                    {-# LINE 1021 "dist/build/DefaultRules" #-}
+                                                                    {-# LINE 1013 "dist/build/DefaultRules" #-}
                                                                     )) of
                                                              { !_prodsOwrappers ->
                                                              (case (({-# LINE 71 "src-ag/DefaultRules.ag" #-}
                                                                      _lhsItypeSyns
-                                                                     {-# LINE 1026 "dist/build/DefaultRules" #-}
+                                                                     {-# LINE 1018 "dist/build/DefaultRules" #-}
                                                                      )) of
                                                               { !_prodsOtypeSyns ->
                                                               (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                       _lhsIsynMap
-                                                                      {-# LINE 1031 "dist/build/DefaultRules" #-}
+                                                                      {-# LINE 1023 "dist/build/DefaultRules" #-}
                                                                       )) of
                                                                { !_prodsOsynMap ->
                                                                (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                                                        _lhsIoptions
-                                                                       {-# LINE 1036 "dist/build/DefaultRules" #-}
+                                                                       {-# LINE 1028 "dist/build/DefaultRules" #-}
                                                                        )) of
                                                                 { !_prodsOoptions ->
                                                                 (case (({-# LINE 51 "src-ag/DefaultRules.ag" #-}
                                                                         _lhsIo_rename
-                                                                        {-# LINE 1041 "dist/build/DefaultRules" #-}
+                                                                        {-# LINE 1033 "dist/build/DefaultRules" #-}
                                                                         )) of
                                                                  { !_prodsOo_rename ->
                                                                  (case (({-# LINE 760 "src-ag/DefaultRules.ag" #-}
                                                                          Map.findWithDefault Map.empty nt_ _lhsImergesIn
-                                                                         {-# LINE 1046 "dist/build/DefaultRules" #-}
+                                                                         {-# LINE 1038 "dist/build/DefaultRules" #-}
                                                                          )) of
                                                                   { !_mergesIn ->
                                                                   (case (({-# LINE 756 "src-ag/DefaultRules.ag" #-}
                                                                           _mergesIn
-                                                                          {-# LINE 1051 "dist/build/DefaultRules" #-}
+                                                                          {-# LINE 1043 "dist/build/DefaultRules" #-}
                                                                           )) of
                                                                    { !_prodsOmergesIn ->
                                                                    (case (({-# LINE 674 "src-ag/DefaultRules.ag" #-}
                                                                            _lhsImanualAttrOrderMap
-                                                                           {-# LINE 1056 "dist/build/DefaultRules" #-}
+                                                                           {-# LINE 1048 "dist/build/DefaultRules" #-}
                                                                            )) of
                                                                     { !_prodsOmanualAttrOrderMap ->
                                                                     (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                             _lhsIinhMap
-                                                                            {-# LINE 1061 "dist/build/DefaultRules" #-}
+                                                                            {-# LINE 1053 "dist/build/DefaultRules" #-}
                                                                             )) of
                                                                      { !_prodsOinhMap ->
                                                                      (case (({-# LINE 52 "src-ag/DefaultRules.ag" #-}
                                                                              _lhsIcr
-                                                                             {-# LINE 1066 "dist/build/DefaultRules" #-}
+                                                                             {-# LINE 1058 "dist/build/DefaultRules" #-}
                                                                              )) of
                                                                       { !_prodsOcr ->
                                                                       (case (({-# LINE 534 "src-ag/DefaultRules.ag" #-}
                                                                               Map.map (elimSelfId nt_ params_) syn_
-                                                                              {-# LINE 1071 "dist/build/DefaultRules" #-}
+                                                                              {-# LINE 1063 "dist/build/DefaultRules" #-}
                                                                               )) of
                                                                        { !_syn1 ->
                                                                        (case (({-# LINE 533 "src-ag/DefaultRules.ag" #-}
                                                                                Map.map (elimSelfId nt_ params_) inh_
-                                                                               {-# LINE 1076 "dist/build/DefaultRules" #-}
+                                                                               {-# LINE 1068 "dist/build/DefaultRules" #-}
                                                                                )) of
                                                                         { !_inh1 ->
                                                                         (case (({-# LINE 180 "src-ag/DefaultRules.ag" #-}
                                                                                 nt_
-                                                                                {-# LINE 1081 "dist/build/DefaultRules" #-}
+                                                                                {-# LINE 1073 "dist/build/DefaultRules" #-}
                                                                                 )) of
                                                                          { !_prodsOnt ->
                                                                          (case (({-# LINE 168 "src-ag/DefaultRules.ag" #-}
                                                                                  Map.findWithDefault Map.empty nt_ _lhsIuseMap
-                                                                                 {-# LINE 1086 "dist/build/DefaultRules" #-}
+                                                                                 {-# LINE 1078 "dist/build/DefaultRules" #-}
                                                                                  )) of
                                                                           { !_prodsOuseMap ->
                                                                           (case (({-# LINE 167 "src-ag/DefaultRules.ag" #-}
                                                                                   syn_
-                                                                                  {-# LINE 1091 "dist/build/DefaultRules" #-}
+                                                                                  {-# LINE 1083 "dist/build/DefaultRules" #-}
                                                                                   )) of
                                                                            { !_prodsOsynOrig ->
                                                                            (case (({-# LINE 165 "src-ag/DefaultRules.ag" #-}
                                                                                    _syn1
-                                                                                   {-# LINE 1096 "dist/build/DefaultRules" #-}
+                                                                                   {-# LINE 1088 "dist/build/DefaultRules" #-}
                                                                                    )) of
                                                                             { !_prodsOsyn ->
                                                                             (case (({-# LINE 164 "src-ag/DefaultRules.ag" #-}
                                                                                     _inh1
-                                                                                    {-# LINE 1101 "dist/build/DefaultRules" #-}
+                                                                                    {-# LINE 1093 "dist/build/DefaultRules" #-}
                                                                                     )) of
                                                                              { !_prodsOinh ->
                                                                              (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                      _lhsIuniq
-                                                                                     {-# LINE 1106 "dist/build/DefaultRules" #-}
+                                                                                     {-# LINE 1098 "dist/build/DefaultRules" #-}
                                                                                      )) of
                                                                               { !_prodsOuniq ->
                                                                               (case (({-# LINE 152 "src-ag/DefaultRules.ag" #-}
                                                                                       _lhsInonterminals
-                                                                                      {-# LINE 1111 "dist/build/DefaultRules" #-}
+                                                                                      {-# LINE 1103 "dist/build/DefaultRules" #-}
                                                                                       )) of
                                                                                { !_prodsOnonterminals ->
                                                                                (case (({-# LINE 745 "src-ag/DefaultRules.ag" #-}
                                                                                        Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
-                                                                                       {-# LINE 1116 "dist/build/DefaultRules" #-}
+                                                                                       {-# LINE 1108 "dist/build/DefaultRules" #-}
                                                                                        )) of
                                                                                 { !_augmentsIn ->
                                                                                 (case (({-# LINE 742 "src-ag/DefaultRules.ag" #-}
                                                                                         _augmentsIn
-                                                                                        {-# LINE 1121 "dist/build/DefaultRules" #-}
+                                                                                        {-# LINE 1113 "dist/build/DefaultRules" #-}
                                                                                         )) of
                                                                                  { !_prodsOaugmentsIn ->
                                                                                  (case (({-# LINE 752 "src-ag/DefaultRules.ag" #-}
                                                                                          Map.findWithDefault Map.empty nt_ _lhsIaroundsIn
-                                                                                         {-# LINE 1126 "dist/build/DefaultRules" #-}
+                                                                                         {-# LINE 1118 "dist/build/DefaultRules" #-}
                                                                                          )) of
                                                                                   { !_aroundsIn ->
                                                                                   (case (({-# LINE 749 "src-ag/DefaultRules.ag" #-}
                                                                                           _aroundsIn
-                                                                                          {-# LINE 1131 "dist/build/DefaultRules" #-}
+                                                                                          {-# LINE 1123 "dist/build/DefaultRules" #-}
                                                                                           )) of
                                                                                    { !_prodsOaroundsIn ->
                                                                                    (case (({-# LINE 166 "src-ag/DefaultRules.ag" #-}
                                                                                            inh_
-                                                                                           {-# LINE 1136 "dist/build/DefaultRules" #-}
+                                                                                           {-# LINE 1128 "dist/build/DefaultRules" #-}
                                                                                            )) of
                                                                                     { !_prodsOinhOrig ->
                                                                                     (case (({-# LINE 43 "src-ag/DefaultRules.ag" #-}
                                                                                             params_
-                                                                                            {-# LINE 1141 "dist/build/DefaultRules" #-}
+                                                                                            {-# LINE 1133 "dist/build/DefaultRules" #-}
                                                                                             )) of
                                                                                      { !_prodsOparams ->
                                                                                      (case (prods_ _prodsOaroundsIn _prodsOaugmentsIn _prodsOcr _prodsOinh _prodsOinhMap _prodsOinhOrig _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnonterminals _prodsOnt _prodsOo_rename _prodsOoptions _prodsOparams _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuniq _prodsOuseMap _prodsOwrappers) of
                                                                                       { ( !_prodsIerrors,!_prodsIoutput,!_prodsIuniq) ->
                                                                                           (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                                                                   _prodsIerrors
-                                                                                                  {-# LINE 1148 "dist/build/DefaultRules" #-}
+                                                                                                  {-# LINE 1140 "dist/build/DefaultRules" #-}
                                                                                                   )) of
                                                                                            { !_lhsOerrors ->
                                                                                            (case (({-# LINE 573 "src-ag/DefaultRules.ag" #-}
                                                                                                    Nonterminal nt_ params_ _inh1     _syn1     _prodsIoutput
-                                                                                                   {-# LINE 1153 "dist/build/DefaultRules" #-}
+                                                                                                   {-# LINE 1145 "dist/build/DefaultRules" #-}
                                                                                                    )) of
                                                                                             { !_lhsOoutput ->
                                                                                             (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                                     _prodsIuniq
-                                                                                                    {-# LINE 1158 "dist/build/DefaultRules" #-}
+                                                                                                    {-# LINE 1150 "dist/build/DefaultRules" #-}
                                                                                                     )) of
                                                                                              { !_lhsOuniq ->
                                                                                              ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
@@ -1239,17 +1231,17 @@ sem_Nonterminals_Cons !(T_Nonterminal hd_) !(T_Nonterminals tl_) =
                           { ( !_hdIcollect_nts,!_hdIinhMap',!_hdIsynMap',!T_Nonterminal_1 hd_1) ->
                               (case (({-# LINE 148 "src-ag/DefaultRules.ag" #-}
                                       _hdIcollect_nts `Set.union` _tlIcollect_nts
-                                      {-# LINE 1243 "dist/build/DefaultRules" #-}
+                                      {-# LINE 1235 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOcollect_nts ->
                                (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                        _hdIinhMap' `Map.union` _tlIinhMap'
-                                       {-# LINE 1248 "dist/build/DefaultRules" #-}
+                                       {-# LINE 1240 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOinhMap' ->
                                 (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                         _hdIsynMap' `Map.union` _tlIsynMap'
-                                        {-# LINE 1253 "dist/build/DefaultRules" #-}
+                                        {-# LINE 1245 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_lhsOsynMap' ->
                                  (case ((let sem_Nonterminals_Cons_1 :: T_Nonterminals_1
@@ -1270,166 +1262,166 @@ sem_Nonterminals_Cons !(T_Nonterminal hd_) !(T_Nonterminals tl_) =
                                                                       (!_lhsIwrappers) ->
                                                                         (case (({-# LINE 64 "src-ag/DefaultRules.ag" #-}
                                                                                 _lhsIwrappers
-                                                                                {-# LINE 1274 "dist/build/DefaultRules" #-}
+                                                                                {-# LINE 1266 "dist/build/DefaultRules" #-}
                                                                                 )) of
                                                                          { !_tlOwrappers ->
                                                                          (case (({-# LINE 160 "src-ag/DefaultRules.ag" #-}
                                                                                  _lhsIuseMap
-                                                                                 {-# LINE 1279 "dist/build/DefaultRules" #-}
+                                                                                 {-# LINE 1271 "dist/build/DefaultRules" #-}
                                                                                  )) of
                                                                           { !_tlOuseMap ->
                                                                           (case (({-# LINE 71 "src-ag/DefaultRules.ag" #-}
                                                                                   _lhsItypeSyns
-                                                                                  {-# LINE 1284 "dist/build/DefaultRules" #-}
+                                                                                  {-# LINE 1276 "dist/build/DefaultRules" #-}
                                                                                   )) of
                                                                            { !_tlOtypeSyns ->
                                                                            (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                                    _lhsIsynMap
-                                                                                   {-# LINE 1289 "dist/build/DefaultRules" #-}
+                                                                                   {-# LINE 1281 "dist/build/DefaultRules" #-}
                                                                                    )) of
                                                                             { !_tlOsynMap ->
                                                                             (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                                                                     _lhsIoptions
-                                                                                    {-# LINE 1294 "dist/build/DefaultRules" #-}
+                                                                                    {-# LINE 1286 "dist/build/DefaultRules" #-}
                                                                                     )) of
                                                                              { !_tlOoptions ->
                                                                              (case (({-# LINE 51 "src-ag/DefaultRules.ag" #-}
                                                                                      _lhsIo_rename
-                                                                                     {-# LINE 1299 "dist/build/DefaultRules" #-}
+                                                                                     {-# LINE 1291 "dist/build/DefaultRules" #-}
                                                                                      )) of
                                                                               { !_tlOo_rename ->
                                                                               (case (({-# LINE 755 "src-ag/DefaultRules.ag" #-}
                                                                                       _lhsImergesIn
-                                                                                      {-# LINE 1304 "dist/build/DefaultRules" #-}
+                                                                                      {-# LINE 1296 "dist/build/DefaultRules" #-}
                                                                                       )) of
                                                                                { !_tlOmergesIn ->
                                                                                (case (({-# LINE 674 "src-ag/DefaultRules.ag" #-}
                                                                                        _lhsImanualAttrOrderMap
-                                                                                       {-# LINE 1309 "dist/build/DefaultRules" #-}
+                                                                                       {-# LINE 1301 "dist/build/DefaultRules" #-}
                                                                                        )) of
                                                                                 { !_tlOmanualAttrOrderMap ->
                                                                                 (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                                         _lhsIinhMap
-                                                                                        {-# LINE 1314 "dist/build/DefaultRules" #-}
+                                                                                        {-# LINE 1306 "dist/build/DefaultRules" #-}
                                                                                         )) of
                                                                                  { !_tlOinhMap ->
                                                                                  (case (({-# LINE 52 "src-ag/DefaultRules.ag" #-}
                                                                                          _lhsIcr
-                                                                                         {-# LINE 1319 "dist/build/DefaultRules" #-}
+                                                                                         {-# LINE 1311 "dist/build/DefaultRules" #-}
                                                                                          )) of
                                                                                   { !_tlOcr ->
                                                                                   (case (({-# LINE 64 "src-ag/DefaultRules.ag" #-}
                                                                                           _lhsIwrappers
-                                                                                          {-# LINE 1324 "dist/build/DefaultRules" #-}
+                                                                                          {-# LINE 1316 "dist/build/DefaultRules" #-}
                                                                                           )) of
                                                                                    { !_hdOwrappers ->
                                                                                    (case (({-# LINE 160 "src-ag/DefaultRules.ag" #-}
                                                                                            _lhsIuseMap
-                                                                                           {-# LINE 1329 "dist/build/DefaultRules" #-}
+                                                                                           {-# LINE 1321 "dist/build/DefaultRules" #-}
                                                                                            )) of
                                                                                     { !_hdOuseMap ->
                                                                                     (case (({-# LINE 71 "src-ag/DefaultRules.ag" #-}
                                                                                             _lhsItypeSyns
-                                                                                            {-# LINE 1334 "dist/build/DefaultRules" #-}
+                                                                                            {-# LINE 1326 "dist/build/DefaultRules" #-}
                                                                                             )) of
                                                                                      { !_hdOtypeSyns ->
                                                                                      (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                                              _lhsIsynMap
-                                                                                             {-# LINE 1339 "dist/build/DefaultRules" #-}
+                                                                                             {-# LINE 1331 "dist/build/DefaultRules" #-}
                                                                                              )) of
                                                                                       { !_hdOsynMap ->
                                                                                       (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                                                                               _lhsIoptions
-                                                                                              {-# LINE 1344 "dist/build/DefaultRules" #-}
+                                                                                              {-# LINE 1336 "dist/build/DefaultRules" #-}
                                                                                               )) of
                                                                                        { !_hdOoptions ->
                                                                                        (case (({-# LINE 51 "src-ag/DefaultRules.ag" #-}
                                                                                                _lhsIo_rename
-                                                                                               {-# LINE 1349 "dist/build/DefaultRules" #-}
+                                                                                               {-# LINE 1341 "dist/build/DefaultRules" #-}
                                                                                                )) of
                                                                                         { !_hdOo_rename ->
                                                                                         (case (({-# LINE 755 "src-ag/DefaultRules.ag" #-}
                                                                                                 _lhsImergesIn
-                                                                                                {-# LINE 1354 "dist/build/DefaultRules" #-}
+                                                                                                {-# LINE 1346 "dist/build/DefaultRules" #-}
                                                                                                 )) of
                                                                                          { !_hdOmergesIn ->
                                                                                          (case (({-# LINE 674 "src-ag/DefaultRules.ag" #-}
                                                                                                  _lhsImanualAttrOrderMap
-                                                                                                 {-# LINE 1359 "dist/build/DefaultRules" #-}
+                                                                                                 {-# LINE 1351 "dist/build/DefaultRules" #-}
                                                                                                  )) of
                                                                                           { !_hdOmanualAttrOrderMap ->
                                                                                           (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                                                                   _lhsIinhMap
-                                                                                                  {-# LINE 1364 "dist/build/DefaultRules" #-}
+                                                                                                  {-# LINE 1356 "dist/build/DefaultRules" #-}
                                                                                                   )) of
                                                                                            { !_hdOinhMap ->
                                                                                            (case (({-# LINE 52 "src-ag/DefaultRules.ag" #-}
                                                                                                    _lhsIcr
-                                                                                                   {-# LINE 1369 "dist/build/DefaultRules" #-}
+                                                                                                   {-# LINE 1361 "dist/build/DefaultRules" #-}
                                                                                                    )) of
                                                                                             { !_hdOcr ->
                                                                                             (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                                     _lhsIuniq
-                                                                                                    {-# LINE 1374 "dist/build/DefaultRules" #-}
+                                                                                                    {-# LINE 1366 "dist/build/DefaultRules" #-}
                                                                                                     )) of
                                                                                              { !_hdOuniq ->
                                                                                              (case (({-# LINE 152 "src-ag/DefaultRules.ag" #-}
                                                                                                      _lhsInonterminals
-                                                                                                     {-# LINE 1379 "dist/build/DefaultRules" #-}
+                                                                                                     {-# LINE 1371 "dist/build/DefaultRules" #-}
                                                                                                      )) of
                                                                                               { !_hdOnonterminals ->
                                                                                               (case (({-# LINE 741 "src-ag/DefaultRules.ag" #-}
                                                                                                       _lhsIaugmentsIn
-                                                                                                      {-# LINE 1384 "dist/build/DefaultRules" #-}
+                                                                                                      {-# LINE 1376 "dist/build/DefaultRules" #-}
                                                                                                       )) of
                                                                                                { !_hdOaugmentsIn ->
                                                                                                (case (({-# LINE 748 "src-ag/DefaultRules.ag" #-}
                                                                                                        _lhsIaroundsIn
-                                                                                                       {-# LINE 1389 "dist/build/DefaultRules" #-}
+                                                                                                       {-# LINE 1381 "dist/build/DefaultRules" #-}
                                                                                                        )) of
                                                                                                 { !_hdOaroundsIn ->
                                                                                                 (case (hd_1 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOnonterminals _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) of
                                                                                                  { ( !_hdIerrors,!_hdIoutput,!_hdIuniq) ->
                                                                                                      (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                                              _hdIuniq
-                                                                                                             {-# LINE 1396 "dist/build/DefaultRules" #-}
+                                                                                                             {-# LINE 1388 "dist/build/DefaultRules" #-}
                                                                                                              )) of
                                                                                                       { !_tlOuniq ->
                                                                                                       (case (({-# LINE 152 "src-ag/DefaultRules.ag" #-}
                                                                                                               _lhsInonterminals
-                                                                                                              {-# LINE 1401 "dist/build/DefaultRules" #-}
+                                                                                                              {-# LINE 1393 "dist/build/DefaultRules" #-}
                                                                                                               )) of
                                                                                                        { !_tlOnonterminals ->
                                                                                                        (case (({-# LINE 741 "src-ag/DefaultRules.ag" #-}
                                                                                                                _lhsIaugmentsIn
-                                                                                                               {-# LINE 1406 "dist/build/DefaultRules" #-}
+                                                                                                               {-# LINE 1398 "dist/build/DefaultRules" #-}
                                                                                                                )) of
                                                                                                         { !_tlOaugmentsIn ->
                                                                                                         (case (({-# LINE 748 "src-ag/DefaultRules.ag" #-}
                                                                                                                 _lhsIaroundsIn
-                                                                                                                {-# LINE 1411 "dist/build/DefaultRules" #-}
+                                                                                                                {-# LINE 1403 "dist/build/DefaultRules" #-}
                                                                                                                 )) of
                                                                                                          { !_tlOaroundsIn ->
                                                                                                          (case (tl_1 _tlOaroundsIn _tlOaugmentsIn _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOnonterminals _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuniq _tlOuseMap _tlOwrappers) of
                                                                                                           { ( !_tlIerrors,!_tlIoutput,!_tlIuniq) ->
                                                                                                               (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                                                                                       _hdIerrors Seq.>< _tlIerrors
-                                                                                                                      {-# LINE 1418 "dist/build/DefaultRules" #-}
+                                                                                                                      {-# LINE 1410 "dist/build/DefaultRules" #-}
                                                                                                                       )) of
                                                                                                                { !_lhsOerrors ->
                                                                                                                (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                                                                        (:) _hdIoutput _tlIoutput
-                                                                                                                       {-# LINE 1423 "dist/build/DefaultRules" #-}
+                                                                                                                       {-# LINE 1415 "dist/build/DefaultRules" #-}
                                                                                                                        )) of
                                                                                                                 { !_output ->
                                                                                                                 (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                                                                         _output
-                                                                                                                        {-# LINE 1428 "dist/build/DefaultRules" #-}
+                                                                                                                        {-# LINE 1420 "dist/build/DefaultRules" #-}
                                                                                                                         )) of
                                                                                                                  { !_lhsOoutput ->
                                                                                                                  (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                                                          _tlIuniq
-                                                                                                                         {-# LINE 1433 "dist/build/DefaultRules" #-}
+                                                                                                                         {-# LINE 1425 "dist/build/DefaultRules" #-}
                                                                                                                          )) of
                                                                                                                   { !_lhsOuniq ->
                                                                                                                   ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
@@ -1440,17 +1432,17 @@ sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
     (T_Nonterminals (case (({-# LINE 148 "src-ag/DefaultRules.ag" #-}
                             Set.empty
-                            {-# LINE 1444 "dist/build/DefaultRules" #-}
+                            {-# LINE 1436 "dist/build/DefaultRules" #-}
                             )) of
                      { !_lhsOcollect_nts ->
                      (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                              Map.empty
-                             {-# LINE 1449 "dist/build/DefaultRules" #-}
+                             {-# LINE 1441 "dist/build/DefaultRules" #-}
                              )) of
                       { !_lhsOinhMap' ->
                       (case (({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                               Map.empty
-                              {-# LINE 1454 "dist/build/DefaultRules" #-}
+                              {-# LINE 1446 "dist/build/DefaultRules" #-}
                               )) of
                        { !_lhsOsynMap' ->
                        (case ((let sem_Nonterminals_Nil_1 :: T_Nonterminals_1
@@ -1471,22 +1463,22 @@ sem_Nonterminals_Nil =
                                                             (!_lhsIwrappers) ->
                                                               (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                                       Seq.empty
-                                                                      {-# LINE 1475 "dist/build/DefaultRules" #-}
+                                                                      {-# LINE 1467 "dist/build/DefaultRules" #-}
                                                                       )) of
                                                                { !_lhsOerrors ->
                                                                (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                        []
-                                                                       {-# LINE 1480 "dist/build/DefaultRules" #-}
+                                                                       {-# LINE 1472 "dist/build/DefaultRules" #-}
                                                                        )) of
                                                                 { !_output ->
                                                                 (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                         _output
-                                                                        {-# LINE 1485 "dist/build/DefaultRules" #-}
+                                                                        {-# LINE 1477 "dist/build/DefaultRules" #-}
                                                                         )) of
                                                                  { !_lhsOoutput ->
                                                                  (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                          _lhsIuniq
-                                                                         {-# LINE 1490 "dist/build/DefaultRules" #-}
+                                                                         {-# LINE 1482 "dist/build/DefaultRules" #-}
                                                                          )) of
                                                                   { !_lhsOuniq ->
                                                                   ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) })))
@@ -1571,61 +1563,59 @@ sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_) =
                   (!_lhsInt) ->
                     (case (({-# LINE 523 "src-ag/DefaultRules.ag" #-}
                             True
-                            {-# LINE 1575 "dist/build/DefaultRules" #-}
+                            {-# LINE 1567 "dist/build/DefaultRules" #-}
                             )) of
                      { !_lhsOcontainsVars ->
                      (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                              _lhsInt
-                             {-# LINE 1580 "dist/build/DefaultRules" #-}
+                             {-# LINE 1572 "dist/build/DefaultRules" #-}
                              )) of
                       { !_patOnt ->
                       (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                               _lhsIcon
-                              {-# LINE 1585 "dist/build/DefaultRules" #-}
+                              {-# LINE 1577 "dist/build/DefaultRules" #-}
                               )) of
                        { !_patOcon ->
                        (case (pat_ _patOcon _patOnt) of
                         { ( !_patIcontainsVars,!_patIcopy,!_patIdefinedAttrs,!_patIerrors,!_patIlocals,!_patIoutput) ->
                             (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                     Alias field_ attr_ _patIcopy
-                                    {-# LINE 1592 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1584 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_copy ->
                              (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                      _copy
-                                     {-# LINE 1597 "dist/build/DefaultRules" #-}
+                                     {-# LINE 1589 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_lhsOcopy ->
                               (case (({-# LINE 505 "src-ag/DefaultRules.ag" #-}
                                       Set.insert (field_,attr_) _patIdefinedAttrs
-                                      {-# LINE 1602 "dist/build/DefaultRules" #-}
+                                      {-# LINE 1594 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOdefinedAttrs ->
                                (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                        _patIerrors
-                                       {-# LINE 1607 "dist/build/DefaultRules" #-}
+                                       {-# LINE 1599 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOerrors ->
                                 (case (({-# LINE 506 "src-ag/DefaultRules.ag" #-}
                                         if field_ == _LOC
                                            then Set.insert attr_ _patIlocals
                                            else _patIlocals
-                                        {-# LINE 1614 "dist/build/DefaultRules" #-}
+                                        {-# LINE 1606 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_lhsOlocals ->
                                  (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                          Alias field_ attr_ _patIoutput
-                                         {-# LINE 1619 "dist/build/DefaultRules" #-}
+                                         {-# LINE 1611 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_output ->
                                   (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                           _output
-                                          {-# LINE 1624 "dist/build/DefaultRules" #-}
+                                          {-# LINE 1616 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_lhsOoutput ->
-                                   (case ((Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                                    { ___node ->
-                                    ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) })))
+                                   ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) })))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
                       T_Pattern
@@ -1634,59 +1624,57 @@ sem_Pattern_Constr !name_ !(T_Patterns pats_) =
                   (!_lhsInt) ->
                     (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                             _lhsInt
-                            {-# LINE 1638 "dist/build/DefaultRules" #-}
+                            {-# LINE 1628 "dist/build/DefaultRules" #-}
                             )) of
                      { !_patsOnt ->
                      (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                              _lhsIcon
-                             {-# LINE 1643 "dist/build/DefaultRules" #-}
+                             {-# LINE 1633 "dist/build/DefaultRules" #-}
                              )) of
                       { !_patsOcon ->
                       (case (pats_ _patsOcon _patsOnt) of
                        { ( !_patsIcontainsVars,!_patsIcopy,!_patsIdefinedAttrs,!_patsIerrors,!_patsIlocals,!_patsIoutput) ->
                            (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                                    _patsIcontainsVars
-                                   {-# LINE 1650 "dist/build/DefaultRules" #-}
+                                   {-# LINE 1640 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOcontainsVars ->
                             (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                     Constr name_ _patsIcopy
-                                    {-# LINE 1655 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1645 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_copy ->
                              (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                      _copy
-                                     {-# LINE 1660 "dist/build/DefaultRules" #-}
+                                     {-# LINE 1650 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_lhsOcopy ->
                               (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                       _patsIdefinedAttrs
-                                      {-# LINE 1665 "dist/build/DefaultRules" #-}
+                                      {-# LINE 1655 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOdefinedAttrs ->
                                (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                        _patsIerrors
-                                       {-# LINE 1670 "dist/build/DefaultRules" #-}
+                                       {-# LINE 1660 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOerrors ->
                                 (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                         _patsIlocals
-                                        {-# LINE 1675 "dist/build/DefaultRules" #-}
+                                        {-# LINE 1665 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_lhsOlocals ->
                                  (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                          Constr name_ _patsIoutput
-                                         {-# LINE 1680 "dist/build/DefaultRules" #-}
+                                         {-# LINE 1670 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_output ->
                                   (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                           _output
-                                          {-# LINE 1685 "dist/build/DefaultRules" #-}
+                                          {-# LINE 1675 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_lhsOoutput ->
-                                   (case ((Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                                    { ___node ->
-                                    ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) })))
+                                   ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) })))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
 sem_Pattern_Irrefutable !(T_Pattern pat_) =
@@ -1694,59 +1682,57 @@ sem_Pattern_Irrefutable !(T_Pattern pat_) =
                   (!_lhsInt) ->
                     (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                             _lhsInt
-                            {-# LINE 1698 "dist/build/DefaultRules" #-}
+                            {-# LINE 1686 "dist/build/DefaultRules" #-}
                             )) of
                      { !_patOnt ->
                      (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                              _lhsIcon
-                             {-# LINE 1703 "dist/build/DefaultRules" #-}
+                             {-# LINE 1691 "dist/build/DefaultRules" #-}
                              )) of
                       { !_patOcon ->
                       (case (pat_ _patOcon _patOnt) of
                        { ( !_patIcontainsVars,!_patIcopy,!_patIdefinedAttrs,!_patIerrors,!_patIlocals,!_patIoutput) ->
                            (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                                    _patIcontainsVars
-                                   {-# LINE 1710 "dist/build/DefaultRules" #-}
+                                   {-# LINE 1698 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOcontainsVars ->
                             (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                     Irrefutable _patIcopy
-                                    {-# LINE 1715 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1703 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_copy ->
                              (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                      _copy
-                                     {-# LINE 1720 "dist/build/DefaultRules" #-}
+                                     {-# LINE 1708 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_lhsOcopy ->
                               (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                       _patIdefinedAttrs
-                                      {-# LINE 1725 "dist/build/DefaultRules" #-}
+                                      {-# LINE 1713 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOdefinedAttrs ->
                                (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                        _patIerrors
-                                       {-# LINE 1730 "dist/build/DefaultRules" #-}
+                                       {-# LINE 1718 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOerrors ->
                                 (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                         _patIlocals
-                                        {-# LINE 1735 "dist/build/DefaultRules" #-}
+                                        {-# LINE 1723 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_lhsOlocals ->
                                  (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                          Irrefutable _patIoutput
-                                         {-# LINE 1740 "dist/build/DefaultRules" #-}
+                                         {-# LINE 1728 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_output ->
                                   (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                           _output
-                                          {-# LINE 1745 "dist/build/DefaultRules" #-}
+                                          {-# LINE 1733 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_lhsOoutput ->
-                                   (case ((Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                                    { ___node ->
-                                    ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) })))
+                                   ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) })))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
                        T_Pattern
@@ -1755,59 +1741,57 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_) =
                   (!_lhsInt) ->
                     (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                             _lhsInt
-                            {-# LINE 1759 "dist/build/DefaultRules" #-}
+                            {-# LINE 1745 "dist/build/DefaultRules" #-}
                             )) of
                      { !_patsOnt ->
                      (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                              _lhsIcon
-                             {-# LINE 1764 "dist/build/DefaultRules" #-}
+                             {-# LINE 1750 "dist/build/DefaultRules" #-}
                              )) of
                       { !_patsOcon ->
                       (case (pats_ _patsOcon _patsOnt) of
                        { ( !_patsIcontainsVars,!_patsIcopy,!_patsIdefinedAttrs,!_patsIerrors,!_patsIlocals,!_patsIoutput) ->
                            (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                                    _patsIcontainsVars
-                                   {-# LINE 1771 "dist/build/DefaultRules" #-}
+                                   {-# LINE 1757 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOcontainsVars ->
                             (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                     Product pos_ _patsIcopy
-                                    {-# LINE 1776 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1762 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_copy ->
                              (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                      _copy
-                                     {-# LINE 1781 "dist/build/DefaultRules" #-}
+                                     {-# LINE 1767 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_lhsOcopy ->
                               (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                       _patsIdefinedAttrs
-                                      {-# LINE 1786 "dist/build/DefaultRules" #-}
+                                      {-# LINE 1772 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOdefinedAttrs ->
                                (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                        _patsIerrors
-                                       {-# LINE 1791 "dist/build/DefaultRules" #-}
+                                       {-# LINE 1777 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_lhsOerrors ->
                                 (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                         _patsIlocals
-                                        {-# LINE 1796 "dist/build/DefaultRules" #-}
+                                        {-# LINE 1782 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_lhsOlocals ->
                                  (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                          Product pos_ _patsIoutput
-                                         {-# LINE 1801 "dist/build/DefaultRules" #-}
+                                         {-# LINE 1787 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_output ->
                                   (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                           _output
-                                          {-# LINE 1806 "dist/build/DefaultRules" #-}
+                                          {-# LINE 1792 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_lhsOoutput ->
-                                   (case ((Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                                    { ___node ->
-                                    ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) })))
+                                   ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) })))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
 sem_Pattern_Underscore !pos_ =
@@ -1815,47 +1799,45 @@ sem_Pattern_Underscore !pos_ =
                   (!_lhsInt) ->
                     (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                             False
-                            {-# LINE 1819 "dist/build/DefaultRules" #-}
+                            {-# LINE 1803 "dist/build/DefaultRules" #-}
                             )) of
                      { !_lhsOcontainsVars ->
                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              Underscore pos_
-                             {-# LINE 1824 "dist/build/DefaultRules" #-}
+                             {-# LINE 1808 "dist/build/DefaultRules" #-}
                              )) of
                       { !_copy ->
                       (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 1829 "dist/build/DefaultRules" #-}
+                              {-# LINE 1813 "dist/build/DefaultRules" #-}
                               )) of
                        { !_lhsOcopy ->
                        (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                Set.empty
-                               {-# LINE 1834 "dist/build/DefaultRules" #-}
+                               {-# LINE 1818 "dist/build/DefaultRules" #-}
                                )) of
                         { !_lhsOdefinedAttrs ->
                         (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                 Seq.empty
-                                {-# LINE 1839 "dist/build/DefaultRules" #-}
+                                {-# LINE 1823 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_lhsOerrors ->
                          (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                  Set.empty
-                                 {-# LINE 1844 "dist/build/DefaultRules" #-}
+                                 {-# LINE 1828 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_lhsOlocals ->
                           (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                   Underscore pos_
-                                  {-# LINE 1849 "dist/build/DefaultRules" #-}
+                                  {-# LINE 1833 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_output ->
                            (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                    _output
-                                   {-# LINE 1854 "dist/build/DefaultRules" #-}
+                                   {-# LINE 1838 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOoutput ->
-                            (case ((Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                             { ___node ->
-                             ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) })))
+                            ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) })))
 -- Patterns ----------------------------------------------------
 {-
    visit 0:
@@ -1906,118 +1888,114 @@ sem_Patterns_Cons !(T_Pattern hd_) !(T_Patterns tl_) =
                    (!_lhsInt) ->
                      (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                              _lhsInt
-                             {-# LINE 1910 "dist/build/DefaultRules" #-}
+                             {-# LINE 1892 "dist/build/DefaultRules" #-}
                              )) of
                       { !_tlOnt ->
                       (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                               _lhsIcon
-                              {-# LINE 1915 "dist/build/DefaultRules" #-}
+                              {-# LINE 1897 "dist/build/DefaultRules" #-}
                               )) of
                        { !_tlOcon ->
                        (case (tl_ _tlOcon _tlOnt) of
                         { ( !_tlIcontainsVars,!_tlIcopy,!_tlIdefinedAttrs,!_tlIerrors,!_tlIlocals,!_tlIoutput) ->
                             (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                     _lhsInt
-                                    {-# LINE 1922 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1904 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_hdOnt ->
                              (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                                      _lhsIcon
-                                     {-# LINE 1927 "dist/build/DefaultRules" #-}
+                                     {-# LINE 1909 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_hdOcon ->
                               (case (hd_ _hdOcon _hdOnt) of
                                { ( !_hdIcontainsVars,!_hdIcopy,!_hdIdefinedAttrs,!_hdIerrors,!_hdIlocals,!_hdIoutput) ->
                                    (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                                            _hdIcontainsVars || _tlIcontainsVars
-                                           {-# LINE 1934 "dist/build/DefaultRules" #-}
+                                           {-# LINE 1916 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !_lhsOcontainsVars ->
                                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                             (:) _hdIcopy _tlIcopy
-                                            {-# LINE 1939 "dist/build/DefaultRules" #-}
+                                            {-# LINE 1921 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_copy ->
                                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                              _copy
-                                             {-# LINE 1944 "dist/build/DefaultRules" #-}
+                                             {-# LINE 1926 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_lhsOcopy ->
                                       (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                               _hdIdefinedAttrs `Set.union` _tlIdefinedAttrs
-                                              {-# LINE 1949 "dist/build/DefaultRules" #-}
+                                              {-# LINE 1931 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_lhsOdefinedAttrs ->
                                        (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                _hdIerrors Seq.>< _tlIerrors
-                                               {-# LINE 1954 "dist/build/DefaultRules" #-}
+                                               {-# LINE 1936 "dist/build/DefaultRules" #-}
                                                )) of
                                         { !_lhsOerrors ->
                                         (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                                 _hdIlocals `Set.union` _tlIlocals
-                                                {-# LINE 1959 "dist/build/DefaultRules" #-}
+                                                {-# LINE 1941 "dist/build/DefaultRules" #-}
                                                 )) of
                                          { !_lhsOlocals ->
                                          (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                  (:) _hdIoutput _tlIoutput
-                                                 {-# LINE 1964 "dist/build/DefaultRules" #-}
+                                                 {-# LINE 1946 "dist/build/DefaultRules" #-}
                                                  )) of
                                           { !_output ->
                                           (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                   _output
-                                                  {-# LINE 1969 "dist/build/DefaultRules" #-}
+                                                  {-# LINE 1951 "dist/build/DefaultRules" #-}
                                                   )) of
                                            { !_lhsOoutput ->
-                                           (case ((Syn_Patterns _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                                            { ___node ->
-                                            ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                           ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
     (T_Patterns (\ (!_lhsIcon)
                    (!_lhsInt) ->
                      (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                              False
-                             {-# LINE 1981 "dist/build/DefaultRules" #-}
+                             {-# LINE 1961 "dist/build/DefaultRules" #-}
                              )) of
                       { !_lhsOcontainsVars ->
                       (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                               []
-                              {-# LINE 1986 "dist/build/DefaultRules" #-}
+                              {-# LINE 1966 "dist/build/DefaultRules" #-}
                               )) of
                        { !_copy ->
                        (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 1991 "dist/build/DefaultRules" #-}
+                               {-# LINE 1971 "dist/build/DefaultRules" #-}
                                )) of
                         { !_lhsOcopy ->
                         (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                 Set.empty
-                                {-# LINE 1996 "dist/build/DefaultRules" #-}
+                                {-# LINE 1976 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_lhsOdefinedAttrs ->
                          (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                  Seq.empty
-                                 {-# LINE 2001 "dist/build/DefaultRules" #-}
+                                 {-# LINE 1981 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_lhsOerrors ->
                           (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                   Set.empty
-                                  {-# LINE 2006 "dist/build/DefaultRules" #-}
+                                  {-# LINE 1986 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_lhsOlocals ->
                            (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                    []
-                                   {-# LINE 2011 "dist/build/DefaultRules" #-}
+                                   {-# LINE 1991 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_output ->
                             (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                     _output
-                                    {-# LINE 2016 "dist/build/DefaultRules" #-}
+                                    {-# LINE 1996 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_lhsOoutput ->
-                             (case ((Syn_Patterns _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)) of
-                              { ___node ->
-                              ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) }) })))
+                             ( _lhsOcontainsVars,_lhsOcopy,_lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput) }) }) }) }) }) }) }) })))
 -- Production --------------------------------------------------
 {-
    visit 0:
@@ -2135,74 +2113,74 @@ sem_Production_Production !con_ !params_ !constraints_ !(T_Children children_) !
                      (!_lhsIwrappers) ->
                        (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 2139 "dist/build/DefaultRules" #-}
+                               {-# LINE 2117 "dist/build/DefaultRules" #-}
                                )) of
                         { !_childrenOsynMap ->
                         (case (({-# LINE 761 "src-ag/DefaultRules.ag" #-}
                                 Map.findWithDefault Map.empty con_ _lhsImergesIn
-                                {-# LINE 2144 "dist/build/DefaultRules" #-}
+                                {-# LINE 2122 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_mergesIn ->
                          (case (({-# LINE 762 "src-ag/DefaultRules.ag" #-}
                                  Set.fromList [ c | (_,cs,_) <- Map.elems _mergesIn    , c <- cs ]
-                                 {-# LINE 2149 "dist/build/DefaultRules" #-}
+                                 {-# LINE 2127 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_merged ->
                           (case (({-# LINE 757 "src-ag/DefaultRules.ag" #-}
                                   _merged
-                                  {-# LINE 2154 "dist/build/DefaultRules" #-}
+                                  {-# LINE 2132 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_childrenOmerged ->
                            (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 2159 "dist/build/DefaultRules" #-}
+                                   {-# LINE 2137 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_childrenOinhMap ->
                             (case (({-# LINE 688 "src-ag/DefaultRules.ag" #-}
                                     Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrOrderMap
-                                    {-# LINE 2164 "dist/build/DefaultRules" #-}
+                                    {-# LINE 2142 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_orderDeps ->
                              (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                      _lhsIuniq
-                                     {-# LINE 2169 "dist/build/DefaultRules" #-}
+                                     {-# LINE 2147 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_rulesOuniq ->
                               (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                       _lhsIoptions
-                                      {-# LINE 2174 "dist/build/DefaultRules" #-}
+                                      {-# LINE 2152 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_rulesOoptions ->
                                (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                        _lhsInt
-                                       {-# LINE 2179 "dist/build/DefaultRules" #-}
+                                       {-# LINE 2157 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_rulesOnt ->
                                 (case (({-# LINE 171 "src-ag/DefaultRules.ag" #-}
                                         con_
-                                        {-# LINE 2184 "dist/build/DefaultRules" #-}
+                                        {-# LINE 2162 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_rulesOcon ->
                                  (case (rules_ _rulesOcon _rulesOnt _rulesOoptions _rulesOuniq) of
                                   { ( !_rulesIdefinedAttrs,!_rulesIerrors,!_rulesIlocals,!_rulesIoutput,!_rulesIruleNames,!_rulesIuniq) ->
                                       (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                               _lhsIparams
-                                              {-# LINE 2191 "dist/build/DefaultRules" #-}
+                                              {-# LINE 2169 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_childrenOparams ->
                                        (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                                _lhsInt
-                                               {-# LINE 2196 "dist/build/DefaultRules" #-}
+                                               {-# LINE 2174 "dist/build/DefaultRules" #-}
                                                )) of
                                         { !_childrenOnt ->
                                         (case (({-# LINE 55 "src-ag/DefaultRules.ag" #-}
                                                 _lhsIcr
-                                                {-# LINE 2201 "dist/build/DefaultRules" #-}
+                                                {-# LINE 2179 "dist/build/DefaultRules" #-}
                                                 )) of
                                          { !_childrenOcr ->
                                          (case (({-# LINE 172 "src-ag/DefaultRules.ag" #-}
                                                  con_
-                                                 {-# LINE 2206 "dist/build/DefaultRules" #-}
+                                                 {-# LINE 2184 "dist/build/DefaultRules" #-}
                                                  )) of
                                           { !_childrenOcon ->
                                           (case (children_ _childrenOcon _childrenOcr _childrenOinhMap _childrenOmerged _childrenOnt _childrenOparams _childrenOsynMap) of
@@ -2243,7 +2221,7 @@ sem_Production_Production !con_ !params_ !constraints_ !(T_Children children_) !
                                                           [ checkIn occA ++ checkOut occB
                                                           | (Dependency occA occB) <- _orderDeps
                                                           ]
-                                                       {-# LINE 2247 "dist/build/DefaultRules" #-}
+                                                       {-# LINE 2225 "dist/build/DefaultRules" #-}
                                                        )) of
                                                 { !_orderErrs ->
                                                 (case (({-# LINE 354 "src-ag/DefaultRules.ag" #-}
@@ -2306,74 +2284,72 @@ sem_Production_Production !con_ !params_ !constraints_ !(T_Children children_) !
                                                                          locals
                                                                          (lhs_env, (_LHS, others))
                                                         in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
-                                                        {-# LINE 2310 "dist/build/DefaultRules" #-}
+                                                        {-# LINE 2288 "dist/build/DefaultRules" #-}
                                                         )) of
                                                  { !__tup2 ->
                                                  (case (({-# LINE 354 "src-ag/DefaultRules.ag" #-}
                                                          __tup2
-                                                         {-# LINE 2315 "dist/build/DefaultRules" #-}
+                                                         {-# LINE 2293 "dist/build/DefaultRules" #-}
                                                          )) of
                                                   { !(_,!_errs) ->
                                                   (case (({-# LINE 352 "src-ag/DefaultRules.ag" #-}
                                                           _childrenIerrors >< _errs >< _rulesIerrors >< _orderErrs
-                                                          {-# LINE 2320 "dist/build/DefaultRules" #-}
+                                                          {-# LINE 2298 "dist/build/DefaultRules" #-}
                                                           )) of
                                                    { !_lhsOerrors ->
                                                    (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                                            _lhsIparams
-                                                           {-# LINE 2325 "dist/build/DefaultRules" #-}
+                                                           {-# LINE 2303 "dist/build/DefaultRules" #-}
                                                            )) of
                                                     { !_typeSigsOparams ->
                                                     (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                                             _lhsInt
-                                                            {-# LINE 2330 "dist/build/DefaultRules" #-}
+                                                            {-# LINE 2308 "dist/build/DefaultRules" #-}
                                                             )) of
                                                      { !_typeSigsOnt ->
                                                      (case (({-# LINE 753 "src-ag/DefaultRules.ag" #-}
                                                              Map.findWithDefault Map.empty con_ _lhsIaroundsIn
-                                                             {-# LINE 2335 "dist/build/DefaultRules" #-}
+                                                             {-# LINE 2313 "dist/build/DefaultRules" #-}
                                                              )) of
                                                       { !_aroundsIn ->
                                                       (case (({-# LINE 746 "src-ag/DefaultRules.ag" #-}
                                                               Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
-                                                              {-# LINE 2340 "dist/build/DefaultRules" #-}
+                                                              {-# LINE 2318 "dist/build/DefaultRules" #-}
                                                               )) of
                                                        { !_augmentsIn ->
                                                        (case (({-# LINE 354 "src-ag/DefaultRules.ag" #-}
                                                                __tup2
-                                                               {-# LINE 2345 "dist/build/DefaultRules" #-}
+                                                               {-# LINE 2323 "dist/build/DefaultRules" #-}
                                                                )) of
                                                         { !(!_newRls,_) ->
                                                         (case (({-# LINE 577 "src-ag/DefaultRules.ag" #-}
                                                                 foldr addAugments (_rulesIoutput ++ _newRls) (Map.assocs _augmentsIn    )
-                                                                {-# LINE 2350 "dist/build/DefaultRules" #-}
+                                                                {-# LINE 2328 "dist/build/DefaultRules" #-}
                                                                 )) of
                                                          { !_extra1 ->
                                                          (case (({-# LINE 578 "src-ag/DefaultRules.ag" #-}
                                                                  foldr addArounds _extra1     (Map.assocs _aroundsIn    )
-                                                                 {-# LINE 2355 "dist/build/DefaultRules" #-}
+                                                                 {-# LINE 2333 "dist/build/DefaultRules" #-}
                                                                  )) of
                                                           { !_extra2 ->
                                                           (case (({-# LINE 579 "src-ag/DefaultRules.ag" #-}
                                                                   foldr addMerges _extra2     (Map.assocs _mergesIn    )
-                                                                  {-# LINE 2360 "dist/build/DefaultRules" #-}
+                                                                  {-# LINE 2338 "dist/build/DefaultRules" #-}
                                                                   )) of
                                                            { !_extra3 ->
                                                            (case (typeSigs_ _typeSigsOnt _typeSigsOparams) of
                                                             { ( !_typeSigsIoutput) ->
                                                                 (case (({-# LINE 580 "src-ag/DefaultRules.ag" #-}
                                                                         Production con_ params_ constraints_ _childrenIoutput _extra3     _typeSigsIoutput macro_
-                                                                        {-# LINE 2367 "dist/build/DefaultRules" #-}
+                                                                        {-# LINE 2345 "dist/build/DefaultRules" #-}
                                                                         )) of
                                                                  { !_lhsOoutput ->
                                                                  (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                          _rulesIuniq
-                                                                         {-# LINE 2372 "dist/build/DefaultRules" #-}
+                                                                         {-# LINE 2350 "dist/build/DefaultRules" #-}
                                                                          )) of
                                                                   { !_lhsOuniq ->
-                                                                  (case ((Syn_Production _lhsOerrors _lhsOoutput _lhsOuniq)) of
-                                                                   { ___node ->
-                                                                   ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                                                  ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 -- Productions -------------------------------------------------
 {-
    visit 0:
@@ -2473,231 +2449,229 @@ sem_Productions_Cons !(T_Production hd_) !(T_Productions tl_) =
                       (!_lhsIwrappers) ->
                         (case (({-# LINE 64 "src-ag/DefaultRules.ag" #-}
                                 _lhsIwrappers
-                                {-# LINE 2477 "dist/build/DefaultRules" #-}
+                                {-# LINE 2453 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_tlOwrappers ->
                          (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                  _lhsIuseMap
-                                 {-# LINE 2482 "dist/build/DefaultRules" #-}
+                                 {-# LINE 2458 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_tlOuseMap ->
                           (case (({-# LINE 71 "src-ag/DefaultRules.ag" #-}
                                   _lhsItypeSyns
-                                  {-# LINE 2487 "dist/build/DefaultRules" #-}
+                                  {-# LINE 2463 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_tlOtypeSyns ->
                            (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                    _lhsIsynOrig
-                                   {-# LINE 2492 "dist/build/DefaultRules" #-}
+                                   {-# LINE 2468 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_tlOsynOrig ->
                             (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                     _lhsIsynMap
-                                    {-# LINE 2497 "dist/build/DefaultRules" #-}
+                                    {-# LINE 2473 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_tlOsynMap ->
                              (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                      _lhsIsyn
-                                     {-# LINE 2502 "dist/build/DefaultRules" #-}
+                                     {-# LINE 2478 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_tlOsyn ->
                               (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                       _lhsIoptions
-                                      {-# LINE 2507 "dist/build/DefaultRules" #-}
+                                      {-# LINE 2483 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_tlOoptions ->
                                (case (({-# LINE 51 "src-ag/DefaultRules.ag" #-}
                                        _lhsIo_rename
-                                       {-# LINE 2512 "dist/build/DefaultRules" #-}
+                                       {-# LINE 2488 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !_tlOo_rename ->
                                 (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                         _lhsInt
-                                        {-# LINE 2517 "dist/build/DefaultRules" #-}
+                                        {-# LINE 2493 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !_tlOnt ->
                                  (case (({-# LINE 756 "src-ag/DefaultRules.ag" #-}
                                          _lhsImergesIn
-                                         {-# LINE 2522 "dist/build/DefaultRules" #-}
+                                         {-# LINE 2498 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !_tlOmergesIn ->
                                   (case (({-# LINE 674 "src-ag/DefaultRules.ag" #-}
                                           _lhsImanualAttrOrderMap
-                                          {-# LINE 2527 "dist/build/DefaultRules" #-}
+                                          {-# LINE 2503 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !_tlOmanualAttrOrderMap ->
                                    (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                            _lhsIinhMap
-                                           {-# LINE 2532 "dist/build/DefaultRules" #-}
+                                           {-# LINE 2508 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !_tlOinhMap ->
                                     (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                             _lhsIinh
-                                            {-# LINE 2537 "dist/build/DefaultRules" #-}
+                                            {-# LINE 2513 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_tlOinh ->
                                      (case (({-# LINE 52 "src-ag/DefaultRules.ag" #-}
                                              _lhsIcr
-                                             {-# LINE 2542 "dist/build/DefaultRules" #-}
+                                             {-# LINE 2518 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_tlOcr ->
                                       (case (({-# LINE 64 "src-ag/DefaultRules.ag" #-}
                                               _lhsIwrappers
-                                              {-# LINE 2547 "dist/build/DefaultRules" #-}
+                                              {-# LINE 2523 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_hdOwrappers ->
                                        (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                _lhsIuseMap
-                                               {-# LINE 2552 "dist/build/DefaultRules" #-}
+                                               {-# LINE 2528 "dist/build/DefaultRules" #-}
                                                )) of
                                         { !_hdOuseMap ->
                                         (case (({-# LINE 71 "src-ag/DefaultRules.ag" #-}
                                                 _lhsItypeSyns
-                                                {-# LINE 2557 "dist/build/DefaultRules" #-}
+                                                {-# LINE 2533 "dist/build/DefaultRules" #-}
                                                 )) of
                                          { !_hdOtypeSyns ->
                                          (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                  _lhsIsynOrig
-                                                 {-# LINE 2562 "dist/build/DefaultRules" #-}
+                                                 {-# LINE 2538 "dist/build/DefaultRules" #-}
                                                  )) of
                                           { !_hdOsynOrig ->
                                           (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                   _lhsIsynMap
-                                                  {-# LINE 2567 "dist/build/DefaultRules" #-}
+                                                  {-# LINE 2543 "dist/build/DefaultRules" #-}
                                                   )) of
                                            { !_hdOsynMap ->
                                            (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                    _lhsIsyn
-                                                   {-# LINE 2572 "dist/build/DefaultRules" #-}
+                                                   {-# LINE 2548 "dist/build/DefaultRules" #-}
                                                    )) of
                                             { !_hdOsyn ->
                                             (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                                     _lhsIoptions
-                                                    {-# LINE 2577 "dist/build/DefaultRules" #-}
+                                                    {-# LINE 2553 "dist/build/DefaultRules" #-}
                                                     )) of
                                              { !_hdOoptions ->
                                              (case (({-# LINE 51 "src-ag/DefaultRules.ag" #-}
                                                      _lhsIo_rename
-                                                     {-# LINE 2582 "dist/build/DefaultRules" #-}
+                                                     {-# LINE 2558 "dist/build/DefaultRules" #-}
                                                      )) of
                                               { !_hdOo_rename ->
                                               (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                                       _lhsInt
-                                                      {-# LINE 2587 "dist/build/DefaultRules" #-}
+                                                      {-# LINE 2563 "dist/build/DefaultRules" #-}
                                                       )) of
                                                { !_hdOnt ->
                                                (case (({-# LINE 756 "src-ag/DefaultRules.ag" #-}
                                                        _lhsImergesIn
-                                                       {-# LINE 2592 "dist/build/DefaultRules" #-}
+                                                       {-# LINE 2568 "dist/build/DefaultRules" #-}
                                                        )) of
                                                 { !_hdOmergesIn ->
                                                 (case (({-# LINE 674 "src-ag/DefaultRules.ag" #-}
                                                         _lhsImanualAttrOrderMap
-                                                        {-# LINE 2597 "dist/build/DefaultRules" #-}
+                                                        {-# LINE 2573 "dist/build/DefaultRules" #-}
                                                         )) of
                                                  { !_hdOmanualAttrOrderMap ->
                                                  (case (({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                                          _lhsIinhMap
-                                                         {-# LINE 2602 "dist/build/DefaultRules" #-}
+                                                         {-# LINE 2578 "dist/build/DefaultRules" #-}
                                                          )) of
                                                   { !_hdOinhMap ->
                                                   (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                           _lhsIinh
-                                                          {-# LINE 2607 "dist/build/DefaultRules" #-}
+                                                          {-# LINE 2583 "dist/build/DefaultRules" #-}
                                                           )) of
                                                    { !_hdOinh ->
                                                    (case (({-# LINE 52 "src-ag/DefaultRules.ag" #-}
                                                            _lhsIcr
-                                                           {-# LINE 2612 "dist/build/DefaultRules" #-}
+                                                           {-# LINE 2588 "dist/build/DefaultRules" #-}
                                                            )) of
                                                     { !_hdOcr ->
                                                     (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                             _lhsIuniq
-                                                            {-# LINE 2617 "dist/build/DefaultRules" #-}
+                                                            {-# LINE 2593 "dist/build/DefaultRules" #-}
                                                             )) of
                                                      { !_hdOuniq ->
                                                      (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                                              _lhsIparams
-                                                             {-# LINE 2622 "dist/build/DefaultRules" #-}
+                                                             {-# LINE 2598 "dist/build/DefaultRules" #-}
                                                              )) of
                                                       { !_hdOparams ->
                                                       (case (({-# LINE 152 "src-ag/DefaultRules.ag" #-}
                                                               _lhsInonterminals
-                                                              {-# LINE 2627 "dist/build/DefaultRules" #-}
+                                                              {-# LINE 2603 "dist/build/DefaultRules" #-}
                                                               )) of
                                                        { !_hdOnonterminals ->
                                                        (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                                _lhsIinhOrig
-                                                               {-# LINE 2632 "dist/build/DefaultRules" #-}
+                                                               {-# LINE 2608 "dist/build/DefaultRules" #-}
                                                                )) of
                                                         { !_hdOinhOrig ->
                                                         (case (({-# LINE 742 "src-ag/DefaultRules.ag" #-}
                                                                 _lhsIaugmentsIn
-                                                                {-# LINE 2637 "dist/build/DefaultRules" #-}
+                                                                {-# LINE 2613 "dist/build/DefaultRules" #-}
                                                                 )) of
                                                          { !_hdOaugmentsIn ->
                                                          (case (({-# LINE 749 "src-ag/DefaultRules.ag" #-}
                                                                  _lhsIaroundsIn
-                                                                 {-# LINE 2642 "dist/build/DefaultRules" #-}
+                                                                 {-# LINE 2618 "dist/build/DefaultRules" #-}
                                                                  )) of
                                                           { !_hdOaroundsIn ->
                                                           (case (hd_ _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinh _hdOinhMap _hdOinhOrig _hdOmanualAttrOrderMap _hdOmergesIn _hdOnonterminals _hdOnt _hdOo_rename _hdOoptions _hdOparams _hdOsyn _hdOsynMap _hdOsynOrig _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) of
                                                            { ( !_hdIerrors,!_hdIoutput,!_hdIuniq) ->
                                                                (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                        _hdIuniq
-                                                                       {-# LINE 2649 "dist/build/DefaultRules" #-}
+                                                                       {-# LINE 2625 "dist/build/DefaultRules" #-}
                                                                        )) of
                                                                 { !_tlOuniq ->
                                                                 (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                                                         _lhsIparams
-                                                                        {-# LINE 2654 "dist/build/DefaultRules" #-}
+                                                                        {-# LINE 2630 "dist/build/DefaultRules" #-}
                                                                         )) of
                                                                  { !_tlOparams ->
                                                                  (case (({-# LINE 152 "src-ag/DefaultRules.ag" #-}
                                                                          _lhsInonterminals
-                                                                         {-# LINE 2659 "dist/build/DefaultRules" #-}
+                                                                         {-# LINE 2635 "dist/build/DefaultRules" #-}
                                                                          )) of
                                                                   { !_tlOnonterminals ->
                                                                   (case (({-# LINE 161 "src-ag/DefaultRules.ag" #-}
                                                                           _lhsIinhOrig
-                                                                          {-# LINE 2664 "dist/build/DefaultRules" #-}
+                                                                          {-# LINE 2640 "dist/build/DefaultRules" #-}
                                                                           )) of
                                                                    { !_tlOinhOrig ->
                                                                    (case (({-# LINE 742 "src-ag/DefaultRules.ag" #-}
                                                                            _lhsIaugmentsIn
-                                                                           {-# LINE 2669 "dist/build/DefaultRules" #-}
+                                                                           {-# LINE 2645 "dist/build/DefaultRules" #-}
                                                                            )) of
                                                                     { !_tlOaugmentsIn ->
                                                                     (case (({-# LINE 749 "src-ag/DefaultRules.ag" #-}
                                                                             _lhsIaroundsIn
-                                                                            {-# LINE 2674 "dist/build/DefaultRules" #-}
+                                                                            {-# LINE 2650 "dist/build/DefaultRules" #-}
                                                                             )) of
                                                                      { !_tlOaroundsIn ->
                                                                      (case (tl_ _tlOaroundsIn _tlOaugmentsIn _tlOcr _tlOinh _tlOinhMap _tlOinhOrig _tlOmanualAttrOrderMap _tlOmergesIn _tlOnonterminals _tlOnt _tlOo_rename _tlOoptions _tlOparams _tlOsyn _tlOsynMap _tlOsynOrig _tlOtypeSyns _tlOuniq _tlOuseMap _tlOwrappers) of
                                                                       { ( !_tlIerrors,!_tlIoutput,!_tlIuniq) ->
                                                                           (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                                                                   _hdIerrors Seq.>< _tlIerrors
-                                                                                  {-# LINE 2681 "dist/build/DefaultRules" #-}
+                                                                                  {-# LINE 2657 "dist/build/DefaultRules" #-}
                                                                                   )) of
                                                                            { !_lhsOerrors ->
                                                                            (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                                    (:) _hdIoutput _tlIoutput
-                                                                                   {-# LINE 2686 "dist/build/DefaultRules" #-}
+                                                                                   {-# LINE 2662 "dist/build/DefaultRules" #-}
                                                                                    )) of
                                                                             { !_output ->
                                                                             (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                                                                     _output
-                                                                                    {-# LINE 2691 "dist/build/DefaultRules" #-}
+                                                                                    {-# LINE 2667 "dist/build/DefaultRules" #-}
                                                                                     )) of
                                                                              { !_lhsOoutput ->
                                                                              (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                                                      _tlIuniq
-                                                                                     {-# LINE 2696 "dist/build/DefaultRules" #-}
+                                                                                     {-# LINE 2672 "dist/build/DefaultRules" #-}
                                                                                      )) of
                                                                               { !_lhsOuniq ->
-                                                                              (case ((Syn_Productions _lhsOerrors _lhsOoutput _lhsOuniq)) of
-                                                                               { ___node ->
-                                                                               ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                                                              ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
     (T_Productions (\ (!_lhsIaroundsIn)
@@ -2722,27 +2696,25 @@ sem_Productions_Nil =
                       (!_lhsIwrappers) ->
                         (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                 Seq.empty
-                                {-# LINE 2726 "dist/build/DefaultRules" #-}
+                                {-# LINE 2700 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_lhsOerrors ->
                          (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                  []
-                                 {-# LINE 2731 "dist/build/DefaultRules" #-}
+                                 {-# LINE 2705 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_output ->
                           (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                   _output
-                                  {-# LINE 2736 "dist/build/DefaultRules" #-}
+                                  {-# LINE 2710 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_lhsOoutput ->
                            (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                    _lhsIuniq
-                                   {-# LINE 2741 "dist/build/DefaultRules" #-}
+                                   {-# LINE 2715 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOuniq ->
-                            (case ((Syn_Productions _lhsOerrors _lhsOoutput _lhsOuniq)) of
-                             { ___node ->
-                             ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) }) })))
+                            ( _lhsOerrors,_lhsOoutput,_lhsOuniq) }) }) }) })))
 -- Rule --------------------------------------------------------
 {-
    visit 0:
@@ -2818,98 +2790,96 @@ sem_Rule_Rule !mbName_ !(T_Pattern pattern_) !rhs_ !owrt_ !origin_ !explicit_ !p
                (!_lhsIuniq) ->
                  (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                          _lhsInt
-                         {-# LINE 2822 "dist/build/DefaultRules" #-}
+                         {-# LINE 2794 "dist/build/DefaultRules" #-}
                          )) of
                   { !_patternOnt ->
                   (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                           _lhsIcon
-                          {-# LINE 2827 "dist/build/DefaultRules" #-}
+                          {-# LINE 2799 "dist/build/DefaultRules" #-}
                           )) of
                    { !_patternOcon ->
                    (case (pattern_ _patternOcon _patternOnt) of
                     { ( !_patternIcontainsVars,!_patternIcopy,!_patternIdefinedAttrs,!_patternIerrors,!_patternIlocals,!_patternIoutput) ->
                         (case (({-# LINE 520 "src-ag/DefaultRules.ag" #-}
                                 _patternIcontainsVars
-                                {-# LINE 2834 "dist/build/DefaultRules" #-}
+                                {-# LINE 2806 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_lhsOcontainsVars ->
                          (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                  _patternIdefinedAttrs
-                                 {-# LINE 2839 "dist/build/DefaultRules" #-}
+                                 {-# LINE 2811 "dist/build/DefaultRules" #-}
                                  )) of
                           { !_lhsOdefinedAttrs ->
                           (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                   _patternIerrors
-                                  {-# LINE 2844 "dist/build/DefaultRules" #-}
+                                  {-# LINE 2816 "dist/build/DefaultRules" #-}
                                   )) of
                            { !_lhsOerrors ->
                            (case (({-# LINE 526 "src-ag/DefaultRules.ag" #-}
                                    pure_
-                                   {-# LINE 2849 "dist/build/DefaultRules" #-}
+                                   {-# LINE 2821 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_lhsOisPure ->
                             (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                     _patternIlocals
-                                    {-# LINE 2854 "dist/build/DefaultRules" #-}
+                                    {-# LINE 2826 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_lhsOlocals ->
                              (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                      Rule mbName_ _patternIoutput rhs_ owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
-                                     {-# LINE 2859 "dist/build/DefaultRules" #-}
+                                     {-# LINE 2831 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_output ->
                               (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                       _output
-                                      {-# LINE 2864 "dist/build/DefaultRules" #-}
+                                      {-# LINE 2836 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_lhsOoutput ->
                                (case (({-# LINE 593 "src-ag/DefaultRules.ag" #-}
                                        mkRuleAlias _output
-                                       {-# LINE 2869 "dist/build/DefaultRules" #-}
+                                       {-# LINE 2841 "dist/build/DefaultRules" #-}
                                        )) of
                                 { !__tup3 ->
                                 (case (({-# LINE 593 "src-ag/DefaultRules.ag" #-}
                                         __tup3
-                                        {-# LINE 2874 "dist/build/DefaultRules" #-}
+                                        {-# LINE 2846 "dist/build/DefaultRules" #-}
                                         )) of
                                  { !(!_output1,_) ->
                                  (case (({-# LINE 594 "src-ag/DefaultRules.ag" #-}
                                          if needsMultiRules _lhsIoptions
                                          then multiRule _output1     _lhsIuniq
                                          else ([_output1    ], _lhsIuniq)
-                                         {-# LINE 2881 "dist/build/DefaultRules" #-}
+                                         {-# LINE 2853 "dist/build/DefaultRules" #-}
                                          )) of
                                   { !__tup4 ->
                                   (case (({-# LINE 594 "src-ag/DefaultRules.ag" #-}
                                           __tup4
-                                          {-# LINE 2886 "dist/build/DefaultRules" #-}
+                                          {-# LINE 2858 "dist/build/DefaultRules" #-}
                                           )) of
                                    { !(!_outputs,_) ->
                                    (case (({-# LINE 593 "src-ag/DefaultRules.ag" #-}
                                            __tup3
-                                           {-# LINE 2891 "dist/build/DefaultRules" #-}
+                                           {-# LINE 2863 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !(_,!_mbAlias) ->
                                     (case (({-# LINE 597 "src-ag/DefaultRules.ag" #-}
                                             maybe [] return _mbAlias     ++ _outputs
-                                            {-# LINE 2896 "dist/build/DefaultRules" #-}
+                                            {-# LINE 2868 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_lhsOoutputs ->
                                      (case (({-# LINE 682 "src-ag/DefaultRules.ag" #-}
                                              case mbName_ of
                                                Nothing -> Set.empty
                                                Just nm -> Set.singleton nm
-                                             {-# LINE 2903 "dist/build/DefaultRules" #-}
+                                             {-# LINE 2875 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_lhsOruleNames ->
                                       (case (({-# LINE 594 "src-ag/DefaultRules.ag" #-}
                                               __tup4
-                                              {-# LINE 2908 "dist/build/DefaultRules" #-}
+                                              {-# LINE 2880 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !(_,!_lhsOuniq) ->
-                                       (case ((Syn_Rule _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq)) of
-                                        { ___node ->
-                                        ( _lhsOcontainsVars,_lhsOdefinedAttrs,_lhsOerrors,_lhsOisPure,_lhsOlocals,_lhsOoutput,_lhsOoutputs,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                       ( _lhsOcontainsVars,_lhsOdefinedAttrs,_lhsOerrors,_lhsOisPure,_lhsOlocals,_lhsOoutput,_lhsOoutputs,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 -- Rules -------------------------------------------------------
 {-
    visit 0:
@@ -2962,81 +2932,79 @@ sem_Rules_Cons !(T_Rule hd_) !(T_Rules tl_) =
                 (!_lhsIuniq) ->
                   (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                           _lhsIuniq
-                          {-# LINE 2966 "dist/build/DefaultRules" #-}
+                          {-# LINE 2936 "dist/build/DefaultRules" #-}
                           )) of
                    { !_hdOuniq ->
                    (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                            _lhsIoptions
-                           {-# LINE 2971 "dist/build/DefaultRules" #-}
+                           {-# LINE 2941 "dist/build/DefaultRules" #-}
                            )) of
                     { !_hdOoptions ->
                     (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                             _lhsInt
-                            {-# LINE 2976 "dist/build/DefaultRules" #-}
+                            {-# LINE 2946 "dist/build/DefaultRules" #-}
                             )) of
                      { !_hdOnt ->
                      (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                              _lhsIcon
-                             {-# LINE 2981 "dist/build/DefaultRules" #-}
+                             {-# LINE 2951 "dist/build/DefaultRules" #-}
                              )) of
                       { !_hdOcon ->
                       (case (hd_ _hdOcon _hdOnt _hdOoptions _hdOuniq) of
                        { ( !_hdIcontainsVars,!_hdIdefinedAttrs,!_hdIerrors,!_hdIisPure,!_hdIlocals,!_hdIoutput,!_hdIoutputs,!_hdIruleNames,!_hdIuniq) ->
                            (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                    _hdIuniq
-                                   {-# LINE 2988 "dist/build/DefaultRules" #-}
+                                   {-# LINE 2958 "dist/build/DefaultRules" #-}
                                    )) of
                             { !_tlOuniq ->
                             (case (({-# LINE 50 "src-ag/DefaultRules.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 2993 "dist/build/DefaultRules" #-}
+                                    {-# LINE 2963 "dist/build/DefaultRules" #-}
                                     )) of
                              { !_tlOoptions ->
                              (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                      _lhsInt
-                                     {-# LINE 2998 "dist/build/DefaultRules" #-}
+                                     {-# LINE 2968 "dist/build/DefaultRules" #-}
                                      )) of
                               { !_tlOnt ->
                               (case (({-# LINE 39 "src-ag/DefaultRules.ag" #-}
                                       _lhsIcon
-                                      {-# LINE 3003 "dist/build/DefaultRules" #-}
+                                      {-# LINE 2973 "dist/build/DefaultRules" #-}
                                       )) of
                                { !_tlOcon ->
                                (case (tl_ _tlOcon _tlOnt _tlOoptions _tlOuniq) of
                                 { ( !_tlIdefinedAttrs,!_tlIerrors,!_tlIlocals,!_tlIoutput,!_tlIruleNames,!_tlIuniq) ->
                                     (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                                             _hdIdefinedAttrs `Set.union` _tlIdefinedAttrs
-                                            {-# LINE 3010 "dist/build/DefaultRules" #-}
+                                            {-# LINE 2980 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_lhsOdefinedAttrs ->
                                      (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                                              _hdIerrors Seq.>< _tlIerrors
-                                             {-# LINE 3015 "dist/build/DefaultRules" #-}
+                                             {-# LINE 2985 "dist/build/DefaultRules" #-}
                                              )) of
                                       { !_lhsOerrors ->
                                       (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                                               _hdIlocals `Set.union` _tlIlocals
-                                              {-# LINE 3020 "dist/build/DefaultRules" #-}
+                                              {-# LINE 2990 "dist/build/DefaultRules" #-}
                                               )) of
                                        { !_lhsOlocals ->
                                        (case (({-# LINE 589 "src-ag/DefaultRules.ag" #-}
                                                if _hdIcontainsVars && _hdIisPure then _hdIoutputs ++ _tlIoutput else _tlIoutput
-                                               {-# LINE 3025 "dist/build/DefaultRules" #-}
+                                               {-# LINE 2995 "dist/build/DefaultRules" #-}
                                                )) of
                                         { !_lhsOoutput ->
                                         (case (({-# LINE 680 "src-ag/DefaultRules.ag" #-}
                                                 _hdIruleNames `Set.union` _tlIruleNames
-                                                {-# LINE 3030 "dist/build/DefaultRules" #-}
+                                                {-# LINE 3000 "dist/build/DefaultRules" #-}
                                                 )) of
                                          { !_lhsOruleNames ->
                                          (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                                  _tlIuniq
-                                                 {-# LINE 3035 "dist/build/DefaultRules" #-}
+                                                 {-# LINE 3005 "dist/build/DefaultRules" #-}
                                                  )) of
                                           { !_lhsOuniq ->
-                                          (case ((Syn_Rules _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq)) of
-                                           { ___node ->
-                                           ( _lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                          ( _lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
     (T_Rules (\ (!_lhsIcon)
@@ -3045,42 +3013,40 @@ sem_Rules_Nil =
                 (!_lhsIuniq) ->
                   (case (({-# LINE 500 "src-ag/DefaultRules.ag" #-}
                           Set.empty
-                          {-# LINE 3049 "dist/build/DefaultRules" #-}
+                          {-# LINE 3017 "dist/build/DefaultRules" #-}
                           )) of
                    { !_lhsOdefinedAttrs ->
                    (case (({-# LINE 142 "src-ag/DefaultRules.ag" #-}
                            Seq.empty
-                           {-# LINE 3054 "dist/build/DefaultRules" #-}
+                           {-# LINE 3022 "dist/build/DefaultRules" #-}
                            )) of
                     { !_lhsOerrors ->
                     (case (({-# LINE 499 "src-ag/DefaultRules.ag" #-}
                             Set.empty
-                            {-# LINE 3059 "dist/build/DefaultRules" #-}
+                            {-# LINE 3027 "dist/build/DefaultRules" #-}
                             )) of
                      { !_lhsOlocals ->
                      (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                              []
-                             {-# LINE 3064 "dist/build/DefaultRules" #-}
+                             {-# LINE 3032 "dist/build/DefaultRules" #-}
                              )) of
                       { !_output ->
                       (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                               _output
-                              {-# LINE 3069 "dist/build/DefaultRules" #-}
+                              {-# LINE 3037 "dist/build/DefaultRules" #-}
                               )) of
                        { !_lhsOoutput ->
                        (case (({-# LINE 680 "src-ag/DefaultRules.ag" #-}
                                Set.empty
-                               {-# LINE 3074 "dist/build/DefaultRules" #-}
+                               {-# LINE 3042 "dist/build/DefaultRules" #-}
                                )) of
                         { !_lhsOruleNames ->
                         (case (({-# LINE 561 "src-ag/DefaultRules.ag" #-}
                                 _lhsIuniq
-                                {-# LINE 3079 "dist/build/DefaultRules" #-}
+                                {-# LINE 3047 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_lhsOuniq ->
-                         (case ((Syn_Rules _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq)) of
-                          { ___node ->
-                          ( _lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) }) })))
+                         ( _lhsOdefinedAttrs,_lhsOerrors,_lhsOlocals,_lhsOoutput,_lhsOruleNames,_lhsOuniq) }) }) }) }) }) }) })))
 -- TypeSig -----------------------------------------------------
 {-
    visit 0:
@@ -3121,17 +3087,15 @@ sem_TypeSig_TypeSig !name_ !tp_ =
                   (!_lhsIparams) ->
                     (case (({-# LINE 545 "src-ag/DefaultRules.ag" #-}
                             elimSelfId _lhsInt _lhsIparams tp_
-                            {-# LINE 3125 "dist/build/DefaultRules" #-}
+                            {-# LINE 3091 "dist/build/DefaultRules" #-}
                             )) of
                      { !_tp1 ->
                      (case (({-# LINE 586 "src-ag/DefaultRules.ag" #-}
                              TypeSig name_ _tp1
-                             {-# LINE 3130 "dist/build/DefaultRules" #-}
+                             {-# LINE 3096 "dist/build/DefaultRules" #-}
                              )) of
                       { !_lhsOoutput ->
-                      (case ((Syn_TypeSig _lhsOoutput)) of
-                       { ___node ->
-                       ( _lhsOoutput) }) }) })))
+                      ( _lhsOoutput) }) })))
 -- TypeSigs ----------------------------------------------------
 {-
    visit 0:
@@ -3175,22 +3139,22 @@ sem_TypeSigs_Cons !(T_TypeSig hd_) !(T_TypeSigs tl_) =
                    (!_lhsIparams) ->
                      (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                              _lhsIparams
-                             {-# LINE 3179 "dist/build/DefaultRules" #-}
+                             {-# LINE 3143 "dist/build/DefaultRules" #-}
                              )) of
                       { !_tlOparams ->
                       (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                               _lhsInt
-                              {-# LINE 3184 "dist/build/DefaultRules" #-}
+                              {-# LINE 3148 "dist/build/DefaultRules" #-}
                               )) of
                        { !_tlOnt ->
                        (case (({-# LINE 41 "src-ag/DefaultRules.ag" #-}
                                _lhsIparams
-                               {-# LINE 3189 "dist/build/DefaultRules" #-}
+                               {-# LINE 3153 "dist/build/DefaultRules" #-}
                                )) of
                         { !_hdOparams ->
                         (case (({-# LINE 38 "src-ag/DefaultRules.ag" #-}
                                 _lhsInt
-                                {-# LINE 3194 "dist/build/DefaultRules" #-}
+                                {-# LINE 3158 "dist/build/DefaultRules" #-}
                                 )) of
                          { !_hdOnt ->
                          (case (tl_ _tlOnt _tlOparams) of
@@ -3199,31 +3163,27 @@ sem_TypeSigs_Cons !(T_TypeSig hd_) !(T_TypeSigs tl_) =
                                { ( !_hdIoutput) ->
                                    (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                            (:) _hdIoutput _tlIoutput
-                                           {-# LINE 3203 "dist/build/DefaultRules" #-}
+                                           {-# LINE 3167 "dist/build/DefaultRules" #-}
                                            )) of
                                     { !_output ->
                                     (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                                             _output
-                                            {-# LINE 3208 "dist/build/DefaultRules" #-}
+                                            {-# LINE 3172 "dist/build/DefaultRules" #-}
                                             )) of
                                      { !_lhsOoutput ->
-                                     (case ((Syn_TypeSigs _lhsOoutput)) of
-                                      { ___node ->
-                                      ( _lhsOoutput) }) }) }) }) }) }) }) }) })))
+                                     ( _lhsOoutput) }) }) }) }) }) }) }) })))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
     (T_TypeSigs (\ (!_lhsInt)
                    (!_lhsIparams) ->
                      (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                              []
-                             {-# LINE 3220 "dist/build/DefaultRules" #-}
+                             {-# LINE 3182 "dist/build/DefaultRules" #-}
                              )) of
                       { !_output ->
                       (case (({-# LINE 568 "src-ag/DefaultRules.ag" #-}
                               _output
-                              {-# LINE 3225 "dist/build/DefaultRules" #-}
+                              {-# LINE 3187 "dist/build/DefaultRules" #-}
                               )) of
                        { !_lhsOoutput ->
-                       (case ((Syn_TypeSigs _lhsOoutput)) of
-                        { ___node ->
-                        ( _lhsOoutput) }) }) })))
+                       ( _lhsOoutput) }) })))

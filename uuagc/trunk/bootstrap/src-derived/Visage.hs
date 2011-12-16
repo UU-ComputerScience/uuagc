@@ -98,8 +98,6 @@ sem_Expression_Expression pos_ tks_ =
                             AAppl "Expression" [AString (sQ (showAGPos pos_)), AString (sQ (unlines . showTokens . tokensToStrings $ tks_))]
                             {-# LINE 100 "dist/build/Visage" #-}
                             )
-                       ___node =
-                           (Syn_Expression _lhsOaterm)
                    in  ( _lhsOaterm)))
 -- VisageChild -------------------------------------------------
 {-
@@ -146,18 +144,16 @@ sem_VisageChild_VChild name_ tp_ inh_ syn_ (T_VisageRules rules_) =
                                             AString (sQ (showMap inh_)),
                                             AString (sQ (showMap syn_)),
                                             AAppl "Rules" _rulesIaterms]
-                             {-# LINE 150 "dist/build/Visage" #-}
+                             {-# LINE 148 "dist/build/Visage" #-}
                              )
                         -- "src-ag/Visage.ag"(line 89, column 18)
                         _rulesOisLoc =
                             ({-# LINE 89 "src-ag/Visage.ag" #-}
                              False
-                             {-# LINE 156 "dist/build/Visage" #-}
+                             {-# LINE 154 "dist/build/Visage" #-}
                              )
                         ( _rulesIaterms) =
                             rules_ _rulesOisLoc
-                        ___node =
-                            (Syn_VisageChild _lhsOaterm)
                     in  ( _lhsOaterm)))
 -- VisageChildren ----------------------------------------------
 {-
@@ -196,14 +192,12 @@ sem_VisageChildren_Cons (T_VisageChild hd_) (T_VisageChildren tl_) =
                            _lhsOaterms =
                                ({-# LINE 80 "src-ag/Visage.ag" #-}
                                 _hdIaterm : _tlIaterms
-                                {-# LINE 200 "dist/build/Visage" #-}
+                                {-# LINE 196 "dist/build/Visage" #-}
                                 )
                            ( _hdIaterm) =
                                hd_
                            ( _tlIaterms) =
                                tl_
-                           ___node =
-                               (Syn_VisageChildren _lhsOaterms)
                        in  ( _lhsOaterms)))
 sem_VisageChildren_Nil :: T_VisageChildren
 sem_VisageChildren_Nil =
@@ -212,10 +206,8 @@ sem_VisageChildren_Nil =
                            _lhsOaterms =
                                ({-# LINE 81 "src-ag/Visage.ag" #-}
                                 []
-                                {-# LINE 216 "dist/build/Visage" #-}
+                                {-# LINE 210 "dist/build/Visage" #-}
                                 )
-                           ___node =
-                               (Syn_VisageChildren _lhsOaterms)
                        in  ( _lhsOaterms)))
 -- VisageGrammar -----------------------------------------------
 {-
@@ -250,12 +242,10 @@ sem_VisageGrammar_VGrammar (T_VisageNonterminals nonts_) =
                           _lhsOaterm =
                               ({-# LINE 54 "src-ag/Visage.ag" #-}
                                AAppl "Productions" _nontsIaterms
-                               {-# LINE 254 "dist/build/Visage" #-}
+                               {-# LINE 246 "dist/build/Visage" #-}
                                )
                           ( _nontsIaterms) =
                               nonts_
-                          ___node =
-                              (Syn_VisageGrammar _lhsOaterm)
                       in  ( _lhsOaterm)))
 -- VisageNonterminal -------------------------------------------
 {-
@@ -297,12 +287,10 @@ sem_VisageNonterminal_VNonterminal nt_ inh_ syn_ (T_VisageProductions alts_) =
                                   ({-# LINE 63 "src-ag/Visage.ag" #-}
                                    AAppl "Production" [AString (sQ (getName nt_)), AString (sQ(showMap inh_)),
                                                       AString (sQ(showMap syn_)), AAppl "Alternatives" _altsIaterms]
-                                   {-# LINE 301 "dist/build/Visage" #-}
+                                   {-# LINE 291 "dist/build/Visage" #-}
                                    )
                               ( _altsIaterms) =
                                   alts_
-                              ___node =
-                                  (Syn_VisageNonterminal _lhsOaterm)
                           in  ( _lhsOaterm)))
 -- VisageNonterminals ------------------------------------------
 {-
@@ -341,14 +329,12 @@ sem_VisageNonterminals_Cons (T_VisageNonterminal hd_) (T_VisageNonterminals tl_)
                                _lhsOaterms =
                                    ({-# LINE 58 "src-ag/Visage.ag" #-}
                                     _hdIaterm : _tlIaterms
-                                    {-# LINE 345 "dist/build/Visage" #-}
+                                    {-# LINE 333 "dist/build/Visage" #-}
                                     )
                                ( _hdIaterm) =
                                    hd_
                                ( _tlIaterms) =
                                    tl_
-                               ___node =
-                                   (Syn_VisageNonterminals _lhsOaterms)
                            in  ( _lhsOaterms)))
 sem_VisageNonterminals_Nil :: T_VisageNonterminals
 sem_VisageNonterminals_Nil =
@@ -357,10 +343,8 @@ sem_VisageNonterminals_Nil =
                                _lhsOaterms =
                                    ({-# LINE 59 "src-ag/Visage.ag" #-}
                                     []
-                                    {-# LINE 361 "dist/build/Visage" #-}
+                                    {-# LINE 347 "dist/build/Visage" #-}
                                     )
-                               ___node =
-                                   (Syn_VisageNonterminals _lhsOaterms)
                            in  ( _lhsOaterms)))
 -- VisagePattern -----------------------------------------------
 {-
@@ -419,12 +403,10 @@ sem_VisagePattern_VAlias field_ attr_ (T_VisagePattern pat_) =
                               ({-# LINE 119 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Alias" [AString (sQ (showAGPos (getPos field_))),
                                                                AString (sQ (getName field_ ++ "." ++ getName attr_)), _patIaterm]]
-                               {-# LINE 423 "dist/build/Visage" #-}
+                               {-# LINE 407 "dist/build/Visage" #-}
                                )
                           ( _patIaterm) =
                               pat_
-                          ___node =
-                              (Syn_VisagePattern _lhsOaterm)
                       in  ( _lhsOaterm)))
 sem_VisagePattern_VConstr :: ConstructorIdent ->
                              T_VisagePatterns ->
@@ -438,12 +420,10 @@ sem_VisagePattern_VConstr name_ (T_VisagePatterns pats_) =
                                AAppl "Pattern" [AAppl "Constr" [AString (sQ (showAGPos (getPos name_))),
                                                 AString (sQ (getName name_)),
                                                 AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 442 "dist/build/Visage" #-}
+                               {-# LINE 424 "dist/build/Visage" #-}
                                )
                           ( _patsIaterms) =
                               pats_
-                          ___node =
-                              (Syn_VisagePattern _lhsOaterm)
                       in  ( _lhsOaterm)))
 sem_VisagePattern_VProduct :: Pos ->
                               T_VisagePatterns ->
@@ -456,12 +436,10 @@ sem_VisagePattern_VProduct pos_ (T_VisagePatterns pats_) =
                               ({-# LINE 115 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Product" [AString (sQ (showAGPos pos_)),
                                                                  AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 460 "dist/build/Visage" #-}
+                               {-# LINE 440 "dist/build/Visage" #-}
                                )
                           ( _patsIaterms) =
                               pats_
-                          ___node =
-                              (Syn_VisagePattern _lhsOaterm)
                       in  ( _lhsOaterm)))
 sem_VisagePattern_VUnderscore :: Pos ->
                                  T_VisagePattern
@@ -471,10 +449,8 @@ sem_VisagePattern_VUnderscore pos_ =
                           _lhsOaterm =
                               ({-# LINE 121 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Underscore" [AString (sQ (showAGPos pos_))]]
-                               {-# LINE 475 "dist/build/Visage" #-}
+                               {-# LINE 453 "dist/build/Visage" #-}
                                )
-                          ___node =
-                              (Syn_VisagePattern _lhsOaterm)
                       in  ( _lhsOaterm)))
 sem_VisagePattern_VVar :: Identifier ->
                           Identifier ->
@@ -486,10 +462,8 @@ sem_VisagePattern_VVar field_ attr_ =
                               ({-# LINE 117 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Var" [AString (sQ (showAGPos (getPos field_))),
                                                              AString (sQ (getName field_ ++ "." ++ getName attr_))]]
-                               {-# LINE 490 "dist/build/Visage" #-}
+                               {-# LINE 466 "dist/build/Visage" #-}
                                )
-                          ___node =
-                              (Syn_VisagePattern _lhsOaterm)
                       in  ( _lhsOaterm)))
 -- VisagePatterns ----------------------------------------------
 {-
@@ -528,14 +502,12 @@ sem_VisagePatterns_Cons (T_VisagePattern hd_) (T_VisagePatterns tl_) =
                            _lhsOaterms =
                                ({-# LINE 107 "src-ag/Visage.ag" #-}
                                 _hdIaterm : _tlIaterms
-                                {-# LINE 532 "dist/build/Visage" #-}
+                                {-# LINE 506 "dist/build/Visage" #-}
                                 )
                            ( _hdIaterm) =
                                hd_
                            ( _tlIaterms) =
                                tl_
-                           ___node =
-                               (Syn_VisagePatterns _lhsOaterms)
                        in  ( _lhsOaterms)))
 sem_VisagePatterns_Nil :: T_VisagePatterns
 sem_VisagePatterns_Nil =
@@ -544,10 +516,8 @@ sem_VisagePatterns_Nil =
                            _lhsOaterms =
                                ({-# LINE 108 "src-ag/Visage.ag" #-}
                                 []
-                                {-# LINE 548 "dist/build/Visage" #-}
+                                {-# LINE 520 "dist/build/Visage" #-}
                                 )
-                           ___node =
-                               (Syn_VisagePatterns _lhsOaterms)
                        in  ( _lhsOaterms)))
 -- VisageProduction --------------------------------------------
 {-
@@ -594,19 +564,19 @@ sem_VisageProduction_VProduction con_ (T_VisageChildren children_) (T_VisageRule
                                   AAppl "Alternative" [AString (sQ (getName con_)), AAppl "Children" _childrenIaterms,
                                                         AAppl "Rules" _rulesIaterms,
                                                         AAppl "LocRules" _locrulesIaterms]
-                                  {-# LINE 598 "dist/build/Visage" #-}
+                                  {-# LINE 568 "dist/build/Visage" #-}
                                   )
                              -- "src-ag/Visage.ag"(line 76, column 18)
                              _locrulesOisLoc =
                                  ({-# LINE 76 "src-ag/Visage.ag" #-}
                                   True
-                                  {-# LINE 604 "dist/build/Visage" #-}
+                                  {-# LINE 574 "dist/build/Visage" #-}
                                   )
                              -- "src-ag/Visage.ag"(line 77, column 18)
                              _rulesOisLoc =
                                  ({-# LINE 77 "src-ag/Visage.ag" #-}
                                   False
-                                  {-# LINE 610 "dist/build/Visage" #-}
+                                  {-# LINE 580 "dist/build/Visage" #-}
                                   )
                              ( _childrenIaterms) =
                                  children_
@@ -614,8 +584,6 @@ sem_VisageProduction_VProduction con_ (T_VisageChildren children_) (T_VisageRule
                                  rules_ _rulesOisLoc
                              ( _locrulesIaterms) =
                                  locrules_ _locrulesOisLoc
-                             ___node =
-                                 (Syn_VisageProduction _lhsOaterm)
                          in  ( _lhsOaterm)))
 -- VisageProductions -------------------------------------------
 {-
@@ -654,14 +622,12 @@ sem_VisageProductions_Cons (T_VisageProduction hd_) (T_VisageProductions tl_) =
                               _lhsOaterms =
                                   ({-# LINE 68 "src-ag/Visage.ag" #-}
                                    _hdIaterm : _tlIaterms
-                                   {-# LINE 658 "dist/build/Visage" #-}
+                                   {-# LINE 626 "dist/build/Visage" #-}
                                    )
                               ( _hdIaterm) =
                                   hd_
                               ( _tlIaterms) =
                                   tl_
-                              ___node =
-                                  (Syn_VisageProductions _lhsOaterms)
                           in  ( _lhsOaterms)))
 sem_VisageProductions_Nil :: T_VisageProductions
 sem_VisageProductions_Nil =
@@ -670,10 +636,8 @@ sem_VisageProductions_Nil =
                               _lhsOaterms =
                                   ({-# LINE 69 "src-ag/Visage.ag" #-}
                                    []
-                                   {-# LINE 674 "dist/build/Visage" #-}
+                                   {-# LINE 640 "dist/build/Visage" #-}
                                    )
-                              ___node =
-                                  (Syn_VisageProductions _lhsOaterms)
                           in  ( _lhsOaterms)))
 -- VisageRule --------------------------------------------------
 {-
@@ -722,14 +686,12 @@ sem_VisageRule_VRule fieldattrs_ attr_ (T_VisagePattern pat_) (T_Expression rhs_
                                 ({-# LINE 97 "src-ag/Visage.ag" #-}
                                  AAppl (if _lhsIisLoc then "LocRule" else "Rule")
                                        ([AString (sQ (getName attr_)), _patIaterm, _rhsIaterm] ++ if _lhsIisLoc then [AString (sQ (show owrt_))] else [])
-                                 {-# LINE 726 "dist/build/Visage" #-}
+                                 {-# LINE 690 "dist/build/Visage" #-}
                                  )
                             ( _patIaterm) =
                                 pat_
                             ( _rhsIaterm) =
                                 rhs_
-                            ___node =
-                                (Syn_VisageRule _lhsOaterm)
                         in  ( _lhsOaterm))))
 -- VisageRules -------------------------------------------------
 {-
@@ -774,26 +736,24 @@ sem_VisageRules_Cons (T_VisageRule hd_) (T_VisageRules tl_) =
                              _lhsOaterms =
                                  ({-# LINE 92 "src-ag/Visage.ag" #-}
                                   _hdIaterm : _tlIaterms
-                                  {-# LINE 778 "dist/build/Visage" #-}
+                                  {-# LINE 740 "dist/build/Visage" #-}
                                   )
                              -- copy rule (down)
                              _hdOisLoc =
                                  ({-# LINE 51 "src-ag/Visage.ag" #-}
                                   _lhsIisLoc
-                                  {-# LINE 784 "dist/build/Visage" #-}
+                                  {-# LINE 746 "dist/build/Visage" #-}
                                   )
                              -- copy rule (down)
                              _tlOisLoc =
                                  ({-# LINE 51 "src-ag/Visage.ag" #-}
                                   _lhsIisLoc
-                                  {-# LINE 790 "dist/build/Visage" #-}
+                                  {-# LINE 752 "dist/build/Visage" #-}
                                   )
                              ( _hdIaterm) =
                                  hd_ _hdOisLoc
                              ( _tlIaterms) =
                                  tl_ _tlOisLoc
-                             ___node =
-                                 (Syn_VisageRules _lhsOaterms)
                          in  ( _lhsOaterms))))
 sem_VisageRules_Nil :: T_VisageRules
 sem_VisageRules_Nil =
@@ -803,8 +763,6 @@ sem_VisageRules_Nil =
                              _lhsOaterms =
                                  ({-# LINE 93 "src-ag/Visage.ag" #-}
                                   []
-                                  {-# LINE 807 "dist/build/Visage" #-}
+                                  {-# LINE 767 "dist/build/Visage" #-}
                                   )
-                             ___node =
-                                 (Syn_VisageRules _lhsOaterms)
                          in  ( _lhsOaterms))))

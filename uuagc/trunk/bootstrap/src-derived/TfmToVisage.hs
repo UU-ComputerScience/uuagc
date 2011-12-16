@@ -164,8 +164,6 @@ sem_Child_Child name_ tp_ kind_ =
                             Map.findWithDefault Map.empty _chnt     _lhsIsynMap
                             {-# LINE 166 "dist/build/TfmToVisage" #-}
                             )
-                       ___node =
-                           (Syn_Child _lhsOvchild)
                    in  ( _lhsOvchild))))
 -- Children ----------------------------------------------------
 {-
@@ -220,50 +218,48 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                           _lhsOvchildren =
                               ({-# LINE 117 "src-ag/TfmToVisage.ag" #-}
                                _hdIvchild : _tlIvchildren
-                               {-# LINE 224 "dist/build/TfmToVisage" #-}
+                               {-# LINE 222 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _hdOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 230 "dist/build/TfmToVisage" #-}
+                               {-# LINE 228 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _hdOrulemap =
                               ({-# LINE 83 "src-ag/TfmToVisage.ag" #-}
                                _lhsIrulemap
-                               {-# LINE 236 "dist/build/TfmToVisage" #-}
+                               {-# LINE 234 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _hdOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 242 "dist/build/TfmToVisage" #-}
+                               {-# LINE 240 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _tlOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 248 "dist/build/TfmToVisage" #-}
+                               {-# LINE 246 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _tlOrulemap =
                               ({-# LINE 84 "src-ag/TfmToVisage.ag" #-}
                                _lhsIrulemap
-                               {-# LINE 254 "dist/build/TfmToVisage" #-}
+                               {-# LINE 252 "dist/build/TfmToVisage" #-}
                                )
                           -- copy rule (down)
                           _tlOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 260 "dist/build/TfmToVisage" #-}
+                               {-# LINE 258 "dist/build/TfmToVisage" #-}
                                )
                           ( _hdIvchild) =
                               hd_ _hdOinhMap _hdOrulemap _hdOsynMap
                           ( _tlIvchildren) =
                               tl_ _tlOinhMap _tlOrulemap _tlOsynMap
-                          ___node =
-                              (Syn_Children _lhsOvchildren)
                       in  ( _lhsOvchildren))))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -275,10 +271,8 @@ sem_Children_Nil =
                           _lhsOvchildren =
                               ({-# LINE 118 "src-ag/TfmToVisage.ag" #-}
                                []
-                               {-# LINE 279 "dist/build/TfmToVisage" #-}
+                               {-# LINE 275 "dist/build/TfmToVisage" #-}
                                )
-                          ___node =
-                              (Syn_Children _lhsOvchildren)
                       in  ( _lhsOvchildren))))
 -- Expression --------------------------------------------------
 {-
@@ -316,16 +310,14 @@ sem_Expression_Expression pos_ tks_ =
                        _self =
                            ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                             Expression pos_ tks_
-                            {-# LINE 320 "dist/build/TfmToVisage" #-}
+                            {-# LINE 314 "dist/build/TfmToVisage" #-}
                             )
                        -- self rule
                        _lhsOself =
                            ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                             _self
-                            {-# LINE 326 "dist/build/TfmToVisage" #-}
+                            {-# LINE 320 "dist/build/TfmToVisage" #-}
                             )
-                       ___node =
-                           (Syn_Expression _lhsOself)
                    in  ( _lhsOself)))
 -- Grammar -----------------------------------------------------
 {-
@@ -390,24 +382,22 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                     _lhsOvisage =
                         ({-# LINE 90 "src-ag/TfmToVisage.ag" #-}
                          VGrammar _nontsIvnonts
-                         {-# LINE 394 "dist/build/TfmToVisage" #-}
+                         {-# LINE 386 "dist/build/TfmToVisage" #-}
                          )
                     -- "src-ag/DistChildAttr.ag"(line 15, column 13)
                     _nontsOinhMap =
                         ({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                          _nontsIinhMap'
-                         {-# LINE 400 "dist/build/TfmToVisage" #-}
+                         {-# LINE 392 "dist/build/TfmToVisage" #-}
                          )
                     -- "src-ag/DistChildAttr.ag"(line 16, column 13)
                     _nontsOsynMap =
                         ({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                          _nontsIsynMap'
-                         {-# LINE 406 "dist/build/TfmToVisage" #-}
+                         {-# LINE 398 "dist/build/TfmToVisage" #-}
                          )
                     ( _nontsIinhMap',_nontsIsynMap',_nontsIvnonts) =
                         nonts_ _nontsOinhMap _nontsOsynMap
-                    ___node =
-                        (Syn_Grammar _lhsOvisage)
                 in  ( _lhsOvisage)))
 -- Nonterminal -------------------------------------------------
 {-
@@ -463,36 +453,34 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                              _lhsOvnont =
                                  ({-# LINE 100 "src-ag/TfmToVisage.ag" #-}
                                   VNonterminal nt_ inh_ syn_ _prodsIvprods
-                                  {-# LINE 467 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 457 "dist/build/TfmToVisage" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 7, column 18)
                              _lhsOinhMap' =
                                  ({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 473 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 463 "dist/build/TfmToVisage" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 8, column 18)
                              _lhsOsynMap' =
                                  ({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 479 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 469 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _prodsOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 485 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 475 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _prodsOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 491 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 481 "dist/build/TfmToVisage" #-}
                                   )
                              ( _prodsIvprods) =
                                  prods_ _prodsOinhMap _prodsOsynMap
-                             ___node =
-                                 (Syn_Nonterminal _lhsOinhMap' _lhsOsynMap' _lhsOvnont)
                          in  ( _lhsOinhMap',_lhsOsynMap',_lhsOvnont))))
 -- Nonterminals ------------------------------------------------
 {-
@@ -550,50 +538,48 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                               _lhsOvnonts =
                                   ({-# LINE 94 "src-ag/TfmToVisage.ag" #-}
                                    _hdIvnont : _tlIvnonts
-                                   {-# LINE 554 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 542 "dist/build/TfmToVisage" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 560 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 548 "dist/build/TfmToVisage" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 566 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 554 "dist/build/TfmToVisage" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 572 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 560 "dist/build/TfmToVisage" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 578 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 566 "dist/build/TfmToVisage" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 584 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 572 "dist/build/TfmToVisage" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 590 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 578 "dist/build/TfmToVisage" #-}
                                    )
                               ( _hdIinhMap',_hdIsynMap',_hdIvnont) =
                                   hd_ _hdOinhMap _hdOsynMap
                               ( _tlIinhMap',_tlIsynMap',_tlIvnonts) =
                                   tl_ _tlOinhMap _tlOsynMap
-                              ___node =
-                                  (Syn_Nonterminals _lhsOinhMap' _lhsOsynMap' _lhsOvnonts)
                           in  ( _lhsOinhMap',_lhsOsynMap',_lhsOvnonts))))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -606,22 +592,20 @@ sem_Nonterminals_Nil =
                               _lhsOvnonts =
                                   ({-# LINE 96 "src-ag/TfmToVisage.ag" #-}
                                    []
-                                   {-# LINE 610 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 596 "dist/build/TfmToVisage" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 616 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 602 "dist/build/TfmToVisage" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 622 "dist/build/TfmToVisage" #-}
+                                   {-# LINE 608 "dist/build/TfmToVisage" #-}
                                    )
-                              ___node =
-                                  (Syn_Nonterminals _lhsOinhMap' _lhsOsynMap' _lhsOvnonts)
                           in  ( _lhsOinhMap',_lhsOsynMap',_lhsOvnonts))))
 -- Pattern -----------------------------------------------------
 {-
@@ -704,42 +688,40 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                          if (isVar _self)
                          then VVar field_ attr_
                          else VAlias field_ attr_ _patIvpat
-                         {-# LINE 708 "dist/build/TfmToVisage" #-}
+                         {-# LINE 692 "dist/build/TfmToVisage" #-}
                          )
                     -- "src-ag/TfmToVisage.ag"(line 147, column 17)
                     _lhsOfieldattrs =
                         ({-# LINE 147 "src-ag/TfmToVisage.ag" #-}
                          [(field_, attr_)]
-                         {-# LINE 714 "dist/build/TfmToVisage" #-}
+                         {-# LINE 698 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 720 "dist/build/TfmToVisage" #-}
+                         {-# LINE 704 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _self =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          Alias field_ attr_ _patIself
-                         {-# LINE 726 "dist/build/TfmToVisage" #-}
+                         {-# LINE 710 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 732 "dist/build/TfmToVisage" #-}
+                         {-# LINE 716 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOself =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          _self
-                         {-# LINE 738 "dist/build/TfmToVisage" #-}
+                         {-# LINE 722 "dist/build/TfmToVisage" #-}
                          )
                     ( _patIcopy,_patIfieldattrs,_patIself,_patIvpat) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpat)
                 in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpat)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -757,42 +739,40 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOvpat =
                         ({-# LINE 136 "src-ag/TfmToVisage.ag" #-}
                          VConstr name_ _patsIvpats
-                         {-# LINE 761 "dist/build/TfmToVisage" #-}
+                         {-# LINE 743 "dist/build/TfmToVisage" #-}
                          )
                     -- use rule "src-ag/TfmToVisage.ag"(line 144, column 43)
                     _lhsOfieldattrs =
                         ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                          _patsIfieldattrs
-                         {-# LINE 767 "dist/build/TfmToVisage" #-}
+                         {-# LINE 749 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 773 "dist/build/TfmToVisage" #-}
+                         {-# LINE 755 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _self =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          Constr name_ _patsIself
-                         {-# LINE 779 "dist/build/TfmToVisage" #-}
+                         {-# LINE 761 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 785 "dist/build/TfmToVisage" #-}
+                         {-# LINE 767 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOself =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          _self
-                         {-# LINE 791 "dist/build/TfmToVisage" #-}
+                         {-# LINE 773 "dist/build/TfmToVisage" #-}
                          )
                     ( _patsIcopy,_patsIfieldattrs,_patsIself,_patsIvpats) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpat)
                 in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpat)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -809,42 +789,40 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _lhsOfieldattrs =
                         ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                          _patIfieldattrs
-                         {-# LINE 813 "dist/build/TfmToVisage" #-}
+                         {-# LINE 793 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 819 "dist/build/TfmToVisage" #-}
+                         {-# LINE 799 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _self =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          Irrefutable _patIself
-                         {-# LINE 825 "dist/build/TfmToVisage" #-}
+                         {-# LINE 805 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 831 "dist/build/TfmToVisage" #-}
+                         {-# LINE 811 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOself =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          _self
-                         {-# LINE 837 "dist/build/TfmToVisage" #-}
+                         {-# LINE 817 "dist/build/TfmToVisage" #-}
                          )
                     -- copy rule (up)
                     _lhsOvpat =
                         ({-# LINE 85 "src-ag/TfmToVisage.ag" #-}
                          _patIvpat
-                         {-# LINE 843 "dist/build/TfmToVisage" #-}
+                         {-# LINE 823 "dist/build/TfmToVisage" #-}
                          )
                     ( _patIcopy,_patIfieldattrs,_patIself,_patIvpat) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpat)
                 in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpat)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -862,42 +840,40 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOvpat =
                         ({-# LINE 137 "src-ag/TfmToVisage.ag" #-}
                          VProduct pos_ _patsIvpats
-                         {-# LINE 866 "dist/build/TfmToVisage" #-}
+                         {-# LINE 844 "dist/build/TfmToVisage" #-}
                          )
                     -- use rule "src-ag/TfmToVisage.ag"(line 144, column 43)
                     _lhsOfieldattrs =
                         ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                          _patsIfieldattrs
-                         {-# LINE 872 "dist/build/TfmToVisage" #-}
+                         {-# LINE 850 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 878 "dist/build/TfmToVisage" #-}
+                         {-# LINE 856 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _self =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          Product pos_ _patsIself
-                         {-# LINE 884 "dist/build/TfmToVisage" #-}
+                         {-# LINE 862 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 890 "dist/build/TfmToVisage" #-}
+                         {-# LINE 868 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOself =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          _self
-                         {-# LINE 896 "dist/build/TfmToVisage" #-}
+                         {-# LINE 874 "dist/build/TfmToVisage" #-}
                          )
                     ( _patsIcopy,_patsIfieldattrs,_patsIself,_patsIvpats) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpat)
                 in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpat)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -910,40 +886,38 @@ sem_Pattern_Underscore pos_ =
                     _lhsOvpat =
                         ({-# LINE 141 "src-ag/TfmToVisage.ag" #-}
                          VUnderscore pos_
-                         {-# LINE 914 "dist/build/TfmToVisage" #-}
+                         {-# LINE 890 "dist/build/TfmToVisage" #-}
                          )
                     -- use rule "src-ag/TfmToVisage.ag"(line 144, column 43)
                     _lhsOfieldattrs =
                         ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                          []
-                         {-# LINE 920 "dist/build/TfmToVisage" #-}
+                         {-# LINE 896 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 926 "dist/build/TfmToVisage" #-}
+                         {-# LINE 902 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _self =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          Underscore pos_
-                         {-# LINE 932 "dist/build/TfmToVisage" #-}
+                         {-# LINE 908 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 938 "dist/build/TfmToVisage" #-}
+                         {-# LINE 914 "dist/build/TfmToVisage" #-}
                          )
                     -- self rule
                     _lhsOself =
                         ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                          _self
-                         {-# LINE 944 "dist/build/TfmToVisage" #-}
+                         {-# LINE 920 "dist/build/TfmToVisage" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpat)
                 in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpat)))
 -- Patterns ----------------------------------------------------
 {-
@@ -1000,44 +974,42 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _lhsOvpats =
                          ({-# LINE 132 "src-ag/TfmToVisage.ag" #-}
                           _hdIvpat : _tlIvpats
-                          {-# LINE 1004 "dist/build/TfmToVisage" #-}
+                          {-# LINE 978 "dist/build/TfmToVisage" #-}
                           )
                      -- use rule "src-ag/TfmToVisage.ag"(line 144, column 43)
                      _lhsOfieldattrs =
                          ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                           _hdIfieldattrs  ++  _tlIfieldattrs
-                          {-# LINE 1010 "dist/build/TfmToVisage" #-}
+                          {-# LINE 984 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 1016 "dist/build/TfmToVisage" #-}
+                          {-# LINE 990 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _self =
                          ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                           (:) _hdIself _tlIself
-                          {-# LINE 1022 "dist/build/TfmToVisage" #-}
+                          {-# LINE 996 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 1028 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1002 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _lhsOself =
                          ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                           _self
-                          {-# LINE 1034 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1008 "dist/build/TfmToVisage" #-}
                           )
                      ( _hdIcopy,_hdIfieldattrs,_hdIself,_hdIvpat) =
                          hd_
                      ( _tlIcopy,_tlIfieldattrs,_tlIself,_tlIvpats) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpats)
                  in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpats)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -1049,40 +1021,38 @@ sem_Patterns_Nil =
                      _lhsOvpats =
                          ({-# LINE 133 "src-ag/TfmToVisage.ag" #-}
                           []
-                          {-# LINE 1053 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1025 "dist/build/TfmToVisage" #-}
                           )
                      -- use rule "src-ag/TfmToVisage.ag"(line 144, column 43)
                      _lhsOfieldattrs =
                          ({-# LINE 144 "src-ag/TfmToVisage.ag" #-}
                           []
-                          {-# LINE 1059 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1031 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 1065 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1037 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _self =
                          ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                           []
-                          {-# LINE 1071 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1043 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 1077 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1049 "dist/build/TfmToVisage" #-}
                           )
                      -- self rule
                      _lhsOself =
                          ({-# LINE 74 "src-ag/TfmToVisage.ag" #-}
                           _self
-                          {-# LINE 1083 "dist/build/TfmToVisage" #-}
+                          {-# LINE 1055 "dist/build/TfmToVisage" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOfieldattrs _lhsOself _lhsOvpats)
                  in  ( _lhsOcopy,_lhsOfieldattrs,_lhsOself,_lhsOvpats)))
 -- Production --------------------------------------------------
 {-
@@ -1144,50 +1114,48 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                             _lhsOvprod =
                                 ({-# LINE 110 "src-ag/TfmToVisage.ag" #-}
                                  VProduction con_ _childrenIvchildren _lhsrules _locrules
-                                 {-# LINE 1148 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1118 "dist/build/TfmToVisage" #-}
                                  )
                             -- "src-ag/TfmToVisage.ag"(line 111, column 7)
                             _splitVRules =
                                 ({-# LINE 111 "src-ag/TfmToVisage.ag" #-}
                                  splitVRules _rulesIvrules
-                                 {-# LINE 1154 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1124 "dist/build/TfmToVisage" #-}
                                  )
                             -- "src-ag/TfmToVisage.ag"(line 112, column 7)
                             _locrules =
                                 ({-# LINE 112 "src-ag/TfmToVisage.ag" #-}
                                  getForField "loc" _splitVRules
-                                 {-# LINE 1160 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1130 "dist/build/TfmToVisage" #-}
                                  )
                             -- "src-ag/TfmToVisage.ag"(line 113, column 7)
                             _lhsrules =
                                 ({-# LINE 113 "src-ag/TfmToVisage.ag" #-}
                                  getForField "lhs" _splitVRules
-                                 {-# LINE 1166 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1136 "dist/build/TfmToVisage" #-}
                                  )
                             -- "src-ag/TfmToVisage.ag"(line 114, column 7)
                             _childrenOrulemap =
                                 ({-# LINE 114 "src-ag/TfmToVisage.ag" #-}
                                  _splitVRules
-                                 {-# LINE 1172 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1142 "dist/build/TfmToVisage" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 1178 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1148 "dist/build/TfmToVisage" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIsynMap
-                                 {-# LINE 1184 "dist/build/TfmToVisage" #-}
+                                 {-# LINE 1154 "dist/build/TfmToVisage" #-}
                                  )
                             ( _childrenIvchildren) =
                                 children_ _childrenOinhMap _childrenOrulemap _childrenOsynMap
                             ( _rulesIvrules) =
                                 rules_
-                            ___node =
-                                (Syn_Production _lhsOvprod)
                         in  ( _lhsOvprod))))
 -- Productions -------------------------------------------------
 {-
@@ -1237,38 +1205,36 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                              _lhsOvprods =
                                  ({-# LINE 104 "src-ag/TfmToVisage.ag" #-}
                                   _hdIvprod : _tlIvprods
-                                  {-# LINE 1241 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1209 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _hdOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 1247 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1215 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 1253 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1221 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 1259 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1227 "dist/build/TfmToVisage" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 1265 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1233 "dist/build/TfmToVisage" #-}
                                   )
                              ( _hdIvprod) =
                                  hd_ _hdOinhMap _hdOsynMap
                              ( _tlIvprods) =
                                  tl_ _tlOinhMap _tlOsynMap
-                             ___node =
-                                 (Syn_Productions _lhsOvprods)
                          in  ( _lhsOvprods))))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -1279,10 +1245,8 @@ sem_Productions_Nil =
                              _lhsOvprods =
                                  ({-# LINE 106 "src-ag/TfmToVisage.ag" #-}
                                   []
-                                  {-# LINE 1283 "dist/build/TfmToVisage" #-}
+                                  {-# LINE 1249 "dist/build/TfmToVisage" #-}
                                   )
-                             ___node =
-                                 (Syn_Productions _lhsOvprods)
                          in  ( _lhsOvprods))))
 -- Rule --------------------------------------------------------
 {-
@@ -1339,14 +1303,12 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                  _lhsOvrule =
                      ({-# LINE 129 "src-ag/TfmToVisage.ag" #-}
                       VRule _patternIfieldattrs undefined _patternIvpat _rhsIself owrt_
-                      {-# LINE 1343 "dist/build/TfmToVisage" #-}
+                      {-# LINE 1307 "dist/build/TfmToVisage" #-}
                       )
                  ( _patternIcopy,_patternIfieldattrs,_patternIself,_patternIvpat) =
                      pattern_
                  ( _rhsIself) =
                      rhs_
-                 ___node =
-                     (Syn_Rule _lhsOvrule)
              in  ( _lhsOvrule)))
 -- Rules -------------------------------------------------------
 {-
@@ -1385,14 +1347,12 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                   _lhsOvrules =
                       ({-# LINE 124 "src-ag/TfmToVisage.ag" #-}
                        _hdIvrule : _tlIvrules
-                       {-# LINE 1389 "dist/build/TfmToVisage" #-}
+                       {-# LINE 1351 "dist/build/TfmToVisage" #-}
                        )
                   ( _hdIvrule) =
                       hd_
                   ( _tlIvrules) =
                       tl_
-                  ___node =
-                      (Syn_Rules _lhsOvrules)
               in  ( _lhsOvrules)))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -1401,10 +1361,8 @@ sem_Rules_Nil =
                   _lhsOvrules =
                       ({-# LINE 125 "src-ag/TfmToVisage.ag" #-}
                        []
-                       {-# LINE 1405 "dist/build/TfmToVisage" #-}
+                       {-# LINE 1365 "dist/build/TfmToVisage" #-}
                        )
-                  ___node =
-                      (Syn_Rules _lhsOvrules)
               in  ( _lhsOvrules)))
 -- TypeSig -----------------------------------------------------
 {-
@@ -1432,8 +1390,7 @@ sem_TypeSig_TypeSig :: Identifier ->
                        Type ->
                        T_TypeSig
 sem_TypeSig_TypeSig name_ tp_ =
-    (T_TypeSig (let ___node =
-                        (Syn_TypeSig)
+    (T_TypeSig (let
                 in  ( )))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -1462,11 +1419,9 @@ sem_TypeSigs_Cons :: T_TypeSig ->
                      T_TypeSigs ->
                      T_TypeSigs
 sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
-    (T_TypeSigs (let ___node =
-                         (Syn_TypeSigs)
+    (T_TypeSigs (let
                  in  ( )))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
-    (T_TypeSigs (let ___node =
-                         (Syn_TypeSigs)
+    (T_TypeSigs (let
                  in  ( )))
