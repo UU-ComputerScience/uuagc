@@ -244,7 +244,7 @@ compile flags input output
                                     , pp pragmaBlocksTxt
                                     , pp $ take 70 ("-- UUAGC2AspectAG " ++ drop 50 banner ++ " (" ++ input) ++ ")"
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                           then moduleHeader flags' mainName
+                                           then moduleHeader flags' mainName ext'
                                            else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                     , pp importBlocksTxt
                                     , AspectAGDump.imp_Syn_Grammar aspectAG
@@ -264,7 +264,7 @@ compile flags input output
                             = vlist [ Pass4b.warrenFlagsPP flags'
                                     , pp pragmaBlocksTxt
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                           then moduleHeader flags' mainName
+                                           then moduleHeader flags' mainName Nothing
                                            else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                     , pp importBlocksTxt
                                     , ( if tupleAsDummyToken flags'
@@ -295,7 +295,7 @@ compile flags input output
                                                    , pp pragmaBlocksTxt
                                                    , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
                                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
-                                                          then moduleHeader flags' mainName
+                                                          then moduleHeader flags' mainName Nothing
                                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                                    ]
                                               else []
@@ -353,13 +353,15 @@ errorsToFront :: Options -> [Error] -> [Error]
 errorsToFront flags mesgs = errs ++ warnings
   where (errs,warnings) = partition (PrErr.isError flags) mesgs
 
-moduleHeader :: Options -> String -> String
-moduleHeader flags input
+moduleHeader :: Options -> String -> Maybe String -> String
+moduleHeader flags input export
  = case moduleName flags
    of Name nm -> genMod nm
       Default -> genMod (defaultModuleName input)
       NoName  -> ""
-   where genMod x = "module " ++ x ++ " where"
+   where genMod x = "module " ++ x ++ genExp export x ++ " where"
+         genExp Nothing _ = ""
+         genExp (Just e) x = "(module " ++ x ++ ", module " ++ e ++ ")"
 
 inputFile :: String -> String
 inputFile name
