@@ -127,9 +127,9 @@ sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
                   _lhsInt ->
                     (let _lhsOerrors :: (Seq Error)
                          _lhsOusedAttrs :: ([(Identifier,Identifier)])
+                         _lhsOusedLocals :: ([Identifier])
                          _lhsOtok :: ((Pos,String))
                          _lhsOusedFields :: (Seq Identifier)
-                         _lhsOusedLocals :: ([Identifier])
                          _lhsOoutput :: HsToken
                          -- "src-ag/SemHsTokens.ag"(line 77, column 15)
                          _lhsOerrors =
@@ -142,51 +142,45 @@ sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
                               {-# LINE 143 "dist/build/SemHsTokens" #-}
                               )
                          -- "src-ag/SemHsTokens.ag"(line 91, column 13)
-                         _lhsOusedAttrs =
+                         (_lhsOusedAttrs,_lhsOusedLocals) =
                              ({-# LINE 91 "src-ag/SemHsTokens.ag" #-}
-                              [(field_,attr_)]
-                              {-# LINE 149 "dist/build/SemHsTokens" #-}
+                              if field_ == _LOC
+                              then ([], [attr_])
+                              else ([(field_,attr_)], [])
+                              {-# LINE 151 "dist/build/SemHsTokens" #-}
                               )
-                         -- "src-ag/SemHsTokens.ag"(line 118, column 8)
+                         -- "src-ag/SemHsTokens.ag"(line 122, column 8)
                          _addTrace =
-                             ({-# LINE 118 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 122 "src-ag/SemHsTokens.ag" #-}
                               case rdesc_ of
                                 Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show field_ ++ "." ++ show attr_) ++ " (" ++ x ++ "))"
                                 Nothing -> id
-                              {-# LINE 157 "dist/build/SemHsTokens" #-}
+                              {-# LINE 159 "dist/build/SemHsTokens" #-}
                               )
-                         -- "src-ag/SemHsTokens.ag"(line 121, column 8)
+                         -- "src-ag/SemHsTokens.ag"(line 125, column 8)
                          _lhsOtok =
-                             ({-# LINE 121 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 125 "src-ag/SemHsTokens.ag" #-}
                               (pos_, _addTrace     $ attrname True field_ attr_)
-                              {-# LINE 163 "dist/build/SemHsTokens" #-}
+                              {-# LINE 165 "dist/build/SemHsTokens" #-}
                               )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                         -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                          _lhsOusedFields =
-                             ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 169 "dist/build/SemHsTokens" #-}
-                              )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
-                         _lhsOusedLocals =
-                             ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
-                              []
-                              {-# LINE 175 "dist/build/SemHsTokens" #-}
+                              {-# LINE 171 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _output =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               AGField field_ attr_ pos_ rdesc_
-                              {-# LINE 181 "dist/build/SemHsTokens" #-}
+                              {-# LINE 177 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 187 "dist/build/SemHsTokens" #-}
+                              {-# LINE 183 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsToken_AGLocal :: Identifier ->
                        Pos ->
@@ -209,13 +203,13 @@ sem_HsToken_AGLocal var_ pos_ rdesc_ =
                          _tkAsLocal =
                              ({-# LINE 65 "src-ag/SemHsTokens.ag" #-}
                               AGLocal var_ pos_ rdesc_
-                              {-# LINE 213 "dist/build/SemHsTokens" #-}
+                              {-# LINE 207 "dist/build/SemHsTokens" #-}
                               )
                          -- "src-ag/SemHsTokens.ag"(line 66, column 15)
                          _tkAsField =
                              ({-# LINE 66 "src-ag/SemHsTokens.ag" #-}
                               AGField _LOC var_ pos_ rdesc_
-                              {-# LINE 219 "dist/build/SemHsTokens" #-}
+                              {-# LINE 213 "dist/build/SemHsTokens" #-}
                               )
                          -- "src-ag/SemHsTokens.ag"(line 67, column 19)
                          (_errors,_output,_tok,_usedLocals) =
@@ -227,48 +221,46 @@ sem_HsToken_AGLocal var_ pos_ rdesc_ =
                               else if (_LOC,var_) `elem` _lhsIattrs
                                    then (Seq.empty                                      , _tkAsField    , (pos_,locname   var_), [var_])
                                    else (Seq.singleton(UndefLocal _lhsInt _lhsIcon var_), _tkAsField    , (pos_,locname   var_), []    )
-                              {-# LINE 231 "dist/build/SemHsTokens" #-}
+                              {-# LINE 225 "dist/build/SemHsTokens" #-}
                               )
-                         -- "src-ag/SemHsTokens.ag"(line 99, column 13)
+                         -- "src-ag/SemHsTokens.ag"(line 103, column 13)
                          _lhsOusedFields =
-                             ({-# LINE 99 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 103 "src-ag/SemHsTokens.ag" #-}
                               if var_ `elem` _lhsIfieldnames
                                then Seq.singleton var_
                                else Seq.empty
-                              {-# LINE 239 "dist/build/SemHsTokens" #-}
+                              {-# LINE 233 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                          _lhsOerrors =
                              ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                               _errors
-                              {-# LINE 245 "dist/build/SemHsTokens" #-}
+                              {-# LINE 239 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                          _lhsOusedAttrs =
                              ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 251 "dist/build/SemHsTokens" #-}
+                              {-# LINE 245 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                          _lhsOusedLocals =
                              ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                               _usedLocals
-                              {-# LINE 257 "dist/build/SemHsTokens" #-}
+                              {-# LINE 251 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 263 "dist/build/SemHsTokens" #-}
+                              {-# LINE 257 "dist/build/SemHsTokens" #-}
                               )
                          -- copy rule (from local)
                          _lhsOtok =
-                             ({-# LINE 116 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 120 "src-ag/SemHsTokens.ag" #-}
                               _tok
-                              {-# LINE 269 "dist/build/SemHsTokens" #-}
+                              {-# LINE 263 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsToken_CharToken :: String ->
                          Pos ->
@@ -286,53 +278,51 @@ sem_HsToken_CharToken value_ pos_ =
                          _lhsOusedFields :: (Seq Identifier)
                          _lhsOusedLocals :: ([Identifier])
                          _lhsOoutput :: HsToken
-                         -- "src-ag/SemHsTokens.ag"(line 125, column 16)
+                         -- "src-ag/SemHsTokens.ag"(line 129, column 16)
                          _lhsOtok =
-                             ({-# LINE 125 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 129 "src-ag/SemHsTokens.ag" #-}
                               (pos_, if null value_
                                         then ""
                                         else showCharShort (head value_)
                               )
-                              {-# LINE 297 "dist/build/SemHsTokens" #-}
+                              {-# LINE 289 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                          _lhsOerrors =
                              ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 303 "dist/build/SemHsTokens" #-}
+                              {-# LINE 295 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                          _lhsOusedAttrs =
                              ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 309 "dist/build/SemHsTokens" #-}
+                              {-# LINE 301 "dist/build/SemHsTokens" #-}
                               )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                         -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                          _lhsOusedFields =
-                             ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 315 "dist/build/SemHsTokens" #-}
+                              {-# LINE 307 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                          _lhsOusedLocals =
                              ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 321 "dist/build/SemHsTokens" #-}
+                              {-# LINE 313 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _output =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               CharToken value_ pos_
-                              {-# LINE 327 "dist/build/SemHsTokens" #-}
+                              {-# LINE 319 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 333 "dist/build/SemHsTokens" #-}
+                              {-# LINE 325 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsToken_Err :: String ->
                    Pos ->
@@ -355,46 +345,44 @@ sem_HsToken_Err mesg_ pos_ =
                              ({-# LINE 50 "src-ag/SemHsTokens.ag" #-}
                               let m = text mesg_
                               in Seq.singleton (CustomError False pos_ m)
-                              {-# LINE 359 "dist/build/SemHsTokens" #-}
+                              {-# LINE 349 "dist/build/SemHsTokens" #-}
                               )
-                         -- "src-ag/SemHsTokens.ag"(line 131, column 16)
+                         -- "src-ag/SemHsTokens.ag"(line 135, column 16)
                          _lhsOtok =
-                             ({-# LINE 131 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 135 "src-ag/SemHsTokens.ag" #-}
                               (pos_, "")
-                              {-# LINE 365 "dist/build/SemHsTokens" #-}
+                              {-# LINE 355 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                          _lhsOusedAttrs =
                              ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 371 "dist/build/SemHsTokens" #-}
+                              {-# LINE 361 "dist/build/SemHsTokens" #-}
                               )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                         -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                          _lhsOusedFields =
-                             ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 377 "dist/build/SemHsTokens" #-}
+                              {-# LINE 367 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                          _lhsOusedLocals =
                              ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 383 "dist/build/SemHsTokens" #-}
+                              {-# LINE 373 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _output =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               Err mesg_ pos_
-                              {-# LINE 389 "dist/build/SemHsTokens" #-}
+                              {-# LINE 379 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 395 "dist/build/SemHsTokens" #-}
+                              {-# LINE 385 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsToken_HsToken :: String ->
                        Pos ->
@@ -412,50 +400,48 @@ sem_HsToken_HsToken value_ pos_ =
                          _lhsOusedFields :: (Seq Identifier)
                          _lhsOusedLocals :: ([Identifier])
                          _lhsOoutput :: HsToken
-                         -- "src-ag/SemHsTokens.ag"(line 123, column 14)
+                         -- "src-ag/SemHsTokens.ag"(line 127, column 14)
                          _lhsOtok =
-                             ({-# LINE 123 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 127 "src-ag/SemHsTokens.ag" #-}
                               (pos_, value_)
-                              {-# LINE 420 "dist/build/SemHsTokens" #-}
+                              {-# LINE 408 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                          _lhsOerrors =
                              ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 426 "dist/build/SemHsTokens" #-}
+                              {-# LINE 414 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                          _lhsOusedAttrs =
                              ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 432 "dist/build/SemHsTokens" #-}
+                              {-# LINE 420 "dist/build/SemHsTokens" #-}
                               )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                         -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                          _lhsOusedFields =
-                             ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 438 "dist/build/SemHsTokens" #-}
+                              {-# LINE 426 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                          _lhsOusedLocals =
                              ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 444 "dist/build/SemHsTokens" #-}
+                              {-# LINE 432 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _output =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               HsToken value_ pos_
-                              {-# LINE 450 "dist/build/SemHsTokens" #-}
+                              {-# LINE 438 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 456 "dist/build/SemHsTokens" #-}
+                              {-# LINE 444 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsToken_StrToken :: String ->
                         Pos ->
@@ -473,50 +459,48 @@ sem_HsToken_StrToken value_ pos_ =
                          _lhsOusedFields :: (Seq Identifier)
                          _lhsOusedLocals :: ([Identifier])
                          _lhsOoutput :: HsToken
-                         -- "src-ag/SemHsTokens.ag"(line 130, column 16)
+                         -- "src-ag/SemHsTokens.ag"(line 134, column 16)
                          _lhsOtok =
-                             ({-# LINE 130 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 134 "src-ag/SemHsTokens.ag" #-}
                               (pos_, showStrShort value_)
-                              {-# LINE 481 "dist/build/SemHsTokens" #-}
+                              {-# LINE 467 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                          _lhsOerrors =
                              ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 487 "dist/build/SemHsTokens" #-}
+                              {-# LINE 473 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                          _lhsOusedAttrs =
                              ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 493 "dist/build/SemHsTokens" #-}
+                              {-# LINE 479 "dist/build/SemHsTokens" #-}
                               )
-                         -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                         -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                          _lhsOusedFields =
-                             ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                               Seq.empty
-                              {-# LINE 499 "dist/build/SemHsTokens" #-}
+                              {-# LINE 485 "dist/build/SemHsTokens" #-}
                               )
                          -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                          _lhsOusedLocals =
                              ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                               []
-                              {-# LINE 505 "dist/build/SemHsTokens" #-}
+                              {-# LINE 491 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _output =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               StrToken value_ pos_
-                              {-# LINE 511 "dist/build/SemHsTokens" #-}
+                              {-# LINE 497 "dist/build/SemHsTokens" #-}
                               )
                          -- self rule
                          _lhsOoutput =
-                             ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                             ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                               _output
-                              {-# LINE 517 "dist/build/SemHsTokens" #-}
+                              {-# LINE 503 "dist/build/SemHsTokens" #-}
                               )
-                         ___node =
-                             (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                      in  ( _lhsOerrors,_lhsOoutput,_lhsOtok,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 -- HsTokens ----------------------------------------------------
 {-
@@ -606,126 +590,124 @@ sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
                           _tlIusedAttrs :: ([(Identifier,Identifier)])
                           _tlIusedFields :: (Seq Identifier)
                           _tlIusedLocals :: ([Identifier])
-                          -- "src-ag/SemHsTokens.ag"(line 113, column 10)
+                          -- "src-ag/SemHsTokens.ag"(line 117, column 10)
                           _lhsOtks =
-                              ({-# LINE 113 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 117 "src-ag/SemHsTokens.ag" #-}
                                _hdItok : _tlItks
-                               {-# LINE 614 "dist/build/SemHsTokens" #-}
+                               {-# LINE 598 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                           _lhsOerrors =
                               ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                                _hdIerrors Seq.>< _tlIerrors
-                               {-# LINE 620 "dist/build/SemHsTokens" #-}
+                               {-# LINE 604 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                           _lhsOusedAttrs =
                               ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                                _hdIusedAttrs ++ _tlIusedAttrs
-                               {-# LINE 626 "dist/build/SemHsTokens" #-}
+                               {-# LINE 610 "dist/build/SemHsTokens" #-}
                                )
-                          -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                          -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                           _lhsOusedFields =
-                              ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                                _hdIusedFields Seq.>< _tlIusedFields
-                               {-# LINE 632 "dist/build/SemHsTokens" #-}
+                               {-# LINE 616 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                           _lhsOusedLocals =
                               ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                                _hdIusedLocals ++ _tlIusedLocals
-                               {-# LINE 638 "dist/build/SemHsTokens" #-}
+                               {-# LINE 622 "dist/build/SemHsTokens" #-}
                                )
                           -- self rule
                           _output =
-                              ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                                (:) _hdIoutput _tlIoutput
-                               {-# LINE 644 "dist/build/SemHsTokens" #-}
+                               {-# LINE 628 "dist/build/SemHsTokens" #-}
                                )
                           -- self rule
                           _lhsOoutput =
-                              ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                                _output
-                               {-# LINE 650 "dist/build/SemHsTokens" #-}
+                               {-# LINE 634 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOallfields =
                               ({-# LINE 30 "src-ag/SemHsTokens.ag" #-}
                                _lhsIallfields
-                               {-# LINE 656 "dist/build/SemHsTokens" #-}
+                               {-# LINE 640 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOallnts =
                               ({-# LINE 31 "src-ag/SemHsTokens.ag" #-}
                                _lhsIallnts
-                               {-# LINE 662 "dist/build/SemHsTokens" #-}
+                               {-# LINE 646 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOattrs =
                               ({-# LINE 32 "src-ag/SemHsTokens.ag" #-}
                                _lhsIattrs
-                               {-# LINE 668 "dist/build/SemHsTokens" #-}
+                               {-# LINE 652 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                _lhsIcon
-                               {-# LINE 674 "dist/build/SemHsTokens" #-}
+                               {-# LINE 658 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOfieldnames =
                               ({-# LINE 36 "src-ag/SemHsTokens.ag" #-}
                                _lhsIfieldnames
-                               {-# LINE 680 "dist/build/SemHsTokens" #-}
+                               {-# LINE 664 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                _lhsInt
-                               {-# LINE 686 "dist/build/SemHsTokens" #-}
+                               {-# LINE 670 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOallfields =
                               ({-# LINE 30 "src-ag/SemHsTokens.ag" #-}
                                _lhsIallfields
-                               {-# LINE 692 "dist/build/SemHsTokens" #-}
+                               {-# LINE 676 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOallnts =
                               ({-# LINE 31 "src-ag/SemHsTokens.ag" #-}
                                _lhsIallnts
-                               {-# LINE 698 "dist/build/SemHsTokens" #-}
+                               {-# LINE 682 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOattrs =
                               ({-# LINE 32 "src-ag/SemHsTokens.ag" #-}
                                _lhsIattrs
-                               {-# LINE 704 "dist/build/SemHsTokens" #-}
+                               {-# LINE 688 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                _lhsIcon
-                               {-# LINE 710 "dist/build/SemHsTokens" #-}
+                               {-# LINE 694 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOfieldnames =
                               ({-# LINE 36 "src-ag/SemHsTokens.ag" #-}
                                _lhsIfieldnames
-                               {-# LINE 716 "dist/build/SemHsTokens" #-}
+                               {-# LINE 700 "dist/build/SemHsTokens" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                _lhsInt
-                               {-# LINE 722 "dist/build/SemHsTokens" #-}
+                               {-# LINE 706 "dist/build/SemHsTokens" #-}
                                )
                           ( _hdIerrors,_hdIoutput,_hdItok,_hdIusedAttrs,_hdIusedFields,_hdIusedLocals) =
                               hd_ _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOfieldnames _hdOnt
                           ( _tlIerrors,_tlIoutput,_tlItks,_tlIusedAttrs,_tlIusedFields,_tlIusedLocals) =
                               tl_ _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOfieldnames _tlOnt
-                          ___node =
-                              (Syn_HsTokens _lhsOerrors _lhsOoutput _lhsOtks _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                       in  ( _lhsOerrors,_lhsOoutput,_lhsOtks,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 sem_HsTokens_Nil :: T_HsTokens
 sem_HsTokens_Nil =
@@ -741,50 +723,48 @@ sem_HsTokens_Nil =
                           _lhsOusedFields :: (Seq Identifier)
                           _lhsOusedLocals :: ([Identifier])
                           _lhsOoutput :: HsTokens
-                          -- "src-ag/SemHsTokens.ag"(line 114, column 10)
+                          -- "src-ag/SemHsTokens.ag"(line 118, column 10)
                           _lhsOtks =
-                              ({-# LINE 114 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 118 "src-ag/SemHsTokens.ag" #-}
                                []
-                               {-# LINE 749 "dist/build/SemHsTokens" #-}
+                               {-# LINE 731 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 43, column 37)
                           _lhsOerrors =
                               ({-# LINE 43 "src-ag/SemHsTokens.ag" #-}
                                Seq.empty
-                               {-# LINE 755 "dist/build/SemHsTokens" #-}
+                               {-# LINE 737 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 88, column 40)
                           _lhsOusedAttrs =
                               ({-# LINE 88 "src-ag/SemHsTokens.ag" #-}
                                []
-                               {-# LINE 761 "dist/build/SemHsTokens" #-}
+                               {-# LINE 743 "dist/build/SemHsTokens" #-}
                                )
-                          -- use rule "src-ag/SemHsTokens.ag"(line 96, column 40)
+                          -- use rule "src-ag/SemHsTokens.ag"(line 100, column 40)
                           _lhsOusedFields =
-                              ({-# LINE 96 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 100 "src-ag/SemHsTokens.ag" #-}
                                Seq.empty
-                               {-# LINE 767 "dist/build/SemHsTokens" #-}
+                               {-# LINE 749 "dist/build/SemHsTokens" #-}
                                )
                           -- use rule "src-ag/SemHsTokens.ag"(line 87, column 40)
                           _lhsOusedLocals =
                               ({-# LINE 87 "src-ag/SemHsTokens.ag" #-}
                                []
-                               {-# LINE 773 "dist/build/SemHsTokens" #-}
+                               {-# LINE 755 "dist/build/SemHsTokens" #-}
                                )
                           -- self rule
                           _output =
-                              ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                                []
-                               {-# LINE 779 "dist/build/SemHsTokens" #-}
+                               {-# LINE 761 "dist/build/SemHsTokens" #-}
                                )
                           -- self rule
                           _lhsOoutput =
-                              ({-# LINE 138 "src-ag/SemHsTokens.ag" #-}
+                              ({-# LINE 142 "src-ag/SemHsTokens.ag" #-}
                                _output
-                               {-# LINE 785 "dist/build/SemHsTokens" #-}
+                               {-# LINE 767 "dist/build/SemHsTokens" #-}
                                )
-                          ___node =
-                              (Syn_HsTokens _lhsOerrors _lhsOoutput _lhsOtks _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                       in  ( _lhsOerrors,_lhsOoutput,_lhsOtks,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))
 -- HsTokensRoot ------------------------------------------------
 {-
@@ -856,76 +836,74 @@ sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_) =
                               _tokensOfieldnames =
                                   ({-# LINE 38 "src-ag/SemHsTokens.ag" #-}
                                    map (\(n,_,_) -> n) _lhsIallfields
-                                   {-# LINE 860 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 840 "dist/build/SemHsTokens" #-}
                                    )
-                              -- "src-ag/SemHsTokens.ag"(line 103, column 18)
+                              -- "src-ag/SemHsTokens.ag"(line 107, column 18)
                               _lhsOusedFields =
-                                  ({-# LINE 103 "src-ag/SemHsTokens.ag" #-}
+                                  ({-# LINE 107 "src-ag/SemHsTokens.ag" #-}
                                    toList _tokensIusedFields
-                                   {-# LINE 866 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 846 "dist/build/SemHsTokens" #-}
                                    )
-                              -- "src-ag/SemHsTokens.ag"(line 110, column 18)
+                              -- "src-ag/SemHsTokens.ag"(line 114, column 18)
                               _lhsOtextLines =
-                                  ({-# LINE 110 "src-ag/SemHsTokens.ag" #-}
+                                  ({-# LINE 114 "src-ag/SemHsTokens.ag" #-}
                                    showTokens _tokensItks
-                                   {-# LINE 872 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 852 "dist/build/SemHsTokens" #-}
                                    )
                               -- use rule "src-ag/SemHsTokens.ag"(line 18, column 18)
                               _lhsOerrors =
                                   ({-# LINE 18 "src-ag/SemHsTokens.ag" #-}
                                    _tokensIerrors
-                                   {-# LINE 878 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 858 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (up)
                               _lhsOoutput =
-                                  ({-# LINE 137 "src-ag/SemHsTokens.ag" #-}
+                                  ({-# LINE 141 "src-ag/SemHsTokens.ag" #-}
                                    _tokensIoutput
-                                   {-# LINE 884 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 864 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (up)
                               _lhsOusedAttrs =
                                   ({-# LINE 20 "src-ag/SemHsTokens.ag" #-}
                                    _tokensIusedAttrs
-                                   {-# LINE 890 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 870 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (up)
                               _lhsOusedLocals =
                                   ({-# LINE 19 "src-ag/SemHsTokens.ag" #-}
                                    _tokensIusedLocals
-                                   {-# LINE 896 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 876 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (down)
                               _tokensOallfields =
                                   ({-# LINE 30 "src-ag/SemHsTokens.ag" #-}
                                    _lhsIallfields
-                                   {-# LINE 902 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 882 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (down)
                               _tokensOallnts =
                                   ({-# LINE 31 "src-ag/SemHsTokens.ag" #-}
                                    _lhsIallnts
-                                   {-# LINE 908 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 888 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (down)
                               _tokensOattrs =
                                   ({-# LINE 32 "src-ag/SemHsTokens.ag" #-}
                                    _lhsIattrs
-                                   {-# LINE 914 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 894 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (down)
                               _tokensOcon =
                                   ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                    _lhsIcon
-                                   {-# LINE 920 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 900 "dist/build/SemHsTokens" #-}
                                    )
                               -- copy rule (down)
                               _tokensOnt =
                                   ({-# LINE 29 "src-ag/SemHsTokens.ag" #-}
                                    _lhsInt
-                                   {-# LINE 926 "dist/build/SemHsTokens" #-}
+                                   {-# LINE 906 "dist/build/SemHsTokens" #-}
                                    )
                               ( _tokensIerrors,_tokensIoutput,_tokensItks,_tokensIusedAttrs,_tokensIusedFields,_tokensIusedLocals) =
                                   tokens_ _tokensOallfields _tokensOallnts _tokensOattrs _tokensOcon _tokensOfieldnames _tokensOnt
-                              ___node =
-                                  (Syn_HsTokensRoot _lhsOerrors _lhsOoutput _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
                           in  ( _lhsOerrors,_lhsOoutput,_lhsOtextLines,_lhsOusedAttrs,_lhsOusedFields,_lhsOusedLocals))))

@@ -114,9 +114,7 @@ sem_CGrammar_CGrammar typeSyns_ derivings_ wrappers_ (T_CNonterminals nonts_) pr
                              {-# LINE 115 "dist/build/PrintVisitCode" #-}
                              )) of
                       { _lhsOoutput ->
-                      (case ((Syn_CGrammar _lhsOoutput)) of
-                       { ___node ->
-                       ( _lhsOoutput) }) })))
+                      ( _lhsOoutput) })))
 -- CInterface --------------------------------------------------
 {-
    alternatives:
@@ -141,9 +139,7 @@ wrap_CInterface (T_CInterface sem) (Inh_CInterface) =
 sem_CInterface_CInterface :: T_CSegments ->
                              T_CInterface
 sem_CInterface_CInterface (T_CSegments seg_) =
-    (T_CInterface (case ((Syn_CInterface)) of
-                   { ___node ->
-                   ( ) }))
+    (T_CInterface ( ))
 -- CNonterminal ------------------------------------------------
 {-
    alternatives:
@@ -178,9 +174,7 @@ sem_CNonterminal_CNonterminal :: NontermIdent ->
                                  T_CInterface ->
                                  T_CNonterminal
 sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_CInterface inter_) =
-    (T_CNonterminal (case ((Syn_CNonterminal)) of
-                     { ___node ->
-                     ( ) }))
+    (T_CNonterminal ( ))
 -- CNonterminals -----------------------------------------------
 {-
    alternatives:
@@ -208,14 +202,10 @@ sem_CNonterminals_Cons :: T_CNonterminal ->
                           T_CNonterminals ->
                           T_CNonterminals
 sem_CNonterminals_Cons (T_CNonterminal hd_) (T_CNonterminals tl_) =
-    (T_CNonterminals (case ((Syn_CNonterminals)) of
-                      { ___node ->
-                      ( ) }))
+    (T_CNonterminals ( ))
 sem_CNonterminals_Nil :: T_CNonterminals
 sem_CNonterminals_Nil =
-    (T_CNonterminals (case ((Syn_CNonterminals)) of
-                      { ___node ->
-                      ( ) }))
+    (T_CNonterminals ( ))
 -- CProduction -------------------------------------------------
 {-
    alternatives:
@@ -246,9 +236,7 @@ sem_CProduction_CProduction :: ConstructorIdent ->
                                ([Identifier]) ->
                                T_CProduction
 sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
-    (T_CProduction (case ((Syn_CProduction)) of
-                    { ___node ->
-                    ( ) }))
+    (T_CProduction ( ))
 -- CProductions ------------------------------------------------
 {-
    alternatives:
@@ -276,14 +264,10 @@ sem_CProductions_Cons :: T_CProduction ->
                          T_CProductions ->
                          T_CProductions
 sem_CProductions_Cons (T_CProduction hd_) (T_CProductions tl_) =
-    (T_CProductions (case ((Syn_CProductions)) of
-                     { ___node ->
-                     ( ) }))
+    (T_CProductions ( ))
 sem_CProductions_Nil :: T_CProductions
 sem_CProductions_Nil =
-    (T_CProductions (case ((Syn_CProductions)) of
-                     { ___node ->
-                     ( ) }))
+    (T_CProductions ( ))
 -- CRule -------------------------------------------------------
 {-
    alternatives:
@@ -337,9 +321,7 @@ sem_CRule_CChildVisit :: Identifier ->
                          Bool ->
                          T_CRule
 sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
-    (T_CRule (case ((Syn_CRule)) of
-              { ___node ->
-              ( ) }))
+    (T_CRule ( ))
 sem_CRule_CRule :: Identifier ->
                    Bool ->
                    Bool ->
@@ -358,9 +340,7 @@ sem_CRule_CRule :: Identifier ->
                    (Maybe Identifier) ->
                    T_CRule
 sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pattern_) rhs_ defines_ owrt_ origin_ uses_ explicit_ mbNamed_ =
-    (T_CRule (case ((Syn_CRule)) of
-              { ___node ->
-              ( ) }))
+    (T_CRule ( ))
 -- CSegment ----------------------------------------------------
 {-
    alternatives:
@@ -387,9 +367,7 @@ sem_CSegment_CSegment :: Attributes ->
                          Attributes ->
                          T_CSegment
 sem_CSegment_CSegment inh_ syn_ =
-    (T_CSegment (case ((Syn_CSegment)) of
-                 { ___node ->
-                 ( ) }))
+    (T_CSegment ( ))
 -- CSegments ---------------------------------------------------
 {-
    alternatives:
@@ -417,14 +395,10 @@ sem_CSegments_Cons :: T_CSegment ->
                       T_CSegments ->
                       T_CSegments
 sem_CSegments_Cons (T_CSegment hd_) (T_CSegments tl_) =
-    (T_CSegments (case ((Syn_CSegments)) of
-                  { ___node ->
-                  ( ) }))
+    (T_CSegments ( ))
 sem_CSegments_Nil :: T_CSegments
 sem_CSegments_Nil =
-    (T_CSegments (case ((Syn_CSegments)) of
-                  { ___node ->
-                  ( ) }))
+    (T_CSegments ( ))
 -- CVisit ------------------------------------------------------
 {-
    alternatives:
@@ -457,9 +431,7 @@ sem_CVisit_CVisit :: Attributes ->
                      Bool ->
                      T_CVisit
 sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
-    (T_CVisit (case ((Syn_CVisit)) of
-               { ___node ->
-               ( ) }))
+    (T_CVisit ( ))
 -- CVisits -----------------------------------------------------
 {-
    alternatives:
@@ -487,14 +459,10 @@ sem_CVisits_Cons :: T_CVisit ->
                     T_CVisits ->
                     T_CVisits
 sem_CVisits_Cons (T_CVisit hd_) (T_CVisits tl_) =
-    (T_CVisits (case ((Syn_CVisits)) of
-                { ___node ->
-                ( ) }))
+    (T_CVisits ( ))
 sem_CVisits_Nil :: T_CVisits
 sem_CVisits_Nil =
-    (T_CVisits (case ((Syn_CVisits)) of
-                { ___node ->
-                ( ) }))
+    (T_CVisits ( ))
 -- DeclBlocks --------------------------------------------------
 {-
    alternatives:
@@ -528,16 +496,12 @@ sem_DeclBlocks_DeclBlock :: ([Decl]) ->
                             T_DeclBlocks ->
                             T_DeclBlocks
 sem_DeclBlocks_DeclBlock defs_ visit_ (T_DeclBlocks next_) =
-    (T_DeclBlocks (case ((Syn_DeclBlocks)) of
-                   { ___node ->
-                   ( ) }))
+    (T_DeclBlocks ( ))
 sem_DeclBlocks_DeclTerminator :: ([Decl]) ->
                                  Expr ->
                                  T_DeclBlocks
 sem_DeclBlocks_DeclTerminator defs_ result_ =
-    (T_DeclBlocks (case ((Syn_DeclBlocks)) of
-                   { ___node ->
-                   ( ) }))
+    (T_DeclBlocks ( ))
 -- DeclBlocksRoot ----------------------------------------------
 {-
    alternatives:
@@ -562,9 +526,7 @@ wrap_DeclBlocksRoot (T_DeclBlocksRoot sem) (Inh_DeclBlocksRoot) =
 sem_DeclBlocksRoot_DeclBlocksRoot :: T_DeclBlocks ->
                                      T_DeclBlocksRoot
 sem_DeclBlocksRoot_DeclBlocksRoot (T_DeclBlocks blocks_) =
-    (T_DeclBlocksRoot (case ((Syn_DeclBlocksRoot)) of
-                       { ___node ->
-                       ( ) }))
+    (T_DeclBlocksRoot ( ))
 -- Pattern -----------------------------------------------------
 {-
    visit 0:
@@ -628,17 +590,15 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                 { ( _patIcopy) ->
                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Alias field_ attr_ _patIcopy
-                            {-# LINE 632 "dist/build/PrintVisitCode" #-}
+                            {-# LINE 594 "dist/build/PrintVisitCode" #-}
                             )) of
                      { _copy ->
                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 637 "dist/build/PrintVisitCode" #-}
+                             {-# LINE 599 "dist/build/PrintVisitCode" #-}
                              )) of
                       { _lhsOcopy ->
-                      (case ((Syn_Pattern _lhsOcopy)) of
-                       { ___node ->
-                       ( _lhsOcopy) }) }) }) }))
+                      ( _lhsOcopy) }) }) }))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
                       T_Pattern
@@ -647,17 +607,15 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                 { ( _patsIcopy) ->
                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Constr name_ _patsIcopy
-                            {-# LINE 651 "dist/build/PrintVisitCode" #-}
+                            {-# LINE 611 "dist/build/PrintVisitCode" #-}
                             )) of
                      { _copy ->
                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 656 "dist/build/PrintVisitCode" #-}
+                             {-# LINE 616 "dist/build/PrintVisitCode" #-}
                              )) of
                       { _lhsOcopy ->
-                      (case ((Syn_Pattern _lhsOcopy)) of
-                       { ___node ->
-                       ( _lhsOcopy) }) }) }) }))
+                      ( _lhsOcopy) }) }) }))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
 sem_Pattern_Irrefutable (T_Pattern pat_) =
@@ -665,17 +623,15 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                 { ( _patIcopy) ->
                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Irrefutable _patIcopy
-                            {-# LINE 669 "dist/build/PrintVisitCode" #-}
+                            {-# LINE 627 "dist/build/PrintVisitCode" #-}
                             )) of
                      { _copy ->
                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 674 "dist/build/PrintVisitCode" #-}
+                             {-# LINE 632 "dist/build/PrintVisitCode" #-}
                              )) of
                       { _lhsOcopy ->
-                      (case ((Syn_Pattern _lhsOcopy)) of
-                       { ___node ->
-                       ( _lhsOcopy) }) }) }) }))
+                      ( _lhsOcopy) }) }) }))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
                        T_Pattern
@@ -684,33 +640,29 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                 { ( _patsIcopy) ->
                     (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                             Product pos_ _patsIcopy
-                            {-# LINE 688 "dist/build/PrintVisitCode" #-}
+                            {-# LINE 644 "dist/build/PrintVisitCode" #-}
                             )) of
                      { _copy ->
                      (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                              _copy
-                             {-# LINE 693 "dist/build/PrintVisitCode" #-}
+                             {-# LINE 649 "dist/build/PrintVisitCode" #-}
                              )) of
                       { _lhsOcopy ->
-                      (case ((Syn_Pattern _lhsOcopy)) of
-                       { ___node ->
-                       ( _lhsOcopy) }) }) }) }))
+                      ( _lhsOcopy) }) }) }))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
 sem_Pattern_Underscore pos_ =
     (T_Pattern (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                        Underscore pos_
-                       {-# LINE 704 "dist/build/PrintVisitCode" #-}
+                       {-# LINE 658 "dist/build/PrintVisitCode" #-}
                        )) of
                 { _copy ->
                 (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                         _copy
-                        {-# LINE 709 "dist/build/PrintVisitCode" #-}
+                        {-# LINE 663 "dist/build/PrintVisitCode" #-}
                         )) of
                  { _lhsOcopy ->
-                 (case ((Syn_Pattern _lhsOcopy)) of
-                  { ___node ->
-                  ( _lhsOcopy) }) }) }))
+                 ( _lhsOcopy) }) }))
 -- Patterns ----------------------------------------------------
 {-
    visit 0:
@@ -751,32 +703,28 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                       { ( _hdIcopy) ->
                           (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                   (:) _hdIcopy _tlIcopy
-                                  {-# LINE 755 "dist/build/PrintVisitCode" #-}
+                                  {-# LINE 707 "dist/build/PrintVisitCode" #-}
                                   )) of
                            { _copy ->
                            (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                                    _copy
-                                   {-# LINE 760 "dist/build/PrintVisitCode" #-}
+                                   {-# LINE 712 "dist/build/PrintVisitCode" #-}
                                    )) of
                             { _lhsOcopy ->
-                            (case ((Syn_Patterns _lhsOcopy)) of
-                             { ___node ->
-                             ( _lhsOcopy) }) }) }) }) }))
+                            ( _lhsOcopy) }) }) }) }))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
     (T_Patterns (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                         []
-                        {-# LINE 770 "dist/build/PrintVisitCode" #-}
+                        {-# LINE 720 "dist/build/PrintVisitCode" #-}
                         )) of
                  { _copy ->
                  (case (({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 775 "dist/build/PrintVisitCode" #-}
+                         {-# LINE 725 "dist/build/PrintVisitCode" #-}
                          )) of
                   { _lhsOcopy ->
-                  (case ((Syn_Patterns _lhsOcopy)) of
-                   { ___node ->
-                   ( _lhsOcopy) }) }) }))
+                  ( _lhsOcopy) }) }))
 -- Sequence ----------------------------------------------------
 {-
    alternatives:
@@ -804,11 +752,7 @@ sem_Sequence_Cons :: T_CRule ->
                      T_Sequence ->
                      T_Sequence
 sem_Sequence_Cons (T_CRule hd_) (T_Sequence tl_) =
-    (T_Sequence (case ((Syn_Sequence)) of
-                 { ___node ->
-                 ( ) }))
+    (T_Sequence ( ))
 sem_Sequence_Nil :: T_Sequence
 sem_Sequence_Nil =
-    (T_Sequence (case ((Syn_Sequence)) of
-                 { ___node ->
-                 ( ) }))
+    (T_Sequence ( ))

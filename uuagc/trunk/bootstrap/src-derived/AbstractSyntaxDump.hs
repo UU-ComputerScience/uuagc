@@ -76,8 +76,6 @@ sem_Child_Child name_ tp_ kind_ =
                        ppNestInfo ["Child","Child"] [pp name_, ppShow tp_] [ppF "kind" $ ppShow kind_] []
                        {-# LINE 78 "dist/build/AbstractSyntaxDump" #-}
                        )
-                  ___node =
-                      (Syn_Child _lhsOpp)
               in  ( _lhsOpp)))
 -- Children ----------------------------------------------------
 {-
@@ -119,20 +117,18 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                      _lhsOppL =
                          ({-# LINE 67 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 123 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 121 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp >-< _tlIpp
-                          {-# LINE 129 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 127 "dist/build/AbstractSyntaxDump" #-}
                           )
                      ( _hdIpp) =
                          hd_
                      ( _tlIpp,_tlIppL) =
                          tl_
-                     ___node =
-                         (Syn_Children _lhsOpp _lhsOppL)
                  in  ( _lhsOpp,_lhsOppL)))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -142,16 +138,14 @@ sem_Children_Nil =
                      _lhsOppL =
                          ({-# LINE 68 "src-ag/AbstractSyntaxDump.ag" #-}
                           []
-                          {-# LINE 146 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 142 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           empty
-                          {-# LINE 152 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 148 "dist/build/AbstractSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_Children _lhsOpp _lhsOppL)
                  in  ( _lhsOpp,_lhsOppL)))
 -- Expression --------------------------------------------------
 {-
@@ -187,10 +181,8 @@ sem_Expression_Expression pos_ tks_ =
                        _lhsOpp =
                            ({-# LINE 50 "src-ag/AbstractSyntaxDump.ag" #-}
                             ppNestInfo ["Expression","Expression"] [ppShow pos_] [ppF "txt" $ vlist . showTokens . tokensToStrings $ tks_] []
-                            {-# LINE 191 "dist/build/AbstractSyntaxDump" #-}
+                            {-# LINE 185 "dist/build/AbstractSyntaxDump" #-}
                             )
-                       ___node =
-                           (Syn_Expression _lhsOpp)
                    in  ( _lhsOpp)))
 -- Grammar -----------------------------------------------------
 {-
@@ -258,12 +250,10 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                             , ppF "wrappers" $ ppShow $ wrappers_
                             , ppF "nonts" $ ppVList _nontsIppL
                             ] []
-                         {-# LINE 262 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 254 "dist/build/AbstractSyntaxDump" #-}
                          )
                     ( _nontsIpp,_nontsIppL) =
                         nonts_
-                    ___node =
-                        (Syn_Grammar _lhsOpp)
                 in  ( _lhsOpp)))
 -- Nonterminal -------------------------------------------------
 {-
@@ -307,12 +297,10 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                         _lhsOpp =
                             ({-# LINE 29 "src-ag/AbstractSyntaxDump.ag" #-}
                              ppNestInfo ["Nonterminal","Nonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL] []
-                             {-# LINE 311 "dist/build/AbstractSyntaxDump" #-}
+                             {-# LINE 301 "dist/build/AbstractSyntaxDump" #-}
                              )
                         ( _prodsIpp,_prodsIppL) =
                             prods_
-                        ___node =
-                            (Syn_Nonterminal _lhsOpp)
                     in  ( _lhsOpp)))
 -- Nonterminals ------------------------------------------------
 {-
@@ -354,20 +342,18 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                          _lhsOppL =
                              ({-# LINE 75 "src-ag/AbstractSyntaxDump.ag" #-}
                               _hdIpp : _tlIppL
-                              {-# LINE 358 "dist/build/AbstractSyntaxDump" #-}
+                              {-# LINE 346 "dist/build/AbstractSyntaxDump" #-}
                               )
                          -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                          _lhsOpp =
                              ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                               _hdIpp >-< _tlIpp
-                              {-# LINE 364 "dist/build/AbstractSyntaxDump" #-}
+                              {-# LINE 352 "dist/build/AbstractSyntaxDump" #-}
                               )
                          ( _hdIpp) =
                              hd_
                          ( _tlIpp,_tlIppL) =
                              tl_
-                         ___node =
-                             (Syn_Nonterminals _lhsOpp _lhsOppL)
                      in  ( _lhsOpp,_lhsOppL)))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -377,16 +363,14 @@ sem_Nonterminals_Nil =
                          _lhsOppL =
                              ({-# LINE 76 "src-ag/AbstractSyntaxDump.ag" #-}
                               []
-                              {-# LINE 381 "dist/build/AbstractSyntaxDump" #-}
+                              {-# LINE 367 "dist/build/AbstractSyntaxDump" #-}
                               )
                          -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                          _lhsOpp =
                              ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                               empty
-                              {-# LINE 387 "dist/build/AbstractSyntaxDump" #-}
+                              {-# LINE 373 "dist/build/AbstractSyntaxDump" #-}
                               )
-                         ___node =
-                             (Syn_Nonterminals _lhsOpp _lhsOppL)
                      in  ( _lhsOpp,_lhsOppL)))
 -- Pattern -----------------------------------------------------
 {-
@@ -456,24 +440,22 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                     _lhsOpp =
                         ({-# LINE 46 "src-ag/AbstractSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
-                         {-# LINE 460 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 444 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 466 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 450 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 472 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 456 "dist/build/AbstractSyntaxDump" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -488,24 +470,22 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOpp =
                         ({-# LINE 44 "src-ag/AbstractSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 492 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 474 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 498 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 480 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 504 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 486 "dist/build/AbstractSyntaxDump" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -518,24 +498,22 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _lhsOpp =
                         ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                          _patIpp
-                         {-# LINE 522 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 502 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 528 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 508 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 534 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 514 "dist/build/AbstractSyntaxDump" #-}
                          )
                     ( _patIcopy,_patIpp) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -550,24 +528,22 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOpp =
                         ({-# LINE 45 "src-ag/AbstractSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 554 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 532 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 560 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 538 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 566 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 544 "dist/build/AbstractSyntaxDump" #-}
                          )
                     ( _patsIcopy,_patsIpp,_patsIppL) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -578,22 +554,20 @@ sem_Pattern_Underscore pos_ =
                     _lhsOpp =
                         ({-# LINE 47 "src-ag/AbstractSyntaxDump.ag" #-}
                          ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
-                         {-# LINE 582 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 558 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 588 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 564 "dist/build/AbstractSyntaxDump" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 594 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 570 "dist/build/AbstractSyntaxDump" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOpp)
                 in  ( _lhsOcopy,_lhsOpp)))
 -- Patterns ----------------------------------------------------
 {-
@@ -643,32 +617,30 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _lhsOppL =
                          ({-# LINE 55 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 647 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 621 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp >-< _tlIpp
-                          {-# LINE 653 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 627 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 659 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 633 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 665 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 639 "dist/build/AbstractSyntaxDump" #-}
                           )
                      ( _hdIcopy,_hdIpp) =
                          hd_
                      ( _tlIcopy,_tlIpp,_tlIppL) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
                  in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -679,28 +651,26 @@ sem_Patterns_Nil =
                      _lhsOppL =
                          ({-# LINE 56 "src-ag/AbstractSyntaxDump.ag" #-}
                           []
-                          {-# LINE 683 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 655 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           empty
-                          {-# LINE 689 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 661 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 695 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 667 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 701 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 673 "dist/build/AbstractSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
                  in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
 -- Production --------------------------------------------------
 {-
@@ -752,7 +722,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                        _lhsOpp =
                            ({-# LINE 32 "src-ag/AbstractSyntaxDump.ag" #-}
                             ppNestInfo ["Production","Production"] [pp con_] [ppF "children" $ ppVList _childrenIppL,ppF "rules" $ ppVList _rulesIppL,ppF "typeSigs" $ ppVList _typeSigsIppL] []
-                            {-# LINE 756 "dist/build/AbstractSyntaxDump" #-}
+                            {-# LINE 726 "dist/build/AbstractSyntaxDump" #-}
                             )
                        ( _childrenIpp,_childrenIppL) =
                            children_
@@ -760,8 +730,6 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                            rules_
                        ( _typeSigsIpp,_typeSigsIppL) =
                            typeSigs_
-                       ___node =
-                           (Syn_Production _lhsOpp)
                    in  ( _lhsOpp)))
 -- Productions -------------------------------------------------
 {-
@@ -803,20 +771,18 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                         _lhsOppL =
                             ({-# LINE 71 "src-ag/AbstractSyntaxDump.ag" #-}
                              _hdIpp : _tlIppL
-                             {-# LINE 807 "dist/build/AbstractSyntaxDump" #-}
+                             {-# LINE 775 "dist/build/AbstractSyntaxDump" #-}
                              )
                         -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                         _lhsOpp =
                             ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                              _hdIpp >-< _tlIpp
-                             {-# LINE 813 "dist/build/AbstractSyntaxDump" #-}
+                             {-# LINE 781 "dist/build/AbstractSyntaxDump" #-}
                              )
                         ( _hdIpp) =
                             hd_
                         ( _tlIpp,_tlIppL) =
                             tl_
-                        ___node =
-                            (Syn_Productions _lhsOpp _lhsOppL)
                     in  ( _lhsOpp,_lhsOppL)))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -826,16 +792,14 @@ sem_Productions_Nil =
                         _lhsOppL =
                             ({-# LINE 72 "src-ag/AbstractSyntaxDump.ag" #-}
                              []
-                             {-# LINE 830 "dist/build/AbstractSyntaxDump" #-}
+                             {-# LINE 796 "dist/build/AbstractSyntaxDump" #-}
                              )
                         -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                         _lhsOpp =
                             ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                              empty
-                             {-# LINE 836 "dist/build/AbstractSyntaxDump" #-}
+                             {-# LINE 802 "dist/build/AbstractSyntaxDump" #-}
                              )
-                        ___node =
-                            (Syn_Productions _lhsOpp _lhsOppL)
                     in  ( _lhsOpp,_lhsOppL)))
 -- Rule --------------------------------------------------------
 {-
@@ -890,14 +854,12 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                  _lhsOpp =
                      ({-# LINE 38 "src-ag/AbstractSyntaxDump.ag" #-}
                       ppNestInfo ["Rule","Rule"] [ppShow owrt_, pp origin_] [ppF "pattern" $ _patternIpp, ppF "rhs" $ _rhsIpp] []
-                      {-# LINE 894 "dist/build/AbstractSyntaxDump" #-}
+                      {-# LINE 858 "dist/build/AbstractSyntaxDump" #-}
                       )
                  ( _patternIcopy,_patternIpp) =
                      pattern_
                  ( _rhsIpp) =
                      rhs_
-                 ___node =
-                     (Syn_Rule _lhsOpp)
              in  ( _lhsOpp)))
 -- Rules -------------------------------------------------------
 {-
@@ -939,20 +901,18 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                   _lhsOppL =
                       ({-# LINE 63 "src-ag/AbstractSyntaxDump.ag" #-}
                        _hdIpp : _tlIppL
-                       {-# LINE 943 "dist/build/AbstractSyntaxDump" #-}
+                       {-# LINE 905 "dist/build/AbstractSyntaxDump" #-}
                        )
                   -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                   _lhsOpp =
                       ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                        _hdIpp >-< _tlIpp
-                       {-# LINE 949 "dist/build/AbstractSyntaxDump" #-}
+                       {-# LINE 911 "dist/build/AbstractSyntaxDump" #-}
                        )
                   ( _hdIpp) =
                       hd_
                   ( _tlIpp,_tlIppL) =
                       tl_
-                  ___node =
-                      (Syn_Rules _lhsOpp _lhsOppL)
               in  ( _lhsOpp,_lhsOppL)))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -962,16 +922,14 @@ sem_Rules_Nil =
                   _lhsOppL =
                       ({-# LINE 64 "src-ag/AbstractSyntaxDump.ag" #-}
                        []
-                       {-# LINE 966 "dist/build/AbstractSyntaxDump" #-}
+                       {-# LINE 926 "dist/build/AbstractSyntaxDump" #-}
                        )
                   -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                   _lhsOpp =
                       ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                        empty
-                       {-# LINE 972 "dist/build/AbstractSyntaxDump" #-}
+                       {-# LINE 932 "dist/build/AbstractSyntaxDump" #-}
                        )
-                  ___node =
-                      (Syn_Rules _lhsOpp _lhsOppL)
               in  ( _lhsOpp,_lhsOppL)))
 -- TypeSig -----------------------------------------------------
 {-
@@ -1007,10 +965,8 @@ sem_TypeSig_TypeSig name_ tp_ =
                     _lhsOpp =
                         ({-# LINE 41 "src-ag/AbstractSyntaxDump.ag" #-}
                          ppNestInfo ["TypeSig","TypeSig"] [pp name_, ppShow tp_] [] []
-                         {-# LINE 1011 "dist/build/AbstractSyntaxDump" #-}
+                         {-# LINE 969 "dist/build/AbstractSyntaxDump" #-}
                          )
-                    ___node =
-                        (Syn_TypeSig _lhsOpp)
                 in  ( _lhsOpp)))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -1052,20 +1008,18 @@ sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
                      _lhsOppL =
                          ({-# LINE 59 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp : _tlIppL
-                          {-# LINE 1056 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 1012 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           _hdIpp >-< _tlIpp
-                          {-# LINE 1062 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 1018 "dist/build/AbstractSyntaxDump" #-}
                           )
                      ( _hdIpp) =
                          hd_
                      ( _tlIpp,_tlIppL) =
                          tl_
-                     ___node =
-                         (Syn_TypeSigs _lhsOpp _lhsOppL)
                  in  ( _lhsOpp,_lhsOppL)))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
@@ -1075,14 +1029,12 @@ sem_TypeSigs_Nil =
                      _lhsOppL =
                          ({-# LINE 60 "src-ag/AbstractSyntaxDump.ag" #-}
                           []
-                          {-# LINE 1079 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 1033 "dist/build/AbstractSyntaxDump" #-}
                           )
                      -- use rule "src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
                      _lhsOpp =
                          ({-# LINE 17 "src-ag/AbstractSyntaxDump.ag" #-}
                           empty
-                          {-# LINE 1085 "dist/build/AbstractSyntaxDump" #-}
+                          {-# LINE 1039 "dist/build/AbstractSyntaxDump" #-}
                           )
-                     ___node =
-                         (Syn_TypeSigs _lhsOpp _lhsOppL)
                  in  ( _lhsOpp,_lhsOppL)))

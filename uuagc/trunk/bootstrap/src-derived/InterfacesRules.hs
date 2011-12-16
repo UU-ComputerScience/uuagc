@@ -203,9 +203,7 @@ sem_IRoot_IRoot !(T_Interfaces inters_) =
                                                      {-# LINE 204 "dist/build/InterfacesRules" #-}
                                                      )) of
                                               { !_lhsOvisits ->
-                                              (case ((Syn_IRoot _lhsOedp _lhsOinters _lhsOvisits)) of
-                                               { ___node ->
-                                               ( _lhsOedp,_lhsOinters,_lhsOvisits) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
+                                              ( _lhsOedp,_lhsOinters,_lhsOvisits) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
 -- Interface ---------------------------------------------------
 {-
    visit 0:
@@ -279,64 +277,64 @@ sem_Interface_Interface !nt_ !cons_ !(T_Segments seg_) =
                     (!_lhsIv) ->
                       (case (({-# LINE 83 "src-ag/InterfacesRules.lag" #-}
                               _lhsIinfo
-                              {-# LINE 283 "dist/build/InterfacesRules" #-}
+                              {-# LINE 281 "dist/build/InterfacesRules" #-}
                               )) of
                        { !_segOinfo ->
                        (case (({-# LINE 205 "src-ag/InterfacesRules.lag" #-}
                                0
-                               {-# LINE 288 "dist/build/InterfacesRules" #-}
+                               {-# LINE 286 "dist/build/InterfacesRules" #-}
                                )) of
                         { !_segOn ->
                         (case (({-# LINE 195 "src-ag/InterfacesRules.lag" #-}
                                 \a -> ruleTable _lhsIinfo ! a
-                                {-# LINE 293 "dist/build/InterfacesRules" #-}
+                                {-# LINE 291 "dist/build/InterfacesRules" #-}
                                 )) of
                          { !_look ->
                          (case (({-# LINE 187 "src-ag/InterfacesRules.lag" #-}
                                  _lhsIv
-                                 {-# LINE 298 "dist/build/InterfacesRules" #-}
+                                 {-# LINE 296 "dist/build/InterfacesRules" #-}
                                  )) of
                           { !_segOv ->
                           (case (seg_ _segOinfo _segOn _segOv) of
                            { ( !_segIdescr,!_segIgroups,!_segInewedges,!_segInewvertices,!_segIv,!T_Segments_1 seg_1) ->
                                (case (({-# LINE 188 "src-ag/InterfacesRules.lag" #-}
                                        _segIv + length _segInewvertices
-                                       {-# LINE 305 "dist/build/InterfacesRules" #-}
+                                       {-# LINE 303 "dist/build/InterfacesRules" #-}
                                        )) of
                                 { !_v ->
                                 (case (({-# LINE 190 "src-ag/InterfacesRules.lag" #-}
                                         [_segIv .. _v-1]
-                                        {-# LINE 310 "dist/build/InterfacesRules" #-}
+                                        {-# LINE 308 "dist/build/InterfacesRules" #-}
                                         )) of
                                  { !_firstvisitvertices ->
                                  (case (({-# LINE 196 "src-ag/InterfacesRules.lag" #-}
                                          zipWith (cv _look (-1)) _firstvisitvertices _segIgroups
-                                         {-# LINE 315 "dist/build/InterfacesRules" #-}
+                                         {-# LINE 313 "dist/build/InterfacesRules" #-}
                                          )) of
                                   { !_descr ->
                                   (case (({-# LINE 197 "src-ag/InterfacesRules.lag" #-}
                                           _segIdescr Seq.>< Seq.fromList _descr
-                                          {-# LINE 320 "dist/build/InterfacesRules" #-}
+                                          {-# LINE 318 "dist/build/InterfacesRules" #-}
                                           )) of
                                    { !_lhsOdescr ->
                                    (case (({-# LINE 258 "src-ag/InterfacesRules.lag" #-}
                                            _firstvisitvertices
-                                           {-# LINE 325 "dist/build/InterfacesRules" #-}
+                                           {-# LINE 323 "dist/build/InterfacesRules" #-}
                                            )) of
                                     { !_lhsOfirstvisitvertices ->
                                     (case (({-# LINE 191 "src-ag/InterfacesRules.lag" #-}
                                             zip _firstvisitvertices _segInewvertices
-                                            {-# LINE 330 "dist/build/InterfacesRules" #-}
+                                            {-# LINE 328 "dist/build/InterfacesRules" #-}
                                             )) of
                                      { !_newedges ->
                                      (case (({-# LINE 192 "src-ag/InterfacesRules.lag" #-}
                                              _segInewedges Seq.>< Seq.fromList _newedges
-                                             {-# LINE 335 "dist/build/InterfacesRules" #-}
+                                             {-# LINE 333 "dist/build/InterfacesRules" #-}
                                              )) of
                                       { !_lhsOnewedges ->
                                       (case (({-# LINE 189 "src-ag/InterfacesRules.lag" #-}
                                               _v
-                                              {-# LINE 340 "dist/build/InterfacesRules" #-}
+                                              {-# LINE 338 "dist/build/InterfacesRules" #-}
                                               )) of
                                        { !_lhsOv ->
                                        (case ((let sem_Interface_Interface_1 :: T_Interface_1
@@ -346,34 +344,34 @@ sem_Interface_Interface !nt_ !cons_ !(T_Segments seg_) =
                                                                          (!_lhsIvssGraph) ->
                                                                            (case (({-# LINE 216 "src-ag/InterfacesRules.lag" #-}
                                                                                    _lhsIvssGraph
-                                                                                   {-# LINE 350 "dist/build/InterfacesRules" #-}
+                                                                                   {-# LINE 348 "dist/build/InterfacesRules" #-}
                                                                                    )) of
                                                                             { !_segOvssGraph ->
                                                                             (case (({-# LINE 125 "src-ag/InterfacesRules.lag" #-}
                                                                                     _lhsIvisitDescr
-                                                                                    {-# LINE 355 "dist/build/InterfacesRules" #-}
+                                                                                    {-# LINE 353 "dist/build/InterfacesRules" #-}
                                                                                     )) of
                                                                              { !_segOvisitDescr ->
                                                                              (case (({-# LINE 263 "src-ag/InterfacesRules.lag" #-}
                                                                                      _lhsIprev
-                                                                                     {-# LINE 360 "dist/build/InterfacesRules" #-}
+                                                                                     {-# LINE 358 "dist/build/InterfacesRules" #-}
                                                                                      )) of
                                                                               { !_segOprev ->
                                                                               (case (({-# LINE 237 "src-ag/InterfacesRules.lag" #-}
                                                                                       cons_
-                                                                                      {-# LINE 365 "dist/build/InterfacesRules" #-}
+                                                                                      {-# LINE 363 "dist/build/InterfacesRules" #-}
                                                                                       )) of
                                                                                { !_segOcons ->
                                                                                (case (seg_1 _segOcons _segOprev _segOvisitDescr _segOvssGraph) of
                                                                                 { ( !_segIsegs,!T_Segments_2 seg_2) ->
                                                                                     (case (({-# LINE 395 "src-ag/InterfacesRules.lag" #-}
                                                                                             CInterface _segIsegs
-                                                                                            {-# LINE 372 "dist/build/InterfacesRules" #-}
+                                                                                            {-# LINE 370 "dist/build/InterfacesRules" #-}
                                                                                             )) of
                                                                                      { !_lhsOinter ->
                                                                                      (case (({-# LINE 391 "src-ag/InterfacesRules.lag" #-}
                                                                                              nt_
-                                                                                             {-# LINE 377 "dist/build/InterfacesRules" #-}
+                                                                                             {-# LINE 375 "dist/build/InterfacesRules" #-}
                                                                                              )) of
                                                                                       { !_lhsOnt ->
                                                                                       (case ((let sem_Interface_Interface_2 :: T_Interface_2
@@ -382,34 +380,34 @@ sem_Interface_Interface !nt_ !cons_ !(T_Segments seg_) =
                                                                                                                         (!_lhsIddp) ->
                                                                                                                           (case (({-# LINE 341 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                   _lhsIddp
-                                                                                                                                  {-# LINE 386 "dist/build/InterfacesRules" #-}
+                                                                                                                                  {-# LINE 384 "dist/build/InterfacesRules" #-}
                                                                                                                                   )) of
                                                                                                                            { !_segOddp ->
                                                                                                                            (case (({-# LINE 378 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                    _lhsIallInters
-                                                                                                                                   {-# LINE 391 "dist/build/InterfacesRules" #-}
+                                                                                                                                   {-# LINE 389 "dist/build/InterfacesRules" #-}
                                                                                                                                    )) of
                                                                                                                             { !_segOallInters ->
                                                                                                                             (case (({-# LINE 351 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                     _lhsIprev
-                                                                                                                                    {-# LINE 396 "dist/build/InterfacesRules" #-}
+                                                                                                                                    {-# LINE 394 "dist/build/InterfacesRules" #-}
                                                                                                                                     )) of
                                                                                                                              { !_segOfromLhs ->
                                                                                                                              (case (({-# LINE 314 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                      True
-                                                                                                                                     {-# LINE 401 "dist/build/InterfacesRules" #-}
+                                                                                                                                     {-# LINE 399 "dist/build/InterfacesRules" #-}
                                                                                                                                      )) of
                                                                                                                               { !_segOisFirst ->
                                                                                                                               (case (seg_2 _segOallInters _segOddp _segOfromLhs _segOisFirst) of
                                                                                                                                { ( !_segIcvisits,!_segIedp,!_segIfirstInh,!_segIhdIntravisits,!_segIprev) ->
                                                                                                                                    (case (({-# LINE 437 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                            _segIedp
-                                                                                                                                           {-# LINE 408 "dist/build/InterfacesRules" #-}
+                                                                                                                                           {-# LINE 406 "dist/build/InterfacesRules" #-}
                                                                                                                                            )) of
                                                                                                                                     { !_lhsOedp ->
                                                                                                                                     (case (({-# LINE 396 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                             Map.fromList (zip cons_ (transpose _segIcvisits))
-                                                                                                                                            {-# LINE 413 "dist/build/InterfacesRules" #-}
+                                                                                                                                            {-# LINE 411 "dist/build/InterfacesRules" #-}
                                                                                                                                             )) of
                                                                                                                                      { !_lhsOvisits ->
                                                                                                                                      ( _lhsOedp,_lhsOvisits) }) }) }) }) }) }) })))
@@ -484,46 +482,46 @@ sem_Interfaces_Cons !(T_Interface hd_) !(T_Interfaces tl_) =
                      (!_lhsIv) ->
                        (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                _lhsIv
-                               {-# LINE 488 "dist/build/InterfacesRules" #-}
+                               {-# LINE 486 "dist/build/InterfacesRules" #-}
                                )) of
                         { !_hdOv ->
                         (case (({-# LINE 83 "src-ag/InterfacesRules.lag" #-}
                                 _lhsIinfo
-                                {-# LINE 493 "dist/build/InterfacesRules" #-}
+                                {-# LINE 491 "dist/build/InterfacesRules" #-}
                                 )) of
                          { !_hdOinfo ->
                          (case (hd_ _hdOinfo _hdOv) of
                           { ( !_hdIdescr,!_hdIfirstvisitvertices,!_hdInewedges,!_hdIv,!T_Interface_1 hd_1) ->
                               (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                       _hdIv
-                                      {-# LINE 500 "dist/build/InterfacesRules" #-}
+                                      {-# LINE 498 "dist/build/InterfacesRules" #-}
                                       )) of
                                { !_tlOv ->
                                (case (({-# LINE 83 "src-ag/InterfacesRules.lag" #-}
                                        _lhsIinfo
-                                       {-# LINE 505 "dist/build/InterfacesRules" #-}
+                                       {-# LINE 503 "dist/build/InterfacesRules" #-}
                                        )) of
                                 { !_tlOinfo ->
                                 (case (tl_ _tlOinfo _tlOv) of
                                  { ( !_tlIdescr,!_tlIfirstvisitvertices,!_tlInewedges,!_tlIv,!T_Interfaces_1 tl_1) ->
                                      (case (({-# LINE 130 "src-ag/InterfacesRules.lag" #-}
                                              _hdIdescr Seq.>< _tlIdescr
-                                             {-# LINE 512 "dist/build/InterfacesRules" #-}
+                                             {-# LINE 510 "dist/build/InterfacesRules" #-}
                                              )) of
                                       { !_lhsOdescr ->
                                       (case (({-# LINE 258 "src-ag/InterfacesRules.lag" #-}
                                               _hdIfirstvisitvertices ++ _tlIfirstvisitvertices
-                                              {-# LINE 517 "dist/build/InterfacesRules" #-}
+                                              {-# LINE 515 "dist/build/InterfacesRules" #-}
                                               )) of
                                        { !_lhsOfirstvisitvertices ->
                                        (case (({-# LINE 129 "src-ag/InterfacesRules.lag" #-}
                                                _hdInewedges Seq.>< _tlInewedges
-                                               {-# LINE 522 "dist/build/InterfacesRules" #-}
+                                               {-# LINE 520 "dist/build/InterfacesRules" #-}
                                                )) of
                                         { !_lhsOnewedges ->
                                         (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                                 _tlIv
-                                                {-# LINE 527 "dist/build/InterfacesRules" #-}
+                                                {-# LINE 525 "dist/build/InterfacesRules" #-}
                                                 )) of
                                          { !_lhsOv ->
                                          (case ((let sem_Interfaces_Cons_1 :: T_Interfaces_1
@@ -533,32 +531,32 @@ sem_Interfaces_Cons !(T_Interface hd_) !(T_Interfaces tl_) =
                                                                             (!_lhsIvssGraph) ->
                                                                               (case (({-# LINE 216 "src-ag/InterfacesRules.lag" #-}
                                                                                       _lhsIvssGraph
-                                                                                      {-# LINE 537 "dist/build/InterfacesRules" #-}
+                                                                                      {-# LINE 535 "dist/build/InterfacesRules" #-}
                                                                                       )) of
                                                                                { !_tlOvssGraph ->
                                                                                (case (({-# LINE 125 "src-ag/InterfacesRules.lag" #-}
                                                                                        _lhsIvisitDescr
-                                                                                       {-# LINE 542 "dist/build/InterfacesRules" #-}
+                                                                                       {-# LINE 540 "dist/build/InterfacesRules" #-}
                                                                                        )) of
                                                                                 { !_tlOvisitDescr ->
                                                                                 (case (({-# LINE 258 "src-ag/InterfacesRules.lag" #-}
                                                                                         _lhsIprev
-                                                                                        {-# LINE 547 "dist/build/InterfacesRules" #-}
+                                                                                        {-# LINE 545 "dist/build/InterfacesRules" #-}
                                                                                         )) of
                                                                                  { !_tlOprev ->
                                                                                  (case (({-# LINE 216 "src-ag/InterfacesRules.lag" #-}
                                                                                          _lhsIvssGraph
-                                                                                         {-# LINE 552 "dist/build/InterfacesRules" #-}
+                                                                                         {-# LINE 550 "dist/build/InterfacesRules" #-}
                                                                                          )) of
                                                                                   { !_hdOvssGraph ->
                                                                                   (case (({-# LINE 125 "src-ag/InterfacesRules.lag" #-}
                                                                                           _lhsIvisitDescr
-                                                                                          {-# LINE 557 "dist/build/InterfacesRules" #-}
+                                                                                          {-# LINE 555 "dist/build/InterfacesRules" #-}
                                                                                           )) of
                                                                                    { !_hdOvisitDescr ->
                                                                                    (case (({-# LINE 258 "src-ag/InterfacesRules.lag" #-}
                                                                                            _lhsIprev
-                                                                                           {-# LINE 562 "dist/build/InterfacesRules" #-}
+                                                                                           {-# LINE 560 "dist/build/InterfacesRules" #-}
                                                                                            )) of
                                                                                     { !_hdOprev ->
                                                                                     (case (tl_1 _tlOprev _tlOvisitDescr _tlOvssGraph) of
@@ -567,7 +565,7 @@ sem_Interfaces_Cons !(T_Interface hd_) !(T_Interfaces tl_) =
                                                                                           { ( !_hdIinter,!_hdInt,!T_Interface_2 hd_2) ->
                                                                                               (case (({-# LINE 385 "src-ag/InterfacesRules.lag" #-}
                                                                                                       Map.insert _hdInt _hdIinter _tlIinters
-                                                                                                      {-# LINE 571 "dist/build/InterfacesRules" #-}
+                                                                                                      {-# LINE 569 "dist/build/InterfacesRules" #-}
                                                                                                       )) of
                                                                                                { !_lhsOinters ->
                                                                                                (case ((let sem_Interfaces_Cons_2 :: T_Interfaces_2
@@ -576,36 +574,36 @@ sem_Interfaces_Cons !(T_Interface hd_) !(T_Interfaces tl_) =
                                                                                                                                   (!_lhsIddp) ->
                                                                                                                                     (case (({-# LINE 341 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                             _lhsIddp
-                                                                                                                                            {-# LINE 580 "dist/build/InterfacesRules" #-}
+                                                                                                                                            {-# LINE 578 "dist/build/InterfacesRules" #-}
                                                                                                                                             )) of
                                                                                                                                      { !_tlOddp ->
                                                                                                                                      (case (({-# LINE 378 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                              _lhsIallInters
-                                                                                                                                             {-# LINE 585 "dist/build/InterfacesRules" #-}
+                                                                                                                                             {-# LINE 583 "dist/build/InterfacesRules" #-}
                                                                                                                                              )) of
                                                                                                                                       { !_tlOallInters ->
                                                                                                                                       (case (tl_2 _tlOallInters _tlOddp) of
                                                                                                                                        { ( !_tlIedp,!_tlIvisits) ->
                                                                                                                                            (case (({-# LINE 341 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                    _lhsIddp
-                                                                                                                                                   {-# LINE 592 "dist/build/InterfacesRules" #-}
+                                                                                                                                                   {-# LINE 590 "dist/build/InterfacesRules" #-}
                                                                                                                                                    )) of
                                                                                                                                             { !_hdOddp ->
                                                                                                                                             (case (({-# LINE 378 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                     _lhsIallInters
-                                                                                                                                                    {-# LINE 597 "dist/build/InterfacesRules" #-}
+                                                                                                                                                    {-# LINE 595 "dist/build/InterfacesRules" #-}
                                                                                                                                                     )) of
                                                                                                                                              { !_hdOallInters ->
                                                                                                                                              (case (hd_2 _hdOallInters _hdOddp) of
                                                                                                                                               { ( !_hdIedp,!_hdIvisits) ->
                                                                                                                                                   (case (({-# LINE 437 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                           _hdIedp Seq.>< _tlIedp
-                                                                                                                                                          {-# LINE 604 "dist/build/InterfacesRules" #-}
+                                                                                                                                                          {-# LINE 602 "dist/build/InterfacesRules" #-}
                                                                                                                                                           )) of
                                                                                                                                                    { !_lhsOedp ->
                                                                                                                                                    (case (({-# LINE 386 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                            Map.insert _hdInt _hdIvisits _tlIvisits
-                                                                                                                                                           {-# LINE 609 "dist/build/InterfacesRules" #-}
+                                                                                                                                                           {-# LINE 607 "dist/build/InterfacesRules" #-}
                                                                                                                                                            )) of
                                                                                                                                                     { !_lhsOvisits ->
                                                                                                                                                     ( _lhsOedp,_lhsOvisits) }) }) }) }) }) }) }) })))
@@ -621,22 +619,22 @@ sem_Interfaces_Nil =
                      (!_lhsIv) ->
                        (case (({-# LINE 130 "src-ag/InterfacesRules.lag" #-}
                                Seq.empty
-                               {-# LINE 625 "dist/build/InterfacesRules" #-}
+                               {-# LINE 623 "dist/build/InterfacesRules" #-}
                                )) of
                         { !_lhsOdescr ->
                         (case (({-# LINE 258 "src-ag/InterfacesRules.lag" #-}
                                 []
-                                {-# LINE 630 "dist/build/InterfacesRules" #-}
+                                {-# LINE 628 "dist/build/InterfacesRules" #-}
                                 )) of
                          { !_lhsOfirstvisitvertices ->
                          (case (({-# LINE 129 "src-ag/InterfacesRules.lag" #-}
                                  Seq.empty
-                                 {-# LINE 635 "dist/build/InterfacesRules" #-}
+                                 {-# LINE 633 "dist/build/InterfacesRules" #-}
                                  )) of
                           { !_lhsOnewedges ->
                           (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                   _lhsIv
-                                  {-# LINE 640 "dist/build/InterfacesRules" #-}
+                                  {-# LINE 638 "dist/build/InterfacesRules" #-}
                                   )) of
                            { !_lhsOv ->
                            (case ((let sem_Interfaces_Nil_1 :: T_Interfaces_1
@@ -646,7 +644,7 @@ sem_Interfaces_Nil =
                                                               (!_lhsIvssGraph) ->
                                                                 (case (({-# LINE 387 "src-ag/InterfacesRules.lag" #-}
                                                                         Map.empty
-                                                                        {-# LINE 650 "dist/build/InterfacesRules" #-}
+                                                                        {-# LINE 648 "dist/build/InterfacesRules" #-}
                                                                         )) of
                                                                  { !_lhsOinters ->
                                                                  (case ((let sem_Interfaces_Nil_2 :: T_Interfaces_2
@@ -655,12 +653,12 @@ sem_Interfaces_Nil =
                                                                                                     (!_lhsIddp) ->
                                                                                                       (case (({-# LINE 437 "src-ag/InterfacesRules.lag" #-}
                                                                                                               Seq.empty
-                                                                                                              {-# LINE 659 "dist/build/InterfacesRules" #-}
+                                                                                                              {-# LINE 657 "dist/build/InterfacesRules" #-}
                                                                                                               )) of
                                                                                                        { !_lhsOedp ->
                                                                                                        (case (({-# LINE 388 "src-ag/InterfacesRules.lag" #-}
                                                                                                                Map.empty
-                                                                                                               {-# LINE 664 "dist/build/InterfacesRules" #-}
+                                                                                                               {-# LINE 662 "dist/build/InterfacesRules" #-}
                                                                                                                )) of
                                                                                                         { !_lhsOvisits ->
                                                                                                         ( _lhsOedp,_lhsOvisits) }) })))
@@ -789,30 +787,30 @@ sem_Segment_Segment !inh_ !syn_ =
                   (!_lhsIv) ->
                     (case (({-# LINE 106 "src-ag/InterfacesRules.lag" #-}
                             \a -> ruleTable _lhsIinfo ! a
-                            {-# LINE 793 "dist/build/InterfacesRules" #-}
+                            {-# LINE 791 "dist/build/InterfacesRules" #-}
                             )) of
                      { !_look ->
                      (case (({-# LINE 109 "src-ag/InterfacesRules.lag" #-}
                              \p us -> [ a  |  u <- us
                                            ,  a <- tdsToTdp _lhsIinfo ! u
                                            ,  p (_look a)]
-                             {-# LINE 800 "dist/build/InterfacesRules" #-}
+                             {-# LINE 798 "dist/build/InterfacesRules" #-}
                              )) of
                       { !_occurAs ->
                       (case (({-# LINE 113 "src-ag/InterfacesRules.lag" #-}
                               let group as = gather _lhsIinfo (_occurAs isRhs as)
                               in map (partition (isInh . _look)) (group (inh_ ++ syn_))
-                              {-# LINE 806 "dist/build/InterfacesRules" #-}
+                              {-# LINE 804 "dist/build/InterfacesRules" #-}
                               )) of
                        { !_groups ->
                        (case (({-# LINE 116 "src-ag/InterfacesRules.lag" #-}
                                _lhsIv + length _groups
-                               {-# LINE 811 "dist/build/InterfacesRules" #-}
+                               {-# LINE 809 "dist/build/InterfacesRules" #-}
                                )) of
                         { !_v ->
                         (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                 _v
-                                {-# LINE 816 "dist/build/InterfacesRules" #-}
+                                {-# LINE 814 "dist/build/InterfacesRules" #-}
                                 )) of
                          { !_lhsOv ->
                          (case ((let sem_Segment_Segment_1 :: T_Segment_1
@@ -821,37 +819,37 @@ sem_Segment_Segment !inh_ !syn_ =
                                                          (!_lhsInextNewvertices) ->
                                                            (case (({-# LINE 117 "src-ag/InterfacesRules.lag" #-}
                                                                    [_lhsIv .. _v    -1]
-                                                                   {-# LINE 825 "dist/build/InterfacesRules" #-}
+                                                                   {-# LINE 823 "dist/build/InterfacesRules" #-}
                                                                    )) of
                                                             { !_newvertices ->
                                                             (case (({-# LINE 132 "src-ag/InterfacesRules.lag" #-}
                                                                     Seq.fromList $ zipWith (cv _look _lhsIn) _newvertices _groups
-                                                                    {-# LINE 830 "dist/build/InterfacesRules" #-}
+                                                                    {-# LINE 828 "dist/build/InterfacesRules" #-}
                                                                     )) of
                                                              { !_lhsOdescr ->
                                                              (case (({-# LINE 182 "src-ag/InterfacesRules.lag" #-}
                                                                      _groups
-                                                                     {-# LINE 835 "dist/build/InterfacesRules" #-}
+                                                                     {-# LINE 833 "dist/build/InterfacesRules" #-}
                                                                      )) of
                                                               { !_lhsOgroups ->
                                                               (case (({-# LINE 174 "src-ag/InterfacesRules.lag" #-}
                                                                       zip _newvertices _lhsInextNewvertices
-                                                                      {-# LINE 840 "dist/build/InterfacesRules" #-}
+                                                                      {-# LINE 838 "dist/build/InterfacesRules" #-}
                                                                       )) of
                                                                { !_visitedges ->
                                                                (case (({-# LINE 155 "src-ag/InterfacesRules.lag" #-}
                                                                        concat (zipWith ed _newvertices _groups)
-                                                                       {-# LINE 845 "dist/build/InterfacesRules" #-}
+                                                                       {-# LINE 843 "dist/build/InterfacesRules" #-}
                                                                        )) of
                                                                 { !_attredges ->
                                                                 (case (({-# LINE 175 "src-ag/InterfacesRules.lag" #-}
                                                                         Seq.fromList _attredges Seq.>< Seq.fromList _visitedges
-                                                                        {-# LINE 850 "dist/build/InterfacesRules" #-}
+                                                                        {-# LINE 848 "dist/build/InterfacesRules" #-}
                                                                         )) of
                                                                  { !_lhsOnewedges ->
                                                                  (case (({-# LINE 166 "src-ag/InterfacesRules.lag" #-}
                                                                          _newvertices
-                                                                         {-# LINE 855 "dist/build/InterfacesRules" #-}
+                                                                         {-# LINE 853 "dist/build/InterfacesRules" #-}
                                                                          )) of
                                                                   { !_lhsOnewvertices ->
                                                                   (case ((let sem_Segment_Segment_2 :: T_Segment_2
@@ -862,7 +860,7 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                   (!_lhsIvssGraph) ->
                                                                                                     (case (({-# LINE 229 "src-ag/InterfacesRules.lag" #-}
                                                                                                             gather _lhsIinfo (_occurAs isLhs syn_)
-                                                                                                            {-# LINE 866 "dist/build/InterfacesRules" #-}
+                                                                                                            {-# LINE 864 "dist/build/InterfacesRules" #-}
                                                                                                             )) of
                                                                                                      { !_synOccur ->
                                                                                                      (case (({-# LINE 230 "src-ag/InterfacesRules.lag" #-}
@@ -871,12 +869,12 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                              in if  null syn_
                                                                                                                     then replicate (length _lhsIcons) []
                                                                                                                     else map (filter hasCode . topSort' _lhsIvssGraph) _synOccur
-                                                                                                             {-# LINE 875 "dist/build/InterfacesRules" #-}
+                                                                                                             {-# LINE 873 "dist/build/InterfacesRules" #-}
                                                                                                              )) of
                                                                                                       { !_vss ->
                                                                                                       (case (({-# LINE 270 "src-ag/InterfacesRules.lag" #-}
                                                                                                               map (\\ _lhsIprev) _vss
-                                                                                                              {-# LINE 880 "dist/build/InterfacesRules" #-}
+                                                                                                              {-# LINE 878 "dist/build/InterfacesRules" #-}
                                                                                                               )) of
                                                                                                        { !_visitss' ->
                                                                                                        (case (({-# LINE 284 "src-ag/InterfacesRules.lag" #-}
@@ -896,7 +894,7 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                                       | otherwise = v:rem prev vs
                                                                                                                     table = ruleTable _lhsIinfo
                                                                                                                in map (rem []) _visitss'
-                                                                                                               {-# LINE 900 "dist/build/InterfacesRules" #-}
+                                                                                                               {-# LINE 898 "dist/build/InterfacesRules" #-}
                                                                                                                )) of
                                                                                                         { !_visitss ->
                                                                                                         (case (({-# LINE 271 "src-ag/InterfacesRules.lag" #-}
@@ -904,34 +902,34 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                                                   Nothing -> [v]
                                                                                                                                   Just (ChildVisit _ _ _ inh _) -> v:inh
                                                                                                                 in concatMap (concatMap defines) _visitss
-                                                                                                                {-# LINE 908 "dist/build/InterfacesRules" #-}
+                                                                                                                {-# LINE 906 "dist/build/InterfacesRules" #-}
                                                                                                                 )) of
                                                                                                          { !_defined ->
                                                                                                          (case (({-# LINE 275 "src-ag/InterfacesRules.lag" #-}
                                                                                                                  _lhsIprev ++ _defined
-                                                                                                                 {-# LINE 913 "dist/build/InterfacesRules" #-}
+                                                                                                                 {-# LINE 911 "dist/build/InterfacesRules" #-}
                                                                                                                  )) of
                                                                                                           { !_lhsOprev ->
                                                                                                           (case (({-# LINE 409 "src-ag/InterfacesRules.lag" #-}
                                                                                                                   let makemap = Map.fromList . map findType
                                                                                                                       findType v = getNtaNameType (attrTable _lhsIinfo ! v)
                                                                                                                   in (makemap inh_,makemap syn_)
-                                                                                                                  {-# LINE 920 "dist/build/InterfacesRules" #-}
+                                                                                                                  {-# LINE 918 "dist/build/InterfacesRules" #-}
                                                                                                                   )) of
                                                                                                            { !__tup1 ->
                                                                                                            (case (({-# LINE 409 "src-ag/InterfacesRules.lag" #-}
                                                                                                                    __tup1
-                                                                                                                   {-# LINE 925 "dist/build/InterfacesRules" #-}
+                                                                                                                   {-# LINE 923 "dist/build/InterfacesRules" #-}
                                                                                                                    )) of
                                                                                                             { !(_,!_synmap) ->
                                                                                                             (case (({-# LINE 409 "src-ag/InterfacesRules.lag" #-}
                                                                                                                     __tup1
-                                                                                                                    {-# LINE 930 "dist/build/InterfacesRules" #-}
+                                                                                                                    {-# LINE 928 "dist/build/InterfacesRules" #-}
                                                                                                                     )) of
                                                                                                              { !(!_inhmap,_) ->
                                                                                                              (case (({-# LINE 405 "src-ag/InterfacesRules.lag" #-}
                                                                                                                      if False then undefined _lhsIvssGraph _lhsIvisitDescr _lhsIprev else CSegment _inhmap _synmap
-                                                                                                                     {-# LINE 935 "dist/build/InterfacesRules" #-}
+                                                                                                                     {-# LINE 933 "dist/build/InterfacesRules" #-}
                                                                                                                      )) of
                                                                                                               { !_lhsOseg ->
                                                                                                               (case ((let sem_Segment_Segment_3 :: T_Segment_3
@@ -947,24 +945,24 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                                                                                            Nothing -> Map.keys (getDefines (ruleTable _lhsIinfo ! v))
                                                                                                                                                                            Just (ChildVisit _ _ _ _ syn) -> v:syn
                                                                                                                                                         in concatMap (concatMap computes) _visitss
-                                                                                                                                                        {-# LINE 951 "dist/build/InterfacesRules" #-}
+                                                                                                                                                        {-# LINE 949 "dist/build/InterfacesRules" #-}
                                                                                                                                                         )) of
                                                                                                                                                  { !_computed ->
                                                                                                                                                  (case (({-# LINE 356 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                          _occurAs isLhs inh_ ++ _lhsIfromLhs
-                                                                                                                                                         {-# LINE 956 "dist/build/InterfacesRules" #-}
+                                                                                                                                                         {-# LINE 954 "dist/build/InterfacesRules" #-}
                                                                                                                                                          )) of
                                                                                                                                                   { !_fromLhs ->
                                                                                                                                                   (case (({-# LINE 362 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                           \vs next ->
                                                                                                                                                             let needed = concatMap (_lhsIddp !) vs
                                                                                                                                                             in nub (needed ++ next) \\ (_fromLhs ++ _computed)
-                                                                                                                                                          {-# LINE 963 "dist/build/InterfacesRules" #-}
+                                                                                                                                                          {-# LINE 961 "dist/build/InterfacesRules" #-}
                                                                                                                                                           )) of
                                                                                                                                                    { !_iv ->
                                                                                                                                                    (case (({-# LINE 361 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                            zipWith _iv _visitss _lhsInextIntravisits
-                                                                                                                                                           {-# LINE 968 "dist/build/InterfacesRules" #-}
+                                                                                                                                                           {-# LINE 966 "dist/build/InterfacesRules" #-}
                                                                                                                                                            )) of
                                                                                                                                                     { !_intravisits ->
                                                                                                                                                     (case (({-# LINE 412 "src-ag/InterfacesRules.lag" #-}
@@ -974,28 +972,28 @@ sem_Segment_Segment !inh_ !syn_ =
                                                                                                                                                                               Nothing -> ruleTable _lhsIinfo ! v
                                                                                                                                                                               Just (ChildVisit name nt n _ _) -> ccv name nt n _lhsIallInters
                                                                                                                                                             in zipWith mkVisit _visitss _intravisits
-                                                                                                                                                            {-# LINE 978 "dist/build/InterfacesRules" #-}
+                                                                                                                                                            {-# LINE 976 "dist/build/InterfacesRules" #-}
                                                                                                                                                             )) of
                                                                                                                                                      { !_lhsOcvisits ->
                                                                                                                                                      (case (({-# LINE 439 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                              Seq.fromList [(i,s) | i <- inh_, s <- syn_]
                                                                                                                                                              Seq.>< Seq.fromList [(s,i) | s <- syn_, i <- _lhsInextInh ]
-                                                                                                                                                             {-# LINE 984 "dist/build/InterfacesRules" #-}
+                                                                                                                                                             {-# LINE 982 "dist/build/InterfacesRules" #-}
                                                                                                                                                              )) of
                                                                                                                                                       { !_lhsOedp ->
                                                                                                                                                       (case (({-# LINE 444 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                               inh_
-                                                                                                                                                              {-# LINE 989 "dist/build/InterfacesRules" #-}
+                                                                                                                                                              {-# LINE 987 "dist/build/InterfacesRules" #-}
                                                                                                                                                               )) of
                                                                                                                                                        { !_lhsOinh ->
                                                                                                                                                        (case (({-# LINE 327 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                _intravisits
-                                                                                                                                                               {-# LINE 994 "dist/build/InterfacesRules" #-}
+                                                                                                                                                               {-# LINE 992 "dist/build/InterfacesRules" #-}
                                                                                                                                                                )) of
                                                                                                                                                         { !_lhsOintravisits ->
                                                                                                                                                         (case (({-# LINE 269 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                 _visitss
-                                                                                                                                                                {-# LINE 999 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                {-# LINE 997 "dist/build/InterfacesRules" #-}
                                                                                                                                                                 )) of
                                                                                                                                                          { !_lhsOvisitss ->
                                                                                                                                                          ( _lhsOcvisits,_lhsOedp,_lhsOinh,_lhsOintravisits,_lhsOvisitss) }) }) }) }) }) }) }) }) })))
@@ -1086,68 +1084,68 @@ sem_Segments_Cons !(T_Segment hd_) !(T_Segments tl_) =
                    (!_lhsIv) ->
                      (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                              _lhsIv
-                             {-# LINE 1090 "dist/build/InterfacesRules" #-}
+                             {-# LINE 1088 "dist/build/InterfacesRules" #-}
                              )) of
                       { !_hdOv ->
                       (case (({-# LINE 83 "src-ag/InterfacesRules.lag" #-}
                               _lhsIinfo
-                              {-# LINE 1095 "dist/build/InterfacesRules" #-}
+                              {-# LINE 1093 "dist/build/InterfacesRules" #-}
                               )) of
                        { !_hdOinfo ->
                        (case (hd_ _hdOinfo _hdOv) of
                         { ( !_hdIv,!T_Segment_1 hd_1) ->
                             (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                     _hdIv
-                                    {-# LINE 1102 "dist/build/InterfacesRules" #-}
+                                    {-# LINE 1100 "dist/build/InterfacesRules" #-}
                                     )) of
                              { !_tlOv ->
                              (case (({-# LINE 83 "src-ag/InterfacesRules.lag" #-}
                                      _lhsIinfo
-                                     {-# LINE 1107 "dist/build/InterfacesRules" #-}
+                                     {-# LINE 1105 "dist/build/InterfacesRules" #-}
                                      )) of
                               { !_tlOinfo ->
                               (case (({-# LINE 203 "src-ag/InterfacesRules.lag" #-}
                                       _lhsIn
-                                      {-# LINE 1112 "dist/build/InterfacesRules" #-}
+                                      {-# LINE 1110 "dist/build/InterfacesRules" #-}
                                       )) of
                                { !_hdOn ->
                                (case (({-# LINE 207 "src-ag/InterfacesRules.lag" #-}
                                        _lhsIn + 1
-                                       {-# LINE 1117 "dist/build/InterfacesRules" #-}
+                                       {-# LINE 1115 "dist/build/InterfacesRules" #-}
                                        )) of
                                 { !_tlOn ->
                                 (case (tl_ _tlOinfo _tlOn _tlOv) of
                                  { ( !_tlIdescr,!_tlIgroups,!_tlInewedges,!_tlInewvertices,!_tlIv,!T_Segments_1 tl_1) ->
                                      (case (({-# LINE 169 "src-ag/InterfacesRules.lag" #-}
                                              _tlInewvertices
-                                             {-# LINE 1124 "dist/build/InterfacesRules" #-}
+                                             {-# LINE 1122 "dist/build/InterfacesRules" #-}
                                              )) of
                                       { !_hdOnextNewvertices ->
                                       (case (hd_1 _hdOn _hdOnextNewvertices) of
                                        { ( !_hdIdescr,!_hdIgroups,!_hdInewedges,!_hdInewvertices,!T_Segment_2 hd_2) ->
                                            (case (({-# LINE 130 "src-ag/InterfacesRules.lag" #-}
                                                    _hdIdescr Seq.>< _tlIdescr
-                                                   {-# LINE 1131 "dist/build/InterfacesRules" #-}
+                                                   {-# LINE 1129 "dist/build/InterfacesRules" #-}
                                                    )) of
                                             { !_lhsOdescr ->
                                             (case (({-# LINE 184 "src-ag/InterfacesRules.lag" #-}
                                                     _hdIgroups
-                                                    {-# LINE 1136 "dist/build/InterfacesRules" #-}
+                                                    {-# LINE 1134 "dist/build/InterfacesRules" #-}
                                                     )) of
                                              { !_lhsOgroups ->
                                              (case (({-# LINE 129 "src-ag/InterfacesRules.lag" #-}
                                                      _hdInewedges Seq.>< _tlInewedges
-                                                     {-# LINE 1141 "dist/build/InterfacesRules" #-}
+                                                     {-# LINE 1139 "dist/build/InterfacesRules" #-}
                                                      )) of
                                               { !_lhsOnewedges ->
                                               (case (({-# LINE 170 "src-ag/InterfacesRules.lag" #-}
                                                       _hdInewvertices
-                                                      {-# LINE 1146 "dist/build/InterfacesRules" #-}
+                                                      {-# LINE 1144 "dist/build/InterfacesRules" #-}
                                                       )) of
                                                { !_lhsOnewvertices ->
                                                (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                                        _tlIv
-                                                       {-# LINE 1151 "dist/build/InterfacesRules" #-}
+                                                       {-# LINE 1149 "dist/build/InterfacesRules" #-}
                                                        )) of
                                                 { !_lhsOv ->
                                                 (case ((let sem_Segments_Cons_1 :: T_Segments_1
@@ -1158,51 +1156,51 @@ sem_Segments_Cons !(T_Segment hd_) !(T_Segments tl_) =
                                                                                  (!_lhsIvssGraph) ->
                                                                                    (case (({-# LINE 216 "src-ag/InterfacesRules.lag" #-}
                                                                                            _lhsIvssGraph
-                                                                                           {-# LINE 1162 "dist/build/InterfacesRules" #-}
+                                                                                           {-# LINE 1160 "dist/build/InterfacesRules" #-}
                                                                                            )) of
                                                                                     { !_tlOvssGraph ->
                                                                                     (case (({-# LINE 125 "src-ag/InterfacesRules.lag" #-}
                                                                                             _lhsIvisitDescr
-                                                                                            {-# LINE 1167 "dist/build/InterfacesRules" #-}
+                                                                                            {-# LINE 1165 "dist/build/InterfacesRules" #-}
                                                                                             )) of
                                                                                      { !_tlOvisitDescr ->
                                                                                      (case (({-# LINE 216 "src-ag/InterfacesRules.lag" #-}
                                                                                              _lhsIvssGraph
-                                                                                             {-# LINE 1172 "dist/build/InterfacesRules" #-}
+                                                                                             {-# LINE 1170 "dist/build/InterfacesRules" #-}
                                                                                              )) of
                                                                                       { !_hdOvssGraph ->
                                                                                       (case (({-# LINE 125 "src-ag/InterfacesRules.lag" #-}
                                                                                               _lhsIvisitDescr
-                                                                                              {-# LINE 1177 "dist/build/InterfacesRules" #-}
+                                                                                              {-# LINE 1175 "dist/build/InterfacesRules" #-}
                                                                                               )) of
                                                                                        { !_hdOvisitDescr ->
                                                                                        (case (({-# LINE 263 "src-ag/InterfacesRules.lag" #-}
                                                                                                _lhsIprev
-                                                                                               {-# LINE 1182 "dist/build/InterfacesRules" #-}
+                                                                                               {-# LINE 1180 "dist/build/InterfacesRules" #-}
                                                                                                )) of
                                                                                         { !_hdOprev ->
                                                                                         (case (({-# LINE 235 "src-ag/InterfacesRules.lag" #-}
                                                                                                 _lhsIcons
-                                                                                                {-# LINE 1187 "dist/build/InterfacesRules" #-}
+                                                                                                {-# LINE 1185 "dist/build/InterfacesRules" #-}
                                                                                                 )) of
                                                                                          { !_hdOcons ->
                                                                                          (case (hd_2 _hdOcons _hdOprev _hdOvisitDescr _hdOvssGraph) of
                                                                                           { ( !_hdIprev,!_hdIseg,!T_Segment_3 hd_3) ->
                                                                                               (case (({-# LINE 263 "src-ag/InterfacesRules.lag" #-}
                                                                                                       _hdIprev
-                                                                                                      {-# LINE 1194 "dist/build/InterfacesRules" #-}
+                                                                                                      {-# LINE 1192 "dist/build/InterfacesRules" #-}
                                                                                                       )) of
                                                                                                { !_tlOprev ->
                                                                                                (case (({-# LINE 235 "src-ag/InterfacesRules.lag" #-}
                                                                                                        _lhsIcons
-                                                                                                       {-# LINE 1199 "dist/build/InterfacesRules" #-}
+                                                                                                       {-# LINE 1197 "dist/build/InterfacesRules" #-}
                                                                                                        )) of
                                                                                                 { !_tlOcons ->
                                                                                                 (case (tl_1 _tlOcons _tlOprev _tlOvisitDescr _tlOvssGraph) of
                                                                                                  { ( !_tlIsegs,!T_Segments_2 tl_2) ->
                                                                                                      (case (({-# LINE 400 "src-ag/InterfacesRules.lag" #-}
                                                                                                              _hdIseg : _tlIsegs
-                                                                                                             {-# LINE 1206 "dist/build/InterfacesRules" #-}
+                                                                                                             {-# LINE 1204 "dist/build/InterfacesRules" #-}
                                                                                                              )) of
                                                                                                       { !_lhsOsegs ->
                                                                                                       (case ((let sem_Segments_Cons_2 :: T_Segments_2
@@ -1213,81 +1211,81 @@ sem_Segments_Cons !(T_Segment hd_) !(T_Segments tl_) =
                                                                                                                                        (!_lhsIisFirst) ->
                                                                                                                                          (case (({-# LINE 341 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                  _lhsIddp
-                                                                                                                                                 {-# LINE 1217 "dist/build/InterfacesRules" #-}
+                                                                                                                                                 {-# LINE 1215 "dist/build/InterfacesRules" #-}
                                                                                                                                                  )) of
                                                                                                                                           { !_tlOddp ->
                                                                                                                                           (case (({-# LINE 378 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                   _lhsIallInters
-                                                                                                                                                  {-# LINE 1222 "dist/build/InterfacesRules" #-}
+                                                                                                                                                  {-# LINE 1220 "dist/build/InterfacesRules" #-}
                                                                                                                                                   )) of
                                                                                                                                            { !_tlOallInters ->
                                                                                                                                            (case (({-# LINE 341 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                    _lhsIddp
-                                                                                                                                                   {-# LINE 1227 "dist/build/InterfacesRules" #-}
+                                                                                                                                                   {-# LINE 1225 "dist/build/InterfacesRules" #-}
                                                                                                                                                    )) of
                                                                                                                                             { !_hdOddp ->
                                                                                                                                             (case (({-# LINE 378 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                     _lhsIallInters
-                                                                                                                                                    {-# LINE 1232 "dist/build/InterfacesRules" #-}
+                                                                                                                                                    {-# LINE 1230 "dist/build/InterfacesRules" #-}
                                                                                                                                                     )) of
                                                                                                                                              { !_hdOallInters ->
                                                                                                                                              (case (({-# LINE 354 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                      []
-                                                                                                                                                     {-# LINE 1237 "dist/build/InterfacesRules" #-}
+                                                                                                                                                     {-# LINE 1235 "dist/build/InterfacesRules" #-}
                                                                                                                                                      )) of
                                                                                                                                               { !_tlOfromLhs ->
                                                                                                                                               (case (({-# LINE 353 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                       _lhsIfromLhs
-                                                                                                                                                      {-# LINE 1242 "dist/build/InterfacesRules" #-}
+                                                                                                                                                      {-# LINE 1240 "dist/build/InterfacesRules" #-}
                                                                                                                                                       )) of
                                                                                                                                                { !_hdOfromLhs ->
                                                                                                                                                (case (({-# LINE 316 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                        False
-                                                                                                                                                       {-# LINE 1247 "dist/build/InterfacesRules" #-}
+                                                                                                                                                       {-# LINE 1245 "dist/build/InterfacesRules" #-}
                                                                                                                                                        )) of
                                                                                                                                                 { !_tlOisFirst ->
                                                                                                                                                 (case (tl_2 _tlOallInters _tlOddp _tlOfromLhs _tlOisFirst) of
                                                                                                                                                  { ( !_tlIcvisits,!_tlIedp,!_tlIfirstInh,!_tlIhdIntravisits,!_tlIprev) ->
                                                                                                                                                      (case (({-# LINE 329 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                              _tlIhdIntravisits
-                                                                                                                                                             {-# LINE 1254 "dist/build/InterfacesRules" #-}
+                                                                                                                                                             {-# LINE 1252 "dist/build/InterfacesRules" #-}
                                                                                                                                                              )) of
                                                                                                                                                       { !_hdOnextIntravisits ->
                                                                                                                                                       (case (({-# LINE 312 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                               _lhsIisFirst
-                                                                                                                                                              {-# LINE 1259 "dist/build/InterfacesRules" #-}
+                                                                                                                                                              {-# LINE 1257 "dist/build/InterfacesRules" #-}
                                                                                                                                                               )) of
                                                                                                                                                        { !_hdOisFirst ->
                                                                                                                                                        (case (({-# LINE 446 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                _tlIfirstInh
-                                                                                                                                                               {-# LINE 1264 "dist/build/InterfacesRules" #-}
+                                                                                                                                                               {-# LINE 1262 "dist/build/InterfacesRules" #-}
                                                                                                                                                                )) of
                                                                                                                                                         { !_hdOnextInh ->
                                                                                                                                                         (case (hd_3 _hdOallInters _hdOddp _hdOfromLhs _hdOisFirst _hdOnextInh _hdOnextIntravisits) of
                                                                                                                                                          { ( !_hdIcvisits,!_hdIedp,!_hdIinh,!_hdIintravisits,!_hdIvisitss) ->
                                                                                                                                                              (case (({-# LINE 399 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                      _hdIcvisits : _tlIcvisits
-                                                                                                                                                                     {-# LINE 1271 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                     {-# LINE 1269 "dist/build/InterfacesRules" #-}
                                                                                                                                                                      )) of
                                                                                                                                                               { !_lhsOcvisits ->
                                                                                                                                                               (case (({-# LINE 437 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                       _hdIedp Seq.>< _tlIedp
-                                                                                                                                                                      {-# LINE 1276 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                      {-# LINE 1274 "dist/build/InterfacesRules" #-}
                                                                                                                                                                       )) of
                                                                                                                                                                { !_lhsOedp ->
                                                                                                                                                                (case (({-# LINE 447 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                        _hdIinh
-                                                                                                                                                                       {-# LINE 1281 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                       {-# LINE 1279 "dist/build/InterfacesRules" #-}
                                                                                                                                                                        )) of
                                                                                                                                                                 { !_lhsOfirstInh ->
                                                                                                                                                                 (case (({-# LINE 330 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                         _hdIintravisits
-                                                                                                                                                                        {-# LINE 1286 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                        {-# LINE 1284 "dist/build/InterfacesRules" #-}
                                                                                                                                                                         )) of
                                                                                                                                                                  { !_lhsOhdIntravisits ->
                                                                                                                                                                  (case (({-# LINE 263 "src-ag/InterfacesRules.lag" #-}
                                                                                                                                                                          _tlIprev
-                                                                                                                                                                         {-# LINE 1291 "dist/build/InterfacesRules" #-}
+                                                                                                                                                                         {-# LINE 1289 "dist/build/InterfacesRules" #-}
                                                                                                                                                                          )) of
                                                                                                                                                                   { !_lhsOprev ->
                                                                                                                                                                   ( _lhsOcvisits,_lhsOedp,_lhsOfirstInh,_lhsOhdIntravisits,_lhsOprev) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) })))
@@ -1304,27 +1302,27 @@ sem_Segments_Nil =
                    (!_lhsIv) ->
                      (case (({-# LINE 130 "src-ag/InterfacesRules.lag" #-}
                              Seq.empty
-                             {-# LINE 1308 "dist/build/InterfacesRules" #-}
+                             {-# LINE 1306 "dist/build/InterfacesRules" #-}
                              )) of
                       { !_lhsOdescr ->
                       (case (({-# LINE 185 "src-ag/InterfacesRules.lag" #-}
                               []
-                              {-# LINE 1313 "dist/build/InterfacesRules" #-}
+                              {-# LINE 1311 "dist/build/InterfacesRules" #-}
                               )) of
                        { !_lhsOgroups ->
                        (case (({-# LINE 129 "src-ag/InterfacesRules.lag" #-}
                                Seq.empty
-                               {-# LINE 1318 "dist/build/InterfacesRules" #-}
+                               {-# LINE 1316 "dist/build/InterfacesRules" #-}
                                )) of
                         { !_lhsOnewedges ->
                         (case (({-# LINE 171 "src-ag/InterfacesRules.lag" #-}
                                 []
-                                {-# LINE 1323 "dist/build/InterfacesRules" #-}
+                                {-# LINE 1321 "dist/build/InterfacesRules" #-}
                                 )) of
                          { !_lhsOnewvertices ->
                          (case (({-# LINE 82 "src-ag/InterfacesRules.lag" #-}
                                  _lhsIv
-                                 {-# LINE 1328 "dist/build/InterfacesRules" #-}
+                                 {-# LINE 1326 "dist/build/InterfacesRules" #-}
                                  )) of
                           { !_lhsOv ->
                           (case ((let sem_Segments_Nil_1 :: T_Segments_1
@@ -1335,7 +1333,7 @@ sem_Segments_Nil =
                                                            (!_lhsIvssGraph) ->
                                                              (case (({-# LINE 401 "src-ag/InterfacesRules.lag" #-}
                                                                      []
-                                                                     {-# LINE 1339 "dist/build/InterfacesRules" #-}
+                                                                     {-# LINE 1337 "dist/build/InterfacesRules" #-}
                                                                      )) of
                                                               { !_lhsOsegs ->
                                                               (case ((let sem_Segments_Nil_2 :: T_Segments_2
@@ -1346,27 +1344,27 @@ sem_Segments_Nil =
                                                                                                (!_lhsIisFirst) ->
                                                                                                  (case (({-# LINE 399 "src-ag/InterfacesRules.lag" #-}
                                                                                                          []
-                                                                                                         {-# LINE 1350 "dist/build/InterfacesRules" #-}
+                                                                                                         {-# LINE 1348 "dist/build/InterfacesRules" #-}
                                                                                                          )) of
                                                                                                   { !_lhsOcvisits ->
                                                                                                   (case (({-# LINE 437 "src-ag/InterfacesRules.lag" #-}
                                                                                                           Seq.empty
-                                                                                                          {-# LINE 1355 "dist/build/InterfacesRules" #-}
+                                                                                                          {-# LINE 1353 "dist/build/InterfacesRules" #-}
                                                                                                           )) of
                                                                                                    { !_lhsOedp ->
                                                                                                    (case (({-# LINE 448 "src-ag/InterfacesRules.lag" #-}
                                                                                                            []
-                                                                                                           {-# LINE 1360 "dist/build/InterfacesRules" #-}
+                                                                                                           {-# LINE 1358 "dist/build/InterfacesRules" #-}
                                                                                                            )) of
                                                                                                     { !_lhsOfirstInh ->
                                                                                                     (case (({-# LINE 331 "src-ag/InterfacesRules.lag" #-}
                                                                                                             repeat []
-                                                                                                            {-# LINE 1365 "dist/build/InterfacesRules" #-}
+                                                                                                            {-# LINE 1363 "dist/build/InterfacesRules" #-}
                                                                                                             )) of
                                                                                                      { !_lhsOhdIntravisits ->
                                                                                                      (case (({-# LINE 263 "src-ag/InterfacesRules.lag" #-}
                                                                                                              _lhsIprev
-                                                                                                             {-# LINE 1370 "dist/build/InterfacesRules" #-}
+                                                                                                             {-# LINE 1368 "dist/build/InterfacesRules" #-}
                                                                                                              )) of
                                                                                                       { !_lhsOprev ->
                                                                                                       ( _lhsOcvisits,_lhsOedp,_lhsOfirstInh,_lhsOhdIntravisits,_lhsOprev) }) }) }) }) })))

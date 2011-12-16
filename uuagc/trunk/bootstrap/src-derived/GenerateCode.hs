@@ -560,8 +560,6 @@ sem_CGrammar_CGrammar typeSyns_ derivings_ wrappers_ (T_CNonterminals nonts_) pr
                                )
                           ( _nontsIchunks,_nontsIgathNts,_nontsIsemDomUnfoldGath) =
                               nonts_ _nontsOallNts _nontsOallPragmas _nontsOaroundMap _nontsOcontextMap _nontsOderivings _nontsOmergeMap _nontsOo_case _nontsOo_cata _nontsOo_costcentre _nontsOo_data _nontsOo_linePragmas _nontsOo_monadic _nontsOo_newtypes _nontsOo_pretty _nontsOo_rename _nontsOo_sem _nontsOo_sig _nontsOo_splitsems _nontsOo_strictwrap _nontsOo_traces _nontsOo_unbox _nontsOoptions _nontsOparamMap _nontsOprefix _nontsOquantMap _nontsOtypeSyns _nontsOunfoldSemDom _nontsOwith_sig _nontsOwrappers
-                          ___node =
-                              (Syn_CGrammar _lhsOerrors _lhsOoutput)
                       in  ( _lhsOerrors,_lhsOoutput))))
 -- CInterface --------------------------------------------------
 {-
@@ -692,162 +690,160 @@ sem_CInterface_CInterface (T_CSegments seg_) =
                             _segOnr =
                                 ({-# LINE 284 "src-ag/GenerateCode.ag" #-}
                                  0
-                                 {-# LINE 696 "dist/build/GenerateCode" #-}
+                                 {-# LINE 694 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 712, column 18)
                             _lhsOsemDom =
                                 ({-# LINE 712 "src-ag/GenerateCode.ag" #-}
                                  Comment "semantic domain" : _segIsemDom
-                                 {-# LINE 702 "dist/build/GenerateCode" #-}
+                                 {-# LINE 700 "dist/build/GenerateCode" #-}
                                  )
                             -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                             _lhsOcomments =
                                 ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                  _segIcomments
-                                 {-# LINE 708 "dist/build/GenerateCode" #-}
+                                 {-# LINE 706 "dist/build/GenerateCode" #-}
                                  )
                             -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                             _lhsOsemDomUnfoldGath =
                                 ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                  _segIsemDomUnfoldGath
-                                 {-# LINE 714 "dist/build/GenerateCode" #-}
+                                 {-# LINE 712 "dist/build/GenerateCode" #-}
                                  )
                             -- use rule "src-ag/GenerateCode.ag"(line 829, column 52)
                             _lhsOwrapDecls =
                                 ({-# LINE 829 "src-ag/GenerateCode.ag" #-}
                                  _segIwrapDecls
-                                 {-# LINE 720 "dist/build/GenerateCode" #-}
+                                 {-# LINE 718 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOinh =
                                 ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                  _lhsIinh
-                                 {-# LINE 726 "dist/build/GenerateCode" #-}
+                                 {-# LINE 724 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOnt =
                                 ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                  _lhsInt
-                                 {-# LINE 732 "dist/build/GenerateCode" #-}
+                                 {-# LINE 730 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_case =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_case
-                                 {-# LINE 738 "dist/build/GenerateCode" #-}
+                                 {-# LINE 736 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_cata =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_cata
-                                 {-# LINE 744 "dist/build/GenerateCode" #-}
+                                 {-# LINE 742 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_costcentre =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_costcentre
-                                 {-# LINE 750 "dist/build/GenerateCode" #-}
+                                 {-# LINE 748 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_data =
                                 ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_data
-                                 {-# LINE 756 "dist/build/GenerateCode" #-}
+                                 {-# LINE 754 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_linePragmas =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_linePragmas
-                                 {-# LINE 762 "dist/build/GenerateCode" #-}
+                                 {-# LINE 760 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_monadic =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_monadic
-                                 {-# LINE 768 "dist/build/GenerateCode" #-}
+                                 {-# LINE 766 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_newtypes =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_newtypes
-                                 {-# LINE 774 "dist/build/GenerateCode" #-}
+                                 {-# LINE 772 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_pretty =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_pretty
-                                 {-# LINE 780 "dist/build/GenerateCode" #-}
+                                 {-# LINE 778 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_rename =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_rename
-                                 {-# LINE 786 "dist/build/GenerateCode" #-}
+                                 {-# LINE 784 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_sem =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_sem
-                                 {-# LINE 792 "dist/build/GenerateCode" #-}
+                                 {-# LINE 790 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_sig =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_sig
-                                 {-# LINE 798 "dist/build/GenerateCode" #-}
+                                 {-# LINE 796 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_splitsems =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_splitsems
-                                 {-# LINE 804 "dist/build/GenerateCode" #-}
+                                 {-# LINE 802 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_strictwrap =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_strictwrap
-                                 {-# LINE 810 "dist/build/GenerateCode" #-}
+                                 {-# LINE 808 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_traces =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_traces
-                                 {-# LINE 816 "dist/build/GenerateCode" #-}
+                                 {-# LINE 814 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOo_unbox =
                                 ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                  _lhsIo_unbox
-                                 {-# LINE 822 "dist/build/GenerateCode" #-}
+                                 {-# LINE 820 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOoptions =
                                 ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 828 "dist/build/GenerateCode" #-}
+                                 {-# LINE 826 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOparamMap =
                                 ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                  _lhsIparamMap
-                                 {-# LINE 834 "dist/build/GenerateCode" #-}
+                                 {-# LINE 832 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOprefix =
                                 ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                  _lhsIprefix
-                                 {-# LINE 840 "dist/build/GenerateCode" #-}
+                                 {-# LINE 838 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _segOsyn =
                                 ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                  _lhsIsyn
-                                 {-# LINE 846 "dist/build/GenerateCode" #-}
+                                 {-# LINE 844 "dist/build/GenerateCode" #-}
                                  )
                             ( _segIcomments,_segIisNil,_segIsemDom,_segIsemDomUnfoldGath,_segIwrapDecls) =
                                 seg_ _segOinh _segOnr _segOnt _segOo_case _segOo_cata _segOo_costcentre _segOo_data _segOo_linePragmas _segOo_monadic _segOo_newtypes _segOo_pretty _segOo_rename _segOo_sem _segOo_sig _segOo_splitsems _segOo_strictwrap _segOo_traces _segOo_unbox _segOoptions _segOparamMap _segOprefix _segOsyn
-                            ___node =
-                                (Syn_CInterface _lhsOcomments _lhsOsemDom _lhsOsemDomUnfoldGath _lhsOwrapDecls)
                         in  ( _lhsOcomments,_lhsOsemDom,_lhsOsemDomUnfoldGath,_lhsOwrapDecls))))
 -- CNonterminal ------------------------------------------------
 {-
@@ -1051,31 +1047,31 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                               (_interOinh,_interOsyn,_interOnt) =
                                   ({-# LINE 86 "src-ag/GenerateCode.ag" #-}
                                    (inh_,syn_,nt_)
-                                   {-# LINE 1055 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1051 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 87, column 25)
                               (_prodsOinh,_prodsOsyn,_prodsOnt) =
                                   ({-# LINE 87 "src-ag/GenerateCode.ag" #-}
                                    (inh_,syn_,nt_)
-                                   {-# LINE 1061 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1057 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 142, column 7)
                               _lhsOgathNts =
                                   ({-# LINE 142 "src-ag/GenerateCode.ag" #-}
                                    Set.singleton nt_
-                                   {-# LINE 1067 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1063 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 583, column 34)
                               _aroundMap =
                                   ({-# LINE 583 "src-ag/GenerateCode.ag" #-}
                                    Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                   {-# LINE 1073 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1069 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 599, column 34)
                               _mergeMap =
                                   ({-# LINE 599 "src-ag/GenerateCode.ag" #-}
                                    Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                   {-# LINE 1079 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1075 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 803, column 18)
                               _semWrapper =
@@ -1104,13 +1100,13 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                                                      (Let _interIwrapDecls (App synNT synVars))
                                                      Set.empty Set.empty
                                                ]
-                                   {-# LINE 1108 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1104 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 864, column 18)
                               _comment =
                                   ({-# LINE 864 "src-ag/GenerateCode.ag" #-}
                                    Comment . unlines . map ind $ ( _interIcomments ++ ("alternatives:" : map ind _prodsIcomments) )
-                                   {-# LINE 1114 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1110 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 926, column 19)
                               _lhsOchunks =
@@ -1125,7 +1121,7 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                                           (if _lhsIo_sem                     then  _prodsIdecls     else [])
                                           (if _lhsIo_sem                     then  _prodsIsemNames  else [])
                                    ]
-                                   {-# LINE 1129 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1125 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 995, column 18)
                               _dataDef =
@@ -1145,13 +1141,13 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                                        derivings  = maybe [] (map getName . Set.toList) (Map.lookup nt_ _lhsIderivings)
                                        dataDef    = Data (getName nt_) (map getName params_) _prodsIdataAlts (maybe False id _lhsIo_data) derivings
                                    in maybe dataDef typeSyn $ lookup nt_ _lhsItypeSyns
-                                   {-# LINE 1149 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1145 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 1038, column 18)
                               _genCata =
                                   ({-# LINE 1038 "src-ag/GenerateCode.ag" #-}
                                    not (nt_ `Set.member` nocatas _lhsIoptions)
-                                   {-# LINE 1155 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1151 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 1039, column 18)
                               _cataFun =
@@ -1237,290 +1233,288 @@ sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_C
                                    in  Comment "cata" :
                                        (if _lhsIo_sig then [tSig] else []) ++
                                        maybe _prodsIcataAlts special (lookup nt_ _lhsItypeSyns)
-                                   {-# LINE 1241 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1237 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                               _lhsOsemDomUnfoldGath =
                                   ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                    _interIsemDomUnfoldGath
-                                   {-# LINE 1247 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1243 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallNts =
                                   ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallNts
-                                   {-# LINE 1253 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1249 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallPragmas =
                                   ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallPragmas
-                                   {-# LINE 1259 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1255 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (from local)
                               _prodsOaroundMap =
                                   ({-# LINE 578 "src-ag/GenerateCode.ag" #-}
                                    _aroundMap
-                                   {-# LINE 1265 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1261 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOcontextMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIcontextMap
-                                   {-# LINE 1271 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1267 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (from local)
                               _prodsOmergeMap =
                                   ({-# LINE 594 "src-ag/GenerateCode.ag" #-}
                                    _mergeMap
-                                   {-# LINE 1277 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1273 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_case =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 1283 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1279 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_cata =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 1289 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1285 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_costcentre =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_costcentre
-                                   {-# LINE 1295 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1291 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_data =
                                   ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 1301 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1297 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_linePragmas =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_linePragmas
-                                   {-# LINE 1307 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1303 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_monadic =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_monadic
-                                   {-# LINE 1313 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1309 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_newtypes =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 1319 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1315 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_pretty =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_pretty
-                                   {-# LINE 1325 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1321 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_rename =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 1331 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1327 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_sem =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 1337 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1333 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_sig =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 1343 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1339 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_splitsems =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_splitsems
-                                   {-# LINE 1349 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1345 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_strictwrap =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_strictwrap
-                                   {-# LINE 1355 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1351 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_traces =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_traces
-                                   {-# LINE 1361 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1357 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOo_unbox =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 1367 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1363 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOoptions =
                                   ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1373 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1369 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOparamMap =
                                   ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                    _lhsIparamMap
-                                   {-# LINE 1379 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1375 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOprefix =
                                   ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 1385 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1381 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOquantMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIquantMap
-                                   {-# LINE 1391 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1387 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOunfoldSemDom =
                                   ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                    _lhsIunfoldSemDom
-                                   {-# LINE 1397 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1393 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOwith_sig =
                                   ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwith_sig
-                                   {-# LINE 1403 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1399 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _prodsOwrappers =
                                   ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwrappers
-                                   {-# LINE 1409 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1405 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_case =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 1415 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1411 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_cata =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 1421 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1417 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_costcentre =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_costcentre
-                                   {-# LINE 1427 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1423 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_data =
                                   ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 1433 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1429 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_linePragmas =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_linePragmas
-                                   {-# LINE 1439 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1435 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_monadic =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_monadic
-                                   {-# LINE 1445 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1441 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_newtypes =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 1451 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1447 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_pretty =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_pretty
-                                   {-# LINE 1457 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1453 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_rename =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 1463 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1459 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_sem =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 1469 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1465 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_sig =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 1475 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1471 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_splitsems =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_splitsems
-                                   {-# LINE 1481 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1477 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_strictwrap =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_strictwrap
-                                   {-# LINE 1487 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1483 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_traces =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_traces
-                                   {-# LINE 1493 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1489 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOo_unbox =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 1499 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1495 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOoptions =
                                   ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1505 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1501 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOparamMap =
                                   ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                    _lhsIparamMap
-                                   {-# LINE 1511 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1507 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _interOprefix =
                                   ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 1517 "dist/build/GenerateCode" #-}
+                                   {-# LINE 1513 "dist/build/GenerateCode" #-}
                                    )
                               ( _prodsIcataAlts,_prodsIcomments,_prodsIdataAlts,_prodsIdecls,_prodsIsemNames) =
                                   prods_ _prodsOallNts _prodsOallPragmas _prodsOaroundMap _prodsOcontextMap _prodsOinh _prodsOmergeMap _prodsOnt _prodsOo_case _prodsOo_cata _prodsOo_costcentre _prodsOo_data _prodsOo_linePragmas _prodsOo_monadic _prodsOo_newtypes _prodsOo_pretty _prodsOo_rename _prodsOo_sem _prodsOo_sig _prodsOo_splitsems _prodsOo_strictwrap _prodsOo_traces _prodsOo_unbox _prodsOoptions _prodsOparamMap _prodsOprefix _prodsOquantMap _prodsOsyn _prodsOunfoldSemDom _prodsOwith_sig _prodsOwrappers
                               ( _interIcomments,_interIsemDom,_interIsemDomUnfoldGath,_interIwrapDecls) =
                                   inter_ _interOinh _interOnt _interOo_case _interOo_cata _interOo_costcentre _interOo_data _interOo_linePragmas _interOo_monadic _interOo_newtypes _interOo_pretty _interOo_rename _interOo_sem _interOo_sig _interOo_splitsems _interOo_strictwrap _interOo_traces _interOo_unbox _interOoptions _interOparamMap _interOprefix _interOsyn
-                              ___node =
-                                  (Syn_CNonterminal _lhsOchunks _lhsOgathNts _lhsOsemDomUnfoldGath)
                           in  ( _lhsOchunks,_lhsOgathNts,_lhsOsemDomUnfoldGath))))
 -- CNonterminals -----------------------------------------------
 {-
@@ -1713,374 +1707,372 @@ sem_CNonterminals_Cons (T_CNonterminal hd_) (T_CNonterminals tl_) =
                                _lhsOchunks =
                                    ({-# LINE 918 "src-ag/GenerateCode.ag" #-}
                                     _hdIchunks ++ _tlIchunks
-                                    {-# LINE 1717 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1711 "dist/build/GenerateCode" #-}
                                     )
                                -- use rule "src-ag/GenerateCode.ag"(line 138, column 47)
                                _lhsOgathNts =
                                    ({-# LINE 138 "src-ag/GenerateCode.ag" #-}
                                     _hdIgathNts `Set.union` _tlIgathNts
-                                    {-# LINE 1723 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1717 "dist/build/GenerateCode" #-}
                                     )
                                -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                                _lhsOsemDomUnfoldGath =
                                    ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                     _hdIsemDomUnfoldGath `Map.union` _tlIsemDomUnfoldGath
-                                    {-# LINE 1729 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1723 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOallNts =
                                    ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                     _lhsIallNts
-                                    {-# LINE 1735 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1729 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOallPragmas =
                                    ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                     _lhsIallPragmas
-                                    {-# LINE 1741 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1735 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOaroundMap =
                                    ({-# LINE 575 "src-ag/GenerateCode.ag" #-}
                                     _lhsIaroundMap
-                                    {-# LINE 1747 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1741 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOcontextMap =
                                    ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                     _lhsIcontextMap
-                                    {-# LINE 1753 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1747 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOderivings =
                                    ({-# LINE 986 "src-ag/GenerateCode.ag" #-}
                                     _lhsIderivings
-                                    {-# LINE 1759 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1753 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOmergeMap =
                                    ({-# LINE 591 "src-ag/GenerateCode.ag" #-}
                                     _lhsImergeMap
-                                    {-# LINE 1765 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1759 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_case =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_case
-                                    {-# LINE 1771 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1765 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_cata =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_cata
-                                    {-# LINE 1777 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1771 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_costcentre =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_costcentre
-                                    {-# LINE 1783 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1777 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_data =
                                    ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_data
-                                    {-# LINE 1789 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1783 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_linePragmas =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_linePragmas
-                                    {-# LINE 1795 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1789 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_monadic =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_monadic
-                                    {-# LINE 1801 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1795 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_newtypes =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_newtypes
-                                    {-# LINE 1807 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1801 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_pretty =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_pretty
-                                    {-# LINE 1813 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1807 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_rename =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_rename
-                                    {-# LINE 1819 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1813 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_sem =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_sem
-                                    {-# LINE 1825 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1819 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_sig =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_sig
-                                    {-# LINE 1831 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1825 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_splitsems =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_splitsems
-                                    {-# LINE 1837 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1831 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_strictwrap =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_strictwrap
-                                    {-# LINE 1843 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1837 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_traces =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_traces
-                                    {-# LINE 1849 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1843 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOo_unbox =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_unbox
-                                    {-# LINE 1855 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1849 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOoptions =
                                    ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 1861 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1855 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOparamMap =
                                    ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                     _lhsIparamMap
-                                    {-# LINE 1867 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1861 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOprefix =
                                    ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                     _lhsIprefix
-                                    {-# LINE 1873 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1867 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOquantMap =
                                    ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                     _lhsIquantMap
-                                    {-# LINE 1879 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1873 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOtypeSyns =
                                    ({-# LINE 986 "src-ag/GenerateCode.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 1885 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1879 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOunfoldSemDom =
                                    ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                     _lhsIunfoldSemDom
-                                    {-# LINE 1891 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1885 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOwith_sig =
                                    ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                     _lhsIwith_sig
-                                    {-# LINE 1897 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1891 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _hdOwrappers =
                                    ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 1903 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1897 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOallNts =
                                    ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                     _lhsIallNts
-                                    {-# LINE 1909 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1903 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOallPragmas =
                                    ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                     _lhsIallPragmas
-                                    {-# LINE 1915 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1909 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOaroundMap =
                                    ({-# LINE 575 "src-ag/GenerateCode.ag" #-}
                                     _lhsIaroundMap
-                                    {-# LINE 1921 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1915 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOcontextMap =
                                    ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                     _lhsIcontextMap
-                                    {-# LINE 1927 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1921 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOderivings =
                                    ({-# LINE 986 "src-ag/GenerateCode.ag" #-}
                                     _lhsIderivings
-                                    {-# LINE 1933 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1927 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOmergeMap =
                                    ({-# LINE 591 "src-ag/GenerateCode.ag" #-}
                                     _lhsImergeMap
-                                    {-# LINE 1939 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1933 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_case =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_case
-                                    {-# LINE 1945 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1939 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_cata =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_cata
-                                    {-# LINE 1951 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1945 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_costcentre =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_costcentre
-                                    {-# LINE 1957 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1951 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_data =
                                    ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_data
-                                    {-# LINE 1963 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1957 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_linePragmas =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_linePragmas
-                                    {-# LINE 1969 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1963 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_monadic =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_monadic
-                                    {-# LINE 1975 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1969 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_newtypes =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_newtypes
-                                    {-# LINE 1981 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1975 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_pretty =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_pretty
-                                    {-# LINE 1987 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1981 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_rename =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_rename
-                                    {-# LINE 1993 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1987 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_sem =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_sem
-                                    {-# LINE 1999 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1993 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_sig =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_sig
-                                    {-# LINE 2005 "dist/build/GenerateCode" #-}
+                                    {-# LINE 1999 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_splitsems =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_splitsems
-                                    {-# LINE 2011 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2005 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_strictwrap =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_strictwrap
-                                    {-# LINE 2017 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2011 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_traces =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_traces
-                                    {-# LINE 2023 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2017 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOo_unbox =
                                    ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                     _lhsIo_unbox
-                                    {-# LINE 2029 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2023 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOoptions =
                                    ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 2035 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2029 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOparamMap =
                                    ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                     _lhsIparamMap
-                                    {-# LINE 2041 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2035 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOprefix =
                                    ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                     _lhsIprefix
-                                    {-# LINE 2047 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2041 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOquantMap =
                                    ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                     _lhsIquantMap
-                                    {-# LINE 2053 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2047 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOtypeSyns =
                                    ({-# LINE 986 "src-ag/GenerateCode.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 2059 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2053 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOunfoldSemDom =
                                    ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                     _lhsIunfoldSemDom
-                                    {-# LINE 2065 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2059 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOwith_sig =
                                    ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                     _lhsIwith_sig
-                                    {-# LINE 2071 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2065 "dist/build/GenerateCode" #-}
                                     )
                                -- copy rule (down)
                                _tlOwrappers =
                                    ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 2077 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2071 "dist/build/GenerateCode" #-}
                                     )
                                ( _hdIchunks,_hdIgathNts,_hdIsemDomUnfoldGath) =
                                    hd_ _hdOallNts _hdOallPragmas _hdOaroundMap _hdOcontextMap _hdOderivings _hdOmergeMap _hdOo_case _hdOo_cata _hdOo_costcentre _hdOo_data _hdOo_linePragmas _hdOo_monadic _hdOo_newtypes _hdOo_pretty _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_splitsems _hdOo_strictwrap _hdOo_traces _hdOo_unbox _hdOoptions _hdOparamMap _hdOprefix _hdOquantMap _hdOtypeSyns _hdOunfoldSemDom _hdOwith_sig _hdOwrappers
                                ( _tlIchunks,_tlIgathNts,_tlIsemDomUnfoldGath) =
                                    tl_ _tlOallNts _tlOallPragmas _tlOaroundMap _tlOcontextMap _tlOderivings _tlOmergeMap _tlOo_case _tlOo_cata _tlOo_costcentre _tlOo_data _tlOo_linePragmas _tlOo_monadic _tlOo_newtypes _tlOo_pretty _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_splitsems _tlOo_strictwrap _tlOo_traces _tlOo_unbox _tlOoptions _tlOparamMap _tlOprefix _tlOquantMap _tlOtypeSyns _tlOunfoldSemDom _tlOwith_sig _tlOwrappers
-                               ___node =
-                                   (Syn_CNonterminals _lhsOchunks _lhsOgathNts _lhsOsemDomUnfoldGath)
                            in  ( _lhsOchunks,_lhsOgathNts,_lhsOsemDomUnfoldGath))))
 sem_CNonterminals_Nil :: T_CNonterminals
 sem_CNonterminals_Nil =
@@ -2120,22 +2112,20 @@ sem_CNonterminals_Nil =
                                _lhsOchunks =
                                    ({-# LINE 918 "src-ag/GenerateCode.ag" #-}
                                     []
-                                    {-# LINE 2124 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2116 "dist/build/GenerateCode" #-}
                                     )
                                -- use rule "src-ag/GenerateCode.ag"(line 138, column 47)
                                _lhsOgathNts =
                                    ({-# LINE 138 "src-ag/GenerateCode.ag" #-}
                                     Set.empty
-                                    {-# LINE 2130 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2122 "dist/build/GenerateCode" #-}
                                     )
                                -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                                _lhsOsemDomUnfoldGath =
                                    ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                     Map.empty
-                                    {-# LINE 2136 "dist/build/GenerateCode" #-}
+                                    {-# LINE 2128 "dist/build/GenerateCode" #-}
                                     )
-                               ___node =
-                                   (Syn_CNonterminals _lhsOchunks _lhsOgathNts _lhsOsemDomUnfoldGath)
                            in  ( _lhsOchunks,_lhsOgathNts,_lhsOsemDomUnfoldGath))))
 -- CProduction -------------------------------------------------
 {-
@@ -2325,61 +2315,61 @@ sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
                              _visitsOcon =
                                  ({-# LINE 92 "src-ag/GenerateCode.ag" #-}
                                   con_
-                                  {-# LINE 2329 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2319 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 93, column 20)
                              _visitsOterminals =
                                  ({-# LINE 93 "src-ag/GenerateCode.ag" #-}
                                   terminals_
-                                  {-# LINE 2335 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2325 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 105, column 7)
                              _paramInstMap =
                                  ({-# LINE 105 "src-ag/GenerateCode.ag" #-}
                                   Map.fromList [(nm, (extractNonterminal tp, tps)) | (nm,tp,_) <- children_, let tps = map cleanupArg $ nontermArgs tp, not (null tps) ]
-                                  {-# LINE 2341 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2331 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 146, column 32)
                              _visitsOvisitedSet =
                                  ({-# LINE 146 "src-ag/GenerateCode.ag" #-}
                                   Set.empty
-                                  {-# LINE 2347 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2337 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 280, column 18)
                              _visitsOnr =
                                  ({-# LINE 280 "src-ag/GenerateCode.ag" #-}
                                   0
-                                  {-# LINE 2353 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2343 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 412, column 18)
                              _visitsOchildren =
                                  ({-# LINE 412 "src-ag/GenerateCode.ag" #-}
                                   children_
-                                  {-# LINE 2359 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2349 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 564, column 7)
                              _visitsOinstVisitNrs =
                                  ({-# LINE 564 "src-ag/GenerateCode.ag" #-}
                                   _visitsIgatherInstVisitNrs
-                                  {-# LINE 2365 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2355 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 584, column 34)
                              _aroundMap =
                                  ({-# LINE 584 "src-ag/GenerateCode.ag" #-}
                                   Map.findWithDefault Set.empty con_ _lhsIaroundMap
-                                  {-# LINE 2371 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2361 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 600, column 34)
                              _mergeMap =
                                  ({-# LINE 600 "src-ag/GenerateCode.ag" #-}
                                   Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                  {-# LINE 2377 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2367 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 879, column 18)
                              _firstOrderChildren =
                                  ({-# LINE 879 "src-ag/GenerateCode.ag" #-}
                                   [ (nm,fromJust mb,virt) | (nm,tp,virt) <- children_, let mb = isFirstOrder virt tp, isJust mb ]
-                                  {-# LINE 2383 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2373 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 880, column 18)
                              _lhsOcomments =
@@ -2388,13 +2378,13 @@ sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
                                   : map ind (  map (\(x,y,_) -> makeLocalComment 14 "child" x (Just y)) _firstOrderChildren
                                             ++ _visitsIcomments
                                             )
-                                  {-# LINE 2392 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2382 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 1019, column 17)
                              _params =
                                  ({-# LINE 1019 "src-ag/GenerateCode.ag" #-}
                                   map getName $ Map.findWithDefault [] _lhsInt _lhsIparamMap
-                                  {-# LINE 2398 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2388 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 1020, column 17)
                              _lhsOdataAlt =
@@ -2404,7 +2394,7 @@ sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
                                   in if dataRecords _lhsIoptions
                                      then Record conNm $ mkFields $ toNamedType (strictData _lhsIoptions)
                                      else DataAlt conNm $ mkFields $ \_ _ _ t -> t
-                                  {-# LINE 2408 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2398 "dist/build/GenerateCode" #-}
                                   )
                              -- "src-ag/GenerateCode.ag"(line 1131, column 17)
                              _lhsOcataAlt =
@@ -2418,210 +2408,208 @@ sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
                                                                        [SimpleExpr (locname nm)]
                                       argument (nm, _,_)    = SimpleExpr (locname nm)
                                    in Decl lhs rhs Set.empty Set.empty
-                                  {-# LINE 2422 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2412 "dist/build/GenerateCode" #-}
                                   )
                              -- use rule "src-ag/GenerateCode.ag"(line 919, column 44)
                              _lhsOdecls =
                                  ({-# LINE 919 "src-ag/GenerateCode.ag" #-}
                                   _visitsIdecls
-                                  {-# LINE 2428 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2418 "dist/build/GenerateCode" #-}
                                   )
                              -- use rule "src-ag/GenerateCode.ag"(line 1146, column 61)
                              _lhsOsemNames =
                                  ({-# LINE 1146 "src-ag/GenerateCode.ag" #-}
                                   _visitsIsemNames
-                                  {-# LINE 2434 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2424 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallNts =
                                  ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                   _lhsIallNts
-                                  {-# LINE 2440 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2430 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallPragmas =
                                  ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                   _lhsIallPragmas
-                                  {-# LINE 2446 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2436 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (from local)
                              _visitsOaroundMap =
                                  ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                                   _aroundMap
-                                  {-# LINE 2452 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2442 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOcontextMap =
                                  ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                   _lhsIcontextMap
-                                  {-# LINE 2458 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2448 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOinh =
                                  ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 2464 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2454 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (from local)
                              _visitsOmergeMap =
                                  ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                                   _mergeMap
-                                  {-# LINE 2470 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2460 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOnt =
                                  ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2476 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2466 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_case =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_case
-                                  {-# LINE 2482 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2472 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_cata =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_cata
-                                  {-# LINE 2488 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2478 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_costcentre =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_costcentre
-                                  {-# LINE 2494 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2484 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_data =
                                  ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_data
-                                  {-# LINE 2500 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2490 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_linePragmas =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_linePragmas
-                                  {-# LINE 2506 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2496 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_monadic =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_monadic
-                                  {-# LINE 2512 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2502 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_newtypes =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_newtypes
-                                  {-# LINE 2518 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2508 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_pretty =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_pretty
-                                  {-# LINE 2524 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2514 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_rename =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 2530 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2520 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_sem =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_sem
-                                  {-# LINE 2536 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2526 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_sig =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_sig
-                                  {-# LINE 2542 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2532 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_splitsems =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_splitsems
-                                  {-# LINE 2548 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2538 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_strictwrap =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_strictwrap
-                                  {-# LINE 2554 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2544 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_traces =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_traces
-                                  {-# LINE 2560 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2550 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOo_unbox =
                                  ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                   _lhsIo_unbox
-                                  {-# LINE 2566 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2556 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOoptions =
                                  ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2572 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2562 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (from local)
                              _visitsOparamInstMap =
                                  ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                                   _paramInstMap
-                                  {-# LINE 2578 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2568 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOparamMap =
                                  ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                   _lhsIparamMap
-                                  {-# LINE 2584 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2574 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOprefix =
                                  ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                   _lhsIprefix
-                                  {-# LINE 2590 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2580 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOquantMap =
                                  ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                   _lhsIquantMap
-                                  {-# LINE 2596 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2586 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOsyn =
                                  ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 2602 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2592 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOunfoldSemDom =
                                  ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                   _lhsIunfoldSemDom
-                                  {-# LINE 2608 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2598 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOwith_sig =
                                  ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                   _lhsIwith_sig
-                                  {-# LINE 2614 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2604 "dist/build/GenerateCode" #-}
                                   )
                              -- copy rule (down)
                              _visitsOwrappers =
                                  ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                   _lhsIwrappers
-                                  {-# LINE 2620 "dist/build/GenerateCode" #-}
+                                  {-# LINE 2610 "dist/build/GenerateCode" #-}
                                   )
                              ( _visitsIcomments,_visitsIdecls,_visitsIgatherInstVisitNrs,_visitsIintra,_visitsIintraVars,_visitsIisNil,_visitsIsemNames,_visitsIvisitedSet) =
                                  visits_ _visitsOallNts _visitsOallPragmas _visitsOaroundMap _visitsOchildren _visitsOcon _visitsOcontextMap _visitsOinh _visitsOinstVisitNrs _visitsOmergeMap _visitsOnr _visitsOnt _visitsOo_case _visitsOo_cata _visitsOo_costcentre _visitsOo_data _visitsOo_linePragmas _visitsOo_monadic _visitsOo_newtypes _visitsOo_pretty _visitsOo_rename _visitsOo_sem _visitsOo_sig _visitsOo_splitsems _visitsOo_strictwrap _visitsOo_traces _visitsOo_unbox _visitsOoptions _visitsOparamInstMap _visitsOparamMap _visitsOprefix _visitsOquantMap _visitsOsyn _visitsOterminals _visitsOunfoldSemDom _visitsOvisitedSet _visitsOwith_sig _visitsOwrappers
-                             ___node =
-                                 (Syn_CProduction _lhsOcataAlt _lhsOcomments _lhsOdataAlt _lhsOdecls _lhsOsemNames)
                          in  ( _lhsOcataAlt,_lhsOcomments,_lhsOdataAlt,_lhsOdecls,_lhsOsemNames))))
 -- CProductions ------------------------------------------------
 {-
@@ -2827,398 +2815,396 @@ sem_CProductions_Cons (T_CProduction hd_) (T_CProductions tl_) =
                               _lhsOdataAlts =
                                   ({-# LINE 1015 "src-ag/GenerateCode.ag" #-}
                                    _hdIdataAlt : _tlIdataAlts
-                                   {-# LINE 2831 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2819 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 1127, column 10)
                               _lhsOcataAlts =
                                   ({-# LINE 1127 "src-ag/GenerateCode.ag" #-}
                                    _hdIcataAlt : _tlIcataAlts
-                                   {-# LINE 2837 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2825 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                               _lhsOcomments =
                                   ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                    _hdIcomments ++ _tlIcomments
-                                   {-# LINE 2843 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2831 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 919, column 44)
                               _lhsOdecls =
                                   ({-# LINE 919 "src-ag/GenerateCode.ag" #-}
                                    _hdIdecls ++ _tlIdecls
-                                   {-# LINE 2849 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2837 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 1146, column 61)
                               _lhsOsemNames =
                                   ({-# LINE 1146 "src-ag/GenerateCode.ag" #-}
                                    _hdIsemNames ++ _tlIsemNames
-                                   {-# LINE 2855 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2843 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOallNts =
                                   ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallNts
-                                   {-# LINE 2861 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2849 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOallPragmas =
                                   ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallPragmas
-                                   {-# LINE 2867 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2855 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOaroundMap =
                                   ({-# LINE 578 "src-ag/GenerateCode.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 2873 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2861 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOcontextMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIcontextMap
-                                   {-# LINE 2879 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2867 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOinh =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsIinh
-                                   {-# LINE 2885 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2873 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOmergeMap =
                                   ({-# LINE 594 "src-ag/GenerateCode.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 2891 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2879 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOnt =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsInt
-                                   {-# LINE 2897 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2885 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_case =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 2903 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2891 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_cata =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 2909 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2897 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_costcentre =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_costcentre
-                                   {-# LINE 2915 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2903 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_data =
                                   ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 2921 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2909 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_linePragmas =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_linePragmas
-                                   {-# LINE 2927 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2915 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_monadic =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_monadic
-                                   {-# LINE 2933 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2921 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_newtypes =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 2939 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2927 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_pretty =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_pretty
-                                   {-# LINE 2945 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2933 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_rename =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 2951 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2939 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_sem =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 2957 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2945 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_sig =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 2963 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2951 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_splitsems =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_splitsems
-                                   {-# LINE 2969 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2957 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_strictwrap =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_strictwrap
-                                   {-# LINE 2975 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2963 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_traces =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_traces
-                                   {-# LINE 2981 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2969 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_unbox =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 2987 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2975 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOoptions =
                                   ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 2993 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2981 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOparamMap =
                                   ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                    _lhsIparamMap
-                                   {-# LINE 2999 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2987 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOprefix =
                                   ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 3005 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2993 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOquantMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIquantMap
-                                   {-# LINE 3011 "dist/build/GenerateCode" #-}
+                                   {-# LINE 2999 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOsyn =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsIsyn
-                                   {-# LINE 3017 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3005 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOunfoldSemDom =
                                   ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                    _lhsIunfoldSemDom
-                                   {-# LINE 3023 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3011 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOwith_sig =
                                   ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwith_sig
-                                   {-# LINE 3029 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3017 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _hdOwrappers =
                                   ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwrappers
-                                   {-# LINE 3035 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3023 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOallNts =
                                   ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallNts
-                                   {-# LINE 3041 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3029 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOallPragmas =
                                   ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                                    _lhsIallPragmas
-                                   {-# LINE 3047 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3035 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOaroundMap =
                                   ({-# LINE 578 "src-ag/GenerateCode.ag" #-}
                                    _lhsIaroundMap
-                                   {-# LINE 3053 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3041 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOcontextMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIcontextMap
-                                   {-# LINE 3059 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3047 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOinh =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsIinh
-                                   {-# LINE 3065 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3053 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOmergeMap =
                                   ({-# LINE 594 "src-ag/GenerateCode.ag" #-}
                                    _lhsImergeMap
-                                   {-# LINE 3071 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3059 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOnt =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsInt
-                                   {-# LINE 3077 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3065 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_case =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_case
-                                   {-# LINE 3083 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3071 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_cata =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_cata
-                                   {-# LINE 3089 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3077 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_costcentre =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_costcentre
-                                   {-# LINE 3095 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3083 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_data =
                                   ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_data
-                                   {-# LINE 3101 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3089 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_linePragmas =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_linePragmas
-                                   {-# LINE 3107 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3095 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_monadic =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_monadic
-                                   {-# LINE 3113 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3101 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_newtypes =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_newtypes
-                                   {-# LINE 3119 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3107 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_pretty =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_pretty
-                                   {-# LINE 3125 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3113 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_rename =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 3131 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3119 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_sem =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sem
-                                   {-# LINE 3137 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3125 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_sig =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_sig
-                                   {-# LINE 3143 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3131 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_splitsems =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_splitsems
-                                   {-# LINE 3149 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3137 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_strictwrap =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_strictwrap
-                                   {-# LINE 3155 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3143 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_traces =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_traces
-                                   {-# LINE 3161 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3149 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_unbox =
                                   ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                    _lhsIo_unbox
-                                   {-# LINE 3167 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3155 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOoptions =
                                   ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 3173 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3161 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOparamMap =
                                   ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                    _lhsIparamMap
-                                   {-# LINE 3179 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3167 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOprefix =
                                   ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                    _lhsIprefix
-                                   {-# LINE 3185 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3173 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOquantMap =
                                   ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                                    _lhsIquantMap
-                                   {-# LINE 3191 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3179 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOsyn =
                                   ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                    _lhsIsyn
-                                   {-# LINE 3197 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3185 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOunfoldSemDom =
                                   ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                    _lhsIunfoldSemDom
-                                   {-# LINE 3203 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3191 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOwith_sig =
                                   ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwith_sig
-                                   {-# LINE 3209 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3197 "dist/build/GenerateCode" #-}
                                    )
                               -- copy rule (down)
                               _tlOwrappers =
                                   ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                                    _lhsIwrappers
-                                   {-# LINE 3215 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3203 "dist/build/GenerateCode" #-}
                                    )
                               ( _hdIcataAlt,_hdIcomments,_hdIdataAlt,_hdIdecls,_hdIsemNames) =
                                   hd_ _hdOallNts _hdOallPragmas _hdOaroundMap _hdOcontextMap _hdOinh _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_costcentre _hdOo_data _hdOo_linePragmas _hdOo_monadic _hdOo_newtypes _hdOo_pretty _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_splitsems _hdOo_strictwrap _hdOo_traces _hdOo_unbox _hdOoptions _hdOparamMap _hdOprefix _hdOquantMap _hdOsyn _hdOunfoldSemDom _hdOwith_sig _hdOwrappers
                               ( _tlIcataAlts,_tlIcomments,_tlIdataAlts,_tlIdecls,_tlIsemNames) =
                                   tl_ _tlOallNts _tlOallPragmas _tlOaroundMap _tlOcontextMap _tlOinh _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_costcentre _tlOo_data _tlOo_linePragmas _tlOo_monadic _tlOo_newtypes _tlOo_pretty _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_splitsems _tlOo_strictwrap _tlOo_traces _tlOo_unbox _tlOoptions _tlOparamMap _tlOprefix _tlOquantMap _tlOsyn _tlOunfoldSemDom _tlOwith_sig _tlOwrappers
-                              ___node =
-                                  (Syn_CProductions _lhsOcataAlts _lhsOcomments _lhsOdataAlts _lhsOdecls _lhsOsemNames)
                           in  ( _lhsOcataAlts,_lhsOcomments,_lhsOdataAlts,_lhsOdecls,_lhsOsemNames))))
 sem_CProductions_Nil :: T_CProductions
 sem_CProductions_Nil =
@@ -3261,34 +3247,32 @@ sem_CProductions_Nil =
                               _lhsOdataAlts =
                                   ({-# LINE 1016 "src-ag/GenerateCode.ag" #-}
                                    []
-                                   {-# LINE 3265 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3251 "dist/build/GenerateCode" #-}
                                    )
                               -- "src-ag/GenerateCode.ag"(line 1128, column 10)
                               _lhsOcataAlts =
                                   ({-# LINE 1128 "src-ag/GenerateCode.ag" #-}
                                    []
-                                   {-# LINE 3271 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3257 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                               _lhsOcomments =
                                   ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                    []
-                                   {-# LINE 3277 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3263 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 919, column 44)
                               _lhsOdecls =
                                   ({-# LINE 919 "src-ag/GenerateCode.ag" #-}
                                    []
-                                   {-# LINE 3283 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3269 "dist/build/GenerateCode" #-}
                                    )
                               -- use rule "src-ag/GenerateCode.ag"(line 1146, column 61)
                               _lhsOsemNames =
                                   ({-# LINE 1146 "src-ag/GenerateCode.ag" #-}
                                    []
-                                   {-# LINE 3289 "dist/build/GenerateCode" #-}
+                                   {-# LINE 3275 "dist/build/GenerateCode" #-}
                                    )
-                              ___node =
-                                  (Syn_CProductions _lhsOcataAlts _lhsOcomments _lhsOdataAlts _lhsOdecls _lhsOsemNames)
                           in  ( _lhsOcataAlts,_lhsOcomments,_lhsOdataAlts,_lhsOdecls,_lhsOsemNames))))
 -- CRule -------------------------------------------------------
 {-
@@ -3504,13 +3488,13 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                        _visitedSet =
                            ({-# LINE 147 "src-ag/GenerateCode.ag" #-}
                             Set.insert name_ _lhsIvisitedSet
-                            {-# LINE 3508 "dist/build/GenerateCode" #-}
+                            {-# LINE 3492 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 203, column 18)
                        _costCentreDescr =
                            ({-# LINE 203 "src-ag/GenerateCode.ag" #-}
                             show _lhsInt ++ ":" ++ show _lhsIcon ++ ":" ++ show name_ ++ ":" ++ show nt_ ++ ":" ++ show nr_
-                            {-# LINE 3514 "dist/build/GenerateCode" #-}
+                            {-# LINE 3498 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 204, column 18)
                        _addCostCentre =
@@ -3518,7 +3502,7 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                             \v -> if _lhsIo_costcentre
                                   then PragmaExpr True False ("SCC \"" ++ _costCentreDescr     ++ "\"") v
                                   else v
-                            {-# LINE 3522 "dist/build/GenerateCode" #-}
+                            {-# LINE 3506 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 207, column 18)
                        _decls =
@@ -3561,13 +3545,13 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                                                          in [Resume _lhsIo_monadic (typeName nt_ nr_) tuple' rhs']
                             in
                                (outDecls ++ outMerged)
-                            {-# LINE 3565 "dist/build/GenerateCode" #-}
+                            {-# LINE 3549 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 327, column 7)
                        _isSuperfluousHigherOrderIntra =
                            ({-# LINE 327 "src-ag/GenerateCode.ag" #-}
                             _lhsInr <= Map.findWithDefault (-1) name_ _lhsIinstVisitNrs
-                            {-# LINE 3571 "dist/build/GenerateCode" #-}
+                            {-# LINE 3555 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 341, column 8)
                        _names =
@@ -3575,7 +3559,7 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                             if _isSuperfluousHigherOrderIntra
                             then []
                             else [funname name_ (nr_+1)]
-                            {-# LINE 3579 "dist/build/GenerateCode" #-}
+                            {-# LINE 3563 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 345, column 8)
                        _lhsOexprs =
@@ -3584,67 +3568,67 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                                 addType expr | null _instParams     = expr
                                              | otherwise            = TypedExpr expr (_lhsIunfoldSemDom nt_ (nr_+1) _instParams    )
                             in map (wrap . addType . SimpleExpr) _names
-                            {-# LINE 3588 "dist/build/GenerateCode" #-}
+                            {-# LINE 3572 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 357, column 7)
                        _lhsOusedVars =
                            ({-# LINE 357 "src-ag/GenerateCode.ag" #-}
                             Set.fromList _names
-                            {-# LINE 3594 "dist/build/GenerateCode" #-}
+                            {-# LINE 3578 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 393, column 19)
                        _mkTp =
                            ({-# LINE 393 "src-ag/GenerateCode.ag" #-}
                             _evalTp     . typeToCodeType (Just nt_) _orgParams     . removeDeforested
-                            {-# LINE 3600 "dist/build/GenerateCode" #-}
+                            {-# LINE 3584 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 394, column 19)
                        _definedTps =
                            ({-# LINE 394 "src-ag/GenerateCode.ag" #-}
                             [ TSig (attrname True name_ a) (_mkTp tp) |  (a,tp) <- Map.toList syn_ ]
-                            {-# LINE 3606 "dist/build/GenerateCode" #-}
+                            {-# LINE 3590 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 395, column 19)
                        _nextTp =
                            ({-# LINE 395 "src-ag/GenerateCode.ag" #-}
                             typeName nt_ (nr_+1)
-                            {-# LINE 3612 "dist/build/GenerateCode" #-}
+                            {-# LINE 3596 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 396, column 19)
                        _lhsOtSigs =
                            ({-# LINE 396 "src-ag/GenerateCode.ag" #-}
                             (if isLast_ then id else (TSig (funname name_ (nr_+1)) (TypeApp (SimpleType _nextTp) (map SimpleType _instParams    )) :)) _definedTps
-                            {-# LINE 3618 "dist/build/GenerateCode" #-}
+                            {-# LINE 3602 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 398, column 19)
                        _orgParams =
                            ({-# LINE 398 "src-ag/GenerateCode.ag" #-}
                             map getName $ Map.findWithDefault [] nt_ _lhsIparamMap
-                            {-# LINE 3624 "dist/build/GenerateCode" #-}
+                            {-# LINE 3608 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 399, column 19)
                        _instParams =
                            ({-# LINE 399 "src-ag/GenerateCode.ag" #-}
                             snd $ Map.findWithDefault (nt_,[]) name_ _lhsIparamInstMap
-                            {-# LINE 3630 "dist/build/GenerateCode" #-}
+                            {-# LINE 3614 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 400, column 19)
                        _replParamMap =
                            ({-# LINE 400 "src-ag/GenerateCode.ag" #-}
                             Map.fromList (zip _orgParams     _instParams    )
-                            {-# LINE 3636 "dist/build/GenerateCode" #-}
+                            {-# LINE 3620 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 401, column 19)
                        _replace =
                            ({-# LINE 401 "src-ag/GenerateCode.ag" #-}
                             \k -> Map.findWithDefault k k _replParamMap
-                            {-# LINE 3642 "dist/build/GenerateCode" #-}
+                            {-# LINE 3626 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 402, column 19)
                        _evalTp =
                            ({-# LINE 402 "src-ag/GenerateCode.ag" #-}
                             if null _orgParams     then id else evalType _replace
-                            {-# LINE 3648 "dist/build/GenerateCode" #-}
+                            {-# LINE 3632 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 419, column 19)
                        _lhsOtps =
@@ -3652,52 +3636,50 @@ sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
                             if _isSuperfluousHigherOrderIntra
                             then []
                             else [NT (ntOfVisit nt_ (nr_+1)) _instParams     False]
-                            {-# LINE 3656 "dist/build/GenerateCode" #-}
+                            {-# LINE 3640 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 618, column 7)
                        _lhsOdeclsAbove =
                            ({-# LINE 618 "src-ag/GenerateCode.ag" #-}
                             []
-                            {-# LINE 3662 "dist/build/GenerateCode" #-}
+                            {-# LINE 3646 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 631, column 7)
                        _lhsObldBlocksFun =
                            ({-# LINE 631 "src-ag/GenerateCode.ag" #-}
                             DeclBlock _lhsIdeclsAbove (head _decls    )
-                            {-# LINE 3668 "dist/build/GenerateCode" #-}
+                            {-# LINE 3652 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 416, column 39)
                        _lhsOallTpsFound =
                            ({-# LINE 416 "src-ag/GenerateCode.ag" #-}
                             True
-                            {-# LINE 3674 "dist/build/GenerateCode" #-}
+                            {-# LINE 3658 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                        _lhsOcomments =
                            ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                             []
-                            {-# LINE 3680 "dist/build/GenerateCode" #-}
+                            {-# LINE 3664 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 155, column 34)
                        _lhsOdecls =
                            ({-# LINE 155 "src-ag/GenerateCode.ag" #-}
                             _decls
-                            {-# LINE 3686 "dist/build/GenerateCode" #-}
+                            {-# LINE 3670 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 261, column 55)
                        _lhsOdefinedInsts =
                            ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                             []
-                            {-# LINE 3692 "dist/build/GenerateCode" #-}
+                            {-# LINE 3676 "dist/build/GenerateCode" #-}
                             )
                        -- copy rule (from local)
                        _lhsOvisitedSet =
                            ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                             _visitedSet
-                            {-# LINE 3698 "dist/build/GenerateCode" #-}
+                            {-# LINE 3682 "dist/build/GenerateCode" #-}
                             )
-                       ___node =
-                           (Syn_CRule _lhsOallTpsFound _lhsObldBlocksFun _lhsOcomments _lhsOdecls _lhsOdeclsAbove _lhsOdefinedInsts _lhsOexprs _lhsOtSigs _lhsOtps _lhsOusedVars _lhsOvisitedSet)
                    in  ( _lhsOallTpsFound,_lhsObldBlocksFun,_lhsOcomments,_lhsOdecls,_lhsOdeclsAbove,_lhsOdefinedInsts,_lhsOexprs,_lhsOtSigs,_lhsOtps,_lhsOusedVars,_lhsOvisitedSet))))
 sem_CRule_CRule :: Identifier ->
                    Bool ->
@@ -3769,7 +3751,7 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                        _instTypes =
                            ({-# LINE 157 "src-ag/GenerateCode.ag" #-}
                             [ (n, (t, mb, for)) | (n, NT t _ for, mb) <- _lhsIchildren ]
-                            {-# LINE 3773 "dist/build/GenerateCode" #-}
+                            {-# LINE 3755 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 158, column 12)
                        _originComment =
@@ -3777,7 +3759,7 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             if  _lhsIo_pretty
                                 then (Comment origin_:)
                                 else id
-                            {-# LINE 3781 "dist/build/GenerateCode" #-}
+                            {-# LINE 3763 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 161, column 12)
                        _instDecls =
@@ -3799,7 +3781,7 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             , let instLocFieldName = attrname True _INST inst
                                   instSemFieldName = attrname False _INST' inst
                             ]
-                            {-# LINE 3803 "dist/build/GenerateCode" #-}
+                            {-# LINE 3785 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 178, column 12)
                        _patDescr =
@@ -3807,13 +3789,13 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             if isIn_
                             then "_"
                             else concat $ intersperse "," (map (\(f,a) -> show f ++ "." ++ show a) _patternIpatternAttributes)
-                            {-# LINE 3811 "dist/build/GenerateCode" #-}
+                            {-# LINE 3793 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 181, column 12)
                        _traceDescr =
                            ({-# LINE 181 "src-ag/GenerateCode.ag" #-}
                             (maybe "" (\nm -> show nm ++ ":") mbNamed_) ++ show nt_ ++ " :: " ++ show con_ ++ " :: " ++ _patDescr
-                            {-# LINE 3817 "dist/build/GenerateCode" #-}
+                            {-# LINE 3799 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 183, column 12)
                        _addTrace =
@@ -3821,13 +3803,13 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             \v -> if _lhsIo_traces
                                   then Trace _traceDescr     v
                                   else v
-                            {-# LINE 3825 "dist/build/GenerateCode" #-}
+                            {-# LINE 3807 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 186, column 12)
                        _costCentreDescr =
                            ({-# LINE 186 "src-ag/GenerateCode.ag" #-}
                             show nt_ ++ ":" ++ show con_ ++ ":" ++ _patDescr
-                            {-# LINE 3831 "dist/build/GenerateCode" #-}
+                            {-# LINE 3813 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 187, column 12)
                        _addCostCentre =
@@ -3835,7 +3817,7 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             \v -> if _lhsIo_costcentre
                                   then PragmaExpr True False ("SCC \"" ++ _costCentreDescr     ++ "\"") v
                                   else v
-                            {-# LINE 3839 "dist/build/GenerateCode" #-}
+                            {-# LINE 3821 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 190, column 12)
                        _addLinePragma =
@@ -3847,7 +3829,7 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                                           $ LineExpr
                                           $ v
                                      else v
-                            {-# LINE 3851 "dist/build/GenerateCode" #-}
+                            {-# LINE 3833 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 197, column 12)
                        _decls =
@@ -3858,13 +3840,13 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                                                        (Set.fromList [attrname True fld nm | (fld,nm) <- Set.toList uses_])
                                                 : _instDecls    )
                             else _instDecls
-                            {-# LINE 3862 "dist/build/GenerateCode" #-}
+                            {-# LINE 3844 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 266, column 12)
                        _definedInsts =
                            ({-# LINE 266 "src-ag/GenerateCode.ag" #-}
                             if isIn_ then [] else _patternIdefinedInsts
-                            {-# LINE 3868 "dist/build/GenerateCode" #-}
+                            {-# LINE 3850 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 336, column 12)
                        _rulename =
@@ -3872,25 +3854,25 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                             if  field_ == _LOC && name_ `elem` _lhsIterminals
                             then funname name_ 0
                             else attrname isIn_ field_ name_
-                            {-# LINE 3876 "dist/build/GenerateCode" #-}
+                            {-# LINE 3858 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 339, column 12)
                        _lhsOexprs =
                            ({-# LINE 339 "src-ag/GenerateCode.ag" #-}
                             [SimpleExpr _rulename    ]
-                            {-# LINE 3882 "dist/build/GenerateCode" #-}
+                            {-# LINE 3864 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 355, column 7)
                        _lhsOusedVars =
                            ({-# LINE 355 "src-ag/GenerateCode.ag" #-}
                             Set.singleton _rulename
-                            {-# LINE 3888 "dist/build/GenerateCode" #-}
+                            {-# LINE 3870 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 365, column 19)
                        _mkTp =
                            ({-# LINE 365 "src-ag/GenerateCode.ag" #-}
                             typeToCodeType (Just _lhsInt) _orgParams
-                            {-# LINE 3894 "dist/build/GenerateCode" #-}
+                            {-# LINE 3876 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 366, column 19)
                        _lhsOtSigs =
@@ -3909,13 +3891,13 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                                                   _                 -> Nothing
                                     | otherwise = findOrigType nm r
                             ]
-                            {-# LINE 3913 "dist/build/GenerateCode" #-}
+                            {-# LINE 3895 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 381, column 19)
                        _orgParams =
                            ({-# LINE 381 "src-ag/GenerateCode.ag" #-}
                             map getName $ Map.findWithDefault [] _lhsInt _lhsIparamMap
-                            {-# LINE 3919 "dist/build/GenerateCode" #-}
+                            {-# LINE 3901 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 382, column 19)
                        _evalTp =
@@ -3929,55 +3911,53 @@ sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pat
                                                  then tp
                                                  else idEvalType tp
                                             else evalType replace tp
-                            {-# LINE 3933 "dist/build/GenerateCode" #-}
+                            {-# LINE 3915 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 418, column 23)
                        (_lhsOtps,_lhsOallTpsFound) =
                            ({-# LINE 418 "src-ag/GenerateCode.ag" #-}
                             maybe ([],False) (\tp -> ([tp],True)) tp_
-                            {-# LINE 3939 "dist/build/GenerateCode" #-}
+                            {-# LINE 3921 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 616, column 7)
                        _lhsOdeclsAbove =
                            ({-# LINE 616 "src-ag/GenerateCode.ag" #-}
                             _lhsIdeclsAbove ++ _decls
-                            {-# LINE 3945 "dist/build/GenerateCode" #-}
+                            {-# LINE 3927 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 629, column 7)
                        _lhsObldBlocksFun =
                            ({-# LINE 629 "src-ag/GenerateCode.ag" #-}
                             id
-                            {-# LINE 3951 "dist/build/GenerateCode" #-}
+                            {-# LINE 3933 "dist/build/GenerateCode" #-}
                             )
                        -- "src-ag/GenerateCode.ag"(line 903, column 18)
                        _lhsOcomments =
                            ({-# LINE 903 "src-ag/GenerateCode.ag" #-}
                             [ makeLocalComment 11 _lhsIwhat name tp | (field,name,tp) <- Map.elems defines_, field == _LOC ]
                             ++ [ makeLocalComment 11 "inst " name tp | (field,name,tp) <- Map.elems defines_, field == _INST ]
-                            {-# LINE 3958 "dist/build/GenerateCode" #-}
+                            {-# LINE 3940 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 155, column 34)
                        _lhsOdecls =
                            ({-# LINE 155 "src-ag/GenerateCode.ag" #-}
                             _decls
-                            {-# LINE 3964 "dist/build/GenerateCode" #-}
+                            {-# LINE 3946 "dist/build/GenerateCode" #-}
                             )
                        -- use rule "src-ag/GenerateCode.ag"(line 261, column 55)
                        _lhsOdefinedInsts =
                            ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                             _definedInsts
-                            {-# LINE 3970 "dist/build/GenerateCode" #-}
+                            {-# LINE 3952 "dist/build/GenerateCode" #-}
                             )
                        -- copy rule (chain)
                        _lhsOvisitedSet =
                            ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                             _lhsIvisitedSet
-                            {-# LINE 3976 "dist/build/GenerateCode" #-}
+                            {-# LINE 3958 "dist/build/GenerateCode" #-}
                             )
                        ( _patternIcopy,_patternIdefinedInsts,_patternIpatternAttributes) =
                            pattern_
-                       ___node =
-                           (Syn_CRule _lhsOallTpsFound _lhsObldBlocksFun _lhsOcomments _lhsOdecls _lhsOdeclsAbove _lhsOdefinedInsts _lhsOexprs _lhsOtSigs _lhsOtps _lhsOusedVars _lhsOvisitedSet)
                    in  ( _lhsOallTpsFound,_lhsObldBlocksFun,_lhsOcomments,_lhsOdecls,_lhsOdeclsAbove,_lhsOdefinedInsts,_lhsOexprs,_lhsOtSigs,_lhsOtps,_lhsOusedVars,_lhsOvisitedSet))))
 -- CSegment ----------------------------------------------------
 {-
@@ -4105,7 +4085,7 @@ sem_CSegment_CSegment inh_ syn_ =
                           _altSemForm =
                               ({-# LINE 715 "src-ag/GenerateCode.ag" #-}
                                breadthFirst _lhsIoptions
-                               {-# LINE 4109 "dist/build/GenerateCode" #-}
+                               {-# LINE 4089 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 716, column 15)
                           _tp =
@@ -4113,73 +4093,73 @@ sem_CSegment_CSegment inh_ syn_ =
                                if _altSemForm
                                then TypeApp (SimpleType "Child") [SimpleType "EvalInfo", _indexExpr     ]
                                else foldr Arr _synTps     _inhTps
-                               {-# LINE 4117 "dist/build/GenerateCode" #-}
+                               {-# LINE 4097 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 719, column 15)
                           _inhTps =
                               ({-# LINE 719 "src-ag/GenerateCode.ag" #-}
                                [typeToCodeType (Just _lhsInt) _params     tp |  tp <- Map.elems inh_]
-                               {-# LINE 4123 "dist/build/GenerateCode" #-}
+                               {-# LINE 4103 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 720, column 15)
                           _inhTup =
                               ({-# LINE 720 "src-ag/GenerateCode.ag" #-}
                                mkTupleType _lhsIo_unbox (null _inhTps    ) _inhTps
-                               {-# LINE 4129 "dist/build/GenerateCode" #-}
+                               {-# LINE 4109 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 721, column 15)
                           _synTps =
                               ({-# LINE 721 "src-ag/GenerateCode.ag" #-}
                                mkTupleType _lhsIo_unbox (null _inhTps    ) ([typeToCodeType (Just _lhsInt) _params     tp |  tp <- Map.elems syn_] ++ _continuation    )
-                               {-# LINE 4135 "dist/build/GenerateCode" #-}
+                               {-# LINE 4115 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 722, column 15)
                           _curTypeName =
                               ({-# LINE 722 "src-ag/GenerateCode.ag" #-}
                                typeName _lhsInt _lhsInr
-                               {-# LINE 4141 "dist/build/GenerateCode" #-}
+                               {-# LINE 4121 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 723, column 15)
                           _nextTypeName =
                               ({-# LINE 723 "src-ag/GenerateCode.ag" #-}
                                typeName _lhsInt (_lhsInr + 1)
-                               {-# LINE 4147 "dist/build/GenerateCode" #-}
+                               {-# LINE 4127 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 724, column 15)
                           _indexName =
                               ({-# LINE 724 "src-ag/GenerateCode.ag" #-}
                                "I_" ++ _curTypeName
-                               {-# LINE 4153 "dist/build/GenerateCode" #-}
+                               {-# LINE 4133 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 725, column 15)
                           _dataIndex =
                               ({-# LINE 725 "src-ag/GenerateCode.ag" #-}
                                Code.Data _indexName     _params     [DataAlt _indexName     []] False []
-                               {-# LINE 4159 "dist/build/GenerateCode" #-}
+                               {-# LINE 4139 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 726, column 15)
                           _indexExpr =
                               ({-# LINE 726 "src-ag/GenerateCode.ag" #-}
                                TypeApp (SimpleType _indexName    ) (map (SimpleType . ('@':)) _params    )
-                               {-# LINE 4165 "dist/build/GenerateCode" #-}
+                               {-# LINE 4145 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 727, column 15)
                           _indexStr =
                               ({-# LINE 727 "src-ag/GenerateCode.ag" #-}
                                "(" ++ _indexName     ++ concatMap (\p -> " " ++ p) _params     ++ ")"
-                               {-# LINE 4171 "dist/build/GenerateCode" #-}
+                               {-# LINE 4151 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 728, column 15)
                           _inhInstance =
                               ({-# LINE 728 "src-ag/GenerateCode.ag" #-}
                                Code.Data "instance Inh" [_indexStr    ] [DataAlt (typeName _lhsInt _lhsInr ++ "_Inh") [_inhTup    ] ] False []
-                               {-# LINE 4177 "dist/build/GenerateCode" #-}
+                               {-# LINE 4157 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 729, column 15)
                           _synInstance =
                               ({-# LINE 729 "src-ag/GenerateCode.ag" #-}
                                Code.Data "instance Syn" [_indexStr    ] [DataAlt (typeName _lhsInt _lhsInr ++ "_Syn") [_synTps    ] ] False []
-                               {-# LINE 4183 "dist/build/GenerateCode" #-}
+                               {-# LINE 4163 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 730, column 15)
                           _continuation =
@@ -4187,13 +4167,13 @@ sem_CSegment_CSegment inh_ syn_ =
                                if  _lhsIisLast
                                then []
                                else [TypeApp (SimpleType _nextTypeName    ) (map (SimpleType . ('@':)) _params    )]
-                               {-# LINE 4191 "dist/build/GenerateCode" #-}
+                               {-# LINE 4171 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 733, column 15)
                           _params =
                               ({-# LINE 733 "src-ag/GenerateCode.ag" #-}
                                map getName $ Map.findWithDefault [] _lhsInt _lhsIparamMap
-                               {-# LINE 4197 "dist/build/GenerateCode" #-}
+                               {-# LINE 4177 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 734, column 15)
                           _lhsOsemDom =
@@ -4207,13 +4187,13 @@ sem_CSegment_CSegment inh_ syn_ =
                                   ++ ( if _altSemForm
                                        then [_dataIndex    , _inhInstance    , _synInstance    ]
                                        else [] )
-                               {-# LINE 4211 "dist/build/GenerateCode" #-}
+                               {-# LINE 4191 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 748, column 7)
                           _lhsOsemDomUnfoldGath =
                               ({-# LINE 748 "src-ag/GenerateCode.ag" #-}
                                Map.singleton (_lhsInt, _lhsInr) (_params    , _tp    )
-                               {-# LINE 4217 "dist/build/GenerateCode" #-}
+                               {-# LINE 4197 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 831, column 15)
                           _lhsOwrapDecls =
@@ -4228,7 +4208,7 @@ sem_CSegment_CSegment inh_ syn_ =
                                    sem n = var ++ "_" ++ show n
                                    ntt   = typeName _lhsInt _lhsInr
                                in [ EvalDecl ntt (mkTupleLhs _lhsIo_unbox (null $ Map.keys inh_) lhsVars) (InvokeExpr ntt (SimpleExpr $ sem _lhsInr) rhs) ]
-                               {-# LINE 4232 "dist/build/GenerateCode" #-}
+                               {-# LINE 4212 "dist/build/GenerateCode" #-}
                                )
                           -- "src-ag/GenerateCode.ag"(line 873, column 18)
                           _lhsOcomments =
@@ -4237,10 +4217,8 @@ sem_CSegment_CSegment inh_ syn_ =
                                in if null body
                                   then []
                                   else ("visit " ++ show _lhsInr ++ ":") : body
-                               {-# LINE 4241 "dist/build/GenerateCode" #-}
+                               {-# LINE 4221 "dist/build/GenerateCode" #-}
                                )
-                          ___node =
-                              (Syn_CSegment _lhsOcomments _lhsOsemDom _lhsOsemDomUnfoldGath _lhsOwrapDecls)
                       in  ( _lhsOcomments,_lhsOsemDom,_lhsOsemDomUnfoldGath,_lhsOwrapDecls))))
 -- CSegments ---------------------------------------------------
 {-
@@ -4406,308 +4384,306 @@ sem_CSegments_Cons (T_CSegment hd_) (T_CSegments tl_) =
                            _tlOnr =
                                ({-# LINE 286 "src-ag/GenerateCode.ag" #-}
                                 _lhsInr + 1
-                                {-# LINE 4410 "dist/build/GenerateCode" #-}
+                                {-# LINE 4388 "dist/build/GenerateCode" #-}
                                 )
                            -- "src-ag/GenerateCode.ag"(line 299, column 12)
                            _lhsOisNil =
                                ({-# LINE 299 "src-ag/GenerateCode.ag" #-}
                                 False
-                                {-# LINE 4416 "dist/build/GenerateCode" #-}
+                                {-# LINE 4394 "dist/build/GenerateCode" #-}
                                 )
                            -- "src-ag/GenerateCode.ag"(line 300, column 12)
                            _hdOisLast =
                                ({-# LINE 300 "src-ag/GenerateCode.ag" #-}
                                 _tlIisNil
-                                {-# LINE 4422 "dist/build/GenerateCode" #-}
+                                {-# LINE 4400 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                            _lhsOcomments =
                                ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                 _hdIcomments ++ _tlIcomments
-                                {-# LINE 4428 "dist/build/GenerateCode" #-}
+                                {-# LINE 4406 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 710, column 50)
                            _lhsOsemDom =
                                ({-# LINE 710 "src-ag/GenerateCode.ag" #-}
                                 _hdIsemDom ++ _tlIsemDom
-                                {-# LINE 4434 "dist/build/GenerateCode" #-}
+                                {-# LINE 4412 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                            _lhsOsemDomUnfoldGath =
                                ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                 _hdIsemDomUnfoldGath `Map.union` _tlIsemDomUnfoldGath
-                                {-# LINE 4440 "dist/build/GenerateCode" #-}
+                                {-# LINE 4418 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 829, column 52)
                            _lhsOwrapDecls =
                                ({-# LINE 829 "src-ag/GenerateCode.ag" #-}
                                 _hdIwrapDecls ++ _tlIwrapDecls
-                                {-# LINE 4446 "dist/build/GenerateCode" #-}
+                                {-# LINE 4424 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOinh =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsIinh
-                                {-# LINE 4452 "dist/build/GenerateCode" #-}
+                                {-# LINE 4430 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOnr =
                                ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                                 _lhsInr
-                                {-# LINE 4458 "dist/build/GenerateCode" #-}
+                                {-# LINE 4436 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOnt =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsInt
-                                {-# LINE 4464 "dist/build/GenerateCode" #-}
+                                {-# LINE 4442 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_case =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_case
-                                {-# LINE 4470 "dist/build/GenerateCode" #-}
+                                {-# LINE 4448 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_cata =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_cata
-                                {-# LINE 4476 "dist/build/GenerateCode" #-}
+                                {-# LINE 4454 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_costcentre =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_costcentre
-                                {-# LINE 4482 "dist/build/GenerateCode" #-}
+                                {-# LINE 4460 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_data =
                                ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_data
-                                {-# LINE 4488 "dist/build/GenerateCode" #-}
+                                {-# LINE 4466 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_linePragmas =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_linePragmas
-                                {-# LINE 4494 "dist/build/GenerateCode" #-}
+                                {-# LINE 4472 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_monadic =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_monadic
-                                {-# LINE 4500 "dist/build/GenerateCode" #-}
+                                {-# LINE 4478 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_newtypes =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_newtypes
-                                {-# LINE 4506 "dist/build/GenerateCode" #-}
+                                {-# LINE 4484 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_pretty =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_pretty
-                                {-# LINE 4512 "dist/build/GenerateCode" #-}
+                                {-# LINE 4490 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_rename =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_rename
-                                {-# LINE 4518 "dist/build/GenerateCode" #-}
+                                {-# LINE 4496 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_sem =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_sem
-                                {-# LINE 4524 "dist/build/GenerateCode" #-}
+                                {-# LINE 4502 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_sig =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_sig
-                                {-# LINE 4530 "dist/build/GenerateCode" #-}
+                                {-# LINE 4508 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_splitsems =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_splitsems
-                                {-# LINE 4536 "dist/build/GenerateCode" #-}
+                                {-# LINE 4514 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_strictwrap =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_strictwrap
-                                {-# LINE 4542 "dist/build/GenerateCode" #-}
+                                {-# LINE 4520 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_traces =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_traces
-                                {-# LINE 4548 "dist/build/GenerateCode" #-}
+                                {-# LINE 4526 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOo_unbox =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_unbox
-                                {-# LINE 4554 "dist/build/GenerateCode" #-}
+                                {-# LINE 4532 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOoptions =
                                ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 4560 "dist/build/GenerateCode" #-}
+                                {-# LINE 4538 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOparamMap =
                                ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                 _lhsIparamMap
-                                {-# LINE 4566 "dist/build/GenerateCode" #-}
+                                {-# LINE 4544 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOprefix =
                                ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                 _lhsIprefix
-                                {-# LINE 4572 "dist/build/GenerateCode" #-}
+                                {-# LINE 4550 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _hdOsyn =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsIsyn
-                                {-# LINE 4578 "dist/build/GenerateCode" #-}
+                                {-# LINE 4556 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOinh =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsIinh
-                                {-# LINE 4584 "dist/build/GenerateCode" #-}
+                                {-# LINE 4562 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOnt =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsInt
-                                {-# LINE 4590 "dist/build/GenerateCode" #-}
+                                {-# LINE 4568 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_case =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_case
-                                {-# LINE 4596 "dist/build/GenerateCode" #-}
+                                {-# LINE 4574 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_cata =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_cata
-                                {-# LINE 4602 "dist/build/GenerateCode" #-}
+                                {-# LINE 4580 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_costcentre =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_costcentre
-                                {-# LINE 4608 "dist/build/GenerateCode" #-}
+                                {-# LINE 4586 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_data =
                                ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_data
-                                {-# LINE 4614 "dist/build/GenerateCode" #-}
+                                {-# LINE 4592 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_linePragmas =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_linePragmas
-                                {-# LINE 4620 "dist/build/GenerateCode" #-}
+                                {-# LINE 4598 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_monadic =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_monadic
-                                {-# LINE 4626 "dist/build/GenerateCode" #-}
+                                {-# LINE 4604 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_newtypes =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_newtypes
-                                {-# LINE 4632 "dist/build/GenerateCode" #-}
+                                {-# LINE 4610 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_pretty =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_pretty
-                                {-# LINE 4638 "dist/build/GenerateCode" #-}
+                                {-# LINE 4616 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_rename =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_rename
-                                {-# LINE 4644 "dist/build/GenerateCode" #-}
+                                {-# LINE 4622 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_sem =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_sem
-                                {-# LINE 4650 "dist/build/GenerateCode" #-}
+                                {-# LINE 4628 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_sig =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_sig
-                                {-# LINE 4656 "dist/build/GenerateCode" #-}
+                                {-# LINE 4634 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_splitsems =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_splitsems
-                                {-# LINE 4662 "dist/build/GenerateCode" #-}
+                                {-# LINE 4640 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_strictwrap =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_strictwrap
-                                {-# LINE 4668 "dist/build/GenerateCode" #-}
+                                {-# LINE 4646 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_traces =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_traces
-                                {-# LINE 4674 "dist/build/GenerateCode" #-}
+                                {-# LINE 4652 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOo_unbox =
                                ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                 _lhsIo_unbox
-                                {-# LINE 4680 "dist/build/GenerateCode" #-}
+                                {-# LINE 4658 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOoptions =
                                ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 4686 "dist/build/GenerateCode" #-}
+                                {-# LINE 4664 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOparamMap =
                                ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                 _lhsIparamMap
-                                {-# LINE 4692 "dist/build/GenerateCode" #-}
+                                {-# LINE 4670 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOprefix =
                                ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                 _lhsIprefix
-                                {-# LINE 4698 "dist/build/GenerateCode" #-}
+                                {-# LINE 4676 "dist/build/GenerateCode" #-}
                                 )
                            -- copy rule (down)
                            _tlOsyn =
                                ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                 _lhsIsyn
-                                {-# LINE 4704 "dist/build/GenerateCode" #-}
+                                {-# LINE 4682 "dist/build/GenerateCode" #-}
                                 )
                            ( _hdIcomments,_hdIsemDom,_hdIsemDomUnfoldGath,_hdIwrapDecls) =
                                hd_ _hdOinh _hdOisLast _hdOnr _hdOnt _hdOo_case _hdOo_cata _hdOo_costcentre _hdOo_data _hdOo_linePragmas _hdOo_monadic _hdOo_newtypes _hdOo_pretty _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_splitsems _hdOo_strictwrap _hdOo_traces _hdOo_unbox _hdOoptions _hdOparamMap _hdOprefix _hdOsyn
                            ( _tlIcomments,_tlIisNil,_tlIsemDom,_tlIsemDomUnfoldGath,_tlIwrapDecls) =
                                tl_ _tlOinh _tlOnr _tlOnt _tlOo_case _tlOo_cata _tlOo_costcentre _tlOo_data _tlOo_linePragmas _tlOo_monadic _tlOo_newtypes _tlOo_pretty _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_splitsems _tlOo_strictwrap _tlOo_traces _tlOo_unbox _tlOoptions _tlOparamMap _tlOprefix _tlOsyn
-                           ___node =
-                               (Syn_CSegments _lhsOcomments _lhsOisNil _lhsOsemDom _lhsOsemDomUnfoldGath _lhsOwrapDecls)
                        in  ( _lhsOcomments,_lhsOisNil,_lhsOsemDom,_lhsOsemDomUnfoldGath,_lhsOwrapDecls))))
 sem_CSegments_Nil :: T_CSegments
 sem_CSegments_Nil =
@@ -4742,34 +4718,32 @@ sem_CSegments_Nil =
                            _lhsOisNil =
                                ({-# LINE 301 "src-ag/GenerateCode.ag" #-}
                                 True
-                                {-# LINE 4746 "dist/build/GenerateCode" #-}
+                                {-# LINE 4722 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                            _lhsOcomments =
                                ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                 []
-                                {-# LINE 4752 "dist/build/GenerateCode" #-}
+                                {-# LINE 4728 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 710, column 50)
                            _lhsOsemDom =
                                ({-# LINE 710 "src-ag/GenerateCode.ag" #-}
                                 []
-                                {-# LINE 4758 "dist/build/GenerateCode" #-}
+                                {-# LINE 4734 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 744, column 86)
                            _lhsOsemDomUnfoldGath =
                                ({-# LINE 744 "src-ag/GenerateCode.ag" #-}
                                 Map.empty
-                                {-# LINE 4764 "dist/build/GenerateCode" #-}
+                                {-# LINE 4740 "dist/build/GenerateCode" #-}
                                 )
                            -- use rule "src-ag/GenerateCode.ag"(line 829, column 52)
                            _lhsOwrapDecls =
                                ({-# LINE 829 "src-ag/GenerateCode.ag" #-}
                                 []
-                                {-# LINE 4770 "dist/build/GenerateCode" #-}
+                                {-# LINE 4746 "dist/build/GenerateCode" #-}
                                 )
-                           ___node =
-                               (Syn_CSegments _lhsOcomments _lhsOisNil _lhsOsemDom _lhsOsemDomUnfoldGath _lhsOwrapDecls)
                        in  ( _lhsOcomments,_lhsOisNil,_lhsOsemDom,_lhsOsemDomUnfoldGath,_lhsOwrapDecls))))
 -- CVisit ------------------------------------------------------
 {-
@@ -5063,37 +5037,37 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                         _lhsOintra =
                             ({-# LINE 310 "src-ag/GenerateCode.ag" #-}
                              _intraIexprs
-                             {-# LINE 5067 "dist/build/GenerateCode" #-}
+                             {-# LINE 5041 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 311, column 13)
                         _lhsOintraVars =
                             ({-# LINE 311 "src-ag/GenerateCode.ag" #-}
                              _intraIusedVars
-                             {-# LINE 5073 "dist/build/GenerateCode" #-}
+                             {-# LINE 5047 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 441, column 13)
                         (_higherOrderChildren,_firstOrderChildren) =
                             ({-# LINE 441 "src-ag/GenerateCode.ag" #-}
                              partition (\(_,_,virt) -> isHigherOrder virt) _lhsIchildren
-                             {-# LINE 5079 "dist/build/GenerateCode" #-}
+                             {-# LINE 5053 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 442, column 13)
                         _firstOrderOrig =
                             ({-# LINE 442 "src-ag/GenerateCode.ag" #-}
                              map pickOrigType _firstOrderChildren
-                             {-# LINE 5085 "dist/build/GenerateCode" #-}
+                             {-# LINE 5059 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 443, column 13)
                         _funcname =
                             ({-# LINE 443 "src-ag/GenerateCode.ag" #-}
                              seqSemname _lhsIprefix _lhsInt _lhsIcon _lhsInr
-                             {-# LINE 5091 "dist/build/GenerateCode" #-}
+                             {-# LINE 5065 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 444, column 13)
                         _nextVisitName =
                             ({-# LINE 444 "src-ag/GenerateCode.ag" #-}
                              if _lhsIisLast then [] else [visitname _lhsIprefix _lhsInt (_lhsInr+1)]
-                             {-# LINE 5097 "dist/build/GenerateCode" #-}
+                             {-# LINE 5071 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 445, column 13)
                         _nextVisitDecl =
@@ -5104,19 +5078,19 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                              in if _lhsIisLast
                                 then []
                                 else [Decl lhs rhs (Set.fromList _nextVisitName) _lhsInextIntraVars]
-                             {-# LINE 5108 "dist/build/GenerateCode" #-}
+                             {-# LINE 5082 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 452, column 13)
                         _isOneVisit =
                             ({-# LINE 452 "src-ag/GenerateCode.ag" #-}
                              _lhsIisLast && _lhsInr == 0
-                             {-# LINE 5114 "dist/build/GenerateCode" #-}
+                             {-# LINE 5088 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 453, column 13)
                         _hasWrappers =
                             ({-# LINE 453 "src-ag/GenerateCode.ag" #-}
                              _lhsInt `Set.member` _lhsIwrappers
-                             {-# LINE 5120 "dist/build/GenerateCode" #-}
+                             {-# LINE 5094 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 454, column 13)
                         _refDecls =
@@ -5129,43 +5103,43 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                                       lhs = Fun "___node" []
                                   in [Decl lhs rhs Set.empty Set.empty]
                              else []
-                             {-# LINE 5133 "dist/build/GenerateCode" #-}
+                             {-# LINE 5107 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 462, column 13)
                         _decls =
                             ({-# LINE 462 "src-ag/GenerateCode.ag" #-}
                              _typeSigs ++ _vssIdecls ++ _nextVisitDecl ++ _refDecls
-                             {-# LINE 5139 "dist/build/GenerateCode" #-}
+                             {-# LINE 5113 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 463, column 13)
                         _vssOlastExpr =
                             ({-# LINE 463 "src-ag/GenerateCode.ag" #-}
                              mkTupleExpr _lhsIo_unbox (null $ Map.keys inh_) $ map (SimpleExpr . lhsname False) (Map.keys syn_) ++ map SimpleExpr _nextVisitName
-                             {-# LINE 5145 "dist/build/GenerateCode" #-}
+                             {-# LINE 5119 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 464, column 13)
                         _intraOlastExpr =
                             ({-# LINE 464 "src-ag/GenerateCode.ag" #-}
                              error "lastExpr: not used here"
-                             {-# LINE 5151 "dist/build/GenerateCode" #-}
+                             {-# LINE 5125 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 465, column 13)
                         _lastExprVars =
                             ({-# LINE 465 "src-ag/GenerateCode.ag" #-}
                              map (lhsname False) (Map.keys syn_) ++ _nextVisitName
-                             {-# LINE 5157 "dist/build/GenerateCode" #-}
+                             {-# LINE 5131 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 466, column 13)
                         (_blockFunDecls,_blockFirstFunCall) =
                             ({-# LINE 466 "src-ag/GenerateCode.ag" #-}
                              mkPartitionedFunction _funcname     _o_case     _nextVisitDecl     _lastExprVars     _vssIblockDecls
-                             {-# LINE 5163 "dist/build/GenerateCode" #-}
+                             {-# LINE 5137 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 468, column 13)
                         _costCentreDescr =
                             ({-# LINE 468 "src-ag/GenerateCode.ag" #-}
                              "b" ++ ":" ++ show _lhsInt ++ ":" ++ show _lhsIcon ++ ":" ++ show _lhsInr
-                             {-# LINE 5169 "dist/build/GenerateCode" #-}
+                             {-# LINE 5143 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 469, column 13)
                         _addCostCentre =
@@ -5173,13 +5147,13 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                              \v -> if _lhsIo_costcentre
                                    then PragmaExpr True False ("SCC \"" ++ _costCentreDescr     ++ "\"") v
                                    else v
-                             {-# LINE 5177 "dist/build/GenerateCode" #-}
+                             {-# LINE 5151 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 473, column 13)
                         _params =
                             ({-# LINE 473 "src-ag/GenerateCode.ag" #-}
                              map getName $ Map.findWithDefault [] _lhsInt _lhsIparamMap
-                             {-# LINE 5183 "dist/build/GenerateCode" #-}
+                             {-# LINE 5157 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 474, column 13)
                         _semFun =
@@ -5210,13 +5184,13 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                                              then \x -> App (typeName _lhsInt _lhsInr) [x]
                                              else id
                              in Decl lhs rhs Set.empty Set.empty
-                             {-# LINE 5214 "dist/build/GenerateCode" #-}
+                             {-# LINE 5188 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 505, column 13)
                         _tsig =
                             ({-# LINE 505 "src-ag/GenerateCode.ag" #-}
                              TSig _funcname _semType
-                             {-# LINE 5220 "dist/build/GenerateCode" #-}
+                             {-# LINE 5194 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 506, column 13)
                         _semType =
@@ -5230,7 +5204,7 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                                 if  _lhsInr == 0
                                     then foldr argType (typeAppStrs (sdtype   _lhsInt        ) _params    ) (map (\(_,t,_) -> t) _firstOrderOrig    )
                                     else foldr argType (typeAppStrs (typeName _lhsInt _lhsInr) _params    ) []
-                             {-# LINE 5234 "dist/build/GenerateCode" #-}
+                             {-# LINE 5208 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 517, column 13)
                         _lhsOdecls =
@@ -5243,7 +5217,7 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                                then _blockFunDecls
                                else []
                              )
-                             {-# LINE 5247 "dist/build/GenerateCode" #-}
+                             {-# LINE 5221 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 525, column 13)
                         _typeSigs =
@@ -5251,19 +5225,19 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                              if  _lhsIo_sig && not _o_case
                                  then  _vssItSigs
                                  else  []
-                             {-# LINE 5255 "dist/build/GenerateCode" #-}
+                             {-# LINE 5229 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 528, column 13)
                         _o_do =
                             ({-# LINE 528 "src-ag/GenerateCode.ag" #-}
                              ordered_ && _lhsIo_monadic
-                             {-# LINE 5261 "dist/build/GenerateCode" #-}
+                             {-# LINE 5235 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 529, column 13)
                         _o_case =
                             ({-# LINE 529 "src-ag/GenerateCode.ag" #-}
                              not _o_do     && _lhsIo_case && ordered_ && not (hasPragma _lhsIallPragmas _lhsInt _lhsIcon _NOCASE)
-                             {-# LINE 5267 "dist/build/GenerateCode" #-}
+                             {-# LINE 5241 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 530, column 13)
                         _declsType =
@@ -5273,31 +5247,31 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                              else if _o_case
                                   then DeclsCase
                                   else DeclsLet
-                             {-# LINE 5277 "dist/build/GenerateCode" #-}
+                             {-# LINE 5251 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 535, column 13)
                         _o_splitsems =
                             ({-# LINE 535 "src-ag/GenerateCode.ag" #-}
                              ordered_ && _lhsIo_splitsems
-                             {-# LINE 5283 "dist/build/GenerateCode" #-}
+                             {-# LINE 5257 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 568, column 7)
                         _lhsOgatherInstVisitNrs =
                             ({-# LINE 568 "src-ag/GenerateCode.ag" #-}
                              Map.fromList [(i,_lhsInr) | i <- _vssIdefinedInsts]
-                             {-# LINE 5289 "dist/build/GenerateCode" #-}
+                             {-# LINE 5263 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 611, column 7)
                         _vssOdeclsAbove =
                             ({-# LINE 611 "src-ag/GenerateCode.ag" #-}
                              []
-                             {-# LINE 5295 "dist/build/GenerateCode" #-}
+                             {-# LINE 5269 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 612, column 7)
                         _intraOdeclsAbove =
                             ({-# LINE 612 "src-ag/GenerateCode.ag" #-}
                              error "declsAbove: not used here"
-                             {-# LINE 5301 "dist/build/GenerateCode" #-}
+                             {-# LINE 5275 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 894, column 18)
                         _lhsOcomments =
@@ -5306,422 +5280,420 @@ sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
                              in if null body
                                 then []
                                 else ("visit " ++ show _lhsInr ++ ":") : body
-                             {-# LINE 5310 "dist/build/GenerateCode" #-}
+                             {-# LINE 5284 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 898, column 18)
                         _vssOwhat =
                             ({-# LINE 898 "src-ag/GenerateCode.ag" #-}
                              "local"
-                             {-# LINE 5316 "dist/build/GenerateCode" #-}
+                             {-# LINE 5290 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 899, column 18)
                         _intraOwhat =
                             ({-# LINE 899 "src-ag/GenerateCode.ag" #-}
                              "intra"
-                             {-# LINE 5322 "dist/build/GenerateCode" #-}
+                             {-# LINE 5296 "dist/build/GenerateCode" #-}
                              )
                         -- "src-ag/GenerateCode.ag"(line 1156, column 7)
                         _lhsOsemNames =
                             ({-# LINE 1156 "src-ag/GenerateCode.ag" #-}
                              [_funcname    ]
-                             {-# LINE 5328 "dist/build/GenerateCode" #-}
+                             {-# LINE 5302 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (up)
                         _lhsOvisitedSet =
                             ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                              _intraIvisitedSet
-                             {-# LINE 5334 "dist/build/GenerateCode" #-}
+                             {-# LINE 5308 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOallNts =
                             ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                              _lhsIallNts
-                             {-# LINE 5340 "dist/build/GenerateCode" #-}
+                             {-# LINE 5314 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOaroundMap =
                             ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                              _lhsIaroundMap
-                             {-# LINE 5346 "dist/build/GenerateCode" #-}
+                             {-# LINE 5320 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOchildren =
                             ({-# LINE 259 "src-ag/GenerateCode.ag" #-}
                              _lhsIchildren
-                             {-# LINE 5352 "dist/build/GenerateCode" #-}
+                             {-# LINE 5326 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOcon =
                             ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                              _lhsIcon
-                             {-# LINE 5358 "dist/build/GenerateCode" #-}
+                             {-# LINE 5332 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOinh =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsIinh
-                             {-# LINE 5364 "dist/build/GenerateCode" #-}
+                             {-# LINE 5338 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOinstVisitNrs =
                             ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                              _lhsIinstVisitNrs
-                             {-# LINE 5370 "dist/build/GenerateCode" #-}
+                             {-# LINE 5344 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOmergeMap =
                             ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                              _lhsImergeMap
-                             {-# LINE 5376 "dist/build/GenerateCode" #-}
+                             {-# LINE 5350 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOnr =
                             ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                              _lhsInr
-                             {-# LINE 5382 "dist/build/GenerateCode" #-}
+                             {-# LINE 5356 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOnt =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsInt
-                             {-# LINE 5388 "dist/build/GenerateCode" #-}
+                             {-# LINE 5362 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (from local)
                         _vssOo_case =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _o_case
-                             {-# LINE 5394 "dist/build/GenerateCode" #-}
+                             {-# LINE 5368 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_cata =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_cata
-                             {-# LINE 5400 "dist/build/GenerateCode" #-}
+                             {-# LINE 5374 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_costcentre =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_costcentre
-                             {-# LINE 5406 "dist/build/GenerateCode" #-}
+                             {-# LINE 5380 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_data =
                             ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_data
-                             {-# LINE 5412 "dist/build/GenerateCode" #-}
+                             {-# LINE 5386 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_linePragmas =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_linePragmas
-                             {-# LINE 5418 "dist/build/GenerateCode" #-}
+                             {-# LINE 5392 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_monadic =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_monadic
-                             {-# LINE 5424 "dist/build/GenerateCode" #-}
+                             {-# LINE 5398 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_newtypes =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_newtypes
-                             {-# LINE 5430 "dist/build/GenerateCode" #-}
+                             {-# LINE 5404 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_pretty =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_pretty
-                             {-# LINE 5436 "dist/build/GenerateCode" #-}
+                             {-# LINE 5410 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_rename =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_rename
-                             {-# LINE 5442 "dist/build/GenerateCode" #-}
+                             {-# LINE 5416 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_sem =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_sem
-                             {-# LINE 5448 "dist/build/GenerateCode" #-}
+                             {-# LINE 5422 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_sig =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_sig
-                             {-# LINE 5454 "dist/build/GenerateCode" #-}
+                             {-# LINE 5428 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (from local)
                         _vssOo_splitsems =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _o_splitsems
-                             {-# LINE 5460 "dist/build/GenerateCode" #-}
+                             {-# LINE 5434 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_strictwrap =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_strictwrap
-                             {-# LINE 5466 "dist/build/GenerateCode" #-}
+                             {-# LINE 5440 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_traces =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_traces
-                             {-# LINE 5472 "dist/build/GenerateCode" #-}
+                             {-# LINE 5446 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOo_unbox =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_unbox
-                             {-# LINE 5478 "dist/build/GenerateCode" #-}
+                             {-# LINE 5452 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOoptions =
                             ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                              _lhsIoptions
-                             {-# LINE 5484 "dist/build/GenerateCode" #-}
+                             {-# LINE 5458 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOparamInstMap =
                             ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                              _lhsIparamInstMap
-                             {-# LINE 5490 "dist/build/GenerateCode" #-}
+                             {-# LINE 5464 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOparamMap =
                             ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                              _lhsIparamMap
-                             {-# LINE 5496 "dist/build/GenerateCode" #-}
+                             {-# LINE 5470 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOprefix =
                             ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                              _lhsIprefix
-                             {-# LINE 5502 "dist/build/GenerateCode" #-}
+                             {-# LINE 5476 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOsyn =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsIsyn
-                             {-# LINE 5508 "dist/build/GenerateCode" #-}
+                             {-# LINE 5482 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOterminals =
                             ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                              _lhsIterminals
-                             {-# LINE 5514 "dist/build/GenerateCode" #-}
+                             {-# LINE 5488 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOunfoldSemDom =
                             ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                              _lhsIunfoldSemDom
-                             {-# LINE 5520 "dist/build/GenerateCode" #-}
+                             {-# LINE 5494 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _vssOvisitedSet =
                             ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                              _lhsIvisitedSet
-                             {-# LINE 5526 "dist/build/GenerateCode" #-}
+                             {-# LINE 5500 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOallNts =
                             ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                              _lhsIallNts
-                             {-# LINE 5532 "dist/build/GenerateCode" #-}
+                             {-# LINE 5506 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOaroundMap =
                             ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                              _lhsIaroundMap
-                             {-# LINE 5538 "dist/build/GenerateCode" #-}
+                             {-# LINE 5512 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOchildren =
                             ({-# LINE 259 "src-ag/GenerateCode.ag" #-}
                              _lhsIchildren
-                             {-# LINE 5544 "dist/build/GenerateCode" #-}
+                             {-# LINE 5518 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOcon =
                             ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                              _lhsIcon
-                             {-# LINE 5550 "dist/build/GenerateCode" #-}
+                             {-# LINE 5524 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOinh =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsIinh
-                             {-# LINE 5556 "dist/build/GenerateCode" #-}
+                             {-# LINE 5530 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOinstVisitNrs =
                             ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                              _lhsIinstVisitNrs
-                             {-# LINE 5562 "dist/build/GenerateCode" #-}
+                             {-# LINE 5536 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOmergeMap =
                             ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                              _lhsImergeMap
-                             {-# LINE 5568 "dist/build/GenerateCode" #-}
+                             {-# LINE 5542 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOnr =
                             ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                              _lhsInr
-                             {-# LINE 5574 "dist/build/GenerateCode" #-}
+                             {-# LINE 5548 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOnt =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsInt
-                             {-# LINE 5580 "dist/build/GenerateCode" #-}
+                             {-# LINE 5554 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (from local)
                         _intraOo_case =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _o_case
-                             {-# LINE 5586 "dist/build/GenerateCode" #-}
+                             {-# LINE 5560 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_cata =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_cata
-                             {-# LINE 5592 "dist/build/GenerateCode" #-}
+                             {-# LINE 5566 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_costcentre =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_costcentre
-                             {-# LINE 5598 "dist/build/GenerateCode" #-}
+                             {-# LINE 5572 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_data =
                             ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_data
-                             {-# LINE 5604 "dist/build/GenerateCode" #-}
+                             {-# LINE 5578 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_linePragmas =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_linePragmas
-                             {-# LINE 5610 "dist/build/GenerateCode" #-}
+                             {-# LINE 5584 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_monadic =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_monadic
-                             {-# LINE 5616 "dist/build/GenerateCode" #-}
+                             {-# LINE 5590 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_newtypes =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_newtypes
-                             {-# LINE 5622 "dist/build/GenerateCode" #-}
+                             {-# LINE 5596 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_pretty =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_pretty
-                             {-# LINE 5628 "dist/build/GenerateCode" #-}
+                             {-# LINE 5602 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_rename =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_rename
-                             {-# LINE 5634 "dist/build/GenerateCode" #-}
+                             {-# LINE 5608 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_sem =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_sem
-                             {-# LINE 5640 "dist/build/GenerateCode" #-}
+                             {-# LINE 5614 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_sig =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_sig
-                             {-# LINE 5646 "dist/build/GenerateCode" #-}
+                             {-# LINE 5620 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (from local)
                         _intraOo_splitsems =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _o_splitsems
-                             {-# LINE 5652 "dist/build/GenerateCode" #-}
+                             {-# LINE 5626 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_strictwrap =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_strictwrap
-                             {-# LINE 5658 "dist/build/GenerateCode" #-}
+                             {-# LINE 5632 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_traces =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_traces
-                             {-# LINE 5664 "dist/build/GenerateCode" #-}
+                             {-# LINE 5638 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOo_unbox =
                             ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                              _lhsIo_unbox
-                             {-# LINE 5670 "dist/build/GenerateCode" #-}
+                             {-# LINE 5644 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOoptions =
                             ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                              _lhsIoptions
-                             {-# LINE 5676 "dist/build/GenerateCode" #-}
+                             {-# LINE 5650 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOparamInstMap =
                             ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                              _lhsIparamInstMap
-                             {-# LINE 5682 "dist/build/GenerateCode" #-}
+                             {-# LINE 5656 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOparamMap =
                             ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                              _lhsIparamMap
-                             {-# LINE 5688 "dist/build/GenerateCode" #-}
+                             {-# LINE 5662 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOprefix =
                             ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                              _lhsIprefix
-                             {-# LINE 5694 "dist/build/GenerateCode" #-}
+                             {-# LINE 5668 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOsyn =
                             ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                              _lhsIsyn
-                             {-# LINE 5700 "dist/build/GenerateCode" #-}
+                             {-# LINE 5674 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOterminals =
                             ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                              _lhsIterminals
-                             {-# LINE 5706 "dist/build/GenerateCode" #-}
+                             {-# LINE 5680 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (down)
                         _intraOunfoldSemDom =
                             ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                              _lhsIunfoldSemDom
-                             {-# LINE 5712 "dist/build/GenerateCode" #-}
+                             {-# LINE 5686 "dist/build/GenerateCode" #-}
                              )
                         -- copy rule (chain)
                         _intraOvisitedSet =
                             ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                              _vssIvisitedSet
-                             {-# LINE 5718 "dist/build/GenerateCode" #-}
+                             {-# LINE 5692 "dist/build/GenerateCode" #-}
                              )
                         ( _vssIallTpsFound,_vssIblockDecls,_vssIcomments,_vssIdecls,_vssIdeclsAbove,_vssIdefinedInsts,_vssIexprs,_vssItSigs,_vssItps,_vssIusedVars,_vssIvisitedSet) =
                             vss_ _vssOallNts _vssOaroundMap _vssOchildren _vssOcon _vssOdeclsAbove _vssOinh _vssOinstVisitNrs _vssOlastExpr _vssOmergeMap _vssOnr _vssOnt _vssOo_case _vssOo_cata _vssOo_costcentre _vssOo_data _vssOo_linePragmas _vssOo_monadic _vssOo_newtypes _vssOo_pretty _vssOo_rename _vssOo_sem _vssOo_sig _vssOo_splitsems _vssOo_strictwrap _vssOo_traces _vssOo_unbox _vssOoptions _vssOparamInstMap _vssOparamMap _vssOprefix _vssOsyn _vssOterminals _vssOunfoldSemDom _vssOvisitedSet _vssOwhat
                         ( _intraIallTpsFound,_intraIblockDecls,_intraIcomments,_intraIdecls,_intraIdeclsAbove,_intraIdefinedInsts,_intraIexprs,_intraItSigs,_intraItps,_intraIusedVars,_intraIvisitedSet) =
                             intra_ _intraOallNts _intraOaroundMap _intraOchildren _intraOcon _intraOdeclsAbove _intraOinh _intraOinstVisitNrs _intraOlastExpr _intraOmergeMap _intraOnr _intraOnt _intraOo_case _intraOo_cata _intraOo_costcentre _intraOo_data _intraOo_linePragmas _intraOo_monadic _intraOo_newtypes _intraOo_pretty _intraOo_rename _intraOo_sem _intraOo_sig _intraOo_splitsems _intraOo_strictwrap _intraOo_traces _intraOo_unbox _intraOoptions _intraOparamInstMap _intraOparamMap _intraOprefix _intraOsyn _intraOterminals _intraOunfoldSemDom _intraOvisitedSet _intraOwhat
-                        ___node =
-                            (Syn_CVisit _lhsOcomments _lhsOdecls _lhsOgatherInstVisitNrs _lhsOintra _lhsOintraVars _lhsOsemNames _lhsOvisitedSet)
                     in  ( _lhsOcomments,_lhsOdecls,_lhsOgatherInstVisitNrs,_lhsOintra,_lhsOintraVars,_lhsOsemNames,_lhsOvisitedSet))))
 -- CVisits -----------------------------------------------------
 {-
@@ -5977,524 +5949,522 @@ sem_CVisits_Cons (T_CVisit hd_) (T_CVisits tl_) =
                          _tlOnr =
                              ({-# LINE 282 "src-ag/GenerateCode.ag" #-}
                               _lhsInr + 1
-                              {-# LINE 5981 "dist/build/GenerateCode" #-}
+                              {-# LINE 5953 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 295, column 12)
                          _lhsOisNil =
                              ({-# LINE 295 "src-ag/GenerateCode.ag" #-}
                               False
-                              {-# LINE 5987 "dist/build/GenerateCode" #-}
+                              {-# LINE 5959 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 296, column 12)
                          _hdOisLast =
                              ({-# LINE 296 "src-ag/GenerateCode.ag" #-}
                               _tlIisNil
-                              {-# LINE 5993 "dist/build/GenerateCode" #-}
+                              {-# LINE 5965 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 313, column 12)
                          _hdOnextIntra =
                              ({-# LINE 313 "src-ag/GenerateCode.ag" #-}
                               _tlIintra
-                              {-# LINE 5999 "dist/build/GenerateCode" #-}
+                              {-# LINE 5971 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 314, column 12)
                          _hdOnextIntraVars =
                              ({-# LINE 314 "src-ag/GenerateCode.ag" #-}
                               _tlIintraVars
-                              {-# LINE 6005 "dist/build/GenerateCode" #-}
+                              {-# LINE 5977 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 315, column 12)
                          _lhsOintra =
                              ({-# LINE 315 "src-ag/GenerateCode.ag" #-}
                               _hdIintra
-                              {-# LINE 6011 "dist/build/GenerateCode" #-}
+                              {-# LINE 5983 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 316, column 12)
                          _lhsOintraVars =
                              ({-# LINE 316 "src-ag/GenerateCode.ag" #-}
                               _hdIintraVars
-                              {-# LINE 6017 "dist/build/GenerateCode" #-}
+                              {-# LINE 5989 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 431, column 11)
                          _lhsOdecls =
                              ({-# LINE 431 "src-ag/GenerateCode.ag" #-}
                               _hdIdecls
-                              {-# LINE 6023 "dist/build/GenerateCode" #-}
+                              {-# LINE 5995 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 432, column 11)
                          _hdOdecls =
                              ({-# LINE 432 "src-ag/GenerateCode.ag" #-}
                               _tlIdecls
-                              {-# LINE 6029 "dist/build/GenerateCode" #-}
+                              {-# LINE 6001 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                          _lhsOcomments =
                              ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                               _hdIcomments ++ _tlIcomments
-                              {-# LINE 6035 "dist/build/GenerateCode" #-}
+                              {-# LINE 6007 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 561, column 44)
                          _lhsOgatherInstVisitNrs =
                              ({-# LINE 561 "src-ag/GenerateCode.ag" #-}
                               _hdIgatherInstVisitNrs `Map.union` _tlIgatherInstVisitNrs
-                              {-# LINE 6041 "dist/build/GenerateCode" #-}
+                              {-# LINE 6013 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 1146, column 61)
                          _lhsOsemNames =
                              ({-# LINE 1146 "src-ag/GenerateCode.ag" #-}
                               _hdIsemNames ++ _tlIsemNames
-                              {-# LINE 6047 "dist/build/GenerateCode" #-}
+                              {-# LINE 6019 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (up)
                          _lhsOvisitedSet =
                              ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                               _tlIvisitedSet
-                              {-# LINE 6053 "dist/build/GenerateCode" #-}
+                              {-# LINE 6025 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOallNts =
                              ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                               _lhsIallNts
-                              {-# LINE 6059 "dist/build/GenerateCode" #-}
+                              {-# LINE 6031 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOallPragmas =
                              ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                               _lhsIallPragmas
-                              {-# LINE 6065 "dist/build/GenerateCode" #-}
+                              {-# LINE 6037 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOaroundMap =
                              ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                               _lhsIaroundMap
-                              {-# LINE 6071 "dist/build/GenerateCode" #-}
+                              {-# LINE 6043 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOchildren =
                              ({-# LINE 410 "src-ag/GenerateCode.ag" #-}
                               _lhsIchildren
-                              {-# LINE 6077 "dist/build/GenerateCode" #-}
+                              {-# LINE 6049 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOcon =
                              ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                               _lhsIcon
-                              {-# LINE 6083 "dist/build/GenerateCode" #-}
+                              {-# LINE 6055 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOcontextMap =
                              ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                               _lhsIcontextMap
-                              {-# LINE 6089 "dist/build/GenerateCode" #-}
+                              {-# LINE 6061 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOinh =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsIinh
-                              {-# LINE 6095 "dist/build/GenerateCode" #-}
+                              {-# LINE 6067 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOinstVisitNrs =
                              ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                               _lhsIinstVisitNrs
-                              {-# LINE 6101 "dist/build/GenerateCode" #-}
+                              {-# LINE 6073 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOmergeMap =
                              ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                               _lhsImergeMap
-                              {-# LINE 6107 "dist/build/GenerateCode" #-}
+                              {-# LINE 6079 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOnr =
                              ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                               _lhsInr
-                              {-# LINE 6113 "dist/build/GenerateCode" #-}
+                              {-# LINE 6085 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOnt =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsInt
-                              {-# LINE 6119 "dist/build/GenerateCode" #-}
+                              {-# LINE 6091 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_case =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_case
-                              {-# LINE 6125 "dist/build/GenerateCode" #-}
+                              {-# LINE 6097 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_cata =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_cata
-                              {-# LINE 6131 "dist/build/GenerateCode" #-}
+                              {-# LINE 6103 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_costcentre =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_costcentre
-                              {-# LINE 6137 "dist/build/GenerateCode" #-}
+                              {-# LINE 6109 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_data =
                              ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_data
-                              {-# LINE 6143 "dist/build/GenerateCode" #-}
+                              {-# LINE 6115 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_linePragmas =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_linePragmas
-                              {-# LINE 6149 "dist/build/GenerateCode" #-}
+                              {-# LINE 6121 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_monadic =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_monadic
-                              {-# LINE 6155 "dist/build/GenerateCode" #-}
+                              {-# LINE 6127 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_newtypes =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_newtypes
-                              {-# LINE 6161 "dist/build/GenerateCode" #-}
+                              {-# LINE 6133 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_pretty =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_pretty
-                              {-# LINE 6167 "dist/build/GenerateCode" #-}
+                              {-# LINE 6139 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_rename =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_rename
-                              {-# LINE 6173 "dist/build/GenerateCode" #-}
+                              {-# LINE 6145 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_sem =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_sem
-                              {-# LINE 6179 "dist/build/GenerateCode" #-}
+                              {-# LINE 6151 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_sig =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_sig
-                              {-# LINE 6185 "dist/build/GenerateCode" #-}
+                              {-# LINE 6157 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_splitsems =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_splitsems
-                              {-# LINE 6191 "dist/build/GenerateCode" #-}
+                              {-# LINE 6163 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_strictwrap =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_strictwrap
-                              {-# LINE 6197 "dist/build/GenerateCode" #-}
+                              {-# LINE 6169 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_traces =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_traces
-                              {-# LINE 6203 "dist/build/GenerateCode" #-}
+                              {-# LINE 6175 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOo_unbox =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_unbox
-                              {-# LINE 6209 "dist/build/GenerateCode" #-}
+                              {-# LINE 6181 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOoptions =
                              ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6215 "dist/build/GenerateCode" #-}
+                              {-# LINE 6187 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOparamInstMap =
                              ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                               _lhsIparamInstMap
-                              {-# LINE 6221 "dist/build/GenerateCode" #-}
+                              {-# LINE 6193 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOparamMap =
                              ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                               _lhsIparamMap
-                              {-# LINE 6227 "dist/build/GenerateCode" #-}
+                              {-# LINE 6199 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOprefix =
                              ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                               _lhsIprefix
-                              {-# LINE 6233 "dist/build/GenerateCode" #-}
+                              {-# LINE 6205 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOquantMap =
                              ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                               _lhsIquantMap
-                              {-# LINE 6239 "dist/build/GenerateCode" #-}
+                              {-# LINE 6211 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOsyn =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsIsyn
-                              {-# LINE 6245 "dist/build/GenerateCode" #-}
+                              {-# LINE 6217 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOterminals =
                              ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                               _lhsIterminals
-                              {-# LINE 6251 "dist/build/GenerateCode" #-}
+                              {-# LINE 6223 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOunfoldSemDom =
                              ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                               _lhsIunfoldSemDom
-                              {-# LINE 6257 "dist/build/GenerateCode" #-}
+                              {-# LINE 6229 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOvisitedSet =
                              ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                               _lhsIvisitedSet
-                              {-# LINE 6263 "dist/build/GenerateCode" #-}
+                              {-# LINE 6235 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOwith_sig =
                              ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                               _lhsIwith_sig
-                              {-# LINE 6269 "dist/build/GenerateCode" #-}
+                              {-# LINE 6241 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _hdOwrappers =
                              ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                               _lhsIwrappers
-                              {-# LINE 6275 "dist/build/GenerateCode" #-}
+                              {-# LINE 6247 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOallNts =
                              ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                               _lhsIallNts
-                              {-# LINE 6281 "dist/build/GenerateCode" #-}
+                              {-# LINE 6253 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOallPragmas =
                              ({-# LINE 73 "src-ag/GenerateCode.ag" #-}
                               _lhsIallPragmas
-                              {-# LINE 6287 "dist/build/GenerateCode" #-}
+                              {-# LINE 6259 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOaroundMap =
                              ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                               _lhsIaroundMap
-                              {-# LINE 6293 "dist/build/GenerateCode" #-}
+                              {-# LINE 6265 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOchildren =
                              ({-# LINE 410 "src-ag/GenerateCode.ag" #-}
                               _lhsIchildren
-                              {-# LINE 6299 "dist/build/GenerateCode" #-}
+                              {-# LINE 6271 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOcon =
                              ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                               _lhsIcon
-                              {-# LINE 6305 "dist/build/GenerateCode" #-}
+                              {-# LINE 6277 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOcontextMap =
                              ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                               _lhsIcontextMap
-                              {-# LINE 6311 "dist/build/GenerateCode" #-}
+                              {-# LINE 6283 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOinh =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsIinh
-                              {-# LINE 6317 "dist/build/GenerateCode" #-}
+                              {-# LINE 6289 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOinstVisitNrs =
                              ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                               _lhsIinstVisitNrs
-                              {-# LINE 6323 "dist/build/GenerateCode" #-}
+                              {-# LINE 6295 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOmergeMap =
                              ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                               _lhsImergeMap
-                              {-# LINE 6329 "dist/build/GenerateCode" #-}
+                              {-# LINE 6301 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOnt =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsInt
-                              {-# LINE 6335 "dist/build/GenerateCode" #-}
+                              {-# LINE 6307 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_case =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_case
-                              {-# LINE 6341 "dist/build/GenerateCode" #-}
+                              {-# LINE 6313 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_cata =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_cata
-                              {-# LINE 6347 "dist/build/GenerateCode" #-}
+                              {-# LINE 6319 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_costcentre =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_costcentre
-                              {-# LINE 6353 "dist/build/GenerateCode" #-}
+                              {-# LINE 6325 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_data =
                              ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_data
-                              {-# LINE 6359 "dist/build/GenerateCode" #-}
+                              {-# LINE 6331 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_linePragmas =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_linePragmas
-                              {-# LINE 6365 "dist/build/GenerateCode" #-}
+                              {-# LINE 6337 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_monadic =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_monadic
-                              {-# LINE 6371 "dist/build/GenerateCode" #-}
+                              {-# LINE 6343 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_newtypes =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_newtypes
-                              {-# LINE 6377 "dist/build/GenerateCode" #-}
+                              {-# LINE 6349 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_pretty =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_pretty
-                              {-# LINE 6383 "dist/build/GenerateCode" #-}
+                              {-# LINE 6355 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_rename =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_rename
-                              {-# LINE 6389 "dist/build/GenerateCode" #-}
+                              {-# LINE 6361 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_sem =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_sem
-                              {-# LINE 6395 "dist/build/GenerateCode" #-}
+                              {-# LINE 6367 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_sig =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_sig
-                              {-# LINE 6401 "dist/build/GenerateCode" #-}
+                              {-# LINE 6373 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_splitsems =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_splitsems
-                              {-# LINE 6407 "dist/build/GenerateCode" #-}
+                              {-# LINE 6379 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_strictwrap =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_strictwrap
-                              {-# LINE 6413 "dist/build/GenerateCode" #-}
+                              {-# LINE 6385 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_traces =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_traces
-                              {-# LINE 6419 "dist/build/GenerateCode" #-}
+                              {-# LINE 6391 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOo_unbox =
                              ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                               _lhsIo_unbox
-                              {-# LINE 6425 "dist/build/GenerateCode" #-}
+                              {-# LINE 6397 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOoptions =
                              ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6431 "dist/build/GenerateCode" #-}
+                              {-# LINE 6403 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOparamInstMap =
                              ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                               _lhsIparamInstMap
-                              {-# LINE 6437 "dist/build/GenerateCode" #-}
+                              {-# LINE 6409 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOparamMap =
                              ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                               _lhsIparamMap
-                              {-# LINE 6443 "dist/build/GenerateCode" #-}
+                              {-# LINE 6415 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOprefix =
                              ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                               _lhsIprefix
-                              {-# LINE 6449 "dist/build/GenerateCode" #-}
+                              {-# LINE 6421 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOquantMap =
                              ({-# LINE 115 "src-ag/GenerateCode.ag" #-}
                               _lhsIquantMap
-                              {-# LINE 6455 "dist/build/GenerateCode" #-}
+                              {-# LINE 6427 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOsyn =
                              ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                               _lhsIsyn
-                              {-# LINE 6461 "dist/build/GenerateCode" #-}
+                              {-# LINE 6433 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOterminals =
                              ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                               _lhsIterminals
-                              {-# LINE 6467 "dist/build/GenerateCode" #-}
+                              {-# LINE 6439 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOunfoldSemDom =
                              ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                               _lhsIunfoldSemDom
-                              {-# LINE 6473 "dist/build/GenerateCode" #-}
+                              {-# LINE 6445 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (chain)
                          _tlOvisitedSet =
                              ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                               _hdIvisitedSet
-                              {-# LINE 6479 "dist/build/GenerateCode" #-}
+                              {-# LINE 6451 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOwith_sig =
                              ({-# LINE 851 "src-ag/GenerateCode.ag" #-}
                               _lhsIwith_sig
-                              {-# LINE 6485 "dist/build/GenerateCode" #-}
+                              {-# LINE 6457 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (down)
                          _tlOwrappers =
                              ({-# LINE 987 "src-ag/GenerateCode.ag" #-}
                               _lhsIwrappers
-                              {-# LINE 6491 "dist/build/GenerateCode" #-}
+                              {-# LINE 6463 "dist/build/GenerateCode" #-}
                               )
                          ( _hdIcomments,_hdIdecls,_hdIgatherInstVisitNrs,_hdIintra,_hdIintraVars,_hdIsemNames,_hdIvisitedSet) =
                              hd_ _hdOallNts _hdOallPragmas _hdOaroundMap _hdOchildren _hdOcon _hdOcontextMap _hdOdecls _hdOinh _hdOinstVisitNrs _hdOisLast _hdOmergeMap _hdOnextIntra _hdOnextIntraVars _hdOnr _hdOnt _hdOo_case _hdOo_cata _hdOo_costcentre _hdOo_data _hdOo_linePragmas _hdOo_monadic _hdOo_newtypes _hdOo_pretty _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_splitsems _hdOo_strictwrap _hdOo_traces _hdOo_unbox _hdOoptions _hdOparamInstMap _hdOparamMap _hdOprefix _hdOquantMap _hdOsyn _hdOterminals _hdOunfoldSemDom _hdOvisitedSet _hdOwith_sig _hdOwrappers
                          ( _tlIcomments,_tlIdecls,_tlIgatherInstVisitNrs,_tlIintra,_tlIintraVars,_tlIisNil,_tlIsemNames,_tlIvisitedSet) =
                              tl_ _tlOallNts _tlOallPragmas _tlOaroundMap _tlOchildren _tlOcon _tlOcontextMap _tlOinh _tlOinstVisitNrs _tlOmergeMap _tlOnr _tlOnt _tlOo_case _tlOo_cata _tlOo_costcentre _tlOo_data _tlOo_linePragmas _tlOo_monadic _tlOo_newtypes _tlOo_pretty _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_splitsems _tlOo_strictwrap _tlOo_traces _tlOo_unbox _tlOoptions _tlOparamInstMap _tlOparamMap _tlOprefix _tlOquantMap _tlOsyn _tlOterminals _tlOunfoldSemDom _tlOvisitedSet _tlOwith_sig _tlOwrappers
-                         ___node =
-                             (Syn_CVisits _lhsOcomments _lhsOdecls _lhsOgatherInstVisitNrs _lhsOintra _lhsOintraVars _lhsOisNil _lhsOsemNames _lhsOvisitedSet)
                      in  ( _lhsOcomments,_lhsOdecls,_lhsOgatherInstVisitNrs,_lhsOintra,_lhsOintraVars,_lhsOisNil,_lhsOsemNames,_lhsOvisitedSet))))
 sem_CVisits_Nil :: T_CVisits
 sem_CVisits_Nil =
@@ -6547,52 +6517,50 @@ sem_CVisits_Nil =
                          _lhsOisNil =
                              ({-# LINE 297 "src-ag/GenerateCode.ag" #-}
                               True
-                              {-# LINE 6551 "dist/build/GenerateCode" #-}
+                              {-# LINE 6521 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 317, column 10)
                          _lhsOintra =
                              ({-# LINE 317 "src-ag/GenerateCode.ag" #-}
                               []
-                              {-# LINE 6557 "dist/build/GenerateCode" #-}
+                              {-# LINE 6527 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 318, column 10)
                          _lhsOintraVars =
                              ({-# LINE 318 "src-ag/GenerateCode.ag" #-}
                               Set.empty
-                              {-# LINE 6563 "dist/build/GenerateCode" #-}
+                              {-# LINE 6533 "dist/build/GenerateCode" #-}
                               )
                          -- "src-ag/GenerateCode.ag"(line 430, column 11)
                          _lhsOdecls =
                              ({-# LINE 430 "src-ag/GenerateCode.ag" #-}
                               []
-                              {-# LINE 6569 "dist/build/GenerateCode" #-}
+                              {-# LINE 6539 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                          _lhsOcomments =
                              ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                               []
-                              {-# LINE 6575 "dist/build/GenerateCode" #-}
+                              {-# LINE 6545 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 561, column 44)
                          _lhsOgatherInstVisitNrs =
                              ({-# LINE 561 "src-ag/GenerateCode.ag" #-}
                               Map.empty
-                              {-# LINE 6581 "dist/build/GenerateCode" #-}
+                              {-# LINE 6551 "dist/build/GenerateCode" #-}
                               )
                          -- use rule "src-ag/GenerateCode.ag"(line 1146, column 61)
                          _lhsOsemNames =
                              ({-# LINE 1146 "src-ag/GenerateCode.ag" #-}
                               []
-                              {-# LINE 6587 "dist/build/GenerateCode" #-}
+                              {-# LINE 6557 "dist/build/GenerateCode" #-}
                               )
                          -- copy rule (chain)
                          _lhsOvisitedSet =
                              ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                               _lhsIvisitedSet
-                              {-# LINE 6593 "dist/build/GenerateCode" #-}
+                              {-# LINE 6563 "dist/build/GenerateCode" #-}
                               )
-                         ___node =
-                             (Syn_CVisits _lhsOcomments _lhsOdecls _lhsOgatherInstVisitNrs _lhsOintra _lhsOintraVars _lhsOisNil _lhsOsemNames _lhsOvisitedSet)
                      in  ( _lhsOcomments,_lhsOdecls,_lhsOgatherInstVisitNrs,_lhsOintra,_lhsOintraVars,_lhsOisNil,_lhsOsemNames,_lhsOvisitedSet))))
 -- DeclBlocks --------------------------------------------------
 {-
@@ -6672,78 +6640,76 @@ sem_DeclBlocks_DeclBlock defs_ visit_ (T_DeclBlocks next_) =
                             _nextOblockNr =
                                 ({-# LINE 662 "src-ag/GenerateCode.ag" #-}
                                  _lhsIblockNr + 1
-                                 {-# LINE 6676 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6644 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 667, column 7)
                             _lambdaName =
                                 ({-# LINE 667 "src-ag/GenerateCode.ag" #-}
                                  _lhsIprefix ++ "_block" ++ show _lhsIblockNr
-                                 {-# LINE 6682 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6650 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 668, column 7)
                             _pragmaDecl =
                                 ({-# LINE 668 "src-ag/GenerateCode.ag" #-}
                                  PragmaDecl ("NOINLINE " ++ _lambdaName    )
-                                 {-# LINE 6688 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6656 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 669, column 7)
                             _lhsOcallExpr =
                                 ({-# LINE 669 "src-ag/GenerateCode.ag" #-}
                                  App _lambdaName     (map SimpleExpr _freeVars    )
-                                 {-# LINE 6694 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6662 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 673, column 7)
                             _freeVars =
                                 ({-# LINE 673 "src-ag/GenerateCode.ag" #-}
                                  freevars _nextIfreeVars (visit_ : defs_)
-                                 {-# LINE 6700 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6668 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 680, column 7)
                             _decl =
                                 ({-# LINE 680 "src-ag/GenerateCode.ag" #-}
                                  mkBlockLambda _lhsIoptCase _lambdaName     _freeVars     (defs_ ++ [visit_]) _nextIcallExpr
-                                 {-# LINE 6706 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6674 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 681, column 7)
                             _lhsOdecls =
                                 ({-# LINE 681 "src-ag/GenerateCode.ag" #-}
                                  (if _lhsIblockNr > 1 then [_pragmaDecl    ] else []) ++ [_decl    ] ++ _nextIdecls
-                                 {-# LINE 6712 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6680 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOfreeVars =
                                 ({-# LINE 664 "src-ag/GenerateCode.ag" #-}
                                  _freeVars
-                                 {-# LINE 6718 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6686 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _nextOlastExprVars =
                                 ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                  _lhsIlastExprVars
-                                 {-# LINE 6724 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6692 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _nextOnextVisitDecls =
                                 ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                  _lhsInextVisitDecls
-                                 {-# LINE 6730 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6698 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _nextOoptCase =
                                 ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                  _lhsIoptCase
-                                 {-# LINE 6736 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6704 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (down)
                             _nextOprefix =
                                 ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                  _lhsIprefix
-                                 {-# LINE 6742 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6710 "dist/build/GenerateCode" #-}
                                  )
                             ( _nextIcallExpr,_nextIdecls,_nextIfreeVars) =
                                 next_ _nextOblockNr _nextOlastExprVars _nextOnextVisitDecls _nextOoptCase _nextOprefix
-                            ___node =
-                                (Syn_DeclBlocks _lhsOcallExpr _lhsOdecls _lhsOfreeVars)
                         in  ( _lhsOcallExpr,_lhsOdecls,_lhsOfreeVars))))
 sem_DeclBlocks_DeclTerminator :: ([Decl]) ->
                                  Expr ->
@@ -6761,40 +6727,38 @@ sem_DeclBlocks_DeclTerminator defs_ result_ =
                             _lambdaName =
                                 ({-# LINE 667 "src-ag/GenerateCode.ag" #-}
                                  _lhsIprefix ++ "_block" ++ show _lhsIblockNr
-                                 {-# LINE 6765 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6731 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 668, column 7)
                             _pragmaDecl =
                                 ({-# LINE 668 "src-ag/GenerateCode.ag" #-}
                                  PragmaDecl ("NOINLINE " ++ _lambdaName    )
-                                 {-# LINE 6771 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6737 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 669, column 7)
                             _lhsOcallExpr =
                                 ({-# LINE 669 "src-ag/GenerateCode.ag" #-}
                                  App _lambdaName     (map SimpleExpr _freeVars    )
-                                 {-# LINE 6777 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6743 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 671, column 7)
                             _freeVars =
                                 ({-# LINE 671 "src-ag/GenerateCode.ag" #-}
                                  freevars _lhsIlastExprVars (defs_ ++ _lhsInextVisitDecls)
-                                 {-# LINE 6783 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6749 "dist/build/GenerateCode" #-}
                                  )
                             -- "src-ag/GenerateCode.ag"(line 678, column 7)
                             _lhsOdecls =
                                 ({-# LINE 678 "src-ag/GenerateCode.ag" #-}
                                  [ mkBlockLambda _lhsIoptCase _lambdaName     _freeVars     (defs_ ++ _lhsInextVisitDecls) result_ ]
-                                 {-# LINE 6789 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6755 "dist/build/GenerateCode" #-}
                                  )
                             -- copy rule (from local)
                             _lhsOfreeVars =
                                 ({-# LINE 664 "src-ag/GenerateCode.ag" #-}
                                  _freeVars
-                                 {-# LINE 6795 "dist/build/GenerateCode" #-}
+                                 {-# LINE 6761 "dist/build/GenerateCode" #-}
                                  )
-                            ___node =
-                                (Syn_DeclBlocks _lhsOcallExpr _lhsOdecls _lhsOfreeVars)
                         in  ( _lhsOcallExpr,_lhsOdecls,_lhsOfreeVars))))
 -- DeclBlocksRoot ----------------------------------------------
 {-
@@ -6851,48 +6815,46 @@ sem_DeclBlocksRoot_DeclBlocksRoot (T_DeclBlocks blocks_) =
                                 _lhsOlambdas =
                                     ({-# LINE 653 "src-ag/GenerateCode.ag" #-}
                                      _blocksIdecls
-                                     {-# LINE 6855 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6819 "dist/build/GenerateCode" #-}
                                      )
                                 -- "src-ag/GenerateCode.ag"(line 654, column 7)
                                 _lhsOfirstCall =
                                     ({-# LINE 654 "src-ag/GenerateCode.ag" #-}
                                      _blocksIcallExpr
-                                     {-# LINE 6861 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6825 "dist/build/GenerateCode" #-}
                                      )
                                 -- "src-ag/GenerateCode.ag"(line 659, column 7)
                                 _blocksOblockNr =
                                     ({-# LINE 659 "src-ag/GenerateCode.ag" #-}
                                      1
-                                     {-# LINE 6867 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6831 "dist/build/GenerateCode" #-}
                                      )
                                 -- copy rule (down)
                                 _blocksOlastExprVars =
                                     ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                      _lhsIlastExprVars
-                                     {-# LINE 6873 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6837 "dist/build/GenerateCode" #-}
                                      )
                                 -- copy rule (down)
                                 _blocksOnextVisitDecls =
                                     ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                      _lhsInextVisitDecls
-                                     {-# LINE 6879 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6843 "dist/build/GenerateCode" #-}
                                      )
                                 -- copy rule (down)
                                 _blocksOoptCase =
                                     ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                      _lhsIoptCase
-                                     {-# LINE 6885 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6849 "dist/build/GenerateCode" #-}
                                      )
                                 -- copy rule (down)
                                 _blocksOprefix =
                                     ({-# LINE 648 "src-ag/GenerateCode.ag" #-}
                                      _lhsIprefix
-                                     {-# LINE 6891 "dist/build/GenerateCode" #-}
+                                     {-# LINE 6855 "dist/build/GenerateCode" #-}
                                      )
                                 ( _blocksIcallExpr,_blocksIdecls,_blocksIfreeVars) =
                                     blocks_ _blocksOblockNr _blocksOlastExprVars _blocksOnextVisitDecls _blocksOoptCase _blocksOprefix
-                                ___node =
-                                    (Syn_DeclBlocksRoot _lhsOfirstCall _lhsOlambdas)
                             in  ( _lhsOfirstCall,_lhsOlambdas))))
 -- Pattern -----------------------------------------------------
 {-
@@ -6965,30 +6927,28 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                     _lhsOdefinedInsts =
                         ({-# LINE 263 "src-ag/GenerateCode.ag" #-}
                          (if field_ == _INST then [attr_] else []) ++ _patIdefinedInsts
-                         {-# LINE 6969 "dist/build/GenerateCode" #-}
+                         {-# LINE 6931 "dist/build/GenerateCode" #-}
                          )
                     -- "src-ag/GenerateCode.ag"(line 271, column 7)
                     _lhsOpatternAttributes =
                         ({-# LINE 271 "src-ag/GenerateCode.ag" #-}
                          (field_,attr_) : _patIpatternAttributes
-                         {-# LINE 6975 "dist/build/GenerateCode" #-}
+                         {-# LINE 6937 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 6981 "dist/build/GenerateCode" #-}
+                         {-# LINE 6943 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6987 "dist/build/GenerateCode" #-}
+                         {-# LINE 6949 "dist/build/GenerateCode" #-}
                          )
                     ( _patIcopy,_patIdefinedInsts,_patIpatternAttributes) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                 in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -7004,30 +6964,28 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOdefinedInsts =
                         ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                          _patsIdefinedInsts
-                         {-# LINE 7008 "dist/build/GenerateCode" #-}
+                         {-# LINE 6968 "dist/build/GenerateCode" #-}
                          )
                     -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                     _lhsOpatternAttributes =
                         ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                          _patsIpatternAttributes
-                         {-# LINE 7014 "dist/build/GenerateCode" #-}
+                         {-# LINE 6974 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 7020 "dist/build/GenerateCode" #-}
+                         {-# LINE 6980 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 7026 "dist/build/GenerateCode" #-}
+                         {-# LINE 6986 "dist/build/GenerateCode" #-}
                          )
                     ( _patsIcopy,_patsIdefinedInsts,_patsIpatternAttributes) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                 in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -7042,30 +7000,28 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _lhsOdefinedInsts =
                         ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                          _patIdefinedInsts
-                         {-# LINE 7046 "dist/build/GenerateCode" #-}
+                         {-# LINE 7004 "dist/build/GenerateCode" #-}
                          )
                     -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                     _lhsOpatternAttributes =
                         ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                          _patIpatternAttributes
-                         {-# LINE 7052 "dist/build/GenerateCode" #-}
+                         {-# LINE 7010 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 7058 "dist/build/GenerateCode" #-}
+                         {-# LINE 7016 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 7064 "dist/build/GenerateCode" #-}
+                         {-# LINE 7022 "dist/build/GenerateCode" #-}
                          )
                     ( _patIcopy,_patIdefinedInsts,_patIpatternAttributes) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                 in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -7081,30 +7037,28 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOdefinedInsts =
                         ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                          _patsIdefinedInsts
-                         {-# LINE 7085 "dist/build/GenerateCode" #-}
+                         {-# LINE 7041 "dist/build/GenerateCode" #-}
                          )
                     -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                     _lhsOpatternAttributes =
                         ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                          _patsIpatternAttributes
-                         {-# LINE 7091 "dist/build/GenerateCode" #-}
+                         {-# LINE 7047 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 7097 "dist/build/GenerateCode" #-}
+                         {-# LINE 7053 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 7103 "dist/build/GenerateCode" #-}
+                         {-# LINE 7059 "dist/build/GenerateCode" #-}
                          )
                     ( _patsIcopy,_patsIdefinedInsts,_patsIpatternAttributes) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                 in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -7116,28 +7070,26 @@ sem_Pattern_Underscore pos_ =
                     _lhsOdefinedInsts =
                         ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                          []
-                         {-# LINE 7120 "dist/build/GenerateCode" #-}
+                         {-# LINE 7074 "dist/build/GenerateCode" #-}
                          )
                     -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                     _lhsOpatternAttributes =
                         ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                          []
-                         {-# LINE 7126 "dist/build/GenerateCode" #-}
+                         {-# LINE 7080 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 7132 "dist/build/GenerateCode" #-}
+                         {-# LINE 7086 "dist/build/GenerateCode" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 7138 "dist/build/GenerateCode" #-}
+                         {-# LINE 7092 "dist/build/GenerateCode" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                 in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 -- Patterns ----------------------------------------------------
 {-
@@ -7188,32 +7140,30 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _lhsOdefinedInsts =
                          ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                           _hdIdefinedInsts ++ _tlIdefinedInsts
-                          {-# LINE 7192 "dist/build/GenerateCode" #-}
+                          {-# LINE 7144 "dist/build/GenerateCode" #-}
                           )
                      -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                      _lhsOpatternAttributes =
                          ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                           _hdIpatternAttributes ++ _tlIpatternAttributes
-                          {-# LINE 7198 "dist/build/GenerateCode" #-}
+                          {-# LINE 7150 "dist/build/GenerateCode" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 7204 "dist/build/GenerateCode" #-}
+                          {-# LINE 7156 "dist/build/GenerateCode" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 7210 "dist/build/GenerateCode" #-}
+                          {-# LINE 7162 "dist/build/GenerateCode" #-}
                           )
                      ( _hdIcopy,_hdIdefinedInsts,_hdIpatternAttributes) =
                          hd_
                      ( _tlIcopy,_tlIdefinedInsts,_tlIpatternAttributes) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                  in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -7224,28 +7174,26 @@ sem_Patterns_Nil =
                      _lhsOdefinedInsts =
                          ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                           []
-                          {-# LINE 7228 "dist/build/GenerateCode" #-}
+                          {-# LINE 7178 "dist/build/GenerateCode" #-}
                           )
                      -- use rule "src-ag/GenerateCode.ag"(line 268, column 47)
                      _lhsOpatternAttributes =
                          ({-# LINE 268 "src-ag/GenerateCode.ag" #-}
                           []
-                          {-# LINE 7234 "dist/build/GenerateCode" #-}
+                          {-# LINE 7184 "dist/build/GenerateCode" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 7240 "dist/build/GenerateCode" #-}
+                          {-# LINE 7190 "dist/build/GenerateCode" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 7246 "dist/build/GenerateCode" #-}
+                          {-# LINE 7196 "dist/build/GenerateCode" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy _lhsOdefinedInsts _lhsOpatternAttributes)
                  in  ( _lhsOcopy,_lhsOdefinedInsts,_lhsOpatternAttributes)))
 -- Sequence ----------------------------------------------------
 {-
@@ -7498,488 +7446,486 @@ sem_Sequence_Cons (T_CRule hd_) (T_Sequence tl_) =
                           _lhsOblockDecls =
                               ({-# LINE 622 "src-ag/GenerateCode.ag" #-}
                                _hdIbldBlocksFun _tlIblockDecls
-                               {-# LINE 7502 "dist/build/GenerateCode" #-}
+                               {-# LINE 7450 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 416, column 39)
                           _lhsOallTpsFound =
                               ({-# LINE 416 "src-ag/GenerateCode.ag" #-}
                                _hdIallTpsFound && _tlIallTpsFound
-                               {-# LINE 7508 "dist/build/GenerateCode" #-}
+                               {-# LINE 7456 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                           _lhsOcomments =
                               ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                _hdIcomments ++ _tlIcomments
-                               {-# LINE 7514 "dist/build/GenerateCode" #-}
+                               {-# LINE 7462 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 155, column 34)
                           _lhsOdecls =
                               ({-# LINE 155 "src-ag/GenerateCode.ag" #-}
                                _hdIdecls ++ _tlIdecls
-                               {-# LINE 7520 "dist/build/GenerateCode" #-}
+                               {-# LINE 7468 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 261, column 55)
                           _lhsOdefinedInsts =
                               ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                                _hdIdefinedInsts ++ _tlIdefinedInsts
-                               {-# LINE 7526 "dist/build/GenerateCode" #-}
+                               {-# LINE 7474 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 334, column 34)
                           _lhsOexprs =
                               ({-# LINE 334 "src-ag/GenerateCode.ag" #-}
                                _hdIexprs ++ _tlIexprs
-                               {-# LINE 7532 "dist/build/GenerateCode" #-}
+                               {-# LINE 7480 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 363, column 33)
                           _lhsOtSigs =
                               ({-# LINE 363 "src-ag/GenerateCode.ag" #-}
                                _hdItSigs ++ _tlItSigs
-                               {-# LINE 7538 "dist/build/GenerateCode" #-}
+                               {-# LINE 7486 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 415, column 31)
                           _lhsOtps =
                               ({-# LINE 415 "src-ag/GenerateCode.ag" #-}
                                _hdItps ++ _tlItps
-                               {-# LINE 7544 "dist/build/GenerateCode" #-}
+                               {-# LINE 7492 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 352, column 37)
                           _lhsOusedVars =
                               ({-# LINE 352 "src-ag/GenerateCode.ag" #-}
                                _hdIusedVars `Set.union` _tlIusedVars
-                               {-# LINE 7550 "dist/build/GenerateCode" #-}
+                               {-# LINE 7498 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (up)
                           _lhsOdeclsAbove =
                               ({-# LINE 608 "src-ag/GenerateCode.ag" #-}
                                _tlIdeclsAbove
-                               {-# LINE 7556 "dist/build/GenerateCode" #-}
+                               {-# LINE 7504 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (up)
                           _lhsOvisitedSet =
                               ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                                _tlIvisitedSet
-                               {-# LINE 7562 "dist/build/GenerateCode" #-}
+                               {-# LINE 7510 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOallNts =
                               ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                _lhsIallNts
-                               {-# LINE 7568 "dist/build/GenerateCode" #-}
+                               {-# LINE 7516 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOaroundMap =
                               ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                                _lhsIaroundMap
-                               {-# LINE 7574 "dist/build/GenerateCode" #-}
+                               {-# LINE 7522 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOchildren =
                               ({-# LINE 259 "src-ag/GenerateCode.ag" #-}
                                _lhsIchildren
-                               {-# LINE 7580 "dist/build/GenerateCode" #-}
+                               {-# LINE 7528 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOcon =
                               ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                                _lhsIcon
-                               {-# LINE 7586 "dist/build/GenerateCode" #-}
+                               {-# LINE 7534 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOdeclsAbove =
                               ({-# LINE 608 "src-ag/GenerateCode.ag" #-}
                                _lhsIdeclsAbove
-                               {-# LINE 7592 "dist/build/GenerateCode" #-}
+                               {-# LINE 7540 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOinh =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsIinh
-                               {-# LINE 7598 "dist/build/GenerateCode" #-}
+                               {-# LINE 7546 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOinstVisitNrs =
                               ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                                _lhsIinstVisitNrs
-                               {-# LINE 7604 "dist/build/GenerateCode" #-}
+                               {-# LINE 7552 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOmergeMap =
                               ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 7610 "dist/build/GenerateCode" #-}
+                               {-# LINE 7558 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOnr =
                               ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                                _lhsInr
-                               {-# LINE 7616 "dist/build/GenerateCode" #-}
+                               {-# LINE 7564 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOnt =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsInt
-                               {-# LINE 7622 "dist/build/GenerateCode" #-}
+                               {-# LINE 7570 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_case =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_case
-                               {-# LINE 7628 "dist/build/GenerateCode" #-}
+                               {-# LINE 7576 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_cata =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_cata
-                               {-# LINE 7634 "dist/build/GenerateCode" #-}
+                               {-# LINE 7582 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_costcentre =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_costcentre
-                               {-# LINE 7640 "dist/build/GenerateCode" #-}
+                               {-# LINE 7588 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_data =
                               ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_data
-                               {-# LINE 7646 "dist/build/GenerateCode" #-}
+                               {-# LINE 7594 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_linePragmas =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_linePragmas
-                               {-# LINE 7652 "dist/build/GenerateCode" #-}
+                               {-# LINE 7600 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_monadic =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_monadic
-                               {-# LINE 7658 "dist/build/GenerateCode" #-}
+                               {-# LINE 7606 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_newtypes =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_newtypes
-                               {-# LINE 7664 "dist/build/GenerateCode" #-}
+                               {-# LINE 7612 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_pretty =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_pretty
-                               {-# LINE 7670 "dist/build/GenerateCode" #-}
+                               {-# LINE 7618 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_rename =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_rename
-                               {-# LINE 7676 "dist/build/GenerateCode" #-}
+                               {-# LINE 7624 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_sem =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_sem
-                               {-# LINE 7682 "dist/build/GenerateCode" #-}
+                               {-# LINE 7630 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_sig =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_sig
-                               {-# LINE 7688 "dist/build/GenerateCode" #-}
+                               {-# LINE 7636 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_splitsems =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_splitsems
-                               {-# LINE 7694 "dist/build/GenerateCode" #-}
+                               {-# LINE 7642 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_strictwrap =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_strictwrap
-                               {-# LINE 7700 "dist/build/GenerateCode" #-}
+                               {-# LINE 7648 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_traces =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_traces
-                               {-# LINE 7706 "dist/build/GenerateCode" #-}
+                               {-# LINE 7654 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOo_unbox =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_unbox
-                               {-# LINE 7712 "dist/build/GenerateCode" #-}
+                               {-# LINE 7660 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOoptions =
                               ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                _lhsIoptions
-                               {-# LINE 7718 "dist/build/GenerateCode" #-}
+                               {-# LINE 7666 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOparamInstMap =
                               ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                                _lhsIparamInstMap
-                               {-# LINE 7724 "dist/build/GenerateCode" #-}
+                               {-# LINE 7672 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOparamMap =
                               ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                _lhsIparamMap
-                               {-# LINE 7730 "dist/build/GenerateCode" #-}
+                               {-# LINE 7678 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOprefix =
                               ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                _lhsIprefix
-                               {-# LINE 7736 "dist/build/GenerateCode" #-}
+                               {-# LINE 7684 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOsyn =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsIsyn
-                               {-# LINE 7742 "dist/build/GenerateCode" #-}
+                               {-# LINE 7690 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOterminals =
                               ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                                _lhsIterminals
-                               {-# LINE 7748 "dist/build/GenerateCode" #-}
+                               {-# LINE 7696 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOunfoldSemDom =
                               ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                _lhsIunfoldSemDom
-                               {-# LINE 7754 "dist/build/GenerateCode" #-}
+                               {-# LINE 7702 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOvisitedSet =
                               ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                                _lhsIvisitedSet
-                               {-# LINE 7760 "dist/build/GenerateCode" #-}
+                               {-# LINE 7708 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _hdOwhat =
                               ({-# LINE 870 "src-ag/GenerateCode.ag" #-}
                                _lhsIwhat
-                               {-# LINE 7766 "dist/build/GenerateCode" #-}
+                               {-# LINE 7714 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOallNts =
                               ({-# LINE 132 "src-ag/GenerateCode.ag" #-}
                                _lhsIallNts
-                               {-# LINE 7772 "dist/build/GenerateCode" #-}
+                               {-# LINE 7720 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOaroundMap =
                               ({-# LINE 580 "src-ag/GenerateCode.ag" #-}
                                _lhsIaroundMap
-                               {-# LINE 7778 "dist/build/GenerateCode" #-}
+                               {-# LINE 7726 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOchildren =
                               ({-# LINE 259 "src-ag/GenerateCode.ag" #-}
                                _lhsIchildren
-                               {-# LINE 7784 "dist/build/GenerateCode" #-}
+                               {-# LINE 7732 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOcon =
                               ({-# LINE 89 "src-ag/GenerateCode.ag" #-}
                                _lhsIcon
-                               {-# LINE 7790 "dist/build/GenerateCode" #-}
+                               {-# LINE 7738 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (chain)
                           _tlOdeclsAbove =
                               ({-# LINE 608 "src-ag/GenerateCode.ag" #-}
                                _hdIdeclsAbove
-                               {-# LINE 7796 "dist/build/GenerateCode" #-}
+                               {-# LINE 7744 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOinh =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsIinh
-                               {-# LINE 7802 "dist/build/GenerateCode" #-}
+                               {-# LINE 7750 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOinstVisitNrs =
                               ({-# LINE 560 "src-ag/GenerateCode.ag" #-}
                                _lhsIinstVisitNrs
-                               {-# LINE 7808 "dist/build/GenerateCode" #-}
+                               {-# LINE 7756 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOlastExpr =
                               ({-# LINE 606 "src-ag/GenerateCode.ag" #-}
                                _lhsIlastExpr
-                               {-# LINE 7814 "dist/build/GenerateCode" #-}
+                               {-# LINE 7762 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOmergeMap =
                               ({-# LINE 596 "src-ag/GenerateCode.ag" #-}
                                _lhsImergeMap
-                               {-# LINE 7820 "dist/build/GenerateCode" #-}
+                               {-# LINE 7768 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOnr =
                               ({-# LINE 278 "src-ag/GenerateCode.ag" #-}
                                _lhsInr
-                               {-# LINE 7826 "dist/build/GenerateCode" #-}
+                               {-# LINE 7774 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOnt =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsInt
-                               {-# LINE 7832 "dist/build/GenerateCode" #-}
+                               {-# LINE 7780 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_case =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_case
-                               {-# LINE 7838 "dist/build/GenerateCode" #-}
+                               {-# LINE 7786 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_cata =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_cata
-                               {-# LINE 7844 "dist/build/GenerateCode" #-}
+                               {-# LINE 7792 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_costcentre =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_costcentre
-                               {-# LINE 7850 "dist/build/GenerateCode" #-}
+                               {-# LINE 7798 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_data =
                               ({-# LINE 48 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_data
-                               {-# LINE 7856 "dist/build/GenerateCode" #-}
+                               {-# LINE 7804 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_linePragmas =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_linePragmas
-                               {-# LINE 7862 "dist/build/GenerateCode" #-}
+                               {-# LINE 7810 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_monadic =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_monadic
-                               {-# LINE 7868 "dist/build/GenerateCode" #-}
+                               {-# LINE 7816 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_newtypes =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_newtypes
-                               {-# LINE 7874 "dist/build/GenerateCode" #-}
+                               {-# LINE 7822 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_pretty =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_pretty
-                               {-# LINE 7880 "dist/build/GenerateCode" #-}
+                               {-# LINE 7828 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_rename =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_rename
-                               {-# LINE 7886 "dist/build/GenerateCode" #-}
+                               {-# LINE 7834 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_sem =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_sem
-                               {-# LINE 7892 "dist/build/GenerateCode" #-}
+                               {-# LINE 7840 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_sig =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_sig
-                               {-# LINE 7898 "dist/build/GenerateCode" #-}
+                               {-# LINE 7846 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_splitsems =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_splitsems
-                               {-# LINE 7904 "dist/build/GenerateCode" #-}
+                               {-# LINE 7852 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_strictwrap =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_strictwrap
-                               {-# LINE 7910 "dist/build/GenerateCode" #-}
+                               {-# LINE 7858 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_traces =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_traces
-                               {-# LINE 7916 "dist/build/GenerateCode" #-}
+                               {-# LINE 7864 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOo_unbox =
                               ({-# LINE 47 "src-ag/GenerateCode.ag" #-}
                                _lhsIo_unbox
-                               {-# LINE 7922 "dist/build/GenerateCode" #-}
+                               {-# LINE 7870 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOoptions =
                               ({-# LINE 50 "src-ag/GenerateCode.ag" #-}
                                _lhsIoptions
-                               {-# LINE 7928 "dist/build/GenerateCode" #-}
+                               {-# LINE 7876 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOparamInstMap =
                               ({-# LINE 101 "src-ag/GenerateCode.ag" #-}
                                _lhsIparamInstMap
-                               {-# LINE 7934 "dist/build/GenerateCode" #-}
+                               {-# LINE 7882 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOparamMap =
                               ({-# LINE 95 "src-ag/GenerateCode.ag" #-}
                                _lhsIparamMap
-                               {-# LINE 7940 "dist/build/GenerateCode" #-}
+                               {-# LINE 7888 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOprefix =
                               ({-# LINE 49 "src-ag/GenerateCode.ag" #-}
                                _lhsIprefix
-                               {-# LINE 7946 "dist/build/GenerateCode" #-}
+                               {-# LINE 7894 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOsyn =
                               ({-# LINE 84 "src-ag/GenerateCode.ag" #-}
                                _lhsIsyn
-                               {-# LINE 7952 "dist/build/GenerateCode" #-}
+                               {-# LINE 7900 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOterminals =
                               ({-# LINE 90 "src-ag/GenerateCode.ag" #-}
                                _lhsIterminals
-                               {-# LINE 7958 "dist/build/GenerateCode" #-}
+                               {-# LINE 7906 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOunfoldSemDom =
                               ({-# LINE 750 "src-ag/GenerateCode.ag" #-}
                                _lhsIunfoldSemDom
-                               {-# LINE 7964 "dist/build/GenerateCode" #-}
+                               {-# LINE 7912 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (chain)
                           _tlOvisitedSet =
                               ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                                _hdIvisitedSet
-                               {-# LINE 7970 "dist/build/GenerateCode" #-}
+                               {-# LINE 7918 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (down)
                           _tlOwhat =
                               ({-# LINE 870 "src-ag/GenerateCode.ag" #-}
                                _lhsIwhat
-                               {-# LINE 7976 "dist/build/GenerateCode" #-}
+                               {-# LINE 7924 "dist/build/GenerateCode" #-}
                                )
                           ( _hdIallTpsFound,_hdIbldBlocksFun,_hdIcomments,_hdIdecls,_hdIdeclsAbove,_hdIdefinedInsts,_hdIexprs,_hdItSigs,_hdItps,_hdIusedVars,_hdIvisitedSet) =
                               hd_ _hdOallNts _hdOaroundMap _hdOchildren _hdOcon _hdOdeclsAbove _hdOinh _hdOinstVisitNrs _hdOmergeMap _hdOnr _hdOnt _hdOo_case _hdOo_cata _hdOo_costcentre _hdOo_data _hdOo_linePragmas _hdOo_monadic _hdOo_newtypes _hdOo_pretty _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_splitsems _hdOo_strictwrap _hdOo_traces _hdOo_unbox _hdOoptions _hdOparamInstMap _hdOparamMap _hdOprefix _hdOsyn _hdOterminals _hdOunfoldSemDom _hdOvisitedSet _hdOwhat
                           ( _tlIallTpsFound,_tlIblockDecls,_tlIcomments,_tlIdecls,_tlIdeclsAbove,_tlIdefinedInsts,_tlIexprs,_tlItSigs,_tlItps,_tlIusedVars,_tlIvisitedSet) =
                               tl_ _tlOallNts _tlOaroundMap _tlOchildren _tlOcon _tlOdeclsAbove _tlOinh _tlOinstVisitNrs _tlOlastExpr _tlOmergeMap _tlOnr _tlOnt _tlOo_case _tlOo_cata _tlOo_costcentre _tlOo_data _tlOo_linePragmas _tlOo_monadic _tlOo_newtypes _tlOo_pretty _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_splitsems _tlOo_strictwrap _tlOo_traces _tlOo_unbox _tlOoptions _tlOparamInstMap _tlOparamMap _tlOprefix _tlOsyn _tlOterminals _tlOunfoldSemDom _tlOvisitedSet _tlOwhat
-                          ___node =
-                              (Syn_Sequence _lhsOallTpsFound _lhsOblockDecls _lhsOcomments _lhsOdecls _lhsOdeclsAbove _lhsOdefinedInsts _lhsOexprs _lhsOtSigs _lhsOtps _lhsOusedVars _lhsOvisitedSet)
                       in  ( _lhsOallTpsFound,_lhsOblockDecls,_lhsOcomments,_lhsOdecls,_lhsOdeclsAbove,_lhsOdefinedInsts,_lhsOexprs,_lhsOtSigs,_lhsOtps,_lhsOusedVars,_lhsOvisitedSet))))
 sem_Sequence_Nil :: T_Sequence
 sem_Sequence_Nil =
@@ -8033,68 +7979,66 @@ sem_Sequence_Nil =
                           _lhsOblockDecls =
                               ({-# LINE 624 "src-ag/GenerateCode.ag" #-}
                                DeclTerminator _lhsIdeclsAbove _lhsIlastExpr
-                               {-# LINE 8037 "dist/build/GenerateCode" #-}
+                               {-# LINE 7983 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 416, column 39)
                           _lhsOallTpsFound =
                               ({-# LINE 416 "src-ag/GenerateCode.ag" #-}
                                True
-                               {-# LINE 8043 "dist/build/GenerateCode" #-}
+                               {-# LINE 7989 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 868, column 52)
                           _lhsOcomments =
                               ({-# LINE 868 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8049 "dist/build/GenerateCode" #-}
+                               {-# LINE 7995 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 155, column 34)
                           _lhsOdecls =
                               ({-# LINE 155 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8055 "dist/build/GenerateCode" #-}
+                               {-# LINE 8001 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 261, column 55)
                           _lhsOdefinedInsts =
                               ({-# LINE 261 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8061 "dist/build/GenerateCode" #-}
+                               {-# LINE 8007 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 334, column 34)
                           _lhsOexprs =
                               ({-# LINE 334 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8067 "dist/build/GenerateCode" #-}
+                               {-# LINE 8013 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 363, column 33)
                           _lhsOtSigs =
                               ({-# LINE 363 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8073 "dist/build/GenerateCode" #-}
+                               {-# LINE 8019 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 415, column 31)
                           _lhsOtps =
                               ({-# LINE 415 "src-ag/GenerateCode.ag" #-}
                                []
-                               {-# LINE 8079 "dist/build/GenerateCode" #-}
+                               {-# LINE 8025 "dist/build/GenerateCode" #-}
                                )
                           -- use rule "src-ag/GenerateCode.ag"(line 352, column 37)
                           _lhsOusedVars =
                               ({-# LINE 352 "src-ag/GenerateCode.ag" #-}
                                Set.empty
-                               {-# LINE 8085 "dist/build/GenerateCode" #-}
+                               {-# LINE 8031 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (chain)
                           _lhsOdeclsAbove =
                               ({-# LINE 608 "src-ag/GenerateCode.ag" #-}
                                _lhsIdeclsAbove
-                               {-# LINE 8091 "dist/build/GenerateCode" #-}
+                               {-# LINE 8037 "dist/build/GenerateCode" #-}
                                )
                           -- copy rule (chain)
                           _lhsOvisitedSet =
                               ({-# LINE 145 "src-ag/GenerateCode.ag" #-}
                                _lhsIvisitedSet
-                               {-# LINE 8097 "dist/build/GenerateCode" #-}
+                               {-# LINE 8043 "dist/build/GenerateCode" #-}
                                )
-                          ___node =
-                              (Syn_Sequence _lhsOallTpsFound _lhsOblockDecls _lhsOcomments _lhsOdecls _lhsOdeclsAbove _lhsOdefinedInsts _lhsOexprs _lhsOtSigs _lhsOtps _lhsOusedVars _lhsOvisitedSet)
                       in  ( _lhsOallTpsFound,_lhsOblockDecls,_lhsOcomments,_lhsOdecls,_lhsOdeclsAbove,_lhsOdefinedInsts,_lhsOexprs,_lhsOtSigs,_lhsOtps,_lhsOusedVars,_lhsOvisitedSet))))

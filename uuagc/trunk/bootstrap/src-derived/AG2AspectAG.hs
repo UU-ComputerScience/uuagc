@@ -563,8 +563,6 @@ sem_Child_Child name_ tp_ kind_ =
                             Map.findWithDefault Map.empty _chnt     _lhsIsynMap
                             {-# LINE 565 "dist/build/AG2AspectAG" #-}
                             )
-                       ___node =
-                           (Syn_Child _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh)
                    in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
 -- Children ----------------------------------------------------
 {-
@@ -673,158 +671,156 @@ sem_Children_Cons (T_Child hd_) (T_Children tl_) =
                           _lhsOppDL =
                               ({-# LINE 237 "src-ag/AG2AspectAG.ag" #-}
                                _hdIppDL ++ _tlIppDL
-                               {-# LINE 677 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 675 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 481, column 31)
                           _lhsOidCL =
                               ({-# LINE 481 "src-ag/AG2AspectAG.ag" #-}
                                _hdIidCL ++ _tlIidCL
-                               {-# LINE 683 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 681 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 816, column 34)
                           _lhsOppCSF =
                               ({-# LINE 816 "src-ag/AG2AspectAG.ag" #-}
                                _hdIppCSF ++ _tlIppCSF
-                               {-# LINE 689 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 687 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                           _lhsOppL =
                               ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                _hdIppL >-< _tlIppL
-                               {-# LINE 695 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 693 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                           _lhsOppLI =
                               ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                _hdIppLI ++ _tlIppLI
-                               {-# LINE 701 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 699 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                           _lhsOppR =
                               ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                _hdIppR >-< _tlIppR
-                               {-# LINE 707 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 705 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 64, column 57)
                           _lhsOprdInh =
                               ({-# LINE 64 "src-ag/AG2AspectAG.ag" #-}
                                _hdIprdInh `Map.union` _tlIprdInh
-                               {-# LINE 713 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 711 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOext =
                               ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIext
-                               {-# LINE 719 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 717 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 725 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 723 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOinhNoGroup =
                               ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIinhNoGroup
-                               {-# LINE 731 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 729 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOo_noGroup =
                               ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIo_noGroup
-                               {-# LINE 737 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 735 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOo_rename =
                               ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIo_rename
-                               {-# LINE 743 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 741 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOppNt =
                               ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIppNt
-                               {-# LINE 749 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 747 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOppProd =
                               ({-# LINE 191 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIppProd
-                               {-# LINE 755 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 753 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 761 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 759 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _hdOsynNoGroup =
                               ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIsynNoGroup
-                               {-# LINE 767 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 765 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOext =
                               ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIext
-                               {-# LINE 773 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 771 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOinhMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIinhMap
-                               {-# LINE 779 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 777 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOinhNoGroup =
                               ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIinhNoGroup
-                               {-# LINE 785 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 783 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOo_noGroup =
                               ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIo_noGroup
-                               {-# LINE 791 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 789 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOo_rename =
                               ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIo_rename
-                               {-# LINE 797 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 795 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOppNt =
                               ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIppNt
-                               {-# LINE 803 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 801 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOppProd =
                               ({-# LINE 191 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIppProd
-                               {-# LINE 809 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 807 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOsynMap =
                               ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                _lhsIsynMap
-                               {-# LINE 815 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 813 "dist/build/AG2AspectAG" #-}
                                )
                           -- copy rule (down)
                           _tlOsynNoGroup =
                               ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                _lhsIsynNoGroup
-                               {-# LINE 821 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 819 "dist/build/AG2AspectAG" #-}
                                )
                           ( _hdIidCL,_hdIppCSF,_hdIppDL,_hdIppL,_hdIppLI,_hdIppR,_hdIprdInh) =
                               hd_ _hdOext _hdOinhMap _hdOinhNoGroup _hdOo_noGroup _hdOo_rename _hdOppNt _hdOppProd _hdOsynMap _hdOsynNoGroup
                           ( _tlIidCL,_tlIppCSF,_tlIppDL,_tlIppL,_tlIppLI,_tlIppR,_tlIprdInh) =
                               tl_ _tlOext _tlOinhMap _tlOinhNoGroup _tlOo_noGroup _tlOo_rename _tlOppNt _tlOppProd _tlOsynMap _tlOsynNoGroup
-                          ___node =
-                              (Syn_Children _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh)
                       in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
 sem_Children_Nil :: T_Children
 sem_Children_Nil =
@@ -848,46 +844,44 @@ sem_Children_Nil =
                           _lhsOppDL =
                               ({-# LINE 238 "src-ag/AG2AspectAG.ag" #-}
                                []
-                               {-# LINE 852 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 848 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 481, column 31)
                           _lhsOidCL =
                               ({-# LINE 481 "src-ag/AG2AspectAG.ag" #-}
                                []
-                               {-# LINE 858 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 854 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 816, column 34)
                           _lhsOppCSF =
                               ({-# LINE 816 "src-ag/AG2AspectAG.ag" #-}
                                []
-                               {-# LINE 864 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 860 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                           _lhsOppL =
                               ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                empty
-                               {-# LINE 870 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 866 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                           _lhsOppLI =
                               ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                []
-                               {-# LINE 876 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 872 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                           _lhsOppR =
                               ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                empty
-                               {-# LINE 882 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 878 "dist/build/AG2AspectAG" #-}
                                )
                           -- use rule "src-ag/AG2AspectAG.ag"(line 64, column 57)
                           _lhsOprdInh =
                               ({-# LINE 64 "src-ag/AG2AspectAG.ag" #-}
                                Map.empty
-                               {-# LINE 888 "dist/build/AG2AspectAG" #-}
+                               {-# LINE 884 "dist/build/AG2AspectAG" #-}
                                )
-                          ___node =
-                              (Syn_Children _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh)
                       in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
 -- Expression --------------------------------------------------
 {-
@@ -930,10 +924,8 @@ sem_Expression_Expression pos_ tks_ =
                             _lhsOppRE =
                                 ({-# LINE 478 "src-ag/AG2AspectAG.ag" #-}
                                  rhsRule _lhsIppNt _lhsIppProd tks_
-                                 {-# LINE 934 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 928 "dist/build/AG2AspectAG" #-}
                                  )
-                            ___node =
-                                (Syn_Expression _lhsOppRE)
                         in  ( _lhsOppRE))))
 -- Grammar -----------------------------------------------------
 {-
@@ -1037,52 +1029,52 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                          _nontsOo_rename =
                              ({-# LINE 42 "src-ag/AG2AspectAG.ag" #-}
                               rename    _lhsIoptions
-                              {-# LINE 1041 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1033 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 46, column 14)
                          _o_noGroup =
                              ({-# LINE 46 "src-ag/AG2AspectAG.ag" #-}
                               sort $ noGroup    _lhsIoptions
-                              {-# LINE 1047 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1039 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 47, column 14)
                          _nontsOo_noGroup =
                              ({-# LINE 47 "src-ag/AG2AspectAG.ag" #-}
                               _o_noGroup
-                              {-# LINE 1053 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1045 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 79, column 23)
                          _newAtts =
                              ({-# LINE 79 "src-ag/AG2AspectAG.ag" #-}
                               case _lhsIagi of
                                       (_,_,atts) -> ( Map.unions . (\(a,b) -> a++b) . unzip . Map.elems) atts
-                              {-# LINE 1060 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1052 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 81, column 23)
                          _nontsOnewAtts =
                              ({-# LINE 81 "src-ag/AG2AspectAG.ag" #-}
                               _newAtts
-                              {-# LINE 1066 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1058 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 87, column 23)
                          _newProds =
                              ({-# LINE 87 "src-ag/AG2AspectAG.ag" #-}
                               case _lhsIagi of
                                      (_,prods,_) -> prods
-                              {-# LINE 1073 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1065 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 89, column 23)
                          _nontsOnewProds =
                              ({-# LINE 89 "src-ag/AG2AspectAG.ag" #-}
                               _newProds
-                              {-# LINE 1079 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1071 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 111, column 23)
                          _nontsOnewNTs =
                              ({-# LINE 111 "src-ag/AG2AspectAG.ag" #-}
                               case _lhsIagi of
                                       (newNTs,_,_) -> Set.difference newNTs _nontsIextendedNTs
-                              {-# LINE 1086 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1078 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 126, column 25)
                          _lhsOimp =
@@ -1094,7 +1086,7 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                               "import Data.HList.TypeCastGeneric1" >-<
                               maybe empty ("import qualified" >#<) _lhsIext >-<
                               maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (_nontsIppDI ++ _nontsIppLI ++ _ppAI    )) _lhsIext
-                              {-# LINE 1098 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1090 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 139, column 25)
                          _lhsOpp =
@@ -1117,19 +1109,19 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                               (if wrappers _lhsIoptions
                               then  "-- wrappers"    >-< _nontsIppW
                               else  empty)
-                              {-# LINE 1121 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1113 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 201, column 25)
                          _nontsOderivs =
                              ({-# LINE 201 "src-ag/AG2AspectAG.ag" #-}
                               derivings_
-                              {-# LINE 1127 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1119 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 250, column 34)
                          _nontsOtSyns =
                              ({-# LINE 250 "src-ag/AG2AspectAG.ag" #-}
                               typeSyns_
-                              {-# LINE 1133 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1125 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 299, column 25)
                          _ppA =
@@ -1140,7 +1132,7 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                                 Nothing    ->  defAtt "inh" >-< defAtt "syn"
                                 otherwise  ->  empty) >-<
                               _nontsIppA
-                              {-# LINE 1144 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1136 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 306, column 25)
                          _ppAI =
@@ -1152,13 +1144,13 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                                     Nothing    ->  []
                                     otherwise  ->  [ attName "inh", attName "syn", attTName "inh", attTName "syn" ]) ++
                                   _nontsIppAI
-                              {-# LINE 1156 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1148 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 386, column 25)
                          _ppNtL =
                              ({-# LINE 386 "src-ag/AG2AspectAG.ag" #-}
                               _nontsIppNtL
-                              {-# LINE 1162 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1154 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/AG2AspectAG.ag"(line 387, column 25)
                          _ppR =
@@ -1166,30 +1158,28 @@ sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts
                               ntsList "group" _ppNtL      >-<
                               vlist (map (\att -> ntsList att (filterNts att _ppNtL    )) (filterAtts _newAtts _o_noGroup    ))  >-<
                               _nontsIppR
-                              {-# LINE 1170 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1162 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 15, column 13)
                          _nontsOinhMap =
                              ({-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                               _nontsIinhMap'
-                              {-# LINE 1176 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1168 "dist/build/AG2AspectAG" #-}
                               )
                          -- "src-ag/DistChildAttr.ag"(line 16, column 13)
                          _nontsOsynMap =
                              ({-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                               _nontsIsynMap'
-                              {-# LINE 1182 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1174 "dist/build/AG2AspectAG" #-}
                               )
                          -- copy rule (down)
                          _nontsOext =
                              ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                               _lhsIext
-                              {-# LINE 1188 "dist/build/AG2AspectAG" #-}
+                              {-# LINE 1180 "dist/build/AG2AspectAG" #-}
                               )
                          ( _nontsIextendedNTs,_nontsIinhMap',_nontsIppA,_nontsIppAI,_nontsIppCata,_nontsIppD,_nontsIppDI,_nontsIppL,_nontsIppLI,_nontsIppNtL,_nontsIppR,_nontsIppSF,_nontsIppW,_nontsIsynMap') =
                              nonts_ _nontsOderivs _nontsOext _nontsOinhMap _nontsOnewAtts _nontsOnewNTs _nontsOnewProds _nontsOo_noGroup _nontsOo_rename _nontsOsynMap _nontsOtSyns
-                         ___node =
-                             (Syn_Grammar _lhsOimp _lhsOpp)
                      in  ( _lhsOimp,_lhsOpp))))
 -- HsToken -----------------------------------------------------
 {-
@@ -1247,44 +1237,38 @@ sem_HsToken_AGField :: Identifier ->
                        (Maybe String) ->
                        T_HsToken
 sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 sem_HsToken_AGLocal :: Identifier ->
                        Pos ->
                        (Maybe String) ->
                        T_HsToken
 sem_HsToken_AGLocal var_ pos_ rdesc_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 sem_HsToken_CharToken :: String ->
                          Pos ->
                          T_HsToken
 sem_HsToken_CharToken value_ pos_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 sem_HsToken_Err :: String ->
                    Pos ->
                    T_HsToken
 sem_HsToken_Err mesg_ pos_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 sem_HsToken_HsToken :: String ->
                        Pos ->
                        T_HsToken
 sem_HsToken_HsToken value_ pos_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 sem_HsToken_StrToken :: String ->
                         Pos ->
                         T_HsToken
 sem_HsToken_StrToken value_ pos_ =
-    (T_HsToken (let ___node =
-                        (Syn_HsToken)
+    (T_HsToken (let
                 in  ( )))
 -- HsTokens ----------------------------------------------------
 {-
@@ -1313,13 +1297,11 @@ sem_HsTokens_Cons :: T_HsToken ->
                      T_HsTokens ->
                      T_HsTokens
 sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
-    (T_HsTokens (let ___node =
-                         (Syn_HsTokens)
+    (T_HsTokens (let
                  in  ( )))
 sem_HsTokens_Nil :: T_HsTokens
 sem_HsTokens_Nil =
-    (T_HsTokens (let ___node =
-                         (Syn_HsTokens)
+    (T_HsTokens (let
                  in  ( )))
 -- HsTokensRoot ------------------------------------------------
 {-
@@ -1345,8 +1327,7 @@ wrap_HsTokensRoot (T_HsTokensRoot sem) (Inh_HsTokensRoot) =
 sem_HsTokensRoot_HsTokensRoot :: T_HsTokens ->
                                  T_HsTokensRoot
 sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_) =
-    (T_HsTokensRoot (let ___node =
-                             (Syn_HsTokensRoot)
+    (T_HsTokensRoot (let
                      in  ( )))
 -- Nonterminal -------------------------------------------------
 {-
@@ -1474,25 +1455,25 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                              _inhNoGroup =
                                  ({-# LINE 50 "src-ag/AG2AspectAG.ag" #-}
                                   Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) _prodsIprdInh
-                                  {-# LINE 1478 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1459 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 51, column 18)
                              _synNoGroup =
                                  ({-# LINE 51 "src-ag/AG2AspectAG.ag" #-}
                                   Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) syn_
-                                  {-# LINE 1484 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1465 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 56, column 18)
                              _prodsOinhNoGroup =
                                  ({-# LINE 56 "src-ag/AG2AspectAG.ag" #-}
                                   map show $ Map.keys _inhNoGroup
-                                  {-# LINE 1490 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1471 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 57, column 18)
                              _prodsOsynNoGroup =
                                  ({-# LINE 57 "src-ag/AG2AspectAG.ag" #-}
                                   map show $ Map.keys _synNoGroup
-                                  {-# LINE 1496 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1477 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 93, column 17)
                              _prodsOnewProds =
@@ -1500,7 +1481,7 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                   case Map.lookup nt_ _lhsInewProds of
                                          Just prds -> prds
                                          Nothing   -> Map.empty
-                                  {-# LINE 1504 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1485 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 106, column 31)
                              _lhsOextendedNTs =
@@ -1508,19 +1489,19 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                   if _prodsIhasMoreProds
                                   then Set.singleton nt_
                                   else Set.empty
-                                  {-# LINE 1512 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1493 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 172, column 25)
                              _ppNt =
                                  ({-# LINE 172 "src-ag/AG2AspectAG.ag" #-}
                                   pp nt_
-                                  {-# LINE 1518 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1499 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 189, column 25)
                              _prodsOppNt =
                                  ({-# LINE 189 "src-ag/AG2AspectAG.ag" #-}
                                   _ppNt
-                                  {-# LINE 1524 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1505 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 207, column 25)
                              _lhsOppD =
@@ -1534,7 +1515,7 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                                               Nothing   -> empty
                                                  Just tp ->  "type " >|< _ppNt     >|< " = " >|< ppShow tp
                                   else  empty
-                                  {-# LINE 1538 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1519 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 220, column 25)
                              _lhsOppDI =
@@ -1542,13 +1523,13 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                   if (not $ Set.member nt_ _lhsInewNTs)
                                   then  [ _ppNt     ]
                                   else  [ ]
-                                  {-# LINE 1546 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1527 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 261, column 25)
                              _ntLabel =
                                  ({-# LINE 261 "src-ag/AG2AspectAG.ag" #-}
                                   "nt_" >|< _ppNt
-                                  {-# LINE 1552 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1533 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 263, column 25)
                              _lhsOppL =
@@ -1557,7 +1538,7 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                     then _ntLabel     >|< " = proxy :: Proxy " >|< _ppNt
                                     else empty)  >-<
                                   _prodsIppL
-                                  {-# LINE 1561 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1542 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 268, column 25)
                              _lhsOppLI =
@@ -1566,7 +1547,7 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                     then [ _ntLabel     ]
                                     else [ ])  ++
                                   _prodsIppLI
-                                  {-# LINE 1570 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1551 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 319, column 25)
                              _lhsOppA =
@@ -1576,7 +1557,7 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                            defAttRec (pp "SynG") _ppNt     syn_ _synNoGroup
                                     else   empty) >-<
                                   _prodsIppA
-                                  {-# LINE 1580 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1561 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 332, column 25)
                              _lhsOppAI =
@@ -1584,43 +1565,43 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                   if (not $ Set.member nt_ _lhsInewNTs)
                                   then [ ppName [(pp "InhG"), _ppNt     ] >#< pp "(..)", ppName [(pp "SynG"), _ppNt     ] >#< pp "(..)" ]
                                   else [ ]
-                                  {-# LINE 1588 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1569 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 400, column 25)
                              _lhsOppNtL =
                                  ({-# LINE 400 "src-ag/AG2AspectAG.ag" #-}
                                   [ ("nt_" >|< nt_, Map.union inh_ syn_) ]
-                                  {-# LINE 1594 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1575 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 409, column 25)
                              _prodsOnewNT =
                                  ({-# LINE 409 "src-ag/AG2AspectAG.ag" #-}
                                   Set.member nt_ _lhsInewNTs
-                                  {-# LINE 1600 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1581 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 419, column 25)
                              _lhsOppR =
                                  ({-# LINE 419 "src-ag/AG2AspectAG.ag" #-}
                                   pp "----" >|< pp nt_ >-< _prodsIppR
-                                  {-# LINE 1606 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1587 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 729, column 25)
                              _lhsOppCata =
                                  ({-# LINE 729 "src-ag/AG2AspectAG.ag" #-}
                                   "----" >|< _ppNt     >-< _prodsIppCata
-                                  {-# LINE 1612 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1593 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 760, column 25)
                              _prodsOsyn =
                                  ({-# LINE 760 "src-ag/AG2AspectAG.ag" #-}
                                   syn_
-                                  {-# LINE 1618 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1599 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 761, column 25)
                              _prodsOinh =
                                  ({-# LINE 761 "src-ag/AG2AspectAG.ag" #-}
                                   inh_
-                                  {-# LINE 1624 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1605 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 772, column 25)
                              _lhsOppSF =
@@ -1641,67 +1622,65 @@ sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
                                            "instance SemType T_" >|< _ppNt     >|< " " >|< _ppNt     >-<
                                            "-- sem_" >|< _ppNt     >|< " :: " >|< _ppNt     >|< " -> T_" >|<  _ppNt     >-<
                                            _prodsIppSPF
-                                  {-# LINE 1645 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1626 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 840, column 25)
                              _lhsOppW =
                                  ({-# LINE 840 "src-ag/AG2AspectAG.ag" #-}
                                   ppName [pp "wrap", _ppNt    ] >|< " sem " >|< attVars inh_ >|< " = " >-<
                                   "   sem " >|< attFields inh_ _inhNoGroup     _ppNt
-                                  {-# LINE 1652 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1633 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 7, column 18)
                              _lhsOinhMap' =
                                  ({-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ inh_
-                                  {-# LINE 1658 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1639 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/DistChildAttr.ag"(line 8, column 18)
                              _lhsOsynMap' =
                                  ({-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                   Map.singleton nt_ syn_
-                                  {-# LINE 1664 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1645 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOext =
                                  ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIext
-                                  {-# LINE 1670 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1651 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 1676 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1657 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOnewAtts =
                                  ({-# LINE 77 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewAtts
-                                  {-# LINE 1682 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1663 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_noGroup =
                                  ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_noGroup
-                                  {-# LINE 1688 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1669 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOo_rename =
                                  ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 1694 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1675 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _prodsOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 1700 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 1681 "dist/build/AG2AspectAG" #-}
                                   )
                              ( _prodsIhasMoreProds,_prodsIppA,_prodsIppCata,_prodsIppDL,_prodsIppL,_prodsIppLI,_prodsIppR,_prodsIppRA,_prodsIppSF,_prodsIppSPF,_prodsIprdInh) =
                                  prods_ _prodsOext _prodsOinh _prodsOinhMap _prodsOinhNoGroup _prodsOnewAtts _prodsOnewNT _prodsOnewProds _prodsOo_noGroup _prodsOo_rename _prodsOppNt _prodsOsyn _prodsOsynMap _prodsOsynNoGroup
-                             ___node =
-                                 (Syn_Nonterminal _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap')
                          in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
 -- Nonterminals ------------------------------------------------
 {-
@@ -1843,212 +1822,210 @@ sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
                               _lhsOextendedNTs =
                                   ({-# LINE 104 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIextendedNTs `Set.union` _tlIextendedNTs
-                                   {-# LINE 1847 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1826 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 1853 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1832 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 316, column 64)
                               _lhsOppA =
                                   ({-# LINE 316 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppA >-< _tlIppA
-                                   {-# LINE 1859 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1838 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 329, column 42)
                               _lhsOppAI =
                                   ({-# LINE 329 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppAI ++ _tlIppAI
-                                   {-# LINE 1865 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1844 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 726, column 67)
                               _lhsOppCata =
                                   ({-# LINE 726 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppCata >-< _tlIppCata
-                                   {-# LINE 1871 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1850 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 204, column 52)
                               _lhsOppD =
                                   ({-# LINE 204 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppD >-< _tlIppD
-                                   {-# LINE 1877 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1856 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 204, column 86)
                               _lhsOppDI =
                                   ({-# LINE 204 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppDI ++ _tlIppDI
-                                   {-# LINE 1883 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1862 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                               _lhsOppL =
                                   ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppL >-< _tlIppL
-                                   {-# LINE 1889 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1868 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                               _lhsOppLI =
                                   ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppLI ++ _tlIppLI
-                                   {-# LINE 1895 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1874 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 397, column 44)
                               _lhsOppNtL =
                                   ({-# LINE 397 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppNtL ++ _tlIppNtL
-                                   {-# LINE 1901 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1880 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                               _lhsOppR =
                                   ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppR >-< _tlIppR
-                                   {-# LINE 1907 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1886 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 767, column 66)
                               _lhsOppSF =
                                   ({-# LINE 767 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppSF >-< _tlIppSF
-                                   {-# LINE 1913 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1892 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 837, column 42)
                               _lhsOppW =
                                   ({-# LINE 837 "src-ag/AG2AspectAG.ag" #-}
                                    _hdIppW >-< _tlIppW
-                                   {-# LINE 1919 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1898 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 1925 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1904 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOderivs =
                                   ({-# LINE 198 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIderivs
-                                   {-# LINE 1931 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1910 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOext =
                                   ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIext
-                                   {-# LINE 1937 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1916 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 1943 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1922 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOnewAtts =
                                   ({-# LINE 77 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewAtts
-                                   {-# LINE 1949 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1928 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOnewNTs =
                                   ({-# LINE 98 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewNTs
-                                   {-# LINE 1955 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1934 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOnewProds =
                                   ({-# LINE 84 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewProds
-                                   {-# LINE 1961 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1940 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_noGroup =
                                   ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIo_noGroup
-                                   {-# LINE 1967 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1946 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOo_rename =
                                   ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 1973 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1952 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 1979 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1958 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _hdOtSyns =
                                   ({-# LINE 247 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsItSyns
-                                   {-# LINE 1985 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1964 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOderivs =
                                   ({-# LINE 198 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIderivs
-                                   {-# LINE 1991 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1970 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOext =
                                   ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIext
-                                   {-# LINE 1997 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1976 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIinhMap
-                                   {-# LINE 2003 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1982 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOnewAtts =
                                   ({-# LINE 77 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewAtts
-                                   {-# LINE 2009 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1988 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOnewNTs =
                                   ({-# LINE 98 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewNTs
-                                   {-# LINE 2015 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 1994 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOnewProds =
                                   ({-# LINE 84 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsInewProds
-                                   {-# LINE 2021 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2000 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_noGroup =
                                   ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIo_noGroup
-                                   {-# LINE 2027 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2006 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOo_rename =
                                   ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsIo_rename
-                                   {-# LINE 2033 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2012 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynMap =
                                   ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                    _lhsIsynMap
-                                   {-# LINE 2039 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2018 "dist/build/AG2AspectAG" #-}
                                    )
                               -- copy rule (down)
                               _tlOtSyns =
                                   ({-# LINE 247 "src-ag/AG2AspectAG.ag" #-}
                                    _lhsItSyns
-                                   {-# LINE 2045 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2024 "dist/build/AG2AspectAG" #-}
                                    )
                               ( _hdIextendedNTs,_hdIinhMap',_hdIppA,_hdIppAI,_hdIppCata,_hdIppD,_hdIppDI,_hdIppL,_hdIppLI,_hdIppNtL,_hdIppR,_hdIppSF,_hdIppW,_hdIsynMap') =
                                   hd_ _hdOderivs _hdOext _hdOinhMap _hdOnewAtts _hdOnewNTs _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOsynMap _hdOtSyns
                               ( _tlIextendedNTs,_tlIinhMap',_tlIppA,_tlIppAI,_tlIppCata,_tlIppD,_tlIppDI,_tlIppL,_tlIppLI,_tlIppNtL,_tlIppR,_tlIppSF,_tlIppW,_tlIsynMap') =
                                   tl_ _tlOderivs _tlOext _tlOinhMap _tlOnewAtts _tlOnewNTs _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOsynMap _tlOtSyns
-                              ___node =
-                                  (Syn_Nonterminals _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap')
                           in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
 sem_Nonterminals_Nil :: T_Nonterminals
 sem_Nonterminals_Nil =
@@ -2080,88 +2057,86 @@ sem_Nonterminals_Nil =
                               _lhsOextendedNTs =
                                   ({-# LINE 104 "src-ag/AG2AspectAG.ag" #-}
                                    Set.empty
-                                   {-# LINE 2084 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2061 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOinhMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 2090 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2067 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 316, column 64)
                               _lhsOppA =
                                   ({-# LINE 316 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2096 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2073 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 329, column 42)
                               _lhsOppAI =
                                   ({-# LINE 329 "src-ag/AG2AspectAG.ag" #-}
                                    []
-                                   {-# LINE 2102 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2079 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 726, column 67)
                               _lhsOppCata =
                                   ({-# LINE 726 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2108 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2085 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 204, column 52)
                               _lhsOppD =
                                   ({-# LINE 204 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2114 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2091 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 204, column 86)
                               _lhsOppDI =
                                   ({-# LINE 204 "src-ag/AG2AspectAG.ag" #-}
                                    []
-                                   {-# LINE 2120 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2097 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                               _lhsOppL =
                                   ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2126 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2103 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                               _lhsOppLI =
                                   ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                    []
-                                   {-# LINE 2132 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2109 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 397, column 44)
                               _lhsOppNtL =
                                   ({-# LINE 397 "src-ag/AG2AspectAG.ag" #-}
                                    []
-                                   {-# LINE 2138 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2115 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                               _lhsOppR =
                                   ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2144 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2121 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 767, column 66)
                               _lhsOppSF =
                                   ({-# LINE 767 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2150 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2127 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/AG2AspectAG.ag"(line 837, column 42)
                               _lhsOppW =
                                   ({-# LINE 837 "src-ag/AG2AspectAG.ag" #-}
                                    empty
-                                   {-# LINE 2156 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2133 "dist/build/AG2AspectAG" #-}
                                    )
                               -- use rule "src-ag/DistChildAttr.ag"(line 4, column 53)
                               _lhsOsynMap' =
                                   ({-# LINE 4 "src-ag/DistChildAttr.ag" #-}
                                    Map.empty
-                                   {-# LINE 2162 "dist/build/AG2AspectAG" #-}
+                                   {-# LINE 2139 "dist/build/AG2AspectAG" #-}
                                    )
-                              ___node =
-                                  (Syn_Nonterminals _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap')
                           in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
 -- Pattern -----------------------------------------------------
 {-
@@ -2231,24 +2206,22 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                     _lhsOinfo =
                         ({-# LINE 376 "src-ag/AG2AspectAG.ag" #-}
                          (field_, attr_)
-                         {-# LINE 2235 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2210 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 2241 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2216 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 2247 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2222 "dist/build/AG2AspectAG" #-}
                          )
                     ( _patIcopy,_patIinfo) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOinfo)
                 in  ( _lhsOcopy,_lhsOinfo)))
 sem_Pattern_Constr :: ConstructorIdent ->
                       T_Patterns ->
@@ -2261,24 +2234,22 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _lhsOinfo =
                         ({-# LINE 377 "src-ag/AG2AspectAG.ag" #-}
                          error "Pattern Constr undefined!!"
-                         {-# LINE 2265 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2238 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 2271 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2244 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 2277 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2250 "dist/build/AG2AspectAG" #-}
                          )
                     ( _patsIcopy) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOinfo)
                 in  ( _lhsOcopy,_lhsOinfo)))
 sem_Pattern_Irrefutable :: T_Pattern ->
                            T_Pattern
@@ -2291,24 +2262,22 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 2295 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2266 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 2301 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2272 "dist/build/AG2AspectAG" #-}
                          )
                     -- copy rule (up)
                     _lhsOinfo =
                         ({-# LINE 374 "src-ag/AG2AspectAG.ag" #-}
                          _patIinfo
-                         {-# LINE 2307 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2278 "dist/build/AG2AspectAG" #-}
                          )
                     ( _patIcopy,_patIinfo) =
                         pat_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOinfo)
                 in  ( _lhsOcopy,_lhsOinfo)))
 sem_Pattern_Product :: Pos ->
                        T_Patterns ->
@@ -2321,24 +2290,22 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _lhsOinfo =
                         ({-# LINE 378 "src-ag/AG2AspectAG.ag" #-}
                          error "Pattern Product undefined!!"
-                         {-# LINE 2325 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2294 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 2331 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2300 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 2337 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2306 "dist/build/AG2AspectAG" #-}
                          )
                     ( _patsIcopy) =
                         pats_
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOinfo)
                 in  ( _lhsOcopy,_lhsOinfo)))
 sem_Pattern_Underscore :: Pos ->
                           T_Pattern
@@ -2349,22 +2316,20 @@ sem_Pattern_Underscore pos_ =
                     _lhsOinfo =
                         ({-# LINE 379 "src-ag/AG2AspectAG.ag" #-}
                          error "Pattern Underscore undefined!!"
-                         {-# LINE 2353 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2320 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 2359 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2326 "dist/build/AG2AspectAG" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 2365 "dist/build/AG2AspectAG" #-}
+                         {-# LINE 2332 "dist/build/AG2AspectAG" #-}
                          )
-                    ___node =
-                        (Syn_Pattern _lhsOcopy _lhsOinfo)
                 in  ( _lhsOcopy,_lhsOinfo)))
 -- Patterns ----------------------------------------------------
 {-
@@ -2408,20 +2373,18 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 2412 "dist/build/AG2AspectAG" #-}
+                          {-# LINE 2377 "dist/build/AG2AspectAG" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 2418 "dist/build/AG2AspectAG" #-}
+                          {-# LINE 2383 "dist/build/AG2AspectAG" #-}
                           )
                      ( _hdIcopy,_hdIinfo) =
                          hd_
                      ( _tlIcopy) =
                          tl_
-                     ___node =
-                         (Syn_Patterns _lhsOcopy)
                  in  ( _lhsOcopy)))
 sem_Patterns_Nil :: T_Patterns
 sem_Patterns_Nil =
@@ -2430,16 +2393,14 @@ sem_Patterns_Nil =
                      _copy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 2434 "dist/build/AG2AspectAG" #-}
+                          {-# LINE 2397 "dist/build/AG2AspectAG" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 2440 "dist/build/AG2AspectAG" #-}
+                          {-# LINE 2403 "dist/build/AG2AspectAG" #-}
                           )
-                     ___node =
-                         (Syn_Patterns _lhsOcopy)
                  in  ( _lhsOcopy)))
 -- Production --------------------------------------------------
 {-
@@ -2579,19 +2540,19 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                             _lhsOhasMoreProds =
                                 ({-# LINE 102 "src-ag/AG2AspectAG.ag" #-}
                                  not $ Map.member con_ _lhsInewProds
-                                 {-# LINE 2583 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2544 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 175, column 25)
                             _ppProd =
                                 ({-# LINE 175 "src-ag/AG2AspectAG.ag" #-}
                                  pp con_
-                                 {-# LINE 2589 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2550 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 176, column 25)
                             _prodName =
                                 ({-# LINE 176 "src-ag/AG2AspectAG.ag" #-}
                                  ppName [_lhsIppNt, _ppProd    ]
-                                 {-# LINE 2595 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2556 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 177, column 25)
                             _conName =
@@ -2599,25 +2560,25 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  if _lhsIo_rename
                                  then _prodName
                                  else _ppProd
-                                 {-# LINE 2603 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2564 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 194, column 25)
                             _childrenOppProd =
                                 ({-# LINE 194 "src-ag/AG2AspectAG.ag" #-}
                                  _ppProd
-                                 {-# LINE 2609 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2570 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 195, column 25)
                             _rulesOppProd =
                                 ({-# LINE 195 "src-ag/AG2AspectAG.ag" #-}
                                  _ppProd
-                                 {-# LINE 2615 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2576 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 227, column 25)
                             _lhsOppD =
                                 ({-# LINE 227 "src-ag/AG2AspectAG.ag" #-}
                                  _conName     >|< ppListSep " {" "}" ", " _childrenIppDL
-                                 {-# LINE 2621 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2582 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 274, column 25)
                             _lhsOppL =
@@ -2625,7 +2586,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  if (Map.member con_ _lhsInewProds)
                                    then _childrenIppL
                                    else empty
-                                 {-# LINE 2629 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2590 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 278, column 25)
                             _lhsOppLI =
@@ -2633,19 +2594,19 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                  if (not $ Map.member con_ _lhsInewProds)
                                    then _childrenIppLI
                                    else []
-                                 {-# LINE 2637 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2598 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 326, column 25)
                             _lhsOppA =
                                 ({-# LINE 326 "src-ag/AG2AspectAG.ag" #-}
                                  defLocalAtts _prodName     (length _rulesIlocals) 1 $ sort _rulesIlocals
-                                 {-# LINE 2643 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2604 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 422, column 25)
                             _newProd =
                                 ({-# LINE 422 "src-ag/AG2AspectAG.ag" #-}
                                  Map.member con_ _lhsInewProds
-                                 {-# LINE 2649 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2610 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 423, column 41)
                             (_ppR,_ppRA) =
@@ -2668,7 +2629,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                                                        _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup  _childrenIidCL _rulesIlocals
                                  in   ( vlist [instR,locR,inhGR,synGR,inhR,synR,inhMR,synMR]
                                       , instRA ++ locRA ++ inhGRA ++ synGRA ++ inhMRA ++ synMRA ++ inhRA ++ synRA)
-                                 {-# LINE 2672 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2633 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 733, column 25)
                             _lhsOppCata =
@@ -2686,7 +2647,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                                                     ppListSep "" "" " `ext` "
                                                                     (atts ++ macro ++ extend ) >-<
                                       "semP_" >|< _prodName     >|< pp " = knit atts_" >|< _prodName
-                                 {-# LINE 2690 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2651 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 797, column 25)
                             _lhsOppSF =
@@ -2699,7 +2660,7 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                       ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
                                  in   "sem_" >|< _lhsIppNt >|< " (" >|< ppPattern >|< ") = sem_" >|< _prodName     >|<
                                       " (" >|< map (fst . snd) chi >|< "emptyRecord)"
-                                 {-# LINE 2703 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2664 "dist/build/AG2AspectAG" #-}
                                  )
                             -- "src-ag/AG2AspectAG.ag"(line 809, column 25)
                             _lhsOppSPF =
@@ -2708,122 +2669,120 @@ sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Ru
                                       ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
                                  in   "sem_" >|< _lhsIppNt >|< "_" >|< con_ >#< ppParams ppSpaced >|< " = semP_" >|< _prodName     >|<
                                       " (" >|< map (snd . snd) chi >|< "emptyRecord)"
-                                 {-# LINE 2712 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2673 "dist/build/AG2AspectAG" #-}
                                  )
                             -- use rule "src-ag/AG2AspectAG.ag"(line 204, column 86)
                             _lhsOppDI =
                                 ({-# LINE 204 "src-ag/AG2AspectAG.ag" #-}
                                  []
-                                 {-# LINE 2718 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2679 "dist/build/AG2AspectAG" #-}
                                  )
                             -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                             _lhsOppR =
                                 ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                  _ppR
-                                 {-# LINE 2724 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2685 "dist/build/AG2AspectAG" #-}
                                  )
                             -- use rule "src-ag/AG2AspectAG.ag"(line 413, column 43)
                             _lhsOppRA =
                                 ({-# LINE 413 "src-ag/AG2AspectAG.ag" #-}
                                  _ppRA
-                                 {-# LINE 2730 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2691 "dist/build/AG2AspectAG" #-}
                                  )
                             -- use rule "src-ag/AG2AspectAG.ag"(line 64, column 57)
                             _lhsOprdInh =
                                 ({-# LINE 64 "src-ag/AG2AspectAG.ag" #-}
                                  _childrenIprdInh
-                                 {-# LINE 2736 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2697 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOext =
                                 ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIext
-                                 {-# LINE 2742 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2703 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIinhMap
-                                 {-# LINE 2748 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2709 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOinhNoGroup =
                                 ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIinhNoGroup
-                                 {-# LINE 2754 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2715 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOo_noGroup =
                                 ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIo_noGroup
-                                 {-# LINE 2760 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2721 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOo_rename =
                                 ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIo_rename
-                                 {-# LINE 2766 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2727 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOppNt =
                                 ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIppNt
-                                 {-# LINE 2772 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2733 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynMap =
                                 ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                  _lhsIsynMap
-                                 {-# LINE 2778 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2739 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _childrenOsynNoGroup =
                                 ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIsynNoGroup
-                                 {-# LINE 2784 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2745 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _rulesOext =
                                 ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIext
-                                 {-# LINE 2790 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2751 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _rulesOinhNoGroup =
                                 ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIinhNoGroup
-                                 {-# LINE 2796 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2757 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (from local)
                             _rulesOnewProd =
                                 ({-# LINE 406 "src-ag/AG2AspectAG.ag" #-}
                                  _newProd
-                                 {-# LINE 2802 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2763 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _rulesOo_noGroup =
                                 ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIo_noGroup
-                                 {-# LINE 2808 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2769 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _rulesOppNt =
                                 ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIppNt
-                                 {-# LINE 2814 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2775 "dist/build/AG2AspectAG" #-}
                                  )
                             -- copy rule (down)
                             _rulesOsynNoGroup =
                                 ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                  _lhsIsynNoGroup
-                                 {-# LINE 2820 "dist/build/AG2AspectAG" #-}
+                                 {-# LINE 2781 "dist/build/AG2AspectAG" #-}
                                  )
                             ( _childrenIidCL,_childrenIppCSF,_childrenIppDL,_childrenIppL,_childrenIppLI,_childrenIppR,_childrenIprdInh) =
                                 children_ _childrenOext _childrenOinhMap _childrenOinhNoGroup _childrenOo_noGroup _childrenOo_rename _childrenOppNt _childrenOppProd _childrenOsynMap _childrenOsynNoGroup
                             ( _rulesIlocals,_rulesIppRL) =
                                 rules_ _rulesOext _rulesOinhNoGroup _rulesOnewProd _rulesOo_noGroup _rulesOppNt _rulesOppProd _rulesOsynNoGroup
-                            ___node =
-                                (Syn_Production _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh)
                         in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
 -- Productions -------------------------------------------------
 {-
@@ -2969,230 +2928,228 @@ sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
                              _hdOinhNoGroup =
                                  ({-# LINE 61 "src-ag/AG2AspectAG.ag" #-}
                                   filter (flip Map.member _hdIprdInh . identifier) _lhsIinhNoGroup
-                                  {-# LINE 2973 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2932 "dist/build/AG2AspectAG" #-}
                                   )
                              -- "src-ag/AG2AspectAG.ag"(line 233, column 33)
                              _lhsOppDL =
                                  ({-# LINE 233 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppD : _tlIppDL
-                                  {-# LINE 2979 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2938 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 100, column 51)
                              _lhsOhasMoreProds =
                                  ({-# LINE 100 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIhasMoreProds  ||  _tlIhasMoreProds
-                                  {-# LINE 2985 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2944 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 316, column 64)
                              _lhsOppA =
                                  ({-# LINE 316 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppA >-< _tlIppA
-                                  {-# LINE 2991 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2950 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 726, column 67)
                              _lhsOppCata =
                                  ({-# LINE 726 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppCata >-< _tlIppCata
-                                  {-# LINE 2997 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2956 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                              _lhsOppL =
                                  ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppL >-< _tlIppL
-                                  {-# LINE 3003 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2962 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                              _lhsOppLI =
                                  ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppLI ++ _tlIppLI
-                                  {-# LINE 3009 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2968 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                              _lhsOppR =
                                  ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppR >-< _tlIppR
-                                  {-# LINE 3015 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2974 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 413, column 43)
                              _lhsOppRA =
                                  ({-# LINE 413 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppRA ++ _tlIppRA
-                                  {-# LINE 3021 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2980 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 767, column 66)
                              _lhsOppSF =
                                  ({-# LINE 767 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppSF >-< _tlIppSF
-                                  {-# LINE 3027 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2986 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 768, column 42)
                              _lhsOppSPF =
                                  ({-# LINE 768 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIppSPF >-< _tlIppSPF
-                                  {-# LINE 3033 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2992 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 64, column 57)
                              _lhsOprdInh =
                                  ({-# LINE 64 "src-ag/AG2AspectAG.ag" #-}
                                   _hdIprdInh `Map.union` _tlIprdInh
-                                  {-# LINE 3039 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 2998 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOext =
                                  ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIext
-                                  {-# LINE 3045 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3004 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOinh =
                                  ({-# LINE 757 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 3051 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3010 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 3057 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3016 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOnewAtts =
                                  ({-# LINE 77 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewAtts
-                                  {-# LINE 3063 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3022 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOnewNT =
                                  ({-# LINE 405 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewNT
-                                  {-# LINE 3069 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3028 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOnewProds =
                                  ({-# LINE 85 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewProds
-                                  {-# LINE 3075 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3034 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_noGroup =
                                  ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_noGroup
-                                  {-# LINE 3081 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3040 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOo_rename =
                                  ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 3087 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3046 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOppNt =
                                  ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIppNt
-                                  {-# LINE 3093 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3052 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOsyn =
                                  ({-# LINE 757 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 3099 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3058 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 3105 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3064 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _hdOsynNoGroup =
                                  ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIsynNoGroup
-                                  {-# LINE 3111 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3070 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOext =
                                  ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIext
-                                  {-# LINE 3117 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3076 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOinh =
                                  ({-# LINE 757 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIinh
-                                  {-# LINE 3123 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3082 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIinhMap
-                                  {-# LINE 3129 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3088 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOinhNoGroup =
                                  ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIinhNoGroup
-                                  {-# LINE 3135 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3094 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOnewAtts =
                                  ({-# LINE 77 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewAtts
-                                  {-# LINE 3141 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3100 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOnewNT =
                                  ({-# LINE 405 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewNT
-                                  {-# LINE 3147 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3106 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOnewProds =
                                  ({-# LINE 85 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsInewProds
-                                  {-# LINE 3153 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3112 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_noGroup =
                                  ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_noGroup
-                                  {-# LINE 3159 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3118 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOo_rename =
                                  ({-# LINE 40 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIo_rename
-                                  {-# LINE 3165 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3124 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOppNt =
                                  ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIppNt
-                                  {-# LINE 3171 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3130 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOsyn =
                                  ({-# LINE 757 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIsyn
-                                  {-# LINE 3177 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3136 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynMap =
                                  ({-# LINE 12 "src-ag/DistChildAttr.ag" #-}
                                   _lhsIsynMap
-                                  {-# LINE 3183 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3142 "dist/build/AG2AspectAG" #-}
                                   )
                              -- copy rule (down)
                              _tlOsynNoGroup =
                                  ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                                   _lhsIsynNoGroup
-                                  {-# LINE 3189 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3148 "dist/build/AG2AspectAG" #-}
                                   )
                              ( _hdIhasMoreProds,_hdIppA,_hdIppCata,_hdIppD,_hdIppDI,_hdIppL,_hdIppLI,_hdIppR,_hdIppRA,_hdIppSF,_hdIppSPF,_hdIprdInh) =
                                  hd_ _hdOext _hdOinh _hdOinhMap _hdOinhNoGroup _hdOnewAtts _hdOnewNT _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOppNt _hdOsyn _hdOsynMap _hdOsynNoGroup
                              ( _tlIhasMoreProds,_tlIppA,_tlIppCata,_tlIppDL,_tlIppL,_tlIppLI,_tlIppR,_tlIppRA,_tlIppSF,_tlIppSPF,_tlIprdInh) =
                                  tl_ _tlOext _tlOinh _tlOinhMap _tlOinhNoGroup _tlOnewAtts _tlOnewNT _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOppNt _tlOsyn _tlOsynMap _tlOsynNoGroup
-                             ___node =
-                                 (Syn_Productions _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh)
                          in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
 sem_Productions_Nil :: T_Productions
 sem_Productions_Nil =
@@ -3224,70 +3181,68 @@ sem_Productions_Nil =
                              _lhsOppDL =
                                  ({-# LINE 234 "src-ag/AG2AspectAG.ag" #-}
                                   []
-                                  {-# LINE 3228 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3185 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 100, column 51)
                              _lhsOhasMoreProds =
                                  ({-# LINE 100 "src-ag/AG2AspectAG.ag" #-}
                                   False
-                                  {-# LINE 3234 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3191 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 316, column 64)
                              _lhsOppA =
                                  ({-# LINE 316 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3240 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3197 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 726, column 67)
                              _lhsOppCata =
                                  ({-# LINE 726 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3246 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3203 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 79)
                              _lhsOppL =
                                  ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3252 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3209 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 258, column 112)
                              _lhsOppLI =
                                  ({-# LINE 258 "src-ag/AG2AspectAG.ag" #-}
                                   []
-                                  {-# LINE 3258 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3215 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 412, column 79)
                              _lhsOppR =
                                  ({-# LINE 412 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3264 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3221 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 413, column 43)
                              _lhsOppRA =
                                  ({-# LINE 413 "src-ag/AG2AspectAG.ag" #-}
                                   []
-                                  {-# LINE 3270 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3227 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 767, column 66)
                              _lhsOppSF =
                                  ({-# LINE 767 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3276 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3233 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 768, column 42)
                              _lhsOppSPF =
                                  ({-# LINE 768 "src-ag/AG2AspectAG.ag" #-}
                                   empty
-                                  {-# LINE 3282 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3239 "dist/build/AG2AspectAG" #-}
                                   )
                              -- use rule "src-ag/AG2AspectAG.ag"(line 64, column 57)
                              _lhsOprdInh =
                                  ({-# LINE 64 "src-ag/AG2AspectAG.ag" #-}
                                   Map.empty
-                                  {-# LINE 3288 "dist/build/AG2AspectAG" #-}
+                                  {-# LINE 3245 "dist/build/AG2AspectAG" #-}
                                   )
-                             ___node =
-                                 (Syn_Productions _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh)
                          in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
 -- Rule --------------------------------------------------------
 {-
@@ -3370,7 +3325,7 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                            if (show (fst _patternIinfo) == "loc")
                             then [ snd _patternIinfo ]
                             else [ ]
-                           {-# LINE 3374 "dist/build/AG2AspectAG" #-}
+                           {-# LINE 3329 "dist/build/AG2AspectAG" #-}
                            )
                       -- "src-ag/AG2AspectAG.ag"(line 466, column 33)
                       _lhsOppRL =
@@ -3378,26 +3333,24 @@ sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                            if (not explicit_ &&  not _lhsInewProd)
                            then []
                            else [ ppRule _patternIinfo owrt_ (defRule _lhsIppNt _patternIinfo _lhsIo_noGroup _rhsIppRE) ]
-                           {-# LINE 3382 "dist/build/AG2AspectAG" #-}
+                           {-# LINE 3337 "dist/build/AG2AspectAG" #-}
                            )
                       -- copy rule (down)
                       _rhsOppNt =
                           ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                            _lhsIppNt
-                           {-# LINE 3388 "dist/build/AG2AspectAG" #-}
+                           {-# LINE 3343 "dist/build/AG2AspectAG" #-}
                            )
                       -- copy rule (down)
                       _rhsOppProd =
                           ({-# LINE 191 "src-ag/AG2AspectAG.ag" #-}
                            _lhsIppProd
-                           {-# LINE 3394 "dist/build/AG2AspectAG" #-}
+                           {-# LINE 3349 "dist/build/AG2AspectAG" #-}
                            )
                       ( _patternIcopy,_patternIinfo) =
                           pattern_
                       ( _rhsIppRE) =
                           rhs_ _rhsOppNt _rhsOppProd
-                      ___node =
-                          (Syn_Rule _lhsOlocals _lhsOppRL)
                   in  ( _lhsOlocals,_lhsOppRL))))
 -- Rules -------------------------------------------------------
 {-
@@ -3476,104 +3429,102 @@ sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
                        _lhsOppRL =
                            ({-# LINE 462 "src-ag/AG2AspectAG.ag" #-}
                             _hdIppRL ++ _tlIppRL
-                            {-# LINE 3480 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3433 "dist/build/AG2AspectAG" #-}
                             )
                        -- use rule "src-ag/AG2AspectAG.ag"(line 365, column 30)
                        _lhsOlocals =
                            ({-# LINE 365 "src-ag/AG2AspectAG.ag" #-}
                             _hdIlocals ++ _tlIlocals
-                            {-# LINE 3486 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3439 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOext =
                            ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIext
-                            {-# LINE 3492 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3445 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOinhNoGroup =
                            ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIinhNoGroup
-                            {-# LINE 3498 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3451 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOnewProd =
                            ({-# LINE 406 "src-ag/AG2AspectAG.ag" #-}
                             _lhsInewProd
-                            {-# LINE 3504 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3457 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOo_noGroup =
                            ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIo_noGroup
-                            {-# LINE 3510 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3463 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOppNt =
                            ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIppNt
-                            {-# LINE 3516 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3469 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOppProd =
                            ({-# LINE 191 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIppProd
-                            {-# LINE 3522 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3475 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _hdOsynNoGroup =
                            ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIsynNoGroup
-                            {-# LINE 3528 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3481 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOext =
                            ({-# LINE 118 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIext
-                            {-# LINE 3534 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3487 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOinhNoGroup =
                            ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIinhNoGroup
-                            {-# LINE 3540 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3493 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOnewProd =
                            ({-# LINE 406 "src-ag/AG2AspectAG.ag" #-}
                             _lhsInewProd
-                            {-# LINE 3546 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3499 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOo_noGroup =
                            ({-# LINE 44 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIo_noGroup
-                            {-# LINE 3552 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3505 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOppNt =
                            ({-# LINE 186 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIppNt
-                            {-# LINE 3558 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3511 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOppProd =
                            ({-# LINE 191 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIppProd
-                            {-# LINE 3564 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3517 "dist/build/AG2AspectAG" #-}
                             )
                        -- copy rule (down)
                        _tlOsynNoGroup =
                            ({-# LINE 54 "src-ag/AG2AspectAG.ag" #-}
                             _lhsIsynNoGroup
-                            {-# LINE 3570 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3523 "dist/build/AG2AspectAG" #-}
                             )
                        ( _hdIlocals,_hdIppRL) =
                            hd_ _hdOext _hdOinhNoGroup _hdOnewProd _hdOo_noGroup _hdOppNt _hdOppProd _hdOsynNoGroup
                        ( _tlIlocals,_tlIppRL) =
                            tl_ _tlOext _tlOinhNoGroup _tlOnewProd _tlOo_noGroup _tlOppNt _tlOppProd _tlOsynNoGroup
-                       ___node =
-                           (Syn_Rules _lhsOlocals _lhsOppRL)
                    in  ( _lhsOlocals,_lhsOppRL))))
 sem_Rules_Nil :: T_Rules
 sem_Rules_Nil =
@@ -3590,16 +3541,14 @@ sem_Rules_Nil =
                        _lhsOppRL =
                            ({-# LINE 463 "src-ag/AG2AspectAG.ag" #-}
                             []
-                            {-# LINE 3594 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3545 "dist/build/AG2AspectAG" #-}
                             )
                        -- use rule "src-ag/AG2AspectAG.ag"(line 365, column 30)
                        _lhsOlocals =
                            ({-# LINE 365 "src-ag/AG2AspectAG.ag" #-}
                             []
-                            {-# LINE 3600 "dist/build/AG2AspectAG" #-}
+                            {-# LINE 3551 "dist/build/AG2AspectAG" #-}
                             )
-                       ___node =
-                           (Syn_Rules _lhsOlocals _lhsOppRL)
                    in  ( _lhsOlocals,_lhsOppRL))))
 -- TypeSig -----------------------------------------------------
 {-
@@ -3627,8 +3576,7 @@ sem_TypeSig_TypeSig :: Identifier ->
                        Type ->
                        T_TypeSig
 sem_TypeSig_TypeSig name_ tp_ =
-    (T_TypeSig (let ___node =
-                        (Syn_TypeSig)
+    (T_TypeSig (let
                 in  ( )))
 -- TypeSigs ----------------------------------------------------
 {-
@@ -3657,11 +3605,9 @@ sem_TypeSigs_Cons :: T_TypeSig ->
                      T_TypeSigs ->
                      T_TypeSigs
 sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
-    (T_TypeSigs (let ___node =
-                         (Syn_TypeSigs)
+    (T_TypeSigs (let
                  in  ( )))
 sem_TypeSigs_Nil :: T_TypeSigs
 sem_TypeSigs_Nil =
-    (T_TypeSigs (let ___node =
-                         (Syn_TypeSigs)
+    (T_TypeSigs (let
                  in  ( )))
