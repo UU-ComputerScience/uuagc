@@ -22,6 +22,7 @@ import AbstractSyntax
 import TokenDef
 import CommonTypes
 
+-- import Debug.Trace
 }
 
 {
@@ -74,7 +75,7 @@ type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap)
 ATTR Grammar   [ agi : {(Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))} | | ]
 
 
-ATTR Nonterminals Nonterminal Productions Production [ newAtts : { Attributes } | | ]
+ATTR Nonterminals Nonterminal Productions Production  Children Child Rules Rule [ newAtts : { Attributes } | | ]
 
 SEM Grammar | Grammar loc.newAtts     = case @lhs.agi of
                                                 (_,_,atts) -> ( Map.unions . (\(a,b) -> a++b) . unzip . Map.elems) atts
@@ -467,7 +468,7 @@ SEM Rules
   | Nil				lhs		.	ppRL		=	[]
 
 SEM Rule
-  | Rule	                lhs             .  	ppRL    	=  if (not @explicit &&  not @lhs.newProd)
+  | Rule	                lhs             .  	ppRL    	=  if (not @explicit &&  not @lhs.newProd && not (Map.member (snd @pattern.info) @lhs.newAtts) )
                                                                            then []
                                                                            else [ ppRule @pattern.info @owrt (defRule @lhs.ppNt @pattern.info @lhs.o_noGroup @rhs.ppRE) ]
 
@@ -588,7 +589,7 @@ defSynRule  new ppNt prod newNT newProd newAtts ch chids locals rule =
                                         indent 5  ch >-<
                                         indent 5  "return $"  >-<
                                         indent 6  ((ruleDef rule) chids locals)
-                       in
+                       in   
                            if new
                            then  if (not owrt && (newNT || (not newNT && newProd) || newAtt))
                                  then  (ppR "syndefM", [ ppAtt ])
