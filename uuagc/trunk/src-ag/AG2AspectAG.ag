@@ -322,8 +322,9 @@ ATTR Nonterminals Nonterminal Productions Production [ | | ppA USE {>-<} {empty}
 
 SEM Nonterminal
   | Nonterminal		lhs     .  	ppA    	=  ( if (Set.member @nt @lhs.newNTs)
-                                                     then   defAttRec (pp "InhG") @loc.ppNt @inh @loc.inhNoGroup >-<
-                                                            defAttRec (pp "SynG") @loc.ppNt @syn @loc.synNoGroup
+                                                     then   
+                                                            defAttRec (pp "InhG") @loc.ppNt @inh @loc.inhNoGroup >-<
+                                                            defAttRec (pp "SynG") @loc.ppNt @syn @loc.synNoGroup 
                                                      else   empty) >-<
                                                    @prods.ppA
 
@@ -347,7 +348,7 @@ attName att = pp $ "att_" ++ att
 attTName att = pp $ "Att_" ++ att
 
 
-defAttRec  recPref ppNt atts noGroup =
+defAttRec  recPref ppNt atts noGroup  =
            let     recName    = ppName [recPref, ppNt]
                    fields     = ppCommas (map (\(a,t) -> ppName [pp a, recName ] >|< " ::" >|< ppShow t) (groupAtts atts noGroup))
            in
@@ -698,7 +699,7 @@ token2PP ppNt ppProd field chids locals noGroup  tk
                                                  "lhs"      -> ppName [pp (getName attr), pp "InhG", ppNt]
                                                  "loc"      -> ppName [pp (getName attr), ppNt, ppProd]
                                                  otherwise  -> ppName [pp (getName attr), pp "SynG", ppChT]
-                                  in  (pos, if (elem (getName attr) noGroup )
+                                  in  (pos, if ((elem (getName attr) noGroup) && ((show field) /= "loc"))
                                              then pp "(" >|< pp (getName field)  >|< " # " >|< attName (getName attr) >|< pp ")"
                                              else pp "(" >|< ppSubAtt >|< " (" >|< pp (getName field) >|< " # " >|< ppAtt >|< ")) ")
       HsToken value pos        -> (pos, pp value)
