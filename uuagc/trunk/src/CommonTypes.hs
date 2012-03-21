@@ -159,6 +159,7 @@ typeToHaskellString mbNt params tp
       Haskell t -> t
       NT nt tps for | nt == _SELF -> formatNonterminalToHaskell for (maybe "?SELF?" getName mbNt) params
                     | otherwise   -> formatNonterminalToHaskell for (getName nt) tps
+      Self -> maybe "?SELF?" getName mbNt
 
 formatNonterminalToHaskell :: Bool -> String -> [String] -> String
 formatNonterminalToHaskell for nt tps

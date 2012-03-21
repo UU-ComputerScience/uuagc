@@ -546,7 +546,7 @@ SEM TypeSig | TypeSig
 
 {
 elimSelfId :: NontermIdent -> [Identifier] -> Type -> Type
-elimSelfId nt args Self = NT nt (map locname args) False
+elimSelfId nt args Self = NT nt (map getName args) False
 elimSelfId _ _ tp = tp
 
 elimSelfStr :: NontermIdent -> [String] -> Type -> Type
