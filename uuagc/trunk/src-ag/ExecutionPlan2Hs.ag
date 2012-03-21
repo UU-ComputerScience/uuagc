@@ -215,10 +215,7 @@ SEM EChild
 
 {
 ppTp :: Type -> PP_Doc
-ppTp (Haskell s)      = text s
-ppTp (NT nt args for) = prefix >|< nt >#< ppSpaced (map pp_parens args) where
-  prefix | for       = text "T_"
-         | otherwise = empty
+ppTp = text . typeToHaskellString Nothing []
 }
 
 -------------------------------------------------------------------------------

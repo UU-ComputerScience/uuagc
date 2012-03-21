@@ -156,7 +156,8 @@ removeDeforested tp             = tp
 typeToHaskellString :: Maybe NontermIdent -> [String] -> Type -> String
 typeToHaskellString mbNt params tp
   = case tp of
-      Haskell t -> t
+      Haskell t -> filter (/= '@') t -- Apparently haskell types can contain @ to refer to
+                                     -- a type parameter, removing @ makes it backwards compatible
       NT nt tps for | nt == _SELF -> formatNonterminalToHaskell for (maybe "?SELF?" getName mbNt) params
                     | otherwise   -> formatNonterminalToHaskell for (getName nt) tps
       Self -> maybe "?SELF?" getName mbNt
