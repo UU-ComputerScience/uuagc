@@ -681,7 +681,7 @@ SEM EProduction
                                              then ppNoInline ("k" >|< st)
                                              else empty
                                            )
-                                           >-< "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< "t" >#< "->" >#< "t"
+                                           >-< "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< @loc.t_params >#< "t" >#< "->" >#< "t"
                                            >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
                                                                   >#< "v" >|< v) $ @loc.stvisits st)
                 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @visits.allvisits
