@@ -35,7 +35,8 @@ import System.FilePath(pathSeparators,
                        joinPath,
                        dropFileName,
                        addExtension,
-                       dropExtension)
+                       dropExtension,
+                       splitDirectories)
 
 import System.Exit (ExitCode(..))
 import System.IO( openFile, IOMode(..),
@@ -147,13 +148,6 @@ withBuildTmpDir pkgDescr lbi f = do
             withExe pkgDescr $ \ theExe ->
                     f $ buildDir lbi </> exeName theExe </> exeName theExe ++ "-tmp"
 
--- Creates the output file given the main preprocessed file and the buildtmp folder
-tmpFile :: FilePath -> FilePath -> FilePath
-tmpFile buildTmp = (buildTmp </>)
-                   . (`addExtension` "hs")
-                   . dropExtension
-                   . takeFileName
-
 -- | 'updateAGFile' search into the uuagc options file for a list of all
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
@@ -176,12 +170,17 @@ updateAGFile uuagc classesPath pkgDescr lbi (f, sp) = do
          when ((not.null) flsC) $ do
             flsmt <- mapM getModificationTime flsC
             let maxModified = maximum flsmt
-                removeTmpFile f = do
-                                  exists <- doesFileExist f
-                                  when exists $ do
-                                      fmt <- getModificationTime f
-                                      when (maxModified > fmt) $ removeFile f
-            withBuildTmpDir pkgDescr lbi $ removeTmpFile . (`tmpFile` f)
+                removeTmpFile f buildTmp =
+                  do
+                    -- For src/a/b/c.ag and build, this creates ["build/src/a/b/c.hs","build/a/b/c.hs","build/b/c.hs","build/c.hs"]
+                    -- Problem is we don't know what prefix of the filename is src directory and what part is in the classname
+                    -- There must be a better solution for this...
+                    let files = map (buildTmp </>) . scanr1 (</>) . splitDirectories . (`addExtension` "hs") . dropExtension $ f
+                    forM_ files $ \f -> do
+                      exists <- doesFileExist f
+                      when exists $ do fmt <- getModificationTime f
+                                       when (maxModified > fmt) $ removeFile f
+            withBuildTmpDir pkgDescr lbi $ removeTmpFile f
     (ExitFailure exc) ->
       do hPutStrLn stderr (show exc)
          throwFailure
