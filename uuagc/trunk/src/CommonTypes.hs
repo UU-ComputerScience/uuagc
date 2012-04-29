@@ -8,6 +8,7 @@ import Data.Map(Map)
 import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Monoid(mappend,mempty,Monoid)
+import Data.Char
 
 
 type Blocks = Map BlockInfo [([String], Pos)]
@@ -16,6 +17,8 @@ data BlockKind
   = BlockImport
   | BlockPragma
   | BlockMain
+  | BlockData
+  | BlockRec
   | BlockOther
   deriving (Eq, Ord, Show)
 
@@ -117,8 +120,11 @@ cataname ::  String -> Identifier -> String
 cataname pre name = pre++getName name
 
 conname :: Bool -> NontermIdent -> ConstructorIdent -> String
-conname rename nt con | rename =  getName nt ++ "_" ++ getName con
+conname rename nt con | rename =  capitalize (getName nt) ++ "_" ++ getName con
                       | otherwise = getName con
+
+capitalize []     = []
+capitalize (c:cs) = toUpper c : cs
 
 semname  ::  String -> NontermIdent -> ConstructorIdent -> String
 semname pre nt con =  pre ++ (getName nt ++ "_" ++ getName con)
@@ -152,6 +158,10 @@ typeToAGString tp
 removeDeforested :: Type -> Type
 removeDeforested (NT nt args _) = NT nt args False
 removeDeforested tp             = tp
+
+forceDeforested :: Type -> Type
+forceDeforested (NT nt args _) = NT nt args True
+forceDeforested tp             = tp
 
 typeToHaskellString :: Maybe NontermIdent -> [String] -> Type -> String
 typeToHaskellString mbNt params tp

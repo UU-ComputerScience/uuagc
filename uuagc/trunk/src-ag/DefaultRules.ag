@@ -25,6 +25,7 @@ import Data.Maybe
 import HsToken
 import HsTokenScanner
 import Data.List(intersperse)
+import Data.Char
 
 import AbstractSyntax
 import ErrorMessages
@@ -89,27 +90,52 @@ _ACHILD = Ident "(" noPos -- hack
 mkLocVar = AGField _LOC
 
 
-getConName typeSyns rename nt con1
- | nt `elem` map fst typeSyns  =  synonym
- | otherwise                   =  normalName
- where con                            = getName con1
-       normalName | rename            = getName nt++"_"++ con
-                  | otherwise         =  con
-       synonym    | con == "Cons"     = "(:)"
+buildConExpr ocaml typeSyns rename nt con1 fs
+ | nt `elem` map fst typeSyns  =  if ocaml then synonymMl else synonymHs
+ | otherwise                   =  normalExpr
+ where con                     = getName con1
+       tup                     = " " ++ buildTuple fs
+       args                    = " " ++ unwords fs
+       normalExpr              = conname' ++ args
+
+       conname' | rename    = getName nt ++ "_" ++ getName con1
+                | otherwise = getName con1
+
+       synonymHs  | con == "Tuple"    = buildTuple fs
+                  | con == "Cons"     = "(:)" ++ args
                   | con == "Nil"      = case lookup nt typeSyns of
                                           Just (Map _ _)  -> "Data.Map.empty"
                                           Just (IntMap _) -> "Data.IntMap.empty"
                                           Just (OrdSet _) -> "Data.Set.empty"
                                           Just IntSet     -> "Data.IntSet.empty"
                                           _               -> "[]"
-                  | con == "Just"     = "Just"
+                  | con == "Just"     = "Just" ++ args
                   | con == "Nothing"  = "Nothing"
-                  | con == "Entry"    = case lookup nt typeSyns of
-                                          Just (Map _ _)  -> "Data.Map.insert"
-                                          Just (IntMap _) -> "Data.IntMap.insert"
-                                          Just (OrdSet _) -> "Data.Set.insert"
-                                          Just IntSet     -> "Data.IntSet.insert"
-                  | otherwise         = normalName
+                  | con == "Entry"    = ( case lookup nt typeSyns of
+                                            Just (Map _ _)  -> "Data.Map.insert"
+                                            Just (IntMap _) -> "Data.IntMap.insert"
+                                            Just (OrdSet _) -> "Data.Set.insert"
+                                            Just IntSet     -> "Data.IntSet.insert" ) ++ args
+                  | otherwise         = normalExpr
+
+       synonymMl  | con == "Tuple"    = buildTuple fs
+                  | con == "Cons"     = "(::)" ++ tup
+                  | con == "Nil"      = case lookup nt typeSyns of
+                                          Just (Map _ _)  -> prefixMod nt "empty"
+                                          Just (IntMap _) -> prefixMod nt "empty"
+                                          Just (OrdSet _) -> prefixMod nt "empty"
+                                          Just IntSet     -> prefixMod nt "empty"
+                                          _               -> "[]"
+                  | con == "Just"     = "Some" ++ tup
+                  | con == "Nothing"  = "None"
+                  | con == "Entry"    = ( case lookup nt typeSyns of
+                                            Just (Map _ _)  -> prefixMod nt "add"
+                                            Just (IntMap _) -> prefixMod nt "add"
+                                            Just (OrdSet _) -> prefixMod nt "add"
+                                            Just IntSet     -> prefixMod nt "add" ) ++ args
+                  | otherwise         = normalExpr
+
+       prefixMod nt nm = "M_" ++ getName nt ++ "." ++ nm
 
 concatSeq = foldr (Seq.><) Seq.empty
 
@@ -256,17 +282,21 @@ useRule locals ch_outs (n,(op,e,pos))
                 , Map.member n as
                 ]
 
-        expr | Set.member n locals  =  attrName _LOC n
-             | null elems           =  e
-             | otherwise            =  foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y)
-                                              (map (flip attrName n) elems)
+        isOp [] = False
+        isOp (c:cs)
+          | isSpace c = isOp cs
+          | isAlpha c = False
+          | c == '('  = False
+          | otherwise = True
 
         tks | Set.member n locals  =  [mkLocVar n noPos Nothing]
             | null elems           =  lexTokens noPos e
             | otherwise            =  lexTokens noPos str
                                       where
-                                        str = foldr1 (\x y -> x ++ " " ++ op ++ " " ++ y)
-                                                (map (flip attrName n) elems)
+                                        opExpr l r
+                                          | isOp op   = l ++ " " ++ op ++ " " ++ r         -- takes the associativity of the operator
+                                          | otherwise = "(" ++ op ++ " " ++ l ++ " " ++ r ++ ")"  -- associates to the right
+                                        str = foldr1 opExpr (map (flip attrName n) elems)
 
     in makeRule (_LHS,n)
                 (Expression noPos tks)
@@ -404,10 +434,7 @@ SEM Production
                               _      | nm `Set.member` locals -> locName nm
                                      | otherwise              -> fieldName nm
                constructor fs
-                | getName @con == "Tuple" && @lhs.nt `elem` map fst @lhs.typeSyns
-                  = "(" ++ concat (intersperse "," fs) ++ ")"
-                | otherwise
-                  = getConName @lhs.typeSyns @lhs.o_rename @lhs.nt @con ++ " " ++ unwords fs
+                 = buildConExpr (ocaml @lhs.options) @lhs.typeSyns @lhs.o_rename @lhs.nt @con fs
 
                childExists ChildAttr = False
                childExists _         = True
@@ -429,6 +456,8 @@ SEM Production
     in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
 
 {
+buildTuple fs = "(" ++ concat (intersperse "," fs) ++ ")"
+
 addAugments :: (Identifier, [Expression]) -> [Rule] -> [Rule]
 addAugments (_, exprs) rules
   | null exprs = rules

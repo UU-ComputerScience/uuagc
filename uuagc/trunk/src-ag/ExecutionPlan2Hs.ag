@@ -447,7 +447,7 @@ SEM ENonterminal
                  loc.synAttrs = fromJust $ Map.lookup @nt @lhs.inhmap
                  loc.wr_inhs  = Map.toList $ @loc.wr_filter $ @loc.synAttrs
                  loc.wr_inhs1 = Map.toList @loc.synAttrs
-                 loc.wr_filter = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                 loc.wr_filter = if lateHigherOrderBinding @lhs.options
                                  then Map.delete idLateBindingAttr
                                  else id
                  loc.wr_syns  = Map.toList $ fromJust $ Map.lookup @nt @lhs.synmap
@@ -496,7 +496,7 @@ SEM ENonterminal
                                                        )
                                             )
                                        >-< ")" )
-                                >-< if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                                >-< if lateHigherOrderBinding @lhs.options
                                     then indent 2 ("where" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName)
                                     else empty
                  loc.wrapPragma = if parallelInvoke @lhs.options && not (monadicWrappers @lhs.options)
@@ -526,10 +526,10 @@ SEM EProduction | EProduction
 
 -- Generate a dictionary that contains the semantics of all semantic functions
 SEM ExecutionPlan | ExecutionPlan
-  loc.wrappersExtra = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+  loc.wrappersExtra = if lateHigherOrderBinding @lhs.options
                       then @loc.lateSemBndDef
                       else empty
-  loc.commonExtra   = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+  loc.commonExtra   = if lateHigherOrderBinding @lhs.options
                       then @loc.lateSemBndTp
                       else empty
   loc.lateSemBndTp = "data" >#< lateBindingTypeNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName

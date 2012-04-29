@@ -1,3 +1,4 @@
+-- Todo: this entire file needs a rewrite
 module Ag (uuagcLib, uuagcExe) where
 
 import System.Environment            (getArgs, getProgName)
@@ -13,6 +14,7 @@ import qualified Data.Map as Map
 import qualified Data.Sequence as Seq ((><),null)
 import Data.Foldable(toList)
 import Pretty
+import PPUtil
 
 import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos, line, file)
@@ -27,6 +29,7 @@ import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_
 import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
 import qualified ExecutionPlan2Hs   as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..), warrenFlagsPP)
+import qualified ExecutionPlan2Caml as Pass4c (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..))
 import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
@@ -104,6 +107,7 @@ compile flags input output
           output4   = Pass4.wrap_CGrammar        (Pass4.sem_CGrammar(Pass3.output_Syn_Grammar  output3)) Pass4.Inh_CGrammar {Pass4.options_Inh_CGrammar = flags'}
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
           output4b  = Pass4b.wrap_ExecutionPlan  (Pass4b.sem_ExecutionPlan grammar3a) Pass4b.Inh_ExecutionPlan {Pass4b.options_Inh_ExecutionPlan = flags', Pass4b.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4b.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4b.pragmaBlocks_Inh_ExecutionPlan = pragmaBlocksTxt, Pass4b.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4b.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4b.moduleHeader_Inh_ExecutionPlan = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainFile_Inh_ExecutionPlan = mainFile, Pass4b.textBlockMap_Inh_ExecutionPlan = textBlockMap, Pass4b.mainBlocksDoc_Inh_ExecutionPlan = mainBlocksDoc,Pass4b.localAttrTypes_Inh_ExecutionPlan = Pass3a.localSigMap_Syn_Grammar output3a}
+          output4c  = Pass4c.wrap_ExecutionPlan  (Pass4c.sem_ExecutionPlan grammar3a) Pass4c.Inh_ExecutionPlan {Pass4c.options_Inh_ExecutionPlan = flags', Pass4c.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4c.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4c.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4c.mainFile_Inh_ExecutionPlan = mainFile, Pass4c.localAttrTypes_Inh_ExecutionPlan = Pass3a.localSigMap_Syn_Grammar output3a}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.mainBlocksDoc_Inh_Program = mainBlocksDoc, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags', PrErr.dups_Inh_Errors = [] }
@@ -124,7 +128,9 @@ compile flags input output
           furtherErrors    = if kennedyWarren flags'
                              then let errs3a = Pass3a.errors_Syn_Grammar output3a
                                   in if Seq.null errs3a
-                                     then toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
+                                     then if ocaml flags' 
+                                          then toList ( Pass4c.errors_Syn_ExecutionPlan output4c )
+                                          else toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
                                      else toList errs3a
                              else toList ( Pass3.errors_Syn_Grammar  output3
                                   Seq.>< Pass4.errors_Syn_CGrammar output4)
@@ -155,20 +161,22 @@ compile flags input output
           importBlocksTxt = vlist_sep "" . map addLocationPragma . concat . Map.elems $ importBlocks
           textBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockOther, Nothing) $ textBlocks
           mainBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockMain, Nothing) $ textBlocks
+          dataBlocksDoc   = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockData, Nothing) $ textBlocks
+          recBlocksDoc    = vlist_sep "" . map addLocationPragma . Map.findWithDefault [] (BlockRec, Nothing) $ textBlocks
           pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
           textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
 
-          outputfile = if null output then outputFile input else output
-          mainFile | null output = outputFile input
-                   | otherwise   = dropExtension output
+          outputfile = if null output then outputFile flags' input else output
+          mainFile | null output = outputFile flags' input
+                   | otherwise   = output
           mainName = dropExtension $ takeFileName input
 
           addLocationPragma :: ([String], Pos) -> PP_Doc
           addLocationPragma (strs, p)
-            | genLinePragmas flags'
-                = "{-# LINE" >#< pp (show (line p)) >#< show (file p) >#< "#-}" >-< vlist (map pp strs) >-< "{-# LINE" >#< ppWithLineNr (pp.show.(+1)) >#< show outputfile >#< "#-}"
-            | otherwise
-                = vlist (map pp strs)
+            | genLinePragmas flags' =
+                ppLinePragma flags' (line p) (file p) >-< vlist (map pp strs)
+                >-< ppWithLineNr (\l -> ppLinePragma flags' (l+1) outputfile)
+            | otherwise = vlist (map pp strs)
 
           optionsGHC = option (unbox flags') "-fglasgow-exts" ++ option (bangpats flags') "-XBangPatterns"
           option True s  = [s]
@@ -227,7 +235,9 @@ compile flags input output
            if sepSemMods flags'
             then do -- alternative module gen
                     if kennedyWarren flags'
-                      then Pass4b.genIO_Syn_ExecutionPlan output4b
+                      then if ocaml flags' 
+                           then error "sepsemmods is not implemented for the ocaml output generation"
+                           else Pass4b.genIO_Syn_ExecutionPlan output4b
                       else Pass5.genIO_Syn_Program output5
                     if not (null errorsToStopOn) then exitFailure else return ()
             else do -- conventional module gen
@@ -250,6 +260,8 @@ compile flags input output
                                     , AspectAGDump.imp_Syn_Grammar aspectAG
                                     , pp "\n\n{-- AspectAG Code --}\n\n"
                                     , AspectAGDump.pp_Syn_Grammar aspectAG
+                                    , dataBlocksDoc
+                                    , mainBlocksDoc
                                     , textBlocksDoc
                                     , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of AGI"
@@ -261,7 +273,43 @@ compile flags input output
                                                  ]
                                       else empty]
                          | kennedyWarren flags'
-                            = vlist [ Pass4b.warrenFlagsPP flags'
+                            = if ocaml flags'
+                              then vlist
+                                    [ text "(* generated by UUAG from" >#< mainFile >#< "*)"
+                                    , pp pragmaBlocksTxt
+                                    , text "(* module imports *)"
+                                    , pp importBlocksTxt
+                                    , Pass4c.modules_Syn_ExecutionPlan output4c
+                                    , text ""
+                                    , text "(* generated data types *)"
+                                    , text "module Data__ = struct"
+                                    , indent 2 $ vlist
+                                      [ text "type __generated_by_uuagc__ = Generated_by_uuagc__"
+                                      , Pass4c.datas_Syn_ExecutionPlan output4c
+                                      ]
+                                    , text "end"
+                                    , text "open Data__"
+                                    , text ""
+                                    , text "(* embedded data types *)"
+                                    , dataBlocksDoc
+                                    , text ""
+                                    , text "(* embedded utilty functions *)"
+                                    , textBlocksDoc
+                                    , text "(* generated evaluationcode *)"
+                                    , text "module Code__ = struct"
+                                    , indent 2 $ vlist
+                                      [ text "let rec __generated_by_uuagc__ = Generated_by_uuagc__"
+                                      , Pass4c.code_Syn_ExecutionPlan output4c
+                                      , recBlocksDoc
+                                      ]
+                                    , text "end"
+                                    , text "open Code__"
+                                    , text ""
+                                    , text "(* main code *)"
+                                    , mainBlocksDoc
+                                    ]
+                              else vlist
+                                    [ Pass4b.warrenFlagsPP flags'
                                     , pp pragmaBlocksTxt
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
                                            then moduleHeader flags' mainName Nothing
@@ -277,7 +325,10 @@ compile flags input output
                                                  , pp $ "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"]
                                       else vlist [ pp $ "import Control.Monad.Identity (Identity)"
                                                  , pp $ "import qualified Control.Monad.Identity" ]
+                                    , dataBlocksDoc
+                                    , mainBlocksDoc
                                     , textBlocksDoc
+                                    , recBlocksDoc
                                     --, pp $ "{-"
                                     --, Pass3a.depgraphs_Syn_Grammar output3a
                                     --, Pass3a.visitgraph_Syn_Grammar output3a
@@ -301,6 +352,8 @@ compile flags input output
                                               else []
                                             )
                                     , pp importBlocksTxt
+                                    , dataBlocksDoc
+                                    , mainBlocksDoc
                                     , textBlocksDoc
                                     , vlist $ if not (ocaml flags')
                                               then Pass5.output_Syn_Program  output5
@@ -375,8 +428,10 @@ agiFile name = replaceExtension name "agi"
 remAgi :: String -> String
 remAgi = dropExtension
 
-outputFile :: String -> String
-outputFile name = replaceExtension name "hs"
+outputFile :: Options -> String -> String
+outputFile opts name
+  | ocaml opts = replaceExtension name "ml"
+  | otherwise  = replaceExtension name "hs"
 
 defaultModuleName :: String -> String
 defaultModuleName = dropExtension

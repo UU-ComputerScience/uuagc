@@ -115,7 +115,7 @@ allOptions =
   , MyOpt ['H']     ["haskellsyntax"] (NoArg haskellSyntaxOpt)    noOpt                 "Use Haskell like syntax (equivalent to --lckeywords and --doublecolons --genlinepragmas)"
   , MyOpt []        ["reference"]     (NoArg referenceOpt)        (boolOpt reference)   "Use reference attributes"
   , MyOpt []        ["monadic"]       (NoArg monadicOpt)          (boolOpt monadic)     "Experimental: generate monadic code"
-  , MyOpt []        ["ocaml"]         (NoArg ocamlOpt)            (boolOpt ocaml)       "Experimental: generate Ocaml code"
+  , MyOpt []        ["ocaml"]         (NoArg ocamlOpt)            (boolOpt ocaml)       "Generate Ocaml code"
   , MyOpt []        ["breadthfirst"]  (NoArg breadthfirstOpt)     (boolOpt breadthFirst)"Experimental: generate breadth-first code"
   , MyOpt []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) (boolOpt breadthFirstStrict) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
   , MyOpt []        ["visitcode"]     (NoArg visitorsOutputOpt)   (boolOpt visitorsOutput) "Experimental: generate visitors code"
@@ -420,7 +420,7 @@ doubleColonsOpt opts = opts { doubleColons = True }
 haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
 monadicOpt opts = opts { monadic = True }
 parallelOpt opts = opts { parallelInvoke = True }
-ocamlOpt opts = opts { ocaml = True }
+ocamlOpt opts = opts { ocaml = True, kennedyWarren = True, withCycle = True, visit = True }
 visitorsOutputOpt opts = opts { visitorsOutput = True }
 statisticsOpt nm opts = opts { statsFile = Just nm }
 breadthfirstOpt opts = opts { breadthFirst = True }
