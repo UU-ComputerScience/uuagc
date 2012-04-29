@@ -1,0 +1,21 @@
+-- basic architecture test
+-- tests traversal that computes only synthesized attributes
+-- test collection copy rule
+
+DATA root | Root
+
+ATTR root
+  [ | | sum USE {+} {0} : int ]
+
+WRAPPER root
+
+toplevel {
+let run =
+  let t = root_Root in
+  let inh = () in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let s   = syn.sum_syn_root in
+  let _   = Printf.printf "result: %d" s
+  in ()
+}

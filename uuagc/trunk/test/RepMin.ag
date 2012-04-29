@@ -19,6 +19,7 @@ SEM Tree
 SEM Root
   | Root lhs.result = @tree.result
 
+WRAPPER Root
 DERIVING * : Show
 
 {

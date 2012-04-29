@@ -98,6 +98,11 @@ scan opts
             scan' ('-'     :rs)      = (reserved "-" p, advc 1 p, rs)
             scan' ('*'     :rs)      = (reserved "*" p, advc 1 p, rs)
 
+            scan' ('\''    :rs) | ocaml opts =  -- note: ocaml type variables are encoded as 'TkTextnm' tokens
+              let (var,rest) = ident rs
+                  str = '\'' : var
+              in (valueToken TkTextnm str p, advc (length str) p, rest)
+
             scan' (x:rs) | isLower x = let (var,rest) = ident rs
                                            str        = (x:var)
                                            tok | str `elem` keywords' = reserved (mkKeyword str)
@@ -131,8 +136,9 @@ scan opts
 
 
 ident = span isValid
- where isValid x = isAlphaNum x || x =='_' || x == '\''
-lowercaseKeywords = ["loc","lhs", "inst", "optpragmas", "imports", "toplevel"]
+ where isValid x = isAlphaNum x || x == '_' || x == '\''
+
+lowercaseKeywords = ["loc","lhs", "inst", "optpragmas", "imports", "toplevel", "datablock", "recblock"]
 keywords = lowercaseKeywords ++
            [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "EXTENDS" -- marcos

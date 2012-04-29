@@ -1,0 +1,46 @@
+-- tests the list alias
+-- tests the product alias
+-- tests SELF rules
+
+DATA root | Root
+  root : tree
+
+DATA tree
+  | Bin   branches : trees
+  | Leaf  val : int
+  | Tup   pair : pair
+
+TYPE trees = [tree]
+TYPE pair = (l : tree, r : tree)
+
+ATTR root tree trees pair
+  [ | | x : SELF ]
+
+ATTR tree trees pair [ depth : int | | ]
+
+SEM root | Root
+  loc.depth = 0
+
+SEM tree | Bin
+  loc.depth = @lhs.depth + 1
+
+SEM tree | Leaf
+  loc.val = @val * @lhs.depth
+
+WRAPPER root
+
+toplevel {
+let test =
+  let l  = tree_Leaf 1 in
+  let r  = tree_Leaf 2 in
+  let b1 = tree_Bin [l ; r] in
+  let b3 = tree_Tup (l, r) in
+  let b2 = tree_Bin [b1 ; b3] in
+  let t = root_Root b2 in
+  let inh = () in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let x   = syn.x_syn_root in
+  if x == x then () else ();
+  print_endline "done"
+}

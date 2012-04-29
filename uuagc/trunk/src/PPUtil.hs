@@ -8,6 +8,7 @@ module PPUtil where
 import Data.List
 import qualified Data.Map as Map
 import Pretty
+import Options
 
 ppListSep :: (PP s, PP c, PP o, PP a) => o -> c -> s -> [a] -> PP_Doc
 ppListSep o c s pps = o >|< hlist (intersperse (pp s) (map pp pps)) >|< c
@@ -50,3 +51,8 @@ ppShow x = pp $ show x
 
 mkInfo1 :: String -> PP_Doc -> (String,PP_Doc)
 mkInfo1 = (,)
+
+ppLinePragma :: Options -> Int -> String -> PP_Doc
+ppLinePragma opts ln fl
+  | ocaml opts = "#" >#< show ln >#< show fl
+  | otherwise  = "{-# LINE" >#< show ln >#< show fl >#< "#-}"

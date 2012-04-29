@@ -24,19 +24,27 @@ import System.Directory
 import System.FilePath
 import HsTokenScanner
 import Options
+import Scanner(lowercaseKeywords)
 
 
 type AGParser = AnaParser Input  Pair Token Pos
 
-pIdentifier, pIdentifierU :: AGParser Identifier
+pIdentifier, pIdentifierU, pIdentifierExcl :: AGParser Identifier
 pIdentifierU = uncurry Ident <$> pConidPos
-pIdentifier   = uncurry Ident <$> pVaridPos
+pIdentifier = pIdentifierExcl <|> pKeywordAsIdent
+pIdentifierExcl = uncurry Ident <$> pVaridPos
 
+-- see Scanner.lowercaseKeywords for the list of keywords that may
+-- be used as an identifier. To prevent ambiguities, it's probably
+-- sufficient when the keyword is always followed by a token that
+-- can never follow an identifier for any possible prefix.
+pKeywordAsIdent :: AGParser Identifier
+pKeywordAsIdent = pAny (\nm -> Ident nm <$> pKeyPos nm) lowercaseKeywords
 
 parseAG :: Options -> [FilePath] -> String -> IO (AG,[Message Token Pos])
-parseAG opts searchPath file
-              = do (es,_,_,_,mesg) <- parseFile False opts searchPath file
-                   return (AG es, mesg)
+parseAG opts searchPath file = do
+  (es,_,_,_,mesg) <- parseFile False opts searchPath file
+  return (AG es, mesg)
 
 --marcos
 parseAGI :: Options -> [FilePath] -> String -> IO (AG, Maybe String)
@@ -117,34 +125,46 @@ parseFile agi opts searchPath file
                              | (n,(f,t)) <- zip [1..] xs
                              ]
 
+    pOptClassContext' :: AGParser ClassContext
+    pOptClassContext'
+      | ocaml opts = pSucceed []
+      | otherwise  = pOptClassContext
+
+    pTyVars :: AGParser [Identifier]
+    pTyVars
+      | ocaml opts = return <$> pTypeVar
+                     <|> pSucceed []
+                     <|> pParens (pListSep pComma pTypeVar)
+      | otherwise  = pList pIdentifier
+
     pElem :: AGParser Elem
     pElem
-         =  Data <$> pDATA
-                 <*> pOptClassContext
+         =  Data <$> (pDATA <|> pTYPE)
+                 <*> pOptClassContext'
                  <*> pNontSet
-                 <*> pList pIdentifier
+                 <*> pTyVars
                  <*> pOptAttrs
                  <*> pAlts
                  <*> pSucceed False
         <|> Attr <$> pATTR
-                 <*> pOptClassContext
+                 <*> pOptClassContext'
                  <*> pNontSet
                  <*> pOptQuantifiers
                  <*> pAttrs
         <|> Type <$> pTYPE
-                 <*> pOptClassContext
-                 <*> pIdentifierU
-                 <*> pList pIdentifier
+                 <*> pOptClassContext'
+                 <*> pTypeCon
+                 <*> pTyVars
                  <*  pEquals
                  <*> pComplexType
         <|> Sem  <$> pSEM
-                 <*> pOptClassContext
+                 <*> pOptClassContext'
                  <*> pNontSet
                  <*> pOptAttrs
                  <*> pOptQuantifiers
                  <*> pSemAlts
         <|> Set  <$> pSET
-                 <*> pIdentifierU
+                 <*> pTypeCon
                  <*> (   False <$ pEquals
                      <|> True  <$ pColon
                      )
@@ -168,14 +188,16 @@ parseFile agi opts searchPath file
                  <*> pCodescrap'
                  <*> pCodescrap'
                  <*> pCodescrap'
-        <|> codeBlock <$> pBlockKind <*> ((Just <$ pATTACH <*> pIdentifierU) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
-              where codeBlock knd mbNt (txt,pos) = Txt pos knd mbNt (lines txt)
+        <|> codeBlock <$> pBlockKind <*> ((Just <$ pATTACH <*> pTypeCon) <|> pSucceed Nothing) <*> pCodeBlock <?> "a statement"
+              where codeBlock knd mbNt (txt,pos) = Txt pos knd mbNt (lines txt)                 
 
     pBlockKind :: AGParser BlockKind
     pBlockKind =
           BlockPragma <$ pOPTPRAGMAS
       <|> BlockImport <$ pIMPORTS
       <|> BlockMain   <$ pTOPLEVEL   -- block is moved to the toplevel ("main") module when "sepsemmods" is used
+      <|> BlockData   <$ pDATABLOCK
+      <|> BlockRec    <$ pRECBLOCK
       <|> pSucceed BlockOther
 
     pAttrs :: AGParser Attrs
@@ -218,7 +240,7 @@ parseFile agi opts searchPath file
                  <$> pAttrIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAlt :: AGParser Alt
-    pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> pList_ng pIdentifier <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
+    pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> opt (pList1_ng pTypeVar <* pDot) [] <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
 
     pAlts :: AGParser Alts
     pAlts =  pList_ng pAlt <?> "datatype alternatives"
@@ -266,6 +288,9 @@ parseFile agi opts searchPath file
     pLocDecl = pDot <**> (pIdentifier <**> (pTypeColon <**> (   (\(tp,pos) _ ident _  -> TypeDef pos ident tp) <$> pLocType
                                                             <|> (\ref _ ident _ -> UniqueDef ident ref) <$ pUNIQUEREF <*> pIdentifier )))
 
+    pLocType :: AGParser (Type, Pos)
+    pLocType = (\u -> (Haskell $ getName u, getPos u)) <$> pTypeCon
+       <|> (\(s,p) -> (Haskell s,p)) <$> pCodescrap  <?> "a type"
 
     pInstDecl :: AGParser SemDef
     pInstDecl = (\ident tp -> TypeDef (getPos ident) ident tp)
@@ -300,6 +325,63 @@ parseFile agi opts searchPath file
              (flip RuleChild   <$> pMacro       <|>
               flip ChildChild  <$> pIdentifier  <|>
               flip ValueChild  <$> pCodescrap' )
+
+    pTypeNt :: AGParser Type
+    pTypeNt
+      =   ((\nt -> mkNtType nt []) <$> pTypeCon <?> "nonterminal name (no brackets)")
+      <|> (pParens (mkNtType <$> pTypeCon <*> pList pTypeHaskellAnyAsString) <?> "nonterminal name with parameters (using parenthesis)")
+
+    pTypeCon :: AGParser Identifier
+    pTypeCon
+      | ocaml opts = pIdentifierExcl
+      | otherwise  = pIdentifierU
+
+    pTypeVar :: AGParser Identifier
+    pTypeVar
+      | ocaml opts = (\(nm, pos) -> Ident nm pos) <$> pTextnmPos
+      | otherwise  = pIdentifier
+
+    pTypeHaskellAnyAsString :: AGParser String
+    pTypeHaskellAnyAsString
+      =   getName <$> pTypeVar
+      <|> getName <$> pTypeCon
+      <|> pCodescrap' <?> "a type"
+
+    -- if the type is within some kind of parentheses or brackets (then we allow lowercase identifiers as well)
+    pTypeEncapsulated :: AGParser Type
+    pTypeEncapsulated
+      =   pParens pTypeEncapsulated
+      <|> mkNtType <$> pTypeCon <*> pList pTypeHaskellAnyAsString
+      <|> (Haskell . getName) <$> pTypeVar
+      <|> pTypePrimitive
+
+    pTypePrimitive :: AGParser Type
+    pTypePrimitive
+      = Haskell <$> pCodescrap'  <?> "a type"
+
+    pType :: AGParser Type
+    pType =  pTypeNt
+          <|> pTypePrimitive
+
+    pTypeOrSelf :: AGParser Type
+    pTypeOrSelf = pType <|> Self <$ pSELF
+
+    pOptClassContext :: AGParser ClassContext
+    pOptClassContext
+      =   pClassContext <* pDoubleArrow
+      <|> pSucceed []
+
+    pClassContext :: AGParser ClassContext
+    pClassContext
+      = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
+
+    pNontSet = set0 where
+        set0 = pChainr (Intersect <$ pIntersect) set1
+        set1 = pChainl (Difference <$ pMinus) set2
+        set2 = pChainr (pSucceed Union) set3
+        set3 = pTypeCon <**> opt (flip Path <$ pArrow <*> pTypeCon) NamedSet
+            <|> All <$ pStar
+            <|> pParens set0
 
     --
     -- End of AG Parser
@@ -344,65 +426,16 @@ scrapL ref p (x:xs) | isSpace x || column p >= ref =
                     | otherwise       =(p,[],x:xs)
 scrapL ref p []     = (p,[],[])
 
-pNontSet = set0
-  where set0 = pChainr (Intersect <$ pIntersect) set1
-        set1 = pChainl (Difference <$ pMinus) set2
-        set2 = pChainr (pSucceed Union) set3
-        set3 = pIdentifierU <**> opt (flip Path <$ pArrow <*> pIdentifierU) NamedSet
-            <|> All <$ pStar
-            <|> pParens set0
-
 pNames :: AGParser [Identifier]
-pNames = pList1 pIdentifier
-
-
+pNames = pIdentifiers
 
 
 -- Insertion is expensive for pCodeBlock in order to prevent infinite inserts.
 pCodeBlock ::  AGParser (String,Pos)
 pCodeBlock   = pCostValToken 90 TkTextln "" <?> "a code block"
 
-pOptClassContext :: AGParser ClassContext
-pOptClassContext
-  =   pClassContext <* pDoubleArrow
-  <|> pSucceed []
-
-pClassContext :: AGParser ClassContext
-pClassContext
-  = pListSep pComma ((,) <$> pIdentifierU <*> pList pTypeHaskellAnyAsString)
-
 pOptQuantifiers :: AGParser [String]
 pOptQuantifiers = (return <$ pDoubleColon <*> pCodescrap') `opt` []
-
-pTypeNt :: AGParser Type
-pTypeNt
-  =   ((\nt -> mkNtType nt []) <$> pIdentifierU <?> "nonterminal name (no brackets)")
-  <|> (pParens (mkNtType <$> pIdentifierU <*> pList pTypeHaskellAnyAsString) <?> "nonterminal name with parameters (using parenthesis)")
-
-pTypeHaskellAnyAsString :: AGParser String
-pTypeHaskellAnyAsString
-  =   getName <$> pIdentifier
-  <|> getName <$> pIdentifierU
-  <|> pCodescrap' <?> "a type"
-
--- if the type is within some kind of parentheses or brackets (then we allow lowercase identifiers as well)
-pTypeEncapsulated :: AGParser Type
-pTypeEncapsulated
-  =   pParens pTypeEncapsulated
-  <|> mkNtType <$> pIdentifierU <*> pList pTypeHaskellAnyAsString
-  <|> (Haskell . getName) <$> pIdentifier
-  <|> pTypePrimitive
-
-pTypePrimitive :: AGParser Type
-pTypePrimitive
-  = Haskell <$> pCodescrap'  <?> "a type"
-
-pType :: AGParser Type
-pType =  pTypeNt
-     <|> pTypePrimitive
-
-pTypeOrSelf :: AGParser Type
-pTypeOrSelf = pType <|> Self <$ pSELF
 
 pIdentifiers :: AGParser [Identifier]
 pIdentifiers =  pList1Sep pComma pIdentifier <?> "lowercase identifiers"
@@ -453,10 +486,6 @@ nl2sp '\n' = ' '
 nl2sp '\r' = ' '
 nl2sp x = x
 
-pLocType :: AGParser (Type, Pos)
-pLocType = (\u -> (Haskell $ getName u, getPos u)) <$> pIdentifierU
-       <|> (\(s,p) -> (Haskell s,p)) <$> pCodescrap  <?> "a type"
-
 pVar :: AGParser (Identifier -> (Identifier, Identifier))
 pVar = (\att fld -> (fld,att)) <$> pAttrIdentifier
 
@@ -497,7 +526,7 @@ pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
       pMODULE, pATTACH, pUNIQUEREF, pINH, pSYN, pAUGMENT, pPlus, pAROUND, pSEMPRAGMA, pMERGE, pAS, pSELF,
-      pIMPORTS, pOPTPRAGMAS, pSmallerEqual, pINTSET
+      pIMPORTS, pOPTPRAGMAS, pSmallerEqual, pINTSET, pDATABLOCK, pRECBLOCK
       :: AGParser Pos
 pSET         = pCostReserved 90 "SET"     <?> "SET"
 pDERIVING    = pCostReserved 90 "DERIVING"<?> "DERIVING"
@@ -552,3 +581,5 @@ pSELF        = pCostReserved 5  "SELF" <?> "SELF"
 pIMPORTS     = pCostReserved 5  "imports" <?> "imports"
 pOPTPRAGMAS  = pCostReserved 5  "optpragmas" <?> "optpragmas"
 pTOPLEVEL    = pCostReserved 5  "toplevel" <?> "toplevel"
+pDATABLOCK   = pCostReserved 5  "datablock" <?> "datadecl block"
+pRECBLOCK    = pCostReserved 5  "recblock" <?> "recursive block"

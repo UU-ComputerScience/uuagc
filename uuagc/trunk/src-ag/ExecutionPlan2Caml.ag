@@ -1,0 +1,1482 @@
+-- As expected, the code generation for ML resembles the code generation for Haskell quite a bit.
+-- However, there are several differences:
+--   * no inline pragmas
+--   * no strictness annotations (not needed)
+--   * separating data types from code
+--
+-- Generator conventions:
+-- * we generate functions definitions with an 'and' binding and a match statement
+-- * for some type aliasses, we'll introduce module decls in addition to a type
+--
+-- Future work:
+-- * abuse the module system more?
+-- * parse ocaml blocks?
+-- * lazy evaluation?
+--
+-- Other comments:
+-- * Empty records are not allowed in Ocaml. Mapping them to units.
+-- * line pragmas. There are now line pragmas around the body of rules.
+--   There cannot be syntactical mistakes in the patterns. However, there can be
+--   type errors if a function returns a value with a type that differs from what
+--   is expected. It's then not clear which location is reported.
+--   Also, errors in type signatures are not caught.
+--   However, usually, the problematic cases are syntax errors, and these are
+--   prevented by parsing the definitions first.
+
+INCLUDE "ExecutionPlan.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+INCLUDE "HsToken.ag"
+
+imports
+{
+import ExecutionPlan
+import Pretty
+import PPUtil
+import Options
+import Data.Monoid(mappend,mempty)
+import Data.Maybe
+import Data.Graph
+import Debug.Trace
+import System.IO
+import System.Directory
+import System.FilePath
+import UU.Scanner.Position
+
+import TokenDef
+import HsToken
+import ErrorMessages
+
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Sequence(Seq)
+import qualified Data.Sequence as Seq
+import Data.Foldable(toList)
+}
+
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule EChildren EChild
+  [ mainFile, mainName : String | | ]
+
+-------------------------------------------------------------------------------
+--  Options
+-------------------------------------------------------------------------------
+ATTR ExecutionPlan
+     ENonterminals ENonterminal
+     EProductions EProduction
+     ERules ERule
+     Pattern Patterns
+     EChildren EChild
+     Visits Visit
+     VisitSteps VisitStep [ options : {Options} | | ]
+ATTR EProductions EProduction [ rename : {Bool} | | ]
+
+SEM ENonterminal | ENonterminal
+  prods.rename = rename @lhs.options
+
+-------------------------------------------------------------------------------
+--  Context info (nonterminal ident, constructor ident, nonterm params, etc.)
+-------------------------------------------------------------------------------
+
+ATTR Visit Visits EProduction EProductions EChildren EChild ERules ERule [ nt : NontermIdent | | ]
+SEM ENonterminal | ENonterminal
+  prods.nt = @nt
+
+ATTR EChildren EChild ERules ERule Visits Visit [ con : ConstructorIdent | | ]
+
+SEM EProduction | EProduction children.con = @con
+  rules.con    = @con
+  visits.con   = @con
+
+ATTR EProductions EProduction Visits Visit [ params : {[Identifier]} | | ]
+SEM ENonterminal | ENonterminal
+  prods.params = @params
+
+-------------------------------------------------------------------------------
+--  output attributes: we make a distinction between data declarations
+--  and code
+-------------------------------------------------------------------------------
+ATTR ExecutionPlan [  | | datas, code, modules : {PP_Doc} ]
+
+SEM ExecutionPlan | ExecutionPlan
+  lhs.code   = @nonts.code  >-< @loc.wrappersExtra
+  lhs.datas  = @nonts.datas >-< @loc.commonExtra
+
+ATTR ENonterminal ENonterminals
+  [ wrappers : {Set NontermIdent} | | datas,code,modules USE {>-<} {empty} : {PP_Doc} ]
+
+SEM ExecutionPlan | ExecutionPlan
+  nonts.wrappers = @wrappers
+
+SEM ENonterminal | ENonterminal
+  lhs.datas = (    text ""
+               >-< "(* *** " ++ getName @nt ++ " *** [data] *)")
+               >-< (if dataTypes @lhs.options
+                    then pp "(* data *)"
+                         >-< @loc.datatypeNt
+                         >-< @loc.datatypeProds
+                         >-< ""
+                    else empty)
+               >-< (if @loc.hasWrapper
+                     then pp "(* wrapper *)"
+                          >-< @loc.wr_inh
+                          >-< @loc.wr_syn
+                          >-< ""
+                     else empty)
+               >-< (if semfuns @lhs.options
+                    then pp "(* semantic domain *)"
+                         >-< @loc.t_init
+                         >-< @loc.t_states
+                         >-< @loc.c_states
+                         >-< @prods.t_visits
+                         >-< ""
+                    else empty)
+
+  lhs.code   = (    text ""
+                >-< "(* *** " ++ getName @nt ++ " *** [code] *)")
+                >-< (if dataTypes @lhs.options
+                    then pp "(* constructor functions *)"
+                         >-< @loc.datatypeCon
+                    else empty)
+                >-< (if @loc.hasWrapper
+                     then pp "(* wrapper *)"
+                          >-< @loc.wrapper
+                          >-< ""
+                     else empty)
+                >-< (if folds @lhs.options
+                     then "(* cata *)"
+                          >-< @loc.sem_nt
+                          >-< ""
+                     else empty)
+                >-< (if semfuns @lhs.options
+                     then "(* semantic domain *)"
+                          >-< @prods.sem_prod
+                          >-< ""
+                     else empty)
+
+  -- note: we assume that these module declarations are not recursive, and
+  -- that their parameters do not depends on types generated by AG in the
+  -- same file.
+  lhs.modules = @loc.moduleDecl
+
+  loc.hasWrapper = @nt `Set.member` @lhs.wrappers
+
+-------------------------------------------------------------------------------
+--  Nonterminal datatype
+-------------------------------------------------------------------------------
+ATTR ENonterminal ENonterminals [ typeSyns : {TypeSyns} | | ]
+
+SEM ExecutionPlan | ExecutionPlan
+  nonts.typeSyns = @typeSyns
+
+{
+ppRecordTp :: PP a => [a] -> PP_Doc
+ppRecordTp es
+  | null es   = text "unit"
+  | otherwise = pp_block "{" "}" "; " (map pp es)
+
+ppRecordVal :: PP a => [a] -> PP_Doc
+ppRecordVal es
+  | null es   = text "()"
+  | otherwise = pp_block "{" "}" "; " (map pp es)
+
+ppFieldsVal :: Bool -> [(PP_Doc,PP_Doc,PP_Doc,PP_Doc)] -> PP_Doc
+ppFieldsVal record fields
+  | null fields = text "()"
+  | record      = ppRecordVal [ r >#< "=" >#< x | (r,x,_,_) <- fields ]
+  | otherwise   = pp_block "(" ")" "," [ x | (_,x,_,_) <- fields ]
+
+ppFieldsType :: Bool -> Bool -> [(PP_Doc,PP_Doc,PP_Doc,PP_Doc)] -> PP_Doc
+ppFieldsType record defor fields
+  | null fields = text "unit"
+  | record      = ppRecordTp [ r >#< ":" >#< (if defor then d else f) | (r,_,d,f) <- fields ]
+  | otherwise   = pp_block "(" ")" "*" [ if defor then d else f | (_,_,d,f) <- fields ]
+}
+
+
+-- for each nonterminal, the following data types in ocmal:
+-- * data type for the nonterminal, with a constructor for
+--   each production. The constructor takes a single field
+--   with the type explained below.
+-- * for each production, a record type comprising the
+--   children of the production.
+--
+-- * class contexts are ignored
+-- * at most one type variable
+--
+-- aliasses: lists, tuples
+--  *** think about maps, sets, etc. Perhaps the name of
+--  the alias should become a local module name.
+--
+
+SEM ENonterminal | ENonterminal
+  loc.t_params = ppTypeParams @params
+  loc.aliasPre = "and" >#< @loc.t_params >#< @nt >#< "="
+  loc.aliasMod = @loc.aliasPre >#< modName @nt >|< ".t"
+  loc.datatypeNt
+    = case lookup @nt @lhs.typeSyns of
+        -- generate special code for certain type aliasses
+        Just (List t)     -> @loc.aliasPre >#< ppTp t >#< "list"
+        Just (Maybe t)    -> @loc.aliasPre >#< ppTp t >#< "option"
+        Just (Tuple ts)   -> @loc.aliasPre >#< (pp_block "(" ")" " * " $ map (ppTp . snd) ts)
+
+        Just (Map k v)    -> @loc.aliasMod
+        Just (IntMap t)   -> @loc.aliasMod
+        Just (OrdSet t)   -> @loc.aliasMod
+        Just IntSet       -> @loc.aliasMod
+
+        -- use the constructor-based data-type generation for all other types
+        _ -> "and" >#< @loc.t_params >#< @nt >#< "="
+             >-< ( if null @prods.datatype
+                   then pp "unit"
+                   else indent 2 $ vlist @prods.datatype_call
+                 )
+
+  loc.datatypeCon
+    = case lookup @nt @lhs.typeSyns of
+        Just _  -> empty  -- no constructor funs for type aliasses
+        Nothing -> vlist @prods.datatype_con
+
+  loc.moduleDecl
+    = let ppModule expr = "module" >#< modName @nt >#< "="
+      in case lookup @nt @lhs.typeSyns of
+           Just (Map k _)  -> ppModule ("Map.Make" >#< pp_parens (ppTp k))
+           Just (IntMap _) -> ppModule ("Map.Make ()")
+           Just (OrdSet t) -> ppModule ("Set.Make" >#< pp_parens (ppTp t))
+           Just IntSet     -> ppModule ("Set.Make (struct  type t = int  let compare = Pervasives.compare  end)")
+           _               -> empty
+
+  loc.datatypeProds = vlist @prods.datatype
+
+ATTR EProduction  [ | | datatype, datatype_call, datatype_con : {PP_Doc} ]
+ATTR EProductions [ | | datatype, datatype_call, datatype_con USE {:} {[]} : {[PP_Doc]} ]
+
+SEM EProduction | EProduction
+  loc.o_records = dataRecords @lhs.options
+  loc.t_params = ppTypeParams @lhs.params
+  loc.t_c_params = ppTypeParams (cont_tvar : map pp @params)
+  loc.conname = conname @lhs.rename @lhs.nt @con
+  loc.recname = pp "fields_" >|< @loc.conname
+  lhs.datatype = "and" >#< @loc.t_params >#< @loc.recname >#< "="
+                 >#< ppFieldsType @loc.o_records False @children.sigs
+  lhs.datatype_call = pp "|" >#< @loc.conname >#< "of" >#< pp_parens (@loc.t_params >#< @loc.recname)
+  lhs.datatype_con
+    = let funNm  = @lhs.nt >|< "_" >|< @con
+          decl   = "and" >#< ppFunDecl @loc.o_sigs funNm params (@loc.t_params >#< @lhs.nt) body
+          params = [ (x, t) | (_,x,_,t) <- @children.sigs ]
+          body   = @loc.conname >#< ppFieldsVal @loc.o_records @children.sigs
+      in decl
+ 
+ATTR EChild EChildren [ | | sigs USE {++} {[]} : {[(PP_Doc,PP_Doc,PP_Doc,PP_Doc)]} ]
+
+SEM EChild
+  | EChild ETerm
+      loc.tpDocFor   = ppTp $ removeDeforested @tp
+      loc.tpDocDefor = ppTp $ forceDeforested @tp
+      loc.fieldNm    = text $ recordFieldname @lhs.nt @lhs.con @name
+      loc.childNm    = text (fieldname @name)
+      loc.field  = (@loc.fieldNm, @loc.childNm, @loc.tpDocDefor, @loc.tpDocFor)
+  | EChild  lhs.sigs = case @kind of
+                         ChildAttr -> []  -- higher order attributes are not part of the data type
+                         _         -> [@loc.field]
+  | ETerm   lhs.sigs = [@loc.field]
+
+{
+ppTp :: Type -> PP_Doc
+ppTp tp = case tp of
+  Haskell t -> pp t   -- ocaml type
+  NT nt tps deforested
+    | nt == _SELF -> pp "?SELF?"
+    | null tps    -> ppNontTp nt deforested
+    | otherwise   -> pp_parens (ppSpaced (map pp_parens tps) >#< ppNontTp nt deforested)
+  Self -> pp "?SELF?"
+
+ppNontTp :: NontermIdent -> Bool -> PP_Doc
+ppNontTp nt True  = pp "t_" >|< pp nt
+ppNontTp nt False = pp nt
+
+-- multiple type parameters go into a tuple
+ppTypeParams :: PP a => [a] -> PP_Doc
+ppTypeParams []  = empty
+ppTypeParams [x] = pp x
+ppTypeParams xs  = pp_block "(" ")" "," (map pp xs)
+}
+
+-------------------------------------------------------------------------------
+--  Nonterminal semantic function
+-------------------------------------------------------------------------------
+SEM ENonterminal | ENonterminal
+  loc.fsemname = \x -> prefix @lhs.options ++ show x
+  loc.semname = @loc.fsemname @nt
+  loc.frecarg = \t x -> case t of
+                  NT nt _ _ -> pp_parens (@fsemname nt >#< x)
+                  _         -> x
+
+  loc.sem_param_tp = @loc.t_params >#< @nt
+  loc.sem_res_tp   = @loc.t_params >#< @loc.t_type
+  loc.sem_tp       = @loc.sem_param_tp >#< "->" >#< @loc.sem_res_tp
+
+  loc.o_sigs  = typeSigs @lhs.options
+  loc.sem_nt_body = "match arg with" >-< (indent 2 $ @prods.sem_nt)
+  loc.sem_nt  = let genSem nm body = "and" >#< ppFunDecl @loc.o_sigs (pp @loc.semname) [(pp nm, @loc.sem_param_tp)] @loc.sem_res_tp body
+                    genAlias alts = genSem (pp "arg") (pp "match arg with" >-< (indent 2 $ vlist $ map (pp "|" >#<) alts))
+                    genMap v = let body = modName @nt >|< ".fold" >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil" >#< els
+                                   els  = case v of
+                                     NT nt _ _ -> pp_parens (modName @nt >|< ".map" >#< @loc.fsemname nt >#< "m")
+                                     _         -> pp "m"
+                               in genSem "m" body
+                    genSet mbNt = let body = "List.fold_right" >#< @loc.semname >|< "_Entry" >#<
+                                              els (pp_parens (modName @nt >|< ".elements" >#< "s")) >#< @loc.semname >|< "_Nil"
+                                      els r = maybe r (\nt -> pp_parens ("List.map" >#< @loc.fsemname nt >#< r)) mbNt
+                                  in genSem "s" body
+                in case lookup @nt @lhs.typeSyns of
+                     -- generate special code for some aliasses
+                     Just (List t) -> let body = "List.fold_right" >#< @loc.semname >|< "_Cons" >#< els >#< @loc.semname >|< "_Nil"
+                                          els  = case t of
+                                            NT nt _ _ -> pp_parens ("List.map" >#< @loc.fsemname nt >#< "list")
+                                            _         -> pp "list"
+                                      in genSem "list" body
+                     Just (Tuple ts) -> let pat = pp_parens (ppCommas $ map fst ts)
+                                            body = @loc.semname >|< "_Tuple" >#< ppSpaced (map (\t -> @loc.frecarg (snd t) (pp $ fst t)) ts)
+                                        in genSem pat body
+                     Just (Map _ v) -> genMap v
+                     Just (IntMap v) -> genMap v
+                     Just (Maybe t) -> genAlias
+                         [ "None" >#< "->" >#< "=" >#< @loc.semname >|< "_Nothing"
+                         , "Some" >#< "just" >#< "->" >#< @loc.semname >|< "_Just" >#< @frecarg t (pp "just")
+                         ]
+                     Just (OrdSet t) -> genSet $ case t of
+                                          NT nt _ _ -> Just nt
+                                          _         -> Nothing
+                     Just (IntSet) -> genSet Nothing
+
+                     -- structural fold for the remaining cases
+                     _ -> genSem "arg" @loc.sem_nt_body
+
+{
+-- convention for nonterminals to module names
+modName :: NontermIdent -> PP_Doc
+modName nt = pp "M_" >|< pp nt
+
+ppFunDecl :: Bool -> PP_Doc -> [(PP_Doc,PP_Doc)] -> PP_Doc -> PP_Doc -> PP_Doc
+ppFunDecl gensigs nm args resSig expr = body where
+  body = nm >#< ppSpaced (map arg args) >#< ppRes >#< "="
+         >-< indent 2 expr
+  arg (arg,tp) = ppArg gensigs arg tp
+  ppRes
+    | gensigs  = ":" >#< resSig
+    | otherwise = empty
+
+ppArg :: Bool -> PP_Doc -> PP_Doc -> PP_Doc
+ppArg gensigs arg tp
+  | gensigs   = pp_parens (arg >#< ":" >#< tp)
+  | otherwise = arg
+
+}
+
+-- The number of productions
+ATTR EProductions EProduction [ | | count USE {+} {0} : {Int} ]
+SEM EProduction | EProduction  lhs.count = {1}
+
+-- The per-production match-expr cases for the sem_NT function
+ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
+SEM EProduction | EProduction
+  lhs.sem_nt = "|" >#< conname @lhs.rename @lhs.nt @con >#< ppFieldsVal @loc.o_records @children.sigs >#< "->" >#<
+                 prefix @lhs.options >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @children.argnamesw
+
+ATTR EChild    [ | | argnamesw              : { PP_Doc } ]
+ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
+
+SEM EChild
+  | EChild lhs.argnamesw = case @kind of
+                             ChildSyntax     -> "(" >#< prefix @lhs.options >|< @loc.nt >#< @name >|< "_" >#< ")"
+                             ChildAttr       -> empty  -- no sem-case for a higher-order child
+                             ChildReplace tp -> "(" >#< prefix @lhs.options >|< extractNonterminal tp >#< @name >|< "_" >#< ")"
+  | ETerm  lhs.argnamesw = text $ fieldname @name
+
+-------------------------------------------------------------------------------
+--  Types of attributes
+-------------------------------------------------------------------------------
+ATTR ExecutionPlan
+     ENonterminals
+     ENonterminal  [ inhmap : {Map NontermIdent Attributes}
+                     synmap : {Map NontermIdent Attributes} | | ]
+
+ATTR EProductions EProduction
+     ERules ERule
+     Patterns Pattern
+     Visits
+     Visit   [ inhmap : {Attributes}
+               synmap : {Attributes}
+               allInhmap : {Map NontermIdent Attributes}
+               allSynmap : {Map NontermIdent Attributes} | | ]
+
+SEM ENonterminal
+  | ENonterminal (Just prods.inhmap) = Map.lookup @nt @lhs.inhmap
+                 (Just prods.synmap) = Map.lookup @nt @lhs.synmap
+                 prods.allInhmap = @lhs.inhmap
+                 prods.allSynmap = @lhs.synmap
+
+-------------------------------------------------------------------------------
+--  State datatypes
+-------------------------------------------------------------------------------
+{type VisitStateState = (VisitIdentifier,StateIdentifier, StateIdentifier)}
+
+ATTR Visit  [ | | allvisits              : { VisitStateState }]
+ATTR Visits [ | | allvisits USE {:} {[]} : {[VisitStateState]}]
+ATTR EProduction
+     EProductions [ | | allvisits: {[VisitStateState]}]
+
+SEM Visit
+  | Visit lhs.allvisits = (@ident, @from, @to)
+
+SEM EProductions
+  | Cons lhs.allvisits = @hd.allvisits -- just pick the first production
+  | Nil  lhs.allvisits = error "Every nonterminal should have at least 1 production"
+
+-- type of tree in a given state s
+SEM ENonterminal | ENonterminal
+  loc.allstates = orderStates @initial @prods.allvisits
+  loc.stvisits  = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
+  loc.t_type    = type_nt_sem_top @nt
+  loc.t_c_params = ppTypeParams (cont_tvar : map pp @params)
+
+  -- the initial "s" type: contains the "attach" function that delivers the initial st
+  loc.t_init    = "and" >#< @loc.t_params >#< @loc.t_type >#< "=" >#< pp_braces ( nm_attach @nt >#< ":" >#< "unit" >#< "->" >#< @loc.t_params >#< type_nt_sem @nt @initial)
+
+  -- the "s" type in a given state: contains the invoke function to go to a next state
+  loc.t_states  = vlist $ map (\st ->
+                    let s_st = type_nt_state @nt st
+                        t_st  = type_nt_sem @nt st
+                        c_st  = type_caller @nt st
+                        nextVisits = Map.findWithDefault ManyVis st @nextVisits
+                        decl = "and" >#< @loc.t_params >#< t_st >#< "="
+                    in case nextVisits of
+                         NoneVis    -> decl >#< "unit"  -- final state: no more subsequent visits
+                         _          -> decl >#< ppRecordVal [ nm_invoke @nt st >#< ":" >#< cont_tvar >#< "." >#< @loc.t_c_params >#< c_st >#< "->" >#< cont_tvar ]
+                   ) @loc.allstates
+
+{
+--
+-- conventions
+--
+
+-- type of the state of a node: a closure containing the children states and attributes,
+-- with code of type 'type_nt_sem' that represents the subsequent visits to successor states.
+type_nt_state nt st = "s_" >|< nt >|< "_" >|< st
+
+-- type of a visit to a node (the initial, and when in a given state)
+-- an instance of this type is called the "semantics"
+type_nt_sem_top nt = "t_" >|< nt
+type_nt_sem nt st = type_nt_sem_top nt >|< "_s" >|< st
+
+-- type of a caller (contains visit selection + inputs + continuation)
+type_caller nt st = "c_" >|< nt >|< "_s" >|< st
+
+-- names of records
+nm_attach nt = "attach_">|< nt
+nm_invoke nt st = "inv_" >|< nt >|< "_s" >|< st
+
+-- name of the type variable representing the result type of the continuation
+cont_tvar = text "'cont__"
+
+
+-- order states in reverse topological order so that successor states are
+-- earlier in the resulting list.
+orderStates :: StateIdentifier -> [VisitStateState] -> [StateIdentifier]
+orderStates initial edges = res where
+  source  = Map.singleton initial Set.empty  -- ensures that the initial state is in graph even when there are no edges
+  targets = [ Map.singleton t Set.empty | (_,_,t) <- edges ]
+  deps    = [ Map.singleton f (Set.singleton t) | (_,f,t) <- edges ]
+
+  mp  = Map.unionsWith Set.union (source : (targets ++ deps))
+  es  = [ (f,f,Set.toList ts) | (f,ts) <- Map.toList mp ]
+  cps = stronglyConnComp es
+  res = flattenSCCs cps
+}
+
+-- type of a caller that selects a visit v from state s of the child, and
+-- provides a continuation of the caller after the visit to the child
+SEM ENonterminal | ENonterminal
+  loc.c_states = vlist $ map (\st ->
+                   let nt_st = type_nt_state @nt st
+                       c_st  = type_caller @nt st
+                       outg  = filter (\(_,f,_) -> f == st) @prods.allvisits
+                       nextVisits = Map.findWithDefault ManyVis st @nextVisits
+                       declHead = "and" >#< @loc.t_c_params >#< c_st >#< "="
+                       visitcons = vlist $ map (\(v,_,_) ->
+                         "|" >#< con_visit @nt v >#< "of" >#< @loc.t_c_params >#< type_caller_visit @nt v
+                        ) outg
+                   in case nextVisits of   -- slight optimization for when there is only one visit
+                        NoneVis  -> empty  -- st is final state, no subsequent visits, thus no more caller info
+                        OneVis v -> declHead >#< @loc.t_c_params >#< type_caller_visit @nt v
+                        ManyVis  -> declHead >-< indent 3 visitcons
+                  ) @loc.allstates
+
+{
+type_caller_visit nt v = "c_" >|< nt >|< "_v" >|< v
+con_visit nt v = "C_" >|< nt >|< "_v" >|< v
+
+-- field names
+nm_inh nt v  = "inh_" >|< nt >|< "_v" >|< v
+nm_cont nt v = "cont_" >|< nt >|< "_v" >|< v
+}
+
+-- type t_visit of a call to a visit v (inputs to the visit + continuation of the parents that gets the output + new state of the child)
+ATTR Visit Visits EProduction EProductions [ | | t_visits USE {>-<} {empty} : {PP_Doc} ]
+
+SEM EProductions | Cons
+  lhs.t_visits = @hd.t_visits
+    -- just pick the first production (these results are the same for all of them)
+    -- todo: that means we should actually represent visit declarations in the AST...
+
+SEM Visit | Visit
+  loc.nameTIn_visit   = conNmTVisitIn @lhs.nt @ident
+  loc.nameTOut_visit  = conNmTVisitOut @lhs.nt @ident
+  loc.nameNextState    = type_nt_sem @lhs.nt @to
+  loc.nameCaller_visit = type_caller_visit @lhs.nt @ident
+
+  loc.nextVisitInfo   = Map.findWithDefault ManyVis @to @lhs.nextVisits  -- which visits can we do after we reach the @to state?
+
+  loc.t_params  = ppTypeParams @lhs.params
+  loc.t_c_params = ppTypeParams (cont_tvar : map pp @lhs.params)
+
+  -- data type decls for the t_visit type
+  -- we generate a type for the caller of a visit, the arguments of the visit and the result of the visit
+  lhs.t_visits =  "and" >#< @loc.t_c_params >#< @loc.nameCaller_visit >#< "=" >#< ppRecordTp
+                    [ nm_inh @lhs.nt @ident >#< ":" >#< @loc.t_params >#< conNmTVisitIn @lhs.nt @ident
+                    , nm_cont @lhs.nt @ident >#< ":" >#< @loc.t_params >#< conNmTVisitOut @lhs.nt @ident >#< "->" >#< cont_tvar
+                    ]
+                  >-< "and" >#< @loc.t_params >#< @loc.nameTIn_visit  >#< "=" >#< ppRecordTp @loc.inhpart
+                  >-< "and" >#< @loc.t_params >#< @loc.nameTOut_visit >#< "=" >#< ppRecordTp (@loc.synpart ++ @loc.contpart)
+
+  loc.contpart = case @loc.nextVisitInfo of
+                   NoneVis -> []                    -- don't provide a continuation at all
+                   _       -> [ nm_outarg_cont @lhs.nt @ident >#< ":" >#< @loc.t_params >#< @loc.nameNextState ]  -- normal route: select the next semantics
+
+  loc.inhpart   = @loc.ppTypeList nm_inarg @inh @lhs.inhmap
+  loc.synpart   = @loc.ppTypeList nm_outarg @syn @lhs.synmap
+  loc.ppTypeList = \f s m -> map (\i -> case Map.lookup i m of
+                                          Just tp -> f i @lhs.nt @ident >#< ":" >#< ppTp tp ) $ Set.toList s
+
+{
+-- more naming conventions
+nm_inarg nm nt v = "i_" >|< nm >|< "_" >|< nt >|< "_v" >|< v
+nm_outarg nm nt v = "o_" >|< nm >|< "_" >|< nt >|< "_v" >|< v
+nm_outarg_cont = nm_outarg "_cont"
+
+conNmTVisit nt vId      = "t_" >|< nt >|< "_v"    >|< vId
+conNmTVisitIn nt vId    = "t_" >|< nt >|< "_vIn"  >|< vId
+conNmTVisitOut nt vId   = "t_" >|< nt >|< "_vOut" >|< vId
+
+-- todo: remove ppMonadType
+ppMonadType :: Options -> PP_Doc
+ppMonadType opts
+  | parallelInvoke opts = text "IO"
+  | otherwise           = text "Identity"
+}
+
+-------------------------------------------------------------------------------
+--  Inh and Syn wrappers
+-------------------------------------------------------------------------------
+SEM ENonterminal | ENonterminal
+  loc.wr_inh   = @loc.genwrap "inh" @loc.wr_inhs1  -- todo: is perhaps a mistake in 2hs
+  loc.wr_syn   = @loc.genwrap "syn" @loc.wr_syns
+  loc.genwrap  = \nm attrs ->
+                   "and" >#< @loc.t_params >#< nm >|< "_" >|< @nt >#< "=" >#< ppRecordTp
+                     [ i >|< "_" >|< nm >|< "_" >|< @nt >#< ":" >#< ppTp t | (i,t) <- attrs ]
+
+  loc.inhAttrs = fromJust $ Map.lookup @nt @lhs.inhmap
+  loc.wr_inhs  = Map.toList $ @loc.wr_filter $ @loc.inhAttrs
+  loc.wr_inhs1 = Map.toList @loc.inhAttrs
+  loc.wr_filter = if kennedyWarren @lhs.options && lateHigherOrderBinding @lhs.options
+                  then Map.delete idLateBindingAttr
+                  else id
+  loc.wr_syns  = Map.toList $ fromJust $ Map.lookup @nt @lhs.synmap
+
+  loc.wrapname = text ("wrap_" ++ show @nt)
+  loc.inhname  = text ("inh_" ++ show @nt)
+  loc.synname  = text ("syn_" ++ show @nt)
+  loc.firstVisitInfo = Map.findWithDefault ManyVis @initial @nextVisits
+
+  loc.wrapArgSemTp = @loc.t_params >#< @loc.t_type
+  loc.wrapArgInhTp = @loc.t_params >#< @loc.inhname
+  loc.wrapArgPats  = ppRecordVal [ i >|< "_inh_" >|< @nt >#< "=" >#< lhsname True i | (i,_) <- @loc.wr_inhs1 ]
+  loc.wrapResTp = @loc.t_params >#< @loc.synname
+  loc.wrapper  = "and" >#< ppFunDecl @loc.o_sigs @loc.wrapname [(pp "act", @loc.wrapArgSemTp), (@loc.wrapArgPats, @loc.wrapArgInhTp)] @loc.wrapResTp @loc.wrapperPreamble
+  loc.wrapperPreamble
+    = ( if lateHigherOrderBinding @lhs.options
+        then "let" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName >#< "in"
+        else empty
+      ) -- initial attribute for late binding
+      >-< @loc.wrapperBody
+  loc.wrapperBody
+    = case @initialv of
+        Nothing -> text "{ }"  -- case where there are no inherited or synthesized attributes
+        Just initv ->
+          let attach  = "let" >#< "sem" >#< "=" >#< "act." >|< nm_attach @nt >#< "()" >#< "in"  -- run attach code
+
+              -- result transformer to wrapper output record
+              pat     = ppRecordVal [ nm_outarg i @nt initv >#< "=" >#< lhsname False i | (i,_) <- @loc.wr_syns ]
+              bld     = ppRecordVal [ i >|< "_syn_" >|< @nt >#< "=" >#< lhsname False i | (i,_) <- @loc.wr_syns ]
+              res     = "let res = function" >#< pat >#< "->" >#< bld >#< "in"
+
+              -- input to the visit (inh attrs + continuation)
+              inps    = "let" >#< "inps" >#< "=" >#< ppRecordVal [ nm_inarg i @nt initv >#< "=" >#< lhsname True i | (i,_) <- @loc.wr_inhs ] >#< "in"
+              arg     = "let" >#< "arg" >#< "=" >#< argcon >#< argrec >#< "in"
+              argcon  = case @loc.firstVisitInfo of
+                          ManyVis -> con_visit @nt initv
+                          _       -> empty
+              argrec  = ppRecordVal
+                          [ nm_inh @nt initv >#< "=" >#<  "inps"
+                          , nm_cont @nt initv >#< "=" >#< "res"
+                          ]
+              invoke  = "sem." >|< nm_invoke @nt @initial >#< "arg"  -- invoke the visit
+          in attach >-< res >-< inps >-< arg >-< invoke
+
+-------------------------------------------------------------------------------
+--  Collection of NT / Production sem funs references
+-------------------------------------------------------------------------------
+
+ATTR ENonterminals ENonterminal EProductions EProduction [ | | semFunBndDefs, semFunBndTps USE {Seq.><} {Seq.empty} : {Seq PP_Doc} ]
+SEM ENonterminal | ENonterminal
+  lhs.semFunBndDefs = @loc.semFunBndDef Seq.<| @prods.semFunBndDefs
+  lhs.semFunBndTps  = @loc.semFunBndTp Seq.<| @prods.semFunBndTps
+  loc.semFunBndDef  = @loc.semFunBndNm >#< "=" >#< @loc.semname
+  loc.semFunBndTp   = @loc.semFunBndNm >#< ":" >#< @loc.sem_tp
+  loc.semFunBndNm   = lateSemNtLabel @nt
+
+SEM EProduction | EProduction
+  lhs.semFunBndDefs = Seq.singleton @loc.semFunBndDef
+  lhs.semFunBndTps  = Seq.singleton @loc.semFunBndTp
+  loc.semFunBndDef  = @loc.semFunBndNm >#< "=" >#< @loc.semname
+  loc.semFunBndTp   = @loc.semFunBndNm >#< ":" >#< @loc.sem_tp
+  loc.semFunBndNm   = lateSemConLabel @lhs.nt @con
+
+-- Generate a dictionary that contains the semantics of all semantic functions
+SEM ExecutionPlan | ExecutionPlan
+  loc.wrappersExtra = if lateHigherOrderBinding @lhs.options
+                      then @loc.lateSemBndDef
+                      else empty
+  loc.commonExtra   = if lateHigherOrderBinding @lhs.options
+                      then @loc.lateSemBndTp
+                      else empty
+  loc.lateSemBndTp = "and" >#< lateBindingTypeNm @lhs.mainName >#< "=" >#< ppRecordTp (toList @nonts.semFunBndTps)
+  loc.lateSemBndDef = "and" >#< lateBindingFieldNm @lhs.mainName >#< ":" >#< lateBindingTypeNm @lhs.mainName >#< "="
+                      >-< (indent 2 $ ppRecordVal $ toList @nonts.semFunBndDefs)
+
+-------------------------------------------------------------------------------
+--  Production semantic functions
+-------------------------------------------------------------------------------
+ATTR EProduction  [ | | sem_prod                   : {PP_Doc} ]
+ATTR EProductions [ | | sem_prod USE {>-<} {empty} : {PP_Doc} ]
+
+ATTR EProduction EProductions [ initial : {StateIdentifier}
+                                allstates : {[StateIdentifier]} | | ]
+SEM ENonterminal | ENonterminal
+  prods.initial   = @initial
+  prods.allstates = @loc.allstates
+
+SEM EProduction | EProduction
+  loc.o_sigs     = typeSigs @lhs.options
+  loc.t_type     = type_nt_sem_top @lhs.nt
+  loc.semname    = prefix @lhs.options >|< @lhs.nt >|< "_" >|< @con
+  loc.sem_res_tp = @loc.t_params >#< @loc.t_type
+  loc.sem_tp     = pp_block "" "" "->" [ d | (_,_,d,_) <- @children.sigs ] >#< "->" >#< @loc.sem_res_tp
+
+  loc.initializer
+    = -- some actions, performed upon attaching a child, can
+      -- be specified here in the form of a let-expression.
+      -- The resulting bindings of these actions are
+      -- in scope of the rules of the production
+      empty  -- nothing for now
+
+  loc.sem_prod  = "and" >#< ppFunDecl @loc.o_sigs @loc.semname [ (x,d) | (_,x,d,_) <- @children.sigs ] @loc.sem_res_tp @loc.prod_body
+  loc.prod_body
+    = @loc.initializer
+      >-< "{" >#< nm_attach @lhs.nt >#< "=" >#< "function () ->"
+      >-< indent 2 
+          (   "(* rules of production" >#< @con >#< "*)"
+          >-< @rules.sem_rules
+          >-< "(* states of production" >#< @con >#< "*)"
+          >-< vlist @loc.statefuns
+          >-< nm_st @lhs.initial
+          )
+      >#< "}"
+
+  -- the semantic function of a production: defines a series of states and
+  -- their transitions. Two sorts of functions are important:
+  --   k-functions: inspect the caller_type to find out which visit the
+  --     caller wants and then dispatches that visit and continuation.
+  --   v-functions: the actual code of the visit.
+  loc.statefuns = map @loc.genstfn @lhs.allstates
+  loc.genstfn
+    = \st -> let nextVisitInfo = Map.findWithDefault ManyVis st @lhs.nextVisits
+                 stNm = nm_st st
+
+                 -- note about the initial state: the initial state should be the only
+                 -- state-binding that is not a function. It is non-recursive, its definition does
+                 -- not involve side effect, and its not needed
+                 -- anywhere except to be delivered as initial result.
+                 stDef body = "let" >#< stNm >#< (if st == @lhs.initial then empty else @loc.stargs st) >#< "="
+                              >-< indent 2 body >#< "in"
+
+             in case nextVisitInfo of
+                  NoneVis -> -- the (empty) closure of a (non-initial) end state is not referenced
+                             -- thus generating it is not needed (and omitting it may catch some small mistakes).
+                             if st == @lhs.initial
+                             then stDef (pp "unit")  -- empty state
+                             else empty              -- no state generated
+                  _       -> stDef $ mklets (@loc.stvs st ++ @loc.stks st) $ ppRecordVal
+                               [ nm_invoke @lhs.nt st >#< "=" >#< nm_k st ]
+
+  loc.stargs
+    = \st -> let attrs = maybe Map.empty id $ Map.lookup st @visits.intramap in ppSpaced
+               [ case mbAttr of
+                   Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
+                     case Map.lookup nm @loc.localAttrTypes of
+                       Just tp -> pp_parens (strNm >#< ":" >#< ppTp tp)
+                       Nothing -> pp strNm
+                   Just attr | not (noPerStateTypeSigs @lhs.options) ->
+                     case lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @loc.childTypes of
+                       Just tpDoc -> pp_parens (strNm >#< ":" >#< tpDoc)
+                       Nothing    -> pp strNm
+                   _ -> pp strNm
+               | (strNm, mbAttr) <- Map.assocs attrs
+               ] >#< dummyPat @lhs.options (Map.null attrs)
+
+  -- produces the "k" function that inspect the caller argument to dispatch a visit
+  loc.stvisits = \st -> filter (\(_,f,_) -> f == st) @visits.allvisits
+  loc.stks
+    = \st -> let stvisits = @loc.stvisits st
+                 def = ppFunDecl False {- @loc.o_sigs -} (pp $ nm_k st)
+                         [(pp "arg", @loc.t_c_params >#< type_caller @lhs.nt st)] (pp cont_tvar) body
+
+                 nextVisitInfo = Map.findWithDefault ManyVis st @lhs.nextVisits
+                 body = case nextVisitInfo of
+                   NoneVis  -> text "?no next visit?"
+                   OneVis v -> dispatch "arg" v
+                   ManyVis  -> let alt (v,_,_) = "|" >#< con_visit @lhs.nt v >#< "chosen" >#< "->" >-< indent 2 (dispatch "chosen" v)
+                               in "match arg with" >-< (indent 2 $ vlist $ map alt stvisits)
+
+                 dispatch nm v = "let" >#< ppRecordVal
+                                   [ nm_inh @lhs.nt v >#< "=" >#< "inp"
+                                   , nm_cont @lhs.nt v >#< "=" >#< "cont" ]
+                                 >#< "=" >#< pp nm
+                                 >-< "in" >#< "cont" >#< pp_parens (nm_visit v >#< "inp") -- call cont with res of visit
+
+             in if null stvisits
+                then []
+                else [ "(* k-function for production" >#< @con >#< " *)" >-< def ]
+
+  loc.stvs = \st -> [ppf | (f,ppf) <- @visits.sem_visit, f == st]
+  visits.mrules = @rules.mrules
+
+{
+nm_visit v = "__v" >|< v
+nm_k st = "__k" >|< st
+nm_st st = "__st" >|< st
+
+mklets :: (PP b, PP c) => [b] -> c -> PP_Doc
+mklets defs body = res where
+  ppLet def = "let" >#< def >#< "in"
+  res = vlist (map ppLet defs) >-< body
+}
+
+-------------------------------------------------------------------------------
+--  Visit semantic functions
+-------------------------------------------------------------------------------
+ATTR Visit  [ | | sem_visit              : {  (StateIdentifier,PP_Doc)  } ]
+ATTR Visits [ | | sem_visit USE {:} {[]} : { [(StateIdentifier,PP_Doc)] } ]
+
+SEM Visit | Visit
+  loc.o_sigs = typeSigs @lhs.options
+  lhs.sem_visit = ( @from
+                  , let resTp = @loc.t_params >#< @loc.nameTOut_visit
+                        argTp = @loc.t_params >#< @loc.nameTIn_visit
+                        argMatch = ppRecordVal [ nm_inarg i @lhs.nt @ident >#< "=" >#< lhsname True i | i <- Set.toList @inh ]
+                    in ppFunDecl @loc.o_sigs (nm_visit @ident) [(argMatch, argTp)] resTp @steps.sem_steps
+                  )
+
+  steps.follow   = @loc.nextStBuild >-< @loc.resultval
+
+  loc.nextArgsMp = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
+  loc.nextArgs   = ppSpaced $ Map.keys $ @loc.nextArgsMp
+  loc.nextStExp  = nm_st @to >#< @loc.nextArgs >#< dummyArg @lhs.options (Map.null @loc.nextArgsMp)
+
+  loc.resultval = ppRecordVal
+                    (  [ nm_outarg i @lhs.nt @ident >#< "=" >#< lhsname False i | i <- Set.toList @syn ]
+                    ++ [ @loc.nextStRefExp ])
+
+  (loc.nextStBuild, loc.nextStRefExp)
+     = case @loc.nextVisitInfo of
+         NoneVis  -> (empty, empty)
+         _        -> ( "let" >#< nextStName >#< "=" >#< @loc.nextStExp >#< "in"
+                     , nm_outarg_cont @lhs.nt @ident >#< "=" >#< nextStName)
+
+{
+resultValName :: String
+resultValName = "__result_"
+
+nextStName :: String
+nextStName = "__st_"
+}
+
+-- Propagate the visit kind to the steps
+ATTR VisitStep VisitSteps [ kind : VisitKind | | ]
+SEM Visit | Visit  steps.kind = @kind
+
+-- the steps in this group should be executed in a pure fashion
+SEM VisitStep | PureGroup
+  steps.kind = VisitPure @ordered
+
+-- follow: the code of steps that follows after the VisitStep
+ATTR Visits Visit VisitStep VisitSteps [  mrules : {Map Identifier (VisitKind ->  Either Error PP_Doc)} | | ]
+ATTR VisitStep VisitSteps [ follow : PP_Doc | | sem_steps USE {>-<} {empty} : PP_Doc ]
+
+-- continuation flow (passing the right steps as left follow steps)
+SEM VisitSteps
+  | Cons  hd.follow     = @tl.sem_steps
+          lhs.sem_steps = @hd.sem_steps
+  | Nil   lhs.sem_steps = @lhs.follow
+
+SEM VisitStep
+  | Sem        loc.ruleItf = Map.findWithDefault (error $ "Rule "  ++ show @name  ++ " not found") @name @lhs.mrules
+               (lhs.errors, loc.sem_steps) = case @loc.ruleItf @lhs.kind of
+                                               Left e     -> (Seq.singleton e, empty)
+                                               Right stmt -> (Seq.empty, stmt)
+               lhs.sem_steps = @loc.sem_steps >-< @lhs.follow
+  | ChildIntro loc.attachItf = Map.findWithDefault (error $ "Child " ++ show @child ++ " not found") @child @lhs.childintros
+               (lhs.errors,loc.sem_steps,lhs.defs,lhs.uses)
+                 = case @loc.attachItf @lhs.kind of
+                     Left e                   -> (Seq.singleton e, empty, Set.empty, Map.empty)
+                     Right (code, defs, uses) -> (Seq.empty, code, defs, uses)
+               lhs.sem_steps = @loc.sem_steps >-< @lhs.follow
+  | ChildVisit loc.visitItf = Map.findWithDefault (error $ "Visit " ++ show @visit ++ " not found") @visit @lhs.allchildvisit
+               loc.childType = Map.findWithDefault (error ("type of child " ++ show @child ++ " is not in the childTypes map! " ++ show @lhs.childTypes)) @child @lhs.childTypes
+               (lhs.errors, lhs.sem_steps) = case @loc.visitItf @child @loc.childType @lhs.kind @lhs.follow of
+                                               Left e      -> (Seq.singleton e, empty)
+                                               Right steps -> (Seq.empty, steps)
+  | Sim        -- simply propagates
+  | PureGroup  -- simply propagates
+
+--
+-- Some properties of VisitStep(s)
+--
+
+-- Number of steps in a 'Sim' block
+ATTR VisitSteps [ | | size : Int ]
+SEM VisitSteps
+  | Nil  lhs.size = 0
+  | Cons lhs.size = 1 + @tl.size
+
+-- Number the steps in a 'Sim' block
+ATTR VisitSteps VisitStep [ | index : Int | ]
+SEM VisitSteps | Cons
+  hd.index  = @lhs.index  -- copy rule
+  tl.index  = 1 + @lhs.index
+  lhs.index = @tl.index   -- copy rule
+SEM Visit | Visit    steps.index = 0
+SEM VisitStep | Sim  steps.index = 0
+                     lhs.index   = @lhs.index  -- needed for if we ever allow nested Sims
+
+-- Biggest number of steps in previous blocks that used parallel invocation
+-- This number - 1 (minimum 0) is the number of references for parallel invocation created
+ATTR VisitSteps VisitStep [ | prevMaxSimRefs : Int | ]
+SEM Visit | Visit    steps.prevMaxSimRefs = 0
+SEM VisitStep | Sim
+  lhs.prevMaxSimRefs = if @loc.useParallel
+                       then @lhs.prevMaxSimRefs `max` (@steps.index - 1)  -- possibly new references made
+                       else @lhs.prevMaxSimRefs                           -- no references created
+
+-- Is this the last step?
+ATTR VisitSteps VisitStep [ | | isLast : Bool ]
+ATTR VisitStep [ isLast : Bool | | ]
+SEM VisitSteps
+  | Nil   lhs.isLast = True
+  | Cons  lhs.isLast = False
+          hd.isLast  = @tl.isLast
+
+-- Use parallel invocation: only when option enabled and there is more than one visit to a child
+-- Todo: implement a parallel evaluator
+SEM VisitSteps VisitStep [ useParallel : Bool | | ]
+SEM Visit | Visit    steps.useParallel = False
+SEM VisitStep | Sim  loc.useParallel = parallelInvoke @lhs.options && @steps.size > 1
+
+-- Child introduction
+ATTR EChild EChildren
+  [ | | childintros USE {`Map.union`} {Map.empty} : {Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))} ]
+
+ATTR Visits Visit VisitSteps VisitStep
+  [ childintros : {Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))} | | ]
+
+SEM EProduction | EProduction
+  visits.childintros = @children.childintros
+
+SEM EChild
+  | ETerm  lhs.childintros = Map.singleton @name (\_ -> Right (empty, Set.empty, Map.empty))
+  | EChild lhs.childintros = Map.singleton @name @loc.introcode
+           loc.isDefor     = case @tp of
+                               NT _ _ defor -> defor
+                               _            -> False
+           loc.valcode     = case @kind of
+                               ChildSyntax -> @name >|< "_"
+                               ChildAttr   -> -- decide if we need to invoke the sem-function under the hood
+                                              let head | not @loc.isDefor = if lateHigherOrderBinding @lhs.options
+                                                                            then lateSemNtLabel @loc.nt >#< lhsname True idLateBindingAttr
+                                                                            else prefix @lhs.options >|< @loc.nt
+                                                       | otherwise        = empty -- no need to intro a terminal
+                                              in pp_parens (head >#< instname @name)
+                               ChildReplace _ -> -- the higher-order attribute is actually a function that transforms
+                                                 -- the semantics of the child (always deforested)
+                                                 pp_parens (instname @name >#< @name >|< "_")
+           loc.aroundcode  = if @hasAround
+                             then locname @name >|< "_around"
+                             else empty
+           loc.introcode   = \kind -> let pat    = text $ stname @name @loc.initSt
+                                          attach = pp_parens (@loc.aroundcode >#< @loc.valcode) >|< "." >|< nm_attach @loc.nt >#< "()"
+                                          decl   = pat >#< "=" >#< attach
+                                      in if compatibleAttach kind @loc.nt @lhs.options
+                                         then Right ( "let" >#< decl >#< "in"
+                                                    , Set.singleton (stname @name @loc.initSt)  -- variables defined by the child intro
+                                                    , case @kind of  -- variables used by the child introduction
+                                                        ChildAttr   -> Map.insert (instname @name) Nothing $  -- the sem attr
+                                                                         ( if @loc.isDefor || not (lateHigherOrderBinding @lhs.options)
+                                                                           then id   -- the sem dictionary attr is not used
+                                                                           else Map.insert (lhsname True idLateBindingAttr) (Just $ AttrInh _LHS idLateBindingAttr)
+                                                                         ) $
+                                                                         ( if @hasAround
+                                                                           then Map.insert (locname (@name) ++ "_around") Nothing
+                                                                           else id
+                                                                         ) $ Map.empty
+                                                        ChildReplace _ -> Map.singleton (instname @name) Nothing   -- uses the transformation function
+                                                        ChildSyntax    -> Map.empty
+                                                    )
+                                         else Left $ IncompatibleAttachKind @name kind
+           loc.nt = extractNonterminal @tp
+
+{
+stname :: Identifier -> Int -> String
+stname child st = "_" ++ getName child ++ "X" ++ show st
+
+-- should actually return some conversion info
+compatibleAttach :: VisitKind -> NontermIdent -> Options -> Bool
+compatibleAttach _ _ _ = True
+}
+
+-- rules
+ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
+                        mrules USE {`Map.union`} {Map.empty} : {Map Identifier (VisitKind -> Either Error PP_Doc)} ]
+
+SEM ERule | ERule
+     lhs.sem_rules    = if @loc.used == 0
+                        then empty
+                        else @loc.rulecode
+     loc.rulecode     = ( if @loc.genpragma
+                          then @loc.pragma  -- this additional pragma *may* help to give some AG source location in the presence of
+                                            -- type errors in the rule. It will definitely not be precise, and may take some additional
+                                            -- source space, but let's see if it's worth it in practice.
+                          else empty
+                        )
+                        >-< @loc.declHead
+                        >-< indent ((column @rhs.pos - 2) `max` 2)
+                              ( if @loc.genpragma
+                                then @loc.pragma >-< @rhs.semfunc >-< @loc.endpragma
+                                else @rhs.semfunc
+                              )
+                        >#< "in"
+      loc.pragma       = ppLinePragma @lhs.options (line @rhs.pos) (file @rhs.pos)
+      loc.endpragma    = ppWithLineNr (\ln -> ppLinePragma @lhs.options (ln+1) @lhs.mainFile)
+      loc.genpragma    = genLinePragmas @lhs.options && @explicit && @loc.haspos
+      loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
+
+        -- Note: we also ensure that all rules are functions, so that they are not made part of any closures
+        -- but are lambda-lifted instead.
+      loc.declHead = "let" >#< @name >#< @loc.argPats >#< dummyPat @lhs.options (Map.null @rhs.attrs) >#< "="
+      loc.argPats
+        = ppSpaced
+            [ case mbAttr of
+                Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
+                  case Map.lookup nm @lhs.localAttrTypes of
+                    Just tp -> pp_parens (strNm >#< ":" >#< ppTp tp)
+                    Nothing -> pp strNm
+                Just attr | not (noPerStateTypeSigs @lhs.options) ->
+                  case lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes of
+                    Just tpDoc -> pp_parens (strNm >#< ":" >#< tpDoc)
+                    Nothing    -> pp strNm
+                _ -> pp strNm
+            | (strNm, mbAttr) <- Map.assocs @rhs.attrs
+            ]
+
+      loc.argExprs = ppSpaced $ Map.keys @rhs.attrs
+      loc.stepcode = \kind ->
+                       let mkBind (pat,expr) = "let" >#< pat >#< "=" >#< expr >#< "in"
+                       in if kind `compatibleRule` @pure
+                          then Right $ mkBind (@pattern.sem_lhs, @name >#< @loc.argExprs >#< dummyArg @lhs.options (Map.null @rhs.attrs))
+                                       >-< vlist (map mkBind @pattern.extraDefs)
+                          else Left $ IncompatibleRuleKind @name kind
+
+      lhs.mrules   = Map.singleton @name @loc.stepcode
+
+ATTR Expression [ | | tks : {[HsToken]} ]
+SEM Expression
+  | Expression lhs.tks = @tks
+
+{
+dummyPat :: Options -> Bool -> PP_Doc
+dummyPat opts noArgs
+  | not noArgs            = empty
+  | strictDummyToken opts = text "()"
+  | otherwise             = text "(_ : unit)"
+
+dummyArg :: Options -> Bool -> PP_Doc
+dummyArg opts noArgs
+  | not noArgs            = empty
+  | otherwise             = text "()"
+
+dummyType :: Options -> Bool -> PP_Doc
+dummyType opts noArgs
+  | not noArgs            = empty
+  | otherwise             = text "unit"
+}
+
+ATTR Expression [ | | pos : {Pos} ]
+SEM Expression | Expression lhs.pos = @pos
+
+-- pattern and expression semantics
+ATTR Pattern  [ | | sem_lhs              : { PP_Doc } ]
+ATTR Patterns [ | | sem_lhs USE {:} {[]} : {[PP_Doc]} ]
+ATTR Pattern Patterns [ | | extraDefs USE {++} {[]} : {[(PP_Doc,PP_Doc)]} ]
+
+SEM Pattern
+  | Alias       loc.var       = text $ attrname False @field @attr
+                loc.hasTp     = isJust @loc.mbTp
+                loc.o_sigs    = typeSigs @lhs.options
+
+                lhs.sem_lhs   = ppArg (@loc.hasTp && @loc.o_sigs) @loc.var (maybe (text "?no type?") ppTp @loc.mbTp)
+                lhs.extraDefs = if @pat.isUnderscore
+                                then []
+                                else [ (@pat.sem_lhs, @loc.var) ]
+  | Product     lhs.sem_lhs   = pp_block "(" ")" "," @pats.sem_lhs
+  | Constr      lhs.sem_lhs   = pp_parens $ @name >#< pp_block "(" ")" "," @pats.sem_lhs
+  | Underscore  lhs.sem_lhs   = text "_"
+  | Irrefutable lhs.sem_lhs   = pp_parens (text "lazy" >#< @pat.sem_lhs)
+      -- note that the above has the inverse meaning compared to Haskell:
+      -- the above forces the evaluation of a lazy value. It seems appropriate though.
+
+-- Check if a pattern is just an underscore
+ATTR Pattern [ | | isUnderscore:{Bool}]
+SEM Pattern
+ | Constr      lhs.isUnderscore = False
+ | Product     lhs.isUnderscore = False
+ | Alias       lhs.isUnderscore = False
+ | Underscore  lhs.isUnderscore = True
+
+-- Collect the attributes defined by a pattern
+ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
+SEM Pattern | Alias
+  lhs.attrs     = Set.insert (attrname False @field @attr) @pat.attrs
+
+-- All attribute types of this pattern
+-- Todo: if possible, make attribute types part of the pattern
+ATTR Pattern Patterns  [ | | attrTypes USE {>-<} {empty} : {PP_Doc} ]
+SEM Pattern | Alias
+  loc.mbTp      = if @field == _LHS
+  		  then Map.lookup @attr @lhs.synmap
+		  else if @field == _LOC
+		       then Map.lookup @attr @lhs.localAttrTypes
+		       else Nothing
+  lhs.attrTypes = maybe empty (\tp -> (attrname False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
+  		  >-< @pat.attrTypes
+
+-- Collect the attributes used by the right-hand side
+ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
+SEM HsToken
+  | AGLocal   lhs.attrs   = Map.singleton (fieldname @var) Nothing
+  | AGField   loc.mbAttr  = if @field == _INST || @field == _FIELD || @field == _INST'
+                            then Nothing  -- should not be used in the first place
+                            else Just $ mkNonLocalAttr (@field == _LHS) @field @attr
+              lhs.attrs   = Map.singleton (attrname True @field @attr) @loc.mbAttr
+
+{
+data NonLocalAttr
+  = AttrInh Identifier Identifier
+  | AttrSyn Identifier Identifier deriving Show
+
+mkNonLocalAttr :: Bool -> Identifier -> Identifier -> NonLocalAttr
+mkNonLocalAttr True  = AttrInh  -- True: inherited attr
+mkNonLocalAttr False = AttrSyn
+
+lookupAttrType :: NonLocalAttr -> Map Identifier Attributes -> Map Identifier Attributes -> Map Identifier Type -> Maybe PP_Doc
+lookupAttrType (AttrInh child name) inhs _ = lookupType child name inhs
+lookupAttrType (AttrSyn child name) _ syns = lookupType child name syns
+
+-- Note: if the child takes type parameters, the type of an attribute of this child may refer to these parameters. This means that
+-- the actual type of the attribute needs to have its type parameters substituted with the actual type argument of the child.
+-- However, for now we simply decide to return Nothing in this case, which skips the type annotation.
+lookupType :: Identifier -> Identifier -> Map Identifier Attributes -> Map Identifier Type -> Maybe PP_Doc
+lookupType child name attrMp childMp
+  | noParameters childTp = Just ppDoc
+  | otherwise            = Nothing
+  where
+    attrTp     = Map.findWithDefault (error "lookupType: the attribute is not in the attrs of the child") name childAttrs
+    childAttrs = Map.findWithDefault (error "lookupType: the attributes of the nonterm are not in the map") nonterm attrMp
+    nonterm    = extractNonterminal childTp
+    childTp    = Map.findWithDefault (error ("lookupType: the child " ++ show child ++ "is not in the appropriate map")) child childMp
+    ppDoc      = ppTp attrTp
+
+noParameters :: Type -> Bool
+noParameters (Haskell _)   = True
+noParameters (NT _ args _) = null args
+}
+
+ATTR Expression [ | | semfunc : {PP_Doc} ]
+
+SEM Expression
+  | Expression lhs.attrs   = Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+               lhs.semfunc = vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+
+-- child visit map
+ATTR Visit
+     Visits
+     EProduction
+     EProductions
+     ENonterminal
+     ENonterminals [ allchildvisit : {Map VisitIdentifier (Identifier -> Type -> VisitKind -> PP_Doc -> Either Error PP_Doc)}
+                     | | childvisit USE {`Map.union`} {Map.empty} : {Map VisitIdentifier (Identifier -> Type -> VisitKind -> PP_Doc -> Either Error PP_Doc)} ]
+
+ATTR VisitSteps VisitStep [ allchildvisit : {Map VisitIdentifier (Identifier -> Type -> VisitKind -> PP_Doc -> Either Error PP_Doc)} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.allchildvisit = @nonts.childvisit
+
+-- code for the invocation of the visit:
+--   * "follow" is the pretty print of the code that follows this step, and is thus the code that comprises the continuation.
+--   * the child state contain a field which is the operation to invoke
+--   * we create a parameter with the inputs to the visit and the continuation
+--   * the continuation obtains the resulting outputs plus the updated state
+SEM Visit | Visit
+  loc.prevVisitInfo = Map.findWithDefault ManyVis @from @lhs.nextVisits
+  lhs.childvisit = Map.singleton @ident @loc.invokecode
+  loc.invokecode
+    = \chld childTp kind follow ->   -- "chld" is the name of the child at the place of invocation, and "kind" the kind of the calling visit
+        let code = cont >-< inps >-< call
+
+            childNmTo   = text $ stname chld @to
+            childNmFrom = text $ stname chld @from
+            childTpArgs = case childTp of
+                            NT _ args _ -> args
+                            _           -> error "generate visit call: type of the child is not a nonterminal!"
+
+            -- cont is parameterized with the outputs of the child and brings them in scope
+            cont = "let" >#< contNm >#< ppArg @loc.o_sigs (ppRecordVal cont_in) cont_in_tp >#< "="
+                   >-< indent 2 follow  -- the continuation-code
+                   >#< "in"
+            cont_in = [ nm_outarg i @lhs.nt @ident >#< "=" >#< attrname True chld i | i <- Set.toList @syn ]
+                      ++ case @loc.nextVisitInfo of
+                           NoneVis -> []
+                           _       -> [ nm_outarg_cont @lhs.nt @ident >#< "=" >#< childNmTo ]
+            cont_in_tp = ppTypeParams childTpArgs >#< @loc.nameTOut_visit
+
+            -- defines the input records to the visit function
+            inps = "let" >#< inpsNm >#< "=" >#< ppRecordVal
+                     [ nm_inh @lhs.nt @ident >#< "=" >#< ppRecordVal inps_in
+                     , nm_cont @lhs.nt @ident >#< "=" >#< contNm
+                     ] >#< "in"
+            inps_in = [ nm_inarg i @lhs.nt @ident >#< "=" >#< attrname False chld i | i <- Set.toList @inh ]
+
+            -- the call to the visit function, with possible the need to specify which visit function to dispatch to
+            call = childNmFrom >|< "." >|< nm_invoke @lhs.nt @from >#< arg
+            arg = case @loc.prevVisitInfo of
+                    NoneVis  -> error "error: invocation of a visit from a state that has no next visits"
+                    OneVis _ -> pp inpsNm
+                    ManyVis  -> pp_parens (con_visit @lhs.nt @ident >#< inpsNm)
+        in if kind `compatibleKind` @kind
+           then Right code
+           else Left $ IncompatibleVisitKind chld @ident kind @kind
+
+{
+contNm = text "__cont_"
+inpsNm = text "__inps_"
+
+-- a `compatibleKind` b  means: can kind b be invoked from a
+compatibleKind :: VisitKind -> VisitKind -> Bool
+compatibleKind _              _             = True
+
+compatibleRule :: VisitKind -> Bool -> Bool
+compatibleRule (VisitPure _) False = False
+compatibleRule _             _     = True
+}
+
+-------------------------------------------------------------------------------
+--  Properties of rules
+-------------------------------------------------------------------------------
+
+-- Construct an environment that counts how often certain rules are used
+ATTR Visits Visit VisitSteps VisitStep [ | | ruleUsage USE {`unionWithSum`} {Map.empty} : {Map Identifier Int} ]
+ATTR ERules ERule [ usageInfo : {Map Identifier Int} | | ]
+
+SEM EProduction | EProduction  rules.usageInfo = @visits.ruleUsage
+SEM VisitStep | Sem            lhs.ruleUsage = Map.singleton @name 1
+SEM ERule | ERule              loc.used      = Map.findWithDefault 0 @name @lhs.usageInfo
+
+{
+unionWithSum = Map.unionWith (+)
+}
+
+-- Collect in what visit-kinds a rule is used
+ATTR Visits Visit VisitSteps VisitStep [ | | ruleKinds USE {`unionWithMappend`} {Map.empty} : {Map Identifier (Set VisitKind)} ]
+SEM VisitStep | Sem
+  lhs.ruleKinds = Map.singleton @name (Set.singleton @lhs.kind)
+
+ATTR ERules ERule [ ruleKinds : {Map Identifier (Set VisitKind)} | | ]
+SEM EProduction | EProduction
+  rules.ruleKinds = @visits.ruleKinds
+
+SEM ERule | ERule
+  loc.kinds = Map.findWithDefault Set.empty @name @lhs.ruleKinds
+  loc.anyLazyKind = Set.fold (\k r -> isLazyKind k || r) False @loc.kinds
+
+ATTR Pattern Patterns [ anyLazyKind : Bool | | ]
+
+
+-------------------------------------------------------------------------------
+--  Intra attributes
+-------------------------------------------------------------------------------
+{
+uwSetUnion :: (Ord a, Ord b) => Map a (Set b) -> Map a (Set b) -> Map a (Set b)
+uwSetUnion = Map.unionWith Set.union
+
+uwMapUnion :: (Ord a, Ord b) => Map a (Map b c) -> Map a (Map b c) -> Map a (Map b c)
+uwMapUnion = Map.unionWith Map.union
+}
+ATTR Visit Visits [ allintramap : {Map StateIdentifier (Map String (Maybe NonLocalAttr))}
+                    | | intramap USE {`uwMapUnion`} {Map.empty} : {Map StateIdentifier (Map String (Maybe NonLocalAttr))} ]
+
+ATTR Visit Visits [ terminaldefs : {Set String} | | ]
+ATTR EChild EChildren [ | | terminaldefs USE {`Set.union`} {Set.empty} : {Set String} ]
+
+SEM EChild | ETerm
+  lhs.terminaldefs = Set.singleton $ fieldname @name
+
+SEM EProduction | EProduction
+  visits.allintramap  = @visits.intramap
+  visits.terminaldefs = @children.terminaldefs
+
+SEM Visit
+  | Visit loc.thisintra = (@loc.uses `Map.union` @loc.nextintra) `Map.difference` @loc.defsAsMap
+          lhs.intramap  = Map.singleton @from @loc.thisintra
+          loc.nextintra = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
+          loc.uses      = let mp1 = @steps.uses
+                              mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems @syn ]
+                          in mp1 `Map.union` mp2
+          loc.inhVarNms = Set.map (lhsname True) @inh
+          loc.defs      = @steps.defs `Set.union` @loc.inhVarNms `Set.union` @lhs.terminaldefs
+          loc.defsAsMap = Map.fromList [ (a, Nothing) | a <- Set.elems @loc.defs ]
+
+ATTR ERule ERules [ | | ruledefs USE {`uwSetUnion`} {Map.empty} : {Map Identifier (Set String)}
+                        ruleuses USE {`uwMapUnion`} {Map.empty} : {Map Identifier (Map String (Maybe NonLocalAttr))} ]
+ATTR Visit Visits
+     VisitSteps VisitStep [ ruledefs  : {Map Identifier (Set String)}
+                            ruleuses  : {Map Identifier (Map String (Maybe NonLocalAttr))} | | ]
+
+SEM ERule
+  | ERule lhs.ruledefs = Map.singleton @name @pattern.attrs
+          lhs.ruleuses = Map.singleton @name @rhs.attrs
+
+SEM EProduction
+  | EProduction visits.ruledefs = @rules.ruledefs
+                visits.ruleuses = @rules.ruleuses
+
+ATTR Visit Visits
+     EProduction
+     EProductions
+     ENonterminal
+     ENonterminals [ | | visitdefs USE {`uwSetUnion`} {Map.empty} : {Map VisitIdentifier (Set Identifier)}
+                         visituses USE {`uwSetUnion`} {Map.empty} : {Map VisitIdentifier (Set Identifier)} ]
+
+SEM Visit
+  | Visit lhs.visitdefs = Map.singleton @ident @syn
+          lhs.visituses = Map.singleton @ident @inh
+
+ATTR Visit Visits
+     VisitSteps VisitStep
+     EProduction EProductions
+     ENonterminal ENonterminals [ avisitdefs : {Map VisitIdentifier (Set Identifier)}
+                                  avisituses : {Map VisitIdentifier (Set Identifier)} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.avisitdefs = @nonts.visitdefs
+                  nonts.avisituses = @nonts.visituses
+
+ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set String}
+                                uses USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
+SEM VisitStep
+  | Sem        lhs.defs = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruledefs
+               lhs.uses = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruleuses
+  | ChildVisit lhs.defs = Set.insert (stname @child @to) $ maybe (error "Visit not found") (Set.map $ attrname True @child) $ Map.lookup @visit @lhs.avisitdefs
+               lhs.uses = let convert attrs = Map.fromList [ (attrname False @child attr, Just $ mkNonLocalAttr True @child attr) | attr <- Set.elems attrs ]
+                          in Map.insert (stname @child @from) Nothing $ convert $
+                               maybe (error "Visit not found") id $ Map.lookup @visit @lhs.avisituses
+
+-------------------------------------------------------------------------------
+--  Identification of lazy intra defs within a production
+--
+-- These identifiers will not be marked as strict in rules and state closures
+-------------------------------------------------------------------------------
+
+ATTR Visits Visit VisitSteps VisitStep [ | | lazyIntras USE {`Set.union`} {Set.empty} : {Set String} ]
+ATTR ERules ERule [ lazyIntras : {Set String} | | ]
+
+SEM Visit | Visit
+  loc.lazyIntrasInh = case @kind of
+                        VisitPure False -> @loc.inhVarNms `Set.union` @steps.defs
+                        _               -> Set.empty
+  lhs.lazyIntras = @loc.lazyIntrasInh `Set.union` @steps.lazyIntras
+
+SEM VisitStep | PureGroup
+  lhs.lazyIntras = if @ordered
+                   then @steps.lazyIntras
+                   else @steps.defs
+
+SEM EProduction | EProduction
+  loc.lazyIntras = @visits.lazyIntras
+
+-------------------------------------------------------------------------------
+--  Pretty printing of haskell code
+-------------------------------------------------------------------------------
+
+-- note: this function produces strings, which are passed to showTokens which
+-- preserves layout.
+-- note: this may not be that important for ocaml code in comparison to Haskell
+SEM HsTokens [ || tks : {[(Pos,String)]} ]
+  | Cons lhs.tks = @hd.tok : @tl.tks
+  | Nil  lhs.tks = []
+
+SEM HsToken
+  | AGLocal   loc.tok = (@pos,fieldname @var)
+
+SEM HsToken [ || tok:{(Pos,String)}]
+   | AGField
+       loc.addTrace = case @rdesc of
+                        Just d  -> \x -> "(prerr_endline " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ "; " ++ x ++ ")"
+                        Nothing -> id
+       lhs.tok = (@pos, @loc.addTrace $ attrname True @field @attr)
+
+   | HsToken lhs.tok = (@pos, @value)
+
+   | CharToken lhs.tok = (@pos, if null @value
+                                   then ""
+                                   else showCharShort (head @value)
+                         )
+
+   | StrToken  lhs.tok = (@pos, showStrShort @value)
+   | Err       lhs.tok = (@pos, "")
+
+--
+-- Distribute single-visit-next map downward
+--
+
+ATTR EProductions EProduction Visits Visit
+  [ prevVisits, nextVisits : {Map StateIdentifier StateCtx} | | ]
+
+SEM ENonterminal | ENonterminal
+  prods.nextVisits = @nextVisits
+  prods.prevVisits = @prevVisits
+
+--
+-- Collect and distribute the from/to states of a visit
+--
+
+ATTR ENonterminals ENonterminal EProductions EProduction Visits Visit
+  [ | | fromToStates USE {`mappend`} {mempty} : {Map VisitIdentifier (Int,Int)} ]
+
+ATTR ENonterminals ENonterminal EProductions EProduction Visits Visit VisitSteps VisitStep
+  [ allFromToStates : {Map VisitIdentifier (Int,Int)} | | ]
+
+SEM Visit | Visit
+  lhs.fromToStates = Map.singleton @ident (@from, @to)
+
+SEM ExecutionPlan | ExecutionPlan
+  nonts.allFromToStates = @nonts.fromToStates
+
+SEM VisitStep | ChildVisit
+  (loc.from, loc.to) = Map.findWithDefault (error "visit not in allFromToStates") @visit @lhs.allFromToStates
+
+
+--
+-- Collect and distribute the actual types of children of productions
+--
+
+ATTR EChildren EChild [ | | childTypes USE {`mappend`} {mempty} : {Map Identifier Type} ]
+ATTR ERules ERule Visits Visit VisitSteps VisitStep [ childTypes : {Map Identifier Type} | | ]
+
+SEM EProduction | EProduction
+  loc.childTypes = Map.singleton _LHS @lhs.ntType `Map.union` @children.childTypes
+
+SEM EChild | EChild ETerm
+  lhs.childTypes = Map.singleton @name @tp
+
+--
+-- Distribute types of local attributes
+--
+
+ATTR ExecutionPlan ENonterminals ENonterminal  [ localAttrTypes : {Map NontermIdent (Map ConstructorIdent (Map Identifier Type))} | | ]
+ATTR EProductions EProduction                  [ localAttrTypes : {Map ConstructorIdent (Map Identifier Type)} | | ]
+ATTR ERules ERule Pattern Patterns             [ localAttrTypes : {Map Identifier Type} | | ]
+
+SEM ENonterminal | ENonterminal
+  prods.localAttrTypes = Map.findWithDefault Map.empty @nt @lhs.localAttrTypes
+
+SEM EProduction | EProduction
+  loc.localAttrTypes   = Map.findWithDefault Map.empty @con @lhs.localAttrTypes
+
+--
+-- Collect and distribute visit kinds
+--
+
+ATTR ENonterminals ENonterminal EProductions EProduction Visits Visit VisitSteps VisitStep
+  [ allVisitKinds : {Map VisitIdentifier VisitKind} | | visitKinds USE {`mappend`} {mempty} : {Map VisitIdentifier VisitKind} ]
+
+SEM Visit | Visit
+  lhs.visitKinds = Map.singleton @ident @kind
+
+SEM ExecutionPlan | ExecutionPlan
+  nonts.allVisitKinds = @nonts.visitKinds
+
+--
+-- Collect and distribute the initial state of nonterminals
+--
+
+ATTR ENonterminals ENonterminal [ | | initStates USE {`mappend`} {mempty} : {Map NontermIdent Int} ]
+ATTR ENonterminals ENonterminal EProductions EProduction EChildren EChild Visits Visit VisitSteps VisitStep
+  [ allInitStates : {Map NontermIdent Int} | | ]
+
+SEM ENonterminal | ENonterminal
+  lhs.initStates = Map.singleton @nt @initial
+
+SEM ExecutionPlan | ExecutionPlan
+  nonts.allInitStates = @nonts.initStates
+
+SEM EChild | EChild
+  loc.initSt = Map.findWithDefault (error "nonterminal not in allInitStates map") @loc.nt @lhs.allInitStates
+
+--
+-- Push the nonterminal type downward
+--
+
+ATTR EProductions EProduction [ ntType : Type | | ]
+SEM ENonterminal | ENonterminal
+  loc.ntType = NT @nt (map show @params) False
+
+--
+-- Collect errors contained in rules that should be yielded when the
+-- rules are scheduled.
+--
+
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule Visits Visit VisitSteps VisitStep [ | | errors USE {Seq.><} {Seq.empty} : {Seq Error} ]
+SEM ERule | ERule
+  lhs.errors = case @mbError of
+                 Just e | @loc.used > 0 -> Seq.singleton e
+                 _                      -> Seq.empty

@@ -188,4 +188,3 @@ disp d _ s
                                      ind = replicate p ' '
               Line f           -> (r,p',l')
                                where (r,p',l') = put p l (f l) s
-
