@@ -60,9 +60,11 @@ depsAG opts searchPath file
 
 -- marcos: added the parameter 'agi' and the 'ext' part
 parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
-parseFile agi opts searchPath file
- = do txt <- readFile file
-      let litMode = ".lag" `isSuffixOf` file
+parseFile agi opts searchPath filename
+ = do file <- resolveFile opts searchPath filename
+      txt <- readFile file
+      let searchPath' = takeDirectory file : searchPath  -- search first relative to the including file
+          litMode = ".lag" `isSuffixOf` file
           (files,text) = if litMode then scanLit txt
                          else ([],txt)
           tokens       = input opts (initPos file) text
@@ -70,8 +72,7 @@ parseFile agi opts searchPath file
           steps = parse (pElemsFiles agi) tokens
           stop (_,fs,_,_,_) = null fs
           cont (es,fs,allfs,ext,msg)
-            = do files <- mapM (resolveFile searchPath) fs
-                 res <- mapM (parseFile agi opts searchPath) files
+            = do res <- mapM (parseFile agi opts searchPath') fs
                  let (ess,fss,allfss,_, msgs) = unzip5 res
                  return (es ++ concat ess, concat fss, concat allfss ++ allfs, ext, msg ++ concat msgs)
       let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
@@ -391,16 +392,21 @@ parseFile agi opts searchPath file
     -- End of AG Parser
     --
 
-resolveFile :: [FilePath] -> FilePath -> IO FilePath
-resolveFile path fname = search (path ++ ["."])
+resolveFile :: Options -> [FilePath] -> FilePath -> IO FilePath
+resolveFile opts path fname = search (path ++ ["."])
  where search (p:ps) = do let filename = joinPath [p, fname]
                           fExists <- doesFileExist filename
                           if fExists
                             then return filename
-                            else search ps
-       search []     = error ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) )
-
-pathSeparator = "/"
+                            else do let filename' = joinPath [p, replaceExtension fname "ag"]
+                                    fExists' <- doesFileExist filename'
+                                    if fExists'
+                                      then return filename'
+                                      else search ps
+       search []     = do
+         outputStr opts ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) ++ "\n")
+         failWithCode opts 1
+         return (error "resolveFile: file not found")
 
 evalStepsMessages :: (Eq s, Show s, Show p) => Steps a s p -> (a,[Message s p])
 evalStepsMessages steps = case steps of

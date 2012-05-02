@@ -86,7 +86,7 @@ uuagcExe
 
 compile :: Options -> FilePath -> FilePath -> IO ()
 compile flags input output
- = do (output0,parseErrors) <- parseAG flags (searchPath flags) (inputFile input)
+ = do (output0,parseErrors) <- parseAG flags (searchPath flags) input
       irrefutableMap <- readIrrefutableMap flags
       let printStr  = outputStr flags
           failWith  = failWithCode flags
@@ -415,11 +415,6 @@ moduleHeader flags input export
    where genMod x = "module " ++ x ++ genExp export x ++ " where"
          genExp Nothing _ = ""
          genExp (Just e) x = "(module " ++ x ++ ", module " ++ e ++ ")"
-
-inputFile :: String -> String
-inputFile name
-  | takeExtension name == ".ag" || takeExtension name == ".lag" = name
-  | otherwise                                                   = replaceExtension name "ag"
 
 --marcos
 agiFile :: String -> String

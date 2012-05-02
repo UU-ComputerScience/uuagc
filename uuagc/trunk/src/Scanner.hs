@@ -38,8 +38,9 @@ input opts pos inp = Input pos
 type Lexer s = Pos -> String -> Maybe (s,Pos,String)
 
 scan :: Options -> Lexer Token
-scan opts
-  = scan
+scan opts p0
+  | column p0 == 1 = scanBeginOfLine p0
+  | otherwise      = scan p0
   where
     keywords' = if lcKeywords opts
                 then map (map toLower) keywords
