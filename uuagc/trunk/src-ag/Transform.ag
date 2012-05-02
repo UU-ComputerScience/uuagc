@@ -834,7 +834,7 @@ SEM Elem
                                          "genusetraces" -> o { genUseTraces = True }
                                          "splitsems"    -> o { splitSems = True }
                                          "gencostcentres" -> o { genCostCentres = True }
-                                         "sepsemmods"   -> o { sepSemMods = True }
+                                         "sepsemmods"   -> sepSemModsOpt o
                                          "genlinepragmas" -> o { genLinePragmas = True }
                                          "newtypes"       -> o { newtypes = True }
                                          "nonewtypes"     -> o { newtypes = False }

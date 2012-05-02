@@ -3,7 +3,7 @@ MODULE {TestOkParamNonterm} {} {}
 WRAPPER N
 
 DATA N a
-  | C  b
+  | C  b .
        f : {a}
        g : {b}
        h : (N {Int})

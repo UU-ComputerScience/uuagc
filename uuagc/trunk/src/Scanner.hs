@@ -1,5 +1,4 @@
-{-# LANGUAGE MagicHash,
-             UnboxedTuples, FlexibleInstances #-}
+{-# LANGUAGE MagicHash, UnboxedTuples, FlexibleInstances #-}
 module Scanner where
 import GHC.Prim
 import TokenDef

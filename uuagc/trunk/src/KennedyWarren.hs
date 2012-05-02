@@ -146,8 +146,9 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
          -- Print some debug info
          nodes <- gets vgNodeNum
          edges <- gets vgEdgeNum
-         traceVG $ "Number of nodes = " ++ show nodes
-         traceVG $ "Number of edges = " ++ show edges
+         when (not $ beQuiet opts) $ do
+           traceVG $ "Number of nodes = " ++ show nodes
+           traceVG $ "Number of edges = " ++ show edges
          -- Generate execution plan
          ex <- kennedyWarrenExecutionPlan opts indi initvs wr typesyns derivings
          -- Get visit graph

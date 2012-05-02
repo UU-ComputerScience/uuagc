@@ -1,5 +1,5 @@
--- Todo: this entire file needs a rewrite
-module Ag (uuagcLib, uuagcExe) where
+-- Todo: we should make a nicer pipeline. Perhaps use Atze's "compile run" combinators.
+module Ag (uuagcLib, uuagcExe,compile) where
 
 import System.Environment            (getArgs, getProgName)
 import System.Exit                   (exitFailure)
@@ -84,11 +84,13 @@ uuagcExe
             else zipWithM_ (compile flags) files (outputFiles flags++repeat "")
 
 
-compile :: Options -> String -> String -> IO ()
+compile :: Options -> FilePath -> FilePath -> IO ()
 compile flags input output
  = do (output0,parseErrors) <- parseAG flags (searchPath flags) (inputFile input)
       irrefutableMap <- readIrrefutableMap flags
-
+      let printStr  = outputStr flags
+          failWith  = failWithCode flags
+          inputfile = maybe input id (mainFilename flags)
       let output1   = Pass1.wrap_AG              (Pass1.sem_AG                                 output0 ) Pass1.Inh_AG       {Pass1.options_Inh_AG       = flags}
           flags'    = condDisableOptimizations (Pass1.pragmas_Syn_AG output1 flags)
           grammar1  = Pass1.output_Syn_AG        output1
@@ -166,10 +168,10 @@ compile flags input output
           pragmaBlocksTxt = unlines . concat . map fst  . concat . Map.elems $ pragmaBlocks
           textBlockMap    = Map.map (vlist_sep "" . map addLocationPragma) . Map.filterWithKey (\(_, at) _ -> at /= Nothing) $ textBlocks
 
-          outputfile = if null output then outputFile flags' input else output
-          mainFile | null output = outputFile flags' input
+          outputfile = if null output then outputFile flags' inputfile else output
+          mainFile | null output = outputFile flags' inputfile
                    | otherwise   = output
-          mainName = dropExtension $ takeFileName input
+          mainName = dropExtension $ takeFileName inputfile
 
           addLocationPragma :: ([String], Pos) -> PP_Doc
           addLocationPragma (strs, p)
@@ -192,7 +194,6 @@ compile flags input output
           additionalWarnings = totalNrOfWarnings - nrOfWarningsToReport
           pluralS n = if n == 1 then "" else "s"
 
-
       (outAgi, ext) <-  --marcos
                      if genAspectAG flags'
                      then parseAGI flags (searchPath flags) (agiFile input)
@@ -208,20 +209,19 @@ compile flags input output
                                                                                                                , AspectAGDump.agi_Inh_Grammar      = agi
                                                                                                                , AspectAGDump.ext_Inh_Grammar      = ext' } --marcos
 
-
-      putStr . formatErrors $ PrErr.pp_Syn_Errors output6
+      printStr . formatErrors $ PrErr.pp_Syn_Errors output6
 
       if additionalErrors > 0
-       then putStr $ "\nPlus " ++ show additionalErrors ++ " more error" ++ pluralS additionalErrors ++
+       then printStr $ "\nPlus " ++ show additionalErrors ++ " more error" ++ pluralS additionalErrors ++
                      if additionalWarnings > 0
                      then " and " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
                      else ".\n"
        else if additionalWarnings > 0
-            then putStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
+            then printStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
             else return ()
 
       if not (null errorsToStopOn)  -- note: this may already run quite a part of the compilation...
-       then exitFailure
+       then failWith 1
        else
         do
            if genvisage flags'
@@ -239,7 +239,7 @@ compile flags input output
                            then error "sepsemmods is not implemented for the ocaml output generation"
                            else Pass4b.genIO_Syn_ExecutionPlan output4b
                       else Pass5.genIO_Syn_Program output5
-                    if not (null errorsToStopOn) then exitFailure else return ()
+                    if not (null errorsToStopOn) then failWith 1 else return ()
             else do -- conventional module gen
                     let doc
                          | visitorsOutput flags'
@@ -380,11 +380,11 @@ compile flags input output
                     -- HACK: write statistics
                     let nAuto = Pass3.nAutoRules_Syn_Grammar output3
                         nExpl = Pass3.nExplicitRules_Syn_Grammar output3
-                        line  = input ++ "," ++ show nAuto ++ "," ++ show nExpl ++ "\r\n"
+                        line  = inputfile ++ "," ++ show nAuto ++ "," ++ show nExpl ++ "\r\n"
                     case statsFile flags' of
                       Nothing   -> return ()
                       Just file -> appendFile file line
-                    if not (null errorsToStopOn) then exitFailure else return ()
+                    if not (null errorsToStopOn) then failWith 1 else return ()
 
 
 
@@ -470,7 +470,8 @@ getDeps flags files
        if null errs
         then return fs
         else do putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
-                exitFailure
+                failWithCode flags 1
+                return []
   where
     combine :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
     combine (fs, mesgs) (fsr, mesgsr)
