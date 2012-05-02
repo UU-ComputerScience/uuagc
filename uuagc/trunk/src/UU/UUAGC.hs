@@ -1,6 +1,7 @@
-module UU.UUAGC (uuagc, uuagcMain) where
+module UU.UUAGC (uuagc, uuagcMain, compile, module Options) where
 
-import Ag (uuagcLib, uuagcExe)
+import Ag (uuagcLib, uuagcExe, compile)
+import Options
 
 import System.Exit (ExitCode(..))
 

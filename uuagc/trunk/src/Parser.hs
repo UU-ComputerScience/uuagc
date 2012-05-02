@@ -91,8 +91,12 @@ parseFile agi opts searchPath file
                    <|> pINCLUDE *> (addInc <$> pStringPos)
                    <|> pEXTENDS *> (addExt <$> pStringPos)
              addElem e      (es,fs,ext) = (e:es,   fs, ext)
-             addInc  (fn,_) (es,fs,ext) = (  es,fn:fs, ext)
-             addExt  (fn,_) (es,fs,ext) = if agi then (es,fs, Just fn) else (es,fn:fs, ext) --marcos
+             addInc  (fn,_) (es,fs,ext) 
+               | noIncludes opts = (es, fs, ext)  -- skip includes
+               | otherwise       = (es,fn:fs, ext)
+             addExt  (fn,_) (es,fs,ext)
+               | noIncludes opts = (es, fs, ext)  -- skip includes
+               | otherwise       = if agi then (es,fs, Just fn) else (es,fn:fs, ext) --marcos
 
     pCodescrapL = (\(ValToken _ str pos) -> (str, pos))<$>
                         parseScrapL <?> "a code block"
@@ -240,7 +244,7 @@ parseFile agi opts searchPath file
                  <$> pAttrIdentifiers <*> pUse <* pTypeColon <*> pTypeOrSelf <?> "attribute declarations"
 
     pAlt :: AGParser Alt
-    pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> opt (pList1_ng pTypeVar <* pDot) [] <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
+    pAlt =   (Alt <$> pBar <*> pSimpleConstructorSet <*> (pList1_ng pTypeVar <* pDot <|> pSucceed []) <*> pFields <*> pMaybeMacro <?> "a datatype alternative")
 
     pAlts :: AGParser Alts
     pAlts =  pList_ng pAlt <?> "datatype alternatives"

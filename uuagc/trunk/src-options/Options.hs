@@ -5,6 +5,8 @@ import Data.Set(Set)
 import UU.Scanner.Position(Pos,noPos)
 import Data.List(intercalate)
 import qualified Data.Set as Set
+import System.IO
+import System.Exit
 
 -- From CommonTypes
 data Identifier   = Ident { getName::String, getPos::Pos }
@@ -142,6 +144,8 @@ allOptions =
   , MyOpt []        ["noinlinepragmas"]         (NoArg noInlinePragmasOpt)         (boolOpt noInlinePragmas)       "Definitely not generate inline directives"
   , MyOpt []        ["aggressiveinlinepragmas"] (NoArg aggressiveInlinePragmasOpt) (boolOpt aggressiveInlinePragmas) "Generate more aggressive inline directives"
   , MyOpt []        ["latehigherorderbinding"]  (NoArg lateHigherOrderBindingOpt)  (boolOpt lateHigherOrderBinding) "Generate an attribute and wrapper for late binding of higher-order attributes"
+  , MyOpt []        ["noincludes"]              (NoArg noIncludesOpt)              (boolOpt noIncludes)             "Ignore include directives in .ag files"
+  , MyOpt []        ["quiet"]                   (NoArg beQuietOpt)                 (boolOpt beQuiet)                "Dont print some compilation information"
   ]
 
 -- For compatibility
@@ -193,6 +197,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , dumpgrammar :: Bool
                       , dumpcgrammar :: Bool
                       , sepSemMods :: Bool
+                      , allowSepSemMods :: Bool
                       , genFileDeps :: Bool
                       , genLinePragmas :: Bool
                       , genvisage :: Bool
@@ -216,6 +221,11 @@ data Options = Options{ moduleName :: ModuleHeader
                       , nocatas :: Set NontermIdent
                       , noOptimizations :: Bool
                       , reference :: Bool
+                      , noIncludes :: Bool
+                      , outputStr :: String -> IO ()
+                      , failWithCode :: Int -> IO ()
+                      , mainFilename :: Maybe String
+                      , beQuiet :: Bool
 
                       -- KW code path
                       , kennedyWarren       :: Bool
@@ -240,7 +250,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , helpInlining :: Bool
                       , noInlinePragmas :: Bool
                       , aggressiveInlinePragmas :: Bool
-                      } deriving (Eq, Show)
+                      } -- deriving (Eq, Show)
 
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
@@ -281,6 +291,7 @@ noOptions = Options { moduleName    = NoName
                     , dumpgrammar   = False
                     , dumpcgrammar  = False
                     , sepSemMods     = False
+                    , allowSepSemMods = True
                     , genFileDeps    = False
                     , genLinePragmas = False
                     , genvisage      = False
@@ -304,6 +315,11 @@ noOptions = Options { moduleName    = NoName
                     , nocatas         = Set.empty
                     , noOptimizations = False
                     , reference       = False
+                    , noIncludes      = False
+                    , outputStr       = hPutStr stderr
+                    , failWithCode    = exitWith . ExitFailure
+                    , mainFilename    = Nothing
+                    , beQuiet         = False
 
                     -- defaults for the KW-code path
                     , kennedyWarren       = False
@@ -377,7 +393,7 @@ dumpcgrammarOpt opts = opts{dumpcgrammar = True}
 genTracesOpt    opts = opts{genTraces    = True}
 genUseTracesOpt opts = opts{genUseTraces = True}
 genCostCentresOpt opts = opts{genCostCentres = True}
-sepSemModsOpt opts = opts{sepSemMods = True}
+sepSemModsOpt opts = opts{sepSemMods = allowSepSemMods opts}
 genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
@@ -453,6 +469,8 @@ searchPathOptGet opts nm = if null (searchPath opts)
                            else [nm, intercalate ":" (searchPath opts)]
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt . dataRecOpt
 optimizeOpt   = visitOpt . casesOpt
+noIncludesOpt opts = opts { noIncludes = True }
+beQuietOpt opts = opts { beQuiet = True }
 
 condDisableOptimizations opts
   | noOptimizations opts =
