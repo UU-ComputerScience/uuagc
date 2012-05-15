@@ -2,7 +2,8 @@
 module Distribution.Simple.UUAGC.UUAGC(uuagcUserHook,
                                        uuagcUserHook',
                                        uuagc,
-                                       uuagcLibUserHook
+                                       uuagcLibUserHook,
+                                       uuagcFromString
                                       ) where
 
 import Distribution.Simple.BuildPaths (autogenModulesDir)
@@ -97,7 +98,7 @@ uuagcFromString uuagcPath args file = do
       do fls <- processContent ppOutput
          return (ExitSuccess, fls)
     (ExitFailure exc) ->
-      do hPutStrLn stderr (show exc)
+      do hPutStrLn stderr (uuagcPath ++ ": " ++ show exc)
          putErrorInfo ppOutput
          putErrorInfo ppError
          return (ExitFailure exc, [])

@@ -21,9 +21,16 @@ extra-source-files: README
 extra-source-files: uuagc_options
 extra-source-files: src-ag/DistChildAttr.ag
 
+flag bootstrap_external
+  description: Use an external uuagc executable for bootstrapping
+  default: False
+  manual: True
+
 executable uuagc
-   build-depends: uuagc-bootstrap >= 0.9.40.0
-   build-depends: uuagc-cabal >= 1.0.2.0
+   if !flag(bootstrap_external)
+     build-depends: uuagc-bootstrap >= 0.9.40.0
+
+   build-depends: uuagc-cabal >= 1.0.3.0
    build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
    build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
    build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1
@@ -90,8 +97,10 @@ executable uuagc
 
 
 library
-   build-depends: uuagc-bootstrap >= 0.9.40.0
-   build-depends: uuagc-cabal >= 1.0.2.0
+   if !flag(bootstrap_external)
+     build-depends: uuagc-bootstrap >= 0.9.40.0
+
+   build-depends: uuagc-cabal >= 1.0.3.0
    build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
    build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
    build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1

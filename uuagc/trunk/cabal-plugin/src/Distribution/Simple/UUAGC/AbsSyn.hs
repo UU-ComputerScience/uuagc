@@ -6,10 +6,8 @@ import System.FilePath(normalise)
 data AGFileOption = AGFileOption {filename :: String,
                                   fileClasses :: [String],
                                   opts :: Options}
-     deriving (Show, Eq)
 
 data AGOptionsClass = AGOptionsClass {className :: String, opts' :: Options}
-     deriving (Show, Eq)
 
 type AGFileOptions = [AGFileOption]
 
