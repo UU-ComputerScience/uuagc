@@ -54,6 +54,7 @@ SEM AG
                                      @elems.paramsCollect
                                      @loc.allConParams
                                      @loc.allFields
+				     @loc.prodOrder
                                      @loc.allConstraints
                                      @loc.allAttrDecls
                                      @elems.useMap
@@ -256,7 +257,10 @@ SEM Elem
 
 SEM AG
   | AG
-
+	 loc.prodOrder   = let f (nt,con,fm) = Map.insertWith g nt [con]
+	 		       g [con] lst | con `elem` lst = lst
+			       	           | otherwise      = con : lst
+	 		   in  foldr f Map.empty @elems.collectedFields
          loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                            in  foldr f (Map.empty) @elems.collectedFields
 
@@ -360,7 +364,7 @@ type AttrOverwrite  = Map AttrName Bool
 type AccumRuleCheck = (RulesAndErrors, AttrOverwrite)
 type AccumDefiCheck = (Seq Error, AttrOverwrite, [AttrName], [AttrName])
 
-checkRules :: Map NontermIdent (Attributes, Attributes) -> Map NontermIdent (Map ConstructorIdent FieldMap) ->
+checkRules :: Map NontermIdent (Attributes, Attributes) -> DataTypes ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
               Map NontermIdent (Map ConstructorIdent [MergeInfo]) ->
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
@@ -417,7 +421,7 @@ checkSigs nt con sis
            else (TypeSig ide typ:sigs, errs)
     in  foldr checkSig ([],Seq.empty) sis
 
-checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
+checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
 checkInsts allNts sigMap fieldMap nt con
   = foldr (\inst (insts, errs) ->
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
@@ -471,7 +475,7 @@ checkAugments allAttrs nt con augments
         (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkAugment (Map.empty, Seq.empty) augments
 
-checkArounds :: Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [AroundInfo] -> AroundsAndErrors
+checkArounds :: DataTypes -> NontermIdent -> ConstructorIdent -> [AroundInfo] -> AroundsAndErrors
 checkArounds fieldMap nt con arounds
   = let checkAround (ident,expr) (as,errs)
           = if ident `Map.member` as
@@ -482,7 +486,7 @@ checkArounds fieldMap nt con arounds
         fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
     in foldr checkAround (Map.empty, Seq.empty) arounds
 
-checkMerges :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> NontermIdent -> ConstructorIdent -> [MergeInfo] -> MergesAndErrors
+checkMerges :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [Identifier]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [MergeInfo] -> MergesAndErrors
 checkMerges allNts allInsts fieldMap nt con merges
   = let checkMerge (target,nt,sources,expr) (m,errs)
           = let fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
@@ -505,7 +509,7 @@ unionunionplusplus = Map.unionWith (Map.unionWith (++))
 
 
 {
-mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [RuleInfo]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
+mkUniqueRules :: Options -> Map NontermIdent (Map ConstructorIdent [RuleInfo]) -> DataTypes -> Map NontermIdent (Map ConstructorIdent [(Identifier, Type)]) -> Map NontermIdent (Attributes,Attributes) -> NontermIdent -> ConstructorIdent -> Map Identifier Identifier -> [Rule]
 mkUniqueRules opts allRules allFields allInsts allAttrDecls nt con usMap
   = map apply groups
   where
@@ -1216,6 +1220,7 @@ constructGrammar ::    Set NontermIdent
                     -> ParamMap
                     -> Map NontermIdent (Map ConstructorIdent (Set Identifier))
                     -> DataTypes
+		    -> Map NontermIdent [ConstructorIdent]
                     -> Map NontermIdent (Map ConstructorIdent [Type])
                     -> Map NontermIdent (Attributes, Attributes)
                     -> Map NontermIdent (Map Identifier (String, String, String))
@@ -1236,8 +1241,8 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent MaybeMacro)
                     -> Grammar
 
-constructGrammar nts ntParams prodParams gram constraints attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
-   let gr = [ (nt,Map.toList alts) | (nt,alts) <- Map.toList gram]
+constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
+   let gr = [ (nt,alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
                              rmap      = Map.findWithDefault Map.empty             nt allrules
@@ -1248,8 +1253,10 @@ constructGrammar nts ntParams prodParams gram constraints attrs uses derivings w
                              macromap  = Map.findWithDefault Map.empty             nt macros
                              csmap     = Map.findWithDefault Map.empty             nt constraints
                              psmap     = Map.findWithDefault Map.empty             nt prodParams
-                             alt (con,flds) =
-                                   let rules   = Map.findWithDefault [] con rmap
+			     prs       = Map.findWithDefault []                    nt prodOrder
+                             alt con   =
+                                   let flds    = Map.findWithDefault [] con alts
+                                       rules   = Map.findWithDefault [] con rmap
                                        tsigs   = Map.findWithDefault [] con tsmap
                                        insts   = Map.findWithDefault [] con instsmap
                                        merges  = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
@@ -1275,7 +1282,7 @@ constructGrammar nts ntParams prodParams gram constraints attrs uses derivings w
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
                                    in Production con ps cs cldrn rules tsigs mbMacro
-                            in Nonterminal nt params inh syn (map alt alts)
+                            in Nonterminal nt params inh syn (map alt prs)
    in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }
 
