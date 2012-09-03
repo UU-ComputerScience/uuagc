@@ -1,33 +1,38 @@
 -- UUAGC Example 5: Two-pass traversals
 --
--- first preprocess with:   uuagc -dcfsw Example5.ag
+-- first preprocess with:   uuagc -dcfswH Example5.ag
 -- then compile with:       ghc Example5.hs
--- finally run with:        ./main
+-- finally run with:        ./Example5
 
-DATA Root
-   | Root  tree: Tree
+data Root
+   | Root  tree  :: Tree
 
-DATA Tree
-   | Node  left:  Tree   right: Tree
-   | Tip   value: Int
+data Tree
+   | Node  left  :: Tree
+           right :: Tree
+   | Tip   value :: Int
 
--- A SET declaration is a way to abbreviate sets of datatypes.
+-- A set declaration is a way to abbreviate sets of datatypes.
 -- The name can be used instead of an explicit enumeration of the set
--- in other DERIVING, ATTR and SEM declarations.
+-- in other deriving, attr and sem declarations.
 
-SET Every = Root Tree
+set Every = Root Tree
 
-DERIVING Every: Show
+deriving Every : Show
 
 -- We re-introduce synthesized attribute "sum" here for datatype Tree (see Example1).
 -- Notice that Tree has two synthesized attributes:
 --  * sum: Int            (which is obviously declared)
---  * transformed: Tree   (because Tree is part of the Every set, and SELF in instantiated to Tree)
+--  * transformed: Tree   (because Tree is part of the Every set, and self in instantiated to Tree)
 
-ATTR Every [ | | transformed: SELF ]
-ATTR Tree  [ replacement: Int | | sum: Int ]
+attr Every
+   syn transformed :: self
 
-SEM Tree
+attr Tree
+   inh replacement :: Int
+   syn sum         :: Int
+
+sem Tree
   | Tip   lhs.transformed = Tip @lhs.replacement
           lhs.sum         = @value
   | Node  lhs.sum         = @left.sum + @right.sum
@@ -37,7 +42,7 @@ SEM Tree
 -- But nothing prevents us from letting the replacement value depend
 -- on other synthesized attributes, such as the sum.
 
-SEM Root
+sem Root
   | Root  tree.replacement = @tree.sum
 
 -- In effect, we now have defined a two-pass tree traversal.

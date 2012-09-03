@@ -1,33 +1,36 @@
--- UUAGC Example 4: Multiple datatypes, the SELF pseudotype, auto-generated rules
+-- UUAGC Example 4: Multiple datatypes, the self pseudotype, auto-generated rules
 --
--- first preprocess with:   uuagc -dcfsw Example4.ag
+-- first preprocess with:   uuagc -dcfswH Example4.ag
 -- then compile with:       ghc Example4.hs
--- finally run with:        ./main
+-- finally run with:        ./Example4
 
 -- In the presence of recursive datatypes, it is quite common to
 -- have a non-recursive wrapper type. Here, type "Root" plays that role.
 
-DATA Root
-   | Root  tree: Tree
+data Root
+   | Root  tree  :: Tree
 
-DATA Tree
-   | Node  left:  Tree   right: Tree
-   | Tip   value: Int
+data Tree
+   | Node  left  :: Tree
+           right :: Tree
+   | Tip   value :: Int
 
-DERIVING Root Tree: Show
+deriving Root Tree : Show
 
 -- We can declare attributes for multiple datatypes in a single declaration.
 -- Here we do so for the synthesized attribute "transformed".
 -- For this particular attribute there would be a problem, because
 -- a transformed Root has type "Root", and a transformed Tree has type "Tree".
--- But we can summarize that by using the pseudotype "SELF", and still
+-- But we can summarize that by using the pseudotype "self", and still
 -- declare the attribute "transformed" in a single declaration.
 
-ATTR Root Tree [ | | transformed: SELF ]
+attr Root Tree
+   syn transformed :: self
 
-ATTR Tree      [ replacement: Int | |  ]
+attr Tree
+   inh replacement :: Int
 
--- An additional effect of using the pseudotype SELF is that semantic rules
+-- An additional effect of using the pseudotype self is that semantic rules
 -- are defined implicitly, that as a default generate a copy of the datastructure.
 -- So we don't have to specify explicitly that a transformed Node consists of
 -- the Node constructor applied to the transformed versions of its children,
@@ -36,17 +39,17 @@ ATTR Tree      [ replacement: Int | |  ]
 -- The only semantic rule we *do* need to write, is where we disagree with the
 -- default behaviour: at a Tip, we don't want a copy, but insert the replacement value.
 
-SEM Tree
+sem Tree
   | Tip   lhs.transformed = Tip @lhs.replacement
 
 -- The non-recursive wrapper type Root is a good place to initialize
 -- inherited attributes.
   
-SEM Root
+sem Root
   | Root  tree.replacement = 37
 
 -- Another rule that you might expect here is:
--- SEM Tree
+-- sem Tree
 --   | Node  left.replacement  = @lhs.replacement
 --           right.replacement = @lhs.replacement
 -- This is not needed though, because rules that copy inherited attributes
