@@ -16,7 +16,7 @@ build/ag-tutorial.pdf: build/ag-tutorial.tex $(UTILS) $(DIAGRAMS)
 	cd build; pdflatex ag-tutorial.tex
 
 build/ag-tutorial.tex: AgTutorial.ltx
-	cd build; $(LHS2TEX) --poly ../AgTutorial.ltx -o ag-tutorial.tex
+	cd build; $(LHS2TEX) --path=:.. --poly ../AgTutorial.ltx -o ag-tutorial.tex
 
 build/uulogo.pdf: uulogo.pdf
 	cp uulogo.pdf build/uulogo.pdf

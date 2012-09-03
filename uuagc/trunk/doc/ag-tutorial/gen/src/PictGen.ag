@@ -224,6 +224,25 @@ SEM Attr | Attr
 
 
 --
+-- Name of Nont
+--
+
+{
+-- | Combine parent name and own name of Nont
+cmbNontNm :: String -> String -> String
+cmbNontNm ctxtNm tp = ctxtNm ++ ":" ++ tp
+}
+
+ATTR Nonterm [ ctxtNm: String | | ]
+SEM Prod
+  | Prod
+      parent.ctxtNm  = @name
+
+SEM Sym
+  | Nont
+      tp.ctxtNm  	 = ""
+
+--
 -- Width calculation
 --
 
@@ -243,7 +262,7 @@ SEM Sym  | Term
   loc.width = defaultSymWidth
 
 SEM Nonterm | Nont
-  loc.width      = defaultSymWidth
+  loc.width      = ((fromIntegral $ length (cmbNontNm @lhs.ctxtNm @tp)) * defaultSymWidth) / 3
   loc.sepWidth   = defaultAttrSepWidth
   loc.innerWidth = @loc.width + 2 * @loc.sepWidth
   loc.totalWidth = @loc.innerWidth + @inh.width + @syn.width
@@ -384,7 +403,7 @@ ATTR Nonterm [ build : PartCmd | | ]
 ATTR AllNonterm [ buildAttr : AttrCmd | | ]
 
 SEM Prod | Prod
-  parent.build     = Cmd_Parent "lhs" @loc.uid
+  parent.build     = \x tp -> Cmd_Parent "lhs" @loc.uid x (cmbNontNm @name tp)
   parent.buildAttr = Cmd_AttrParent
   locals.buildAttr = Cmd_AttrLocal
   loc.inhEdges     = mkEdges (@parent.inhUids Seq.>< Seq.singleton @loc.uid)
