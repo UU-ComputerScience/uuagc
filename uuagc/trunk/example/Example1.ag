@@ -1,31 +1,28 @@
 -- UUAGC Example 1: Calculate the sum of a tree of integers
 --
--- first preprocess with:   uuagc -dcf Example1.ag
+-- first preprocess with:   uuagc -dcfH Example1.ag
 -- then compile with:       ghc Example1.hs
--- finally run with:        ./main
+-- finally run with:        ./Example1
 
 
--- With a DATA declaration we define the syntax of our datatype.
--- A DATA declaration is quite similar to a Haskall data declaration, but:
+-- With a data declaration we define the syntax of our datatype.
+-- A data declaration is quite similar to a Haskall data declaration, but:
 -- * each field has a name
 -- * all alternatives are preceded with a "|" (even the first one)
 
-DATA Tree
-   | Node  left:  Tree   right: Tree
-   | Tip   value: Int
+data Tree
+   | Node  left  :: Tree
+           right :: Tree
+   | Tip   value :: Int
 
--- With an ATTR declaration we specify attributes, that is the values 
+-- With an attr declaration we specify attributes, that is the values 
 -- we want to calculate in our tree walk.
--- The [...|...|...] construct is a three-place delimiter
--- (for top-down, threaded, and bottom-up attributes, respectively)
--- of which we currently use the third part only.
+-- The syn (synthesized) keyword defines a bottom-up attribute
 
-ATTR Tree [
-          |
-          | sum: Int
-          ]
+attr Tree
+   syn sum :: Int
 
--- With a SEM declaration we specify the semantics.
+-- With a sem declaration we specify the semantics.
 -- For each constructor we have an assignment that states how the
 -- sum for the left hand side (lhs) can be calculated from the fields
 -- and/or the attributes of the right hand side.
@@ -33,7 +30,7 @@ ATTR Tree [
 -- an attribute by selecting from a field with a "dot" notation (as in @left.sum).
 -- These items can be combined by any Haskell expression (in this case just a + ).
 
-SEM Tree
+sem Tree
   | Node  lhs.sum  =  @left.sum + @right.sum
   | Tip   lhs.sum  =  @value
 
