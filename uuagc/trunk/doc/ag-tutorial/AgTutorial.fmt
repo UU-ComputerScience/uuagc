@@ -2,8 +2,8 @@
 \setlength{\agrelsize}{0.4cm}
 \tikzstyle{agnontermstyle}=[shape=circle,fill=red!70,minimum size=\agrelsize]
 \tikzstyle{agchldstyle}=[shape=circle,fill=red!70,minimum size=\agrelsize]
-\tikzstyle{agattrstyle}=[shape=rectangle,fill=red!95,minimum size=\agrelsize,]
-\tikzstyle{agdepstyle}=[gray]
+\tikzstyle{agattrstyle}=[shape=rectangle,fill=green!70,minimum size=\agrelsize,]
+\tikzstyle{agdepstyle}=[gray,>=triangle 60]
 \newcommand{\agcoordpary}{5}   %% y-coordinate of parent attributes
 \newcommand{\agcoordchldy}{0}  %% y-coordinate of child attributes
 \newcommand{\agcoordlocy}{3}   %% y-coordinate of local attributes
