@@ -17,5 +17,4 @@ flows
   body.out.html  -> lhs.out.html
   lhs.in.level   -> body.in.level
   lhs.in.level   -> lhs.out.html downwards
-  lhs.in.count   -> body.in.count
-  body.out.count -> lhs.out.count
+  lhs.in.count   -> lhs.out.count downwards
