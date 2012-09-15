@@ -21,7 +21,7 @@ flows
   body.out.html     -> lhs.out.html
   lhs.in.level      -> body.in.level
   lhs.in.level      -> lhs.out.html downwards
-  body.out.count    -> body.in.count downwards
+  lhs.in.count      -> lhs.out.count downwards
   lhs.in.toc        -> body.in.toc
   title             -> lhs.out.toclines
   body.out.toclines -> lhs.out.toclines
