@@ -31,7 +31,13 @@ type AGParser = AnaParser Input  Pair Token Pos
 
 pIdentifier, pIdentifierU, pIdentifierExcl :: AGParser Identifier
 pIdentifierU = uncurry Ident <$> pConidPos
-pIdentifier = pIdentifierExcl <|> pKeywordAsIdent
+
+-- Jeroen (3-10-2012): for some reason using pKeywordAsIdent
+-- drastically slows down parsing of some of my AG files, as
+-- in: I thought there was some infinite loop in there, but I
+-- guess that eventually it could have given an answer. So
+-- probably this does generate a lot of ambiguity.
+pIdentifier = pIdentifierExcl -- <|> pKeywordAsIdent
 pIdentifierExcl = uncurry Ident <$> pVaridPos
 
 -- see Scanner.lowercaseKeywords for the list of keywords that may
