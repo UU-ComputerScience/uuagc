@@ -11,5 +11,5 @@ executable uuagc-web
   main-is: Main.hs
   build-depends: base >= 4, directory >= 1.0, bytestring >= 0.9, utf8-string >= 0.3.7
   build-depends: containers >= 0.4, mtl >= 2.0
-  build-depends: uuagc >= 0.9.41, happstack-server >= 7.0.0, blaze-html >= 0.4
+  build-depends: uuagc >= 0.9.41, happstack-server >= 7.0.0, blaze-html >= 0.4, blaze-markup >= 0.4
   hs-source-dirs: src
