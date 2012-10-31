@@ -193,7 +193,7 @@ parseFile agi opts searchPath filename
                  <*> pNontSet
         <|> Pragma
                  <$> pPRAGMA
-                 <*> pNames
+                 <*> pList1 pIdentifier
         <|> Module
                  <$> pMODULE
                  <*> pCodescrap'
