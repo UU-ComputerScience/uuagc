@@ -285,7 +285,9 @@ useRule locals ch_outs (n,(op,e,pos))
         isOp [] = False
         isOp (c:cs)
           | isSpace c = isOp cs
-          | isAlpha c = False
+          | isAlpha c = case dropWhile isAlpha cs of
+	    	           ('.':cs2) -> isOp cs2 -- fully qualified name, drop prefix
+			   _         -> False
           | c == '('  = False
           | otherwise = True
 
