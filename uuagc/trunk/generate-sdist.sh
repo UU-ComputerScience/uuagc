@@ -1,10 +1,13 @@
 # Stolen from happy
-cabal configure
-cabal build
+cabal configure --ghc-options="-DEXTERNAL_UUAGC"
+cabal build --ghc-options="-DEXTERNAL_UUAGC"
 rm -f dist/uuagc-*.tar.gz
 rm -rf dist/uuagc-*/
 dist/setup/setup sdist
 cd dist
 tar xvzf uuagc-*.tar.gz
-cp build/*.hs uuagc-*/dist/build/
+cd uuagc-*
+mkdir src-generated
+cd ..
+cp build/*.hs uuagc-*/src-generated/
 tar cvzf uuagc-*.tar.gz uuagc-*/
