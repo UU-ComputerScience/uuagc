@@ -25,7 +25,7 @@ import Options hiding (verbose)
 import Distribution.Verbosity
 import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
                      , StdStream(..), runProcess, waitForProcess
-                     , proc)
+                     , shell)
 import System.Directory(getModificationTime
                        ,doesFileExist
                        ,removeFile)
@@ -86,8 +86,9 @@ uuagcUserHook' uuagcPath = uuagcLibUserHook (uuagcFromString uuagcPath)
 
 -- | Create uuagc function using shell (old method)
 uuagcFromString :: String -> [String] -> FilePath -> IO (ExitCode, [FilePath])
-uuagcFromString uuagcPath args file = do  
-  (_, Just ppOutput, Just ppError, ph) <- createProcess $ (proc uuagcPath (args ++ [file]))
+uuagcFromString uuagcPath args file = do
+  let argline = uuagcPath ++ concatMap (' ':) (args ++ [file])
+  (_, Just ppOutput, Just ppError, ph) <- createProcess (shell argline)
                                     { std_in  = Inherit
                                     , std_out = CreatePipe
                                     , std_err = CreatePipe
