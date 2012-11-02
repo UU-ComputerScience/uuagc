@@ -48,7 +48,7 @@ import CommonTypes
 import ATermWrite
 
 -- Library version
-import System.Exit (ExitCode(..))
+import System.Exit (ExitCode(..), exitWith)
 
 uuagcLib :: [String] -> FilePath -> IO (ExitCode, [FilePath])
 uuagcLib args file
@@ -76,12 +76,15 @@ uuagcExe
           (flags,files,errs) = getOptions args
 
       if showVersion flags
-       then putStrLn banner
-       else if null files || showHelp flags || (not.null) errs
-       then mapM_ putStrLn (usageInfo usageheader options : errs)
-       else if genFileDeps flags
-            then reportDeps flags files
-            else zipWithM_ (compile flags) files (outputFiles flags++repeat "")
+        then putStrLn banner
+        else if showHelp flags
+             then putStrLn (usageInfo usageheader options)
+             else if null files || (not.null) errs
+                  then do mapM_ putStrLn (usageInfo usageheader options : errs)
+                          exitWith (ExitFailure 2)
+                  else if genFileDeps flags
+                       then reportDeps flags files
+                       else zipWithM_ (compile flags) files (outputFiles flags++repeat "")
 
 
 compile :: Options -> FilePath -> FilePath -> IO ()
