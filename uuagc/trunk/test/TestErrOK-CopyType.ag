@@ -1,0 +1,16 @@
+-- Copy rules should only be generated if the types are equal
+-- Here inherited attribute "arg" of B should not be inherited from A
+-- this was a bug until version 0.9.40.3
+
+DATA A | C ch : B
+
+DATA B | D
+
+ATTR A [ arg : {Char} | | test  : {Int} ]
+ATTR B [ arg : {Bool} | | test2 : {Int} ]
+
+SEM A
+  | C lhs.test = @ch.test2 + 1
+
+SEM B
+  | D lhs.test2 = 2
