@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.0 (src-ag/AG2AspectAG.ag)
+-- UUAGC 0.9.42.1 (src-ag/AG2AspectAG.ag)
 module AG2AspectAG where
 {-# LINE 8 "./src-ag/AG2AspectAG.ag" #-}
 
