@@ -41,21 +41,13 @@ We are working on the following enhancements of the UUAG system:
   annotations for local attributes, and the Haskell compiler proves that the static evaluation
   order is correct.
 
-\item[Multi-core evaluation]
-  Our algorithm for ordered AGs identifies statically which subcomputations of children of a
-  production are independent and suitable for parallel evaluation. Together with the
-  strict evaluation as mentioned above, which is important when evaluating in parallel, the
-  generated code can automatically exploit multi-core CPUs. We are currently evaluating the
-  effectiveness of this approach.
+\item[Incremental evaluation]
+  We are currently also running a Ph.D.\ project that investigates incremental evaluation of
+  AGs. In this ongoing work we hope to improve the UUAG compiler by adding support for
+  incremental evaluation, for example by statically generating different evaluation orders
+  based on changes in the input.
 
-\item[Stepwise evaluation]
-  In the recent past we worked on a stepwise evaluation scheme for AGs.
-Using this scheme, the evaluation of a node may
-yield user-defined progress reports, and the evaluation to the next report is
-considered to be an evaluation step. By asking nodes to yield reports, we can encode
-the parallel exploration of trees and encode breadth-first search strategies.
 \end{description}
-We are currently also running a Ph.D.\ project that investigates incremental evaluation.
 
 \FurtherReading
 \begin{compactitem}
