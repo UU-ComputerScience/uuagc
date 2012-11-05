@@ -1,4 +1,5 @@
 # Stolen from happy
+rm -rf dist
 cabal configure --ghc-options="-DEXTERNAL_UUAGC"
 cabal build --ghc-options="-DEXTERNAL_UUAGC"
 rm -f dist/uuagc-*.tar.gz
