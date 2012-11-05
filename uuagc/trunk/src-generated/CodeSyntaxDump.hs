@@ -1,0 +1,1070 @@
+
+
+-- UUAGC 0.9.42.0 (src-ag/CodeSyntaxDump.ag)
+module CodeSyntaxDump where
+{-# LINE 5 "./src-ag/CodeSyntaxDump.ag" #-}
+
+import Data.List
+import qualified Data.Map as Map
+
+import Pretty
+import PPUtil
+
+import CodeSyntax
+{-# LINE 15 "dist/build/CodeSyntaxDump.hs" #-}
+
+{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+
+import Patterns
+import CommonTypes
+import Data.Map(Map)
+import Data.Set(Set)
+{-# LINE 23 "dist/build/CodeSyntaxDump.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 30 "dist/build/CodeSyntaxDump.hs" #-}
+{-# LINE 15 "./src-ag/CodeSyntaxDump.ag" #-}
+
+ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
+ppChild (nm,tp,b)
+  = pp nm >#< "::" >#< pp (show tp)
+
+ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc
+ppVertexMap m
+  = ppVList [ ppF (show k) $ ppAttr v | (k,v) <- Map.toList m ]
+
+ppAttr :: (Identifier,Identifier,Maybe Type) -> PP_Doc
+ppAttr (fld,nm,mTp)
+  = pp fld >|< "." >|< pp nm >#<
+    case mTp of
+      Just tp -> pp "::" >#< show tp
+      Nothing -> empty
+
+ppBool :: Bool -> PP_Doc
+ppBool True  = pp "T"
+ppBool False = pp "F"
+
+ppMaybeShow :: Show a => Maybe a -> PP_Doc
+ppMaybeShow (Just x) = pp (show x)
+ppMaybeShow Nothing  = pp "_"
+
+ppStrings :: [String] -> PP_Doc
+ppStrings = vlist
+{-# LINE 58 "dist/build/CodeSyntaxDump.hs" #-}
+-- CGrammar ----------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CGrammar:
+         child typeSyns       : {TypeSyns}
+         child derivings      : {Derivings}
+         child wrappers       : {Set NontermIdent}
+         child nonts          : CNonterminals 
+         child pragmas        : {PragmaMap}
+         child paramMap       : {ParamMap}
+         child contextMap     : {ContextMap}
+         child quantMap       : {QuantMap}
+         child aroundsMap     : {Map NontermIdent (Map ConstructorIdent (Set Identifier))}
+         child mergeMap       : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))}
+         child multivisit     : {Bool}
+-}
+-- cata
+sem_CGrammar :: CGrammar ->
+                T_CGrammar
+sem_CGrammar (CGrammar _typeSyns _derivings _wrappers _nonts _pragmas _paramMap _contextMap _quantMap _aroundsMap _mergeMap _multivisit) =
+    (sem_CGrammar_CGrammar _typeSyns _derivings _wrappers (sem_CNonterminals _nonts) _pragmas _paramMap _contextMap _quantMap _aroundsMap _mergeMap _multivisit)
+-- semantic domain
+newtype T_CGrammar = T_CGrammar (( PP_Doc))
+data Inh_CGrammar = Inh_CGrammar {}
+data Syn_CGrammar = Syn_CGrammar {pp_Syn_CGrammar :: PP_Doc}
+wrap_CGrammar :: T_CGrammar ->
+                 Inh_CGrammar ->
+                 Syn_CGrammar
+wrap_CGrammar (T_CGrammar sem) (Inh_CGrammar) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CGrammar _lhsOpp))
+sem_CGrammar_CGrammar :: TypeSyns ->
+                         Derivings ->
+                         (Set NontermIdent) ->
+                         T_CNonterminals ->
+                         PragmaMap ->
+                         ParamMap ->
+                         ContextMap ->
+                         QuantMap ->
+                         (Map NontermIdent (Map ConstructorIdent (Set Identifier))) ->
+                         (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) ->
+                         Bool ->
+                         T_CGrammar
+sem_CGrammar_CGrammar typeSyns_ derivings_ wrappers_ (T_CNonterminals nonts_) pragmas_ paramMap_ contextMap_ quantMap_ aroundsMap_ mergeMap_ multivisit_ =
+    (T_CGrammar (let _lhsOpp :: PP_Doc
+                     _nontsIpp :: PP_Doc
+                     _nontsIppL :: ([PP_Doc])
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 47, column 21)
+                     _lhsOpp =
+                         ({-# LINE 47 "./src-ag/CodeSyntaxDump.ag" #-}
+                          ppNestInfo ["CGrammar","CGrammar"] []
+                                     [ ppF "typeSyns"  $ ppAssocL typeSyns_
+                                     , ppF "derivings" $ ppMap $ derivings_
+                                     , ppF "nonts"     $ ppVList _nontsIppL
+                                     ] []
+                          {-# LINE 117 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     ( _nontsIpp,_nontsIppL) =
+                         nonts_
+                 in  ( _lhsOpp)))
+-- CInterface --------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CInterface:
+         child seg            : CSegments 
+-}
+-- cata
+sem_CInterface :: CInterface ->
+                  T_CInterface
+sem_CInterface (CInterface _seg) =
+    (sem_CInterface_CInterface (sem_CSegments _seg))
+-- semantic domain
+newtype T_CInterface = T_CInterface (( PP_Doc))
+data Inh_CInterface = Inh_CInterface {}
+data Syn_CInterface = Syn_CInterface {pp_Syn_CInterface :: PP_Doc}
+wrap_CInterface :: T_CInterface ->
+                   Inh_CInterface ->
+                   Syn_CInterface
+wrap_CInterface (T_CInterface sem) (Inh_CInterface) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CInterface _lhsOpp))
+sem_CInterface_CInterface :: T_CSegments ->
+                             T_CInterface
+sem_CInterface_CInterface (T_CSegments seg_) =
+    (T_CInterface (let _lhsOpp :: PP_Doc
+                       _segIpp :: PP_Doc
+                       _segIppL :: ([PP_Doc])
+                       -- "./src-ag/CodeSyntaxDump.ag"(line 57, column 21)
+                       _lhsOpp =
+                           ({-# LINE 57 "./src-ag/CodeSyntaxDump.ag" #-}
+                            ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList _segIppL] []
+                            {-# LINE 156 "dist/build/CodeSyntaxDump.hs" #-}
+                            )
+                       ( _segIpp,_segIppL) =
+                           seg_
+                   in  ( _lhsOpp)))
+-- CNonterminal ------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CNonterminal:
+         child nt             : {NontermIdent}
+         child params         : {[Identifier]}
+         child inh            : {Attributes}
+         child syn            : {Attributes}
+         child prods          : CProductions 
+         child inter          : CInterface 
+-}
+-- cata
+sem_CNonterminal :: CNonterminal ->
+                    T_CNonterminal
+sem_CNonterminal (CNonterminal _nt _params _inh _syn _prods _inter) =
+    (sem_CNonterminal_CNonterminal _nt _params _inh _syn (sem_CProductions _prods) (sem_CInterface _inter))
+-- semantic domain
+newtype T_CNonterminal = T_CNonterminal (( PP_Doc))
+data Inh_CNonterminal = Inh_CNonterminal {}
+data Syn_CNonterminal = Syn_CNonterminal {pp_Syn_CNonterminal :: PP_Doc}
+wrap_CNonterminal :: T_CNonterminal ->
+                     Inh_CNonterminal ->
+                     Syn_CNonterminal
+wrap_CNonterminal (T_CNonterminal sem) (Inh_CNonterminal) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CNonterminal _lhsOpp))
+sem_CNonterminal_CNonterminal :: NontermIdent ->
+                                 ([Identifier]) ->
+                                 Attributes ->
+                                 Attributes ->
+                                 T_CProductions ->
+                                 T_CInterface ->
+                                 T_CNonterminal
+sem_CNonterminal_CNonterminal nt_ params_ inh_ syn_ (T_CProductions prods_) (T_CInterface inter_) =
+    (T_CNonterminal (let _lhsOpp :: PP_Doc
+                         _prodsIpp :: PP_Doc
+                         _prodsIppL :: ([PP_Doc])
+                         _interIpp :: PP_Doc
+                         -- "./src-ag/CodeSyntaxDump.ag"(line 54, column 33)
+                         _lhsOpp =
+                             ({-# LINE 54 "./src-ag/CodeSyntaxDump.ag" #-}
+                              ppNestInfo ["CNonterminal","CNonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL, ppF "inter" _interIpp] []
+                              {-# LINE 206 "dist/build/CodeSyntaxDump.hs" #-}
+                              )
+                         ( _prodsIpp,_prodsIppL) =
+                             prods_
+                         ( _interIpp) =
+                             inter_
+                     in  ( _lhsOpp)))
+-- CNonterminals -----------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         pp                   : PP_Doc
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : CNonterminal 
+         child tl             : CNonterminals 
+      alternative Nil:
+-}
+-- cata
+sem_CNonterminals :: CNonterminals ->
+                     T_CNonterminals
+sem_CNonterminals list =
+    (Prelude.foldr sem_CNonterminals_Cons sem_CNonterminals_Nil (Prelude.map sem_CNonterminal list))
+-- semantic domain
+newtype T_CNonterminals = T_CNonterminals (( PP_Doc,([PP_Doc])))
+data Inh_CNonterminals = Inh_CNonterminals {}
+data Syn_CNonterminals = Syn_CNonterminals {pp_Syn_CNonterminals :: PP_Doc,ppL_Syn_CNonterminals :: ([PP_Doc])}
+wrap_CNonterminals :: T_CNonterminals ->
+                      Inh_CNonterminals ->
+                      Syn_CNonterminals
+wrap_CNonterminals (T_CNonterminals sem) (Inh_CNonterminals) =
+    (let ( _lhsOpp,_lhsOppL) = sem
+     in  (Syn_CNonterminals _lhsOpp _lhsOppL))
+sem_CNonterminals_Cons :: T_CNonterminal ->
+                          T_CNonterminals ->
+                          T_CNonterminals
+sem_CNonterminals_Cons (T_CNonterminal hd_) (T_CNonterminals tl_) =
+    (T_CNonterminals (let _lhsOppL :: ([PP_Doc])
+                          _lhsOpp :: PP_Doc
+                          _hdIpp :: PP_Doc
+                          _tlIpp :: PP_Doc
+                          _tlIppL :: ([PP_Doc])
+                          -- "./src-ag/CodeSyntaxDump.ag"(line 102, column 33)
+                          _lhsOppL =
+                              ({-# LINE 102 "./src-ag/CodeSyntaxDump.ag" #-}
+                               _hdIpp : _tlIppL
+                               {-# LINE 253 "dist/build/CodeSyntaxDump.hs" #-}
+                               )
+                          -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                          _lhsOpp =
+                              ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                               _hdIpp >-< _tlIpp
+                               {-# LINE 259 "dist/build/CodeSyntaxDump.hs" #-}
+                               )
+                          ( _hdIpp) =
+                              hd_
+                          ( _tlIpp,_tlIppL) =
+                              tl_
+                      in  ( _lhsOpp,_lhsOppL)))
+sem_CNonterminals_Nil :: T_CNonterminals
+sem_CNonterminals_Nil =
+    (T_CNonterminals (let _lhsOppL :: ([PP_Doc])
+                          _lhsOpp :: PP_Doc
+                          -- "./src-ag/CodeSyntaxDump.ag"(line 103, column 33)
+                          _lhsOppL =
+                              ({-# LINE 103 "./src-ag/CodeSyntaxDump.ag" #-}
+                               []
+                               {-# LINE 274 "dist/build/CodeSyntaxDump.hs" #-}
+                               )
+                          -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                          _lhsOpp =
+                              ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                               empty
+                               {-# LINE 280 "dist/build/CodeSyntaxDump.hs" #-}
+                               )
+                      in  ( _lhsOpp,_lhsOppL)))
+-- CProduction -------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CProduction:
+         child con            : {ConstructorIdent}
+         child visits         : CVisits 
+         child children       : {[(Identifier,Type,ChildKind)]}
+         child terminals      : {[Identifier]}
+-}
+-- cata
+sem_CProduction :: CProduction ->
+                   T_CProduction
+sem_CProduction (CProduction _con _visits _children _terminals) =
+    (sem_CProduction_CProduction _con (sem_CVisits _visits) _children _terminals)
+-- semantic domain
+newtype T_CProduction = T_CProduction (( PP_Doc))
+data Inh_CProduction = Inh_CProduction {}
+data Syn_CProduction = Syn_CProduction {pp_Syn_CProduction :: PP_Doc}
+wrap_CProduction :: T_CProduction ->
+                    Inh_CProduction ->
+                    Syn_CProduction
+wrap_CProduction (T_CProduction sem) (Inh_CProduction) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CProduction _lhsOpp))
+sem_CProduction_CProduction :: ConstructorIdent ->
+                               T_CVisits ->
+                               ([(Identifier,Type,ChildKind)]) ->
+                               ([Identifier]) ->
+                               T_CProduction
+sem_CProduction_CProduction con_ (T_CVisits visits_) children_ terminals_ =
+    (T_CProduction (let _lhsOpp :: PP_Doc
+                        _visitsIpp :: PP_Doc
+                        _visitsIppL :: ([PP_Doc])
+                        -- "./src-ag/CodeSyntaxDump.ag"(line 63, column 17)
+                        _lhsOpp =
+                            ({-# LINE 63 "./src-ag/CodeSyntaxDump.ag" #-}
+                             ppNestInfo ["CProduction","CProduction"] [pp con_] [ppF "visits" $ ppVList _visitsIppL, ppF "children" $ ppVList (map ppChild children_),ppF "terminals" $ ppVList (map ppShow terminals_)] []
+                             {-# LINE 323 "dist/build/CodeSyntaxDump.hs" #-}
+                             )
+                        ( _visitsIpp,_visitsIppL) =
+                            visits_
+                    in  ( _lhsOpp)))
+-- CProductions ------------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         pp                   : PP_Doc
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : CProduction 
+         child tl             : CProductions 
+      alternative Nil:
+-}
+-- cata
+sem_CProductions :: CProductions ->
+                    T_CProductions
+sem_CProductions list =
+    (Prelude.foldr sem_CProductions_Cons sem_CProductions_Nil (Prelude.map sem_CProduction list))
+-- semantic domain
+newtype T_CProductions = T_CProductions (( PP_Doc,([PP_Doc])))
+data Inh_CProductions = Inh_CProductions {}
+data Syn_CProductions = Syn_CProductions {pp_Syn_CProductions :: PP_Doc,ppL_Syn_CProductions :: ([PP_Doc])}
+wrap_CProductions :: T_CProductions ->
+                     Inh_CProductions ->
+                     Syn_CProductions
+wrap_CProductions (T_CProductions sem) (Inh_CProductions) =
+    (let ( _lhsOpp,_lhsOppL) = sem
+     in  (Syn_CProductions _lhsOpp _lhsOppL))
+sem_CProductions_Cons :: T_CProduction ->
+                         T_CProductions ->
+                         T_CProductions
+sem_CProductions_Cons (T_CProduction hd_) (T_CProductions tl_) =
+    (T_CProductions (let _lhsOppL :: ([PP_Doc])
+                         _lhsOpp :: PP_Doc
+                         _hdIpp :: PP_Doc
+                         _tlIpp :: PP_Doc
+                         _tlIppL :: ([PP_Doc])
+                         -- "./src-ag/CodeSyntaxDump.ag"(line 94, column 33)
+                         _lhsOppL =
+                             ({-# LINE 94 "./src-ag/CodeSyntaxDump.ag" #-}
+                              _hdIpp : _tlIppL
+                              {-# LINE 368 "dist/build/CodeSyntaxDump.hs" #-}
+                              )
+                         -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                         _lhsOpp =
+                             ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                              _hdIpp >-< _tlIpp
+                              {-# LINE 374 "dist/build/CodeSyntaxDump.hs" #-}
+                              )
+                         ( _hdIpp) =
+                             hd_
+                         ( _tlIpp,_tlIppL) =
+                             tl_
+                     in  ( _lhsOpp,_lhsOppL)))
+sem_CProductions_Nil :: T_CProductions
+sem_CProductions_Nil =
+    (T_CProductions (let _lhsOppL :: ([PP_Doc])
+                         _lhsOpp :: PP_Doc
+                         -- "./src-ag/CodeSyntaxDump.ag"(line 95, column 33)
+                         _lhsOppL =
+                             ({-# LINE 95 "./src-ag/CodeSyntaxDump.ag" #-}
+                              []
+                              {-# LINE 389 "dist/build/CodeSyntaxDump.hs" #-}
+                              )
+                         -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                         _lhsOpp =
+                             ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                              empty
+                              {-# LINE 395 "dist/build/CodeSyntaxDump.hs" #-}
+                              )
+                     in  ( _lhsOpp,_lhsOppL)))
+-- CRule -------------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CRule:
+         child name           : {Identifier}
+         child isIn           : {Bool}
+         child hasCode        : {Bool}
+         child nt             : {NontermIdent}
+         child con            : {ConstructorIdent}
+         child field          : {Identifier}
+         child childnt        : {Maybe NontermIdent}
+         child tp             : {Maybe Type}
+         child pattern        : Pattern 
+         child rhs            : {[String]}
+         child defines        : {Map Int (Identifier,Identifier,Maybe Type)}
+         child owrt           : {Bool}
+         child origin         : {String}
+         child uses           : {Set (Identifier, Identifier)}
+         child explicit       : {Bool}
+         child mbNamed        : {Maybe Identifier}
+      alternative CChildVisit:
+         child name           : {Identifier}
+         child nt             : {NontermIdent}
+         child nr             : {Int}
+         child inh            : {Attributes}
+         child syn            : {Attributes}
+         child isLast         : {Bool}
+-}
+-- cata
+sem_CRule :: CRule ->
+             T_CRule
+sem_CRule (CRule _name _isIn _hasCode _nt _con _field _childnt _tp _pattern _rhs _defines _owrt _origin _uses _explicit _mbNamed) =
+    (sem_CRule_CRule _name _isIn _hasCode _nt _con _field _childnt _tp (sem_Pattern _pattern) _rhs _defines _owrt _origin _uses _explicit _mbNamed)
+sem_CRule (CChildVisit _name _nt _nr _inh _syn _isLast) =
+    (sem_CRule_CChildVisit _name _nt _nr _inh _syn _isLast)
+-- semantic domain
+newtype T_CRule = T_CRule (( PP_Doc))
+data Inh_CRule = Inh_CRule {}
+data Syn_CRule = Syn_CRule {pp_Syn_CRule :: PP_Doc}
+wrap_CRule :: T_CRule ->
+              Inh_CRule ->
+              Syn_CRule
+wrap_CRule (T_CRule sem) (Inh_CRule) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CRule _lhsOpp))
+sem_CRule_CRule :: Identifier ->
+                   Bool ->
+                   Bool ->
+                   NontermIdent ->
+                   ConstructorIdent ->
+                   Identifier ->
+                   (Maybe NontermIdent) ->
+                   (Maybe Type) ->
+                   T_Pattern ->
+                   ([String]) ->
+                   (Map Int (Identifier,Identifier,Maybe Type)) ->
+                   Bool ->
+                   String ->
+                   (Set (Identifier, Identifier)) ->
+                   Bool ->
+                   (Maybe Identifier) ->
+                   T_CRule
+sem_CRule_CRule name_ isIn_ hasCode_ nt_ con_ field_ childnt_ tp_ (T_Pattern pattern_) rhs_ defines_ owrt_ origin_ uses_ explicit_ mbNamed_ =
+    (T_CRule (let _lhsOpp :: PP_Doc
+                  _patternIcopy :: Pattern
+                  _patternIpp :: PP_Doc
+                  -- "./src-ag/CodeSyntaxDump.ag"(line 69, column 33)
+                  _lhsOpp =
+                      ({-# LINE 69 "./src-ag/CodeSyntaxDump.ag" #-}
+                       ppNestInfo ["CRule","CRule"] [pp name_] [ppF "isIn" $ ppBool isIn_, ppF "hasCode" $ ppBool hasCode_, ppF "nt" $ pp nt_, ppF "con" $ pp con_, ppF "field" $ pp field_, ppF "childnt" $ ppMaybeShow childnt_, ppF "tp" $ ppMaybeShow tp_, ppF "pattern" $ if isIn_ then pp "<no pat because In>" else _patternIpp, ppF "rhs" $ ppStrings rhs_, ppF "defines" $ ppVertexMap defines_, ppF "owrt" $ ppBool owrt_, ppF "origin" $ pp origin_] []
+                       {-# LINE 471 "dist/build/CodeSyntaxDump.hs" #-}
+                       )
+                  ( _patternIcopy,_patternIpp) =
+                      pattern_
+              in  ( _lhsOpp)))
+sem_CRule_CChildVisit :: Identifier ->
+                         NontermIdent ->
+                         Int ->
+                         Attributes ->
+                         Attributes ->
+                         Bool ->
+                         T_CRule
+sem_CRule_CChildVisit name_ nt_ nr_ inh_ syn_ isLast_ =
+    (T_CRule (let _lhsOpp :: PP_Doc
+                  -- "./src-ag/CodeSyntaxDump.ag"(line 70, column 21)
+                  _lhsOpp =
+                      ({-# LINE 70 "./src-ag/CodeSyntaxDump.ag" #-}
+                       ppNestInfo ["CRule","CChildVisit"] [pp name_] [ppF "nt" $ pp nt_, ppF "nr" $ ppShow nr_, ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "last" $ ppBool isLast_] []
+                       {-# LINE 489 "dist/build/CodeSyntaxDump.hs" #-}
+                       )
+              in  ( _lhsOpp)))
+-- CSegment ----------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CSegment:
+         child inh            : {Attributes}
+         child syn            : {Attributes}
+-}
+-- cata
+sem_CSegment :: CSegment ->
+                T_CSegment
+sem_CSegment (CSegment _inh _syn) =
+    (sem_CSegment_CSegment _inh _syn)
+-- semantic domain
+newtype T_CSegment = T_CSegment (( PP_Doc))
+data Inh_CSegment = Inh_CSegment {}
+data Syn_CSegment = Syn_CSegment {pp_Syn_CSegment :: PP_Doc}
+wrap_CSegment :: T_CSegment ->
+                 Inh_CSegment ->
+                 Syn_CSegment
+wrap_CSegment (T_CSegment sem) (Inh_CSegment) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CSegment _lhsOpp))
+sem_CSegment_CSegment :: Attributes ->
+                         Attributes ->
+                         T_CSegment
+sem_CSegment_CSegment inh_ syn_ =
+    (T_CSegment (let _lhsOpp :: PP_Doc
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 60, column 21)
+                     _lhsOpp =
+                         ({-# LINE 60 "./src-ag/CodeSyntaxDump.ag" #-}
+                          ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_] []
+                          {-# LINE 526 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                 in  ( _lhsOpp)))
+-- CSegments ---------------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         pp                   : PP_Doc
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : CSegment 
+         child tl             : CSegments 
+      alternative Nil:
+-}
+-- cata
+sem_CSegments :: CSegments ->
+                 T_CSegments
+sem_CSegments list =
+    (Prelude.foldr sem_CSegments_Cons sem_CSegments_Nil (Prelude.map sem_CSegment list))
+-- semantic domain
+newtype T_CSegments = T_CSegments (( PP_Doc,([PP_Doc])))
+data Inh_CSegments = Inh_CSegments {}
+data Syn_CSegments = Syn_CSegments {pp_Syn_CSegments :: PP_Doc,ppL_Syn_CSegments :: ([PP_Doc])}
+wrap_CSegments :: T_CSegments ->
+                  Inh_CSegments ->
+                  Syn_CSegments
+wrap_CSegments (T_CSegments sem) (Inh_CSegments) =
+    (let ( _lhsOpp,_lhsOppL) = sem
+     in  (Syn_CSegments _lhsOpp _lhsOppL))
+sem_CSegments_Cons :: T_CSegment ->
+                      T_CSegments ->
+                      T_CSegments
+sem_CSegments_Cons (T_CSegment hd_) (T_CSegments tl_) =
+    (T_CSegments (let _lhsOppL :: ([PP_Doc])
+                      _lhsOpp :: PP_Doc
+                      _hdIpp :: PP_Doc
+                      _tlIpp :: PP_Doc
+                      _tlIppL :: ([PP_Doc])
+                      -- "./src-ag/CodeSyntaxDump.ag"(line 98, column 33)
+                      _lhsOppL =
+                          ({-# LINE 98 "./src-ag/CodeSyntaxDump.ag" #-}
+                           _hdIpp : _tlIppL
+                           {-# LINE 569 "dist/build/CodeSyntaxDump.hs" #-}
+                           )
+                      -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                      _lhsOpp =
+                          ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                           _hdIpp >-< _tlIpp
+                           {-# LINE 575 "dist/build/CodeSyntaxDump.hs" #-}
+                           )
+                      ( _hdIpp) =
+                          hd_
+                      ( _tlIpp,_tlIppL) =
+                          tl_
+                  in  ( _lhsOpp,_lhsOppL)))
+sem_CSegments_Nil :: T_CSegments
+sem_CSegments_Nil =
+    (T_CSegments (let _lhsOppL :: ([PP_Doc])
+                      _lhsOpp :: PP_Doc
+                      -- "./src-ag/CodeSyntaxDump.ag"(line 99, column 33)
+                      _lhsOppL =
+                          ({-# LINE 99 "./src-ag/CodeSyntaxDump.ag" #-}
+                           []
+                           {-# LINE 590 "dist/build/CodeSyntaxDump.hs" #-}
+                           )
+                      -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                      _lhsOpp =
+                          ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                           empty
+                           {-# LINE 596 "dist/build/CodeSyntaxDump.hs" #-}
+                           )
+                  in  ( _lhsOpp,_lhsOppL)))
+-- CVisit ------------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         pp                   : PP_Doc
+   alternatives:
+      alternative CVisit:
+         child inh            : {Attributes}
+         child syn            : {Attributes}
+         child vss            : Sequence 
+         child intra          : Sequence 
+         child ordered        : {Bool}
+-}
+-- cata
+sem_CVisit :: CVisit ->
+              T_CVisit
+sem_CVisit (CVisit _inh _syn _vss _intra _ordered) =
+    (sem_CVisit_CVisit _inh _syn (sem_Sequence _vss) (sem_Sequence _intra) _ordered)
+-- semantic domain
+newtype T_CVisit = T_CVisit (( PP_Doc))
+data Inh_CVisit = Inh_CVisit {}
+data Syn_CVisit = Syn_CVisit {pp_Syn_CVisit :: PP_Doc}
+wrap_CVisit :: T_CVisit ->
+               Inh_CVisit ->
+               Syn_CVisit
+wrap_CVisit (T_CVisit sem) (Inh_CVisit) =
+    (let ( _lhsOpp) = sem
+     in  (Syn_CVisit _lhsOpp))
+sem_CVisit_CVisit :: Attributes ->
+                     Attributes ->
+                     T_Sequence ->
+                     T_Sequence ->
+                     Bool ->
+                     T_CVisit
+sem_CVisit_CVisit inh_ syn_ (T_Sequence vss_) (T_Sequence intra_) ordered_ =
+    (T_CVisit (let _lhsOpp :: PP_Doc
+                   _vssIppL :: ([PP_Doc])
+                   _intraIppL :: ([PP_Doc])
+                   -- "./src-ag/CodeSyntaxDump.ag"(line 66, column 21)
+                   _lhsOpp =
+                       ({-# LINE 66 "./src-ag/CodeSyntaxDump.ag" #-}
+                        ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "sequence" $ ppVList _vssIppL, ppF "intra" $ ppVList _intraIppL, ppF "ordered" $ ppBool ordered_] []
+                        {-# LINE 641 "dist/build/CodeSyntaxDump.hs" #-}
+                        )
+                   ( _vssIppL) =
+                       vss_
+                   ( _intraIppL) =
+                       intra_
+               in  ( _lhsOpp)))
+-- CVisits -----------------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         pp                   : PP_Doc
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : CVisit 
+         child tl             : CVisits 
+      alternative Nil:
+-}
+-- cata
+sem_CVisits :: CVisits ->
+               T_CVisits
+sem_CVisits list =
+    (Prelude.foldr sem_CVisits_Cons sem_CVisits_Nil (Prelude.map sem_CVisit list))
+-- semantic domain
+newtype T_CVisits = T_CVisits (( PP_Doc,([PP_Doc])))
+data Inh_CVisits = Inh_CVisits {}
+data Syn_CVisits = Syn_CVisits {pp_Syn_CVisits :: PP_Doc,ppL_Syn_CVisits :: ([PP_Doc])}
+wrap_CVisits :: T_CVisits ->
+                Inh_CVisits ->
+                Syn_CVisits
+wrap_CVisits (T_CVisits sem) (Inh_CVisits) =
+    (let ( _lhsOpp,_lhsOppL) = sem
+     in  (Syn_CVisits _lhsOpp _lhsOppL))
+sem_CVisits_Cons :: T_CVisit ->
+                    T_CVisits ->
+                    T_CVisits
+sem_CVisits_Cons (T_CVisit hd_) (T_CVisits tl_) =
+    (T_CVisits (let _lhsOppL :: ([PP_Doc])
+                    _lhsOpp :: PP_Doc
+                    _hdIpp :: PP_Doc
+                    _tlIpp :: PP_Doc
+                    _tlIppL :: ([PP_Doc])
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 90, column 33)
+                    _lhsOppL =
+                        ({-# LINE 90 "./src-ag/CodeSyntaxDump.ag" #-}
+                         _hdIpp : _tlIppL
+                         {-# LINE 688 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                    _lhsOpp =
+                        ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                         _hdIpp >-< _tlIpp
+                         {-# LINE 694 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    ( _hdIpp) =
+                        hd_
+                    ( _tlIpp,_tlIppL) =
+                        tl_
+                in  ( _lhsOpp,_lhsOppL)))
+sem_CVisits_Nil :: T_CVisits
+sem_CVisits_Nil =
+    (T_CVisits (let _lhsOppL :: ([PP_Doc])
+                    _lhsOpp :: PP_Doc
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 91, column 33)
+                    _lhsOppL =
+                        ({-# LINE 91 "./src-ag/CodeSyntaxDump.ag" #-}
+                         []
+                         {-# LINE 709 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                    _lhsOpp =
+                        ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                         empty
+                         {-# LINE 715 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                in  ( _lhsOpp,_lhsOppL)))
+-- Pattern -----------------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         copy                 : Pattern 
+         pp                   : PP_Doc
+   alternatives:
+      alternative Constr:
+         child name           : {ConstructorIdent}
+         child pats           : Patterns 
+         visit 0:
+            local copy        : _
+      alternative Product:
+         child pos            : {Pos}
+         child pats           : Patterns 
+         visit 0:
+            local copy        : _
+      alternative Alias:
+         child field          : {Identifier}
+         child attr           : {Identifier}
+         child pat            : Pattern 
+         visit 0:
+            local copy        : _
+      alternative Irrefutable:
+         child pat            : Pattern 
+         visit 0:
+            local copy        : _
+      alternative Underscore:
+         child pos            : {Pos}
+         visit 0:
+            local copy        : _
+-}
+-- cata
+sem_Pattern :: Pattern ->
+               T_Pattern
+sem_Pattern (Constr _name _pats) =
+    (sem_Pattern_Constr _name (sem_Patterns _pats))
+sem_Pattern (Product _pos _pats) =
+    (sem_Pattern_Product _pos (sem_Patterns _pats))
+sem_Pattern (Alias _field _attr _pat) =
+    (sem_Pattern_Alias _field _attr (sem_Pattern _pat))
+sem_Pattern (Irrefutable _pat) =
+    (sem_Pattern_Irrefutable (sem_Pattern _pat))
+sem_Pattern (Underscore _pos) =
+    (sem_Pattern_Underscore _pos)
+-- semantic domain
+newtype T_Pattern = T_Pattern (( Pattern,PP_Doc))
+data Inh_Pattern = Inh_Pattern {}
+data Syn_Pattern = Syn_Pattern {copy_Syn_Pattern :: Pattern,pp_Syn_Pattern :: PP_Doc}
+wrap_Pattern :: T_Pattern ->
+                Inh_Pattern ->
+                Syn_Pattern
+wrap_Pattern (T_Pattern sem) (Inh_Pattern) =
+    (let ( _lhsOcopy,_lhsOpp) = sem
+     in  (Syn_Pattern _lhsOcopy _lhsOpp))
+sem_Pattern_Constr :: ConstructorIdent ->
+                      T_Patterns ->
+                      T_Pattern
+sem_Pattern_Constr name_ (T_Patterns pats_) =
+    (T_Pattern (let _lhsOpp :: PP_Doc
+                    _lhsOcopy :: Pattern
+                    _patsIcopy :: Patterns
+                    _patsIpp :: PP_Doc
+                    _patsIppL :: ([PP_Doc])
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 73, column 33)
+                    _lhsOpp =
+                        ({-# LINE 73 "./src-ag/CodeSyntaxDump.ag" #-}
+                         ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
+                         {-# LINE 786 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _copy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         Constr name_ _patsIcopy
+                         {-# LINE 792 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _lhsOcopy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         _copy
+                         {-# LINE 798 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    ( _patsIcopy,_patsIpp,_patsIppL) =
+                        pats_
+                in  ( _lhsOcopy,_lhsOpp)))
+sem_Pattern_Product :: Pos ->
+                       T_Patterns ->
+                       T_Pattern
+sem_Pattern_Product pos_ (T_Patterns pats_) =
+    (T_Pattern (let _lhsOpp :: PP_Doc
+                    _lhsOcopy :: Pattern
+                    _patsIcopy :: Patterns
+                    _patsIpp :: PP_Doc
+                    _patsIppL :: ([PP_Doc])
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 74, column 33)
+                    _lhsOpp =
+                        ({-# LINE 74 "./src-ag/CodeSyntaxDump.ag" #-}
+                         ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
+                         {-# LINE 816 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _copy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         Product pos_ _patsIcopy
+                         {-# LINE 822 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _lhsOcopy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         _copy
+                         {-# LINE 828 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    ( _patsIcopy,_patsIpp,_patsIppL) =
+                        pats_
+                in  ( _lhsOcopy,_lhsOpp)))
+sem_Pattern_Alias :: Identifier ->
+                     Identifier ->
+                     T_Pattern ->
+                     T_Pattern
+sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
+    (T_Pattern (let _lhsOpp :: PP_Doc
+                    _lhsOcopy :: Pattern
+                    _patIcopy :: Pattern
+                    _patIpp :: PP_Doc
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 75, column 33)
+                    _lhsOpp =
+                        ({-# LINE 75 "./src-ag/CodeSyntaxDump.ag" #-}
+                         ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
+                         {-# LINE 846 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _copy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         Alias field_ attr_ _patIcopy
+                         {-# LINE 852 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _lhsOcopy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         _copy
+                         {-# LINE 858 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    ( _patIcopy,_patIpp) =
+                        pat_
+                in  ( _lhsOcopy,_lhsOpp)))
+sem_Pattern_Irrefutable :: T_Pattern ->
+                           T_Pattern
+sem_Pattern_Irrefutable (T_Pattern pat_) =
+    (T_Pattern (let _lhsOpp :: PP_Doc
+                    _lhsOcopy :: Pattern
+                    _patIcopy :: Pattern
+                    _patIpp :: PP_Doc
+                    -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                    _lhsOpp =
+                        ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                         _patIpp
+                         {-# LINE 874 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _copy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         Irrefutable _patIcopy
+                         {-# LINE 880 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _lhsOcopy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         _copy
+                         {-# LINE 886 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    ( _patIcopy,_patIpp) =
+                        pat_
+                in  ( _lhsOcopy,_lhsOpp)))
+sem_Pattern_Underscore :: Pos ->
+                          T_Pattern
+sem_Pattern_Underscore pos_ =
+    (T_Pattern (let _lhsOpp :: PP_Doc
+                    _lhsOcopy :: Pattern
+                    -- "./src-ag/CodeSyntaxDump.ag"(line 76, column 25)
+                    _lhsOpp =
+                        ({-# LINE 76 "./src-ag/CodeSyntaxDump.ag" #-}
+                         ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
+                         {-# LINE 900 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _copy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         Underscore pos_
+                         {-# LINE 906 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                    -- self rule
+                    _lhsOcopy =
+                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                         _copy
+                         {-# LINE 912 "dist/build/CodeSyntaxDump.hs" #-}
+                         )
+                in  ( _lhsOcopy,_lhsOpp)))
+-- Patterns ----------------------------------------------------
+{-
+   visit 0:
+      synthesized attributes:
+         copy                 : Patterns 
+         pp                   : PP_Doc
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : Pattern 
+         child tl             : Patterns 
+         visit 0:
+            local copy        : _
+      alternative Nil:
+         visit 0:
+            local copy        : _
+-}
+-- cata
+sem_Patterns :: Patterns ->
+                T_Patterns
+sem_Patterns list =
+    (Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list))
+-- semantic domain
+newtype T_Patterns = T_Patterns (( Patterns,PP_Doc,([PP_Doc])))
+data Inh_Patterns = Inh_Patterns {}
+data Syn_Patterns = Syn_Patterns {copy_Syn_Patterns :: Patterns,pp_Syn_Patterns :: PP_Doc,ppL_Syn_Patterns :: ([PP_Doc])}
+wrap_Patterns :: T_Patterns ->
+                 Inh_Patterns ->
+                 Syn_Patterns
+wrap_Patterns (T_Patterns sem) (Inh_Patterns) =
+    (let ( _lhsOcopy,_lhsOpp,_lhsOppL) = sem
+     in  (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL))
+sem_Patterns_Cons :: T_Pattern ->
+                     T_Patterns ->
+                     T_Patterns
+sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
+    (T_Patterns (let _lhsOppL :: ([PP_Doc])
+                     _lhsOpp :: PP_Doc
+                     _lhsOcopy :: Patterns
+                     _hdIcopy :: Pattern
+                     _hdIpp :: PP_Doc
+                     _tlIcopy :: Patterns
+                     _tlIpp :: PP_Doc
+                     _tlIppL :: ([PP_Doc])
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 82, column 33)
+                     _lhsOppL =
+                         ({-# LINE 82 "./src-ag/CodeSyntaxDump.ag" #-}
+                          _hdIpp : _tlIppL
+                          {-# LINE 963 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                     _lhsOpp =
+                         ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                          _hdIpp >-< _tlIpp
+                          {-# LINE 969 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- self rule
+                     _copy =
+                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                          (:) _hdIcopy _tlIcopy
+                          {-# LINE 975 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- self rule
+                     _lhsOcopy =
+                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                          _copy
+                          {-# LINE 981 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     ( _hdIcopy,_hdIpp) =
+                         hd_
+                     ( _tlIcopy,_tlIpp,_tlIppL) =
+                         tl_
+                 in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
+sem_Patterns_Nil :: T_Patterns
+sem_Patterns_Nil =
+    (T_Patterns (let _lhsOppL :: ([PP_Doc])
+                     _lhsOpp :: PP_Doc
+                     _lhsOcopy :: Patterns
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 83, column 33)
+                     _lhsOppL =
+                         ({-# LINE 83 "./src-ag/CodeSyntaxDump.ag" #-}
+                          []
+                          {-# LINE 997 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- use rule "./src-ag/CodeSyntaxDump.ag"(line 44, column 40)
+                     _lhsOpp =
+                         ({-# LINE 44 "./src-ag/CodeSyntaxDump.ag" #-}
+                          empty
+                          {-# LINE 1003 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- self rule
+                     _copy =
+                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                          []
+                          {-# LINE 1009 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     -- self rule
+                     _lhsOcopy =
+                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
+                          _copy
+                          {-# LINE 1015 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                 in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
+-- Sequence ----------------------------------------------------
+{-
+   visit 0:
+      synthesized attribute:
+         ppL                  : [PP_Doc]
+   alternatives:
+      alternative Cons:
+         child hd             : CRule 
+         child tl             : Sequence 
+      alternative Nil:
+-}
+-- cata
+sem_Sequence :: Sequence ->
+                T_Sequence
+sem_Sequence list =
+    (Prelude.foldr sem_Sequence_Cons sem_Sequence_Nil (Prelude.map sem_CRule list))
+-- semantic domain
+newtype T_Sequence = T_Sequence (( ([PP_Doc])))
+data Inh_Sequence = Inh_Sequence {}
+data Syn_Sequence = Syn_Sequence {ppL_Syn_Sequence :: ([PP_Doc])}
+wrap_Sequence :: T_Sequence ->
+                 Inh_Sequence ->
+                 Syn_Sequence
+wrap_Sequence (T_Sequence sem) (Inh_Sequence) =
+    (let ( _lhsOppL) = sem
+     in  (Syn_Sequence _lhsOppL))
+sem_Sequence_Cons :: T_CRule ->
+                     T_Sequence ->
+                     T_Sequence
+sem_Sequence_Cons (T_CRule hd_) (T_Sequence tl_) =
+    (T_Sequence (let _lhsOppL :: ([PP_Doc])
+                     _hdIpp :: PP_Doc
+                     _tlIppL :: ([PP_Doc])
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 86, column 33)
+                     _lhsOppL =
+                         ({-# LINE 86 "./src-ag/CodeSyntaxDump.ag" #-}
+                          _hdIpp : _tlIppL
+                          {-# LINE 1055 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                     ( _hdIpp) =
+                         hd_
+                     ( _tlIppL) =
+                         tl_
+                 in  ( _lhsOppL)))
+sem_Sequence_Nil :: T_Sequence
+sem_Sequence_Nil =
+    (T_Sequence (let _lhsOppL :: ([PP_Doc])
+                     -- "./src-ag/CodeSyntaxDump.ag"(line 87, column 33)
+                     _lhsOppL =
+                         ({-# LINE 87 "./src-ag/CodeSyntaxDump.ag" #-}
+                          []
+                          {-# LINE 1069 "dist/build/CodeSyntaxDump.hs" #-}
+                          )
+                 in  ( _lhsOppL)))
