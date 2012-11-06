@@ -4,7 +4,7 @@ name: uuagc-cabal
 version: 1.0.4.0
 license: BSD3
 license-file: LICENSE
-maintainer: Arie Middelkoop <ariem@cs.uu.nl>
+maintainer: Jeroen Bransen <J.Bransen@uu.nl>
 homepage: http://www.cs.uu.nl/wiki/HUT/WebHome
 description: Cabal plugin for UUAGC
 synopsis: Cabal plugin for the Universiteit Utrecht Attribute Grammar System
