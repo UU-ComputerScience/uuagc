@@ -4,7 +4,7 @@ name: uuagc
 version: 0.9.42.2
 license: BSD3
 license-file: LICENSE
-maintainer: Arie Middelkoop <amiddelk@gmail.com>
+maintainer: Jeroen Bransen <J.Bransen@uu.nl>
 homepage: http://www.cs.uu.nl/wiki/HUT/WebHome
 description: Generates Haskell files from an attribute grammar specification
 synopsis: Attribute Grammar System of Universiteit Utrecht
