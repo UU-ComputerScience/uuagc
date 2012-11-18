@@ -1,6 +1,6 @@
 all: hcar-uuagc.pdf
 
-hcar-uuagc.pdf: hcar.tex hcar.sty UUAG-AU.tex
+hcar-uuagc.pdf: hcar.tex hcar.sty UUAG-JU.tex
 	pdflatex hcar.tex
 	mv hcar.pdf hcar-uuagc.pdf
 
