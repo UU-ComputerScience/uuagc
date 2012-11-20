@@ -96,7 +96,8 @@ uuagcFromString uuagcPath args file = do
   ec <- waitForProcess ph
   case ec of
     ExitSuccess ->
-      do fls <- processContent ppOutput
+      do putErrorInfo ppError
+         fls <- processContent ppOutput
          return (ExitSuccess, fls)
     (ExitFailure exc) ->
       do hPutStrLn stderr (uuagcPath ++ ": " ++ show exc)
