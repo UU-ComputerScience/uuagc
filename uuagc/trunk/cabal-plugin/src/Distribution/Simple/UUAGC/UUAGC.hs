@@ -169,7 +169,9 @@ updateAGFile uuagc classesPath pkgDescr lbi (f, sp) = do
   (ec, fls) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp : (searchPath opts) }) f
   case ec of
     ExitSuccess ->
-      do let flsC = addSearch sp fls
+      do let flsF = addSearch sp fls
+         hasOptions <- doesFileExist defUUAGCOptions
+         let flsC = if hasOptions then defUUAGCOptions : flsF else flsF
          when ((not.null) flsC) $ do
             flsmt <- mapM getModificationTime flsC
             let maxModified = maximum flsmt
