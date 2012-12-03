@@ -46,7 +46,7 @@ stringOpt get opt strArg = let oldVal = get noOptions
                                else []
 
 mbStringOpt :: (Options -> Maybe String) -> Options -> String -> [String]
-mbStringOpt get opts nm = maybe [] (\s -> [nm, s]) (get opts)
+mbStringOpt get opts nm = maybe [] (\s -> [nm++"="++s]) (get opts)
 
 serializeOption :: Options -> MyOptDescr -> [String]
 serializeOption opt (MyOpt sh ln _ get _) = get opt strArg
@@ -350,7 +350,7 @@ noOptions = Options { moduleName    = NoName
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
 moduleOptGet opts nm = case moduleName opts of
   NoName -> []
-  Name s -> [nm,s]
+  Name s -> [nm++"="++s]
   Default -> [nm]
 dataOpt         opts = opts{dataTypes    = True}
 dataRecOpt      opts = opts{dataRecords  = True}
@@ -415,13 +415,7 @@ lateHigherOrderBindingOpt opts  = opts { lateHigherOrderBinding = True }
 monadicWrappersOpt opts         = opts { monadicWrappers = True }
 referenceOpt opts               = opts { reference = True }
 
-noGroupOpt  att  opts = opts{noGroup  = extract att  ++ noGroup opts}
-  where extract s = case dropWhile isSeparator s of
-                                "" -> []
-                                s' -> w : extract s''
-                                      where (w, s'') =
-                                             break isSeparator  s'
-        isSeparator x = x == ':'
+noGroupOpt  att  opts = opts{noGroup  = wordsBy (== ':') att  ++ noGroup opts}
 noGroupOptGet opts nm = if null (noGroup opts)
                         then []
                         else [nm, intercalate ":" (noGroup opts)]
@@ -450,20 +444,14 @@ noOptimizeOpt opts = opts { noOptimizations = True }
 nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
   set = Set.fromList ids
   ids = map identifier lst
-  lst = split str
-
-  split str | null p   = []
-            | otherwise = p : split ps
-    where (p,ps) = break (== ',') str
+  lst = wordsBy (== ',') str
 nocatasOptGet opts nm = if Set.null (nocatas opts)
                         then []
-                        else [nm, intercalate "," . map getName . Set.toList . nocatas $ opts]
+                        else [nm,intercalate "," . map getName . Set.toList . nocatas $ opts]
 
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}
 outputOptGet opts nm  = concat [ [nm, file] | file <- outputFiles opts]
-searchPathOpt  path  opts = opts{searchPath  = extract path ++ searchPath opts}
-  where extract xs = let (p,ps) = break (\x -> x == ';' || x == ':') xs
-                     in if null p then [] else p : extract ps
+searchPathOpt  path  opts = opts{searchPath  = wordsBy (\x -> x == ';' || x == ':') path ++ searchPath opts}
 searchPathOptGet opts nm = if null (searchPath opts)
                            then []
                            else [nm, intercalate ":" (searchPath opts)]
@@ -488,6 +476,13 @@ condDisableOptimizations opts
            , breadthFirstStrict = False
            }
   | otherwise = opts
+                
+-- | Inverse of intercalate
+wordsBy :: (Char -> Bool) -> String -> [String]
+wordsBy p = f
+  where
+    f s = let (x,xs) = break p s
+          in  if null x then [] else x : f (drop 1 xs)
                 
 -- | Use all parsed options to generate real options
 constructOptions :: [Options -> Options] -> Options
