@@ -21,6 +21,7 @@ module Pretty
   , hv_sp
 
   , empty, text
+  , isEmpty
   )
   where
 

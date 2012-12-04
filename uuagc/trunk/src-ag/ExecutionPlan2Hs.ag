@@ -582,7 +582,7 @@ ppDefor (Haskell s)    = text s
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.t_params = ppSpaced @lhs.params
-                loc.args     = @children.argpats
+                loc.args     = map (\x -> if isEmpty x then empty else "arg_" >|< x) @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
                 loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
@@ -899,7 +899,7 @@ SEM EChild
                                NT _ _ defor -> defor
                                _            -> False
            loc.valcode     = case @kind of
-                               ChildSyntax -> @name >|< "_"
+                               ChildSyntax -> "arg_" >|< @name >|< "_"
                                ChildAttr   -> -- decide if we need to invoke the sem-function under the hood
                                               let prefix | not @loc.isDefor = if lateHigherOrderBinding @lhs.options -- && sepsemmods @lhs.options  -- when sepsemmods is not enabled, the indirection can be optimized away
                                                                               then lateSemNtLabel @loc.nt >#< lhsname True idLateBindingAttr
@@ -1027,7 +1027,11 @@ SEM ERule | ERule
                                          _ -> match
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
-      loc.argExprs     = ppSpaced $ Map.keys @rhs.attrs
+      loc.argExprs     = ppSpaced [ case mbAttr of
+      		       	 	       Nothing -> "arg_" >|< str
+				       _       -> text str
+                                  | (str,mbAttr) <- Map.assocs @rhs.attrs
+                                  ]
       loc.stepcode     = \kind fmtMode -> if kind `compatibleRule` @pure
                                           then Right $ let oper | @pure     = "="
                                                                 | otherwise = "<-"
