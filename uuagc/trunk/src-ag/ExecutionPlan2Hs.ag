@@ -582,7 +582,10 @@ ppDefor (Haskell s)    = text s
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.t_params = ppSpaced @lhs.params
-                loc.args     = map (\x -> if isEmpty x then empty else "arg_" >|< x) @children.argpats
+                loc.args     = map (\x -> case show x of 
+			       	       ""       -> empty 
+				       '!':name -> "!arg_" >|< name
+				       _        ->  "arg_" >|< x) @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
                 loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
