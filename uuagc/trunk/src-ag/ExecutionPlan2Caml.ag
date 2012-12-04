@@ -239,7 +239,8 @@ SEM ENonterminal | ENonterminal
         Nothing -> vlist @prods.datatype_con
 
   loc.moduleDecl
-    = let ppModule expr = "module" >#< modName @nt >#< "="
+    = let ppModule :: PP a => a -> PP_Doc
+      	  ppModule expr = "module" >#< modName @nt >#< "="
       in case lookup @nt @lhs.typeSyns of
            Just (Map k _)  -> ppModule ("Map.Make" >#< pp_parens (ppTp k))
            Just (IntMap _) -> ppModule ("Map.Make ()")
@@ -319,7 +320,8 @@ SEM ENonterminal | ENonterminal
 
   loc.o_sigs  = typeSigs @lhs.options
   loc.sem_nt_body = "match arg with" >-< (indent 2 $ @prods.sem_nt)
-  loc.sem_nt  = let genSem nm body = "and" >#< ppFunDecl @loc.o_sigs (pp @loc.semname) [(pp nm, @loc.sem_param_tp)] @loc.sem_res_tp body
+  loc.sem_nt  = let genSem :: PP a => a -> PP_Doc -> PP_Doc
+  	      	    genSem nm body = "and" >#< ppFunDecl @loc.o_sigs (pp @loc.semname) [(pp nm, @loc.sem_param_tp)] @loc.sem_res_tp body
                     genAlias alts = genSem (pp "arg") (pp "match arg with" >-< (indent 2 $ vlist $ map (pp "|" >#<) alts))
                     genMap v = let body = modName @nt >|< ".fold" >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil" >#< els
                                    els  = case v of
