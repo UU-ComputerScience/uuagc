@@ -1018,6 +1018,7 @@ SEM CProductions
 SEM CProduction
   | CProduction loc.params  = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
                 lhs.dataAlt = let conNm = conname @lhs.o_rename @lhs.nt @con
+			      	  mkFields :: (NontermIdent -> ConstructorIdent -> Identifier -> Code.Type -> a) -> [a]
                                   mkFields f = map (\(nm,t,_) -> f @lhs.nt @con nm (typeToCodeType (Just @lhs.nt) @loc.params $ removeDeforested t)) @loc.firstOrderChildren
                               in if dataRecords @lhs.options
                                  then Record conNm $ mkFields $ toNamedType (strictData @lhs.options)
