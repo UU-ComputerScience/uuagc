@@ -1,15 +1,14 @@
 module CommonTypes (module Options, module CommonTypes) where
 
-import Pretty
 import Options
-import UU.Scanner.Position(Pos,noPos)
+import UU.Scanner.Position(Pos)
 import qualified Data.Map as Map
 import Data.Map(Map)
 import Data.Set(Set)
 import qualified Data.Set as Set
-import Data.Monoid(mappend,mempty,Monoid)
+import Data.Monoid(mappend,Monoid)
 import Data.Char
-
+import Pretty
 
 type Blocks = Map BlockInfo [([String], Pos)]
 type BlockInfo = (BlockKind, Maybe NontermIdent)
@@ -80,6 +79,7 @@ type AttrEnv = ( [Identifier]
                , [(Identifier,Identifier)]
                )
 
+nullIdent, _LHS, _SELF, _LOC, _INST, _INST', _FIELD, _FIRST, _LAST :: Identifier
 nullIdent = identifier ""
 _LHS   = identifier "lhs"
 _SELF  = identifier "SELF"
@@ -120,9 +120,10 @@ cataname ::  String -> Identifier -> String
 cataname pre name = pre++getName name
 
 conname :: Bool -> NontermIdent -> ConstructorIdent -> String
-conname rename nt con | rename =  capitalize (getName nt) ++ "_" ++ getName con
-                      | otherwise = getName con
+conname ren nt con | ren =  capitalize (getName nt) ++ "_" ++ getName con
+                   | otherwise = getName con
 
+capitalize        :: String -> String
 capitalize []     = []
 capitalize (c:cs) = toUpper c : cs
 
@@ -144,6 +145,7 @@ attrname isIn field attr | field == _LOC   = locname attr
                                                            | otherwise = "O"
                                              in '_' : getName field ++ direction ++ getName attr
 
+locname, instname, inst'name, fieldname :: Identifier -> String
 locname v   = '_' : getName v
 instname v  = getName v ++ "_val_"
 inst'name v = getName v ++ "_inst_"
@@ -154,6 +156,7 @@ typeToAGString tp
   = case tp of
       Haskell t     -> t
       NT nt tps for -> formatNonterminalToHaskell for (getName nt) (map (\s -> "{" ++ s ++ "}") tps)
+      Self          -> error "Self type is not allowed here."
 
 removeDeforested :: Type -> Type
 removeDeforested (NT nt args _) = NT nt args False
@@ -174,9 +177,9 @@ typeToHaskellString mbNt params tp
 
 formatNonterminalToHaskell :: Bool -> String -> [String] -> String
 formatNonterminalToHaskell for nt tps
-  = unwords ((prefix ++ nt) : tps)
-  where prefix | for       = "T_"
-               | otherwise = ""
+  = unwords ((pref ++ nt) : tps)
+  where pref | for       = "T_"
+             | otherwise = ""
 
 ind :: String -> String
 ind s = replicate 3 ' ' ++ s
@@ -199,6 +202,7 @@ isSELFNonterminal _                         = False
 
 extractNonterminal :: Type -> NontermIdent
 extractNonterminal (NT n _ _) = n
+extractNonterminal _          = error "Must be NT"
 
 nontermArgs :: Type -> [String]
 nontermArgs tp
@@ -227,15 +231,15 @@ data ChildKind
 closeMap :: Ord a => Map a (Set a) -> Map a (Set a)
 closeMap mp0 = close (Map.keysSet mp0) mp0 where
   rev = revDeps mp0
-  close todo mp0 = case Set.minView todo of
-    Nothing         -> mp0
-    Just (k, todo1) -> let find x = Map.findWithDefault Set.empty x mp0
+  close todo mp0' = case Set.minView todo of
+    Nothing         -> mp0'
+    Just (k, todo1) -> let find x = Map.findWithDefault Set.empty x mp0'
                            vals0  = find k
                            valsL  = Set.toList vals0
                            vals1  = foldr Set.union vals0 $ map find valsL
                        in if Set.size vals0 == Set.size vals1
-                          then close todo1 mp0  -- note: monotonically increasing set
-                          else let mp1   = Map.insert k vals1 mp0
+                          then close todo1 mp0'  -- note: monotonically increasing set
+                          else let mp1   = Map.insert k vals1 mp0'
                                    refs  = Map.findWithDefault Set.empty k rev
                                    todo2 = Set.union refs todo1
                                in close todo2 mp1

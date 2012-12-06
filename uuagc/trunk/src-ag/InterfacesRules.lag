@@ -9,7 +9,6 @@ INCLUDE "Interfaces.ag"
 imports
 {
 import Interfaces
-import SequentialTypes
 import CodeSyntax
 import GrammarInfo
 
@@ -17,16 +16,12 @@ import qualified Data.Sequence as Seq
 import Data.Sequence(Seq)
 import qualified Data.Map as Map
 import Data.Map(Map)
-import qualified Data.Set as Set
-import Data.Set(Set)
-import Data.Tree(Tree(Node))
+import Data.Tree(Tree(Node), Forest)
 import Data.Graph(Graph, dfs, edges, buildG, transposeG)
 import Data.Maybe (fromJust)
-import Data.List (partition,transpose,(\\),nub,intersect, findIndex)
+import Data.List (partition,transpose,(\\),nub,findIndex)
 import Data.Array ((!),inRange,bounds,assocs)
 import Data.Foldable(toList)
-
-import Debug.Trace(trace)
 }
 \end{Code}
 
@@ -155,6 +150,7 @@ SEM  Segment
   |  Segment loc.attredges = concat (zipWith ed @newvertices @groups)
 
 {
+ed :: Vertex -> ([Vertex], [Vertex]) -> [(Vertex, Vertex)]
 ed v (inh,syn) = map (\i -> (i,v)) inh ++ map (\s -> (v,s)) syn
 }
 \end{Code}
@@ -227,11 +223,11 @@ is empty.
 \begin{Code}
 SEM  Segment
   |  Segment  loc.synOccur = gather @lhs.info (@occurAs isLhs @syn)
-              loc.vss =  let hasCode v | inRange (bounds (ruleTable @lhs.info)) v =  getHasCode (ruleTable @lhs.info ! v)
-                                       | otherwise = True
+              loc.vss =  let hasCode' v | inRange (bounds (ruleTable @lhs.info)) v =  getHasCode (ruleTable @lhs.info ! v)
+                                        | otherwise = True
                          in if  null @syn
                                 then replicate (length @lhs.cons) []
-                                else map (filter hasCode . topSort' @lhs.vssGraph) @synOccur
+                                else map (filter hasCode' . topSort' @lhs.vssGraph) @synOccur
 ATTR Segments Segment [ cons : {[ConstructorIdent]} | | ]
 SEM  Interface
   |  Interface seg.cons = @cons
@@ -242,9 +238,13 @@ sorting.
 
 \begin{Code}
 {
+postorder :: Tree a -> [a]
 postorder (Node a ts) = postorderF ts ++ [a]
+postorderF :: Forest a -> [a]
 postorderF = concatMap postorder
+postOrd :: Graph -> [Vertex] -> [Vertex]
 postOrd g = postorderF . dfs g
+topSort' :: Graph -> [Vertex] -> [Vertex]
 topSort' g = postOrd g
 }
 \end{Code}
@@ -281,9 +281,9 @@ repeated in the visit subsequence. We do not want this.
 \begin{Code}
 SEM  Segment
   |  Segment  loc.visitss : {[[Vertex]]}
-              loc.visitss = let  rem :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
-                                 rem prev [] = []
-                                 rem prev (v:vs)
+              loc.visitss = let  rem' :: [(Identifier,Identifier,Maybe Type)] -> [Vertex] -> [Vertex]
+                                 rem' _ [] = []
+                                 rem' prev (v:vs)
                                    | inRange (bounds table) v
                                        = let  cr = table ! v
                                               addV = case findIndex cmp prev of
@@ -293,10 +293,10 @@ SEM  Segment
                                               sameNT (Just (NT ntA _ _)) (Just (NT ntB _ _)) = ntA == ntB
                                               sameNT _          _                            = False
                                               def = Map.elems (getDefines cr)
-                                         in addV (rem (def ++ prev) vs)
-                                   | otherwise = v:rem prev vs
+                                         in addV (rem' (def ++ prev) vs)
+                                   | otherwise = v:rem' prev vs
                                  table = ruleTable @lhs.info
-                            in map (rem []) @visitss'
+                            in map (rem' []) @visitss'
 \end{Code}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -343,6 +343,7 @@ SEM  IRoot
   |  IRoot inters.ddp = buildG (0,@inters.v-1) (map swap (@lhs.dpr ++ @newedges))
 
 {
+swap :: (a,b) -> (b,a)
 swap (a,b) = (b,a)
 }
 
@@ -419,11 +420,11 @@ SEM  Segment [ | | seg : CSegment
 {
 ccv :: Identifier -> NontermIdent -> Int -> CInterfaceMap -> CRule
 ccv name nt n table
-  =  CChildVisit name nt n inh syn last
+  =  CChildVisit name nt n inh syn lst
      where  CInterface segs = Map.findWithDefault (error ("InterfacesRules::ccv::interfaces not in table for nt: " ++ show nt)) nt table
             (seg:remain) = drop n segs
             CSegment inh syn = seg
-            last = null remain
+            lst = null remain
 }
 \end{Code}
 

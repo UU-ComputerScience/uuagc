@@ -2,9 +2,8 @@
 module Ag (uuagcLib, uuagcExe,compile) where
 
 import System.Environment            (getArgs, getProgName)
-import System.Exit                   (exitFailure)
 import System.Console.GetOpt         (usageInfo)
-import Data.List                     (isSuffixOf,nub,partition)
+import Data.List                     (partition)
 import Control.Monad                 (zipWithM_)
 import Data.Maybe
 import System.FilePath
@@ -43,7 +42,7 @@ import qualified AG2AspectAG as AspectAGDump (pragmaAspectAG, sem_Grammar,  wrap
 import Options
 import Version       (banner)
 import Parser        (parseAG, depsAG, parseAGI)
-import ErrorMessages (Error(ParserError), Errors)
+import ErrorMessages (Error(ParserError))
 import CommonTypes
 import ATermWrite
 
@@ -51,7 +50,7 @@ import ATermWrite
 import System.Exit (ExitCode(..), exitWith)
 
 uuagcLib :: [String] -> FilePath -> IO (ExitCode, [FilePath])
-uuagcLib args file
+uuagcLib args fileP
   = do let (flags,_,errs) = getOptions args
        if showVersion flags || showHelp flags
          then do putStrLn "Cannot display help or version in library mode."
@@ -61,9 +60,9 @@ uuagcLib args file
                       mapM_ putStrLn errs
                       return (ExitFailure 2, [])
               else if genFileDeps flags
-                   then do deps <- getDeps flags [file]
+                   then do deps <- getDeps flags [fileP]
                            return (ExitSuccess, deps)
-                   else do compile flags file (head $ outputFiles flags++repeat "")
+                   else do compile flags fileP (head $ outputFiles flags++repeat "")
                            return (ExitSuccess, [])
 
 -- Executable version
@@ -383,16 +382,16 @@ compile flags input output
                     -- HACK: write statistics
                     let nAuto = Pass3.nAutoRules_Syn_Grammar output3
                         nExpl = Pass3.nExplicitRules_Syn_Grammar output3
-                        line  = inputfile ++ "," ++ show nAuto ++ "," ++ show nExpl ++ "\r\n"
+                        line' = inputfile ++ "," ++ show nAuto ++ "," ++ show nExpl ++ "\r\n"
                     case statsFile flags' of
-                      Nothing   -> return ()
-                      Just file -> appendFile file line
+                      Nothing -> return ()
+                      Just f  -> appendFile f line'
                     if not (null errorsToStopOn) then failWith 1 else return ()
 
 
 
 formatErrors :: PP_Doc -> String
-formatErrors pp = disp pp 5000 ""
+formatErrors doc = disp doc 5000 ""
 
 
 message2error :: Message Token Pos -> Error
@@ -444,9 +443,9 @@ mkModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> 
 mkModuleHeader Nothing defaultName suffix _ _
   = "module " ++ defaultName ++ suffix ++ " where"
 mkModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExports
-  = "module " ++ name ++ suffix ++ exp ++ " where\n" ++ imports ++ "\n"
+  = "module " ++ name ++ suffix ++ ex ++ " where\n" ++ imports ++ "\n"
   where
-    exp = if null exports || (replaceExports && null addExports)
+    ex  = if null exports || (replaceExports && null addExports)
           then ""
           else if null addExports
                then "(" ++ exports ++ ")"
@@ -462,7 +461,7 @@ reportDeps flags files
 getDeps :: Options -> [String] -> IO [String]
 getDeps flags files
   = do results <- mapM (depsAG flags (searchPath flags)) files
-       let (fs, mesgs) = foldr combine ([],[]) results
+       let (fs, mesgs) = foldr comb ([],[]) results
        let errs = take (min 1 (wmaxerrs flags)) (map message2error mesgs)
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags, PrErr.dups_Inh_Errors = []}
        if null errs
@@ -471,25 +470,25 @@ getDeps flags files
                 failWithCode flags 1
                 return []
   where
-    combine :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
-    combine (fs, mesgs) (fsr, mesgsr)
+    comb :: ([a],[b]) -> ([a], [b]) -> ([a], [b])
+    comb (fs, mesgs) (fsr, mesgsr)
       = (fs ++ fsr, mesgs ++ mesgsr)
 
 
 writeAttributeList :: String -> AttrMap -> IO ()
-writeAttributeList file mp
-  = writeFile file s
+writeAttributeList fileP mp
+  = writeFile fileP s
   where
     s = show $ map (\(x,y) -> (show x, y)) $ Map.toList $ Map.map (map (\(x,y) -> (show x, y)) . Map.toList . Map.map (map (\(x,y) -> (show x, show y)) . Set.toList)) $ mp
 
 readIrrefutableMap :: Options -> IO AttrMap
 readIrrefutableMap flags
   = case forceIrrefutables flags of
-      Just file -> do s <- readFile file
-                      seq (length s) (return ())
-                      let lists :: [(String,[(String,[(String, String)])])]
-                          lists = read s
-                      return $ Map.fromList [ (identifier n, Map.fromList [(identifier c, Set.fromList [ (identifier fld, identifier attr) | (fld,attr) <- ss ]) | (c,ss) <- cs ]) | (n,cs) <- lists ]
+      Just fileP -> do s <- readFile fileP
+                       seq (length s) (return ())
+                       let lists :: [(String,[(String,[(String, String)])])]
+                           lists = read s
+                       return $ Map.fromList [ (identifier n, Map.fromList [(identifier c, Set.fromList [ (identifier fld, identifier attr) | (fld,attr) <- ss ]) | (c,ss) <- cs ]) | (n,cs) <- lists ]
       Nothing   -> return Map.empty
 
 

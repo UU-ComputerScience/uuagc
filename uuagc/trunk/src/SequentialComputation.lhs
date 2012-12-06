@@ -1,19 +1,16 @@
 \begin{code}
 module SequentialComputation (computeSequential,Vertex,Edge,Table) where
 import SequentialTypes
-import CommonTypes
-import Interfaces
 import InterfacesRules
 import CodeSyntax
 import GrammarInfo
 
-import Debug.Trace
-import Control.Monad(liftM,when,unless)
+import Control.Monad(when,unless)
 import Control.Monad.ST(ST, runST)
-import Data.Array(Array,(!),bounds,elems)
+import Data.Array(Array,(!),bounds)
 import Data.Array.ST(STArray, newArray, readArray, writeArray, freeze)
-import Data.Maybe(listToMaybe,mapMaybe,isJust,fromJust)
-import Data.List(partition,nub,(\\),delete,minimumBy)
+import Data.Maybe(isJust,fromJust)
+import Data.List(partition,(\\))
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 

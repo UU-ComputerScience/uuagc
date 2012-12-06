@@ -18,11 +18,10 @@
 {-# LANGUAGE CPP #-}
 module Main where
 
-import Distribution.Simple (defaultMain, defaultMainWithHooksArgs)
-import Distribution.Simple.UUAGC (uuagcUserHook)
-
 #ifdef EXTERNAL_UUAGC
 import System.Environment (getArgs)
+import Distribution.Simple (defaultMainWithHooksArgs)
+import Distribution.Simple.UUAGC (uuagcUserHook)
 
 main :: IO ()
 main = args >>= defaultMainWithHooksArgs uuagcUserHook
@@ -34,6 +33,8 @@ args = do
                | otherwise             = id
   return (addFlags as)
 #else
+import Distribution.Simple (defaultMain, defaultMainWithHooksArgs)
+
 main :: IO ()
 main = defaultMain
 #endif

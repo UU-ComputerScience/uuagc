@@ -7,25 +7,22 @@ INCLUDE "Patterns.ag"
 imports
 {
 import Control.Monad(mplus,mzero)
-import Data.List (partition, elem, nub,intersperse, union)
+import Data.List (partition, nub,intersperse, union)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert, elems)
 import qualified Data.Sequence as Seq
-import Data.Sequence(Seq, empty, (><),fromList)
-import Data.Foldable(toList)
+import Data.Sequence(Seq, (><))
 import UU.Scanner.Position(noPos)
 
 import ConcreteSyntax
 import AbstractSyntax
 import ErrorMessages
-import Patterns (Patterns(..),Pattern(..))
+import Patterns (Patterns,Pattern(..))
 import Expression (Expression(..))
 import HsToken
 
-import Options
-import CommonTypes
 import RhsCheck
 import Debug.Trace
 }
@@ -192,10 +189,10 @@ SEM Elem
          loc.blockValue = [(@lines, @pos)]
          lhs.blocks     = Map.singleton @loc.blockInfo @loc.blockValue
          lhs.errors     = if checkParseBlock @lhs.options
-                          then let exp = Expression @pos tks
+                          then let ex  = Expression @pos tks
                                    tks = [tk]
                                    tk  = HsToken (unlines @lines) @pos
-                               in Seq.fromList $ checkBlock $ exp
+                               in Seq.fromList $ checkBlock $ ex
                           else Seq.empty
 
 
@@ -218,13 +215,14 @@ checkDuplicates :: (Identifier -> Identifier -> Error)
 checkDuplicates dupError new m = foldErrors check m new
  where  check = uncurry (checkDuplicate dupError)
 
-foldErrors f e xs = foldl g (e,Seq.empty) xs
+foldErrors :: (b -> t -> (t, Seq Error)) -> t -> [b] -> (t, Seq Error)
+foldErrors f n xs = foldl g (n,Seq.empty) xs
   where g ~(e,es) x = let (e',es') = f x e
                       in (e', es >< es')
 
 
 checkForDuplicates :: (Identifier -> Identifier -> Error)  ->  [Identifier]  ->  [Error]
-checkForDuplicates err [] = []
+checkForDuplicates _ [] = []
 checkForDuplicates err (x:xs) = let (same,other) = partition (equalId x) xs
                                 in  map (err x) same ++ checkForDuplicates err other
 
@@ -257,9 +255,10 @@ SEM Elem
 
 SEM AG
   | AG
-	 loc.prodOrder   = let f (nt,con,fm) = Map.insertWith g nt [con]
+	 loc.prodOrder   = let f (nt,con,_) = Map.insertWith g nt [con]
 	 		       g [con] lst | con `elem` lst = lst
 			       	           | otherwise      = con : lst
+	 		       g _ _ = error "This is not possible"
 	 		   in  foldr f Map.empty @elems.collectedFields
          loc.allFields   = let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                            in  foldr f (Map.empty) @elems.collectedFields
@@ -294,7 +293,7 @@ SEM AG
          loc.allMerges   =  let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                              in foldr f Map.empty @elems.collectedMerges
 
-         loc.augmentSigs    = let gen mp = []  -- TODO: generate type signatures here for the augments
+         loc.augmentSigs    = let gen _ = []  -- TODO: generate type signatures here for the augments
                               in Map.map (Map.map gen) @loc.allAugments
 
          loc.allRulesErrs   = Map.mapWithKey (Map.mapWithKey . (checkRules @allAttrDecls @allFields @allInsts @loc.allSigs @loc.allMerges)) @loc.allRules
@@ -322,7 +321,7 @@ SEM AG
                                f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
                            in  Seq.fromList . concat . map f . Map.toList $ @allFields    -- forbid duplicate fields
 
-         loc.errs3       = let f (nt,cons) = checkForDuplicates (DupAlt nt) cons
+         loc.errs3       = let -- f (nt,cons) = checkForDuplicates (DupAlt nt) cons
                            in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
                              -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
 
@@ -368,7 +367,7 @@ checkRules :: Map NontermIdent (Attributes, Attributes) -> DataTypes ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
               Map NontermIdent (Map ConstructorIdent [MergeInfo]) ->
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
-checkRules attributes fields allinsts allsigs allmerges nt con rs
+checkRules attributes fields allinsts allsigs _ nt con rs
   = let fieldmap :: FieldMap
         fieldmap = (_LHS, NT nt [] False) : (_LOC, NT nullIdent [] False) : (_INST, NT nullIdent [] False) : (_FIRST, NT nullIdent [] False) : (_LAST, NT nullIdent [] False)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
@@ -380,9 +379,9 @@ checkRules attributes fields allinsts allsigs allmerges nt con rs
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
 
         checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
-        checkRule (mbNm, pat,exp,as,owrt,str, pur, eager) ((r1,e1),m1)
-          = let (e2,m2,u2,b2) = foldr (checkDefi owrt) (e1,m1,[],[]) as
-            in  ( (Rule mbNm (pat u2) exp owrt str True pur False Nothing eager : r1, e2), m2)
+        checkRule (mbNm, pat,ex,as,owrt,str, pur, eager) ((r1,e1),m1)
+          = let (e2,m2,u2,_) = foldr (checkDefi owrt) (e1,m1,[],[]) as
+            in  ( (Rule mbNm (pat u2) ex owrt str True pur False Nothing eager : r1, e2), m2)
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
@@ -414,7 +413,7 @@ checkRuleNames nt con
 checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis
   = let checkSig (ide,typ) (sigs,errs)
-         = if   ide `elem` map (\(TypeSig n t)-> n) sigs
+         = if   ide `elem` map (\(TypeSig n _)-> n) sigs
            then (sigs, ((Seq.<|)) (DupSig nt con ide) errs)
            -- else if not (ide `elem` locattrdefs)
            -- then (sigs, ((Seq.<|)) (SupSig nt con ide) errs)
@@ -422,7 +421,7 @@ checkSigs nt con sis
     in  foldr checkSig ([],Seq.empty) sis
 
 checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
-checkInsts allNts sigMap fieldMap nt con
+checkInsts allNts sigMap _ nt con
   = foldr (\inst (insts, errs) ->
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
                     (\info@(k, NT nm args _) ->
@@ -464,7 +463,7 @@ checkUniques allAttrs nt con uniques
     in foldr checkUnique (Map.empty, Seq.empty) uniques
 
 checkAugments :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [AugmentInfo] -> AugmentsAndErrors
-checkAugments allAttrs nt con augments
+checkAugments allAttrs nt _ augments
   = let checkAugment (ident,expr) (as,errs)
           = if ident `Map.member` as
             then (Map.update (\vs -> Just (vs ++ [expr])) ident as, errs)
@@ -472,7 +471,7 @@ checkAugments allAttrs nt con augments
                  then (Map.insert ident [expr] as, errs)
                  else (as, ((Seq.<|)) (MissingSyn nt ident) errs)
 
-        (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
+        (_,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkAugment (Map.empty, Seq.empty) augments
 
 checkArounds :: DataTypes -> NontermIdent -> ConstructorIdent -> [AroundInfo] -> AroundsAndErrors
@@ -487,7 +486,7 @@ checkArounds fieldMap nt con arounds
     in foldr checkAround (Map.empty, Seq.empty) arounds
 
 checkMerges :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [Identifier]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [MergeInfo] -> MergesAndErrors
-checkMerges allNts allInsts fieldMap nt con merges
+checkMerges allNts allInsts fieldMap _ con merges
   = let checkMerge (target,nt,sources,expr) (m,errs)
           = let fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
                 insts  = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
@@ -504,6 +503,7 @@ checkMerges allNts allInsts fieldMap nt con merges
                              else (m, (Seq.fromList $ map (UndefChild nt con) missing) Seq.>< errs)
     in foldr checkMerge (Map.empty, Seq.empty) merges
 
+unionunionplusplus :: Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a])
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
 }
 
@@ -536,6 +536,7 @@ mkUniqueRules opts allRules allFields allInsts allAttrDecls nt con usMap
             rul = Rule Nothing pat rhs False "-- generated by the unique rule mechanism." False True False Nothing False
             hasOut = exists outAttr
             exists (Alias fld a _) = (fld,a) `elem` attrDefs
+	    exists _ = False
             existsLoc nm = exists (attr _LOC nm)
         in rul
     attr fld a = Alias fld a (Underscore noPos)
@@ -561,10 +562,10 @@ SEM SemDef | Def MergeDef
 SEM SemDef | TypeDef
   lhs.errors = if checkParseTy @lhs.options
                then case @tp of
-                      Haskell s -> let exp = Expression @pos tks
+                      Haskell s -> let ex  = Expression @pos tks
                                        tks = [tk]
                                        tk  = HsToken s @pos
-                                   in Seq.fromList $ checkTy exp
+                                   in Seq.fromList $ checkTy ex
                       _ -> Seq.empty
                else Seq.empty
 
@@ -719,10 +720,10 @@ SEM Elem
                                                            = (Set.empty, Seq.singleton(CyclicSet @name))
                                                | otherwise = (@set.nontSet, Seq.empty)
                                   (res, e2) = let toAdd = (nontSet,Set.insert @name allUsedNames)
-                                                  union (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
+                                                  un (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
                                               in if Set.member @name @lhs.allNonterminals || not @merge
                                                  then checkDuplicate DupSet @name toAdd @lhs.defSets
-                                                 else (Map.insertWith union @name toAdd @lhs.defSets, Seq.empty)
+                                                 else (Map.insertWith un @name toAdd @lhs.defSets, Seq.empty)
                               in (res, e1 Seq.>< e2)
         lhs.defSets         = @defSets2
            .errors          = @errs >< @set.errors
@@ -749,15 +750,15 @@ flattenDatas ds = Map.map flatten ds
   where flatten cs =  Set.fromList [ nt | (_, NT nt _ _) <- concatMap snd (Map.toList cs)]
 
 reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
-reachableFrom table nts = reach nts
+reachableFrom table = reach
   where reach nts = let nts' = Set.unions (nts : [ ns  | nt <- Set.toList nts
                                                  , let ns = Map.findWithDefault Set.empty nt table ])
                     in if Set.size nts' > Set.size nts
                           then reach nts'
                           else nts
 invert :: Map NontermIdent (Set NontermIdent) -> Map NontermIdent (Set NontermIdent)
-invert m = foldr inv Map.empty (Map.toList m)
-  where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.singleton x) m) m ns
+invert = foldr inv Map.empty . Map.toList
+  where inv (x,ns) m = fold (\n m' -> Map.insertWith Set.union n (Set.singleton x) m') m ns
 
 path :: Map NontermIdent (Set NontermIdent) -> NontermIdent -> NontermIdent -> Set NontermIdent
 path table from to = let children = Map.findWithDefault Set.empty from table
@@ -773,7 +774,7 @@ path table from to = let children = Map.findWithDefault Set.empty from table
 
 
 SEM ConstructorSet
-  | CName       lhs.constructors = \ds -> Set.singleton @name
+  | CName       lhs.constructors = \_  -> Set.singleton @name
   | CUnion      lhs.constructors = \ds -> @set1.constructors ds `Set.union`      @set2.constructors ds
   | CDifference lhs.constructors = \ds -> @set1.constructors ds `Set.difference` @set2.constructors ds
   | CAll        lhs.constructors = \ds -> ds
@@ -870,10 +871,12 @@ SEM Elem
                           in \o -> foldr mk o @names
 
 {
+extract :: String -> [String]
 extract s = case dropWhile isSeparator s of
                                 "" -> []
                                 s' -> w : extract s''
                                       where (w, s'') = break isSeparator  s'
+isSeparator :: Char -> Bool
 isSeparator x = x == '_'
 }
 
@@ -1005,6 +1008,7 @@ mergeQuant = Map.unionWith (++)
 ATTR Elem Elems [ | | derivings USE {`mergeDerivings`} {Map.empty} :{Derivings}]
 
 {
+mergeDerivings :: Derivings -> Derivings -> Derivings
 mergeDerivings m1 m2 = foldr (\(n,cs) m -> Map.insertWith Set.union n cs m) m2 (Map.toList m1)
 }
 
@@ -1016,6 +1020,7 @@ SEM Elem
 -------------------------------------------------------------------------------
 
 {
+merge ::(Ord k, Ord k1) => Map k (Map k1 a) -> Map k (Map k1 a) -> Map k (Map k1 a)
 merge x y = foldr f y (Map.toList x)
  where f ~(k,v) m = Map.insertWith (Map.union) k v m
 }
@@ -1038,7 +1043,7 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
                                                    (inh,_)     = splitAttrs @inh
                                                    (chn,uses1) = splitAttrs @chn
                                                    (syn,uses2) = splitAttrs @syn
-                                                   isUse (n,(e1,e2,_)) = not (null e1 || null e2)
+                                                   isUse (_,(e1,e2,_)) = not (null e1 || null e2)
                                                in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
           lhs.useMap = Map.fromList (zip (Set.toList @lhs.nts) (repeat @useMap))
 
@@ -1047,10 +1052,10 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
                                  items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
                                  errs  = map check items
                                  check (pos,Haskell s) =
-                                   let exp = Expression pos tks
+                                   let ex  = Expression pos tks
                                        tks = [tk]
                                        tk  = HsToken s pos
-                                   in Seq.fromList $ checkTy exp
+                                   in Seq.fromList $ checkTy ex
                                  check _ = Seq.empty
                              in foldr (Seq.><) Seq.empty errs
                         else Seq.empty
@@ -1058,7 +1063,8 @@ SEM Attrs [ nts:{Set NontermIdent} | | ]
 
 
 {
-checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nts where
+checkAttrs :: DataTypes -> [NontermIdent] -> [(Identifier, a)] -> [(Identifier, b)] -> Map NontermIdent (Map Identifier a, Map Identifier b) -> (Map NontermIdent (Map Identifier a, Map Identifier b), Seq Error)
+checkAttrs allFields nts inherited synthesized decls' = foldErrors check decls' nts where
   check nt decls | not (nt `Map.member` allFields) = (decls,Seq.singleton(UndefNont nt))
                  | otherwise = let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt decls
                                    (inh',einh) = checkDuplicates (DupInhAttr nt) inherited   inh
@@ -1069,6 +1075,7 @@ checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nt
 
 -- Add declaration of self-attribute for each nonterminal: ATTR <nt> [ | | self:SELF]
 {
+addSelf :: Ord k1 => k1 -> Map k1 (Map k a, Attributes) -> Map k1 (Map k a, Attributes)
 addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
                      in  Map.insert name (eInh, Map.insert (Ident "self" noPos) Self eSyn)atMap
 }
@@ -1178,13 +1185,13 @@ SEM Pattern
   | Alias lhs.definedAttrs = (@field, @attr) : @pat.definedAttrs
           lhs.patunder     = \us -> if ((@field,@attr) `elem` us) then Underscore noPos else @copy
           lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
-  | Underscore lhs.patunder = \us -> @copy
+  | Underscore lhs.patunder = \_ -> @copy
   | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
   | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
   | Irrefutable lhs.patunder = \us -> Irrefutable (@pat.patunder us)
 
 SEM Patterns
-  | Nil lhs.patunder = \us ->  []
+  | Nil lhs.patunder = \_ ->  []
   | Cons lhs.patunder = \us -> (@hd.patunder us) : (@tl.patunder us)
 
 ATTR Pattern [ | | stpos : Pos ]
@@ -1241,7 +1248,7 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent MaybeMacro)
                     -> Grammar
 
-constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
+constructGrammar _ ntParams prodParams gram prodOrder constraints attrs uses derivings wrap allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
    let gr = [ (nt,alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -1257,7 +1264,7 @@ constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses d
                              alt con   =
                                    let flds    = Map.findWithDefault [] con alts
                                        rules   = Map.findWithDefault [] con rmap
-                                       tsigs   = Map.findWithDefault [] con tsmap
+                                       tsigs'  = Map.findWithDefault [] con tsmap
                                        insts   = Map.findWithDefault [] con instsmap
                                        merges  = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
                                        cs      = Map.findWithDefault [] con csmap
@@ -1281,13 +1288,15 @@ constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses d
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con ps cs cldrn rules tsigs mbMacro
+                                   in Production con ps cs cldrn rules tsigs' mbMacro
                             in Nonterminal nt params inh syn (map alt prs)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
+   in Grammar tsyns uses derivings wrap nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 }
 
 {
+mapUnionWithSetUnion :: Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent)
 mapUnionWithSetUnion = Map.unionWith Set.union
+mapUnionWithPlusPlus :: Map BlockInfo [a] -> Map BlockInfo [a] -> Map BlockInfo [a]
 mapUnionWithPlusPlus = Map.unionWith (++)
 }
 
@@ -1338,11 +1347,11 @@ SEM AG
 
 
 SEM Attrs
-  | Attrs lhs.attrs =   let insert decls nt = if Map.member nt decls
-                                                then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList @inherited
+  | Attrs lhs.attrs =   let ins decls nt = if Map.member nt decls
+                                           then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList @inherited
                                                                                      , Map.union syn $ Map.fromList @synthesized)) nt decls
-                                                else  Map.insert nt (Map.fromList @inherited, Map.fromList @synthesized) decls
+                                           else  Map.insert nt (Map.fromList @inherited, Map.fromList @synthesized) decls
 
-                        in  foldl insert @lhs.attrs (Set.toList @lhs.nts)
+                        in  foldl ins @lhs.attrs (Set.toList @lhs.nts)
 
 

@@ -17,6 +17,7 @@ import Macro --marcos
 import UU.Scanner.Token
 import UU.Scanner.TokenParser
 import UU.Scanner.GenToken
+import UU.Scanner.GenTokenOrd
 import UU.Scanner.GenTokenParser
 import UU.Scanner.Position
 import UU.Scanner.TokenShow()

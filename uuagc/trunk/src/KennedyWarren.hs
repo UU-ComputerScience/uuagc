@@ -1,7 +1,7 @@
 module KennedyWarren where
 
+import Prelude hiding (init, succ)
 import CommonTypes
-import Options
 import Pretty
 import Knuth1
 import ExecutionPlan
@@ -9,13 +9,12 @@ import Debug.Trace
 import Control.Monad.ST
 import Control.Monad.State
 import Control.Monad.Error
-import Control.Monad.Trans
 import Data.STRef
 import Data.Maybe
-import Data.List
+import Data.List (intersperse, groupBy, partition, sortBy)
 import Data.Ord
 import qualified ErrorMessages as Err
-import PrintErrorMessages
+import PrintErrorMessages ()
 
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -25,13 +24,11 @@ import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
-import Data.Sequence(Seq)
-import qualified Data.Sequence as Seq
 
 -- lazy version (does not return errors)
 -- FIXME: construct map from nonterminal to intial visit (or state?) and use it in the generation of invokes
 kennedyWarrenLazy :: Options -> Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> ExecutionPlan
-kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
+kennedyWarrenLazy _ wr ndis typesyns derivings = plan where
   plan  = ExecutionPlan nonts typesyns wr derivings
   nonts = zipWith mkNont ndis nontIds
   nontIds = enumFromThen 1 4
@@ -42,17 +39,17 @@ kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
                  (ndiNonterminal ndi)
                  (ndiParams ndi)
                  (ndiClassCtxs ndi)
-                 inits
+                 initst
                  (Just initv)
                  nextMap
                  prevMap
                  prods
                  (ndiRecursive ndi)
                  (ndiHoInfo ndi)
-    inits   = initv + 1
+    initst  = initv + 1
     finals  = initv + 2
-    nextMap = Map.fromList [(inits, OneVis initv), (finals, NoneVis)]
-    prevMap = Map.fromList [(inits, NoneVis), (finals, OneVis initv)]
+    nextMap = Map.fromList [(initst, OneVis initv), (finals, NoneVis)]
+    prevMap = Map.fromList [(initst, NoneVis), (finals, OneVis initv)]
     prods   = map mkProd (ndiProds ndi)
 
     mkProd pdi = prod where
@@ -63,8 +60,8 @@ kennedyWarrenLazy opts wr ndis typesyns derivings = plan where
                (pdgRules pdi)
                (pdgChilds pdi)
                visits
-      visits = [visit]
-      visit  = Visit initv inits finals inh syn steps kind
+      visits = [vis]
+      vis    = Visit initv initst finals inh syn steps kind
       inh    = Set.fromList $ ndiInh ndi
       syn    = Set.fromList $ ndiSyn ndi
       kind   = VisitPure False
@@ -111,38 +108,38 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
     -- Loop trough all productions
     forM_ (ndimProds ndi) $ \prod -> do
       let pr = pdgProduction $ pdgmOrig prod
-      let g = pdgmDepGraph $ prod
+      let g' = pdgmDepGraph $ prod
       -- Topsort
       --addTopSortEdges tsedg prod
       -- Check for cyclicity
-      pdCycVerts <- lift $ graphCyclicVerticesExt g
+      pdCycVerts <- lift $ graphCyclicVerticesExt g'
       when (not $ null pdCycVerts) $ do
         throwError $ Err.Cyclic nont (Just pr) (map show pdCycVerts)
         -- let msg = "Production graph " ++ show pr ++ " of nonterminal "
         --                               ++ show nont ++ " is cylic!"
         -- fail msg
       -- Transtive closure check
-      trc <- lift $ graphIsTRC g
-      when (not trc) $ do
+      trc' <- lift $ graphIsTRC g'
+      when (not trc') $ do
         lift $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                                              ++ show nont ++ " is not transitively closed!"
         fail "Production graph is not transitively closed."
       -- Check consistency
-      cons <- lift $ graphCheckConsistency g
-      when (not cons) $ do
+      consistent <- lift $ graphCheckConsistency g'
+      when (not consistent) $ do
         let msg =  "Production graph " ++ show pr ++ " of nonterminal "
                                        ++ show nont ++ " is not consistent!"
         fail msg
-  -- reachable whe neverything is ok
+  -- reachable when everything is ok
   lift $ do
         -- Create non-transitive closed graph for efficiency
-        indi <- undoTransitiveClosure indi
+        indi' <- undoTransitiveClosure indi
         -- Graphviz output of dependency graphs
-        gvs <- mapM toGVNontDependencyInfo indi
+        gvs <- mapM toGVNontDependencyInfo indi'
         -- Doing kennedywarren
         (ret, visitg) <- runVG $ do
          -- traceVG $ "Running kennedy-warren..."
-         initvs <- kennedyWarrenVisitM wr indi
+         initvs <- kennedyWarrenVisitM wr indi'
          -- Print some debug info
          nodes <- gets vgNodeNum
          edges <- gets vgEdgeNum
@@ -150,7 +147,7 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
            traceVG $ "Number of nodes = " ++ show nodes
            traceVG $ "Number of edges = " ++ show edges
          -- Generate execution plan
-         ex <- kennedyWarrenExecutionPlan opts indi initvs wr typesyns derivings
+         ex <- kennedyWarrenExecutionPlan opts indi' initvs wr typesyns derivings
          -- Get visit graph
          visitg <- toGVVisitGraph
          return (ex,visitg)
@@ -283,7 +280,7 @@ type VG s a = ErrorT String (StateT (VGState s) (ST s)) a
 ------------------------------------------------------------
 -- | Run the VG monad in the ST monad
 runVG :: VG s a -> ST s a
-runVG vg = do (Right a,rs) <- runStateT (runErrorT vg) vgEmptyState
+runVG vg = do (Right a,_) <- runStateT (runErrorT vg) vgEmptyState
               return a
 
 -- | Insert an initial node for this nonterminal into the visit graph
@@ -356,7 +353,7 @@ markFinal vgedg@(VGEdge edg) = do
   incoming <- gets vgIncoming
   edges    <- gets vgEdges
   pending  <- gets vgPending
-  let (VGNode from,VGNode to) = imLookup edg edges
+  let (_,VGNode to) = imLookup edg edges
   modify $ \st -> st { vgIncoming = IntMap.insert to (Just vgedg) incoming
                      , vgPending  = IntSet.delete edg pending }
 
@@ -398,17 +395,17 @@ setDepGraphVerticesFinal (VGProd (VGEdge edg, p)) vs = do
 
 -- | Add a child visit to this production and return the step for the execution plan
 addChildVisit :: VGProd -> Identifier -> VGEdge -> VG s VisitStep
-addChildVisit vgp@(VGProd (VGEdge edg, p)) id (VGEdge vs) = do
+addChildVisit (VGProd (VGEdge edg, p)) ide (VGEdge vs) = do
   edges   <- gets vgEdges
-  let (VGNode from,vgto@(VGNode to))  = imLookup vs edges -- from must be equal to the current state
+  let (VGNode from,vgto) = imLookup vs edges -- from must be equal to the current state
   childvs <- gets vgChildVisits
   let rchildv = imLookup edg childvs
-  vgInST $ modifySTRef rchildv $ Map.insertWith' (++) (id,p) [vgto]
+  vgInST $ modifySTRef rchildv $ Map.insertWith' (++) (ide,p) [vgto]
   ndis <- gets vgNDI
   let rndi = imLookup from ndis
   ndi <- vgInST $ readSTRef rndi
   let nt = ndiNonterminal $ ndimOrig ndi
-  return $ ChildVisit id nt vs
+  return $ ChildVisit ide nt vs
 
 -- | Add a step to the execution plan of this visit
 addVisitStep :: VGProd -> VisitStep -> VG s ()
@@ -426,25 +423,25 @@ addVisitStep (VGProd (VGEdge edg, p)) st = do
 
 -- | Get the state of a child in a certain production
 getChildState :: VGProd -> Identifier -> VG s VGNode
-getChildState (VGProd (VGEdge edg,p)) id = do
+getChildState (VGProd (VGEdge edg,p)) ide = do
   childvs <- gets vgChildVisits
   let rchildv = imLookup edg childvs
   childv  <- vgInST $ readSTRef rchildv
-  case Map.lookup (id,p) childv of
+  case Map.lookup (ide,p) childv of
     Just (n:_) -> return n
-    Nothing    -> do
+    _          -> do
       -- Look for previous edge
       edges <- gets vgEdges
       let (VGNode from,_) = imLookup edg edges
       incoming <- gets vgIncoming
       case IntMap.lookup from incoming of
-        Just (Just iedg) -> getChildState (VGProd (iedg,p)) id
+        Just (Just iedg) -> getChildState (VGProd (iedg,p)) ide
         Just Nothing     -> do
           -- Lookup initial state
           ndis <- gets vgNDI
           let rndi = imLookup from ndis
           ndi  <- vgInST $ readSTRef rndi
-          let Just nt = lookup id $ pdgChildMap $ pdgmOrig $ (ndimProds ndi) !! p
+          let Just nt = lookup ide $ pdgChildMap $ pdgmOrig $ (ndimProds ndi) !! p
           vgFindInitial nt
         Nothing          -> error "getChildState"
 
@@ -499,7 +496,7 @@ vgCreateNode rndi inh syn = do
 
 -- | Create a new pending edge
 vgCreatePendingEdge :: VGNode -> VGNode -> Set Identifier -> Set Identifier -> VG s VGEdge
-vgCreatePendingEdge vgn1@(VGNode n1) vgn2@(VGNode n2) inh syn = do
+vgCreatePendingEdge vgn1@(VGNode n1) vgn2 inh syn = do
   num      <- gets vgEdgeNum
   edges    <- gets vgEdges
   edgesr   <- gets vgEdgesR
@@ -546,7 +543,7 @@ vgDepGraphVertexFinal (VGNode n) p v = do
           let (fr,_) = imLookup edg edges
           vgDepGraphVertexFinal fr p v
         Just Nothing -> return False
-        -- Nothing can never happen
+        Nothing      -> error "This can never happen"
 
 -- | Find the initial node for a nonterminal
 vgFindInitial :: Identifier -> VG s VGNode
@@ -607,7 +604,7 @@ kennedyWarrenVisitM wr ndis = do
       -- Mark all inherited attributes as final
       setDepGraphVerticesFinal prod (map createLhsInh . Set.toList $ inhs)
       -- Find depth of all synthesized child visits
-      (vis,i) <- foldM (foldChildVisits prod) ([],0) (map createLhsSyn . Set.toList $ syns)
+      (vis,_) <- foldM (foldChildVisits prod) ([],0) (map createLhsSyn . Set.toList $ syns)
       -- Mark them as final
       setDepGraphVerticesFinal prod (map fst vis)
       -- Change the inherited child visits
@@ -617,9 +614,9 @@ kennedyWarrenVisitM wr ndis = do
       setDepGraphVerticesFinal prod (map fst extravis)
       -- Group by visit number and do visit for every num
       let gvis = groupSortBy (comparing snd) $ vis2 ++ extravis
-      forM_ gvis $ \visit -> do
+      forM_ gvis $ \vis3 -> do
         -- Split child visits from rules
-        let (chattrs, rules) = partition isChildAttr $ map fst visit
+        let (chattrs, rules) = partition isChildAttr $ map fst vis3
         -- Evaluate all rules
         forM_ (reverse $ rules) $ \rule ->
           case rule of
@@ -670,8 +667,8 @@ findChildVisits prod v vis = do
       if final
         then return (vis,0)
         else do
-          successors <- onMarkedDepGraph (liftM Set.toList . flip graphSuccessors v . pdgmDepGraph) prod
-          (nvis,ni)  <- foldM (foldChildVisits prod) (vis,0) successors
+          succs <- onMarkedDepGraph (liftM Set.toList . flip graphSuccessors v . pdgmDepGraph) prod
+          (nvis,ni)  <- foldM (foldChildVisits prod) (vis,0) succs
           if isChildSyn v
             then return ((v,ni + 1) : nvis, ni + 1)
             else return ((v,ni) : nvis, ni)
@@ -695,7 +692,7 @@ correctInhChilds prod vis =
 -- | Synthesized attributes that can also be evaluated
 extraChildSyn :: VGProd -> ChildVisits -> VG s ChildVisits
 extraChildSyn prod vis = do
-  allpreds <- forM vis $ \(v,i) -> do
+  allpreds <- forM vis $ \(v,_) -> do
     if isChildInh v
      then do
       preds <- onMarkedDepGraph (liftM Set.toList . flip graphPredecessors v . pdgmDepGraph) prod
@@ -805,7 +802,6 @@ exploreGraph f (VGNode init) a0 = do
   pendingRef  <- vgInST $ newSTRef [init]
   resRef      <- vgInST $ newSTRef a0
   outgoingMap <- gets vgOutgoing
-  incomingMap <- gets vgIncoming
   edgesInfo   <- gets vgEdges
   let explore = do
         pending <- vgInST $ readSTRef pendingRef
@@ -848,6 +844,6 @@ updateCountMap :: Int -> Set VGEdge -> Map Int StateCtx -> VG s (Map Int StateCt
 updateCountMap nd edges mp = return $ Map.insert nd v mp where
     s = Set.size edges
     v | s == 0    = NoneVis
-      | s == 1    = let [VGEdge v] = Set.elems edges
-                    in OneVis v
+      | s == 1    = let [VGEdge v'] = Set.elems edges
+                    in OneVis v'
       | otherwise = ManyVis

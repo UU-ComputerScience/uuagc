@@ -21,9 +21,10 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
                   deriving Show
 
 instance Show CRule
- where show (CRule name isIn hasCode nt con field childnt tp pattern rhs defines owrt origin uses _ _)
+ where show (CRule name _ _ nt con field childnt _ _ rhs _ _ _ uses _ _)
          = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
          ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
+       show _ = error "Only CRule is supported"
 
 type CInterfaceMap = Map NontermIdent CInterface
 type CVisitsMap = Map NontermIdent (Map ConstructorIdent CVisits)
@@ -39,11 +40,11 @@ showsSegment :: CSegment -> [String]
 showsSegment (CSegment inh syn)
    = let syn'     = map toString (Map.toList syn)
          inh'     = map toString (Map.toList inh)
-         toString (a,t) = (getName a, case t of (NT nt tps _) -> getName nt ++ " " ++ unwords tps; Haskell t -> t)
+         toString (a,t) = (getName a, case t of (NT nt tps _) -> getName nt ++ " " ++ unwords tps; Haskell t' -> t'; Self -> error "Self type not supported.")
          chnn     = inh' `intersect` syn'
          inhn     = inh' \\ chnn
          synn     = syn' \\ chnn
-         disp name [] = []
+         disp _ [] = []
          disp name as =  (name ++ if length as == 1 then " attribute:" else " attributes:") :
                          map (\(x,y) -> ind x ++ replicate ((20 - length x) `max` 0) ' ' ++ " : " ++ y) as
      in  disp "inherited" inhn
