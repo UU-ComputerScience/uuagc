@@ -11,6 +11,7 @@ import System.Exit
 -- From CommonTypes
 data Identifier   = Ident { getName::String, getPos::Pos }
 type NontermIdent = Identifier
+identifier :: String -> Identifier
 identifier x      = Ident x noPos
 
 instance Eq Identifier where
@@ -152,6 +153,7 @@ allOptions =
 options     :: [OptDescr (Options -> Options)]
 options     = map fromMyOpt allOptions
 
+allc :: String
 allc = "dcfsprm"
 
 data ModuleHeader  = NoName
@@ -252,6 +254,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , aggressiveInlinePragmas :: Bool
                       } -- deriving (Eq, Show)
 
+noOptions :: Options
 noOptions = Options { moduleName    = NoName
                     , dataTypes     = False
                     , dataRecords   = False
@@ -347,11 +350,16 @@ noOptions = Options { moduleName    = NoName
                     }
 
 --Options -> String -> [String]
+moduleOpt :: Maybe String -> Options -> Options
 moduleOpt  nm   opts = opts{moduleName   = maybe Default Name nm}
+moduleOptGet :: Options -> String -> [String]
 moduleOptGet opts nm = case moduleName opts of
   NoName -> []
   Name s -> [nm++"="++s]
   Default -> [nm]
+
+dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
+
 dataOpt         opts = opts{dataTypes    = True}
 dataRecOpt      opts = opts{dataRecords  = True}
 strictDataOpt   opts = opts{strictData   = True}
@@ -369,6 +377,7 @@ smacroOpt       opts = opts{smacro       = True}
 verboseOpt      opts = opts{verbose      = True}
 helpOpt         opts = opts{showHelp     = True}
 versionOpt      opts = opts{showVersion  = True}
+prefixOpt :: String -> Options -> Options
 prefixOpt pre   opts = opts{prefix       = pre }
 selfOpt         opts = opts{withSelf     = True}
 cycleOpt        opts = opts{withCycle    = True}
@@ -384,7 +393,9 @@ localCpsOpt     opts = opts{localCps     = True}
 splitSemsOpt    opts = opts{splitSems    = True}
 werrorsOpt      opts = opts{werrors      = True}
 wignoreOpt      opts = opts{wignore      = True}
+wmaxErrsOpt :: String -> Options -> Options
 wmaxErrsOpt n   opts = opts{wmaxerrs     = read n}
+wmaxErrsOptGet :: Options -> String -> [String]
 wmaxErrsOptGet opts nm = if wmaxerrs opts /= wmaxerrs noOptions
                          then [nm,show (wmaxerrs opts)]
                          else []
@@ -415,15 +426,19 @@ lateHigherOrderBindingOpt opts  = opts { lateHigherOrderBinding = True }
 monadicWrappersOpt opts         = opts { monadicWrappers = True }
 referenceOpt opts               = opts { reference = True }
 
+noGroupOpt :: String -> Options -> Options
 noGroupOpt  att  opts = opts{noGroup  = wordsBy (== ':') att  ++ noGroup opts}
+noGroupOptGet :: Options -> String -> [String]
 noGroupOptGet opts nm = if null (noGroup opts)
                         then []
                         else [nm, intercalate ":" (noGroup opts)]
-
+extendsOpt :: String -> Options -> Options
 extendsOpt  m  opts = opts{extends  = Just m }
 
 genAttrListOpt opts = opts { genAttributeList = True }
+forceIrrefutableOpt :: Maybe String -> Options -> Options
 forceIrrefutableOpt mbNm opts = opts { forceIrrefutables = mbNm }
+uniqueDispenserOpt :: String -> Options -> Options
 uniqueDispenserOpt nm opts = opts { uniqueDispenser = nm }
 lcKeywordsOpt opts = opts { lcKeywords = True }
 doubleColonsOpt opts = opts { doubleColons = True }
@@ -432,6 +447,7 @@ monadicOpt opts = opts { monadic = True }
 parallelOpt opts = opts { parallelInvoke = True }
 ocamlOpt opts = opts { ocaml = True, kennedyWarren = True, withCycle = True, visit = True }
 visitorsOutputOpt opts = opts { visitorsOutput = True }
+statisticsOpt :: String -> Options -> Options
 statisticsOpt nm opts = opts { statsFile = Just nm }
 breadthfirstOpt opts = opts { breadthFirst = True }
 breadthfirstStrictOpt opts = opts { breadthFirstStrict = True }
@@ -441,17 +457,22 @@ parseHsBlockOpt opts = opts { checkParseBlock = True }
 parseHsOpt = parseHsRhsOpt . parseHsTpOpt . parseHsBlockOpt
 kennedyWarrenOpt opts = opts { kennedyWarren = True }
 noOptimizeOpt opts = opts { noOptimizations = True }
+nocatasOpt :: String -> Options -> Options
 nocatasOpt str opts = opts { nocatas = set `Set.union` nocatas opts } where
   set = Set.fromList ids
   ids = map identifier lst
   lst = wordsBy (== ',') str
+nocatasOptGet :: Options -> String -> [String]
 nocatasOptGet opts nm = if Set.null (nocatas opts)
                         then []
                         else [nm,intercalate "," . map getName . Set.toList . nocatas $ opts]
-
+outputOpt :: String -> Options -> Options
 outputOpt  file  opts = opts{outputFiles  = file : outputFiles opts}
+outputOptGet :: Options -> String -> [String]
 outputOptGet opts nm  = concat [ [nm, file] | file <- outputFiles opts]
+searchPathOpt :: String -> Options -> Options
 searchPathOpt  path  opts = opts{searchPath  = wordsBy (\x -> x == ';' || x == ':') path ++ searchPath opts}
+searchPathOptGet :: Options -> String -> [String]
 searchPathOptGet opts nm = if null (searchPath opts)
                            then []
                            else [nm, intercalate ":" (searchPath opts)]

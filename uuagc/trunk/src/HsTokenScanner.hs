@@ -7,6 +7,8 @@ import UU.Util.BinaryTrees
 import CommonTypes
 import Data.Maybe
 import Data.Char
+
+isAGesc :: Char -> Bool
 isAGesc c = c == '@'
 
 lexTokens :: Pos -> String -> [HsToken]
@@ -26,7 +28,7 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
    locatein es = isJust . btLocateIn compare (tab2tree (sort es))
    iskw     = locatein keywordstxt
    isop     = locatein keywordsops
-   isSymbol = locatein specchars
+   isSymb  = locatein specchars
    isOpsym  = locatein opchars
 
    isIdStart c = isLower c || c == '_'
@@ -38,7 +40,7 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
    scanIdent p s = let (name,rest) = span isIdChar s
                    in (name,advc (length name) p,rest)
 
-   doScan p []      = []
+   doScan _ []      = []
    doScan p (c:s)   | isSpace c = let (sp,next) = span isSpace s
                                  in  doScan (foldl (flip updPos)  p (c:sp)) next
    doScan p (c:d:s) | isAGesc c && isIdStart d =
@@ -73,7 +75,7 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
                name               = c:name'
                tok                = if iskw name
                                     then HsToken name p               -- keyword
-                                    else if null name' && isSymbol c
+                                    else if null name' && isSymb c
                                     then HsToken [c] p                -- '_'
                                     else HsToken name p               -- varid / conid
            in tok : doScan p' s'
@@ -86,18 +88,19 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
                           8  -> "0o"++digs
                           10 -> digs
                           16 -> "0x"++digs
+                          _  -> error $ "Base " ++ show base ++ " is not supported."
                    in  HsToken number p : advc' width p doScan s'
-     | isSymbol c = HsToken [c] p : advc' 1 p doScan s
+     | isSymb c = HsToken [c] p : advc' 1 p doScan s
      | otherwise = Err ("Unexpected character " ++ show c) p : updPos'  c p doScan s
 
-
+lexNest :: (Pos -> String -> [HsToken]) -> Pos -> String -> [HsToken]
 lexNest cont pos inp = lexNest' cont pos inp
  where lexNest' c p ('{':'-':s) = lexNest' (lexNest' c) (advc 2 p) s
        lexNest' c p ('-':'}':s) = c (advc 2 p) s
        lexNest' c p (x:s)       = lexNest' c (updPos  x p) s
        lexNest' _ _ []          = [Err "Unterminated nested comment" pos]
 
-
+scanString :: String -> (String, Int, String)
 scanString []            = ("",0,[])
 scanString ('\\':'&':xs) = let (str,w,r) = scanString xs
                            in (str,w+2,r)
@@ -105,12 +108,14 @@ scanString ('\'':xs)     = let (str,w,r) = scanString xs
                            in ('\'': str,w+1,r)
 scanString xs = let (ch,cw,cr) = getchar xs
                     (str,w,r)  = scanString cr
-                    str' = maybe "" (:str) ch
+--                    str' = maybe "" (:str) ch
                 in maybe ("",0,xs) (\c -> (c:str,cw+w,r)) ch
 
+scanChar :: String -> (Maybe Char, Int, String)
 scanChar ('"' :xs) = (Just '"',1,xs)
 scanChar xs        = getchar xs
 
+getchar :: String -> (Maybe Char, Int, String)
 getchar []          = (Nothing,0,[])
 getchar s@('\n':_ ) = (Nothing,0,s )
 getchar s@('\t':_ ) = (Nothing,0,s)
@@ -120,6 +125,7 @@ getchar   ('\\':xs) = let (c,l,r) = getEscChar xs
                       in (c,l+1,r)
 getchar (x:xs)      = (Just x,1,xs)
 
+getEscChar :: String -> (Maybe Char, Int, String)
 getEscChar [] = (Nothing,0,[])
 getEscChar s@(x:xs) | isDigit x = let (base,n,len,rest) = getNumber s
                                       val = readn base  n
@@ -132,8 +138,11 @@ getEscChar s@(x:xs) | isDigit x = let (base,n,len,rest) = getNumber s
   where cntrChars = [('a','\a'),('b','\b'),('f','\f'),('n','\n'),('r','\r'),('t','\t')
                     ,('v','\v'),('\\','\\'),('"','\"'),('\'','\'')]
 
+readn :: Int -> String -> Int
 readn base n = foldl (\r x  -> value x + base * r) 0 n
 
+getNumber :: String -> (Int,String,Int,String)
+getNumber [] = error "Empty string"
 getNumber cs@(c:s)
   | c /= '0'               = num10
   | null s                 = const0
@@ -146,15 +155,18 @@ getNumber cs@(c:s)
                  in (10,n,length n,r)
         num16   = readNum isHexaDigit  ts 16
         num8    = readNum isOctalDigit ts 8
-        readNum p ts tk
-          = let nrs@(n,rs) = span p ts
+        readNum p ts' tk
+          = let (n,rs) = span p ts'
             in  if null n then const0
-                          else (tk         , n, 2+length n,rs)
+                          else (tk, n, 2+length n,rs)
 
+isHexaDigit :: Char -> Bool
 isHexaDigit  d = isDigit d || (d >= 'A' && d <= 'F') || (d >= 'a' && d <= 'f')
+isOctalDigit :: Char -> Bool
 isOctalDigit d = d >= '0' && d <= '7'
 
+value :: Char -> Int
 value c | isDigit c = ord c - ord '0'
         | isUpper c = ord c - ord 'A' + 10
         | isLower c = ord c - ord 'a' + 10
-
+value _ = error "Not a valid value"

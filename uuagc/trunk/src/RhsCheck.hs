@@ -1,9 +1,7 @@
 module RhsCheck(checkRhs,checkBlock,checkTy) where
 
-import Data.Maybe (fromMaybe)
-import Language.Haskell.Exts
+import Language.Haskell.Exts (parseExpWithMode, parseModuleWithMode, parseTypeWithMode, srcLine, srcColumn, srcFilename, baseFixities, glasgowExts, ParseMode (..), defaultParseMode, ParseResult (..), Extension (..))
 import ErrorMessages
-import ConcreteSyntax
 import Expression
 import HsToken
 import UU.Scanner.Position

@@ -20,7 +20,7 @@ module Pretty
   , pp_braces
   , hv_sp
 
-  , empty, text
+  , empty, empty1, text
   , isEmpty
   )
   where
@@ -165,16 +165,16 @@ isEmpty _           = False
 -------------------------------------------------------------------------
 
 disp  ::  PP_Doc -> Int -> ShowS
-disp d _ s
+disp d0 _ s0
   = r
-  where (r,_,_) = put 0 1 d s
+  where (r,_,_) = put 0 1 d0 s0
         put p l d s
           = case d of
               Emp              -> (s,p,l)
               Emp1             -> (s,p,l)
               Str s'           -> (s' ++ s,p + length s',l)
-              Ind i  d         -> (ind ++ r,p', l')
-                               where (r,p',l') = put (p+i) l d s
+              Ind i  d1        -> (ind ++ r',p', l')
+                               where (r',p',l') = put (p+i) l d1 s
                                      ind = replicate i ' '
               Hor d1 d2        -> (r1,p2,l2)
                                where (r1,p1,l1) = put p  l  d1 r2
@@ -184,8 +184,8 @@ disp d _ s
               Ver d1 d2 | isEmpty d2
                                -> put p l d1 s
               Ver d1 d2        -> (r1,p2,l2)
-                               where (r1,p1,l1) = put p l d1 $ "\n" ++ ind ++ r2
+                               where (r1,_ ,l1) = put p l d1 $ "\n" ++ ind ++ r2
                                      (r2,p2,l2) = put p (l1+1) d2 s
                                      ind = replicate p ' '
-              Line f           -> (r,p',l')
-                               where (r,p',l') = put p l (f l) s
+              Line f           -> (r',p',l')
+                               where (r',p',l') = put p l (f l) s

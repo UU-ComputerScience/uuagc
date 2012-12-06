@@ -2,11 +2,9 @@ INCLUDE "ErrorMessages.ag"
 
 imports
 {
-import Pretty
 import UU.Scanner.Position(Pos(..), noPos)
 import ErrorMessages
-import Options
-import Data.List(mapAccumL,intersect,(\\))
+import Data.List(mapAccumL)
 import GrammarInfo
 import qualified Control.Monad.Error.Class as Err
 }
@@ -21,41 +19,41 @@ instance Err.Error Error where
 
 {
 isError :: Options -> Error -> Bool
-isError opts (ParserError     _ _ _    ) = True
-isError opts (DupAlt          _ _ _    ) = False
-isError opts (DupSynonym      _ _      ) = False
-isError opts (DupSet          _ _      ) = False
-isError opts (DupInhAttr      _ _ _    ) = True
-isError opts (DupSynAttr      _ _ _    ) = True
-isError opts (DupChild        _ _ _ _  ) = False
-isError opts (DupRule         _ _ _ _ _) = True
-isError opts (DupSig          _ _ _    ) = False
-isError opts (UndefNont       _        ) = True
-isError opts (UndefAlt        _ _      ) = True
-isError opts (UndefChild      _ _ _    ) = True
-isError opts (MissingRule     _ _ _ _  ) = False
-isError opts (SuperfluousRule _ _ _ _  ) = False
-isError opts (UndefLocal      _ _ _    ) = True
-isError opts (ChildAsLocal    _ _ _    ) = False
-isError opts (UndefAttr       _ _ _ _ _) = True
-isError opts (CyclicSet       _        ) = True
-isError opts (CustomError     w _ _    ) = not w
+isError _ (ParserError     _ _ _    ) = True
+isError _ (DupAlt          _ _ _    ) = False
+isError _ (DupSynonym      _ _      ) = False
+isError _ (DupSet          _ _      ) = False
+isError _ (DupInhAttr      _ _ _    ) = True
+isError _ (DupSynAttr      _ _ _    ) = True
+isError _ (DupChild        _ _ _ _  ) = False
+isError _ (DupRule         _ _ _ _ _) = True
+isError _ (DupSig          _ _ _    ) = False
+isError _ (UndefNont       _        ) = True
+isError _ (UndefAlt        _ _      ) = True
+isError _ (UndefChild      _ _ _    ) = True
+isError _ (MissingRule     _ _ _ _  ) = False
+isError _ (SuperfluousRule _ _ _ _  ) = False
+isError _ (UndefLocal      _ _ _    ) = True
+isError _ (ChildAsLocal    _ _ _    ) = False
+isError _ (UndefAttr       _ _ _ _ _) = True
+isError _ (CyclicSet       _        ) = True
+isError _ (CustomError     w _ _    ) = not w
 isError opts (LocalCirc       _ _ _ _ _) = cycleIsDangerous opts
 isError opts (InstCirc        _ _ _ _ _) = cycleIsDangerous opts
 isError opts (DirectCirc      _ _ _    ) = cycleIsDangerous opts
 isError opts (InducedCirc     _ _ _    ) = cycleIsDangerous opts
-isError opts (MissingTypeSig  _ _ _    ) = False
-isError opts (MissingInstSig  _ _ _    ) = True
-isError opts (DupUnique       _ _ _    ) = False
-isError opts (MissingUnique   _ _      ) = True
-isError opts (MissingSyn      _ _      ) = True
-isError opts (MissingNamedRule _ _ _)    = True
-isError opts (DupRuleName _ _ _)         = True
-isError opts (HsParseError _ _)          = True
-isError opts (Cyclic _ _ _)              = True
-isError opts (IncompatibleVisitKind _ _ _ _) = True
-isError opts (IncompatibleRuleKind _ _)      = True
-isError opts (IncompatibleAttachKind _ _)    = True
+isError _ (MissingTypeSig  _ _ _    ) = False
+isError _ (MissingInstSig  _ _ _    ) = True
+isError _ (DupUnique       _ _ _    ) = False
+isError _ (MissingUnique   _ _      ) = True
+isError _ (MissingSyn      _ _      ) = True
+isError _ (MissingNamedRule _ _ _)    = True
+isError _ (DupRuleName _ _ _)         = True
+isError _ (HsParseError _ _)          = True
+isError _ (Cyclic _ _ _)              = True
+isError _ (IncompatibleVisitKind _ _ _ _) = True
+isError _ (IncompatibleRuleKind _ _)      = True
+isError _ (IncompatibleAttachKind _ _)    = True
 
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
@@ -445,7 +443,7 @@ SEM Error
   | InducedCirc     lhs.pp = let mesg  = wfill ["After scheduling, in nonterminal", getName @nt, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
                                          >-< vlist (map showEdge @cyclic)
                                  pat   = text ""
-                                 showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (i+1,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
+                                 showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (succ i :: Integer,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
                                  help  = vlist (("Interface for nonterminal " ++ getName @nt ++ ":") : map ind (showInter @cinter))
                                          >-< vlist (map showEdgeLong @cyclic)
                                  act   = text "An unoptimized version was generated. It might hang when run."
@@ -548,19 +546,23 @@ SEM Error
                             in ppError (isError @lhs.options @me) (getPos @child) mesg pat help act @lhs.verbose
 
 {
+toWidth :: Int -> String -> String
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
              | otherwise = xs
                where k = length xs
 
+showEdge :: ((Identifier,Identifier),[String],[String]) -> PP_Doc
 showEdge ((inh,syn),_,_)
   = text ("inherited attribute " ++ toWidth 20 (getName inh) ++ " with synthesized attribute " ++  getName syn)
 
+showEdgeLong :: ((Identifier,Identifier),[String],[String]) -> PP_Doc
 showEdgeLong ((inh,syn),path1,path2)
   = text ("inherited attribute " ++ getName inh ++ " is needed for " ++  "synthesized attribute " ++ getName syn)
     >-< indent 4 (vlist (map text path2))
     >-< text "and back: "
     >-< indent 4 (vlist (map text path1))
 
+attrText :: Identifier -> Identifier -> String
 attrText inh syn
  = 	if   inh == syn
     then "threaded attribute " ++ getName inh
@@ -570,17 +572,21 @@ showLineNr :: Int -> String
 showLineNr i | i==(-1) = "CR"
              | otherwise = show i
 
+showAttrDef :: Identifier -> Identifier -> String
 showAttrDef f a | f == _LHS  = "synthesized attribute " ++ getName a
                 | f == _LOC  = "local attribute " ++ getName a
                 | f == _INST = "inst attribute " ++ getName a
                 | otherwise  = "inherited attribute " ++ getName a ++ " of field " ++ getName f
 
+showAttrUse :: Identifier -> Identifier -> String
 showAttrUse f a | f == _LHS  = "inherited attribute " ++ getName a
                 | f == _LOC  = "local attribute " ++ getName a
                 | f == _INST = "inst attribute " ++ getName a
                 | otherwise  = "synthesized attribute " ++ getName a ++ " of field " ++ getName f
 
+ppAttr :: Identifier -> Identifier -> PP_Doc
 ppAttr f a = text (getName f++"."++getName a)
+ppAttrUse :: Identifier -> Identifier -> PP_Doc
 ppAttrUse f a = "@" >|< ppAttr f a
 }
 -- Printing of error messages
@@ -594,6 +600,7 @@ infixr 5 +.+
 (+.+) :: Identifier -> Identifier -> String
 (+.+) s t = getName s ++ "." ++ getName t
 
+wfill :: [String] -> PP_Doc
 wfill = fill . addSpaces. concat . map words
   where addSpaces (x:xs) = x:map addSpace xs
         addSpaces []     = []
@@ -608,16 +615,16 @@ ppError :: Bool           -- class of the error, True:error False:warning
         -> PP_Doc         -- action taken by AG
         -> Bool           -- verbose? show help and action?
         -> PP_Doc
-ppError isError pos mesg pat hlp act verbose
+ppError isErr pos mesg pat hlp act verb
   = let position = case pos of
                      Pos l c f | l >= 0    -> f >|< ":" >|< show l >|< ":" >|< show c
                                | otherwise -> pp "uuagc"
-        tp      = if isError then "error" else "warning"
+        tp      = if isErr then "error" else "warning"
         header  = position >|< ":" >#< tp >|< ":" >#< mesg
         pattern = "pattern  :" >#< pat
         help    = "help     :" >#< hlp
         action  = "action   :" >#< act
-    in if verbose
+    in if verb
          then vlist [text "",header,pattern,help,action]
          else header
 
@@ -639,8 +646,10 @@ ppError isError pos mesg pat hlp act verbose
          else vlist [text "",header,message]
 -}
 
+showPos :: Identifier -> String
 showPos = show . getPos
 
+ppInterface :: Show a => a -> PP_Doc
 ppInterface inter = wfill ["interface:", show inter]
 
 }

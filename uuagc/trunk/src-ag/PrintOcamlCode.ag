@@ -31,6 +31,7 @@ ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq' next strictArgs expr
   = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
 
+ppTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
 }
@@ -172,6 +173,7 @@ SEM Type
   | TIntMap    lhs.pp = error "pp of Type.TIntMap is not supported"
 
 {
+toOcamlTC :: String -> String
 toOcamlTC (c:cs) = toLower c : cs
 toOcamlTC xs = xs
 }

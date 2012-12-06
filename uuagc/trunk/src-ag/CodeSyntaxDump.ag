@@ -14,7 +14,7 @@ import CodeSyntax
 
 {
 ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
-ppChild (nm,tp,b)
+ppChild (nm,tp,_)
   = pp nm >#< "::" >#< pp (show tp)
 
 ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc

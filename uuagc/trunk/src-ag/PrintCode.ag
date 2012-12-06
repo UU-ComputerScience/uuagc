@@ -11,14 +11,13 @@ imports
 import Data.Char (isAlphaNum)
 import Pretty
 import Code
-import Patterns
 import Options
-import CommonTypes (attrname, _LOC, getName, nullIdent)
+import CommonTypes (attrname, _LOC, nullIdent)
 import Data.List(intersperse)
 import System.IO
 import System.Directory
 import System.FilePath
-import CommonTypes(BlockInfo, BlockKind(..), identifier)
+import CommonTypes(BlockInfo, BlockKind(..))
 }
 
 {
@@ -302,8 +301,10 @@ SEM Type  [ | | prec:Int ]
 reallySimple :: String -> Bool
 reallySimple = and . map (\x -> isAlphaNum x || x=='_')
 
+ppTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
 ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
@@ -397,6 +398,7 @@ SEM Pattern [ | | pp':PP_Doc ]
   | Underscore lhs.pp'  = text "_"
 
 {
+locname' :: Identifier -> [Char]
 locname' n = "_loc_" ++ getName n
 }
 

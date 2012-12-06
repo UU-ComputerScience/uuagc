@@ -28,10 +28,9 @@ import TokenDef
 import HsToken
 import HsTokenScanner
 
-import Data.List(partition,intersperse,intersect,(\\))
+import Data.List(partition,intersperse)
 import Data.Maybe(fromJust,isJust)
 
-import Debug.Trace
 }
 
 
@@ -110,6 +109,7 @@ cleanupArg :: String -> String
 cleanupArg s
   = case idEvalType (SimpleType s) of
       SimpleType s' -> s'
+      _             -> error "Only SimpleType supported"
 }
 
 ATTR CNonterminals CNonterminal CProductions CProduction CVisits CVisit [ contextMap : {ContextMap} quantMap : QuantMap | | ]
@@ -162,8 +162,8 @@ SEM  CRule
                                   ( let (nm,mb,defor) = fromJust $ inst `lookup` @loc.instTypes
                                     in unwrapSem @lhs.o_newtypes nm
                                        $ case mb of
-                                           ChildReplace tp' -> App instLocFieldName [SimpleExpr $ fieldname inst]
-                                           _                ->
+                                           ChildReplace _ -> App instLocFieldName [SimpleExpr $ fieldname inst]
+                                           _              ->
                                               if defor
                                               then SimpleExpr instLocFieldName
                                               else App (cataname @lhs.prefix nm)
@@ -212,7 +212,7 @@ SEM  CRule
                                         | otherwise = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars
                                   rhs = @loc.addCostCentre $ Code.InvokeExpr (typeName @nt @nr) (SimpleExpr fun) (map SimpleExpr rhsVars)
                                   isVirtual _ [] = False
-                                  isVirtual nm ((n,t,kind) : r)
+                                  isVirtual nm ((n,_,kind) : r)
                                     | nm == n   = case kind of
                                                     ChildAttr -> True
                                                     _         -> False
@@ -237,14 +237,15 @@ SEM  CRule
                                                               tuple' = mkTupleLhs @lhs.o_unbox (null $ Map.keys @inh) lhsVars'
                                                               lhsVars' = map (attrname True c) (Map.keys @syn)
                                                                          ++ if @isLast then [] else [unwrap ++ funname c (@nr+1)]
-                                                              rhsVars = [ locname c ++ "_comp" | c <- cs ]
-                                                              fun     = locname c ++ "_merge"
-                                                              rhs' = App fun (map SimpleExpr rhsVars)
+                                                              rhsVars' = [ locname c' ++ "_comp" | c' <- cs ]
+                                                              fun'    = locname c ++ "_merge"
+                                                              rhs' = App fun' (map SimpleExpr rhsVars')
                                                           in [Resume @lhs.o_monadic (typeName @nt @nr) tuple' rhs']
                              in -- trace (show @name ++ " # " ++ show @loc.visitedSet ++ " # " ++ show (Map.assocs @lhs.mergeMap) ++ " # " ++ show merges ++ " # " ++ show @nr ++ " # " ++ show (length outMerged)) $
                                 (outDecls ++ outMerged)
 
 {
+mkDecl :: Bool -> Lhs -> Expr -> Set String -> Set String -> Decl
 mkDecl True  lhs rhs _ _   = Bind lhs rhs
 mkDecl False lhs rhs s1 s2 = Decl lhs rhs s1 s2
 
@@ -367,10 +368,10 @@ SEM  CRule
                               |  (field,attr,tp) <- Map.elems @defines, isJust tp
                               , let tp1 = @loc.evalTp field $ @mkTp (fromJust tp)
                                     tp' = case findOrigType attr @lhs.children of
-                                           Just tp' -> let tp2 = @loc.evalTp field $ @mkTp tp'
-                                                       in Arr tp2 tp1
+                                           Just tp'' -> let tp2 = @loc.evalTp field $ @mkTp tp''
+                                                        in Arr tp2 tp1
                                            Nothing -> tp1
-                                    findOrigType nm [] = Nothing
+                                    findOrigType _ [] = Nothing
                                     findOrigType nm ((n,_,kind) : r)
                                       | nm == n = case kind of
                                                     ChildReplace orig -> Just orig
@@ -506,7 +507,7 @@ SEM  CVisit
             loc.semType = let argType (NT tp tps _)  r | tp /= _SELF = typeAppStrs (sdtype tp) tps `Arr` r
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) r                 = SimpleType tp          `Arr` r
-
+			      argType _ _ = error "Self type not allowed here"
                               evalTp | null @loc.params = id
                                      | otherwise        = idEvalType
 
@@ -546,6 +547,7 @@ mkLambda xs e = Lambda xs e
 mkSemFun :: Identifier -> Int -> Exprs -> Expr -> Expr
 mkSemFun nt nr xs e = SemFun (typeName nt nr) xs e
 
+typeAppStrs :: String -> [String] -> Code.Type
 typeAppStrs nm params = TypeApp (SimpleType nm) (map SimpleType params)
 
 isHigherOrder :: ChildKind -> Bool
@@ -632,8 +634,8 @@ SEM CRule
 
 {
 mkPartitionedFunction :: String -> Bool -> [Decl] -> [String] -> DeclBlocks -> ([Decl], Expr)
-mkPartitionedFunction prefix optCase nextVisitDecls lastExprVars cpsTree
-  = let inh = Inh_DeclBlocksRoot { prefix_Inh_DeclBlocksRoot = prefix
+mkPartitionedFunction prefix' optCase nextVisitDecls lastExprVars cpsTree
+  = let inh = Inh_DeclBlocksRoot { prefix_Inh_DeclBlocksRoot = prefix'
                                  , optCase_Inh_DeclBlocksRoot = optCase
                                  , nextVisitDecls_Inh_DeclBlocksRoot = nextVisitDecls
                                  , lastExprVars_Inh_DeclBlocksRoot = lastExprVars
@@ -760,14 +762,15 @@ SEM CGrammar
 
 {
 typeToCodeType :: Maybe NontermIdent -> [String] -> Type -> Code.Type
-typeToCodeType mbNt params tp
+typeToCodeType _ _ tp
   = case tp of
       NT nt tps defor -> NontermType (getName nt) tps defor
       Haskell t       -> SimpleType t
+      Self            -> error "Self type not allowed here."
 
 evalType :: (String -> String) -> Code.Type -> Code.Type
-evalType replf t
-  = chase t
+evalType replf t'
+  = chase t'
   where
     chase t
       = case t of
@@ -906,7 +909,10 @@ SEM CRule
 {
 makeLocalComment :: Int -> String -> Identifier -> Maybe Type -> String
 makeLocalComment width what  name tp = let  x = getName name
-                                            y = maybe "_" (\t -> case t of (NT nt tps _) -> getName nt ++ " " ++ unwords tps; Haskell t -> '{':t++"}") tp
+                                            y = maybe "_" (\t -> case t of
+					      	      (NT nt tps _) -> getName nt ++ " " ++ unwords tps
+					      	      Haskell t' -> '{' : t' ++ "}"
+						      Self -> error "Self type not allowed here.") tp
                                        in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
 
 }
@@ -952,11 +958,12 @@ mkLet False decls body = Let decls body
 mkLet True decls body = foldr oneCase body decls
 
 oneCase :: Decl -> Expr -> Expr
-oneCase (Decl left rhs _ _)      exp = Case rhs [CaseAlt left exp]
-oneCase (Resume _ nt left rhs)   exp = ResumeExpr nt rhs left exp
-oneCase _                        exp = exp
+oneCase (Decl left rhs _ _)      ex = Case rhs [CaseAlt left ex]
+oneCase (Resume _ nt left rhs)   ex = ResumeExpr nt rhs left ex
+oneCase _                        ex = ex
 
 -- Gives the name of the visit function
+funname :: Show a => a -> Int -> String
 funname field 0  = show field ++ "_"
 funname field nr = show field ++ "_" ++ show nr
 
@@ -1000,9 +1007,8 @@ SEM CNonterminal
                                                         CommonTypes.Map t1 t2    -> TMap (typeToCodeType (Just @nt) params' t1) (typeToCodeType (Just @nt) params' t2)
                                                         CommonTypes.IntMap t     -> TIntMap $ typeToCodeType (Just @nt) params' t
                                                         CommonTypes.List t       -> Code.List $ typeToCodeType (Just @nt) params' t
-                                                        CommonTypes.Tuple ts     -> Code.TupleType [typeToCodeType (Just @nt) params' t
-                                                                                               | (_,t) <- ts
-                                                                                               ]
+                                                        CommonTypes.Tuple ts     -> Code.TupleType [typeToCodeType (Just @nt) params' t | (_,t) <- ts ]
+                                                        tp'                      -> error $ show tp' ++ " not supported"
                                                  in Code.Type (getName @nt) params' (idEvalType theType)
                                    derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
                                    dataDef    = Data (getName @nt) (map getName @params) @prods.dataAlts (maybe False id @lhs.o_data) derivings
@@ -1116,6 +1122,7 @@ SEM CNonterminal
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
                                                          rhs = App con rargs
                                                      in  [Decl lhs rhs Set.empty Set.empty]
+						 _ -> error "TODO"
                                in  Comment "cata" :
                                    (if @lhs.o_sig then [tSig] else []) ++
                                    maybe @prods.cataAlts special (lookup @nt @lhs.typeSyns)
