@@ -582,10 +582,16 @@ ppDefor (Haskell s)    = text s
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.t_params = ppSpaced @lhs.params
-                loc.args     = map (\x -> case show x of 
-			       	       ""       -> empty 
-				       '!':name -> "!arg_" >|< name
-				       _        ->  "arg_" >|< x) @children.argpats
+		loc.usedArgs = @children.usedArgs `Set.union` @visits.usedArgs `Set.union` @rules.usedArgs
+		-- A bit ugly, but this code renames arguments and puts an underscore when the argument
+		-- is never used. This avoids compiler warnings of unused variables.
+                loc.args     = map (\x -> let (name,arg) = case show x of 
+					               ""       -> ("", empty)
+				       		       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
+						       name     -> ("arg_" ++ name, "arg_"  >|< name)
+                                          in  if null name || name `Set.member` @loc.usedArgs
+			       	       	      then arg
+			       	       	      else text "_") @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
                 loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
@@ -843,6 +849,17 @@ fmtDecl declPure fmt decl = case fmt of
 --
 -- Some properties of VisitStep(s)
 --
+
+-- Used arguments
+ATTR VisitSteps VisitStep Visit Visits EChild EChildren ERule ERules [ | | usedArgs USE {`Set.union`} {Set.empty} : {Set String} ]
+SEM ERule
+  | ERule +usedArgs = Set.union $ Map.keysSet $ Map.mapKeys (\a -> "arg_" ++ a) $ Map.filter isNothing @rhs.attrs
+
+SEM EChild
+  | EChild +usedArgs = \s -> case @kind of
+    	   		     ChildSyntax -> Set.insert ("arg_" ++ show @name ++ "_") s
+			     _           -> s
+
 
 -- Number of steps in a 'Sim' block
 ATTR VisitSteps [ | | size : Int ]
