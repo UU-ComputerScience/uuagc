@@ -1,6 +1,6 @@
+{-# LANGUAGE Rank2Types, GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-
--- UUAGC 0.9.42.2 (src-ag/Visage.ag)
 module Visage where
 {-# LINE 6 "./src-ag/Visage.ag" #-}
 
@@ -36,6 +36,8 @@ import CommonTypes
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 39 "dist/build/Visage.hs" #-}
+import Control.Monad.Identity (Identity)
+import qualified Control.Monad.Identity
 {-# LINE 19 "./src-ag/Visage.ag" #-}
 
 convert :: String -> String
@@ -61,708 +63,840 @@ showMap
   where
     braces s = "{" ++ s ++ "}"
     assign a b = show a ++ ":=" ++ show b
-{-# LINE 65 "dist/build/Visage.hs" #-}
+{-# LINE 67 "dist/build/Visage.hs" #-}
 -- Expression --------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative Expression:
-         child pos            : {Pos}
-         child tks            : {[HsToken]}
--}
+-- wrapper
+data Inh_Expression  = Inh_Expression {  }
+data Syn_Expression  = Syn_Expression { aterm_Syn_Expression :: (ATerm) }
+{-# INLINABLE wrap_Expression #-}
+wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
+wrap_Expression (T_Expression act) (Inh_Expression ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Expression_vIn1 
+        (T_Expression_vOut1 _lhsOaterm) <- return (inv_Expression_s2 sem arg)
+        return (Syn_Expression _lhsOaterm)
+   )
+
 -- cata
-sem_Expression :: Expression ->
-                  T_Expression
-sem_Expression (Expression _pos _tks) =
-    (sem_Expression_Expression _pos _tks)
+{-# INLINE sem_Expression #-}
+sem_Expression :: Expression  -> T_Expression 
+sem_Expression ( Expression pos_ tks_ ) = sem_Expression_Expression pos_ tks_
+
 -- semantic domain
-newtype T_Expression = T_Expression (( ATerm))
-data Inh_Expression = Inh_Expression {}
-data Syn_Expression = Syn_Expression {aterm_Syn_Expression :: ATerm}
-wrap_Expression :: T_Expression ->
-                   Inh_Expression ->
-                   Syn_Expression
-wrap_Expression (T_Expression sem) (Inh_Expression) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_Expression _lhsOaterm))
-sem_Expression_Expression :: Pos ->
-                             ([HsToken]) ->
-                             T_Expression
-sem_Expression_Expression pos_ tks_ =
-    (T_Expression (let _lhsOaterm :: ATerm
-                       -- "./src-ag/Visage.ag"(line 103, column 17)
-                       _lhsOaterm =
-                           ({-# LINE 103 "./src-ag/Visage.ag" #-}
-                            AAppl "Expression" [AString (sQ (showAGPos pos_)), AString (sQ (unlines . showTokens . tokensToStrings $ tks_))]
-                            {-# LINE 100 "dist/build/Visage.hs" #-}
-                            )
-                   in  ( _lhsOaterm)))
+newtype T_Expression  = T_Expression {
+                                     attach_T_Expression :: Identity (T_Expression_s2 )
+                                     }
+newtype T_Expression_s2  = C_Expression_s2 {
+                                           inv_Expression_s2 :: (T_Expression_v1 )
+                                           }
+data T_Expression_s3  = C_Expression_s3
+type T_Expression_v1  = (T_Expression_vIn1 ) -> (T_Expression_vOut1 )
+data T_Expression_vIn1  = T_Expression_vIn1 
+data T_Expression_vOut1  = T_Expression_vOut1 (ATerm)
+{-# NOINLINE sem_Expression_Expression #-}
+sem_Expression_Expression :: (Pos) -> ([HsToken]) -> T_Expression 
+sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Expression_v1 
+      v1 = \ (T_Expression_vIn1 ) -> ( let
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule0 arg_pos_ arg_tks_
+         __result_ = T_Expression_vOut1 _lhsOaterm
+         in __result_ )
+     in C_Expression_s2 v1
+   {-# INLINE rule0 #-}
+   {-# LINE 103 "./src-ag/Visage.ag" #-}
+   rule0 = \ pos_ tks_ ->
+                              {-# LINE 103 "./src-ag/Visage.ag" #-}
+                              AAppl "Expression" [AString (sQ (showAGPos pos_)), AString (sQ (unlines . showTokens . tokensToStrings $ tks_))]
+                              {-# LINE 115 "dist/build/Visage.hs"#-}
+
 -- VisageChild -------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VChild:
-         child name           : {Identifier}
-         child tp             : {Type}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child rules          : VisageRules 
--}
+-- wrapper
+data Inh_VisageChild  = Inh_VisageChild {  }
+data Syn_VisageChild  = Syn_VisageChild { aterm_Syn_VisageChild :: (ATerm) }
+{-# INLINABLE wrap_VisageChild #-}
+wrap_VisageChild :: T_VisageChild  -> Inh_VisageChild  -> (Syn_VisageChild )
+wrap_VisageChild (T_VisageChild act) (Inh_VisageChild ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageChild_vIn4 
+        (T_VisageChild_vOut4 _lhsOaterm) <- return (inv_VisageChild_s5 sem arg)
+        return (Syn_VisageChild _lhsOaterm)
+   )
+
 -- cata
-sem_VisageChild :: VisageChild ->
-                   T_VisageChild
-sem_VisageChild (VChild _name _tp _inh _syn _rules) =
-    (sem_VisageChild_VChild _name _tp _inh _syn (sem_VisageRules _rules))
+{-# INLINE sem_VisageChild #-}
+sem_VisageChild :: VisageChild  -> T_VisageChild 
+sem_VisageChild ( VChild name_ tp_ inh_ syn_ rules_ ) = sem_VisageChild_VChild name_ tp_ inh_ syn_ ( sem_VisageRules rules_ )
+
 -- semantic domain
-newtype T_VisageChild = T_VisageChild (( ATerm))
-data Inh_VisageChild = Inh_VisageChild {}
-data Syn_VisageChild = Syn_VisageChild {aterm_Syn_VisageChild :: ATerm}
-wrap_VisageChild :: T_VisageChild ->
-                    Inh_VisageChild ->
-                    Syn_VisageChild
-wrap_VisageChild (T_VisageChild sem) (Inh_VisageChild) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_VisageChild _lhsOaterm))
-sem_VisageChild_VChild :: Identifier ->
-                          Type ->
-                          Attributes ->
-                          Attributes ->
-                          T_VisageRules ->
-                          T_VisageChild
-sem_VisageChild_VChild name_ tp_ inh_ syn_ (T_VisageRules rules_) =
-    (T_VisageChild (let _lhsOaterm :: ATerm
-                        _rulesOisLoc :: Bool
-                        _rulesIaterms :: ([ATerm])
-                        -- "./src-ag/Visage.ag"(line 85, column 18)
-                        _lhsOaterm =
-                            ({-# LINE 85 "./src-ag/Visage.ag" #-}
-                             AAppl "Child" [AString (sQ (getName name_)), AString (sQ (show tp_)),
-                                            AString (sQ (showMap inh_)),
-                                            AString (sQ (showMap syn_)),
-                                            AAppl "Rules" _rulesIaterms]
-                             {-# LINE 148 "dist/build/Visage.hs" #-}
-                             )
-                        -- "./src-ag/Visage.ag"(line 89, column 18)
-                        _rulesOisLoc =
-                            ({-# LINE 89 "./src-ag/Visage.ag" #-}
-                             False
-                             {-# LINE 154 "dist/build/Visage.hs" #-}
-                             )
-                        ( _rulesIaterms) =
-                            rules_ _rulesOisLoc
-                    in  ( _lhsOaterm)))
+newtype T_VisageChild  = T_VisageChild {
+                                       attach_T_VisageChild :: Identity (T_VisageChild_s5 )
+                                       }
+newtype T_VisageChild_s5  = C_VisageChild_s5 {
+                                             inv_VisageChild_s5 :: (T_VisageChild_v4 )
+                                             }
+data T_VisageChild_s6  = C_VisageChild_s6
+type T_VisageChild_v4  = (T_VisageChild_vIn4 ) -> (T_VisageChild_vOut4 )
+data T_VisageChild_vIn4  = T_VisageChild_vIn4 
+data T_VisageChild_vOut4  = T_VisageChild_vOut4 (ATerm)
+{-# NOINLINE sem_VisageChild_VChild #-}
+sem_VisageChild_VChild :: (Identifier) -> (Type) -> (Attributes) -> (Attributes) -> T_VisageRules  -> T_VisageChild 
+sem_VisageChild_VChild arg_name_ arg_tp_ arg_inh_ arg_syn_ arg_rules_ = T_VisageChild (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_VisageChild_v4 
+      v4 = \ (T_VisageChild_vIn4 ) -> ( let
+         _rulesX35 = Control.Monad.Identity.runIdentity (attach_T_VisageRules (arg_rules_))
+         (T_VisageRules_vOut34 _rulesIaterms) = inv_VisageRules_s35 _rulesX35 (T_VisageRules_vIn34 _rulesOisLoc)
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule1 _rulesIaterms arg_inh_ arg_name_ arg_syn_ arg_tp_
+         _rulesOisLoc = rule2  ()
+         __result_ = T_VisageChild_vOut4 _lhsOaterm
+         in __result_ )
+     in C_VisageChild_s5 v4
+   {-# INLINE rule1 #-}
+   {-# LINE 85 "./src-ag/Visage.ag" #-}
+   rule1 = \ ((_rulesIaterms) :: [ATerm]) inh_ name_ syn_ tp_ ->
+                               {-# LINE 85 "./src-ag/Visage.ag" #-}
+                               AAppl "Child" [AString (sQ (getName name_)), AString (sQ (show tp_)),
+                                              AString (sQ (showMap inh_)),
+                                              AString (sQ (showMap syn_)),
+                                              AAppl "Rules" _rulesIaterms]
+                               {-# LINE 170 "dist/build/Visage.hs"#-}
+   {-# INLINE rule2 #-}
+   {-# LINE 89 "./src-ag/Visage.ag" #-}
+   rule2 = \  (_ :: ()) ->
+                                 {-# LINE 89 "./src-ag/Visage.ag" #-}
+                                 False
+                                 {-# LINE 176 "dist/build/Visage.hs"#-}
+
 -- VisageChildren ----------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterms               : [ATerm]
-   alternatives:
-      alternative Cons:
-         child hd             : VisageChild 
-         child tl             : VisageChildren 
-      alternative Nil:
--}
+-- wrapper
+data Inh_VisageChildren  = Inh_VisageChildren {  }
+data Syn_VisageChildren  = Syn_VisageChildren { aterms_Syn_VisageChildren :: ([ATerm]) }
+{-# INLINABLE wrap_VisageChildren #-}
+wrap_VisageChildren :: T_VisageChildren  -> Inh_VisageChildren  -> (Syn_VisageChildren )
+wrap_VisageChildren (T_VisageChildren act) (Inh_VisageChildren ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageChildren_vIn7 
+        (T_VisageChildren_vOut7 _lhsOaterms) <- return (inv_VisageChildren_s8 sem arg)
+        return (Syn_VisageChildren _lhsOaterms)
+   )
+
 -- cata
-sem_VisageChildren :: VisageChildren ->
-                      T_VisageChildren
-sem_VisageChildren list =
-    (Prelude.foldr sem_VisageChildren_Cons sem_VisageChildren_Nil (Prelude.map sem_VisageChild list))
+{-# NOINLINE sem_VisageChildren #-}
+sem_VisageChildren :: VisageChildren  -> T_VisageChildren 
+sem_VisageChildren list = Prelude.foldr sem_VisageChildren_Cons sem_VisageChildren_Nil (Prelude.map sem_VisageChild list)
+
 -- semantic domain
-newtype T_VisageChildren = T_VisageChildren (( ([ATerm])))
-data Inh_VisageChildren = Inh_VisageChildren {}
-data Syn_VisageChildren = Syn_VisageChildren {aterms_Syn_VisageChildren :: ([ATerm])}
-wrap_VisageChildren :: T_VisageChildren ->
-                       Inh_VisageChildren ->
-                       Syn_VisageChildren
-wrap_VisageChildren (T_VisageChildren sem) (Inh_VisageChildren) =
-    (let ( _lhsOaterms) = sem
-     in  (Syn_VisageChildren _lhsOaterms))
-sem_VisageChildren_Cons :: T_VisageChild ->
-                           T_VisageChildren ->
-                           T_VisageChildren
-sem_VisageChildren_Cons (T_VisageChild hd_) (T_VisageChildren tl_) =
-    (T_VisageChildren (let _lhsOaterms :: ([ATerm])
-                           _hdIaterm :: ATerm
-                           _tlIaterms :: ([ATerm])
-                           -- "./src-ag/Visage.ag"(line 80, column 17)
-                           _lhsOaterms =
-                               ({-# LINE 80 "./src-ag/Visage.ag" #-}
-                                _hdIaterm : _tlIaterms
-                                {-# LINE 196 "dist/build/Visage.hs" #-}
-                                )
-                           ( _hdIaterm) =
-                               hd_
-                           ( _tlIaterms) =
-                               tl_
-                       in  ( _lhsOaterms)))
-sem_VisageChildren_Nil :: T_VisageChildren
-sem_VisageChildren_Nil =
-    (T_VisageChildren (let _lhsOaterms :: ([ATerm])
-                           -- "./src-ag/Visage.ag"(line 81, column 17)
-                           _lhsOaterms =
-                               ({-# LINE 81 "./src-ag/Visage.ag" #-}
-                                []
-                                {-# LINE 210 "dist/build/Visage.hs" #-}
-                                )
-                       in  ( _lhsOaterms)))
+newtype T_VisageChildren  = T_VisageChildren {
+                                             attach_T_VisageChildren :: Identity (T_VisageChildren_s8 )
+                                             }
+newtype T_VisageChildren_s8  = C_VisageChildren_s8 {
+                                                   inv_VisageChildren_s8 :: (T_VisageChildren_v7 )
+                                                   }
+data T_VisageChildren_s9  = C_VisageChildren_s9
+type T_VisageChildren_v7  = (T_VisageChildren_vIn7 ) -> (T_VisageChildren_vOut7 )
+data T_VisageChildren_vIn7  = T_VisageChildren_vIn7 
+data T_VisageChildren_vOut7  = T_VisageChildren_vOut7 ([ATerm])
+{-# NOINLINE sem_VisageChildren_Cons #-}
+sem_VisageChildren_Cons :: T_VisageChild  -> T_VisageChildren  -> T_VisageChildren 
+sem_VisageChildren_Cons arg_hd_ arg_tl_ = T_VisageChildren (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_VisageChildren_v7 
+      v7 = \ (T_VisageChildren_vIn7 ) -> ( let
+         _hdX5 = Control.Monad.Identity.runIdentity (attach_T_VisageChild (arg_hd_))
+         _tlX8 = Control.Monad.Identity.runIdentity (attach_T_VisageChildren (arg_tl_))
+         (T_VisageChild_vOut4 _hdIaterm) = inv_VisageChild_s5 _hdX5 (T_VisageChild_vIn4 )
+         (T_VisageChildren_vOut7 _tlIaterms) = inv_VisageChildren_s8 _tlX8 (T_VisageChildren_vIn7 )
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule3 _hdIaterm _tlIaterms
+         __result_ = T_VisageChildren_vOut7 _lhsOaterms
+         in __result_ )
+     in C_VisageChildren_s8 v7
+   {-# INLINE rule3 #-}
+   {-# LINE 80 "./src-ag/Visage.ag" #-}
+   rule3 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
+                               {-# LINE 80 "./src-ag/Visage.ag" #-}
+                               _hdIaterm : _tlIaterms
+                               {-# LINE 229 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisageChildren_Nil #-}
+sem_VisageChildren_Nil ::  T_VisageChildren 
+sem_VisageChildren_Nil  = T_VisageChildren (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_VisageChildren_v7 
+      v7 = \ (T_VisageChildren_vIn7 ) -> ( let
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule4  ()
+         __result_ = T_VisageChildren_vOut7 _lhsOaterms
+         in __result_ )
+     in C_VisageChildren_s8 v7
+   {-# INLINE rule4 #-}
+   {-# LINE 81 "./src-ag/Visage.ag" #-}
+   rule4 = \  (_ :: ()) ->
+                               {-# LINE 81 "./src-ag/Visage.ag" #-}
+                               []
+                               {-# LINE 247 "dist/build/Visage.hs"#-}
+
 -- VisageGrammar -----------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VGrammar:
-         child nonts          : VisageNonterminals 
--}
+-- wrapper
+data Inh_VisageGrammar  = Inh_VisageGrammar {  }
+data Syn_VisageGrammar  = Syn_VisageGrammar { aterm_Syn_VisageGrammar :: (ATerm) }
+{-# INLINABLE wrap_VisageGrammar #-}
+wrap_VisageGrammar :: T_VisageGrammar  -> Inh_VisageGrammar  -> (Syn_VisageGrammar )
+wrap_VisageGrammar (T_VisageGrammar act) (Inh_VisageGrammar ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageGrammar_vIn10 
+        (T_VisageGrammar_vOut10 _lhsOaterm) <- return (inv_VisageGrammar_s11 sem arg)
+        return (Syn_VisageGrammar _lhsOaterm)
+   )
+
 -- cata
-sem_VisageGrammar :: VisageGrammar ->
-                     T_VisageGrammar
-sem_VisageGrammar (VGrammar _nonts) =
-    (sem_VisageGrammar_VGrammar (sem_VisageNonterminals _nonts))
+{-# INLINE sem_VisageGrammar #-}
+sem_VisageGrammar :: VisageGrammar  -> T_VisageGrammar 
+sem_VisageGrammar ( VGrammar nonts_ ) = sem_VisageGrammar_VGrammar ( sem_VisageNonterminals nonts_ )
+
 -- semantic domain
-newtype T_VisageGrammar = T_VisageGrammar (( ATerm))
-data Inh_VisageGrammar = Inh_VisageGrammar {}
-data Syn_VisageGrammar = Syn_VisageGrammar {aterm_Syn_VisageGrammar :: ATerm}
-wrap_VisageGrammar :: T_VisageGrammar ->
-                      Inh_VisageGrammar ->
-                      Syn_VisageGrammar
-wrap_VisageGrammar (T_VisageGrammar sem) (Inh_VisageGrammar) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_VisageGrammar _lhsOaterm))
-sem_VisageGrammar_VGrammar :: T_VisageNonterminals ->
-                              T_VisageGrammar
-sem_VisageGrammar_VGrammar (T_VisageNonterminals nonts_) =
-    (T_VisageGrammar (let _lhsOaterm :: ATerm
-                          _nontsIaterms :: ([ATerm])
-                          -- "./src-ag/Visage.ag"(line 54, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 54 "./src-ag/Visage.ag" #-}
+newtype T_VisageGrammar  = T_VisageGrammar {
+                                           attach_T_VisageGrammar :: Identity (T_VisageGrammar_s11 )
+                                           }
+newtype T_VisageGrammar_s11  = C_VisageGrammar_s11 {
+                                                   inv_VisageGrammar_s11 :: (T_VisageGrammar_v10 )
+                                                   }
+data T_VisageGrammar_s12  = C_VisageGrammar_s12
+type T_VisageGrammar_v10  = (T_VisageGrammar_vIn10 ) -> (T_VisageGrammar_vOut10 )
+data T_VisageGrammar_vIn10  = T_VisageGrammar_vIn10 
+data T_VisageGrammar_vOut10  = T_VisageGrammar_vOut10 (ATerm)
+{-# NOINLINE sem_VisageGrammar_VGrammar #-}
+sem_VisageGrammar_VGrammar :: T_VisageNonterminals  -> T_VisageGrammar 
+sem_VisageGrammar_VGrammar arg_nonts_ = T_VisageGrammar (return st11) where
+   {-# NOINLINE st11 #-}
+   st11 = let
+      v10 :: T_VisageGrammar_v10 
+      v10 = \ (T_VisageGrammar_vIn10 ) -> ( let
+         _nontsX17 = Control.Monad.Identity.runIdentity (attach_T_VisageNonterminals (arg_nonts_))
+         (T_VisageNonterminals_vOut16 _nontsIaterms) = inv_VisageNonterminals_s17 _nontsX17 (T_VisageNonterminals_vIn16 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule5 _nontsIaterms
+         __result_ = T_VisageGrammar_vOut10 _lhsOaterm
+         in __result_ )
+     in C_VisageGrammar_s11 v10
+   {-# INLINE rule5 #-}
+   {-# LINE 54 "./src-ag/Visage.ag" #-}
+   rule5 = \ ((_nontsIaterms) :: [ATerm]) ->
+                               {-# LINE 54 "./src-ag/Visage.ag" #-}
                                AAppl "Productions" _nontsIaterms
-                               {-# LINE 246 "dist/build/Visage.hs" #-}
-                               )
-                          ( _nontsIaterms) =
-                              nonts_
-                      in  ( _lhsOaterm)))
+                               {-# LINE 298 "dist/build/Visage.hs"#-}
+
 -- VisageNonterminal -------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VNonterminal:
-         child nt             : {NontermIdent}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child alts           : VisageProductions 
--}
+-- wrapper
+data Inh_VisageNonterminal  = Inh_VisageNonterminal {  }
+data Syn_VisageNonterminal  = Syn_VisageNonterminal { aterm_Syn_VisageNonterminal :: (ATerm) }
+{-# INLINABLE wrap_VisageNonterminal #-}
+wrap_VisageNonterminal :: T_VisageNonterminal  -> Inh_VisageNonterminal  -> (Syn_VisageNonterminal )
+wrap_VisageNonterminal (T_VisageNonterminal act) (Inh_VisageNonterminal ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageNonterminal_vIn13 
+        (T_VisageNonterminal_vOut13 _lhsOaterm) <- return (inv_VisageNonterminal_s14 sem arg)
+        return (Syn_VisageNonterminal _lhsOaterm)
+   )
+
 -- cata
-sem_VisageNonterminal :: VisageNonterminal ->
-                         T_VisageNonterminal
-sem_VisageNonterminal (VNonterminal _nt _inh _syn _alts) =
-    (sem_VisageNonterminal_VNonterminal _nt _inh _syn (sem_VisageProductions _alts))
+{-# INLINE sem_VisageNonterminal #-}
+sem_VisageNonterminal :: VisageNonterminal  -> T_VisageNonterminal 
+sem_VisageNonterminal ( VNonterminal nt_ inh_ syn_ alts_ ) = sem_VisageNonterminal_VNonterminal nt_ inh_ syn_ ( sem_VisageProductions alts_ )
+
 -- semantic domain
-newtype T_VisageNonterminal = T_VisageNonterminal (( ATerm))
-data Inh_VisageNonterminal = Inh_VisageNonterminal {}
-data Syn_VisageNonterminal = Syn_VisageNonterminal {aterm_Syn_VisageNonterminal :: ATerm}
-wrap_VisageNonterminal :: T_VisageNonterminal ->
-                          Inh_VisageNonterminal ->
-                          Syn_VisageNonterminal
-wrap_VisageNonterminal (T_VisageNonterminal sem) (Inh_VisageNonterminal) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_VisageNonterminal _lhsOaterm))
-sem_VisageNonterminal_VNonterminal :: NontermIdent ->
-                                      Attributes ->
-                                      Attributes ->
-                                      T_VisageProductions ->
-                                      T_VisageNonterminal
-sem_VisageNonterminal_VNonterminal nt_ inh_ syn_ (T_VisageProductions alts_) =
-    (T_VisageNonterminal (let _lhsOaterm :: ATerm
-                              _altsIaterms :: ([ATerm])
-                              -- "./src-ag/Visage.ag"(line 63, column 19)
-                              _lhsOaterm =
-                                  ({-# LINE 63 "./src-ag/Visage.ag" #-}
-                                   AAppl "Production" [AString (sQ (getName nt_)), AString (sQ(showMap inh_)),
-                                                      AString (sQ(showMap syn_)), AAppl "Alternatives" _altsIaterms]
-                                   {-# LINE 291 "dist/build/Visage.hs" #-}
-                                   )
-                              ( _altsIaterms) =
-                                  alts_
-                          in  ( _lhsOaterm)))
+newtype T_VisageNonterminal  = T_VisageNonterminal {
+                                                   attach_T_VisageNonterminal :: Identity (T_VisageNonterminal_s14 )
+                                                   }
+newtype T_VisageNonterminal_s14  = C_VisageNonterminal_s14 {
+                                                           inv_VisageNonterminal_s14 :: (T_VisageNonterminal_v13 )
+                                                           }
+data T_VisageNonterminal_s15  = C_VisageNonterminal_s15
+type T_VisageNonterminal_v13  = (T_VisageNonterminal_vIn13 ) -> (T_VisageNonterminal_vOut13 )
+data T_VisageNonterminal_vIn13  = T_VisageNonterminal_vIn13 
+data T_VisageNonterminal_vOut13  = T_VisageNonterminal_vOut13 (ATerm)
+{-# NOINLINE sem_VisageNonterminal_VNonterminal #-}
+sem_VisageNonterminal_VNonterminal :: (NontermIdent) -> (Attributes) -> (Attributes) -> T_VisageProductions  -> T_VisageNonterminal 
+sem_VisageNonterminal_VNonterminal arg_nt_ arg_inh_ arg_syn_ arg_alts_ = T_VisageNonterminal (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_VisageNonterminal_v13 
+      v13 = \ (T_VisageNonterminal_vIn13 ) -> ( let
+         _altsX29 = Control.Monad.Identity.runIdentity (attach_T_VisageProductions (arg_alts_))
+         (T_VisageProductions_vOut28 _altsIaterms) = inv_VisageProductions_s29 _altsX29 (T_VisageProductions_vIn28 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule6 _altsIaterms arg_inh_ arg_nt_ arg_syn_
+         __result_ = T_VisageNonterminal_vOut13 _lhsOaterm
+         in __result_ )
+     in C_VisageNonterminal_s14 v13
+   {-# INLINE rule6 #-}
+   {-# LINE 63 "./src-ag/Visage.ag" #-}
+   rule6 = \ ((_altsIaterms) :: [ATerm]) inh_ nt_ syn_ ->
+                                {-# LINE 63 "./src-ag/Visage.ag" #-}
+                                AAppl "Production" [AString (sQ (getName nt_)), AString (sQ(showMap inh_)),
+                                                   AString (sQ(showMap syn_)), AAppl "Alternatives" _altsIaterms]
+                                {-# LINE 350 "dist/build/Visage.hs"#-}
+
 -- VisageNonterminals ------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterms               : [ATerm]
-   alternatives:
-      alternative Cons:
-         child hd             : VisageNonterminal 
-         child tl             : VisageNonterminals 
-      alternative Nil:
--}
+-- wrapper
+data Inh_VisageNonterminals  = Inh_VisageNonterminals {  }
+data Syn_VisageNonterminals  = Syn_VisageNonterminals { aterms_Syn_VisageNonterminals :: ([ATerm]) }
+{-# INLINABLE wrap_VisageNonterminals #-}
+wrap_VisageNonterminals :: T_VisageNonterminals  -> Inh_VisageNonterminals  -> (Syn_VisageNonterminals )
+wrap_VisageNonterminals (T_VisageNonterminals act) (Inh_VisageNonterminals ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageNonterminals_vIn16 
+        (T_VisageNonterminals_vOut16 _lhsOaterms) <- return (inv_VisageNonterminals_s17 sem arg)
+        return (Syn_VisageNonterminals _lhsOaterms)
+   )
+
 -- cata
-sem_VisageNonterminals :: VisageNonterminals ->
-                          T_VisageNonterminals
-sem_VisageNonterminals list =
-    (Prelude.foldr sem_VisageNonterminals_Cons sem_VisageNonterminals_Nil (Prelude.map sem_VisageNonterminal list))
+{-# NOINLINE sem_VisageNonterminals #-}
+sem_VisageNonterminals :: VisageNonterminals  -> T_VisageNonterminals 
+sem_VisageNonterminals list = Prelude.foldr sem_VisageNonterminals_Cons sem_VisageNonterminals_Nil (Prelude.map sem_VisageNonterminal list)
+
 -- semantic domain
-newtype T_VisageNonterminals = T_VisageNonterminals (( ([ATerm])))
-data Inh_VisageNonterminals = Inh_VisageNonterminals {}
-data Syn_VisageNonterminals = Syn_VisageNonterminals {aterms_Syn_VisageNonterminals :: ([ATerm])}
-wrap_VisageNonterminals :: T_VisageNonterminals ->
-                           Inh_VisageNonterminals ->
-                           Syn_VisageNonterminals
-wrap_VisageNonterminals (T_VisageNonterminals sem) (Inh_VisageNonterminals) =
-    (let ( _lhsOaterms) = sem
-     in  (Syn_VisageNonterminals _lhsOaterms))
-sem_VisageNonterminals_Cons :: T_VisageNonterminal ->
-                               T_VisageNonterminals ->
-                               T_VisageNonterminals
-sem_VisageNonterminals_Cons (T_VisageNonterminal hd_) (T_VisageNonterminals tl_) =
-    (T_VisageNonterminals (let _lhsOaterms :: ([ATerm])
-                               _hdIaterm :: ATerm
-                               _tlIaterms :: ([ATerm])
-                               -- "./src-ag/Visage.ag"(line 58, column 17)
-                               _lhsOaterms =
-                                   ({-# LINE 58 "./src-ag/Visage.ag" #-}
-                                    _hdIaterm : _tlIaterms
-                                    {-# LINE 333 "dist/build/Visage.hs" #-}
-                                    )
-                               ( _hdIaterm) =
-                                   hd_
-                               ( _tlIaterms) =
-                                   tl_
-                           in  ( _lhsOaterms)))
-sem_VisageNonterminals_Nil :: T_VisageNonterminals
-sem_VisageNonterminals_Nil =
-    (T_VisageNonterminals (let _lhsOaterms :: ([ATerm])
-                               -- "./src-ag/Visage.ag"(line 59, column 17)
-                               _lhsOaterms =
-                                   ({-# LINE 59 "./src-ag/Visage.ag" #-}
-                                    []
-                                    {-# LINE 347 "dist/build/Visage.hs" #-}
-                                    )
-                           in  ( _lhsOaterms)))
+newtype T_VisageNonterminals  = T_VisageNonterminals {
+                                                     attach_T_VisageNonterminals :: Identity (T_VisageNonterminals_s17 )
+                                                     }
+newtype T_VisageNonterminals_s17  = C_VisageNonterminals_s17 {
+                                                             inv_VisageNonterminals_s17 :: (T_VisageNonterminals_v16 )
+                                                             }
+data T_VisageNonterminals_s18  = C_VisageNonterminals_s18
+type T_VisageNonterminals_v16  = (T_VisageNonterminals_vIn16 ) -> (T_VisageNonterminals_vOut16 )
+data T_VisageNonterminals_vIn16  = T_VisageNonterminals_vIn16 
+data T_VisageNonterminals_vOut16  = T_VisageNonterminals_vOut16 ([ATerm])
+{-# NOINLINE sem_VisageNonterminals_Cons #-}
+sem_VisageNonterminals_Cons :: T_VisageNonterminal  -> T_VisageNonterminals  -> T_VisageNonterminals 
+sem_VisageNonterminals_Cons arg_hd_ arg_tl_ = T_VisageNonterminals (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_VisageNonterminals_v16 
+      v16 = \ (T_VisageNonterminals_vIn16 ) -> ( let
+         _hdX14 = Control.Monad.Identity.runIdentity (attach_T_VisageNonterminal (arg_hd_))
+         _tlX17 = Control.Monad.Identity.runIdentity (attach_T_VisageNonterminals (arg_tl_))
+         (T_VisageNonterminal_vOut13 _hdIaterm) = inv_VisageNonterminal_s14 _hdX14 (T_VisageNonterminal_vIn13 )
+         (T_VisageNonterminals_vOut16 _tlIaterms) = inv_VisageNonterminals_s17 _tlX17 (T_VisageNonterminals_vIn16 )
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule7 _hdIaterm _tlIaterms
+         __result_ = T_VisageNonterminals_vOut16 _lhsOaterms
+         in __result_ )
+     in C_VisageNonterminals_s17 v16
+   {-# INLINE rule7 #-}
+   {-# LINE 58 "./src-ag/Visage.ag" #-}
+   rule7 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
+                               {-# LINE 58 "./src-ag/Visage.ag" #-}
+                               _hdIaterm : _tlIaterms
+                               {-# LINE 403 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisageNonterminals_Nil #-}
+sem_VisageNonterminals_Nil ::  T_VisageNonterminals 
+sem_VisageNonterminals_Nil  = T_VisageNonterminals (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_VisageNonterminals_v16 
+      v16 = \ (T_VisageNonterminals_vIn16 ) -> ( let
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule8  ()
+         __result_ = T_VisageNonterminals_vOut16 _lhsOaterms
+         in __result_ )
+     in C_VisageNonterminals_s17 v16
+   {-# INLINE rule8 #-}
+   {-# LINE 59 "./src-ag/Visage.ag" #-}
+   rule8 = \  (_ :: ()) ->
+                               {-# LINE 59 "./src-ag/Visage.ag" #-}
+                               []
+                               {-# LINE 421 "dist/build/Visage.hs"#-}
+
 -- VisagePattern -----------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VConstr:
-         child name           : {ConstructorIdent}
-         child pats           : VisagePatterns 
-      alternative VProduct:
-         child pos            : {Pos}
-         child pats           : VisagePatterns 
-      alternative VVar:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-      alternative VAlias:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child pat            : VisagePattern 
-      alternative VUnderscore:
-         child pos            : {Pos}
--}
+-- wrapper
+data Inh_VisagePattern  = Inh_VisagePattern {  }
+data Syn_VisagePattern  = Syn_VisagePattern { aterm_Syn_VisagePattern :: (ATerm) }
+{-# INLINABLE wrap_VisagePattern #-}
+wrap_VisagePattern :: T_VisagePattern  -> Inh_VisagePattern  -> (Syn_VisagePattern )
+wrap_VisagePattern (T_VisagePattern act) (Inh_VisagePattern ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisagePattern_vIn19 
+        (T_VisagePattern_vOut19 _lhsOaterm) <- return (inv_VisagePattern_s20 sem arg)
+        return (Syn_VisagePattern _lhsOaterm)
+   )
+
 -- cata
-sem_VisagePattern :: VisagePattern ->
-                     T_VisagePattern
-sem_VisagePattern (VConstr _name _pats) =
-    (sem_VisagePattern_VConstr _name (sem_VisagePatterns _pats))
-sem_VisagePattern (VProduct _pos _pats) =
-    (sem_VisagePattern_VProduct _pos (sem_VisagePatterns _pats))
-sem_VisagePattern (VVar _field _attr) =
-    (sem_VisagePattern_VVar _field _attr)
-sem_VisagePattern (VAlias _field _attr _pat) =
-    (sem_VisagePattern_VAlias _field _attr (sem_VisagePattern _pat))
-sem_VisagePattern (VUnderscore _pos) =
-    (sem_VisagePattern_VUnderscore _pos)
+{-# NOINLINE sem_VisagePattern #-}
+sem_VisagePattern :: VisagePattern  -> T_VisagePattern 
+sem_VisagePattern ( VConstr name_ pats_ ) = sem_VisagePattern_VConstr name_ ( sem_VisagePatterns pats_ )
+sem_VisagePattern ( VProduct pos_ pats_ ) = sem_VisagePattern_VProduct pos_ ( sem_VisagePatterns pats_ )
+sem_VisagePattern ( VVar field_ attr_ ) = sem_VisagePattern_VVar field_ attr_
+sem_VisagePattern ( VAlias field_ attr_ pat_ ) = sem_VisagePattern_VAlias field_ attr_ ( sem_VisagePattern pat_ )
+sem_VisagePattern ( VUnderscore pos_ ) = sem_VisagePattern_VUnderscore pos_
+
 -- semantic domain
-newtype T_VisagePattern = T_VisagePattern (( ATerm))
-data Inh_VisagePattern = Inh_VisagePattern {}
-data Syn_VisagePattern = Syn_VisagePattern {aterm_Syn_VisagePattern :: ATerm}
-wrap_VisagePattern :: T_VisagePattern ->
-                      Inh_VisagePattern ->
-                      Syn_VisagePattern
-wrap_VisagePattern (T_VisagePattern sem) (Inh_VisagePattern) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_VisagePattern _lhsOaterm))
-sem_VisagePattern_VConstr :: ConstructorIdent ->
-                             T_VisagePatterns ->
-                             T_VisagePattern
-sem_VisagePattern_VConstr name_ (T_VisagePatterns pats_) =
-    (T_VisagePattern (let _lhsOaterm :: ATerm
-                          _patsIaterms :: ([ATerm])
-                          -- "./src-ag/Visage.ag"(line 112, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 112 "./src-ag/Visage.ag" #-}
+newtype T_VisagePattern  = T_VisagePattern {
+                                           attach_T_VisagePattern :: Identity (T_VisagePattern_s20 )
+                                           }
+newtype T_VisagePattern_s20  = C_VisagePattern_s20 {
+                                                   inv_VisagePattern_s20 :: (T_VisagePattern_v19 )
+                                                   }
+data T_VisagePattern_s21  = C_VisagePattern_s21
+type T_VisagePattern_v19  = (T_VisagePattern_vIn19 ) -> (T_VisagePattern_vOut19 )
+data T_VisagePattern_vIn19  = T_VisagePattern_vIn19 
+data T_VisagePattern_vOut19  = T_VisagePattern_vOut19 (ATerm)
+{-# NOINLINE sem_VisagePattern_VConstr #-}
+sem_VisagePattern_VConstr :: (ConstructorIdent) -> T_VisagePatterns  -> T_VisagePattern 
+sem_VisagePattern_VConstr arg_name_ arg_pats_ = T_VisagePattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_VisagePattern_v19 
+      v19 = \ (T_VisagePattern_vIn19 ) -> ( let
+         _patsX23 = Control.Monad.Identity.runIdentity (attach_T_VisagePatterns (arg_pats_))
+         (T_VisagePatterns_vOut22 _patsIaterms) = inv_VisagePatterns_s23 _patsX23 (T_VisagePatterns_vIn22 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule9 _patsIaterms arg_name_
+         __result_ = T_VisagePattern_vOut19 _lhsOaterm
+         in __result_ )
+     in C_VisagePattern_s20 v19
+   {-# INLINE rule9 #-}
+   {-# LINE 112 "./src-ag/Visage.ag" #-}
+   rule9 = \ ((_patsIaterms) :: [ATerm]) name_ ->
+                               {-# LINE 112 "./src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Constr" [AString (sQ (showAGPos (getPos name_))),
                                                 AString (sQ (getName name_)),
                                                 AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 407 "dist/build/Visage.hs" #-}
-                               )
-                          ( _patsIaterms) =
-                              pats_
-                      in  ( _lhsOaterm)))
-sem_VisagePattern_VProduct :: Pos ->
-                              T_VisagePatterns ->
-                              T_VisagePattern
-sem_VisagePattern_VProduct pos_ (T_VisagePatterns pats_) =
-    (T_VisagePattern (let _lhsOaterm :: ATerm
-                          _patsIaterms :: ([ATerm])
-                          -- "./src-ag/Visage.ag"(line 115, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 115 "./src-ag/Visage.ag" #-}
+                               {-# LINE 478 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisagePattern_VProduct #-}
+sem_VisagePattern_VProduct :: (Pos) -> T_VisagePatterns  -> T_VisagePattern 
+sem_VisagePattern_VProduct arg_pos_ arg_pats_ = T_VisagePattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_VisagePattern_v19 
+      v19 = \ (T_VisagePattern_vIn19 ) -> ( let
+         _patsX23 = Control.Monad.Identity.runIdentity (attach_T_VisagePatterns (arg_pats_))
+         (T_VisagePatterns_vOut22 _patsIaterms) = inv_VisagePatterns_s23 _patsX23 (T_VisagePatterns_vIn22 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule10 _patsIaterms arg_pos_
+         __result_ = T_VisagePattern_vOut19 _lhsOaterm
+         in __result_ )
+     in C_VisagePattern_s20 v19
+   {-# INLINE rule10 #-}
+   {-# LINE 115 "./src-ag/Visage.ag" #-}
+   rule10 = \ ((_patsIaterms) :: [ATerm]) pos_ ->
+                               {-# LINE 115 "./src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Product" [AString (sQ (showAGPos pos_)),
                                                                  AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 423 "dist/build/Visage.hs" #-}
-                               )
-                          ( _patsIaterms) =
-                              pats_
-                      in  ( _lhsOaterm)))
-sem_VisagePattern_VVar :: Identifier ->
-                          Identifier ->
-                          T_VisagePattern
-sem_VisagePattern_VVar field_ attr_ =
-    (T_VisagePattern (let _lhsOaterm :: ATerm
-                          -- "./src-ag/Visage.ag"(line 117, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 117 "./src-ag/Visage.ag" #-}
+                               {-# LINE 499 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisagePattern_VVar #-}
+sem_VisagePattern_VVar :: (Identifier) -> (Identifier) -> T_VisagePattern 
+sem_VisagePattern_VVar arg_field_ arg_attr_ = T_VisagePattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_VisagePattern_v19 
+      v19 = \ (T_VisagePattern_vIn19 ) -> ( let
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule11 arg_attr_ arg_field_
+         __result_ = T_VisagePattern_vOut19 _lhsOaterm
+         in __result_ )
+     in C_VisagePattern_s20 v19
+   {-# INLINE rule11 #-}
+   {-# LINE 117 "./src-ag/Visage.ag" #-}
+   rule11 = \ attr_ field_ ->
+                               {-# LINE 117 "./src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Var" [AString (sQ (showAGPos (getPos field_))),
                                                              AString (sQ (getName field_ ++ "." ++ getName attr_))]]
-                               {-# LINE 438 "dist/build/Visage.hs" #-}
-                               )
-                      in  ( _lhsOaterm)))
-sem_VisagePattern_VAlias :: Identifier ->
-                            Identifier ->
-                            T_VisagePattern ->
-                            T_VisagePattern
-sem_VisagePattern_VAlias field_ attr_ (T_VisagePattern pat_) =
-    (T_VisagePattern (let _lhsOaterm :: ATerm
-                          _patIaterm :: ATerm
-                          -- "./src-ag/Visage.ag"(line 119, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 119 "./src-ag/Visage.ag" #-}
+                               {-# LINE 518 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisagePattern_VAlias #-}
+sem_VisagePattern_VAlias :: (Identifier) -> (Identifier) -> T_VisagePattern  -> T_VisagePattern 
+sem_VisagePattern_VAlias arg_field_ arg_attr_ arg_pat_ = T_VisagePattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_VisagePattern_v19 
+      v19 = \ (T_VisagePattern_vIn19 ) -> ( let
+         _patX20 = Control.Monad.Identity.runIdentity (attach_T_VisagePattern (arg_pat_))
+         (T_VisagePattern_vOut19 _patIaterm) = inv_VisagePattern_s20 _patX20 (T_VisagePattern_vIn19 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule12 _patIaterm arg_attr_ arg_field_
+         __result_ = T_VisagePattern_vOut19 _lhsOaterm
+         in __result_ )
+     in C_VisagePattern_s20 v19
+   {-# INLINE rule12 #-}
+   {-# LINE 119 "./src-ag/Visage.ag" #-}
+   rule12 = \ ((_patIaterm) :: ATerm) attr_ field_ ->
+                               {-# LINE 119 "./src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Alias" [AString (sQ (showAGPos (getPos field_))),
                                                                AString (sQ (getName field_ ++ "." ++ getName attr_)), _patIaterm]]
-                               {-# LINE 453 "dist/build/Visage.hs" #-}
-                               )
-                          ( _patIaterm) =
-                              pat_
-                      in  ( _lhsOaterm)))
-sem_VisagePattern_VUnderscore :: Pos ->
-                                 T_VisagePattern
-sem_VisagePattern_VUnderscore pos_ =
-    (T_VisagePattern (let _lhsOaterm :: ATerm
-                          -- "./src-ag/Visage.ag"(line 121, column 18)
-                          _lhsOaterm =
-                              ({-# LINE 121 "./src-ag/Visage.ag" #-}
+                               {-# LINE 539 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisagePattern_VUnderscore #-}
+sem_VisagePattern_VUnderscore :: (Pos) -> T_VisagePattern 
+sem_VisagePattern_VUnderscore arg_pos_ = T_VisagePattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_VisagePattern_v19 
+      v19 = \ (T_VisagePattern_vIn19 ) -> ( let
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule13 arg_pos_
+         __result_ = T_VisagePattern_vOut19 _lhsOaterm
+         in __result_ )
+     in C_VisagePattern_s20 v19
+   {-# INLINE rule13 #-}
+   {-# LINE 121 "./src-ag/Visage.ag" #-}
+   rule13 = \ pos_ ->
+                               {-# LINE 121 "./src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Underscore" [AString (sQ (showAGPos pos_))]]
-                               {-# LINE 466 "dist/build/Visage.hs" #-}
-                               )
-                      in  ( _lhsOaterm)))
+                               {-# LINE 557 "dist/build/Visage.hs"#-}
+
 -- VisagePatterns ----------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterms               : [ATerm]
-   alternatives:
-      alternative Cons:
-         child hd             : VisagePattern 
-         child tl             : VisagePatterns 
-      alternative Nil:
--}
+-- wrapper
+data Inh_VisagePatterns  = Inh_VisagePatterns {  }
+data Syn_VisagePatterns  = Syn_VisagePatterns { aterms_Syn_VisagePatterns :: ([ATerm]) }
+{-# INLINABLE wrap_VisagePatterns #-}
+wrap_VisagePatterns :: T_VisagePatterns  -> Inh_VisagePatterns  -> (Syn_VisagePatterns )
+wrap_VisagePatterns (T_VisagePatterns act) (Inh_VisagePatterns ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisagePatterns_vIn22 
+        (T_VisagePatterns_vOut22 _lhsOaterms) <- return (inv_VisagePatterns_s23 sem arg)
+        return (Syn_VisagePatterns _lhsOaterms)
+   )
+
 -- cata
-sem_VisagePatterns :: VisagePatterns ->
-                      T_VisagePatterns
-sem_VisagePatterns list =
-    (Prelude.foldr sem_VisagePatterns_Cons sem_VisagePatterns_Nil (Prelude.map sem_VisagePattern list))
+{-# NOINLINE sem_VisagePatterns #-}
+sem_VisagePatterns :: VisagePatterns  -> T_VisagePatterns 
+sem_VisagePatterns list = Prelude.foldr sem_VisagePatterns_Cons sem_VisagePatterns_Nil (Prelude.map sem_VisagePattern list)
+
 -- semantic domain
-newtype T_VisagePatterns = T_VisagePatterns (( ([ATerm])))
-data Inh_VisagePatterns = Inh_VisagePatterns {}
-data Syn_VisagePatterns = Syn_VisagePatterns {aterms_Syn_VisagePatterns :: ([ATerm])}
-wrap_VisagePatterns :: T_VisagePatterns ->
-                       Inh_VisagePatterns ->
-                       Syn_VisagePatterns
-wrap_VisagePatterns (T_VisagePatterns sem) (Inh_VisagePatterns) =
-    (let ( _lhsOaterms) = sem
-     in  (Syn_VisagePatterns _lhsOaterms))
-sem_VisagePatterns_Cons :: T_VisagePattern ->
-                           T_VisagePatterns ->
-                           T_VisagePatterns
-sem_VisagePatterns_Cons (T_VisagePattern hd_) (T_VisagePatterns tl_) =
-    (T_VisagePatterns (let _lhsOaterms :: ([ATerm])
-                           _hdIaterm :: ATerm
-                           _tlIaterms :: ([ATerm])
-                           -- "./src-ag/Visage.ag"(line 107, column 17)
-                           _lhsOaterms =
-                               ({-# LINE 107 "./src-ag/Visage.ag" #-}
-                                _hdIaterm : _tlIaterms
-                                {-# LINE 506 "dist/build/Visage.hs" #-}
-                                )
-                           ( _hdIaterm) =
-                               hd_
-                           ( _tlIaterms) =
-                               tl_
-                       in  ( _lhsOaterms)))
-sem_VisagePatterns_Nil :: T_VisagePatterns
-sem_VisagePatterns_Nil =
-    (T_VisagePatterns (let _lhsOaterms :: ([ATerm])
-                           -- "./src-ag/Visage.ag"(line 108, column 17)
-                           _lhsOaterms =
-                               ({-# LINE 108 "./src-ag/Visage.ag" #-}
-                                []
-                                {-# LINE 520 "dist/build/Visage.hs" #-}
-                                )
-                       in  ( _lhsOaterms)))
+newtype T_VisagePatterns  = T_VisagePatterns {
+                                             attach_T_VisagePatterns :: Identity (T_VisagePatterns_s23 )
+                                             }
+newtype T_VisagePatterns_s23  = C_VisagePatterns_s23 {
+                                                     inv_VisagePatterns_s23 :: (T_VisagePatterns_v22 )
+                                                     }
+data T_VisagePatterns_s24  = C_VisagePatterns_s24
+type T_VisagePatterns_v22  = (T_VisagePatterns_vIn22 ) -> (T_VisagePatterns_vOut22 )
+data T_VisagePatterns_vIn22  = T_VisagePatterns_vIn22 
+data T_VisagePatterns_vOut22  = T_VisagePatterns_vOut22 ([ATerm])
+{-# NOINLINE sem_VisagePatterns_Cons #-}
+sem_VisagePatterns_Cons :: T_VisagePattern  -> T_VisagePatterns  -> T_VisagePatterns 
+sem_VisagePatterns_Cons arg_hd_ arg_tl_ = T_VisagePatterns (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_VisagePatterns_v22 
+      v22 = \ (T_VisagePatterns_vIn22 ) -> ( let
+         _hdX20 = Control.Monad.Identity.runIdentity (attach_T_VisagePattern (arg_hd_))
+         _tlX23 = Control.Monad.Identity.runIdentity (attach_T_VisagePatterns (arg_tl_))
+         (T_VisagePattern_vOut19 _hdIaterm) = inv_VisagePattern_s20 _hdX20 (T_VisagePattern_vIn19 )
+         (T_VisagePatterns_vOut22 _tlIaterms) = inv_VisagePatterns_s23 _tlX23 (T_VisagePatterns_vIn22 )
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule14 _hdIaterm _tlIaterms
+         __result_ = T_VisagePatterns_vOut22 _lhsOaterms
+         in __result_ )
+     in C_VisagePatterns_s23 v22
+   {-# INLINE rule14 #-}
+   {-# LINE 107 "./src-ag/Visage.ag" #-}
+   rule14 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
+                               {-# LINE 107 "./src-ag/Visage.ag" #-}
+                               _hdIaterm : _tlIaterms
+                               {-# LINE 610 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisagePatterns_Nil #-}
+sem_VisagePatterns_Nil ::  T_VisagePatterns 
+sem_VisagePatterns_Nil  = T_VisagePatterns (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_VisagePatterns_v22 
+      v22 = \ (T_VisagePatterns_vIn22 ) -> ( let
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule15  ()
+         __result_ = T_VisagePatterns_vOut22 _lhsOaterms
+         in __result_ )
+     in C_VisagePatterns_s23 v22
+   {-# INLINE rule15 #-}
+   {-# LINE 108 "./src-ag/Visage.ag" #-}
+   rule15 = \  (_ :: ()) ->
+                               {-# LINE 108 "./src-ag/Visage.ag" #-}
+                               []
+                               {-# LINE 628 "dist/build/Visage.hs"#-}
+
 -- VisageProduction --------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VProduction:
-         child con            : {ConstructorIdent}
-         child children       : VisageChildren 
-         child rules          : VisageRules 
-         child locrules       : VisageRules 
--}
+-- wrapper
+data Inh_VisageProduction  = Inh_VisageProduction {  }
+data Syn_VisageProduction  = Syn_VisageProduction { aterm_Syn_VisageProduction :: (ATerm) }
+{-# INLINABLE wrap_VisageProduction #-}
+wrap_VisageProduction :: T_VisageProduction  -> Inh_VisageProduction  -> (Syn_VisageProduction )
+wrap_VisageProduction (T_VisageProduction act) (Inh_VisageProduction ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageProduction_vIn25 
+        (T_VisageProduction_vOut25 _lhsOaterm) <- return (inv_VisageProduction_s26 sem arg)
+        return (Syn_VisageProduction _lhsOaterm)
+   )
+
 -- cata
-sem_VisageProduction :: VisageProduction ->
-                        T_VisageProduction
-sem_VisageProduction (VProduction _con _children _rules _locrules) =
-    (sem_VisageProduction_VProduction _con (sem_VisageChildren _children) (sem_VisageRules _rules) (sem_VisageRules _locrules))
+{-# INLINE sem_VisageProduction #-}
+sem_VisageProduction :: VisageProduction  -> T_VisageProduction 
+sem_VisageProduction ( VProduction con_ children_ rules_ locrules_ ) = sem_VisageProduction_VProduction con_ ( sem_VisageChildren children_ ) ( sem_VisageRules rules_ ) ( sem_VisageRules locrules_ )
+
 -- semantic domain
-newtype T_VisageProduction = T_VisageProduction (( ATerm))
-data Inh_VisageProduction = Inh_VisageProduction {}
-data Syn_VisageProduction = Syn_VisageProduction {aterm_Syn_VisageProduction :: ATerm}
-wrap_VisageProduction :: T_VisageProduction ->
-                         Inh_VisageProduction ->
-                         Syn_VisageProduction
-wrap_VisageProduction (T_VisageProduction sem) (Inh_VisageProduction) =
-    (let ( _lhsOaterm) = sem
-     in  (Syn_VisageProduction _lhsOaterm))
-sem_VisageProduction_VProduction :: ConstructorIdent ->
-                                    T_VisageChildren ->
-                                    T_VisageRules ->
-                                    T_VisageRules ->
-                                    T_VisageProduction
-sem_VisageProduction_VProduction con_ (T_VisageChildren children_) (T_VisageRules rules_) (T_VisageRules locrules_) =
-    (T_VisageProduction (let _lhsOaterm :: ATerm
-                             _locrulesOisLoc :: Bool
-                             _rulesOisLoc :: Bool
-                             _childrenIaterms :: ([ATerm])
-                             _rulesIaterms :: ([ATerm])
-                             _locrulesIaterms :: ([ATerm])
-                             -- "./src-ag/Visage.ag"(line 73, column 17)
-                             _lhsOaterm =
-                                 ({-# LINE 73 "./src-ag/Visage.ag" #-}
-                                  AAppl "Alternative" [AString (sQ (getName con_)), AAppl "Children" _childrenIaterms,
-                                                        AAppl "Rules" _rulesIaterms,
-                                                        AAppl "LocRules" _locrulesIaterms]
-                                  {-# LINE 568 "dist/build/Visage.hs" #-}
-                                  )
-                             -- "./src-ag/Visage.ag"(line 76, column 18)
-                             _locrulesOisLoc =
-                                 ({-# LINE 76 "./src-ag/Visage.ag" #-}
-                                  True
-                                  {-# LINE 574 "dist/build/Visage.hs" #-}
-                                  )
-                             -- "./src-ag/Visage.ag"(line 77, column 18)
-                             _rulesOisLoc =
-                                 ({-# LINE 77 "./src-ag/Visage.ag" #-}
-                                  False
-                                  {-# LINE 580 "dist/build/Visage.hs" #-}
-                                  )
-                             ( _childrenIaterms) =
-                                 children_
-                             ( _rulesIaterms) =
-                                 rules_ _rulesOisLoc
-                             ( _locrulesIaterms) =
-                                 locrules_ _locrulesOisLoc
-                         in  ( _lhsOaterm)))
+newtype T_VisageProduction  = T_VisageProduction {
+                                                 attach_T_VisageProduction :: Identity (T_VisageProduction_s26 )
+                                                 }
+newtype T_VisageProduction_s26  = C_VisageProduction_s26 {
+                                                         inv_VisageProduction_s26 :: (T_VisageProduction_v25 )
+                                                         }
+data T_VisageProduction_s27  = C_VisageProduction_s27
+type T_VisageProduction_v25  = (T_VisageProduction_vIn25 ) -> (T_VisageProduction_vOut25 )
+data T_VisageProduction_vIn25  = T_VisageProduction_vIn25 
+data T_VisageProduction_vOut25  = T_VisageProduction_vOut25 (ATerm)
+{-# NOINLINE sem_VisageProduction_VProduction #-}
+sem_VisageProduction_VProduction :: (ConstructorIdent) -> T_VisageChildren  -> T_VisageRules  -> T_VisageRules  -> T_VisageProduction 
+sem_VisageProduction_VProduction arg_con_ arg_children_ arg_rules_ arg_locrules_ = T_VisageProduction (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_VisageProduction_v25 
+      v25 = \ (T_VisageProduction_vIn25 ) -> ( let
+         _childrenX8 = Control.Monad.Identity.runIdentity (attach_T_VisageChildren (arg_children_))
+         _rulesX35 = Control.Monad.Identity.runIdentity (attach_T_VisageRules (arg_rules_))
+         _locrulesX35 = Control.Monad.Identity.runIdentity (attach_T_VisageRules (arg_locrules_))
+         (T_VisageChildren_vOut7 _childrenIaterms) = inv_VisageChildren_s8 _childrenX8 (T_VisageChildren_vIn7 )
+         (T_VisageRules_vOut34 _rulesIaterms) = inv_VisageRules_s35 _rulesX35 (T_VisageRules_vIn34 _rulesOisLoc)
+         (T_VisageRules_vOut34 _locrulesIaterms) = inv_VisageRules_s35 _locrulesX35 (T_VisageRules_vIn34 _locrulesOisLoc)
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule16 _childrenIaterms _locrulesIaterms _rulesIaterms arg_con_
+         _locrulesOisLoc = rule17  ()
+         _rulesOisLoc = rule18  ()
+         __result_ = T_VisageProduction_vOut25 _lhsOaterm
+         in __result_ )
+     in C_VisageProduction_s26 v25
+   {-# INLINE rule16 #-}
+   {-# LINE 73 "./src-ag/Visage.ag" #-}
+   rule16 = \ ((_childrenIaterms) :: [ATerm]) ((_locrulesIaterms) :: [ATerm]) ((_rulesIaterms) :: [ATerm]) con_ ->
+                              {-# LINE 73 "./src-ag/Visage.ag" #-}
+                              AAppl "Alternative" [AString (sQ (getName con_)), AAppl "Children" _childrenIaterms,
+                                                    AAppl "Rules" _rulesIaterms,
+                                                    AAppl "LocRules" _locrulesIaterms]
+                              {-# LINE 687 "dist/build/Visage.hs"#-}
+   {-# INLINE rule17 #-}
+   {-# LINE 76 "./src-ag/Visage.ag" #-}
+   rule17 = \  (_ :: ()) ->
+                                    {-# LINE 76 "./src-ag/Visage.ag" #-}
+                                    True
+                                    {-# LINE 693 "dist/build/Visage.hs"#-}
+   {-# INLINE rule18 #-}
+   {-# LINE 77 "./src-ag/Visage.ag" #-}
+   rule18 = \  (_ :: ()) ->
+                                    {-# LINE 77 "./src-ag/Visage.ag" #-}
+                                    False
+                                    {-# LINE 699 "dist/build/Visage.hs"#-}
+
 -- VisageProductions -------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         aterms               : [ATerm]
-   alternatives:
-      alternative Cons:
-         child hd             : VisageProduction 
-         child tl             : VisageProductions 
-      alternative Nil:
--}
+-- wrapper
+data Inh_VisageProductions  = Inh_VisageProductions {  }
+data Syn_VisageProductions  = Syn_VisageProductions { aterms_Syn_VisageProductions :: ([ATerm]) }
+{-# INLINABLE wrap_VisageProductions #-}
+wrap_VisageProductions :: T_VisageProductions  -> Inh_VisageProductions  -> (Syn_VisageProductions )
+wrap_VisageProductions (T_VisageProductions act) (Inh_VisageProductions ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageProductions_vIn28 
+        (T_VisageProductions_vOut28 _lhsOaterms) <- return (inv_VisageProductions_s29 sem arg)
+        return (Syn_VisageProductions _lhsOaterms)
+   )
+
 -- cata
-sem_VisageProductions :: VisageProductions ->
-                         T_VisageProductions
-sem_VisageProductions list =
-    (Prelude.foldr sem_VisageProductions_Cons sem_VisageProductions_Nil (Prelude.map sem_VisageProduction list))
+{-# NOINLINE sem_VisageProductions #-}
+sem_VisageProductions :: VisageProductions  -> T_VisageProductions 
+sem_VisageProductions list = Prelude.foldr sem_VisageProductions_Cons sem_VisageProductions_Nil (Prelude.map sem_VisageProduction list)
+
 -- semantic domain
-newtype T_VisageProductions = T_VisageProductions (( ([ATerm])))
-data Inh_VisageProductions = Inh_VisageProductions {}
-data Syn_VisageProductions = Syn_VisageProductions {aterms_Syn_VisageProductions :: ([ATerm])}
-wrap_VisageProductions :: T_VisageProductions ->
-                          Inh_VisageProductions ->
-                          Syn_VisageProductions
-wrap_VisageProductions (T_VisageProductions sem) (Inh_VisageProductions) =
-    (let ( _lhsOaterms) = sem
-     in  (Syn_VisageProductions _lhsOaterms))
-sem_VisageProductions_Cons :: T_VisageProduction ->
-                              T_VisageProductions ->
-                              T_VisageProductions
-sem_VisageProductions_Cons (T_VisageProduction hd_) (T_VisageProductions tl_) =
-    (T_VisageProductions (let _lhsOaterms :: ([ATerm])
-                              _hdIaterm :: ATerm
-                              _tlIaterms :: ([ATerm])
-                              -- "./src-ag/Visage.ag"(line 68, column 17)
-                              _lhsOaterms =
-                                  ({-# LINE 68 "./src-ag/Visage.ag" #-}
-                                   _hdIaterm : _tlIaterms
-                                   {-# LINE 626 "dist/build/Visage.hs" #-}
-                                   )
-                              ( _hdIaterm) =
-                                  hd_
-                              ( _tlIaterms) =
-                                  tl_
-                          in  ( _lhsOaterms)))
-sem_VisageProductions_Nil :: T_VisageProductions
-sem_VisageProductions_Nil =
-    (T_VisageProductions (let _lhsOaterms :: ([ATerm])
-                              -- "./src-ag/Visage.ag"(line 69, column 17)
-                              _lhsOaterms =
-                                  ({-# LINE 69 "./src-ag/Visage.ag" #-}
-                                   []
-                                   {-# LINE 640 "dist/build/Visage.hs" #-}
-                                   )
-                          in  ( _lhsOaterms)))
+newtype T_VisageProductions  = T_VisageProductions {
+                                                   attach_T_VisageProductions :: Identity (T_VisageProductions_s29 )
+                                                   }
+newtype T_VisageProductions_s29  = C_VisageProductions_s29 {
+                                                           inv_VisageProductions_s29 :: (T_VisageProductions_v28 )
+                                                           }
+data T_VisageProductions_s30  = C_VisageProductions_s30
+type T_VisageProductions_v28  = (T_VisageProductions_vIn28 ) -> (T_VisageProductions_vOut28 )
+data T_VisageProductions_vIn28  = T_VisageProductions_vIn28 
+data T_VisageProductions_vOut28  = T_VisageProductions_vOut28 ([ATerm])
+{-# NOINLINE sem_VisageProductions_Cons #-}
+sem_VisageProductions_Cons :: T_VisageProduction  -> T_VisageProductions  -> T_VisageProductions 
+sem_VisageProductions_Cons arg_hd_ arg_tl_ = T_VisageProductions (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_VisageProductions_v28 
+      v28 = \ (T_VisageProductions_vIn28 ) -> ( let
+         _hdX26 = Control.Monad.Identity.runIdentity (attach_T_VisageProduction (arg_hd_))
+         _tlX29 = Control.Monad.Identity.runIdentity (attach_T_VisageProductions (arg_tl_))
+         (T_VisageProduction_vOut25 _hdIaterm) = inv_VisageProduction_s26 _hdX26 (T_VisageProduction_vIn25 )
+         (T_VisageProductions_vOut28 _tlIaterms) = inv_VisageProductions_s29 _tlX29 (T_VisageProductions_vIn28 )
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule19 _hdIaterm _tlIaterms
+         __result_ = T_VisageProductions_vOut28 _lhsOaterms
+         in __result_ )
+     in C_VisageProductions_s29 v28
+   {-# INLINE rule19 #-}
+   {-# LINE 68 "./src-ag/Visage.ag" #-}
+   rule19 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
+                               {-# LINE 68 "./src-ag/Visage.ag" #-}
+                               _hdIaterm : _tlIaterms
+                               {-# LINE 752 "dist/build/Visage.hs"#-}
+{-# NOINLINE sem_VisageProductions_Nil #-}
+sem_VisageProductions_Nil ::  T_VisageProductions 
+sem_VisageProductions_Nil  = T_VisageProductions (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_VisageProductions_v28 
+      v28 = \ (T_VisageProductions_vIn28 ) -> ( let
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule20  ()
+         __result_ = T_VisageProductions_vOut28 _lhsOaterms
+         in __result_ )
+     in C_VisageProductions_s29 v28
+   {-# INLINE rule20 #-}
+   {-# LINE 69 "./src-ag/Visage.ag" #-}
+   rule20 = \  (_ :: ()) ->
+                               {-# LINE 69 "./src-ag/Visage.ag" #-}
+                               []
+                               {-# LINE 770 "dist/build/Visage.hs"#-}
+
 -- VisageRule --------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         isLoc                : Bool
-      synthesized attribute:
-         aterm                : ATerm
-   alternatives:
-      alternative VRule:
-         child fieldattrs     : {[(Identifier,Identifier)]}
-         child attr           : {Identifier}
-         child pat            : VisagePattern 
-         child rhs            : Expression 
-         child owrt           : {Bool}
--}
+-- wrapper
+data Inh_VisageRule  = Inh_VisageRule { isLoc_Inh_VisageRule :: (Bool) }
+data Syn_VisageRule  = Syn_VisageRule { aterm_Syn_VisageRule :: (ATerm) }
+{-# INLINABLE wrap_VisageRule #-}
+wrap_VisageRule :: T_VisageRule  -> Inh_VisageRule  -> (Syn_VisageRule )
+wrap_VisageRule (T_VisageRule act) (Inh_VisageRule _lhsIisLoc) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageRule_vIn31 _lhsIisLoc
+        (T_VisageRule_vOut31 _lhsOaterm) <- return (inv_VisageRule_s32 sem arg)
+        return (Syn_VisageRule _lhsOaterm)
+   )
+
 -- cata
-sem_VisageRule :: VisageRule ->
-                  T_VisageRule
-sem_VisageRule (VRule _fieldattrs _attr _pat _rhs _owrt) =
-    (sem_VisageRule_VRule _fieldattrs _attr (sem_VisagePattern _pat) (sem_Expression _rhs) _owrt)
+{-# INLINE sem_VisageRule #-}
+sem_VisageRule :: VisageRule  -> T_VisageRule 
+sem_VisageRule ( VRule fieldattrs_ attr_ pat_ rhs_ owrt_ ) = sem_VisageRule_VRule fieldattrs_ attr_ ( sem_VisagePattern pat_ ) ( sem_Expression rhs_ ) owrt_
+
 -- semantic domain
-newtype T_VisageRule = T_VisageRule (Bool ->
-                                     ( ATerm))
-data Inh_VisageRule = Inh_VisageRule {isLoc_Inh_VisageRule :: Bool}
-data Syn_VisageRule = Syn_VisageRule {aterm_Syn_VisageRule :: ATerm}
-wrap_VisageRule :: T_VisageRule ->
-                   Inh_VisageRule ->
-                   Syn_VisageRule
-wrap_VisageRule (T_VisageRule sem) (Inh_VisageRule _lhsIisLoc) =
-    (let ( _lhsOaterm) = sem _lhsIisLoc
-     in  (Syn_VisageRule _lhsOaterm))
-sem_VisageRule_VRule :: ([(Identifier,Identifier)]) ->
-                        Identifier ->
-                        T_VisagePattern ->
-                        T_Expression ->
-                        Bool ->
-                        T_VisageRule
-sem_VisageRule_VRule fieldattrs_ attr_ (T_VisagePattern pat_) (T_Expression rhs_) owrt_ =
-    (T_VisageRule (\ _lhsIisLoc ->
-                       (let _lhsOaterm :: ATerm
-                            _patIaterm :: ATerm
-                            _rhsIaterm :: ATerm
-                            -- "./src-ag/Visage.ag"(line 97, column 18)
-                            _lhsOaterm =
-                                ({-# LINE 97 "./src-ag/Visage.ag" #-}
-                                 AAppl (if _lhsIisLoc then "LocRule" else "Rule")
-                                       ([AString (sQ (getName attr_)), _patIaterm, _rhsIaterm] ++ if _lhsIisLoc then [AString (sQ (show owrt_))] else [])
-                                 {-# LINE 690 "dist/build/Visage.hs" #-}
-                                 )
-                            ( _patIaterm) =
-                                pat_
-                            ( _rhsIaterm) =
-                                rhs_
-                        in  ( _lhsOaterm))))
+newtype T_VisageRule  = T_VisageRule {
+                                     attach_T_VisageRule :: Identity (T_VisageRule_s32 )
+                                     }
+newtype T_VisageRule_s32  = C_VisageRule_s32 {
+                                             inv_VisageRule_s32 :: (T_VisageRule_v31 )
+                                             }
+data T_VisageRule_s33  = C_VisageRule_s33
+type T_VisageRule_v31  = (T_VisageRule_vIn31 ) -> (T_VisageRule_vOut31 )
+data T_VisageRule_vIn31  = T_VisageRule_vIn31 (Bool)
+data T_VisageRule_vOut31  = T_VisageRule_vOut31 (ATerm)
+{-# NOINLINE sem_VisageRule_VRule #-}
+sem_VisageRule_VRule :: ([(Identifier,Identifier)]) -> (Identifier) -> T_VisagePattern  -> T_Expression  -> (Bool) -> T_VisageRule 
+sem_VisageRule_VRule _ arg_attr_ arg_pat_ arg_rhs_ arg_owrt_ = T_VisageRule (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_VisageRule_v31 
+      v31 = \ (T_VisageRule_vIn31 _lhsIisLoc) -> ( let
+         _patX20 = Control.Monad.Identity.runIdentity (attach_T_VisagePattern (arg_pat_))
+         _rhsX2 = Control.Monad.Identity.runIdentity (attach_T_Expression (arg_rhs_))
+         (T_VisagePattern_vOut19 _patIaterm) = inv_VisagePattern_s20 _patX20 (T_VisagePattern_vIn19 )
+         (T_Expression_vOut1 _rhsIaterm) = inv_Expression_s2 _rhsX2 (T_Expression_vIn1 )
+         _lhsOaterm :: ATerm
+         _lhsOaterm = rule21 _lhsIisLoc _patIaterm _rhsIaterm arg_attr_ arg_owrt_
+         __result_ = T_VisageRule_vOut31 _lhsOaterm
+         in __result_ )
+     in C_VisageRule_s32 v31
+   {-# INLINE rule21 #-}
+   {-# LINE 97 "./src-ag/Visage.ag" #-}
+   rule21 = \ ((_lhsIisLoc) :: Bool) ((_patIaterm) :: ATerm) ((_rhsIaterm) :: ATerm) attr_ owrt_ ->
+                               {-# LINE 97 "./src-ag/Visage.ag" #-}
+                               AAppl (if _lhsIisLoc then "LocRule" else "Rule")
+                                     ([AString (sQ (getName attr_)), _patIaterm, _rhsIaterm] ++ if _lhsIisLoc then [AString (sQ (show owrt_))] else [])
+                               {-# LINE 824 "dist/build/Visage.hs"#-}
+
 -- VisageRules -------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         isLoc                : Bool
-      synthesized attribute:
-         aterms               : [ATerm]
-   alternatives:
-      alternative Cons:
-         child hd             : VisageRule 
-         child tl             : VisageRules 
-      alternative Nil:
--}
+-- wrapper
+data Inh_VisageRules  = Inh_VisageRules { isLoc_Inh_VisageRules :: (Bool) }
+data Syn_VisageRules  = Syn_VisageRules { aterms_Syn_VisageRules :: ([ATerm]) }
+{-# INLINABLE wrap_VisageRules #-}
+wrap_VisageRules :: T_VisageRules  -> Inh_VisageRules  -> (Syn_VisageRules )
+wrap_VisageRules (T_VisageRules act) (Inh_VisageRules _lhsIisLoc) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_VisageRules_vIn34 _lhsIisLoc
+        (T_VisageRules_vOut34 _lhsOaterms) <- return (inv_VisageRules_s35 sem arg)
+        return (Syn_VisageRules _lhsOaterms)
+   )
+
 -- cata
-sem_VisageRules :: VisageRules ->
-                   T_VisageRules
-sem_VisageRules list =
-    (Prelude.foldr sem_VisageRules_Cons sem_VisageRules_Nil (Prelude.map sem_VisageRule list))
+{-# NOINLINE sem_VisageRules #-}
+sem_VisageRules :: VisageRules  -> T_VisageRules 
+sem_VisageRules list = Prelude.foldr sem_VisageRules_Cons sem_VisageRules_Nil (Prelude.map sem_VisageRule list)
+
 -- semantic domain
-newtype T_VisageRules = T_VisageRules (Bool ->
-                                       ( ([ATerm])))
-data Inh_VisageRules = Inh_VisageRules {isLoc_Inh_VisageRules :: Bool}
-data Syn_VisageRules = Syn_VisageRules {aterms_Syn_VisageRules :: ([ATerm])}
-wrap_VisageRules :: T_VisageRules ->
-                    Inh_VisageRules ->
-                    Syn_VisageRules
-wrap_VisageRules (T_VisageRules sem) (Inh_VisageRules _lhsIisLoc) =
-    (let ( _lhsOaterms) = sem _lhsIisLoc
-     in  (Syn_VisageRules _lhsOaterms))
-sem_VisageRules_Cons :: T_VisageRule ->
-                        T_VisageRules ->
-                        T_VisageRules
-sem_VisageRules_Cons (T_VisageRule hd_) (T_VisageRules tl_) =
-    (T_VisageRules (\ _lhsIisLoc ->
-                        (let _lhsOaterms :: ([ATerm])
-                             _hdOisLoc :: Bool
-                             _tlOisLoc :: Bool
-                             _hdIaterm :: ATerm
-                             _tlIaterms :: ([ATerm])
-                             -- "./src-ag/Visage.ag"(line 92, column 17)
-                             _lhsOaterms =
-                                 ({-# LINE 92 "./src-ag/Visage.ag" #-}
-                                  _hdIaterm : _tlIaterms
-                                  {-# LINE 740 "dist/build/Visage.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOisLoc =
-                                 ({-# LINE 51 "./src-ag/Visage.ag" #-}
-                                  _lhsIisLoc
-                                  {-# LINE 746 "dist/build/Visage.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOisLoc =
-                                 ({-# LINE 51 "./src-ag/Visage.ag" #-}
-                                  _lhsIisLoc
-                                  {-# LINE 752 "dist/build/Visage.hs" #-}
-                                  )
-                             ( _hdIaterm) =
-                                 hd_ _hdOisLoc
-                             ( _tlIaterms) =
-                                 tl_ _tlOisLoc
-                         in  ( _lhsOaterms))))
-sem_VisageRules_Nil :: T_VisageRules
-sem_VisageRules_Nil =
-    (T_VisageRules (\ _lhsIisLoc ->
-                        (let _lhsOaterms :: ([ATerm])
-                             -- "./src-ag/Visage.ag"(line 93, column 17)
-                             _lhsOaterms =
-                                 ({-# LINE 93 "./src-ag/Visage.ag" #-}
-                                  []
-                                  {-# LINE 767 "dist/build/Visage.hs" #-}
-                                  )
-                         in  ( _lhsOaterms))))
+newtype T_VisageRules  = T_VisageRules {
+                                       attach_T_VisageRules :: Identity (T_VisageRules_s35 )
+                                       }
+newtype T_VisageRules_s35  = C_VisageRules_s35 {
+                                               inv_VisageRules_s35 :: (T_VisageRules_v34 )
+                                               }
+data T_VisageRules_s36  = C_VisageRules_s36
+type T_VisageRules_v34  = (T_VisageRules_vIn34 ) -> (T_VisageRules_vOut34 )
+data T_VisageRules_vIn34  = T_VisageRules_vIn34 (Bool)
+data T_VisageRules_vOut34  = T_VisageRules_vOut34 ([ATerm])
+{-# NOINLINE sem_VisageRules_Cons #-}
+sem_VisageRules_Cons :: T_VisageRule  -> T_VisageRules  -> T_VisageRules 
+sem_VisageRules_Cons arg_hd_ arg_tl_ = T_VisageRules (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_VisageRules_v34 
+      v34 = \ (T_VisageRules_vIn34 _lhsIisLoc) -> ( let
+         _hdX32 = Control.Monad.Identity.runIdentity (attach_T_VisageRule (arg_hd_))
+         _tlX35 = Control.Monad.Identity.runIdentity (attach_T_VisageRules (arg_tl_))
+         (T_VisageRule_vOut31 _hdIaterm) = inv_VisageRule_s32 _hdX32 (T_VisageRule_vIn31 _hdOisLoc)
+         (T_VisageRules_vOut34 _tlIaterms) = inv_VisageRules_s35 _tlX35 (T_VisageRules_vIn34 _tlOisLoc)
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule22 _hdIaterm _tlIaterms
+         _hdOisLoc = rule23 _lhsIisLoc
+         _tlOisLoc = rule24 _lhsIisLoc
+         __result_ = T_VisageRules_vOut34 _lhsOaterms
+         in __result_ )
+     in C_VisageRules_s35 v34
+   {-# INLINE rule22 #-}
+   {-# LINE 92 "./src-ag/Visage.ag" #-}
+   rule22 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
+                               {-# LINE 92 "./src-ag/Visage.ag" #-}
+                               _hdIaterm : _tlIaterms
+                               {-# LINE 879 "dist/build/Visage.hs"#-}
+   {-# INLINE rule23 #-}
+   rule23 = \ ((_lhsIisLoc) :: Bool) ->
+     _lhsIisLoc
+   {-# INLINE rule24 #-}
+   rule24 = \ ((_lhsIisLoc) :: Bool) ->
+     _lhsIisLoc
+{-# NOINLINE sem_VisageRules_Nil #-}
+sem_VisageRules_Nil ::  T_VisageRules 
+sem_VisageRules_Nil  = T_VisageRules (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_VisageRules_v34 
+      v34 = \ (T_VisageRules_vIn34 _lhsIisLoc) -> ( let
+         _lhsOaterms :: [ATerm]
+         _lhsOaterms = rule25  ()
+         __result_ = T_VisageRules_vOut34 _lhsOaterms
+         in __result_ )
+     in C_VisageRules_s35 v34
+   {-# INLINE rule25 #-}
+   {-# LINE 93 "./src-ag/Visage.ag" #-}
+   rule25 = \  (_ :: ()) ->
+                               {-# LINE 93 "./src-ag/Visage.ag" #-}
+                               []
+                               {-# LINE 903 "dist/build/Visage.hs"#-}

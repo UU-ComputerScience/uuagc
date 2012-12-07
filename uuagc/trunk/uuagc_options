@@ -43,61 +43,61 @@ options: module, pretty, data, genlinepragmas, checkParseHaskell
 
 
 file: "src-ag/Desugar.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/DefaultRules.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/GenerateCode.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/PrintOcamlCode.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/PrintCode.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/PrintVisitCode.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/PrintErrorMessages.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/SemHsTokens.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/Transform.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/Order.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/KWOrder.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/ResolveLocals.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/AbstractSyntaxDump.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/CodeSyntaxDump.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/Visage.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/TfmToVisage.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/AG2AspectAG.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/ExecutionPlan2Hs.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/ExecutionPlan2Caml.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/InterfacesRules.lag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren

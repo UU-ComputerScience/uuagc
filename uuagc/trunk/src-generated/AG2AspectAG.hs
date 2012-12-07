@@ -1,6 +1,6 @@
+{-# LANGUAGE Rank2Types, GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-
--- UUAGC 0.9.42.2 (src-ag/AG2AspectAG.ag)
 module AG2AspectAG where
 {-# LINE 8 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -53,22 +53,24 @@ import HsToken
 import CommonTypes
 import UU.Scanner.Position(Pos)
 {-# LINE 56 "dist/build/AG2AspectAG.hs" #-}
+import Control.Monad.Identity (Identity)
+import qualified Control.Monad.Identity
 {-# LINE 28 "./src-ag/AG2AspectAG.ag" #-}
 
 pragmaAspectAG =  pp  "{-# LANGUAGE EmptyDataDecls, NoMonomorphismRestriction , TypeSynonymInstances, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances #-}"
 
-{-# LINE 61 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 63 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 33 "./src-ag/AG2AspectAG.ag" #-}
 
 ppName l = ppListSep "" "" "_" l
-{-# LINE 66 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 68 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 70 "./src-ag/AG2AspectAG.ag" #-}
 
 type FieldMap  = [(Identifier, Type)]
 type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap)
-{-# LINE 72 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 74 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 342 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -97,14 +99,14 @@ defLocalAtts prodName total actual (l:ls) =  ppName [pp l, prodName] >|<
                                              defLocalAtts prodName total (actual+1) ls
 defLocalAtts _        _     _      []     =  empty
 
-{-# LINE 101 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 103 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 397 "./src-ag/AG2AspectAG.ag" #-}
 
 ntsList att ppNtL = "nts_" ++ att ++ " = " >|<  ppListSep "" "" " .*. " ((map fst ppNtL) ++ [pp "hNil"])
 
 filterNts att = filter ( Map.member (identifier att) . snd )
-{-# LINE 108 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 110 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 455 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -116,7 +118,7 @@ ruleAttr  (PPRule _      attr  _     _  ) = attr
 ruleOwrt  (PPRule _      _     owrt  _  ) = owrt
 ruleDef   (PPRule _      _     _     def) = def
 
-{-# LINE 120 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 122 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 494 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -341,7 +343,7 @@ line2PP ts =         let f (p,t) r = let ct = column p
                                   | otherwise = replicate x ' '
                      in foldr f (pp . const "") ts 1
 
-{-# LINE 345 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 347 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 721 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -351,7 +353,7 @@ ppMacro (Macro con children) = "( atts_" >|< show con >|< ", " >|<  ppListSep ""
                         ppChild (ChildChild ch n) = chName ch >|< " --> " >|< n
                         ppChild (ValueChild ch n) = chName ch >|< " ~~> " >|< n
                         chName ch = ppName [pp "ch", pp ch, pp con]
-{-# LINE 355 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 357 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 754 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -361,12 +363,12 @@ ppNoGroupAtts syn noGroup = let synatts = Map.keys $ Map.filterWithKey (\att _ -
 ruleName att prodName = ppName [att,prodName]
 
 elemNT a b = False
-{-# LINE 365 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 367 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 797 "./src-ag/AG2AspectAG.ag" #-}
 
 attTypes atts = map (\(a,t) -> "(HCons (LVPair (Proxy Att_" >|< a >|< ") " >|< ppShow t >|< ") ") $ Map.toAscList atts
-{-# LINE 370 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 372 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 851 "./src-ag/AG2AspectAG.ag" #-}
 
@@ -375,3305 +377,2552 @@ attFields atts noGroup ppNt =
      let ng = map (\(a,_) -> attName (getName a) >|< " .=. _" >|< a >|< " .*. ") $ Map.toAscList noGroup
          g  = ppCommas $ map (\(a,_) -> ppName [pp a, pp "InhG",ppNt]  >|< "= _" >|< a) $ Map.toAscList $ Map.difference atts noGroup
      in "(" >|< ng >|< "att_inh .=. " >|< ppName [pp "InhG", ppNt] >|< " { " >|< g >|< " } .*. emptyRecord)"
-{-# LINE 379 "dist/build/AG2AspectAG.hs" #-}
+{-# LINE 381 "dist/build/AG2AspectAG.hs" #-}
 -- Child -------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inhMap               : Map Identifier Attributes
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         ppNt                 : PP_Doc
-         ppProd               : PP_Doc
-         synMap               : Map Identifier Attributes
-         synNoGroup           : [String]
-      synthesized attributes:
-         idCL                 : [(Identifier,Type)]
-         ppCSF                : [(Identifier,(PP_Doc,PP_Doc))]
-         ppDL                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppR                  : PP_Doc
-         prdInh               : Attributes
-   alternatives:
-      alternative Child:
-         child name           : {Identifier}
-         child tp             : {Type}
-         child kind           : {ChildKind}
-         visit 0:
-            local ppCh        : _
-            local ppTCh       : _
-            local chName      : _
-            local chLabel     : _
-            local chTLabel    : _
-            local chnt        : _
-            local inh         : _
-            local syn         : _
--}
+-- wrapper
+data Inh_Child  = Inh_Child { ext_Inh_Child :: (Maybe String), inhMap_Inh_Child :: (Map Identifier Attributes), inhNoGroup_Inh_Child :: ([String]), newAtts_Inh_Child :: ( Attributes ), o_noGroup_Inh_Child :: ([String]), o_rename_Inh_Child :: (Bool), ppNt_Inh_Child :: (PP_Doc), ppProd_Inh_Child :: (PP_Doc), synMap_Inh_Child :: (Map Identifier Attributes), synNoGroup_Inh_Child :: ([String]) }
+data Syn_Child  = Syn_Child { idCL_Syn_Child :: ([(Identifier,Type)]), ppCSF_Syn_Child :: ([(Identifier,(PP_Doc,PP_Doc))]), ppDL_Syn_Child :: ([PP_Doc]), ppL_Syn_Child :: (PP_Doc), ppLI_Syn_Child :: ([PP_Doc]), ppR_Syn_Child :: (PP_Doc), prdInh_Syn_Child :: (Attributes) }
+{-# INLINABLE wrap_Child #-}
+wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
+wrap_Child (T_Child act) (Inh_Child _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Child_vIn1 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup
+        (T_Child_vOut1 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh) <- return (inv_Child_s2 sem arg)
+        return (Syn_Child _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh)
+   )
+
 -- cata
-sem_Child :: Child ->
-             T_Child
-sem_Child (Child _name _tp _kind) =
-    (sem_Child_Child _name _tp _kind)
+{-# INLINE sem_Child #-}
+sem_Child :: Child  -> T_Child 
+sem_Child ( Child name_ tp_ kind_ ) = sem_Child_Child name_ tp_ kind_
+
 -- semantic domain
-newtype T_Child = T_Child ((Maybe String) ->
-                           (Map Identifier Attributes) ->
-                           ([String]) ->
-                           ( Attributes ) ->
-                           ([String]) ->
-                           Bool ->
-                           PP_Doc ->
-                           PP_Doc ->
-                           (Map Identifier Attributes) ->
-                           ([String]) ->
-                           ( ([(Identifier,Type)]),([(Identifier,(PP_Doc,PP_Doc))]),([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,Attributes))
-data Inh_Child = Inh_Child {ext_Inh_Child :: (Maybe String),inhMap_Inh_Child :: (Map Identifier Attributes),inhNoGroup_Inh_Child :: ([String]),newAtts_Inh_Child :: ( Attributes ),o_noGroup_Inh_Child :: ([String]),o_rename_Inh_Child :: Bool,ppNt_Inh_Child :: PP_Doc,ppProd_Inh_Child :: PP_Doc,synMap_Inh_Child :: (Map Identifier Attributes),synNoGroup_Inh_Child :: ([String])}
-data Syn_Child = Syn_Child {idCL_Syn_Child :: ([(Identifier,Type)]),ppCSF_Syn_Child :: ([(Identifier,(PP_Doc,PP_Doc))]),ppDL_Syn_Child :: ([PP_Doc]),ppL_Syn_Child :: PP_Doc,ppLI_Syn_Child :: ([PP_Doc]),ppR_Syn_Child :: PP_Doc,prdInh_Syn_Child :: Attributes}
-wrap_Child :: T_Child ->
-              Inh_Child ->
-              Syn_Child
-wrap_Child (T_Child sem) (Inh_Child _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) =
-    (let ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh) = sem _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup
-     in  (Syn_Child _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh))
-sem_Child_Child :: Identifier ->
-                   Type ->
-                   ChildKind ->
-                   T_Child
-sem_Child_Child name_ tp_ kind_ =
-    (T_Child (\ _lhsIext
-                _lhsIinhMap
-                _lhsIinhNoGroup
-                _lhsInewAtts
-                _lhsIo_noGroup
-                _lhsIo_rename
-                _lhsIppNt
-                _lhsIppProd
-                _lhsIsynMap
-                _lhsIsynNoGroup ->
-                  (let _lhsOprdInh :: Attributes
-                       _lhsOppDL :: ([PP_Doc])
-                       _lhsOppL :: PP_Doc
-                       _lhsOppLI :: ([PP_Doc])
-                       _lhsOppR :: PP_Doc
-                       _lhsOidCL :: ([(Identifier,Type)])
-                       _lhsOppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                       -- "./src-ag/AG2AspectAG.ag"(line 67, column 12)
-                       _lhsOprdInh =
-                           ({-# LINE 67 "./src-ag/AG2AspectAG.ag" #-}
-                            _inh
-                            {-# LINE 468 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 182, column 25)
-                       _ppCh =
-                           ({-# LINE 182 "./src-ag/AG2AspectAG.ag" #-}
-                            pp name_
-                            {-# LINE 474 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 183, column 25)
-                       _ppTCh =
-                           ({-# LINE 183 "./src-ag/AG2AspectAG.ag" #-}
-                            ppShow tp_
-                            {-# LINE 480 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 184, column 25)
-                       _chName =
-                           ({-# LINE 184 "./src-ag/AG2AspectAG.ag" #-}
-                            ppName [_ppCh    , _lhsIppNt, _lhsIppProd]
-                            {-# LINE 486 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 242, column 25)
-                       _lhsOppDL =
-                           ({-# LINE 242 "./src-ag/AG2AspectAG.ag" #-}
-                            case kind_ of
-                             ChildSyntax    ->  [ _chName      >|< pp " :: " >|< _ppTCh     ]
-                             _              ->  []
-                            {-# LINE 494 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 285, column 25)
-                       _chLabel =
-                           ({-# LINE 285 "./src-ag/AG2AspectAG.ag" #-}
-                            "ch_" >|< _chName
-                            {-# LINE 500 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 286, column 25)
-                       _chTLabel =
-                           ({-# LINE 286 "./src-ag/AG2AspectAG.ag" #-}
-                            "Ch_" >|< _chName
-                            {-# LINE 506 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 287, column 25)
-                       _lhsOppL =
-                           ({-# LINE 287 "./src-ag/AG2AspectAG.ag" #-}
-                            "data " >|< _chTLabel     >|< "; " >|< _chLabel     >|< pp " = proxy :: " >|<
-                            case kind_ of
-                             ChildSyntax    ->  "Proxy " >|< "(" >|< _chTLabel     >|< ", " >|< _ppTCh     >|< ")"
-                             _              ->  "SemType " >|< _ppTCh     >|< pp " nt =>  Proxy " >|<
-                                                "(" >|< _chTLabel     >|< ", nt)"
-                            {-# LINE 516 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 293, column 25)
-                       _lhsOppLI =
-                           ({-# LINE 293 "./src-ag/AG2AspectAG.ag" #-}
-                            [ _chLabel    , _chTLabel     ]
-                            {-# LINE 522 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 451, column 25)
-                       _lhsOppR =
-                           ({-# LINE 451 "./src-ag/AG2AspectAG.ag" #-}
-                            let chName = ppListSep "" "" "_" [pp name_, _lhsIppNt, _lhsIppProd]
-                            in  pp name_ >|< " <- at ch_" >|< chName
-                            {-# LINE 529 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 489, column 25)
-                       _lhsOidCL =
-                           ({-# LINE 489 "./src-ag/AG2AspectAG.ag" #-}
-                            [ (name_, removeDeforested tp_ ) ]
-                            {-# LINE 535 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/AG2AspectAG.ag"(line 826, column 25)
-                       _lhsOppCSF =
-                           ({-# LINE 826 "./src-ag/AG2AspectAG.ag" #-}
-                            let
-                                 semC   = if (isNonterminal tp_)
-                                           then "sem_" >|< ppShow tp_ >|<  " _" >|< name_
-                                           else "sem_Lit _" >|< name_
-                            in   case kind_ of
-                                      ChildSyntax ->  [(name_, (  _chLabel     >|< " .=. (" >|< semC >|< ") .*. "
-                                                              ,  _chLabel     >|< " .=. _" >|< name_ >|< " .*. "))]
-                                      _           ->  []
-                            {-# LINE 548 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/DistChildAttr.ag"(line 19, column 11)
-                       _chnt =
-                           ({-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-                            case tp_ of
-                              NT nt _ _ -> nt
-                              Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
-                              Haskell t -> identifier ""
-                            {-# LINE 557 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/DistChildAttr.ag"(line 23, column 11)
-                       _inh =
-                           ({-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-                            Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                            {-# LINE 563 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- "./src-ag/DistChildAttr.ag"(line 24, column 11)
-                       _syn =
-                           ({-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-                            Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                            {-# LINE 569 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                   in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
+newtype T_Child  = T_Child {
+                           attach_T_Child :: Identity (T_Child_s2 )
+                           }
+newtype T_Child_s2  = C_Child_s2 {
+                                 inv_Child_s2 :: (T_Child_v1 )
+                                 }
+data T_Child_s3  = C_Child_s3
+type T_Child_v1  = (T_Child_vIn1 ) -> (T_Child_vOut1 )
+data T_Child_vIn1  = T_Child_vIn1 (Maybe String) (Map Identifier Attributes) ([String]) ( Attributes ) ([String]) (Bool) (PP_Doc) (PP_Doc) (Map Identifier Attributes) ([String])
+data T_Child_vOut1  = T_Child_vOut1 ([(Identifier,Type)]) ([(Identifier,(PP_Doc,PP_Doc))]) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) (Attributes)
+{-# NOINLINE sem_Child_Child #-}
+sem_Child_Child :: (Identifier) -> (Type) -> (ChildKind) -> T_Child 
+sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Child_v1 
+      v1 = \ (T_Child_vIn1 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule0 _inh
+         _ppCh = rule1 arg_name_
+         _ppTCh = rule2 arg_tp_
+         _chName = rule3 _lhsIppNt _lhsIppProd _ppCh
+         _lhsOppDL :: [PP_Doc]
+         _lhsOppDL = rule4 _chName _ppTCh arg_kind_
+         _chLabel = rule5 _chName
+         _chTLabel = rule6 _chName
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule7 _chLabel _chTLabel _ppTCh arg_kind_
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule8 _chLabel _chTLabel
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule9 _lhsIppNt _lhsIppProd arg_name_
+         _lhsOidCL :: [(Identifier,Type)]
+         _lhsOidCL = rule10 arg_name_ arg_tp_
+         _lhsOppCSF :: [(Identifier,(PP_Doc,PP_Doc))]
+         _lhsOppCSF = rule11 _chLabel arg_kind_ arg_name_ arg_tp_
+         _chnt = rule12 arg_name_ arg_tp_
+         _inh = rule13 _chnt _lhsIinhMap
+         _syn = rule14 _chnt _lhsIsynMap
+         __result_ = T_Child_vOut1 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh
+         in __result_ )
+     in C_Child_s2 v1
+   {-# INLINE rule0 #-}
+   {-# LINE 67 "./src-ag/AG2AspectAG.ag" #-}
+   rule0 = \ _inh ->
+                              {-# LINE 67 "./src-ag/AG2AspectAG.ag" #-}
+                              _inh
+                              {-# LINE 449 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule1 #-}
+   {-# LINE 182 "./src-ag/AG2AspectAG.ag" #-}
+   rule1 = \ name_ ->
+                                                      {-# LINE 182 "./src-ag/AG2AspectAG.ag" #-}
+                                                      pp name_
+                                                      {-# LINE 455 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule2 #-}
+   {-# LINE 183 "./src-ag/AG2AspectAG.ag" #-}
+   rule2 = \ tp_ ->
+                                                      {-# LINE 183 "./src-ag/AG2AspectAG.ag" #-}
+                                                      ppShow tp_
+                                                      {-# LINE 461 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule3 #-}
+   {-# LINE 184 "./src-ag/AG2AspectAG.ag" #-}
+   rule3 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) _ppCh ->
+                                                      {-# LINE 184 "./src-ag/AG2AspectAG.ag" #-}
+                                                      ppName [_ppCh    , _lhsIppNt, _lhsIppProd]
+                                                      {-# LINE 467 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule4 #-}
+   {-# LINE 242 "./src-ag/AG2AspectAG.ag" #-}
+   rule4 = \ _chName _ppTCh kind_ ->
+                                                    {-# LINE 242 "./src-ag/AG2AspectAG.ag" #-}
+                                                    case kind_ of
+                                                     ChildSyntax    ->  [ _chName      >|< pp " :: " >|< _ppTCh     ]
+                                                     _              ->  []
+                                                    {-# LINE 475 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule5 #-}
+   {-# LINE 285 "./src-ag/AG2AspectAG.ag" #-}
+   rule5 = \ _chName ->
+                                                     {-# LINE 285 "./src-ag/AG2AspectAG.ag" #-}
+                                                     "ch_" >|< _chName
+                                                     {-# LINE 481 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule6 #-}
+   {-# LINE 286 "./src-ag/AG2AspectAG.ag" #-}
+   rule6 = \ _chName ->
+                                                     {-# LINE 286 "./src-ag/AG2AspectAG.ag" #-}
+                                                     "Ch_" >|< _chName
+                                                     {-# LINE 487 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule7 #-}
+   {-# LINE 287 "./src-ag/AG2AspectAG.ag" #-}
+   rule7 = \ _chLabel _chTLabel _ppTCh kind_ ->
+                                                     {-# LINE 287 "./src-ag/AG2AspectAG.ag" #-}
+                                                     "data " >|< _chTLabel     >|< "; " >|< _chLabel     >|< pp " = proxy :: " >|<
+                                                     case kind_ of
+                                                      ChildSyntax    ->  "Proxy " >|< "(" >|< _chTLabel     >|< ", " >|< _ppTCh     >|< ")"
+                                                      _              ->  "SemType " >|< _ppTCh     >|< pp " nt =>  Proxy " >|<
+                                                                         "(" >|< _chTLabel     >|< ", nt)"
+                                                     {-# LINE 497 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule8 #-}
+   {-# LINE 293 "./src-ag/AG2AspectAG.ag" #-}
+   rule8 = \ _chLabel _chTLabel ->
+                                                     {-# LINE 293 "./src-ag/AG2AspectAG.ag" #-}
+                                                     [ _chLabel    , _chTLabel     ]
+                                                     {-# LINE 503 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule9 #-}
+   {-# LINE 451 "./src-ag/AG2AspectAG.ag" #-}
+   rule9 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) name_ ->
+                                                     {-# LINE 451 "./src-ag/AG2AspectAG.ag" #-}
+                                                     let chName = ppListSep "" "" "_" [pp name_, _lhsIppNt, _lhsIppProd]
+                                                     in  pp name_ >|< " <- at ch_" >|< chName
+                                                     {-# LINE 510 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule10 #-}
+   {-# LINE 489 "./src-ag/AG2AspectAG.ag" #-}
+   rule10 = \ name_ tp_ ->
+                                                    {-# LINE 489 "./src-ag/AG2AspectAG.ag" #-}
+                                                    [ (name_, removeDeforested tp_ ) ]
+                                                    {-# LINE 516 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule11 #-}
+   {-# LINE 827 "./src-ag/AG2AspectAG.ag" #-}
+   rule11 = \ _chLabel kind_ name_ tp_ ->
+                                              {-# LINE 827 "./src-ag/AG2AspectAG.ag" #-}
+                                              let
+                                                   semC   = if (isNonterminal tp_)
+                                                             then "sem_" >|< ppShow tp_ >|<  " _" >|< name_
+                                                             else "sem_Lit _" >|< name_
+                                              in   case kind_ of
+                                                        ChildSyntax ->  [(name_, (  _chLabel     >|< " .=. (" >|< semC >|< ") .*. "
+                                                                                ,  _chLabel     >|< " .=. _" >|< name_ >|< " .*. "))]
+                                                        _           ->  []
+                                              {-# LINE 529 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule12 #-}
+   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   rule12 = \ name_ tp_ ->
+                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+                       case tp_ of
+                         NT nt _ _ -> nt
+                         Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
+                         Haskell t -> identifier ""
+                       {-# LINE 538 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule13 #-}
+   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+   rule13 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIinhMap
+                      {-# LINE 544 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule14 #-}
+   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+   rule14 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIsynMap
+                      {-# LINE 550 "dist/build/AG2AspectAG.hs"#-}
+
 -- Children ----------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inhMap               : Map Identifier Attributes
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         ppNt                 : PP_Doc
-         ppProd               : PP_Doc
-         synMap               : Map Identifier Attributes
-         synNoGroup           : [String]
-      synthesized attributes:
-         idCL                 : [(Identifier,Type)]
-         ppCSF                : [(Identifier,(PP_Doc,PP_Doc))]
-         ppDL                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppR                  : PP_Doc
-         prdInh               : Attributes
-   alternatives:
-      alternative Cons:
-         child hd             : Child 
-         child tl             : Children 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Children  = Inh_Children { ext_Inh_Children :: (Maybe String), inhMap_Inh_Children :: (Map Identifier Attributes), inhNoGroup_Inh_Children :: ([String]), newAtts_Inh_Children :: ( Attributes ), o_noGroup_Inh_Children :: ([String]), o_rename_Inh_Children :: (Bool), ppNt_Inh_Children :: (PP_Doc), ppProd_Inh_Children :: (PP_Doc), synMap_Inh_Children :: (Map Identifier Attributes), synNoGroup_Inh_Children :: ([String]) }
+data Syn_Children  = Syn_Children { idCL_Syn_Children :: ([(Identifier,Type)]), ppCSF_Syn_Children :: ([(Identifier,(PP_Doc,PP_Doc))]), ppDL_Syn_Children :: ([PP_Doc]), ppL_Syn_Children :: (PP_Doc), ppLI_Syn_Children :: ([PP_Doc]), ppR_Syn_Children :: (PP_Doc), prdInh_Syn_Children :: (Attributes) }
+{-# INLINABLE wrap_Children #-}
+wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
+wrap_Children (T_Children act) (Inh_Children _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Children_vIn4 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup
+        (T_Children_vOut4 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh) <- return (inv_Children_s5 sem arg)
+        return (Syn_Children _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh)
+   )
+
 -- cata
-sem_Children :: Children ->
-                T_Children
-sem_Children list =
-    (Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.map sem_Child list))
+{-# NOINLINE sem_Children #-}
+sem_Children :: Children  -> T_Children 
+sem_Children list = Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.map sem_Child list)
+
 -- semantic domain
-newtype T_Children = T_Children ((Maybe String) ->
-                                 (Map Identifier Attributes) ->
-                                 ([String]) ->
-                                 ( Attributes ) ->
-                                 ([String]) ->
-                                 Bool ->
-                                 PP_Doc ->
-                                 PP_Doc ->
-                                 (Map Identifier Attributes) ->
-                                 ([String]) ->
-                                 ( ([(Identifier,Type)]),([(Identifier,(PP_Doc,PP_Doc))]),([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,Attributes))
-data Inh_Children = Inh_Children {ext_Inh_Children :: (Maybe String),inhMap_Inh_Children :: (Map Identifier Attributes),inhNoGroup_Inh_Children :: ([String]),newAtts_Inh_Children :: ( Attributes ),o_noGroup_Inh_Children :: ([String]),o_rename_Inh_Children :: Bool,ppNt_Inh_Children :: PP_Doc,ppProd_Inh_Children :: PP_Doc,synMap_Inh_Children :: (Map Identifier Attributes),synNoGroup_Inh_Children :: ([String])}
-data Syn_Children = Syn_Children {idCL_Syn_Children :: ([(Identifier,Type)]),ppCSF_Syn_Children :: ([(Identifier,(PP_Doc,PP_Doc))]),ppDL_Syn_Children :: ([PP_Doc]),ppL_Syn_Children :: PP_Doc,ppLI_Syn_Children :: ([PP_Doc]),ppR_Syn_Children :: PP_Doc,prdInh_Syn_Children :: Attributes}
-wrap_Children :: T_Children ->
-                 Inh_Children ->
-                 Syn_Children
-wrap_Children (T_Children sem) (Inh_Children _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) =
-    (let ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh) = sem _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup
-     in  (Syn_Children _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh))
-sem_Children_Cons :: T_Child ->
-                     T_Children ->
-                     T_Children
-sem_Children_Cons (T_Child hd_) (T_Children tl_) =
-    (T_Children (\ _lhsIext
-                   _lhsIinhMap
-                   _lhsIinhNoGroup
-                   _lhsInewAtts
-                   _lhsIo_noGroup
-                   _lhsIo_rename
-                   _lhsIppNt
-                   _lhsIppProd
-                   _lhsIsynMap
-                   _lhsIsynNoGroup ->
-                     (let _lhsOppDL :: ([PP_Doc])
-                          _lhsOidCL :: ([(Identifier,Type)])
-                          _lhsOppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                          _lhsOppL :: PP_Doc
-                          _lhsOppLI :: ([PP_Doc])
-                          _lhsOppR :: PP_Doc
-                          _lhsOprdInh :: Attributes
-                          _hdOext :: (Maybe String)
-                          _hdOinhMap :: (Map Identifier Attributes)
-                          _hdOinhNoGroup :: ([String])
-                          _hdOnewAtts :: ( Attributes )
-                          _hdOo_noGroup :: ([String])
-                          _hdOo_rename :: Bool
-                          _hdOppNt :: PP_Doc
-                          _hdOppProd :: PP_Doc
-                          _hdOsynMap :: (Map Identifier Attributes)
-                          _hdOsynNoGroup :: ([String])
-                          _tlOext :: (Maybe String)
-                          _tlOinhMap :: (Map Identifier Attributes)
-                          _tlOinhNoGroup :: ([String])
-                          _tlOnewAtts :: ( Attributes )
-                          _tlOo_noGroup :: ([String])
-                          _tlOo_rename :: Bool
-                          _tlOppNt :: PP_Doc
-                          _tlOppProd :: PP_Doc
-                          _tlOsynMap :: (Map Identifier Attributes)
-                          _tlOsynNoGroup :: ([String])
-                          _hdIidCL :: ([(Identifier,Type)])
-                          _hdIppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                          _hdIppDL :: ([PP_Doc])
-                          _hdIppL :: PP_Doc
-                          _hdIppLI :: ([PP_Doc])
-                          _hdIppR :: PP_Doc
-                          _hdIprdInh :: Attributes
-                          _tlIidCL :: ([(Identifier,Type)])
-                          _tlIppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                          _tlIppDL :: ([PP_Doc])
-                          _tlIppL :: PP_Doc
-                          _tlIppLI :: ([PP_Doc])
-                          _tlIppR :: PP_Doc
-                          _tlIprdInh :: Attributes
-                          -- "./src-ag/AG2AspectAG.ag"(line 238, column 33)
-                          _lhsOppDL =
-                              ({-# LINE 238 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIppDL ++ _tlIppDL
-                               {-# LINE 684 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 487, column 31)
-                          _lhsOidCL =
-                              ({-# LINE 487 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIidCL ++ _tlIidCL
-                               {-# LINE 690 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 822, column 34)
-                          _lhsOppCSF =
-                              ({-# LINE 822 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIppCSF ++ _tlIppCSF
-                               {-# LINE 696 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                          _lhsOppL =
-                              ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIppL >-< _tlIppL
-                               {-# LINE 702 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                          _lhsOppLI =
-                              ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIppLI ++ _tlIppLI
-                               {-# LINE 708 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                          _lhsOppR =
-                              ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIppR >-< _tlIppR
-                               {-# LINE 714 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 65, column 57)
-                          _lhsOprdInh =
-                              ({-# LINE 65 "./src-ag/AG2AspectAG.ag" #-}
-                               _hdIprdInh `Map.union` _tlIprdInh
-                               {-# LINE 720 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOext =
-                              ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIext
-                               {-# LINE 726 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOinhMap =
-                              ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                               _lhsIinhMap
-                               {-# LINE 732 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOinhNoGroup =
-                              ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIinhNoGroup
-                               {-# LINE 738 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOnewAtts =
-                              ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsInewAtts
-                               {-# LINE 744 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOo_noGroup =
-                              ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIo_noGroup
-                               {-# LINE 750 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOo_rename =
-                              ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIo_rename
-                               {-# LINE 756 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOppNt =
-                              ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIppNt
-                               {-# LINE 762 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOppProd =
-                              ({-# LINE 192 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIppProd
-                               {-# LINE 768 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOsynMap =
-                              ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                               _lhsIsynMap
-                               {-# LINE 774 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _hdOsynNoGroup =
-                              ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIsynNoGroup
-                               {-# LINE 780 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOext =
-                              ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIext
-                               {-# LINE 786 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOinhMap =
-                              ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                               _lhsIinhMap
-                               {-# LINE 792 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOinhNoGroup =
-                              ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIinhNoGroup
-                               {-# LINE 798 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOnewAtts =
-                              ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsInewAtts
-                               {-# LINE 804 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOo_noGroup =
-                              ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIo_noGroup
-                               {-# LINE 810 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOo_rename =
-                              ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIo_rename
-                               {-# LINE 816 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOppNt =
-                              ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIppNt
-                               {-# LINE 822 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOppProd =
-                              ({-# LINE 192 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIppProd
-                               {-# LINE 828 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOsynMap =
-                              ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                               _lhsIsynMap
-                               {-# LINE 834 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- copy rule (down)
-                          _tlOsynNoGroup =
-                              ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                               _lhsIsynNoGroup
-                               {-# LINE 840 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          ( _hdIidCL,_hdIppCSF,_hdIppDL,_hdIppL,_hdIppLI,_hdIppR,_hdIprdInh) =
-                              hd_ _hdOext _hdOinhMap _hdOinhNoGroup _hdOnewAtts _hdOo_noGroup _hdOo_rename _hdOppNt _hdOppProd _hdOsynMap _hdOsynNoGroup
-                          ( _tlIidCL,_tlIppCSF,_tlIppDL,_tlIppL,_tlIppLI,_tlIppR,_tlIprdInh) =
-                              tl_ _tlOext _tlOinhMap _tlOinhNoGroup _tlOnewAtts _tlOo_noGroup _tlOo_rename _tlOppNt _tlOppProd _tlOsynMap _tlOsynNoGroup
-                      in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
-sem_Children_Nil :: T_Children
-sem_Children_Nil =
-    (T_Children (\ _lhsIext
-                   _lhsIinhMap
-                   _lhsIinhNoGroup
-                   _lhsInewAtts
-                   _lhsIo_noGroup
-                   _lhsIo_rename
-                   _lhsIppNt
-                   _lhsIppProd
-                   _lhsIsynMap
-                   _lhsIsynNoGroup ->
-                     (let _lhsOppDL :: ([PP_Doc])
-                          _lhsOidCL :: ([(Identifier,Type)])
-                          _lhsOppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                          _lhsOppL :: PP_Doc
-                          _lhsOppLI :: ([PP_Doc])
-                          _lhsOppR :: PP_Doc
-                          _lhsOprdInh :: Attributes
-                          -- "./src-ag/AG2AspectAG.ag"(line 239, column 33)
-                          _lhsOppDL =
-                              ({-# LINE 239 "./src-ag/AG2AspectAG.ag" #-}
-                               []
-                               {-# LINE 870 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 487, column 31)
-                          _lhsOidCL =
-                              ({-# LINE 487 "./src-ag/AG2AspectAG.ag" #-}
-                               []
-                               {-# LINE 876 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 822, column 34)
-                          _lhsOppCSF =
-                              ({-# LINE 822 "./src-ag/AG2AspectAG.ag" #-}
-                               []
-                               {-# LINE 882 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                          _lhsOppL =
-                              ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                               empty
-                               {-# LINE 888 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                          _lhsOppLI =
-                              ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                               []
-                               {-# LINE 894 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                          _lhsOppR =
-                              ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                               empty
-                               {-# LINE 900 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                          -- use rule "./src-ag/AG2AspectAG.ag"(line 65, column 57)
-                          _lhsOprdInh =
-                              ({-# LINE 65 "./src-ag/AG2AspectAG.ag" #-}
-                               Map.empty
-                               {-# LINE 906 "dist/build/AG2AspectAG.hs" #-}
-                               )
-                      in  ( _lhsOidCL,_lhsOppCSF,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOprdInh))))
+newtype T_Children  = T_Children {
+                                 attach_T_Children :: Identity (T_Children_s5 )
+                                 }
+newtype T_Children_s5  = C_Children_s5 {
+                                       inv_Children_s5 :: (T_Children_v4 )
+                                       }
+data T_Children_s6  = C_Children_s6
+type T_Children_v4  = (T_Children_vIn4 ) -> (T_Children_vOut4 )
+data T_Children_vIn4  = T_Children_vIn4 (Maybe String) (Map Identifier Attributes) ([String]) ( Attributes ) ([String]) (Bool) (PP_Doc) (PP_Doc) (Map Identifier Attributes) ([String])
+data T_Children_vOut4  = T_Children_vOut4 ([(Identifier,Type)]) ([(Identifier,(PP_Doc,PP_Doc))]) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) (Attributes)
+{-# NOINLINE sem_Children_Cons #-}
+sem_Children_Cons :: T_Child  -> T_Children  -> T_Children 
+sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Children_v4 
+      v4 = \ (T_Children_vIn4 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _hdX2 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_))
+         _tlX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_))
+         (T_Child_vOut1 _hdIidCL _hdIppCSF _hdIppDL _hdIppL _hdIppLI _hdIppR _hdIprdInh) = inv_Child_s2 _hdX2 (T_Child_vIn1 _hdOext _hdOinhMap _hdOinhNoGroup _hdOnewAtts _hdOo_noGroup _hdOo_rename _hdOppNt _hdOppProd _hdOsynMap _hdOsynNoGroup)
+         (T_Children_vOut4 _tlIidCL _tlIppCSF _tlIppDL _tlIppL _tlIppLI _tlIppR _tlIprdInh) = inv_Children_s5 _tlX5 (T_Children_vIn4 _tlOext _tlOinhMap _tlOinhNoGroup _tlOnewAtts _tlOo_noGroup _tlOo_rename _tlOppNt _tlOppProd _tlOsynMap _tlOsynNoGroup)
+         _lhsOppDL :: [PP_Doc]
+         _lhsOppDL = rule15 _hdIppDL _tlIppDL
+         _lhsOidCL :: [(Identifier,Type)]
+         _lhsOidCL = rule16 _hdIidCL _tlIidCL
+         _lhsOppCSF :: [(Identifier,(PP_Doc,PP_Doc))]
+         _lhsOppCSF = rule17 _hdIppCSF _tlIppCSF
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule18 _hdIppL _tlIppL
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule19 _hdIppLI _tlIppLI
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule20 _hdIppR _tlIppR
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule21 _hdIprdInh _tlIprdInh
+         _hdOext = rule22 _lhsIext
+         _hdOinhMap = rule23 _lhsIinhMap
+         _hdOinhNoGroup = rule24 _lhsIinhNoGroup
+         _hdOnewAtts = rule25 _lhsInewAtts
+         _hdOo_noGroup = rule26 _lhsIo_noGroup
+         _hdOo_rename = rule27 _lhsIo_rename
+         _hdOppNt = rule28 _lhsIppNt
+         _hdOppProd = rule29 _lhsIppProd
+         _hdOsynMap = rule30 _lhsIsynMap
+         _hdOsynNoGroup = rule31 _lhsIsynNoGroup
+         _tlOext = rule32 _lhsIext
+         _tlOinhMap = rule33 _lhsIinhMap
+         _tlOinhNoGroup = rule34 _lhsIinhNoGroup
+         _tlOnewAtts = rule35 _lhsInewAtts
+         _tlOo_noGroup = rule36 _lhsIo_noGroup
+         _tlOo_rename = rule37 _lhsIo_rename
+         _tlOppNt = rule38 _lhsIppNt
+         _tlOppProd = rule39 _lhsIppProd
+         _tlOsynMap = rule40 _lhsIsynMap
+         _tlOsynNoGroup = rule41 _lhsIsynNoGroup
+         __result_ = T_Children_vOut4 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh
+         in __result_ )
+     in C_Children_s5 v4
+   {-# INLINE rule15 #-}
+   {-# LINE 238 "./src-ag/AG2AspectAG.ag" #-}
+   rule15 = \ ((_hdIppDL) :: [PP_Doc]) ((_tlIppDL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 238 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  _hdIppDL ++ _tlIppDL
+                                                                                  {-# LINE 635 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule16 #-}
+   rule16 = \ ((_hdIidCL) :: [(Identifier,Type)]) ((_tlIidCL) :: [(Identifier,Type)]) ->
+     _hdIidCL ++ _tlIidCL
+   {-# INLINE rule17 #-}
+   rule17 = \ ((_hdIppCSF) :: [(Identifier,(PP_Doc,PP_Doc))]) ((_tlIppCSF) :: [(Identifier,(PP_Doc,PP_Doc))]) ->
+     _hdIppCSF ++ _tlIppCSF
+   {-# INLINE rule18 #-}
+   rule18 = \ ((_hdIppL) :: PP_Doc) ((_tlIppL) :: PP_Doc) ->
+     _hdIppL >-< _tlIppL
+   {-# INLINE rule19 #-}
+   rule19 = \ ((_hdIppLI) :: [PP_Doc]) ((_tlIppLI) :: [PP_Doc]) ->
+     _hdIppLI ++ _tlIppLI
+   {-# INLINE rule20 #-}
+   rule20 = \ ((_hdIppR) :: PP_Doc) ((_tlIppR) :: PP_Doc) ->
+     _hdIppR >-< _tlIppR
+   {-# INLINE rule21 #-}
+   rule21 = \ ((_hdIprdInh) :: Attributes) ((_tlIprdInh) :: Attributes) ->
+     _hdIprdInh `Map.union` _tlIprdInh
+   {-# INLINE rule22 #-}
+   rule22 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule23 #-}
+   rule23 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule24 #-}
+   rule24 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule25 #-}
+   rule25 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule26 #-}
+   rule26 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule27 #-}
+   rule27 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule28 #-}
+   rule28 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule29 #-}
+   rule29 = \ ((_lhsIppProd) :: PP_Doc) ->
+     _lhsIppProd
+   {-# INLINE rule30 #-}
+   rule30 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule31 #-}
+   rule31 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+   {-# INLINE rule32 #-}
+   rule32 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule33 #-}
+   rule33 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule34 #-}
+   rule34 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule35 #-}
+   rule35 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule36 #-}
+   rule36 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule37 #-}
+   rule37 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule38 #-}
+   rule38 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule39 #-}
+   rule39 = \ ((_lhsIppProd) :: PP_Doc) ->
+     _lhsIppProd
+   {-# INLINE rule40 #-}
+   rule40 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule41 #-}
+   rule41 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+{-# NOINLINE sem_Children_Nil #-}
+sem_Children_Nil ::  T_Children 
+sem_Children_Nil  = T_Children (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Children_v4 
+      v4 = \ (T_Children_vIn4 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _lhsOppDL :: [PP_Doc]
+         _lhsOppDL = rule42  ()
+         _lhsOidCL :: [(Identifier,Type)]
+         _lhsOidCL = rule43  ()
+         _lhsOppCSF :: [(Identifier,(PP_Doc,PP_Doc))]
+         _lhsOppCSF = rule44  ()
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule45  ()
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule46  ()
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule47  ()
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule48  ()
+         __result_ = T_Children_vOut4 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh
+         in __result_ )
+     in C_Children_s5 v4
+   {-# INLINE rule42 #-}
+   {-# LINE 239 "./src-ag/AG2AspectAG.ag" #-}
+   rule42 = \  (_ :: ()) ->
+                                                                                  {-# LINE 239 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 743 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule43 #-}
+   rule43 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule44 #-}
+   rule44 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule45 #-}
+   rule45 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule46 #-}
+   rule46 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule47 #-}
+   rule47 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule48 #-}
+   rule48 = \  (_ :: ()) ->
+     Map.empty
+
 -- Expression --------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ppNt                 : PP_Doc
-         ppProd               : PP_Doc
-      synthesized attribute:
-         ppRE                 : [String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc
-   alternatives:
-      alternative Expression:
-         child pos            : {Pos}
-         child tks            : {[HsToken]}
--}
+-- wrapper
+data Inh_Expression  = Inh_Expression { ppNt_Inh_Expression :: (PP_Doc), ppProd_Inh_Expression :: (PP_Doc) }
+data Syn_Expression  = Syn_Expression { ppRE_Syn_Expression :: ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc) }
+{-# INLINABLE wrap_Expression #-}
+wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
+wrap_Expression (T_Expression act) (Inh_Expression _lhsIppNt _lhsIppProd) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Expression_vIn7 _lhsIppNt _lhsIppProd
+        (T_Expression_vOut7 _lhsOppRE) <- return (inv_Expression_s8 sem arg)
+        return (Syn_Expression _lhsOppRE)
+   )
+
 -- cata
-sem_Expression :: Expression ->
-                  T_Expression
-sem_Expression (Expression _pos _tks) =
-    (sem_Expression_Expression _pos _tks)
+{-# INLINE sem_Expression #-}
+sem_Expression :: Expression  -> T_Expression 
+sem_Expression ( Expression pos_ tks_ ) = sem_Expression_Expression pos_ tks_
+
 -- semantic domain
-newtype T_Expression = T_Expression (PP_Doc ->
-                                     PP_Doc ->
-                                     ( ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc)))
-data Inh_Expression = Inh_Expression {ppNt_Inh_Expression :: PP_Doc,ppProd_Inh_Expression :: PP_Doc}
-data Syn_Expression = Syn_Expression {ppRE_Syn_Expression :: ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc)}
-wrap_Expression :: T_Expression ->
-                   Inh_Expression ->
-                   Syn_Expression
-wrap_Expression (T_Expression sem) (Inh_Expression _lhsIppNt _lhsIppProd) =
-    (let ( _lhsOppRE) = sem _lhsIppNt _lhsIppProd
-     in  (Syn_Expression _lhsOppRE))
-sem_Expression_Expression :: Pos ->
-                             ([HsToken]) ->
-                             T_Expression
-sem_Expression_Expression pos_ tks_ =
-    (T_Expression (\ _lhsIppNt
-                     _lhsIppProd ->
-                       (let _lhsOppRE :: ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc)
-                            -- "./src-ag/AG2AspectAG.ag"(line 484, column 25)
-                            _lhsOppRE =
-                                ({-# LINE 484 "./src-ag/AG2AspectAG.ag" #-}
-                                 rhsRule _lhsIppNt _lhsIppProd tks_
-                                 {-# LINE 950 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                        in  ( _lhsOppRE))))
+newtype T_Expression  = T_Expression {
+                                     attach_T_Expression :: Identity (T_Expression_s8 )
+                                     }
+newtype T_Expression_s8  = C_Expression_s8 {
+                                           inv_Expression_s8 :: (T_Expression_v7 )
+                                           }
+data T_Expression_s9  = C_Expression_s9
+type T_Expression_v7  = (T_Expression_vIn7 ) -> (T_Expression_vOut7 )
+data T_Expression_vIn7  = T_Expression_vIn7 (PP_Doc) (PP_Doc)
+data T_Expression_vOut7  = T_Expression_vOut7 ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc)
+{-# NOINLINE sem_Expression_Expression #-}
+sem_Expression_Expression :: (Pos) -> ([HsToken]) -> T_Expression 
+sem_Expression_Expression _ arg_tks_ = T_Expression (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_Expression_v7 
+      v7 = \ (T_Expression_vIn7 _lhsIppNt _lhsIppProd) -> ( let
+         _lhsOppRE :: [String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc
+         _lhsOppRE = rule49 _lhsIppNt _lhsIppProd arg_tks_
+         __result_ = T_Expression_vOut7 _lhsOppRE
+         in __result_ )
+     in C_Expression_s8 v7
+   {-# INLINE rule49 #-}
+   {-# LINE 484 "./src-ag/AG2AspectAG.ag" #-}
+   rule49 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) tks_ ->
+                                                      {-# LINE 484 "./src-ag/AG2AspectAG.ag" #-}
+                                                      rhsRule _lhsIppNt _lhsIppProd tks_
+                                                      {-# LINE 810 "dist/build/AG2AspectAG.hs"#-}
+
 -- Grammar -----------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         agi                  : (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))
-         ext                  : Maybe String
-         options              : Options
-      synthesized attributes:
-         imp                  : PP_Doc
-         pp                   : PP_Doc
-   alternatives:
-      alternative Grammar:
-         child typeSyns       : {TypeSyns}
-         child useMap         : {UseMap}
-         child derivings      : {Derivings}
-         child wrappers       : {Set NontermIdent}
-         child nonts          : Nonterminals 
-         child pragmas        : {PragmaMap}
-         child manualAttrOrderMap : {AttrOrderMap}
-         child paramMap       : {ParamMap}
-         child contextMap     : {ContextMap}
-         child quantMap       : {QuantMap}
-         child uniqueMap      : {UniqueMap}
-         child augmentsMap    : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
-         child aroundsMap     : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
-         child mergeMap       : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))}
-         visit 0:
-            local o_noGroup   : _
-            local newAtts     : _
-            local newProds    : _
-            local ppA         : _
-            local ppAI        : _
-            local ppANT       : _
-            local ppNtL       : _
-            local ppR         : _
--}
+-- wrapper
+data Inh_Grammar  = Inh_Grammar { agi_Inh_Grammar :: ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))), ext_Inh_Grammar :: (Maybe String), options_Inh_Grammar :: (Options) }
+data Syn_Grammar  = Syn_Grammar { imp_Syn_Grammar :: (PP_Doc), pp_Syn_Grammar :: (PP_Doc) }
+{-# INLINABLE wrap_Grammar #-}
+wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
+wrap_Grammar (T_Grammar act) (Inh_Grammar _lhsIagi _lhsIext _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Grammar_vIn10 _lhsIagi _lhsIext _lhsIoptions
+        (T_Grammar_vOut10 _lhsOimp _lhsOpp) <- return (inv_Grammar_s11 sem arg)
+        return (Syn_Grammar _lhsOimp _lhsOpp)
+   )
+
 -- cata
-sem_Grammar :: Grammar ->
-               T_Grammar
-sem_Grammar (Grammar _typeSyns _useMap _derivings _wrappers _nonts _pragmas _manualAttrOrderMap _paramMap _contextMap _quantMap _uniqueMap _augmentsMap _aroundsMap _mergeMap) =
-    (sem_Grammar_Grammar _typeSyns _useMap _derivings _wrappers (sem_Nonterminals _nonts) _pragmas _manualAttrOrderMap _paramMap _contextMap _quantMap _uniqueMap _augmentsMap _aroundsMap _mergeMap)
+{-# INLINE sem_Grammar #-}
+sem_Grammar :: Grammar  -> T_Grammar 
+sem_Grammar ( Grammar typeSyns_ useMap_ derivings_ wrappers_ nonts_ pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_ ) = sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ ( sem_Nonterminals nonts_ ) pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_
+
 -- semantic domain
-newtype T_Grammar = T_Grammar (((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
-                               (Maybe String) ->
-                               Options ->
-                               ( PP_Doc,PP_Doc))
-data Inh_Grammar = Inh_Grammar {agi_Inh_Grammar :: ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))),ext_Inh_Grammar :: (Maybe String),options_Inh_Grammar :: Options}
-data Syn_Grammar = Syn_Grammar {imp_Syn_Grammar :: PP_Doc,pp_Syn_Grammar :: PP_Doc}
-wrap_Grammar :: T_Grammar ->
-                Inh_Grammar ->
-                Syn_Grammar
-wrap_Grammar (T_Grammar sem) (Inh_Grammar _lhsIagi _lhsIext _lhsIoptions) =
-    (let ( _lhsOimp,_lhsOpp) = sem _lhsIagi _lhsIext _lhsIoptions
-     in  (Syn_Grammar _lhsOimp _lhsOpp))
-sem_Grammar_Grammar :: TypeSyns ->
-                       UseMap ->
-                       Derivings ->
-                       (Set NontermIdent) ->
-                       T_Nonterminals ->
-                       PragmaMap ->
-                       AttrOrderMap ->
-                       ParamMap ->
-                       ContextMap ->
-                       QuantMap ->
-                       UniqueMap ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) ->
-                       T_Grammar
-sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts_) pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_ =
-    (T_Grammar (\ _lhsIagi
-                  _lhsIext
-                  _lhsIoptions ->
-                    (let _nontsOo_rename :: Bool
-                         _nontsOo_noGroup :: ([String])
-                         _nontsOnewAtts :: ( Attributes )
-                         _nontsOnewProds :: ( DataTypes )
-                         _nontsOnewNTs :: (Set NontermIdent)
-                         _lhsOimp :: PP_Doc
-                         _lhsOpp :: PP_Doc
-                         _nontsOderivs :: Derivings
-                         _nontsOtSyns :: TypeSyns
-                         _nontsOinhMap :: (Map Identifier Attributes)
-                         _nontsOsynMap :: (Map Identifier Attributes)
-                         _nontsOext :: (Maybe String)
-                         _nontsIextendedNTs :: (Set NontermIdent)
-                         _nontsIinhMap' :: (Map Identifier Attributes)
-                         _nontsIppA :: PP_Doc
-                         _nontsIppAI :: ([PP_Doc])
-                         _nontsIppCata :: PP_Doc
-                         _nontsIppD :: PP_Doc
-                         _nontsIppDI :: ([PP_Doc])
-                         _nontsIppL :: PP_Doc
-                         _nontsIppLI :: ([PP_Doc])
-                         _nontsIppNtL :: ([(PP_Doc, Attributes)])
-                         _nontsIppR :: PP_Doc
-                         _nontsIppSF :: PP_Doc
-                         _nontsIppW :: PP_Doc
-                         _nontsIsynMap' :: (Map Identifier Attributes)
-                         -- "./src-ag/AG2AspectAG.ag"(line 43, column 14)
-                         _nontsOo_rename =
-                             ({-# LINE 43 "./src-ag/AG2AspectAG.ag" #-}
-                              rename    _lhsIoptions
-                              {-# LINE 1056 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 47, column 14)
-                         _o_noGroup =
-                             ({-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
-                              sort $ noGroup    _lhsIoptions
-                              {-# LINE 1062 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 48, column 14)
-                         _nontsOo_noGroup =
-                             ({-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
-                              _o_noGroup
-                              {-# LINE 1068 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 80, column 23)
-                         _newAtts =
-                             ({-# LINE 80 "./src-ag/AG2AspectAG.ag" #-}
-                              case _lhsIagi of
-                                      (_,_,atts) -> ( Map.unions . (\(a,b) -> a++b) . unzip . Map.elems) atts
-                              {-# LINE 1075 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 82, column 23)
-                         _nontsOnewAtts =
-                             ({-# LINE 82 "./src-ag/AG2AspectAG.ag" #-}
-                              _newAtts
-                              {-# LINE 1081 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 88, column 23)
-                         _newProds =
-                             ({-# LINE 88 "./src-ag/AG2AspectAG.ag" #-}
-                              case _lhsIagi of
-                                     (_,prods,_) -> prods
-                              {-# LINE 1088 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 90, column 23)
-                         _nontsOnewProds =
-                             ({-# LINE 90 "./src-ag/AG2AspectAG.ag" #-}
-                              _newProds
-                              {-# LINE 1094 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 112, column 23)
-                         _nontsOnewNTs =
-                             ({-# LINE 112 "./src-ag/AG2AspectAG.ag" #-}
-                              case _lhsIagi of
-                                      (newNTs,_,_) -> Set.difference newNTs _nontsIextendedNTs
-                              {-# LINE 1101 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 127, column 25)
-                         _lhsOimp =
-                             ({-# LINE 127 "./src-ag/AG2AspectAG.ag" #-}
-                              "import Language.Grammars.AspectAG" >-<
-                              "import Language.Grammars.AspectAG.Derive" >-<
-                              "import Data.HList.Label4" >-<
-                              "import Data.HList.TypeEqGeneric1" >-<
-                              "import Data.HList.TypeCastGeneric1" >-<
-                              maybe empty ("import qualified" >#<) _lhsIext >-<
-                              maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (_nontsIppDI ++ _nontsIppLI ++ _ppAI     ++ _ppANT    )) _lhsIext
-                              {-# LINE 1113 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 140, column 25)
-                         _lhsOpp =
-                             ({-# LINE 140 "./src-ag/AG2AspectAG.ag" #-}
-                              (if dataTypes _lhsIoptions
-                              then  "-- datatypes"               >-< _nontsIppD >-<
-                                    "-- labels"                  >-< _nontsIppL
-                              else  empty)
-                              >-<
-                              (if folds _lhsIoptions
-                              then  "-- attributes"              >-< _ppA     >-<
-                                    "-- rules"                   >-< _ppR     >-<
-                                    "-- catas"                   >-< _nontsIppCata
-                              else  empty)
-                              >-<
-                              (if semfuns _lhsIoptions
-                              then  "-- semantic functions"      >-< _nontsIppSF
-                              else  empty)
-                              >-<
-                              (if wrappers _lhsIoptions
-                              then  "-- wrappers"    >-< _nontsIppW
-                              else  empty)
-                              {-# LINE 1136 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 202, column 25)
-                         _nontsOderivs =
-                             ({-# LINE 202 "./src-ag/AG2AspectAG.ag" #-}
-                              derivings_
-                              {-# LINE 1142 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 251, column 34)
-                         _nontsOtSyns =
-                             ({-# LINE 251 "./src-ag/AG2AspectAG.ag" #-}
-                              typeSyns_
-                              {-# LINE 1148 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 300, column 25)
-                         _ppA =
-                             ({-# LINE 300 "./src-ag/AG2AspectAG.ag" #-}
-                              vlist (map defAtt (filterAtts _newAtts     _o_noGroup    )) >-<
-                              defAtt "loc" >-<
-                              (case _lhsIext of
-                                Nothing    ->  defAtt "inh" >-< defAtt "syn"
-                                otherwise  ->  empty) >-<
-                              _nontsIppA
-                              {-# LINE 1159 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 307, column 25)
-                         _ppAI =
-                             ({-# LINE 307 "./src-ag/AG2AspectAG.ag" #-}
-                              let atts =  filterNotAtts _newAtts     _o_noGroup
-                              in  (foldr (\a as -> attName a : as) [] atts) ++
-                                  (foldr (\a as -> attTName a : as) [] atts) ++
-                                  (case _lhsIext of
-                                    Nothing    ->  []
-                                    otherwise  ->  [ attName "inh", attName "syn", attTName "inh", attTName "syn" ]) ++
-                                  _nontsIppAI
-                              {-# LINE 1171 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 317, column 25)
-                         _ppANT =
-                             ({-# LINE 317 "./src-ag/AG2AspectAG.ag" #-}
-                              let atts =  filterNotAtts _newAtts     _o_noGroup
-                              in  (foldr (\a as -> ("nts_" >|< a) : as) [] atts)
-                              {-# LINE 1178 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 392, column 25)
-                         _ppNtL =
-                             ({-# LINE 392 "./src-ag/AG2AspectAG.ag" #-}
-                              _nontsIppNtL
-                              {-# LINE 1184 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/AG2AspectAG.ag"(line 393, column 25)
-                         _ppR =
-                             ({-# LINE 393 "./src-ag/AG2AspectAG.ag" #-}
-                              ntsList "group" _ppNtL      >-<
-                              vlist (map (\att -> ntsList att (filterNts att _ppNtL    )) (filterAtts _newAtts _o_noGroup    ))  >-<
-                              _nontsIppR
-                              {-# LINE 1192 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/DistChildAttr.ag"(line 15, column 13)
-                         _nontsOinhMap =
-                             ({-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-                              _nontsIinhMap'
-                              {-# LINE 1198 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- "./src-ag/DistChildAttr.ag"(line 16, column 13)
-                         _nontsOsynMap =
-                             ({-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-                              _nontsIsynMap'
-                              {-# LINE 1204 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _nontsOext =
-                             ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                              _lhsIext
-                              {-# LINE 1210 "dist/build/AG2AspectAG.hs" #-}
-                              )
-                         ( _nontsIextendedNTs,_nontsIinhMap',_nontsIppA,_nontsIppAI,_nontsIppCata,_nontsIppD,_nontsIppDI,_nontsIppL,_nontsIppLI,_nontsIppNtL,_nontsIppR,_nontsIppSF,_nontsIppW,_nontsIsynMap') =
-                             nonts_ _nontsOderivs _nontsOext _nontsOinhMap _nontsOnewAtts _nontsOnewNTs _nontsOnewProds _nontsOo_noGroup _nontsOo_rename _nontsOsynMap _nontsOtSyns
-                     in  ( _lhsOimp,_lhsOpp))))
+newtype T_Grammar  = T_Grammar {
+                               attach_T_Grammar :: Identity (T_Grammar_s11 )
+                               }
+newtype T_Grammar_s11  = C_Grammar_s11 {
+                                       inv_Grammar_s11 :: (T_Grammar_v10 )
+                                       }
+data T_Grammar_s12  = C_Grammar_s12
+type T_Grammar_v10  = (T_Grammar_vIn10 ) -> (T_Grammar_vOut10 )
+data T_Grammar_vIn10  = T_Grammar_vIn10 ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) (Maybe String) (Options)
+data T_Grammar_vOut10  = T_Grammar_vOut10 (PP_Doc) (PP_Doc)
+{-# NOINLINE sem_Grammar_Grammar #-}
+sem_Grammar_Grammar :: (TypeSyns) -> (UseMap) -> (Derivings) -> (Set NontermIdent) -> T_Nonterminals  -> (PragmaMap) -> (AttrOrderMap) -> (ParamMap) -> (ContextMap) -> (QuantMap) -> (UniqueMap) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) -> T_Grammar 
+sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ _ = T_Grammar (return st11) where
+   {-# NOINLINE st11 #-}
+   st11 = let
+      v10 :: T_Grammar_v10 
+      v10 = \ (T_Grammar_vIn10 _lhsIagi _lhsIext _lhsIoptions) -> ( let
+         _nontsX26 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
+         (T_Nonterminals_vOut25 _nontsIextendedNTs _nontsIinhMap' _nontsIppA _nontsIppAI _nontsIppCata _nontsIppD _nontsIppDI _nontsIppL _nontsIppLI _nontsIppNtL _nontsIppR _nontsIppSF _nontsIppW _nontsIsynMap') = inv_Nonterminals_s26 _nontsX26 (T_Nonterminals_vIn25 _nontsOderivs _nontsOext _nontsOinhMap _nontsOnewAtts _nontsOnewNTs _nontsOnewProds _nontsOo_noGroup _nontsOo_rename _nontsOsynMap _nontsOtSyns)
+         _nontsOo_rename = rule50 _lhsIoptions
+         _o_noGroup = rule51 _lhsIoptions
+         _nontsOo_noGroup = rule52 _o_noGroup
+         _newAtts = rule53 _lhsIagi
+         _nontsOnewAtts = rule54 _newAtts
+         _newProds = rule55 _lhsIagi
+         _nontsOnewProds = rule56 _newProds
+         _nontsOnewNTs = rule57 _lhsIagi _nontsIextendedNTs
+         _lhsOimp :: PP_Doc
+         _lhsOimp = rule58 _lhsIext _nontsIppDI _nontsIppLI _ppAI _ppANT
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule59 _lhsIoptions _nontsIppCata _nontsIppD _nontsIppL _nontsIppSF _nontsIppW _ppA _ppR
+         _nontsOderivs = rule60 arg_derivings_
+         _nontsOtSyns = rule61 arg_typeSyns_
+         _ppA = rule62 _lhsIext _newAtts _nontsIppA _o_noGroup
+         _ppAI = rule63 _lhsIext _newAtts _nontsIppAI _o_noGroup
+         _ppANT = rule64 _newAtts _o_noGroup
+         _ppNtL = rule65 _nontsIppNtL
+         _ppR = rule66 _newAtts _nontsIppR _o_noGroup _ppNtL
+         _nontsOinhMap = rule67 _nontsIinhMap'
+         _nontsOsynMap = rule68 _nontsIsynMap'
+         _nontsOext = rule69 _lhsIext
+         __result_ = T_Grammar_vOut10 _lhsOimp _lhsOpp
+         in __result_ )
+     in C_Grammar_s11 v10
+   {-# INLINE rule50 #-}
+   {-# LINE 43 "./src-ag/AG2AspectAG.ag" #-}
+   rule50 = \ ((_lhsIoptions) :: Options) ->
+                                   {-# LINE 43 "./src-ag/AG2AspectAG.ag" #-}
+                                   rename    _lhsIoptions
+                                   {-# LINE 881 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
+   rule51 = \ ((_lhsIoptions) :: Options) ->
+                                   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
+                                   sort $ noGroup    _lhsIoptions
+                                   {-# LINE 887 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule52 #-}
+   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
+   rule52 = \ _o_noGroup ->
+                                   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
+                                   _o_noGroup
+                                   {-# LINE 893 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule53 #-}
+   {-# LINE 80 "./src-ag/AG2AspectAG.ag" #-}
+   rule53 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
+                                          {-# LINE 80 "./src-ag/AG2AspectAG.ag" #-}
+                                          case _lhsIagi of
+                                                  (_,_,atts) -> ( Map.unions . (\(a,b) -> a++b) . unzip . Map.elems) atts
+                                          {-# LINE 900 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule54 #-}
+   {-# LINE 82 "./src-ag/AG2AspectAG.ag" #-}
+   rule54 = \ _newAtts ->
+                                          {-# LINE 82 "./src-ag/AG2AspectAG.ag" #-}
+                                          _newAtts
+                                          {-# LINE 906 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule55 #-}
+   {-# LINE 88 "./src-ag/AG2AspectAG.ag" #-}
+   rule55 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
+                                           {-# LINE 88 "./src-ag/AG2AspectAG.ag" #-}
+                                           case _lhsIagi of
+                                                  (_,prods,_) -> prods
+                                           {-# LINE 913 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule56 #-}
+   {-# LINE 90 "./src-ag/AG2AspectAG.ag" #-}
+   rule56 = \ _newProds ->
+                                           {-# LINE 90 "./src-ag/AG2AspectAG.ag" #-}
+                                           _newProds
+                                           {-# LINE 919 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule57 #-}
+   {-# LINE 112 "./src-ag/AG2AspectAG.ag" #-}
+   rule57 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ((_nontsIextendedNTs) :: Set NontermIdent) ->
+                                          {-# LINE 112 "./src-ag/AG2AspectAG.ag" #-}
+                                          case _lhsIagi of
+                                                  (newNTs,_,_) -> Set.difference newNTs _nontsIextendedNTs
+                                          {-# LINE 926 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule58 #-}
+   {-# LINE 127 "./src-ag/AG2AspectAG.ag" #-}
+   rule58 = \ ((_lhsIext) :: Maybe String) ((_nontsIppDI) :: [PP_Doc]) ((_nontsIppLI) :: [PP_Doc]) _ppAI _ppANT ->
+                                                     {-# LINE 127 "./src-ag/AG2AspectAG.ag" #-}
+                                                     "import Language.Grammars.AspectAG" >-<
+                                                     "import Language.Grammars.AspectAG.Derive" >-<
+                                                     "import Data.HList.Label4" >-<
+                                                     "import Data.HList.TypeEqGeneric1" >-<
+                                                     "import Data.HList.TypeCastGeneric1" >-<
+                                                     maybe empty ("import qualified" >#<) _lhsIext >-<
+                                                     maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (_nontsIppDI ++ _nontsIppLI ++ _ppAI     ++ _ppANT    )) _lhsIext
+                                                     {-# LINE 938 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule59 #-}
+   {-# LINE 140 "./src-ag/AG2AspectAG.ag" #-}
+   rule59 = \ ((_lhsIoptions) :: Options) ((_nontsIppCata) :: PP_Doc) ((_nontsIppD) :: PP_Doc) ((_nontsIppL) :: PP_Doc) ((_nontsIppSF) :: PP_Doc) ((_nontsIppW) :: PP_Doc) _ppA _ppR ->
+                                                     {-# LINE 140 "./src-ag/AG2AspectAG.ag" #-}
+                                                     (if dataTypes _lhsIoptions
+                                                     then  "-- datatypes"               >-< _nontsIppD >-<
+                                                           "-- labels"                  >-< _nontsIppL
+                                                     else  empty)
+                                                     >-<
+                                                     (if folds _lhsIoptions
+                                                     then  "-- attributes"              >-< _ppA     >-<
+                                                           "-- rules"                   >-< _ppR     >-<
+                                                           "-- catas"                   >-< _nontsIppCata
+                                                     else  empty)
+                                                     >-<
+                                                     (if semfuns _lhsIoptions
+                                                     then  "-- semantic functions"      >-< _nontsIppSF
+                                                     else  empty)
+                                                     >-<
+                                                     (if wrappers _lhsIoptions
+                                                     then  "-- wrappers"    >-< _nontsIppW
+                                                     else  empty)
+                                                     {-# LINE 961 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule60 #-}
+   {-# LINE 202 "./src-ag/AG2AspectAG.ag" #-}
+   rule60 = \ derivings_ ->
+                                                     {-# LINE 202 "./src-ag/AG2AspectAG.ag" #-}
+                                                     derivings_
+                                                     {-# LINE 967 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule61 #-}
+   {-# LINE 251 "./src-ag/AG2AspectAG.ag" #-}
+   rule61 = \ typeSyns_ ->
+                                                                                  {-# LINE 251 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  typeSyns_
+                                                                                  {-# LINE 973 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule62 #-}
+   {-# LINE 300 "./src-ag/AG2AspectAG.ag" #-}
+   rule62 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppA) :: PP_Doc) _o_noGroup ->
+                                                     {-# LINE 300 "./src-ag/AG2AspectAG.ag" #-}
+                                                     vlist (map defAtt (filterAtts _newAtts     _o_noGroup    )) >-<
+                                                     defAtt "loc" >-<
+                                                     (case _lhsIext of
+                                                       Nothing    ->  defAtt "inh" >-< defAtt "syn"
+                                                       otherwise  ->  empty) >-<
+                                                     _nontsIppA
+                                                     {-# LINE 984 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule63 #-}
+   {-# LINE 308 "./src-ag/AG2AspectAG.ag" #-}
+   rule63 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppAI) :: [PP_Doc]) _o_noGroup ->
+                                                  {-# LINE 308 "./src-ag/AG2AspectAG.ag" #-}
+                                                  let atts =  filterNotAtts _newAtts     _o_noGroup
+                                                  in  (foldr (\a as -> attName a : as) [] atts) ++
+                                                      (foldr (\a as -> attTName a : as) [] atts) ++
+                                                      (case _lhsIext of
+                                                        Nothing    ->  []
+                                                        otherwise  ->  [ attName "inh", attName "syn", attTName "inh", attTName "syn" ]) ++
+                                                      _nontsIppAI
+                                                  {-# LINE 996 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule64 #-}
+   {-# LINE 318 "./src-ag/AG2AspectAG.ag" #-}
+   rule64 = \ _newAtts _o_noGroup ->
+                                                  {-# LINE 318 "./src-ag/AG2AspectAG.ag" #-}
+                                                  let atts =  filterNotAtts _newAtts     _o_noGroup
+                                                  in  (foldr (\a as -> ("nts_" >|< a) : as) [] atts)
+                                                  {-# LINE 1003 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule65 #-}
+   {-# LINE 392 "./src-ag/AG2AspectAG.ag" #-}
+   rule65 = \ ((_nontsIppNtL) :: [(PP_Doc, Attributes)]) ->
+                                                     {-# LINE 392 "./src-ag/AG2AspectAG.ag" #-}
+                                                     _nontsIppNtL
+                                                     {-# LINE 1009 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule66 #-}
+   {-# LINE 393 "./src-ag/AG2AspectAG.ag" #-}
+   rule66 = \ _newAtts ((_nontsIppR) :: PP_Doc) _o_noGroup _ppNtL ->
+                                                     {-# LINE 393 "./src-ag/AG2AspectAG.ag" #-}
+                                                     ntsList "group" _ppNtL      >-<
+                                                     vlist (map (\att -> ntsList att (filterNts att _ppNtL    )) (filterAtts _newAtts _o_noGroup    ))  >-<
+                                                     _nontsIppR
+                                                     {-# LINE 1017 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule67 #-}
+   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+   rule67 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+                             _nontsIinhMap'
+                             {-# LINE 1023 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule68 #-}
+   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+   rule68 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+                             _nontsIsynMap'
+                             {-# LINE 1029 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule69 #-}
+   rule69 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+
 -- HsToken -----------------------------------------------------
-{-
-   alternatives:
-      alternative AGLocal:
-         child var            : {Identifier}
-         child pos            : {Pos}
-         child rdesc          : {Maybe String}
-      alternative AGField:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child pos            : {Pos}
-         child rdesc          : {Maybe String}
-      alternative HsToken:
-         child value          : {String}
-         child pos            : {Pos}
-      alternative CharToken:
-         child value          : {String}
-         child pos            : {Pos}
-      alternative StrToken:
-         child value          : {String}
-         child pos            : {Pos}
-      alternative Err:
-         child mesg           : {String}
-         child pos            : {Pos}
--}
+-- wrapper
+data Inh_HsToken  = Inh_HsToken {  }
+data Syn_HsToken  = Syn_HsToken {  }
+{-# INLINABLE wrap_HsToken #-}
+wrap_HsToken :: T_HsToken  -> Inh_HsToken  -> (Syn_HsToken )
+wrap_HsToken (T_HsToken act) (Inh_HsToken ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_HsToken_vIn13 
+        (T_HsToken_vOut13 ) <- return (inv_HsToken_s14 sem arg)
+        return (Syn_HsToken )
+   )
+
 -- cata
-sem_HsToken :: HsToken ->
-               T_HsToken
-sem_HsToken (AGLocal _var _pos _rdesc) =
-    (sem_HsToken_AGLocal _var _pos _rdesc)
-sem_HsToken (AGField _field _attr _pos _rdesc) =
-    (sem_HsToken_AGField _field _attr _pos _rdesc)
-sem_HsToken (HsToken _value _pos) =
-    (sem_HsToken_HsToken _value _pos)
-sem_HsToken (CharToken _value _pos) =
-    (sem_HsToken_CharToken _value _pos)
-sem_HsToken (StrToken _value _pos) =
-    (sem_HsToken_StrToken _value _pos)
-sem_HsToken (Err _mesg _pos) =
-    (sem_HsToken_Err _mesg _pos)
+{-# NOINLINE sem_HsToken #-}
+sem_HsToken :: HsToken  -> T_HsToken 
+sem_HsToken ( AGLocal var_ pos_ rdesc_ ) = sem_HsToken_AGLocal var_ pos_ rdesc_
+sem_HsToken ( AGField field_ attr_ pos_ rdesc_ ) = sem_HsToken_AGField field_ attr_ pos_ rdesc_
+sem_HsToken ( HsToken value_ pos_ ) = sem_HsToken_HsToken value_ pos_
+sem_HsToken ( CharToken value_ pos_ ) = sem_HsToken_CharToken value_ pos_
+sem_HsToken ( StrToken value_ pos_ ) = sem_HsToken_StrToken value_ pos_
+sem_HsToken ( Err mesg_ pos_ ) = sem_HsToken_Err mesg_ pos_
+
 -- semantic domain
-newtype T_HsToken = T_HsToken (( ))
-data Inh_HsToken = Inh_HsToken {}
-data Syn_HsToken = Syn_HsToken {}
-wrap_HsToken :: T_HsToken ->
-                Inh_HsToken ->
-                Syn_HsToken
-wrap_HsToken (T_HsToken sem) (Inh_HsToken) =
-    (let ( ) = sem
-     in  (Syn_HsToken))
-sem_HsToken_AGLocal :: Identifier ->
-                       Pos ->
-                       (Maybe String) ->
-                       T_HsToken
-sem_HsToken_AGLocal var_ pos_ rdesc_ =
-    (T_HsToken (let
-                in  ( )))
-sem_HsToken_AGField :: Identifier ->
-                       Identifier ->
-                       Pos ->
-                       (Maybe String) ->
-                       T_HsToken
-sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
-    (T_HsToken (let
-                in  ( )))
-sem_HsToken_HsToken :: String ->
-                       Pos ->
-                       T_HsToken
-sem_HsToken_HsToken value_ pos_ =
-    (T_HsToken (let
-                in  ( )))
-sem_HsToken_CharToken :: String ->
-                         Pos ->
-                         T_HsToken
-sem_HsToken_CharToken value_ pos_ =
-    (T_HsToken (let
-                in  ( )))
-sem_HsToken_StrToken :: String ->
-                        Pos ->
-                        T_HsToken
-sem_HsToken_StrToken value_ pos_ =
-    (T_HsToken (let
-                in  ( )))
-sem_HsToken_Err :: String ->
-                   Pos ->
-                   T_HsToken
-sem_HsToken_Err mesg_ pos_ =
-    (T_HsToken (let
-                in  ( )))
+newtype T_HsToken  = T_HsToken {
+                               attach_T_HsToken :: Identity (T_HsToken_s14 )
+                               }
+newtype T_HsToken_s14  = C_HsToken_s14 {
+                                       inv_HsToken_s14 :: (T_HsToken_v13 )
+                                       }
+data T_HsToken_s15  = C_HsToken_s15
+type T_HsToken_v13  = (T_HsToken_vIn13 ) -> (T_HsToken_vOut13 )
+data T_HsToken_vIn13  = T_HsToken_vIn13 
+data T_HsToken_vOut13  = T_HsToken_vOut13 
+{-# NOINLINE sem_HsToken_AGLocal #-}
+sem_HsToken_AGLocal :: (Identifier) -> (Pos) -> (Maybe String) -> T_HsToken 
+sem_HsToken_AGLocal _ _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+{-# NOINLINE sem_HsToken_AGField #-}
+sem_HsToken_AGField :: (Identifier) -> (Identifier) -> (Pos) -> (Maybe String) -> T_HsToken 
+sem_HsToken_AGField _ _ _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+{-# NOINLINE sem_HsToken_HsToken #-}
+sem_HsToken_HsToken :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_HsToken _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+{-# NOINLINE sem_HsToken_CharToken #-}
+sem_HsToken_CharToken :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_CharToken _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+{-# NOINLINE sem_HsToken_StrToken #-}
+sem_HsToken_StrToken :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_StrToken _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+{-# NOINLINE sem_HsToken_Err #-}
+sem_HsToken_Err :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_Err _ _ = T_HsToken (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_HsToken_v13 
+      v13 = \ (T_HsToken_vIn13 ) -> ( let
+         __result_ = T_HsToken_vOut13 
+         in __result_ )
+     in C_HsToken_s14 v13
+
 -- HsTokens ----------------------------------------------------
-{-
-   alternatives:
-      alternative Cons:
-         child hd             : HsToken 
-         child tl             : HsTokens 
-      alternative Nil:
--}
+-- wrapper
+data Inh_HsTokens  = Inh_HsTokens {  }
+data Syn_HsTokens  = Syn_HsTokens {  }
+{-# INLINABLE wrap_HsTokens #-}
+wrap_HsTokens :: T_HsTokens  -> Inh_HsTokens  -> (Syn_HsTokens )
+wrap_HsTokens (T_HsTokens act) (Inh_HsTokens ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_HsTokens_vIn16 
+        (T_HsTokens_vOut16 ) <- return (inv_HsTokens_s17 sem arg)
+        return (Syn_HsTokens )
+   )
+
 -- cata
-sem_HsTokens :: HsTokens ->
-                T_HsTokens
-sem_HsTokens list =
-    (Prelude.foldr sem_HsTokens_Cons sem_HsTokens_Nil (Prelude.map sem_HsToken list))
+{-# NOINLINE sem_HsTokens #-}
+sem_HsTokens :: HsTokens  -> T_HsTokens 
+sem_HsTokens list = Prelude.foldr sem_HsTokens_Cons sem_HsTokens_Nil (Prelude.map sem_HsToken list)
+
 -- semantic domain
-newtype T_HsTokens = T_HsTokens (( ))
-data Inh_HsTokens = Inh_HsTokens {}
-data Syn_HsTokens = Syn_HsTokens {}
-wrap_HsTokens :: T_HsTokens ->
-                 Inh_HsTokens ->
-                 Syn_HsTokens
-wrap_HsTokens (T_HsTokens sem) (Inh_HsTokens) =
-    (let ( ) = sem
-     in  (Syn_HsTokens))
-sem_HsTokens_Cons :: T_HsToken ->
-                     T_HsTokens ->
-                     T_HsTokens
-sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
-    (T_HsTokens (let
-                 in  ( )))
-sem_HsTokens_Nil :: T_HsTokens
-sem_HsTokens_Nil =
-    (T_HsTokens (let
-                 in  ( )))
+newtype T_HsTokens  = T_HsTokens {
+                                 attach_T_HsTokens :: Identity (T_HsTokens_s17 )
+                                 }
+newtype T_HsTokens_s17  = C_HsTokens_s17 {
+                                         inv_HsTokens_s17 :: (T_HsTokens_v16 )
+                                         }
+data T_HsTokens_s18  = C_HsTokens_s18
+type T_HsTokens_v16  = (T_HsTokens_vIn16 ) -> (T_HsTokens_vOut16 )
+data T_HsTokens_vIn16  = T_HsTokens_vIn16 
+data T_HsTokens_vOut16  = T_HsTokens_vOut16 
+{-# NOINLINE sem_HsTokens_Cons #-}
+sem_HsTokens_Cons :: T_HsToken  -> T_HsTokens  -> T_HsTokens 
+sem_HsTokens_Cons arg_hd_ arg_tl_ = T_HsTokens (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_HsTokens_v16 
+      v16 = \ (T_HsTokens_vIn16 ) -> ( let
+         _hdX14 = Control.Monad.Identity.runIdentity (attach_T_HsToken (arg_hd_))
+         _tlX17 = Control.Monad.Identity.runIdentity (attach_T_HsTokens (arg_tl_))
+         (T_HsToken_vOut13 ) = inv_HsToken_s14 _hdX14 (T_HsToken_vIn13 )
+         (T_HsTokens_vOut16 ) = inv_HsTokens_s17 _tlX17 (T_HsTokens_vIn16 )
+         __result_ = T_HsTokens_vOut16 
+         in __result_ )
+     in C_HsTokens_s17 v16
+{-# NOINLINE sem_HsTokens_Nil #-}
+sem_HsTokens_Nil ::  T_HsTokens 
+sem_HsTokens_Nil  = T_HsTokens (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_HsTokens_v16 
+      v16 = \ (T_HsTokens_vIn16 ) -> ( let
+         __result_ = T_HsTokens_vOut16 
+         in __result_ )
+     in C_HsTokens_s17 v16
+
 -- HsTokensRoot ------------------------------------------------
-{-
-   alternatives:
-      alternative HsTokensRoot:
-         child tokens         : HsTokens 
--}
+-- wrapper
+data Inh_HsTokensRoot  = Inh_HsTokensRoot {  }
+data Syn_HsTokensRoot  = Syn_HsTokensRoot {  }
+{-# INLINABLE wrap_HsTokensRoot #-}
+wrap_HsTokensRoot :: T_HsTokensRoot  -> Inh_HsTokensRoot  -> (Syn_HsTokensRoot )
+wrap_HsTokensRoot (T_HsTokensRoot act) (Inh_HsTokensRoot ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_HsTokensRoot_vIn19 
+        (T_HsTokensRoot_vOut19 ) <- return (inv_HsTokensRoot_s20 sem arg)
+        return (Syn_HsTokensRoot )
+   )
+
 -- cata
-sem_HsTokensRoot :: HsTokensRoot ->
-                    T_HsTokensRoot
-sem_HsTokensRoot (HsTokensRoot _tokens) =
-    (sem_HsTokensRoot_HsTokensRoot (sem_HsTokens _tokens))
+{-# INLINE sem_HsTokensRoot #-}
+sem_HsTokensRoot :: HsTokensRoot  -> T_HsTokensRoot 
+sem_HsTokensRoot ( HsTokensRoot tokens_ ) = sem_HsTokensRoot_HsTokensRoot ( sem_HsTokens tokens_ )
+
 -- semantic domain
-newtype T_HsTokensRoot = T_HsTokensRoot (( ))
-data Inh_HsTokensRoot = Inh_HsTokensRoot {}
-data Syn_HsTokensRoot = Syn_HsTokensRoot {}
-wrap_HsTokensRoot :: T_HsTokensRoot ->
-                     Inh_HsTokensRoot ->
-                     Syn_HsTokensRoot
-wrap_HsTokensRoot (T_HsTokensRoot sem) (Inh_HsTokensRoot) =
-    (let ( ) = sem
-     in  (Syn_HsTokensRoot))
-sem_HsTokensRoot_HsTokensRoot :: T_HsTokens ->
-                                 T_HsTokensRoot
-sem_HsTokensRoot_HsTokensRoot (T_HsTokens tokens_) =
-    (T_HsTokensRoot (let
-                     in  ( )))
+newtype T_HsTokensRoot  = T_HsTokensRoot {
+                                         attach_T_HsTokensRoot :: Identity (T_HsTokensRoot_s20 )
+                                         }
+newtype T_HsTokensRoot_s20  = C_HsTokensRoot_s20 {
+                                                 inv_HsTokensRoot_s20 :: (T_HsTokensRoot_v19 )
+                                                 }
+data T_HsTokensRoot_s21  = C_HsTokensRoot_s21
+type T_HsTokensRoot_v19  = (T_HsTokensRoot_vIn19 ) -> (T_HsTokensRoot_vOut19 )
+data T_HsTokensRoot_vIn19  = T_HsTokensRoot_vIn19 
+data T_HsTokensRoot_vOut19  = T_HsTokensRoot_vOut19 
+{-# NOINLINE sem_HsTokensRoot_HsTokensRoot #-}
+sem_HsTokensRoot_HsTokensRoot :: T_HsTokens  -> T_HsTokensRoot 
+sem_HsTokensRoot_HsTokensRoot arg_tokens_ = T_HsTokensRoot (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_HsTokensRoot_v19 
+      v19 = \ (T_HsTokensRoot_vIn19 ) -> ( let
+         _tokensX17 = Control.Monad.Identity.runIdentity (attach_T_HsTokens (arg_tokens_))
+         (T_HsTokens_vOut16 ) = inv_HsTokens_s17 _tokensX17 (T_HsTokens_vIn16 )
+         __result_ = T_HsTokensRoot_vOut19 
+         in __result_ )
+     in C_HsTokensRoot_s20 v19
+
 -- Nonterminal -------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         derivs               : Derivings
-         ext                  : Maybe String
-         inhMap               : Map Identifier Attributes
-         newAtts              :  Attributes 
-         newNTs               : Set NontermIdent
-         newProds             :  DataTypes 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         synMap               : Map Identifier Attributes
-         tSyns                : TypeSyns
-      synthesized attributes:
-         extendedNTs          : Set NontermIdent
-         inhMap'              : Map Identifier Attributes
-         ppA                  : PP_Doc
-         ppAI                 : [PP_Doc]
-         ppCata               : PP_Doc
-         ppD                  : PP_Doc
-         ppDI                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppNtL                : [(PP_Doc, Attributes)]
-         ppR                  : PP_Doc
-         ppSF                 : PP_Doc
-         ppW                  : PP_Doc
-         synMap'              : Map Identifier Attributes
-   alternatives:
-      alternative Nonterminal:
-         child nt             : {NontermIdent}
-         child params         : {[Identifier]}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child prods          : Productions 
-         visit 0:
-            local inhNoGroup  : _
-            local synNoGroup  : _
-            local ppNt        : _
-            local ntLabel     : _
--}
+-- wrapper
+data Inh_Nonterminal  = Inh_Nonterminal { derivs_Inh_Nonterminal :: (Derivings), ext_Inh_Nonterminal :: (Maybe String), inhMap_Inh_Nonterminal :: (Map Identifier Attributes), newAtts_Inh_Nonterminal :: ( Attributes ), newNTs_Inh_Nonterminal :: (Set NontermIdent), newProds_Inh_Nonterminal :: ( DataTypes ), o_noGroup_Inh_Nonterminal :: ([String]), o_rename_Inh_Nonterminal :: (Bool), synMap_Inh_Nonterminal :: (Map Identifier Attributes), tSyns_Inh_Nonterminal :: (TypeSyns) }
+data Syn_Nonterminal  = Syn_Nonterminal { extendedNTs_Syn_Nonterminal :: (Set NontermIdent), inhMap'_Syn_Nonterminal :: (Map Identifier Attributes), ppA_Syn_Nonterminal :: (PP_Doc), ppAI_Syn_Nonterminal :: ([PP_Doc]), ppCata_Syn_Nonterminal :: (PP_Doc), ppD_Syn_Nonterminal :: (PP_Doc), ppDI_Syn_Nonterminal :: ([PP_Doc]), ppL_Syn_Nonterminal :: (PP_Doc), ppLI_Syn_Nonterminal :: ([PP_Doc]), ppNtL_Syn_Nonterminal :: ([(PP_Doc, Attributes)]), ppR_Syn_Nonterminal :: (PP_Doc), ppSF_Syn_Nonterminal :: (PP_Doc), ppW_Syn_Nonterminal :: (PP_Doc), synMap'_Syn_Nonterminal :: (Map Identifier Attributes) }
+{-# INLINABLE wrap_Nonterminal #-}
+wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
+wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Nonterminal_vIn22 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns
+        (T_Nonterminal_vOut22 _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap') <- return (inv_Nonterminal_s23 sem arg)
+        return (Syn_Nonterminal _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap')
+   )
+
 -- cata
-sem_Nonterminal :: Nonterminal ->
-                   T_Nonterminal
-sem_Nonterminal (Nonterminal _nt _params _inh _syn _prods) =
-    (sem_Nonterminal_Nonterminal _nt _params _inh _syn (sem_Productions _prods))
+{-# INLINE sem_Nonterminal #-}
+sem_Nonterminal :: Nonterminal  -> T_Nonterminal 
+sem_Nonterminal ( Nonterminal nt_ params_ inh_ syn_ prods_ ) = sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ ( sem_Productions prods_ )
+
 -- semantic domain
-newtype T_Nonterminal = T_Nonterminal (Derivings ->
-                                       (Maybe String) ->
-                                       (Map Identifier Attributes) ->
-                                       ( Attributes ) ->
-                                       (Set NontermIdent) ->
-                                       ( DataTypes ) ->
-                                       ([String]) ->
-                                       Bool ->
-                                       (Map Identifier Attributes) ->
-                                       TypeSyns ->
-                                       ( (Set NontermIdent),(Map Identifier Attributes),PP_Doc,([PP_Doc]),PP_Doc,PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),([(PP_Doc, Attributes)]),PP_Doc,PP_Doc,PP_Doc,(Map Identifier Attributes)))
-data Inh_Nonterminal = Inh_Nonterminal {derivs_Inh_Nonterminal :: Derivings,ext_Inh_Nonterminal :: (Maybe String),inhMap_Inh_Nonterminal :: (Map Identifier Attributes),newAtts_Inh_Nonterminal :: ( Attributes ),newNTs_Inh_Nonterminal :: (Set NontermIdent),newProds_Inh_Nonterminal :: ( DataTypes ),o_noGroup_Inh_Nonterminal :: ([String]),o_rename_Inh_Nonterminal :: Bool,synMap_Inh_Nonterminal :: (Map Identifier Attributes),tSyns_Inh_Nonterminal :: TypeSyns}
-data Syn_Nonterminal = Syn_Nonterminal {extendedNTs_Syn_Nonterminal :: (Set NontermIdent),inhMap'_Syn_Nonterminal :: (Map Identifier Attributes),ppA_Syn_Nonterminal :: PP_Doc,ppAI_Syn_Nonterminal :: ([PP_Doc]),ppCata_Syn_Nonterminal :: PP_Doc,ppD_Syn_Nonterminal :: PP_Doc,ppDI_Syn_Nonterminal :: ([PP_Doc]),ppL_Syn_Nonterminal :: PP_Doc,ppLI_Syn_Nonterminal :: ([PP_Doc]),ppNtL_Syn_Nonterminal :: ([(PP_Doc, Attributes)]),ppR_Syn_Nonterminal :: PP_Doc,ppSF_Syn_Nonterminal :: PP_Doc,ppW_Syn_Nonterminal :: PP_Doc,synMap'_Syn_Nonterminal :: (Map Identifier Attributes)}
-wrap_Nonterminal :: T_Nonterminal ->
-                    Inh_Nonterminal ->
-                    Syn_Nonterminal
-wrap_Nonterminal (T_Nonterminal sem) (Inh_Nonterminal _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) =
-    (let ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap') = sem _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns
-     in  (Syn_Nonterminal _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap'))
-sem_Nonterminal_Nonterminal :: NontermIdent ->
-                               ([Identifier]) ->
-                               Attributes ->
-                               Attributes ->
-                               T_Productions ->
-                               T_Nonterminal
-sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
-    (T_Nonterminal (\ _lhsIderivs
-                      _lhsIext
-                      _lhsIinhMap
-                      _lhsInewAtts
-                      _lhsInewNTs
-                      _lhsInewProds
-                      _lhsIo_noGroup
-                      _lhsIo_rename
-                      _lhsIsynMap
-                      _lhsItSyns ->
-                        (let _prodsOinhNoGroup :: ([String])
-                             _prodsOsynNoGroup :: ([String])
-                             _prodsOnewProds :: ( Map.Map ConstructorIdent FieldMap )
-                             _lhsOextendedNTs :: (Set NontermIdent)
-                             _prodsOppNt :: PP_Doc
-                             _lhsOppD :: PP_Doc
-                             _lhsOppDI :: ([PP_Doc])
-                             _lhsOppL :: PP_Doc
-                             _lhsOppLI :: ([PP_Doc])
-                             _lhsOppA :: PP_Doc
-                             _lhsOppAI :: ([PP_Doc])
-                             _lhsOppNtL :: ([(PP_Doc, Attributes)])
-                             _prodsOnewNT :: Bool
-                             _lhsOppR :: PP_Doc
-                             _lhsOppCata :: PP_Doc
-                             _prodsOsyn :: ( Attributes )
-                             _prodsOinh :: ( Attributes )
-                             _lhsOppSF :: PP_Doc
-                             _lhsOppW :: PP_Doc
-                             _lhsOinhMap' :: (Map Identifier Attributes)
-                             _lhsOsynMap' :: (Map Identifier Attributes)
-                             _prodsOext :: (Maybe String)
-                             _prodsOinhMap :: (Map Identifier Attributes)
-                             _prodsOnewAtts :: ( Attributes )
-                             _prodsOo_noGroup :: ([String])
-                             _prodsOo_rename :: Bool
-                             _prodsOsynMap :: (Map Identifier Attributes)
-                             _prodsIhasMoreProds :: ( Bool )
-                             _prodsIppA :: PP_Doc
-                             _prodsIppCata :: PP_Doc
-                             _prodsIppDL :: ([PP_Doc])
-                             _prodsIppL :: PP_Doc
-                             _prodsIppLI :: ([PP_Doc])
-                             _prodsIppR :: PP_Doc
-                             _prodsIppRA :: ([PP_Doc])
-                             _prodsIppSF :: PP_Doc
-                             _prodsIppSPF :: PP_Doc
-                             _prodsIprdInh :: Attributes
-                             -- "./src-ag/AG2AspectAG.ag"(line 51, column 18)
-                             _inhNoGroup =
-                                 ({-# LINE 51 "./src-ag/AG2AspectAG.ag" #-}
-                                  Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) _prodsIprdInh
-                                  {-# LINE 1489 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 52, column 18)
-                             _synNoGroup =
-                                 ({-# LINE 52 "./src-ag/AG2AspectAG.ag" #-}
-                                  Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) syn_
-                                  {-# LINE 1495 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 57, column 18)
-                             _prodsOinhNoGroup =
-                                 ({-# LINE 57 "./src-ag/AG2AspectAG.ag" #-}
-                                  map show $ Map.keys _inhNoGroup
-                                  {-# LINE 1501 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 58, column 18)
-                             _prodsOsynNoGroup =
-                                 ({-# LINE 58 "./src-ag/AG2AspectAG.ag" #-}
-                                  map show $ Map.keys _synNoGroup
-                                  {-# LINE 1507 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 94, column 17)
-                             _prodsOnewProds =
-                                 ({-# LINE 94 "./src-ag/AG2AspectAG.ag" #-}
-                                  case Map.lookup nt_ _lhsInewProds of
-                                         Just prds -> prds
-                                         Nothing   -> Map.empty
-                                  {-# LINE 1515 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 107, column 31)
-                             _lhsOextendedNTs =
-                                 ({-# LINE 107 "./src-ag/AG2AspectAG.ag" #-}
-                                  if _prodsIhasMoreProds
-                                  then Set.singleton nt_
-                                  else Set.empty
-                                  {-# LINE 1523 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 173, column 25)
-                             _ppNt =
-                                 ({-# LINE 173 "./src-ag/AG2AspectAG.ag" #-}
-                                  pp nt_
-                                  {-# LINE 1529 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 190, column 25)
-                             _prodsOppNt =
-                                 ({-# LINE 190 "./src-ag/AG2AspectAG.ag" #-}
-                                  _ppNt
-                                  {-# LINE 1535 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 208, column 25)
-                             _lhsOppD =
-                                 ({-# LINE 208 "./src-ag/AG2AspectAG.ag" #-}
-                                  if (Set.member nt_ _lhsInewNTs)
-                                  then  case (lookup nt_ _lhsItSyns) of
-                                                 Nothing ->  "data " >|< _ppNt
-                                                              >|< " = " >|< vlist_sep " | " _prodsIppDL >-<
-                                                             case (Map.lookup nt_ _lhsIderivs) of
-                                                              Just ntds -> pp "  deriving " >|<  (ppListSep "(" ")" ", " $ Set.elems ntds)
-                                                              Nothing   -> empty
-                                                 Just tp ->  "type " >|< _ppNt     >|< " = " >|< ppShow tp
-                                  else  empty
-                                  {-# LINE 1549 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 221, column 25)
-                             _lhsOppDI =
-                                 ({-# LINE 221 "./src-ag/AG2AspectAG.ag" #-}
-                                  if (not $ Set.member nt_ _lhsInewNTs)
-                                  then  [ _ppNt     ]
-                                  else  [ ]
-                                  {-# LINE 1557 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 262, column 25)
-                             _ntLabel =
-                                 ({-# LINE 262 "./src-ag/AG2AspectAG.ag" #-}
-                                  "nt_" >|< _ppNt
-                                  {-# LINE 1563 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 264, column 25)
-                             _lhsOppL =
-                                 ({-# LINE 264 "./src-ag/AG2AspectAG.ag" #-}
-                                  ( if (Set.member nt_ _lhsInewNTs)
-                                    then _ntLabel     >|< " = proxy :: Proxy " >|< _ppNt
-                                    else empty)  >-<
-                                  _prodsIppL
-                                  {-# LINE 1572 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 269, column 25)
-                             _lhsOppLI =
-                                 ({-# LINE 269 "./src-ag/AG2AspectAG.ag" #-}
-                                  ( if (not $ Set.member nt_ _lhsInewNTs)
-                                    then [ _ntLabel     ]
-                                    else [ ])  ++
-                                  _prodsIppLI
-                                  {-# LINE 1581 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 324, column 25)
-                             _lhsOppA =
-                                 ({-# LINE 324 "./src-ag/AG2AspectAG.ag" #-}
-                                  ( if (Set.member nt_ _lhsInewNTs)
-                                    then
-                                           defAttRec (pp "InhG") _ppNt     inh_ _inhNoGroup     >-<
-                                           defAttRec (pp "SynG") _ppNt     syn_ _synNoGroup
-                                    else   empty) >-<
-                                  _prodsIppA
-                                  {-# LINE 1592 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 338, column 25)
-                             _lhsOppAI =
-                                 ({-# LINE 338 "./src-ag/AG2AspectAG.ag" #-}
-                                  if (not $ Set.member nt_ _lhsInewNTs)
-                                  then [ ppName [(pp "InhG"), _ppNt     ] >#< pp "(..)", ppName [(pp "SynG"), _ppNt     ] >#< pp "(..)" ]
-                                  else [ ]
-                                  {-# LINE 1600 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 406, column 25)
-                             _lhsOppNtL =
-                                 ({-# LINE 406 "./src-ag/AG2AspectAG.ag" #-}
-                                  [ ("nt_" >|< nt_, Map.union inh_ syn_) ]
-                                  {-# LINE 1606 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 415, column 25)
-                             _prodsOnewNT =
-                                 ({-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
-                                  Set.member nt_ _lhsInewNTs
-                                  {-# LINE 1612 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 425, column 25)
-                             _lhsOppR =
-                                 ({-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
-                                  pp "----" >|< pp nt_ >-< _prodsIppR
-                                  {-# LINE 1618 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 735, column 25)
-                             _lhsOppCata =
-                                 ({-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
-                                  "----" >|< _ppNt     >-< _prodsIppCata
-                                  {-# LINE 1624 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 766, column 25)
-                             _prodsOsyn =
-                                 ({-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
-                                  syn_
-                                  {-# LINE 1630 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 767, column 25)
-                             _prodsOinh =
-                                 ({-# LINE 767 "./src-ag/AG2AspectAG.ag" #-}
-                                  inh_
-                                  {-# LINE 1636 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 778, column 25)
-                             _lhsOppSF =
-                                 ({-# LINE 778 "./src-ag/AG2AspectAG.ag" #-}
-                                  let      inhAtts = attTypes _inhNoGroup
-                                           synAtts = attTypes _synNoGroup
-                                  in
-                                           "----" >|< _ppNt     >-<
-                                           "type T_" >|< _ppNt     >|< " = " >|<
-                                           "(Record " >|<
-                                           inhAtts >|<
-                                           "(HCons (LVPair (Proxy Att_inh) InhG_" >|< _ppNt     >|< ") HNil))" >|<
-                                           replicate (length inhAtts) ")" >|< " -> " >|<
-                                           "(Record " >|<
-                                           synAtts >|<
-                                           "(HCons (LVPair (Proxy Att_syn) SynG_" >|< _ppNt     >|< ") HNil))" >|<
-                                           replicate (length synAtts) ")" >-<
-                                           "-- instance SemType T_" >|< _ppNt     >|< " " >|< _ppNt     >-<
-                                           "-- sem_" >|< _ppNt     >|< " :: " >|< _ppNt     >|< " -> T_" >|<  _ppNt     >-<
-                                           _prodsIppSPF
-                                  {-# LINE 1657 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 846, column 25)
-                             _lhsOppW =
-                                 ({-# LINE 846 "./src-ag/AG2AspectAG.ag" #-}
-                                  ppName [pp "wrap", _ppNt    ] >|< " sem " >|< attVars inh_ >|< " = " >-<
-                                  "   sem " >|< attFields inh_ _inhNoGroup     _ppNt
-                                  {-# LINE 1664 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/DistChildAttr.ag"(line 7, column 18)
-                             _lhsOinhMap' =
-                                 ({-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-                                  Map.singleton nt_ inh_
-                                  {-# LINE 1670 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/DistChildAttr.ag"(line 8, column 18)
-                             _lhsOsynMap' =
-                                 ({-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-                                  Map.singleton nt_ syn_
-                                  {-# LINE 1676 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOext =
-                                 ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIext
-                                  {-# LINE 1682 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOinhMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIinhMap
-                                  {-# LINE 1688 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOnewAtts =
-                                 ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewAtts
-                                  {-# LINE 1694 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOo_noGroup =
-                                 ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_noGroup
-                                  {-# LINE 1700 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOo_rename =
-                                 ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_rename
-                                  {-# LINE 1706 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _prodsOsynMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIsynMap
-                                  {-# LINE 1712 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             ( _prodsIhasMoreProds,_prodsIppA,_prodsIppCata,_prodsIppDL,_prodsIppL,_prodsIppLI,_prodsIppR,_prodsIppRA,_prodsIppSF,_prodsIppSPF,_prodsIprdInh) =
-                                 prods_ _prodsOext _prodsOinh _prodsOinhMap _prodsOinhNoGroup _prodsOnewAtts _prodsOnewNT _prodsOnewProds _prodsOo_noGroup _prodsOo_rename _prodsOppNt _prodsOsyn _prodsOsynMap _prodsOsynNoGroup
-                         in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
+newtype T_Nonterminal  = T_Nonterminal {
+                                       attach_T_Nonterminal :: Identity (T_Nonterminal_s23 )
+                                       }
+newtype T_Nonterminal_s23  = C_Nonterminal_s23 {
+                                               inv_Nonterminal_s23 :: (T_Nonterminal_v22 )
+                                               }
+data T_Nonterminal_s24  = C_Nonterminal_s24
+type T_Nonterminal_v22  = (T_Nonterminal_vIn22 ) -> (T_Nonterminal_vOut22 )
+data T_Nonterminal_vIn22  = T_Nonterminal_vIn22 (Derivings) (Maybe String) (Map Identifier Attributes) ( Attributes ) (Set NontermIdent) ( DataTypes ) ([String]) (Bool) (Map Identifier Attributes) (TypeSyns)
+data T_Nonterminal_vOut22  = T_Nonterminal_vOut22 (Set NontermIdent) (Map Identifier Attributes) (PP_Doc) ([PP_Doc]) (PP_Doc) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) ([(PP_Doc, Attributes)]) (PP_Doc) (PP_Doc) (PP_Doc) (Map Identifier Attributes)
+{-# NOINLINE sem_Nonterminal_Nonterminal #-}
+sem_Nonterminal_Nonterminal :: (NontermIdent) -> ([Identifier]) -> (Attributes) -> (Attributes) -> T_Productions  -> T_Nonterminal 
+sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nonterminal (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_Nonterminal_v22 
+      v22 = \ (T_Nonterminal_vIn22 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) -> ( let
+         _prodsX38 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
+         (T_Productions_vOut37 _prodsIhasMoreProds _prodsIppA _prodsIppCata _prodsIppDL _prodsIppL _prodsIppLI _prodsIppR _prodsIppRA _prodsIppSF _prodsIppSPF _prodsIprdInh) = inv_Productions_s38 _prodsX38 (T_Productions_vIn37 _prodsOext _prodsOinh _prodsOinhMap _prodsOinhNoGroup _prodsOnewAtts _prodsOnewNT _prodsOnewProds _prodsOo_noGroup _prodsOo_rename _prodsOppNt _prodsOsyn _prodsOsynMap _prodsOsynNoGroup)
+         _inhNoGroup = rule70 _lhsIo_noGroup _prodsIprdInh
+         _synNoGroup = rule71 _lhsIo_noGroup arg_syn_
+         _prodsOinhNoGroup = rule72 _inhNoGroup
+         _prodsOsynNoGroup = rule73 _synNoGroup
+         _prodsOnewProds = rule74 _lhsInewProds arg_nt_
+         _lhsOextendedNTs :: Set NontermIdent
+         _lhsOextendedNTs = rule75 _prodsIhasMoreProds arg_nt_
+         _ppNt = rule76 arg_nt_
+         _prodsOppNt = rule77 _ppNt
+         _lhsOppD :: PP_Doc
+         _lhsOppD = rule78 _lhsIderivs _lhsInewNTs _lhsItSyns _ppNt _prodsIppDL arg_nt_
+         _lhsOppDI :: [PP_Doc]
+         _lhsOppDI = rule79 _lhsInewNTs _ppNt arg_nt_
+         _ntLabel = rule80 _ppNt
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule81 _lhsInewNTs _ntLabel _ppNt _prodsIppL arg_nt_
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule82 _lhsInewNTs _ntLabel _prodsIppLI arg_nt_
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule83 _inhNoGroup _lhsInewNTs _ppNt _prodsIppA _synNoGroup arg_inh_ arg_nt_ arg_syn_
+         _lhsOppAI :: [PP_Doc]
+         _lhsOppAI = rule84 _lhsInewNTs _ppNt arg_nt_
+         _lhsOppNtL :: [(PP_Doc, Attributes)]
+         _lhsOppNtL = rule85 arg_inh_ arg_nt_ arg_syn_
+         _prodsOnewNT = rule86 _lhsInewNTs arg_nt_
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule87 _prodsIppR arg_nt_
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule88 _ppNt _prodsIppCata
+         _prodsOsyn = rule89 arg_syn_
+         _prodsOinh = rule90 arg_inh_
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule91 _inhNoGroup _ppNt _prodsIppSPF _synNoGroup
+         _lhsOppW :: PP_Doc
+         _lhsOppW = rule92 _inhNoGroup _ppNt arg_inh_
+         _lhsOinhMap' :: Map Identifier Attributes
+         _lhsOinhMap' = rule93 arg_inh_ arg_nt_
+         _lhsOsynMap' :: Map Identifier Attributes
+         _lhsOsynMap' = rule94 arg_nt_ arg_syn_
+         _prodsOext = rule95 _lhsIext
+         _prodsOinhMap = rule96 _lhsIinhMap
+         _prodsOnewAtts = rule97 _lhsInewAtts
+         _prodsOo_noGroup = rule98 _lhsIo_noGroup
+         _prodsOo_rename = rule99 _lhsIo_rename
+         _prodsOsynMap = rule100 _lhsIsynMap
+         __result_ = T_Nonterminal_vOut22 _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap'
+         in __result_ )
+     in C_Nonterminal_s23 v22
+   {-# INLINE rule70 #-}
+   {-# LINE 51 "./src-ag/AG2AspectAG.ag" #-}
+   rule70 = \ ((_lhsIo_noGroup) :: [String]) ((_prodsIprdInh) :: Attributes) ->
+                                        {-# LINE 51 "./src-ag/AG2AspectAG.ag" #-}
+                                        Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) _prodsIprdInh
+                                        {-# LINE 1320 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule71 #-}
+   {-# LINE 52 "./src-ag/AG2AspectAG.ag" #-}
+   rule71 = \ ((_lhsIo_noGroup) :: [String]) syn_ ->
+                                        {-# LINE 52 "./src-ag/AG2AspectAG.ag" #-}
+                                        Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) syn_
+                                        {-# LINE 1326 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule72 #-}
+   {-# LINE 57 "./src-ag/AG2AspectAG.ag" #-}
+   rule72 = \ _inhNoGroup ->
+                                          {-# LINE 57 "./src-ag/AG2AspectAG.ag" #-}
+                                          map show $ Map.keys _inhNoGroup
+                                          {-# LINE 1332 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule73 #-}
+   {-# LINE 58 "./src-ag/AG2AspectAG.ag" #-}
+   rule73 = \ _synNoGroup ->
+                                          {-# LINE 58 "./src-ag/AG2AspectAG.ag" #-}
+                                          map show $ Map.keys _synNoGroup
+                                          {-# LINE 1338 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule74 #-}
+   {-# LINE 94 "./src-ag/AG2AspectAG.ag" #-}
+   rule74 = \ ((_lhsInewProds) ::  DataTypes ) nt_ ->
+                                   {-# LINE 94 "./src-ag/AG2AspectAG.ag" #-}
+                                   case Map.lookup nt_ _lhsInewProds of
+                                          Just prds -> prds
+                                          Nothing   -> Map.empty
+                                   {-# LINE 1346 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule75 #-}
+   {-# LINE 107 "./src-ag/AG2AspectAG.ag" #-}
+   rule75 = \ ((_prodsIhasMoreProds) ::  Bool ) nt_ ->
+                                                  {-# LINE 107 "./src-ag/AG2AspectAG.ag" #-}
+                                                  if _prodsIhasMoreProds
+                                                  then Set.singleton nt_
+                                                  else Set.empty
+                                                  {-# LINE 1354 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule76 #-}
+   {-# LINE 173 "./src-ag/AG2AspectAG.ag" #-}
+   rule76 = \ nt_ ->
+                                                      {-# LINE 173 "./src-ag/AG2AspectAG.ag" #-}
+                                                      pp nt_
+                                                      {-# LINE 1360 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule77 #-}
+   {-# LINE 190 "./src-ag/AG2AspectAG.ag" #-}
+   rule77 = \ _ppNt ->
+                                                     {-# LINE 190 "./src-ag/AG2AspectAG.ag" #-}
+                                                     _ppNt
+                                                     {-# LINE 1366 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule78 #-}
+   {-# LINE 209 "./src-ag/AG2AspectAG.ag" #-}
+   rule78 = \ ((_lhsIderivs) :: Derivings) ((_lhsInewNTs) :: Set NontermIdent) ((_lhsItSyns) :: TypeSyns) _ppNt ((_prodsIppDL) :: [PP_Doc]) nt_ ->
+                                       {-# LINE 209 "./src-ag/AG2AspectAG.ag" #-}
+                                       if (Set.member nt_ _lhsInewNTs)
+                                       then  case (lookup nt_ _lhsItSyns) of
+                                                      Nothing ->  "data " >|< _ppNt
+                                                                   >|< " = " >|< vlist_sep " | " _prodsIppDL >-<
+                                                                  case (Map.lookup nt_ _lhsIderivs) of
+                                                                   Just ntds -> pp "  deriving " >|<  (ppListSep "(" ")" ", " $ Set.elems ntds)
+                                                                   Nothing   -> empty
+                                                      Just tp ->  "type " >|< _ppNt     >|< " = " >|< ppShow tp
+                                       else  empty
+                                       {-# LINE 1380 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule79 #-}
+   {-# LINE 222 "./src-ag/AG2AspectAG.ag" #-}
+   rule79 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
+                                       {-# LINE 222 "./src-ag/AG2AspectAG.ag" #-}
+                                       if (not $ Set.member nt_ _lhsInewNTs)
+                                       then  [ _ppNt     ]
+                                       else  [ ]
+                                       {-# LINE 1388 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule80 #-}
+   {-# LINE 262 "./src-ag/AG2AspectAG.ag" #-}
+   rule80 = \ _ppNt ->
+                                                    {-# LINE 262 "./src-ag/AG2AspectAG.ag" #-}
+                                                    "nt_" >|< _ppNt
+                                                    {-# LINE 1394 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule81 #-}
+   {-# LINE 264 "./src-ag/AG2AspectAG.ag" #-}
+   rule81 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel _ppNt ((_prodsIppL) :: PP_Doc) nt_ ->
+                                                     {-# LINE 264 "./src-ag/AG2AspectAG.ag" #-}
+                                                     ( if (Set.member nt_ _lhsInewNTs)
+                                                       then _ntLabel     >|< " = proxy :: Proxy " >|< _ppNt
+                                                       else empty)  >-<
+                                                     _prodsIppL
+                                                     {-# LINE 1403 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule82 #-}
+   {-# LINE 269 "./src-ag/AG2AspectAG.ag" #-}
+   rule82 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel ((_prodsIppLI) :: [PP_Doc]) nt_ ->
+                                                     {-# LINE 269 "./src-ag/AG2AspectAG.ag" #-}
+                                                     ( if (not $ Set.member nt_ _lhsInewNTs)
+                                                       then [ _ntLabel     ]
+                                                       else [ ])  ++
+                                                     _prodsIppLI
+                                                     {-# LINE 1412 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule83 #-}
+   {-# LINE 324 "./src-ag/AG2AspectAG.ag" #-}
+   rule83 = \ _inhNoGroup ((_lhsInewNTs) :: Set NontermIdent) _ppNt ((_prodsIppA) :: PP_Doc) _synNoGroup inh_ nt_ syn_ ->
+                                                     {-# LINE 324 "./src-ag/AG2AspectAG.ag" #-}
+                                                     ( if (Set.member nt_ _lhsInewNTs)
+                                                       then
+                                                              defAttRec (pp "InhG") _ppNt     inh_ _inhNoGroup     >-<
+                                                              defAttRec (pp "SynG") _ppNt     syn_ _synNoGroup
+                                                       else   empty) >-<
+                                                     _prodsIppA
+                                                     {-# LINE 1423 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule84 #-}
+   {-# LINE 338 "./src-ag/AG2AspectAG.ag" #-}
+   rule84 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
+                                                     {-# LINE 338 "./src-ag/AG2AspectAG.ag" #-}
+                                                     if (not $ Set.member nt_ _lhsInewNTs)
+                                                     then [ ppName [(pp "InhG"), _ppNt     ] >#< pp "(..)", ppName [(pp "SynG"), _ppNt     ] >#< pp "(..)" ]
+                                                     else [ ]
+                                                     {-# LINE 1431 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule85 #-}
+   {-# LINE 406 "./src-ag/AG2AspectAG.ag" #-}
+   rule85 = \ inh_ nt_ syn_ ->
+                                                     {-# LINE 406 "./src-ag/AG2AspectAG.ag" #-}
+                                                     [ ("nt_" >|< nt_, Map.union inh_ syn_) ]
+                                                     {-# LINE 1437 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule86 #-}
+   {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
+   rule86 = \ ((_lhsInewNTs) :: Set NontermIdent) nt_ ->
+                                                         {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
+                                                         Set.member nt_ _lhsInewNTs
+                                                         {-# LINE 1443 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule87 #-}
+   {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
+   rule87 = \ ((_prodsIppR) :: PP_Doc) nt_ ->
+                                                     {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
+                                                     pp "----" >|< pp nt_ >-< _prodsIppR
+                                                     {-# LINE 1449 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule88 #-}
+   {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
+   rule88 = \ _ppNt ((_prodsIppCata) :: PP_Doc) ->
+                                                      {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
+                                                      "----" >|< _ppNt     >-< _prodsIppCata
+                                                      {-# LINE 1455 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule89 #-}
+   {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
+   rule89 = \ syn_ ->
+                                                     {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
+                                                     syn_
+                                                     {-# LINE 1461 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule90 #-}
+   {-# LINE 767 "./src-ag/AG2AspectAG.ag" #-}
+   rule90 = \ inh_ ->
+                                                     {-# LINE 767 "./src-ag/AG2AspectAG.ag" #-}
+                                                     inh_
+                                                     {-# LINE 1467 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule91 #-}
+   {-# LINE 779 "./src-ag/AG2AspectAG.ag" #-}
+   rule91 = \ _inhNoGroup _ppNt ((_prodsIppSPF) :: PP_Doc) _synNoGroup ->
+                                           {-# LINE 779 "./src-ag/AG2AspectAG.ag" #-}
+                                           let      inhAtts = attTypes _inhNoGroup
+                                                    synAtts = attTypes _synNoGroup
+                                           in
+                                                    "----" >|< _ppNt     >-<
+                                                    "type T_" >|< _ppNt     >|< " = " >|<
+                                                    "(Record " >|<
+                                                    inhAtts >|<
+                                                    "(HCons (LVPair (Proxy Att_inh) InhG_" >|< _ppNt     >|< ") HNil))" >|<
+                                                    replicate (length inhAtts) ")" >|< " -> " >|<
+                                                    "(Record " >|<
+                                                    synAtts >|<
+                                                    "(HCons (LVPair (Proxy Att_syn) SynG_" >|< _ppNt     >|< ") HNil))" >|<
+                                                    replicate (length synAtts) ")" >-<
+                                                    "-- instance SemType T_" >|< _ppNt     >|< " " >|< _ppNt     >-<
+                                                    "-- sem_" >|< _ppNt     >|< " :: " >|< _ppNt     >|< " -> T_" >|<  _ppNt     >-<
+                                                    _prodsIppSPF
+                                           {-# LINE 1488 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule92 #-}
+   {-# LINE 847 "./src-ag/AG2AspectAG.ag" #-}
+   rule92 = \ _inhNoGroup _ppNt inh_ ->
+                                              {-# LINE 847 "./src-ag/AG2AspectAG.ag" #-}
+                                              ppName [pp "wrap", _ppNt    ] >|< " sem " >|< attVars inh_ >|< " = " >-<
+                                              "   sem " >|< attFields inh_ _inhNoGroup     _ppNt
+                                              {-# LINE 1495 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule93 #-}
+   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+   rule93 = \ inh_ nt_ ->
+                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ inh_
+                                 {-# LINE 1501 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule94 #-}
+   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+   rule94 = \ nt_ syn_ ->
+                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ syn_
+                                 {-# LINE 1507 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule95 #-}
+   rule95 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule96 #-}
+   rule96 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule97 #-}
+   rule97 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule98 #-}
+   rule98 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule99 #-}
+   rule99 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule100 #-}
+   rule100 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+
 -- Nonterminals ------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         derivs               : Derivings
-         ext                  : Maybe String
-         inhMap               : Map Identifier Attributes
-         newAtts              :  Attributes 
-         newNTs               : Set NontermIdent
-         newProds             :  DataTypes 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         synMap               : Map Identifier Attributes
-         tSyns                : TypeSyns
-      synthesized attributes:
-         extendedNTs          : Set NontermIdent
-         inhMap'              : Map Identifier Attributes
-         ppA                  : PP_Doc
-         ppAI                 : [PP_Doc]
-         ppCata               : PP_Doc
-         ppD                  : PP_Doc
-         ppDI                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppNtL                : [(PP_Doc, Attributes)]
-         ppR                  : PP_Doc
-         ppSF                 : PP_Doc
-         ppW                  : PP_Doc
-         synMap'              : Map Identifier Attributes
-   alternatives:
-      alternative Cons:
-         child hd             : Nonterminal 
-         child tl             : Nonterminals 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Nonterminals  = Inh_Nonterminals { derivs_Inh_Nonterminals :: (Derivings), ext_Inh_Nonterminals :: (Maybe String), inhMap_Inh_Nonterminals :: (Map Identifier Attributes), newAtts_Inh_Nonterminals :: ( Attributes ), newNTs_Inh_Nonterminals :: (Set NontermIdent), newProds_Inh_Nonterminals :: ( DataTypes ), o_noGroup_Inh_Nonterminals :: ([String]), o_rename_Inh_Nonterminals :: (Bool), synMap_Inh_Nonterminals :: (Map Identifier Attributes), tSyns_Inh_Nonterminals :: (TypeSyns) }
+data Syn_Nonterminals  = Syn_Nonterminals { extendedNTs_Syn_Nonterminals :: (Set NontermIdent), inhMap'_Syn_Nonterminals :: (Map Identifier Attributes), ppA_Syn_Nonterminals :: (PP_Doc), ppAI_Syn_Nonterminals :: ([PP_Doc]), ppCata_Syn_Nonterminals :: (PP_Doc), ppD_Syn_Nonterminals :: (PP_Doc), ppDI_Syn_Nonterminals :: ([PP_Doc]), ppL_Syn_Nonterminals :: (PP_Doc), ppLI_Syn_Nonterminals :: ([PP_Doc]), ppNtL_Syn_Nonterminals :: ([(PP_Doc, Attributes)]), ppR_Syn_Nonterminals :: (PP_Doc), ppSF_Syn_Nonterminals :: (PP_Doc), ppW_Syn_Nonterminals :: (PP_Doc), synMap'_Syn_Nonterminals :: (Map Identifier Attributes) }
+{-# INLINABLE wrap_Nonterminals #-}
+wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
+wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Nonterminals_vIn25 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns
+        (T_Nonterminals_vOut25 _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap') <- return (inv_Nonterminals_s26 sem arg)
+        return (Syn_Nonterminals _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap')
+   )
+
 -- cata
-sem_Nonterminals :: Nonterminals ->
-                    T_Nonterminals
-sem_Nonterminals list =
-    (Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil (Prelude.map sem_Nonterminal list))
+{-# NOINLINE sem_Nonterminals #-}
+sem_Nonterminals :: Nonterminals  -> T_Nonterminals 
+sem_Nonterminals list = Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil (Prelude.map sem_Nonterminal list)
+
 -- semantic domain
-newtype T_Nonterminals = T_Nonterminals (Derivings ->
-                                         (Maybe String) ->
-                                         (Map Identifier Attributes) ->
-                                         ( Attributes ) ->
-                                         (Set NontermIdent) ->
-                                         ( DataTypes ) ->
-                                         ([String]) ->
-                                         Bool ->
-                                         (Map Identifier Attributes) ->
-                                         TypeSyns ->
-                                         ( (Set NontermIdent),(Map Identifier Attributes),PP_Doc,([PP_Doc]),PP_Doc,PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),([(PP_Doc, Attributes)]),PP_Doc,PP_Doc,PP_Doc,(Map Identifier Attributes)))
-data Inh_Nonterminals = Inh_Nonterminals {derivs_Inh_Nonterminals :: Derivings,ext_Inh_Nonterminals :: (Maybe String),inhMap_Inh_Nonterminals :: (Map Identifier Attributes),newAtts_Inh_Nonterminals :: ( Attributes ),newNTs_Inh_Nonterminals :: (Set NontermIdent),newProds_Inh_Nonterminals :: ( DataTypes ),o_noGroup_Inh_Nonterminals :: ([String]),o_rename_Inh_Nonterminals :: Bool,synMap_Inh_Nonterminals :: (Map Identifier Attributes),tSyns_Inh_Nonterminals :: TypeSyns}
-data Syn_Nonterminals = Syn_Nonterminals {extendedNTs_Syn_Nonterminals :: (Set NontermIdent),inhMap'_Syn_Nonterminals :: (Map Identifier Attributes),ppA_Syn_Nonterminals :: PP_Doc,ppAI_Syn_Nonterminals :: ([PP_Doc]),ppCata_Syn_Nonterminals :: PP_Doc,ppD_Syn_Nonterminals :: PP_Doc,ppDI_Syn_Nonterminals :: ([PP_Doc]),ppL_Syn_Nonterminals :: PP_Doc,ppLI_Syn_Nonterminals :: ([PP_Doc]),ppNtL_Syn_Nonterminals :: ([(PP_Doc, Attributes)]),ppR_Syn_Nonterminals :: PP_Doc,ppSF_Syn_Nonterminals :: PP_Doc,ppW_Syn_Nonterminals :: PP_Doc,synMap'_Syn_Nonterminals :: (Map Identifier Attributes)}
-wrap_Nonterminals :: T_Nonterminals ->
-                     Inh_Nonterminals ->
-                     Syn_Nonterminals
-wrap_Nonterminals (T_Nonterminals sem) (Inh_Nonterminals _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) =
-    (let ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap') = sem _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns
-     in  (Syn_Nonterminals _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap'))
-sem_Nonterminals_Cons :: T_Nonterminal ->
-                         T_Nonterminals ->
-                         T_Nonterminals
-sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
-    (T_Nonterminals (\ _lhsIderivs
-                       _lhsIext
-                       _lhsIinhMap
-                       _lhsInewAtts
-                       _lhsInewNTs
-                       _lhsInewProds
-                       _lhsIo_noGroup
-                       _lhsIo_rename
-                       _lhsIsynMap
-                       _lhsItSyns ->
-                         (let _lhsOextendedNTs :: (Set NontermIdent)
-                              _lhsOinhMap' :: (Map Identifier Attributes)
-                              _lhsOppA :: PP_Doc
-                              _lhsOppAI :: ([PP_Doc])
-                              _lhsOppCata :: PP_Doc
-                              _lhsOppD :: PP_Doc
-                              _lhsOppDI :: ([PP_Doc])
-                              _lhsOppL :: PP_Doc
-                              _lhsOppLI :: ([PP_Doc])
-                              _lhsOppNtL :: ([(PP_Doc, Attributes)])
-                              _lhsOppR :: PP_Doc
-                              _lhsOppSF :: PP_Doc
-                              _lhsOppW :: PP_Doc
-                              _lhsOsynMap' :: (Map Identifier Attributes)
-                              _hdOderivs :: Derivings
-                              _hdOext :: (Maybe String)
-                              _hdOinhMap :: (Map Identifier Attributes)
-                              _hdOnewAtts :: ( Attributes )
-                              _hdOnewNTs :: (Set NontermIdent)
-                              _hdOnewProds :: ( DataTypes )
-                              _hdOo_noGroup :: ([String])
-                              _hdOo_rename :: Bool
-                              _hdOsynMap :: (Map Identifier Attributes)
-                              _hdOtSyns :: TypeSyns
-                              _tlOderivs :: Derivings
-                              _tlOext :: (Maybe String)
-                              _tlOinhMap :: (Map Identifier Attributes)
-                              _tlOnewAtts :: ( Attributes )
-                              _tlOnewNTs :: (Set NontermIdent)
-                              _tlOnewProds :: ( DataTypes )
-                              _tlOo_noGroup :: ([String])
-                              _tlOo_rename :: Bool
-                              _tlOsynMap :: (Map Identifier Attributes)
-                              _tlOtSyns :: TypeSyns
-                              _hdIextendedNTs :: (Set NontermIdent)
-                              _hdIinhMap' :: (Map Identifier Attributes)
-                              _hdIppA :: PP_Doc
-                              _hdIppAI :: ([PP_Doc])
-                              _hdIppCata :: PP_Doc
-                              _hdIppD :: PP_Doc
-                              _hdIppDI :: ([PP_Doc])
-                              _hdIppL :: PP_Doc
-                              _hdIppLI :: ([PP_Doc])
-                              _hdIppNtL :: ([(PP_Doc, Attributes)])
-                              _hdIppR :: PP_Doc
-                              _hdIppSF :: PP_Doc
-                              _hdIppW :: PP_Doc
-                              _hdIsynMap' :: (Map Identifier Attributes)
-                              _tlIextendedNTs :: (Set NontermIdent)
-                              _tlIinhMap' :: (Map Identifier Attributes)
-                              _tlIppA :: PP_Doc
-                              _tlIppAI :: ([PP_Doc])
-                              _tlIppCata :: PP_Doc
-                              _tlIppD :: PP_Doc
-                              _tlIppDI :: ([PP_Doc])
-                              _tlIppL :: PP_Doc
-                              _tlIppLI :: ([PP_Doc])
-                              _tlIppNtL :: ([(PP_Doc, Attributes)])
-                              _tlIppR :: PP_Doc
-                              _tlIppSF :: PP_Doc
-                              _tlIppW :: PP_Doc
-                              _tlIsynMap' :: (Map Identifier Attributes)
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 105, column 52)
-                              _lhsOextendedNTs =
-                                  ({-# LINE 105 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIextendedNTs `Set.union` _tlIextendedNTs
-                                   {-# LINE 1857 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/DistChildAttr.ag"(line 4, column 53)
-                              _lhsOinhMap' =
-                                  ({-# LINE 4 "./src-ag/DistChildAttr.ag" #-}
-                                   _hdIinhMap' `Map.union` _tlIinhMap'
-                                   {-# LINE 1863 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 321, column 64)
-                              _lhsOppA =
-                                  ({-# LINE 321 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppA >-< _tlIppA
-                                   {-# LINE 1869 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 335, column 42)
-                              _lhsOppAI =
-                                  ({-# LINE 335 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppAI ++ _tlIppAI
-                                   {-# LINE 1875 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 732, column 67)
-                              _lhsOppCata =
-                                  ({-# LINE 732 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppCata >-< _tlIppCata
-                                   {-# LINE 1881 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 205, column 52)
-                              _lhsOppD =
-                                  ({-# LINE 205 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppD >-< _tlIppD
-                                   {-# LINE 1887 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 205, column 86)
-                              _lhsOppDI =
-                                  ({-# LINE 205 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppDI ++ _tlIppDI
-                                   {-# LINE 1893 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                              _lhsOppL =
-                                  ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppL >-< _tlIppL
-                                   {-# LINE 1899 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                              _lhsOppLI =
-                                  ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppLI ++ _tlIppLI
-                                   {-# LINE 1905 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 403, column 44)
-                              _lhsOppNtL =
-                                  ({-# LINE 403 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppNtL ++ _tlIppNtL
-                                   {-# LINE 1911 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                              _lhsOppR =
-                                  ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppR >-< _tlIppR
-                                   {-# LINE 1917 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 773, column 66)
-                              _lhsOppSF =
-                                  ({-# LINE 773 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppSF >-< _tlIppSF
-                                   {-# LINE 1923 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 843, column 42)
-                              _lhsOppW =
-                                  ({-# LINE 843 "./src-ag/AG2AspectAG.ag" #-}
-                                   _hdIppW >-< _tlIppW
-                                   {-# LINE 1929 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/DistChildAttr.ag"(line 4, column 53)
-                              _lhsOsynMap' =
-                                  ({-# LINE 4 "./src-ag/DistChildAttr.ag" #-}
-                                   _hdIsynMap' `Map.union` _tlIsynMap'
-                                   {-# LINE 1935 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOderivs =
-                                  ({-# LINE 199 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIderivs
-                                   {-# LINE 1941 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOext =
-                                  ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIext
-                                   {-# LINE 1947 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOinhMap =
-                                  ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                   _lhsIinhMap
-                                   {-# LINE 1953 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOnewAtts =
-                                  ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewAtts
-                                   {-# LINE 1959 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOnewNTs =
-                                  ({-# LINE 99 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewNTs
-                                   {-# LINE 1965 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOnewProds =
-                                  ({-# LINE 85 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewProds
-                                   {-# LINE 1971 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOo_noGroup =
-                                  ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIo_noGroup
-                                   {-# LINE 1977 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOo_rename =
-                                  ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIo_rename
-                                   {-# LINE 1983 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOsynMap =
-                                  ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                   _lhsIsynMap
-                                   {-# LINE 1989 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _hdOtSyns =
-                                  ({-# LINE 248 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsItSyns
-                                   {-# LINE 1995 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOderivs =
-                                  ({-# LINE 199 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIderivs
-                                   {-# LINE 2001 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOext =
-                                  ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIext
-                                   {-# LINE 2007 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOinhMap =
-                                  ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                   _lhsIinhMap
-                                   {-# LINE 2013 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOnewAtts =
-                                  ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewAtts
-                                   {-# LINE 2019 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOnewNTs =
-                                  ({-# LINE 99 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewNTs
-                                   {-# LINE 2025 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOnewProds =
-                                  ({-# LINE 85 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsInewProds
-                                   {-# LINE 2031 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOo_noGroup =
-                                  ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIo_noGroup
-                                   {-# LINE 2037 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOo_rename =
-                                  ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsIo_rename
-                                   {-# LINE 2043 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOsynMap =
-                                  ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                   _lhsIsynMap
-                                   {-# LINE 2049 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- copy rule (down)
-                              _tlOtSyns =
-                                  ({-# LINE 248 "./src-ag/AG2AspectAG.ag" #-}
-                                   _lhsItSyns
-                                   {-# LINE 2055 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              ( _hdIextendedNTs,_hdIinhMap',_hdIppA,_hdIppAI,_hdIppCata,_hdIppD,_hdIppDI,_hdIppL,_hdIppLI,_hdIppNtL,_hdIppR,_hdIppSF,_hdIppW,_hdIsynMap') =
-                                  hd_ _hdOderivs _hdOext _hdOinhMap _hdOnewAtts _hdOnewNTs _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOsynMap _hdOtSyns
-                              ( _tlIextendedNTs,_tlIinhMap',_tlIppA,_tlIppAI,_tlIppCata,_tlIppD,_tlIppDI,_tlIppL,_tlIppLI,_tlIppNtL,_tlIppR,_tlIppSF,_tlIppW,_tlIsynMap') =
-                                  tl_ _tlOderivs _tlOext _tlOinhMap _tlOnewAtts _tlOnewNTs _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOsynMap _tlOtSyns
-                          in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
-sem_Nonterminals_Nil :: T_Nonterminals
-sem_Nonterminals_Nil =
-    (T_Nonterminals (\ _lhsIderivs
-                       _lhsIext
-                       _lhsIinhMap
-                       _lhsInewAtts
-                       _lhsInewNTs
-                       _lhsInewProds
-                       _lhsIo_noGroup
-                       _lhsIo_rename
-                       _lhsIsynMap
-                       _lhsItSyns ->
-                         (let _lhsOextendedNTs :: (Set NontermIdent)
-                              _lhsOinhMap' :: (Map Identifier Attributes)
-                              _lhsOppA :: PP_Doc
-                              _lhsOppAI :: ([PP_Doc])
-                              _lhsOppCata :: PP_Doc
-                              _lhsOppD :: PP_Doc
-                              _lhsOppDI :: ([PP_Doc])
-                              _lhsOppL :: PP_Doc
-                              _lhsOppLI :: ([PP_Doc])
-                              _lhsOppNtL :: ([(PP_Doc, Attributes)])
-                              _lhsOppR :: PP_Doc
-                              _lhsOppSF :: PP_Doc
-                              _lhsOppW :: PP_Doc
-                              _lhsOsynMap' :: (Map Identifier Attributes)
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 105, column 52)
-                              _lhsOextendedNTs =
-                                  ({-# LINE 105 "./src-ag/AG2AspectAG.ag" #-}
-                                   Set.empty
-                                   {-# LINE 2092 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/DistChildAttr.ag"(line 4, column 53)
-                              _lhsOinhMap' =
-                                  ({-# LINE 4 "./src-ag/DistChildAttr.ag" #-}
-                                   Map.empty
-                                   {-# LINE 2098 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 321, column 64)
-                              _lhsOppA =
-                                  ({-# LINE 321 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2104 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 335, column 42)
-                              _lhsOppAI =
-                                  ({-# LINE 335 "./src-ag/AG2AspectAG.ag" #-}
-                                   []
-                                   {-# LINE 2110 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 732, column 67)
-                              _lhsOppCata =
-                                  ({-# LINE 732 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2116 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 205, column 52)
-                              _lhsOppD =
-                                  ({-# LINE 205 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2122 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 205, column 86)
-                              _lhsOppDI =
-                                  ({-# LINE 205 "./src-ag/AG2AspectAG.ag" #-}
-                                   []
-                                   {-# LINE 2128 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                              _lhsOppL =
-                                  ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2134 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                              _lhsOppLI =
-                                  ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                   []
-                                   {-# LINE 2140 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 403, column 44)
-                              _lhsOppNtL =
-                                  ({-# LINE 403 "./src-ag/AG2AspectAG.ag" #-}
-                                   []
-                                   {-# LINE 2146 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                              _lhsOppR =
-                                  ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2152 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 773, column 66)
-                              _lhsOppSF =
-                                  ({-# LINE 773 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2158 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/AG2AspectAG.ag"(line 843, column 42)
-                              _lhsOppW =
-                                  ({-# LINE 843 "./src-ag/AG2AspectAG.ag" #-}
-                                   empty
-                                   {-# LINE 2164 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                              -- use rule "./src-ag/DistChildAttr.ag"(line 4, column 53)
-                              _lhsOsynMap' =
-                                  ({-# LINE 4 "./src-ag/DistChildAttr.ag" #-}
-                                   Map.empty
-                                   {-# LINE 2170 "dist/build/AG2AspectAG.hs" #-}
-                                   )
-                          in  ( _lhsOextendedNTs,_lhsOinhMap',_lhsOppA,_lhsOppAI,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppNtL,_lhsOppR,_lhsOppSF,_lhsOppW,_lhsOsynMap'))))
+newtype T_Nonterminals  = T_Nonterminals {
+                                         attach_T_Nonterminals :: Identity (T_Nonterminals_s26 )
+                                         }
+newtype T_Nonterminals_s26  = C_Nonterminals_s26 {
+                                                 inv_Nonterminals_s26 :: (T_Nonterminals_v25 )
+                                                 }
+data T_Nonterminals_s27  = C_Nonterminals_s27
+type T_Nonterminals_v25  = (T_Nonterminals_vIn25 ) -> (T_Nonterminals_vOut25 )
+data T_Nonterminals_vIn25  = T_Nonterminals_vIn25 (Derivings) (Maybe String) (Map Identifier Attributes) ( Attributes ) (Set NontermIdent) ( DataTypes ) ([String]) (Bool) (Map Identifier Attributes) (TypeSyns)
+data T_Nonterminals_vOut25  = T_Nonterminals_vOut25 (Set NontermIdent) (Map Identifier Attributes) (PP_Doc) ([PP_Doc]) (PP_Doc) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) ([(PP_Doc, Attributes)]) (PP_Doc) (PP_Doc) (PP_Doc) (Map Identifier Attributes)
+{-# NOINLINE sem_Nonterminals_Cons #-}
+sem_Nonterminals_Cons :: T_Nonterminal  -> T_Nonterminals  -> T_Nonterminals 
+sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_Nonterminals_v25 
+      v25 = \ (T_Nonterminals_vIn25 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) -> ( let
+         _hdX23 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_))
+         _tlX26 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_))
+         (T_Nonterminal_vOut22 _hdIextendedNTs _hdIinhMap' _hdIppA _hdIppAI _hdIppCata _hdIppD _hdIppDI _hdIppL _hdIppLI _hdIppNtL _hdIppR _hdIppSF _hdIppW _hdIsynMap') = inv_Nonterminal_s23 _hdX23 (T_Nonterminal_vIn22 _hdOderivs _hdOext _hdOinhMap _hdOnewAtts _hdOnewNTs _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOsynMap _hdOtSyns)
+         (T_Nonterminals_vOut25 _tlIextendedNTs _tlIinhMap' _tlIppA _tlIppAI _tlIppCata _tlIppD _tlIppDI _tlIppL _tlIppLI _tlIppNtL _tlIppR _tlIppSF _tlIppW _tlIsynMap') = inv_Nonterminals_s26 _tlX26 (T_Nonterminals_vIn25 _tlOderivs _tlOext _tlOinhMap _tlOnewAtts _tlOnewNTs _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOsynMap _tlOtSyns)
+         _lhsOextendedNTs :: Set NontermIdent
+         _lhsOextendedNTs = rule101 _hdIextendedNTs _tlIextendedNTs
+         _lhsOinhMap' :: Map Identifier Attributes
+         _lhsOinhMap' = rule102 _hdIinhMap' _tlIinhMap'
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule103 _hdIppA _tlIppA
+         _lhsOppAI :: [PP_Doc]
+         _lhsOppAI = rule104 _hdIppAI _tlIppAI
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule105 _hdIppCata _tlIppCata
+         _lhsOppD :: PP_Doc
+         _lhsOppD = rule106 _hdIppD _tlIppD
+         _lhsOppDI :: [PP_Doc]
+         _lhsOppDI = rule107 _hdIppDI _tlIppDI
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule108 _hdIppL _tlIppL
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule109 _hdIppLI _tlIppLI
+         _lhsOppNtL :: [(PP_Doc, Attributes)]
+         _lhsOppNtL = rule110 _hdIppNtL _tlIppNtL
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule111 _hdIppR _tlIppR
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule112 _hdIppSF _tlIppSF
+         _lhsOppW :: PP_Doc
+         _lhsOppW = rule113 _hdIppW _tlIppW
+         _lhsOsynMap' :: Map Identifier Attributes
+         _lhsOsynMap' = rule114 _hdIsynMap' _tlIsynMap'
+         _hdOderivs = rule115 _lhsIderivs
+         _hdOext = rule116 _lhsIext
+         _hdOinhMap = rule117 _lhsIinhMap
+         _hdOnewAtts = rule118 _lhsInewAtts
+         _hdOnewNTs = rule119 _lhsInewNTs
+         _hdOnewProds = rule120 _lhsInewProds
+         _hdOo_noGroup = rule121 _lhsIo_noGroup
+         _hdOo_rename = rule122 _lhsIo_rename
+         _hdOsynMap = rule123 _lhsIsynMap
+         _hdOtSyns = rule124 _lhsItSyns
+         _tlOderivs = rule125 _lhsIderivs
+         _tlOext = rule126 _lhsIext
+         _tlOinhMap = rule127 _lhsIinhMap
+         _tlOnewAtts = rule128 _lhsInewAtts
+         _tlOnewNTs = rule129 _lhsInewNTs
+         _tlOnewProds = rule130 _lhsInewProds
+         _tlOo_noGroup = rule131 _lhsIo_noGroup
+         _tlOo_rename = rule132 _lhsIo_rename
+         _tlOsynMap = rule133 _lhsIsynMap
+         _tlOtSyns = rule134 _lhsItSyns
+         __result_ = T_Nonterminals_vOut25 _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap'
+         in __result_ )
+     in C_Nonterminals_s26 v25
+   {-# INLINE rule101 #-}
+   rule101 = \ ((_hdIextendedNTs) :: Set NontermIdent) ((_tlIextendedNTs) :: Set NontermIdent) ->
+     _hdIextendedNTs `Set.union` _tlIextendedNTs
+   {-# INLINE rule102 #-}
+   rule102 = \ ((_hdIinhMap') :: Map Identifier Attributes) ((_tlIinhMap') :: Map Identifier Attributes) ->
+     _hdIinhMap' `Map.union` _tlIinhMap'
+   {-# INLINE rule103 #-}
+   rule103 = \ ((_hdIppA) :: PP_Doc) ((_tlIppA) :: PP_Doc) ->
+     _hdIppA >-< _tlIppA
+   {-# INLINE rule104 #-}
+   rule104 = \ ((_hdIppAI) :: [PP_Doc]) ((_tlIppAI) :: [PP_Doc]) ->
+     _hdIppAI ++ _tlIppAI
+   {-# INLINE rule105 #-}
+   rule105 = \ ((_hdIppCata) :: PP_Doc) ((_tlIppCata) :: PP_Doc) ->
+     _hdIppCata >-< _tlIppCata
+   {-# INLINE rule106 #-}
+   rule106 = \ ((_hdIppD) :: PP_Doc) ((_tlIppD) :: PP_Doc) ->
+     _hdIppD >-< _tlIppD
+   {-# INLINE rule107 #-}
+   rule107 = \ ((_hdIppDI) :: [PP_Doc]) ((_tlIppDI) :: [PP_Doc]) ->
+     _hdIppDI ++ _tlIppDI
+   {-# INLINE rule108 #-}
+   rule108 = \ ((_hdIppL) :: PP_Doc) ((_tlIppL) :: PP_Doc) ->
+     _hdIppL >-< _tlIppL
+   {-# INLINE rule109 #-}
+   rule109 = \ ((_hdIppLI) :: [PP_Doc]) ((_tlIppLI) :: [PP_Doc]) ->
+     _hdIppLI ++ _tlIppLI
+   {-# INLINE rule110 #-}
+   rule110 = \ ((_hdIppNtL) :: [(PP_Doc, Attributes)]) ((_tlIppNtL) :: [(PP_Doc, Attributes)]) ->
+     _hdIppNtL ++ _tlIppNtL
+   {-# INLINE rule111 #-}
+   rule111 = \ ((_hdIppR) :: PP_Doc) ((_tlIppR) :: PP_Doc) ->
+     _hdIppR >-< _tlIppR
+   {-# INLINE rule112 #-}
+   rule112 = \ ((_hdIppSF) :: PP_Doc) ((_tlIppSF) :: PP_Doc) ->
+     _hdIppSF >-< _tlIppSF
+   {-# INLINE rule113 #-}
+   rule113 = \ ((_hdIppW) :: PP_Doc) ((_tlIppW) :: PP_Doc) ->
+     _hdIppW >-< _tlIppW
+   {-# INLINE rule114 #-}
+   rule114 = \ ((_hdIsynMap') :: Map Identifier Attributes) ((_tlIsynMap') :: Map Identifier Attributes) ->
+     _hdIsynMap' `Map.union` _tlIsynMap'
+   {-# INLINE rule115 #-}
+   rule115 = \ ((_lhsIderivs) :: Derivings) ->
+     _lhsIderivs
+   {-# INLINE rule116 #-}
+   rule116 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule117 #-}
+   rule117 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule118 #-}
+   rule118 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule119 #-}
+   rule119 = \ ((_lhsInewNTs) :: Set NontermIdent) ->
+     _lhsInewNTs
+   {-# INLINE rule120 #-}
+   rule120 = \ ((_lhsInewProds) ::  DataTypes ) ->
+     _lhsInewProds
+   {-# INLINE rule121 #-}
+   rule121 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule122 #-}
+   rule122 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule123 #-}
+   rule123 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule124 #-}
+   rule124 = \ ((_lhsItSyns) :: TypeSyns) ->
+     _lhsItSyns
+   {-# INLINE rule125 #-}
+   rule125 = \ ((_lhsIderivs) :: Derivings) ->
+     _lhsIderivs
+   {-# INLINE rule126 #-}
+   rule126 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule127 #-}
+   rule127 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule128 #-}
+   rule128 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule129 #-}
+   rule129 = \ ((_lhsInewNTs) :: Set NontermIdent) ->
+     _lhsInewNTs
+   {-# INLINE rule130 #-}
+   rule130 = \ ((_lhsInewProds) ::  DataTypes ) ->
+     _lhsInewProds
+   {-# INLINE rule131 #-}
+   rule131 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule132 #-}
+   rule132 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule133 #-}
+   rule133 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule134 #-}
+   rule134 = \ ((_lhsItSyns) :: TypeSyns) ->
+     _lhsItSyns
+{-# NOINLINE sem_Nonterminals_Nil #-}
+sem_Nonterminals_Nil ::  T_Nonterminals 
+sem_Nonterminals_Nil  = T_Nonterminals (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_Nonterminals_v25 
+      v25 = \ (T_Nonterminals_vIn25 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) -> ( let
+         _lhsOextendedNTs :: Set NontermIdent
+         _lhsOextendedNTs = rule135  ()
+         _lhsOinhMap' :: Map Identifier Attributes
+         _lhsOinhMap' = rule136  ()
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule137  ()
+         _lhsOppAI :: [PP_Doc]
+         _lhsOppAI = rule138  ()
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule139  ()
+         _lhsOppD :: PP_Doc
+         _lhsOppD = rule140  ()
+         _lhsOppDI :: [PP_Doc]
+         _lhsOppDI = rule141  ()
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule142  ()
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule143  ()
+         _lhsOppNtL :: [(PP_Doc, Attributes)]
+         _lhsOppNtL = rule144  ()
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule145  ()
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule146  ()
+         _lhsOppW :: PP_Doc
+         _lhsOppW = rule147  ()
+         _lhsOsynMap' :: Map Identifier Attributes
+         _lhsOsynMap' = rule148  ()
+         __result_ = T_Nonterminals_vOut25 _lhsOextendedNTs _lhsOinhMap' _lhsOppA _lhsOppAI _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppNtL _lhsOppR _lhsOppSF _lhsOppW _lhsOsynMap'
+         in __result_ )
+     in C_Nonterminals_s26 v25
+   {-# INLINE rule135 #-}
+   rule135 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule136 #-}
+   rule136 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule137 #-}
+   rule137 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule138 #-}
+   rule138 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule139 #-}
+   rule139 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule140 #-}
+   rule140 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule141 #-}
+   rule141 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule142 #-}
+   rule142 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule143 #-}
+   rule143 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule144 #-}
+   rule144 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule145 #-}
+   rule145 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule146 #-}
+   rule146 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule147 #-}
+   rule147 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule148 #-}
+   rule148 = \  (_ :: ()) ->
+     Map.empty
+
 -- Pattern -----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         copy                 : Pattern 
-         info                 : (Identifier, Identifier)
-   alternatives:
-      alternative Constr:
-         child name           : {ConstructorIdent}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Product:
-         child pos            : {Pos}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Alias:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Irrefutable:
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Underscore:
-         child pos            : {Pos}
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Pattern  = Inh_Pattern {  }
+data Syn_Pattern  = Syn_Pattern { copy_Syn_Pattern :: (Pattern), info_Syn_Pattern :: ((Identifier, Identifier)) }
+{-# INLINABLE wrap_Pattern #-}
+wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
+wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Pattern_vIn28 
+        (T_Pattern_vOut28 _lhsOcopy _lhsOinfo) <- return (inv_Pattern_s29 sem arg)
+        return (Syn_Pattern _lhsOcopy _lhsOinfo)
+   )
+
 -- cata
-sem_Pattern :: Pattern ->
-               T_Pattern
-sem_Pattern (Constr _name _pats) =
-    (sem_Pattern_Constr _name (sem_Patterns _pats))
-sem_Pattern (Product _pos _pats) =
-    (sem_Pattern_Product _pos (sem_Patterns _pats))
-sem_Pattern (Alias _field _attr _pat) =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat))
-sem_Pattern (Irrefutable _pat) =
-    (sem_Pattern_Irrefutable (sem_Pattern _pat))
-sem_Pattern (Underscore _pos) =
-    (sem_Pattern_Underscore _pos)
+{-# NOINLINE sem_Pattern #-}
+sem_Pattern :: Pattern  -> T_Pattern 
+sem_Pattern ( Constr name_ pats_ ) = sem_Pattern_Constr name_ ( sem_Patterns pats_ )
+sem_Pattern ( Product pos_ pats_ ) = sem_Pattern_Product pos_ ( sem_Patterns pats_ )
+sem_Pattern ( Alias field_ attr_ pat_ ) = sem_Pattern_Alias field_ attr_ ( sem_Pattern pat_ )
+sem_Pattern ( Irrefutable pat_ ) = sem_Pattern_Irrefutable ( sem_Pattern pat_ )
+sem_Pattern ( Underscore pos_ ) = sem_Pattern_Underscore pos_
+
 -- semantic domain
-newtype T_Pattern = T_Pattern (( Pattern,((Identifier, Identifier))))
-data Inh_Pattern = Inh_Pattern {}
-data Syn_Pattern = Syn_Pattern {copy_Syn_Pattern :: Pattern,info_Syn_Pattern :: ((Identifier, Identifier))}
-wrap_Pattern :: T_Pattern ->
-                Inh_Pattern ->
-                Syn_Pattern
-wrap_Pattern (T_Pattern sem) (Inh_Pattern) =
-    (let ( _lhsOcopy,_lhsOinfo) = sem
-     in  (Syn_Pattern _lhsOcopy _lhsOinfo))
-sem_Pattern_Constr :: ConstructorIdent ->
-                      T_Patterns ->
-                      T_Pattern
-sem_Pattern_Constr name_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOinfo :: ((Identifier, Identifier))
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    -- "./src-ag/AG2AspectAG.ag"(line 383, column 25)
-                    _lhsOinfo =
-                        ({-# LINE 383 "./src-ag/AG2AspectAG.ag" #-}
-                         error "Pattern Constr undefined!!"
-                         {-# LINE 2239 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Constr name_ _patsIcopy
-                         {-# LINE 2245 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 2251 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    ( _patsIcopy) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOinfo)))
-sem_Pattern_Product :: Pos ->
-                       T_Patterns ->
-                       T_Pattern
-sem_Pattern_Product pos_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOinfo :: ((Identifier, Identifier))
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    -- "./src-ag/AG2AspectAG.ag"(line 384, column 25)
-                    _lhsOinfo =
-                        ({-# LINE 384 "./src-ag/AG2AspectAG.ag" #-}
-                         error "Pattern Product undefined!!"
-                         {-# LINE 2267 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Product pos_ _patsIcopy
-                         {-# LINE 2273 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 2279 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    ( _patsIcopy) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOinfo)))
-sem_Pattern_Alias :: Identifier ->
-                     Identifier ->
-                     T_Pattern ->
-                     T_Pattern
-sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
-    (T_Pattern (let _lhsOinfo :: ((Identifier, Identifier))
-                    _lhsOcopy :: Pattern
-                    _patIcopy :: Pattern
-                    _patIinfo :: ((Identifier, Identifier))
-                    -- "./src-ag/AG2AspectAG.ag"(line 382, column 25)
-                    _lhsOinfo =
-                        ({-# LINE 382 "./src-ag/AG2AspectAG.ag" #-}
-                         (field_, attr_)
-                         {-# LINE 2297 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Alias field_ attr_ _patIcopy
-                         {-# LINE 2303 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 2309 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    ( _patIcopy,_patIinfo) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOinfo)))
-sem_Pattern_Irrefutable :: T_Pattern ->
-                           T_Pattern
-sem_Pattern_Irrefutable (T_Pattern pat_) =
-    (T_Pattern (let _lhsOcopy :: Pattern
-                    _lhsOinfo :: ((Identifier, Identifier))
-                    _patIcopy :: Pattern
-                    _patIinfo :: ((Identifier, Identifier))
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Irrefutable _patIcopy
-                         {-# LINE 2325 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 2331 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- copy rule (up)
-                    _lhsOinfo =
-                        ({-# LINE 380 "./src-ag/AG2AspectAG.ag" #-}
-                         _patIinfo
-                         {-# LINE 2337 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    ( _patIcopy,_patIinfo) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOinfo)))
-sem_Pattern_Underscore :: Pos ->
-                          T_Pattern
-sem_Pattern_Underscore pos_ =
-    (T_Pattern (let _lhsOinfo :: ((Identifier, Identifier))
-                    _lhsOcopy :: Pattern
-                    -- "./src-ag/AG2AspectAG.ag"(line 385, column 25)
-                    _lhsOinfo =
-                        ({-# LINE 385 "./src-ag/AG2AspectAG.ag" #-}
-                         error "Pattern Underscore undefined!!"
-                         {-# LINE 2351 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Underscore pos_
-                         {-# LINE 2357 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 2363 "dist/build/AG2AspectAG.hs" #-}
-                         )
-                in  ( _lhsOcopy,_lhsOinfo)))
+newtype T_Pattern  = T_Pattern {
+                               attach_T_Pattern :: Identity (T_Pattern_s29 )
+                               }
+newtype T_Pattern_s29  = C_Pattern_s29 {
+                                       inv_Pattern_s29 :: (T_Pattern_v28 )
+                                       }
+data T_Pattern_s30  = C_Pattern_s30
+type T_Pattern_v28  = (T_Pattern_vIn28 ) -> (T_Pattern_vOut28 )
+data T_Pattern_vIn28  = T_Pattern_vIn28 
+data T_Pattern_vOut28  = T_Pattern_vOut28 (Pattern) ((Identifier, Identifier))
+{-# NOINLINE sem_Pattern_Constr #-}
+sem_Pattern_Constr :: (ConstructorIdent) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Pattern_v28 
+      v28 = \ (T_Pattern_vIn28 ) -> ( let
+         _patsX32 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut31 _patsIcopy) = inv_Patterns_s32 _patsX32 (T_Patterns_vIn31 )
+         _lhsOinfo :: (Identifier, Identifier)
+         _lhsOinfo = rule149  ()
+         _copy = rule150 _patsIcopy arg_name_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule151 _copy
+         __result_ = T_Pattern_vOut28 _lhsOcopy _lhsOinfo
+         in __result_ )
+     in C_Pattern_s29 v28
+   {-# INLINE rule149 #-}
+   {-# LINE 383 "./src-ag/AG2AspectAG.ag" #-}
+   rule149 = \  (_ :: ()) ->
+                                                    {-# LINE 383 "./src-ag/AG2AspectAG.ag" #-}
+                                                    error "Pattern Constr undefined!!"
+                                                    {-# LINE 1858 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule150 #-}
+   rule150 = \ ((_patsIcopy) :: Patterns) name_ ->
+     Constr name_ _patsIcopy
+   {-# INLINE rule151 #-}
+   rule151 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Product #-}
+sem_Pattern_Product :: (Pos) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Pattern_v28 
+      v28 = \ (T_Pattern_vIn28 ) -> ( let
+         _patsX32 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut31 _patsIcopy) = inv_Patterns_s32 _patsX32 (T_Patterns_vIn31 )
+         _lhsOinfo :: (Identifier, Identifier)
+         _lhsOinfo = rule152  ()
+         _copy = rule153 _patsIcopy arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule154 _copy
+         __result_ = T_Pattern_vOut28 _lhsOcopy _lhsOinfo
+         in __result_ )
+     in C_Pattern_s29 v28
+   {-# INLINE rule152 #-}
+   {-# LINE 384 "./src-ag/AG2AspectAG.ag" #-}
+   rule152 = \  (_ :: ()) ->
+                                                    {-# LINE 384 "./src-ag/AG2AspectAG.ag" #-}
+                                                    error "Pattern Product undefined!!"
+                                                    {-# LINE 1887 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule153 #-}
+   rule153 = \ ((_patsIcopy) :: Patterns) pos_ ->
+     Product pos_ _patsIcopy
+   {-# INLINE rule154 #-}
+   rule154 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Alias #-}
+sem_Pattern_Alias :: (Identifier) -> (Identifier) -> T_Pattern  -> T_Pattern 
+sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Pattern_v28 
+      v28 = \ (T_Pattern_vIn28 ) -> ( let
+         _patX29 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut28 _patIcopy _patIinfo) = inv_Pattern_s29 _patX29 (T_Pattern_vIn28 )
+         _lhsOinfo :: (Identifier, Identifier)
+         _lhsOinfo = rule155 arg_attr_ arg_field_
+         _copy = rule156 _patIcopy arg_attr_ arg_field_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule157 _copy
+         __result_ = T_Pattern_vOut28 _lhsOcopy _lhsOinfo
+         in __result_ )
+     in C_Pattern_s29 v28
+   {-# INLINE rule155 #-}
+   {-# LINE 382 "./src-ag/AG2AspectAG.ag" #-}
+   rule155 = \ attr_ field_ ->
+                                                    {-# LINE 382 "./src-ag/AG2AspectAG.ag" #-}
+                                                    (field_, attr_)
+                                                    {-# LINE 1916 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule156 #-}
+   rule156 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
+     Alias field_ attr_ _patIcopy
+   {-# INLINE rule157 #-}
+   rule157 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Irrefutable #-}
+sem_Pattern_Irrefutable :: T_Pattern  -> T_Pattern 
+sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Pattern_v28 
+      v28 = \ (T_Pattern_vIn28 ) -> ( let
+         _patX29 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut28 _patIcopy _patIinfo) = inv_Pattern_s29 _patX29 (T_Pattern_vIn28 )
+         _copy = rule158 _patIcopy
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule159 _copy
+         _lhsOinfo :: (Identifier, Identifier)
+         _lhsOinfo = rule160 _patIinfo
+         __result_ = T_Pattern_vOut28 _lhsOcopy _lhsOinfo
+         in __result_ )
+     in C_Pattern_s29 v28
+   {-# INLINE rule158 #-}
+   rule158 = \ ((_patIcopy) :: Pattern) ->
+     Irrefutable _patIcopy
+   {-# INLINE rule159 #-}
+   rule159 = \ _copy ->
+     _copy
+   {-# INLINE rule160 #-}
+   rule160 = \ ((_patIinfo) :: (Identifier, Identifier)) ->
+     _patIinfo
+{-# NOINLINE sem_Pattern_Underscore #-}
+sem_Pattern_Underscore :: (Pos) -> T_Pattern 
+sem_Pattern_Underscore arg_pos_ = T_Pattern (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Pattern_v28 
+      v28 = \ (T_Pattern_vIn28 ) -> ( let
+         _lhsOinfo :: (Identifier, Identifier)
+         _lhsOinfo = rule161  ()
+         _copy = rule162 arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule163 _copy
+         __result_ = T_Pattern_vOut28 _lhsOcopy _lhsOinfo
+         in __result_ )
+     in C_Pattern_s29 v28
+   {-# INLINE rule161 #-}
+   {-# LINE 385 "./src-ag/AG2AspectAG.ag" #-}
+   rule161 = \  (_ :: ()) ->
+                                                    {-# LINE 385 "./src-ag/AG2AspectAG.ag" #-}
+                                                    error "Pattern Underscore undefined!!"
+                                                    {-# LINE 1969 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule162 #-}
+   rule162 = \ pos_ ->
+     Underscore pos_
+   {-# INLINE rule163 #-}
+   rule163 = \ _copy ->
+     _copy
+
 -- Patterns ----------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         copy                 : Patterns 
-   alternatives:
-      alternative Cons:
-         child hd             : Pattern 
-         child tl             : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Nil:
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Patterns  = Inh_Patterns {  }
+data Syn_Patterns  = Syn_Patterns { copy_Syn_Patterns :: (Patterns) }
+{-# INLINABLE wrap_Patterns #-}
+wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
+wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Patterns_vIn31 
+        (T_Patterns_vOut31 _lhsOcopy) <- return (inv_Patterns_s32 sem arg)
+        return (Syn_Patterns _lhsOcopy)
+   )
+
 -- cata
-sem_Patterns :: Patterns ->
-                T_Patterns
-sem_Patterns list =
-    (Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list))
+{-# NOINLINE sem_Patterns #-}
+sem_Patterns :: Patterns  -> T_Patterns 
+sem_Patterns list = Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list)
+
 -- semantic domain
-newtype T_Patterns = T_Patterns (( Patterns))
-data Inh_Patterns = Inh_Patterns {}
-data Syn_Patterns = Syn_Patterns {copy_Syn_Patterns :: Patterns}
-wrap_Patterns :: T_Patterns ->
-                 Inh_Patterns ->
-                 Syn_Patterns
-wrap_Patterns (T_Patterns sem) (Inh_Patterns) =
-    (let ( _lhsOcopy) = sem
-     in  (Syn_Patterns _lhsOcopy))
-sem_Patterns_Cons :: T_Pattern ->
-                     T_Patterns ->
-                     T_Patterns
-sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
-    (T_Patterns (let _lhsOcopy :: Patterns
-                     _hdIcopy :: Pattern
-                     _hdIinfo :: ((Identifier, Identifier))
-                     _tlIcopy :: Patterns
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          (:) _hdIcopy _tlIcopy
-                          {-# LINE 2408 "dist/build/AG2AspectAG.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 2414 "dist/build/AG2AspectAG.hs" #-}
-                          )
-                     ( _hdIcopy,_hdIinfo) =
-                         hd_
-                     ( _tlIcopy) =
-                         tl_
-                 in  ( _lhsOcopy)))
-sem_Patterns_Nil :: T_Patterns
-sem_Patterns_Nil =
-    (T_Patterns (let _lhsOcopy :: Patterns
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          []
-                          {-# LINE 2428 "dist/build/AG2AspectAG.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 2434 "dist/build/AG2AspectAG.hs" #-}
-                          )
-                 in  ( _lhsOcopy)))
+newtype T_Patterns  = T_Patterns {
+                                 attach_T_Patterns :: Identity (T_Patterns_s32 )
+                                 }
+newtype T_Patterns_s32  = C_Patterns_s32 {
+                                         inv_Patterns_s32 :: (T_Patterns_v31 )
+                                         }
+data T_Patterns_s33  = C_Patterns_s33
+type T_Patterns_v31  = (T_Patterns_vIn31 ) -> (T_Patterns_vOut31 )
+data T_Patterns_vIn31  = T_Patterns_vIn31 
+data T_Patterns_vOut31  = T_Patterns_vOut31 (Patterns)
+{-# NOINLINE sem_Patterns_Cons #-}
+sem_Patterns_Cons :: T_Pattern  -> T_Patterns  -> T_Patterns 
+sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Patterns_v31 
+      v31 = \ (T_Patterns_vIn31 ) -> ( let
+         _hdX29 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_))
+         _tlX32 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_))
+         (T_Pattern_vOut28 _hdIcopy _hdIinfo) = inv_Pattern_s29 _hdX29 (T_Pattern_vIn28 )
+         (T_Patterns_vOut31 _tlIcopy) = inv_Patterns_s32 _tlX32 (T_Patterns_vIn31 )
+         _copy = rule164 _hdIcopy _tlIcopy
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule165 _copy
+         __result_ = T_Patterns_vOut31 _lhsOcopy
+         in __result_ )
+     in C_Patterns_s32 v31
+   {-# INLINE rule164 #-}
+   rule164 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
+     (:) _hdIcopy _tlIcopy
+   {-# INLINE rule165 #-}
+   rule165 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Patterns_Nil #-}
+sem_Patterns_Nil ::  T_Patterns 
+sem_Patterns_Nil  = T_Patterns (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Patterns_v31 
+      v31 = \ (T_Patterns_vIn31 ) -> ( let
+         _copy = rule166  ()
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule167 _copy
+         __result_ = T_Patterns_vOut31 _lhsOcopy
+         in __result_ )
+     in C_Patterns_s32 v31
+   {-# INLINE rule166 #-}
+   rule166 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule167 #-}
+   rule167 = \ _copy ->
+     _copy
+
 -- Production --------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inh                  :  Attributes 
-         inhMap               : Map Identifier Attributes
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         newNT                : Bool
-         newProds             :  Map.Map ConstructorIdent FieldMap 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         ppNt                 : PP_Doc
-         syn                  :  Attributes 
-         synMap               : Map Identifier Attributes
-         synNoGroup           : [String]
-      synthesized attributes:
-         hasMoreProds         :  Bool 
-         ppA                  : PP_Doc
-         ppCata               : PP_Doc
-         ppD                  : PP_Doc
-         ppDI                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppR                  : PP_Doc
-         ppRA                 : [PP_Doc]
-         ppSF                 : PP_Doc
-         ppSPF                : PP_Doc
-         prdInh               : Attributes
-   alternatives:
-      alternative Production:
-         child con            : {ConstructorIdent}
-         child params         : {[Identifier]}
-         child constraints    : {[Type]}
-         child children       : Children 
-         child rules          : Rules 
-         child typeSigs       : TypeSigs 
-         child macro          : {MaybeMacro}
-         visit 0:
-            local ppProd      : _
-            local prodName    : _
-            local conName     : _
-            local newProd     : _
-            local ppR         : _
-            local ppRA        : _
--}
+-- wrapper
+data Inh_Production  = Inh_Production { ext_Inh_Production :: (Maybe String), inh_Inh_Production :: ( Attributes ), inhMap_Inh_Production :: (Map Identifier Attributes), inhNoGroup_Inh_Production :: ([String]), newAtts_Inh_Production :: ( Attributes ), newNT_Inh_Production :: (Bool), newProds_Inh_Production :: ( Map.Map ConstructorIdent FieldMap ), o_noGroup_Inh_Production :: ([String]), o_rename_Inh_Production :: (Bool), ppNt_Inh_Production :: (PP_Doc), syn_Inh_Production :: ( Attributes ), synMap_Inh_Production :: (Map Identifier Attributes), synNoGroup_Inh_Production :: ([String]) }
+data Syn_Production  = Syn_Production { hasMoreProds_Syn_Production :: ( Bool ), ppA_Syn_Production :: (PP_Doc), ppCata_Syn_Production :: (PP_Doc), ppD_Syn_Production :: (PP_Doc), ppDI_Syn_Production :: ([PP_Doc]), ppL_Syn_Production :: (PP_Doc), ppLI_Syn_Production :: ([PP_Doc]), ppR_Syn_Production :: (PP_Doc), ppRA_Syn_Production :: ([PP_Doc]), ppSF_Syn_Production :: (PP_Doc), ppSPF_Syn_Production :: (PP_Doc), prdInh_Syn_Production :: (Attributes) }
+{-# INLINABLE wrap_Production #-}
+wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
+wrap_Production (T_Production act) (Inh_Production _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Production_vIn34 _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup
+        (T_Production_vOut34 _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh) <- return (inv_Production_s35 sem arg)
+        return (Syn_Production _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh)
+   )
+
 -- cata
-sem_Production :: Production ->
-                  T_Production
-sem_Production (Production _con _params _constraints _children _rules _typeSigs _macro) =
-    (sem_Production_Production _con _params _constraints (sem_Children _children) (sem_Rules _rules) (sem_TypeSigs _typeSigs) _macro)
+{-# INLINE sem_Production #-}
+sem_Production :: Production  -> T_Production 
+sem_Production ( Production con_ params_ constraints_ children_ rules_ typeSigs_ macro_ ) = sem_Production_Production con_ params_ constraints_ ( sem_Children children_ ) ( sem_Rules rules_ ) ( sem_TypeSigs typeSigs_ ) macro_
+
 -- semantic domain
-newtype T_Production = T_Production ((Maybe String) ->
-                                     ( Attributes ) ->
-                                     (Map Identifier Attributes) ->
-                                     ([String]) ->
-                                     ( Attributes ) ->
-                                     Bool ->
-                                     ( Map.Map ConstructorIdent FieldMap ) ->
-                                     ([String]) ->
-                                     Bool ->
-                                     PP_Doc ->
-                                     ( Attributes ) ->
-                                     (Map Identifier Attributes) ->
-                                     ([String]) ->
-                                     ( ( Bool ),PP_Doc,PP_Doc,PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,PP_Doc,Attributes))
-data Inh_Production = Inh_Production {ext_Inh_Production :: (Maybe String),inh_Inh_Production :: ( Attributes ),inhMap_Inh_Production :: (Map Identifier Attributes),inhNoGroup_Inh_Production :: ([String]),newAtts_Inh_Production :: ( Attributes ),newNT_Inh_Production :: Bool,newProds_Inh_Production :: ( Map.Map ConstructorIdent FieldMap ),o_noGroup_Inh_Production :: ([String]),o_rename_Inh_Production :: Bool,ppNt_Inh_Production :: PP_Doc,syn_Inh_Production :: ( Attributes ),synMap_Inh_Production :: (Map Identifier Attributes),synNoGroup_Inh_Production :: ([String])}
-data Syn_Production = Syn_Production {hasMoreProds_Syn_Production :: ( Bool ),ppA_Syn_Production :: PP_Doc,ppCata_Syn_Production :: PP_Doc,ppD_Syn_Production :: PP_Doc,ppDI_Syn_Production :: ([PP_Doc]),ppL_Syn_Production :: PP_Doc,ppLI_Syn_Production :: ([PP_Doc]),ppR_Syn_Production :: PP_Doc,ppRA_Syn_Production :: ([PP_Doc]),ppSF_Syn_Production :: PP_Doc,ppSPF_Syn_Production :: PP_Doc,prdInh_Syn_Production :: Attributes}
-wrap_Production :: T_Production ->
-                   Inh_Production ->
-                   Syn_Production
-wrap_Production (T_Production sem) (Inh_Production _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) =
-    (let ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh) = sem _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup
-     in  (Syn_Production _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh))
-sem_Production_Production :: ConstructorIdent ->
-                             ([Identifier]) ->
-                             ([Type]) ->
-                             T_Children ->
-                             T_Rules ->
-                             T_TypeSigs ->
-                             MaybeMacro ->
-                             T_Production
-sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Rules rules_) (T_TypeSigs typeSigs_) macro_ =
-    (T_Production (\ _lhsIext
-                     _lhsIinh
-                     _lhsIinhMap
-                     _lhsIinhNoGroup
-                     _lhsInewAtts
-                     _lhsInewNT
-                     _lhsInewProds
-                     _lhsIo_noGroup
-                     _lhsIo_rename
-                     _lhsIppNt
-                     _lhsIsyn
-                     _lhsIsynMap
-                     _lhsIsynNoGroup ->
-                       (let _lhsOhasMoreProds :: ( Bool )
-                            _childrenOppProd :: PP_Doc
-                            _rulesOppProd :: PP_Doc
-                            _lhsOppD :: PP_Doc
-                            _lhsOppL :: PP_Doc
-                            _lhsOppLI :: ([PP_Doc])
-                            _lhsOppA :: PP_Doc
-                            _lhsOppCata :: PP_Doc
-                            _lhsOppSF :: PP_Doc
-                            _lhsOppSPF :: PP_Doc
-                            _lhsOppDI :: ([PP_Doc])
-                            _lhsOppR :: PP_Doc
-                            _lhsOppRA :: ([PP_Doc])
-                            _lhsOprdInh :: Attributes
-                            _childrenOext :: (Maybe String)
-                            _childrenOinhMap :: (Map Identifier Attributes)
-                            _childrenOinhNoGroup :: ([String])
-                            _childrenOnewAtts :: ( Attributes )
-                            _childrenOo_noGroup :: ([String])
-                            _childrenOo_rename :: Bool
-                            _childrenOppNt :: PP_Doc
-                            _childrenOsynMap :: (Map Identifier Attributes)
-                            _childrenOsynNoGroup :: ([String])
-                            _rulesOext :: (Maybe String)
-                            _rulesOinhNoGroup :: ([String])
-                            _rulesOnewAtts :: ( Attributes )
-                            _rulesOnewProd :: Bool
-                            _rulesOo_noGroup :: ([String])
-                            _rulesOppNt :: PP_Doc
-                            _rulesOsynNoGroup :: ([String])
-                            _childrenIidCL :: ([(Identifier,Type)])
-                            _childrenIppCSF :: ([(Identifier,(PP_Doc,PP_Doc))])
-                            _childrenIppDL :: ([PP_Doc])
-                            _childrenIppL :: PP_Doc
-                            _childrenIppLI :: ([PP_Doc])
-                            _childrenIppR :: PP_Doc
-                            _childrenIprdInh :: Attributes
-                            _rulesIlocals :: ([Identifier])
-                            _rulesIppRL :: ([ PPRule ])
-                            -- "./src-ag/AG2AspectAG.ag"(line 103, column 29)
-                            _lhsOhasMoreProds =
-                                ({-# LINE 103 "./src-ag/AG2AspectAG.ag" #-}
-                                 not $ Map.member con_ _lhsInewProds
-                                 {-# LINE 2577 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 176, column 25)
-                            _ppProd =
-                                ({-# LINE 176 "./src-ag/AG2AspectAG.ag" #-}
-                                 pp con_
-                                 {-# LINE 2583 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 177, column 25)
-                            _prodName =
-                                ({-# LINE 177 "./src-ag/AG2AspectAG.ag" #-}
-                                 ppName [_lhsIppNt, _ppProd    ]
-                                 {-# LINE 2589 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 178, column 25)
-                            _conName =
-                                ({-# LINE 178 "./src-ag/AG2AspectAG.ag" #-}
-                                 if _lhsIo_rename
-                                 then _prodName
-                                 else _ppProd
-                                 {-# LINE 2597 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 195, column 25)
-                            _childrenOppProd =
-                                ({-# LINE 195 "./src-ag/AG2AspectAG.ag" #-}
-                                 _ppProd
-                                 {-# LINE 2603 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 196, column 25)
-                            _rulesOppProd =
-                                ({-# LINE 196 "./src-ag/AG2AspectAG.ag" #-}
-                                 _ppProd
-                                 {-# LINE 2609 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 228, column 25)
-                            _lhsOppD =
-                                ({-# LINE 228 "./src-ag/AG2AspectAG.ag" #-}
-                                 _conName     >|< ppListSep " {" "}" ", " _childrenIppDL
-                                 {-# LINE 2615 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 275, column 25)
-                            _lhsOppL =
-                                ({-# LINE 275 "./src-ag/AG2AspectAG.ag" #-}
-                                 if (Map.member con_ _lhsInewProds)
-                                   then _childrenIppL
-                                   else empty
-                                 {-# LINE 2623 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 279, column 25)
-                            _lhsOppLI =
-                                ({-# LINE 279 "./src-ag/AG2AspectAG.ag" #-}
-                                 if (not $ Map.member con_ _lhsInewProds)
-                                   then _childrenIppLI
-                                   else []
-                                 {-# LINE 2631 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 332, column 25)
-                            _lhsOppA =
-                                ({-# LINE 332 "./src-ag/AG2AspectAG.ag" #-}
-                                 defLocalAtts _prodName     (length _rulesIlocals) 1 $ sort _rulesIlocals
-                                 {-# LINE 2637 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 428, column 25)
-                            _newProd =
-                                ({-# LINE 428 "./src-ag/AG2AspectAG.ag" #-}
-                                 Map.member con_ _lhsInewProds
-                                 {-# LINE 2643 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 429, column 41)
-                            (_ppR,_ppRA) =
-                                ({-# LINE 429 "./src-ag/AG2AspectAG.ag" #-}
-                                 let  (instR, instRA)  = defInstRules  _lhsIppNt con_ _lhsInewNT _newProd
-                                                                       _childrenIppR _rulesIppRL _childrenIidCL _rulesIlocals
-                                      (locR,  locRA)   = defLocRule    _lhsIppNt con_ _lhsInewNT _newProd
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (inhGR, inhGRA)  = defInhGRule   _lhsIppNt _prodName     _lhsInewNT _newProd
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (synGR, synGRA)  = defSynGRule   _lhsIppNt con_ _lhsInewNT _newProd
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (inhR,  inhRA)   = defInhRules   _lhsIppNt _prodName     _lhsInewNT _newProd     _lhsInewAtts
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (synR,  synRA)   = defSynRules   _lhsIppNt con_ _lhsInewNT _newProd     _lhsInewAtts
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (inhMR,  inhMRA) = modInhRules   _lhsIppNt _prodName     _lhsInewNT _newProd     _lhsInewAtts
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
-                                      (synMR,  synMRA) = modSynRules   _lhsIppNt con_ _lhsInewNT _newProd     _lhsInewAtts
-                                                                       _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup  _childrenIidCL _rulesIlocals
-                                 in   ( vlist [instR,locR,inhGR,synGR,inhR,synR,inhMR,synMR]
-                                      , instRA ++ locRA ++ inhGRA ++ synGRA ++ inhMRA ++ synMRA ++ inhRA ++ synRA)
-                                 {-# LINE 2666 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 739, column 25)
-                            _lhsOppCata =
-                                ({-# LINE 739 "./src-ag/AG2AspectAG.ag" #-}
-                                 let  extend = maybe  []
-                                                      (  \ext ->  if (_lhsInewNT || (not _lhsInewNT && _newProd    ))
-                                                                  then []
-                                                                  else [ ext >|< ".atts_" >|< _prodName     ])
-                                                      _lhsIext
-                                      macro  = case macro_ of
-                                                                  Nothing ->  []
-                                                                  Just macro ->  [ "agMacro " >|<  ppMacro macro  ]
-                                      atts = sortBy (\a b -> compare (show a) (show b)) _ppRA
-                                 in   "atts_" >|< _prodName     >|< " = " >|<
-                                                                    ppListSep "" "" " `ext` "
-                                                                    (atts ++ macro ++ extend ) >-<
-                                      "semP_" >|< _prodName     >|< pp " = knit atts_" >|< _prodName
-                                 {-# LINE 2684 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 803, column 25)
-                            _lhsOppSF =
-                                ({-# LINE 803 "./src-ag/AG2AspectAG.ag" #-}
-                                 let  chi = _childrenIppCSF
-                                      ppPattern = case (show con_) of
-                                                   "Cons"    -> ppParams (ppListSep "" "" " : ")
-                                                   "Nil"     -> pp "[]"
-                                                   otherwise -> _conName     >|< " " >|< (ppParams ppSpaced)
-                                      ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
-                                 in   "sem_" >|< _lhsIppNt >|< " (" >|< ppPattern >|< ") = sem_" >|< _prodName     >|<
-                                      " (" >|< map (fst . snd) chi >|< "emptyRecord)"
-                                 {-# LINE 2697 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- "./src-ag/AG2AspectAG.ag"(line 815, column 25)
-                            _lhsOppSPF =
-                                ({-# LINE 815 "./src-ag/AG2AspectAG.ag" #-}
-                                 let  chi = _childrenIppCSF
-                                      ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
-                                 in   "sem_" >|< _lhsIppNt >|< "_" >|< con_ >#< ppParams ppSpaced >|< " = semP_" >|< _prodName     >|<
-                                      " (" >|< map (snd . snd) chi >|< "emptyRecord)"
-                                 {-# LINE 2706 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- use rule "./src-ag/AG2AspectAG.ag"(line 205, column 86)
-                            _lhsOppDI =
-                                ({-# LINE 205 "./src-ag/AG2AspectAG.ag" #-}
-                                 []
-                                 {-# LINE 2712 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                            _lhsOppR =
-                                ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                                 _ppR
-                                 {-# LINE 2718 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- use rule "./src-ag/AG2AspectAG.ag"(line 419, column 43)
-                            _lhsOppRA =
-                                ({-# LINE 419 "./src-ag/AG2AspectAG.ag" #-}
-                                 _ppRA
-                                 {-# LINE 2724 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- use rule "./src-ag/AG2AspectAG.ag"(line 65, column 57)
-                            _lhsOprdInh =
-                                ({-# LINE 65 "./src-ag/AG2AspectAG.ag" #-}
-                                 _childrenIprdInh
-                                 {-# LINE 2730 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOext =
-                                ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIext
-                                 {-# LINE 2736 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOinhMap =
-                                ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                 _lhsIinhMap
-                                 {-# LINE 2742 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOinhNoGroup =
-                                ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIinhNoGroup
-                                 {-# LINE 2748 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOnewAtts =
-                                ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsInewAtts
-                                 {-# LINE 2754 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOo_noGroup =
-                                ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIo_noGroup
-                                 {-# LINE 2760 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOo_rename =
-                                ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIo_rename
-                                 {-# LINE 2766 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOppNt =
-                                ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIppNt
-                                 {-# LINE 2772 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOsynMap =
-                                ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                 _lhsIsynMap
-                                 {-# LINE 2778 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _childrenOsynNoGroup =
-                                ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIsynNoGroup
-                                 {-# LINE 2784 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOext =
-                                ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIext
-                                 {-# LINE 2790 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOinhNoGroup =
-                                ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIinhNoGroup
-                                 {-# LINE 2796 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOnewAtts =
-                                ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsInewAtts
-                                 {-# LINE 2802 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (from local)
-                            _rulesOnewProd =
-                                ({-# LINE 412 "./src-ag/AG2AspectAG.ag" #-}
-                                 _newProd
-                                 {-# LINE 2808 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOo_noGroup =
-                                ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIo_noGroup
-                                 {-# LINE 2814 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOppNt =
-                                ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIppNt
-                                 {-# LINE 2820 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            -- copy rule (down)
-                            _rulesOsynNoGroup =
-                                ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                 _lhsIsynNoGroup
-                                 {-# LINE 2826 "dist/build/AG2AspectAG.hs" #-}
-                                 )
-                            ( _childrenIidCL,_childrenIppCSF,_childrenIppDL,_childrenIppL,_childrenIppLI,_childrenIppR,_childrenIprdInh) =
-                                children_ _childrenOext _childrenOinhMap _childrenOinhNoGroup _childrenOnewAtts _childrenOo_noGroup _childrenOo_rename _childrenOppNt _childrenOppProd _childrenOsynMap _childrenOsynNoGroup
-                            ( _rulesIlocals,_rulesIppRL) =
-                                rules_ _rulesOext _rulesOinhNoGroup _rulesOnewAtts _rulesOnewProd _rulesOo_noGroup _rulesOppNt _rulesOppProd _rulesOsynNoGroup
-                        in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppD,_lhsOppDI,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
+newtype T_Production  = T_Production {
+                                     attach_T_Production :: Identity (T_Production_s35 )
+                                     }
+newtype T_Production_s35  = C_Production_s35 {
+                                             inv_Production_s35 :: (T_Production_v34 )
+                                             }
+data T_Production_s36  = C_Production_s36
+type T_Production_v34  = (T_Production_vIn34 ) -> (T_Production_vOut34 )
+data T_Production_vIn34  = T_Production_vIn34 (Maybe String) ( Attributes ) (Map Identifier Attributes) ([String]) ( Attributes ) (Bool) ( Map.Map ConstructorIdent FieldMap ) ([String]) (Bool) (PP_Doc) ( Attributes ) (Map Identifier Attributes) ([String])
+data T_Production_vOut34  = T_Production_vOut34 ( Bool ) (PP_Doc) (PP_Doc) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) (PP_Doc) (Attributes)
+{-# NOINLINE sem_Production_Production #-}
+sem_Production_Production :: (ConstructorIdent) -> ([Identifier]) -> ([Type]) -> T_Children  -> T_Rules  -> T_TypeSigs  -> (MaybeMacro) -> T_Production 
+sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ arg_macro_ = T_Production (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_Production_v34 
+      v34 = \ (T_Production_vIn34 _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _childrenX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_))
+         _rulesX44 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_))
+         _typeSigsX50 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_))
+         (T_Children_vOut4 _childrenIidCL _childrenIppCSF _childrenIppDL _childrenIppL _childrenIppLI _childrenIppR _childrenIprdInh) = inv_Children_s5 _childrenX5 (T_Children_vIn4 _childrenOext _childrenOinhMap _childrenOinhNoGroup _childrenOnewAtts _childrenOo_noGroup _childrenOo_rename _childrenOppNt _childrenOppProd _childrenOsynMap _childrenOsynNoGroup)
+         (T_Rules_vOut43 _rulesIlocals _rulesIppRL) = inv_Rules_s44 _rulesX44 (T_Rules_vIn43 _rulesOext _rulesOinhNoGroup _rulesOnewAtts _rulesOnewProd _rulesOo_noGroup _rulesOppNt _rulesOppProd _rulesOsynNoGroup)
+         (T_TypeSigs_vOut49 ) = inv_TypeSigs_s50 _typeSigsX50 (T_TypeSigs_vIn49 )
+         _lhsOhasMoreProds ::  Bool 
+         _lhsOhasMoreProds = rule168 _lhsInewProds arg_con_
+         _ppProd = rule169 arg_con_
+         _prodName = rule170 _lhsIppNt _ppProd
+         _conName = rule171 _lhsIo_rename _ppProd _prodName
+         _childrenOppProd = rule172 _ppProd
+         _rulesOppProd = rule173 _ppProd
+         _lhsOppD :: PP_Doc
+         _lhsOppD = rule174 _childrenIppDL _conName
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule175 _childrenIppL _lhsInewProds arg_con_
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule176 _childrenIppLI _lhsInewProds arg_con_
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule177 _prodName _rulesIlocals
+         _newProd = rule178 _lhsInewProds arg_con_
+         (_ppR,_ppRA) = rule179 _childrenIidCL _childrenIppR _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsIppNt _lhsIsynNoGroup _newProd _prodName _rulesIlocals _rulesIppRL arg_con_
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule180 _lhsIext _lhsInewNT _newProd _ppRA _prodName arg_macro_
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule181 _childrenIppCSF _conName _lhsIppNt _prodName arg_con_
+         _lhsOppSPF :: PP_Doc
+         _lhsOppSPF = rule182 _childrenIppCSF _lhsIppNt _prodName arg_con_
+         _lhsOppDI :: [PP_Doc]
+         _lhsOppDI = rule183  ()
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule184 _ppR
+         _lhsOppRA :: [PP_Doc]
+         _lhsOppRA = rule185 _ppRA
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule186 _childrenIprdInh
+         _childrenOext = rule187 _lhsIext
+         _childrenOinhMap = rule188 _lhsIinhMap
+         _childrenOinhNoGroup = rule189 _lhsIinhNoGroup
+         _childrenOnewAtts = rule190 _lhsInewAtts
+         _childrenOo_noGroup = rule191 _lhsIo_noGroup
+         _childrenOo_rename = rule192 _lhsIo_rename
+         _childrenOppNt = rule193 _lhsIppNt
+         _childrenOsynMap = rule194 _lhsIsynMap
+         _childrenOsynNoGroup = rule195 _lhsIsynNoGroup
+         _rulesOext = rule196 _lhsIext
+         _rulesOinhNoGroup = rule197 _lhsIinhNoGroup
+         _rulesOnewAtts = rule198 _lhsInewAtts
+         _rulesOnewProd = rule199 _newProd
+         _rulesOo_noGroup = rule200 _lhsIo_noGroup
+         _rulesOppNt = rule201 _lhsIppNt
+         _rulesOsynNoGroup = rule202 _lhsIsynNoGroup
+         __result_ = T_Production_vOut34 _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppD _lhsOppDI _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh
+         in __result_ )
+     in C_Production_s35 v34
+   {-# INLINE rule168 #-}
+   {-# LINE 103 "./src-ag/AG2AspectAG.ag" #-}
+   rule168 = \ ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) con_ ->
+                                                 {-# LINE 103 "./src-ag/AG2AspectAG.ag" #-}
+                                                 not $ Map.member con_ _lhsInewProds
+                                                 {-# LINE 2148 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule169 #-}
+   {-# LINE 176 "./src-ag/AG2AspectAG.ag" #-}
+   rule169 = \ con_ ->
+                                                      {-# LINE 176 "./src-ag/AG2AspectAG.ag" #-}
+                                                      pp con_
+                                                      {-# LINE 2154 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule170 #-}
+   {-# LINE 177 "./src-ag/AG2AspectAG.ag" #-}
+   rule170 = \ ((_lhsIppNt) :: PP_Doc) _ppProd ->
+                                                      {-# LINE 177 "./src-ag/AG2AspectAG.ag" #-}
+                                                      ppName [_lhsIppNt, _ppProd    ]
+                                                      {-# LINE 2160 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule171 #-}
+   {-# LINE 178 "./src-ag/AG2AspectAG.ag" #-}
+   rule171 = \ ((_lhsIo_rename) :: Bool) _ppProd _prodName ->
+                                                      {-# LINE 178 "./src-ag/AG2AspectAG.ag" #-}
+                                                      if _lhsIo_rename
+                                                      then _prodName
+                                                      else _ppProd
+                                                      {-# LINE 2168 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule172 #-}
+   {-# LINE 195 "./src-ag/AG2AspectAG.ag" #-}
+   rule172 = \ _ppProd ->
+                                                     {-# LINE 195 "./src-ag/AG2AspectAG.ag" #-}
+                                                     _ppProd
+                                                     {-# LINE 2174 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule173 #-}
+   {-# LINE 196 "./src-ag/AG2AspectAG.ag" #-}
+   rule173 = \ _ppProd ->
+                                                     {-# LINE 196 "./src-ag/AG2AspectAG.ag" #-}
+                                                     _ppProd
+                                                     {-# LINE 2180 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule174 #-}
+   {-# LINE 228 "./src-ag/AG2AspectAG.ag" #-}
+   rule174 = \ ((_childrenIppDL) :: [PP_Doc]) _conName ->
+                                                    {-# LINE 228 "./src-ag/AG2AspectAG.ag" #-}
+                                                    _conName     >|< ppListSep " {" "}" ", " _childrenIppDL
+                                                    {-# LINE 2186 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule175 #-}
+   {-# LINE 275 "./src-ag/AG2AspectAG.ag" #-}
+   rule175 = \ ((_childrenIppL) :: PP_Doc) ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) con_ ->
+                                                     {-# LINE 275 "./src-ag/AG2AspectAG.ag" #-}
+                                                     if (Map.member con_ _lhsInewProds)
+                                                       then _childrenIppL
+                                                       else empty
+                                                     {-# LINE 2194 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule176 #-}
+   {-# LINE 279 "./src-ag/AG2AspectAG.ag" #-}
+   rule176 = \ ((_childrenIppLI) :: [PP_Doc]) ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) con_ ->
+                                                     {-# LINE 279 "./src-ag/AG2AspectAG.ag" #-}
+                                                     if (not $ Map.member con_ _lhsInewProds)
+                                                       then _childrenIppLI
+                                                       else []
+                                                     {-# LINE 2202 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule177 #-}
+   {-# LINE 332 "./src-ag/AG2AspectAG.ag" #-}
+   rule177 = \ _prodName ((_rulesIlocals) :: [Identifier]) ->
+                                                     {-# LINE 332 "./src-ag/AG2AspectAG.ag" #-}
+                                                     defLocalAtts _prodName     (length _rulesIlocals) 1 $ sort _rulesIlocals
+                                                     {-# LINE 2208 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule178 #-}
+   {-# LINE 428 "./src-ag/AG2AspectAG.ag" #-}
+   rule178 = \ ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) con_ ->
+                                                     {-# LINE 428 "./src-ag/AG2AspectAG.ag" #-}
+                                                     Map.member con_ _lhsInewProds
+                                                     {-# LINE 2214 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule179 #-}
+   {-# LINE 430 "./src-ag/AG2AspectAG.ag" #-}
+   rule179 = \ ((_childrenIidCL) :: [(Identifier,Type)]) ((_childrenIppR) :: PP_Doc) ((_lhsIinhNoGroup) :: [String]) ((_lhsInewAtts) ::  Attributes ) ((_lhsInewNT) :: Bool) ((_lhsIppNt) :: PP_Doc) ((_lhsIsynNoGroup) :: [String]) _newProd _prodName ((_rulesIlocals) :: [Identifier]) ((_rulesIppRL) :: [ PPRule ]) con_ ->
+                                {-# LINE 430 "./src-ag/AG2AspectAG.ag" #-}
+                                let  (instR, instRA)  = defInstRules  _lhsIppNt con_ _lhsInewNT _newProd
+                                                                      _childrenIppR _rulesIppRL _childrenIidCL _rulesIlocals
+                                     (locR,  locRA)   = defLocRule    _lhsIppNt con_ _lhsInewNT _newProd
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (inhGR, inhGRA)  = defInhGRule   _lhsIppNt _prodName     _lhsInewNT _newProd
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (synGR, synGRA)  = defSynGRule   _lhsIppNt con_ _lhsInewNT _newProd
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (inhR,  inhRA)   = defInhRules   _lhsIppNt _prodName     _lhsInewNT _newProd     _lhsInewAtts
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (synR,  synRA)   = defSynRules   _lhsIppNt con_ _lhsInewNT _newProd     _lhsInewAtts
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (inhMR,  inhMRA) = modInhRules   _lhsIppNt _prodName     _lhsInewNT _newProd     _lhsInewAtts
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup _childrenIidCL _rulesIlocals
+                                     (synMR,  synMRA) = modSynRules   _lhsIppNt con_ _lhsInewNT _newProd     _lhsInewAtts
+                                                                      _childrenIppR _rulesIppRL _lhsIinhNoGroup _lhsIsynNoGroup  _childrenIidCL _rulesIlocals
+                                in   ( vlist [instR,locR,inhGR,synGR,inhR,synR,inhMR,synMR]
+                                     , instRA ++ locRA ++ inhGRA ++ synGRA ++ inhMRA ++ synMRA ++ inhRA ++ synRA)
+                                {-# LINE 2237 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule180 #-}
+   {-# LINE 740 "./src-ag/AG2AspectAG.ag" #-}
+   rule180 = \ ((_lhsIext) :: Maybe String) ((_lhsInewNT) :: Bool) _newProd _ppRA _prodName macro_ ->
+                                              {-# LINE 740 "./src-ag/AG2AspectAG.ag" #-}
+                                              let  extend = maybe  []
+                                                                   (  \ext ->  if (_lhsInewNT || (not _lhsInewNT && _newProd    ))
+                                                                               then []
+                                                                               else [ ext >|< ".atts_" >|< _prodName     ])
+                                                                   _lhsIext
+                                                   macro  = case macro_ of
+                                                                               Nothing ->  []
+                                                                               Just macro ->  [ "agMacro " >|<  ppMacro macro  ]
+                                                   atts = sortBy (\a b -> compare (show a) (show b)) _ppRA
+                                              in   "atts_" >|< _prodName     >|< " = " >|<
+                                                                                 ppListSep "" "" " `ext` "
+                                                                                 (atts ++ macro ++ extend ) >-<
+                                                   "semP_" >|< _prodName     >|< pp " = knit atts_" >|< _prodName
+                                              {-# LINE 2255 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule181 #-}
+   {-# LINE 804 "./src-ag/AG2AspectAG.ag" #-}
+   rule181 = \ ((_childrenIppCSF) :: [(Identifier,(PP_Doc,PP_Doc))]) _conName ((_lhsIppNt) :: PP_Doc) _prodName con_ ->
+                                              {-# LINE 804 "./src-ag/AG2AspectAG.ag" #-}
+                                              let  chi = _childrenIppCSF
+                                                   ppPattern = case (show con_) of
+                                                                "Cons"    -> ppParams (ppListSep "" "" " : ")
+                                                                "Nil"     -> pp "[]"
+                                                                otherwise -> _conName     >|< " " >|< (ppParams ppSpaced)
+                                                   ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
+                                              in   "sem_" >|< _lhsIppNt >|< " (" >|< ppPattern >|< ") = sem_" >|< _prodName     >|<
+                                                   " (" >|< map (fst . snd) chi >|< "emptyRecord)"
+                                              {-# LINE 2268 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule182 #-}
+   {-# LINE 816 "./src-ag/AG2AspectAG.ag" #-}
+   rule182 = \ ((_childrenIppCSF) :: [(Identifier,(PP_Doc,PP_Doc))]) ((_lhsIppNt) :: PP_Doc) _prodName con_ ->
+                                              {-# LINE 816 "./src-ag/AG2AspectAG.ag" #-}
+                                              let  chi = _childrenIppCSF
+                                                   ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
+                                              in   "sem_" >|< _lhsIppNt >|< "_" >|< con_ >#< ppParams ppSpaced >|< " = semP_" >|< _prodName     >|<
+                                                   " (" >|< map (snd . snd) chi >|< "emptyRecord)"
+                                              {-# LINE 2277 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule183 #-}
+   rule183 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule184 #-}
+   rule184 = \ _ppR ->
+     _ppR
+   {-# INLINE rule185 #-}
+   rule185 = \ _ppRA ->
+     _ppRA
+   {-# INLINE rule186 #-}
+   rule186 = \ ((_childrenIprdInh) :: Attributes) ->
+     _childrenIprdInh
+   {-# INLINE rule187 #-}
+   rule187 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule188 #-}
+   rule188 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule189 #-}
+   rule189 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule190 #-}
+   rule190 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule191 #-}
+   rule191 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule192 #-}
+   rule192 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule193 #-}
+   rule193 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule194 #-}
+   rule194 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule195 #-}
+   rule195 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+   {-# INLINE rule196 #-}
+   rule196 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule197 #-}
+   rule197 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule198 #-}
+   rule198 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule199 #-}
+   rule199 = \ _newProd ->
+     _newProd
+   {-# INLINE rule200 #-}
+   rule200 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule201 #-}
+   rule201 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule202 #-}
+   rule202 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+
 -- Productions -------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inh                  :  Attributes 
-         inhMap               : Map Identifier Attributes
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         newNT                : Bool
-         newProds             :  Map.Map ConstructorIdent FieldMap 
-         o_noGroup            : [String]
-         o_rename             : Bool
-         ppNt                 : PP_Doc
-         syn                  :  Attributes 
-         synMap               : Map Identifier Attributes
-         synNoGroup           : [String]
-      synthesized attributes:
-         hasMoreProds         :  Bool 
-         ppA                  : PP_Doc
-         ppCata               : PP_Doc
-         ppDL                 : [PP_Doc]
-         ppL                  : PP_Doc
-         ppLI                 : [PP_Doc]
-         ppR                  : PP_Doc
-         ppRA                 : [PP_Doc]
-         ppSF                 : PP_Doc
-         ppSPF                : PP_Doc
-         prdInh               : Attributes
-   alternatives:
-      alternative Cons:
-         child hd             : Production 
-         child tl             : Productions 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Productions  = Inh_Productions { ext_Inh_Productions :: (Maybe String), inh_Inh_Productions :: ( Attributes ), inhMap_Inh_Productions :: (Map Identifier Attributes), inhNoGroup_Inh_Productions :: ([String]), newAtts_Inh_Productions :: ( Attributes ), newNT_Inh_Productions :: (Bool), newProds_Inh_Productions :: ( Map.Map ConstructorIdent FieldMap ), o_noGroup_Inh_Productions :: ([String]), o_rename_Inh_Productions :: (Bool), ppNt_Inh_Productions :: (PP_Doc), syn_Inh_Productions :: ( Attributes ), synMap_Inh_Productions :: (Map Identifier Attributes), synNoGroup_Inh_Productions :: ([String]) }
+data Syn_Productions  = Syn_Productions { hasMoreProds_Syn_Productions :: ( Bool ), ppA_Syn_Productions :: (PP_Doc), ppCata_Syn_Productions :: (PP_Doc), ppDL_Syn_Productions :: ([PP_Doc]), ppL_Syn_Productions :: (PP_Doc), ppLI_Syn_Productions :: ([PP_Doc]), ppR_Syn_Productions :: (PP_Doc), ppRA_Syn_Productions :: ([PP_Doc]), ppSF_Syn_Productions :: (PP_Doc), ppSPF_Syn_Productions :: (PP_Doc), prdInh_Syn_Productions :: (Attributes) }
+{-# INLINABLE wrap_Productions #-}
+wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
+wrap_Productions (T_Productions act) (Inh_Productions _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Productions_vIn37 _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup
+        (T_Productions_vOut37 _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh) <- return (inv_Productions_s38 sem arg)
+        return (Syn_Productions _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh)
+   )
+
 -- cata
-sem_Productions :: Productions ->
-                   T_Productions
-sem_Productions list =
-    (Prelude.foldr sem_Productions_Cons sem_Productions_Nil (Prelude.map sem_Production list))
+{-# NOINLINE sem_Productions #-}
+sem_Productions :: Productions  -> T_Productions 
+sem_Productions list = Prelude.foldr sem_Productions_Cons sem_Productions_Nil (Prelude.map sem_Production list)
+
 -- semantic domain
-newtype T_Productions = T_Productions ((Maybe String) ->
-                                       ( Attributes ) ->
-                                       (Map Identifier Attributes) ->
-                                       ([String]) ->
-                                       ( Attributes ) ->
-                                       Bool ->
-                                       ( Map.Map ConstructorIdent FieldMap ) ->
-                                       ([String]) ->
-                                       Bool ->
-                                       PP_Doc ->
-                                       ( Attributes ) ->
-                                       (Map Identifier Attributes) ->
-                                       ([String]) ->
-                                       ( ( Bool ),PP_Doc,PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,([PP_Doc]),PP_Doc,PP_Doc,Attributes))
-data Inh_Productions = Inh_Productions {ext_Inh_Productions :: (Maybe String),inh_Inh_Productions :: ( Attributes ),inhMap_Inh_Productions :: (Map Identifier Attributes),inhNoGroup_Inh_Productions :: ([String]),newAtts_Inh_Productions :: ( Attributes ),newNT_Inh_Productions :: Bool,newProds_Inh_Productions :: ( Map.Map ConstructorIdent FieldMap ),o_noGroup_Inh_Productions :: ([String]),o_rename_Inh_Productions :: Bool,ppNt_Inh_Productions :: PP_Doc,syn_Inh_Productions :: ( Attributes ),synMap_Inh_Productions :: (Map Identifier Attributes),synNoGroup_Inh_Productions :: ([String])}
-data Syn_Productions = Syn_Productions {hasMoreProds_Syn_Productions :: ( Bool ),ppA_Syn_Productions :: PP_Doc,ppCata_Syn_Productions :: PP_Doc,ppDL_Syn_Productions :: ([PP_Doc]),ppL_Syn_Productions :: PP_Doc,ppLI_Syn_Productions :: ([PP_Doc]),ppR_Syn_Productions :: PP_Doc,ppRA_Syn_Productions :: ([PP_Doc]),ppSF_Syn_Productions :: PP_Doc,ppSPF_Syn_Productions :: PP_Doc,prdInh_Syn_Productions :: Attributes}
-wrap_Productions :: T_Productions ->
-                    Inh_Productions ->
-                    Syn_Productions
-wrap_Productions (T_Productions sem) (Inh_Productions _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) =
-    (let ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh) = sem _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup
-     in  (Syn_Productions _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh))
-sem_Productions_Cons :: T_Production ->
-                        T_Productions ->
-                        T_Productions
-sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
-    (T_Productions (\ _lhsIext
-                      _lhsIinh
-                      _lhsIinhMap
-                      _lhsIinhNoGroup
-                      _lhsInewAtts
-                      _lhsInewNT
-                      _lhsInewProds
-                      _lhsIo_noGroup
-                      _lhsIo_rename
-                      _lhsIppNt
-                      _lhsIsyn
-                      _lhsIsynMap
-                      _lhsIsynNoGroup ->
-                        (let _hdOinhNoGroup :: ([String])
-                             _lhsOppDL :: ([PP_Doc])
-                             _lhsOhasMoreProds :: ( Bool )
-                             _lhsOppA :: PP_Doc
-                             _lhsOppCata :: PP_Doc
-                             _lhsOppL :: PP_Doc
-                             _lhsOppLI :: ([PP_Doc])
-                             _lhsOppR :: PP_Doc
-                             _lhsOppRA :: ([PP_Doc])
-                             _lhsOppSF :: PP_Doc
-                             _lhsOppSPF :: PP_Doc
-                             _lhsOprdInh :: Attributes
-                             _hdOext :: (Maybe String)
-                             _hdOinh :: ( Attributes )
-                             _hdOinhMap :: (Map Identifier Attributes)
-                             _hdOnewAtts :: ( Attributes )
-                             _hdOnewNT :: Bool
-                             _hdOnewProds :: ( Map.Map ConstructorIdent FieldMap )
-                             _hdOo_noGroup :: ([String])
-                             _hdOo_rename :: Bool
-                             _hdOppNt :: PP_Doc
-                             _hdOsyn :: ( Attributes )
-                             _hdOsynMap :: (Map Identifier Attributes)
-                             _hdOsynNoGroup :: ([String])
-                             _tlOext :: (Maybe String)
-                             _tlOinh :: ( Attributes )
-                             _tlOinhMap :: (Map Identifier Attributes)
-                             _tlOinhNoGroup :: ([String])
-                             _tlOnewAtts :: ( Attributes )
-                             _tlOnewNT :: Bool
-                             _tlOnewProds :: ( Map.Map ConstructorIdent FieldMap )
-                             _tlOo_noGroup :: ([String])
-                             _tlOo_rename :: Bool
-                             _tlOppNt :: PP_Doc
-                             _tlOsyn :: ( Attributes )
-                             _tlOsynMap :: (Map Identifier Attributes)
-                             _tlOsynNoGroup :: ([String])
-                             _hdIhasMoreProds :: ( Bool )
-                             _hdIppA :: PP_Doc
-                             _hdIppCata :: PP_Doc
-                             _hdIppD :: PP_Doc
-                             _hdIppDI :: ([PP_Doc])
-                             _hdIppL :: PP_Doc
-                             _hdIppLI :: ([PP_Doc])
-                             _hdIppR :: PP_Doc
-                             _hdIppRA :: ([PP_Doc])
-                             _hdIppSF :: PP_Doc
-                             _hdIppSPF :: PP_Doc
-                             _hdIprdInh :: Attributes
-                             _tlIhasMoreProds :: ( Bool )
-                             _tlIppA :: PP_Doc
-                             _tlIppCata :: PP_Doc
-                             _tlIppDL :: ([PP_Doc])
-                             _tlIppL :: PP_Doc
-                             _tlIppLI :: ([PP_Doc])
-                             _tlIppR :: PP_Doc
-                             _tlIppRA :: ([PP_Doc])
-                             _tlIppSF :: PP_Doc
-                             _tlIppSPF :: PP_Doc
-                             _tlIprdInh :: Attributes
-                             -- "./src-ag/AG2AspectAG.ag"(line 62, column 11)
-                             _hdOinhNoGroup =
-                                 ({-# LINE 62 "./src-ag/AG2AspectAG.ag" #-}
-                                  filter (flip Map.member _hdIprdInh . identifier) _lhsIinhNoGroup
-                                  {-# LINE 2977 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- "./src-ag/AG2AspectAG.ag"(line 234, column 33)
-                             _lhsOppDL =
-                                 ({-# LINE 234 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppD : _tlIppDL
-                                  {-# LINE 2983 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 101, column 51)
-                             _lhsOhasMoreProds =
-                                 ({-# LINE 101 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIhasMoreProds  ||  _tlIhasMoreProds
-                                  {-# LINE 2989 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 321, column 64)
-                             _lhsOppA =
-                                 ({-# LINE 321 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppA >-< _tlIppA
-                                  {-# LINE 2995 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 732, column 67)
-                             _lhsOppCata =
-                                 ({-# LINE 732 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppCata >-< _tlIppCata
-                                  {-# LINE 3001 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                             _lhsOppL =
-                                 ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppL >-< _tlIppL
-                                  {-# LINE 3007 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                             _lhsOppLI =
-                                 ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppLI ++ _tlIppLI
-                                  {-# LINE 3013 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                             _lhsOppR =
-                                 ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppR >-< _tlIppR
-                                  {-# LINE 3019 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 419, column 43)
-                             _lhsOppRA =
-                                 ({-# LINE 419 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppRA ++ _tlIppRA
-                                  {-# LINE 3025 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 773, column 66)
-                             _lhsOppSF =
-                                 ({-# LINE 773 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppSF >-< _tlIppSF
-                                  {-# LINE 3031 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 774, column 42)
-                             _lhsOppSPF =
-                                 ({-# LINE 774 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIppSPF >-< _tlIppSPF
-                                  {-# LINE 3037 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 65, column 57)
-                             _lhsOprdInh =
-                                 ({-# LINE 65 "./src-ag/AG2AspectAG.ag" #-}
-                                  _hdIprdInh `Map.union` _tlIprdInh
-                                  {-# LINE 3043 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOext =
-                                 ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIext
-                                  {-# LINE 3049 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOinh =
-                                 ({-# LINE 763 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIinh
-                                  {-# LINE 3055 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOinhMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIinhMap
-                                  {-# LINE 3061 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOnewAtts =
-                                 ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewAtts
-                                  {-# LINE 3067 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOnewNT =
-                                 ({-# LINE 411 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewNT
-                                  {-# LINE 3073 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOnewProds =
-                                 ({-# LINE 86 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewProds
-                                  {-# LINE 3079 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOo_noGroup =
-                                 ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_noGroup
-                                  {-# LINE 3085 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOo_rename =
-                                 ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_rename
-                                  {-# LINE 3091 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOppNt =
-                                 ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIppNt
-                                  {-# LINE 3097 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOsyn =
-                                 ({-# LINE 763 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIsyn
-                                  {-# LINE 3103 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOsynMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIsynMap
-                                  {-# LINE 3109 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _hdOsynNoGroup =
-                                 ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIsynNoGroup
-                                  {-# LINE 3115 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOext =
-                                 ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIext
-                                  {-# LINE 3121 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOinh =
-                                 ({-# LINE 763 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIinh
-                                  {-# LINE 3127 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOinhMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIinhMap
-                                  {-# LINE 3133 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOinhNoGroup =
-                                 ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIinhNoGroup
-                                  {-# LINE 3139 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOnewAtts =
-                                 ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewAtts
-                                  {-# LINE 3145 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOnewNT =
-                                 ({-# LINE 411 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewNT
-                                  {-# LINE 3151 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOnewProds =
-                                 ({-# LINE 86 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsInewProds
-                                  {-# LINE 3157 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOo_noGroup =
-                                 ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_noGroup
-                                  {-# LINE 3163 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOo_rename =
-                                 ({-# LINE 41 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIo_rename
-                                  {-# LINE 3169 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOppNt =
-                                 ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIppNt
-                                  {-# LINE 3175 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOsyn =
-                                 ({-# LINE 763 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIsyn
-                                  {-# LINE 3181 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOsynMap =
-                                 ({-# LINE 12 "./src-ag/DistChildAttr.ag" #-}
-                                  _lhsIsynMap
-                                  {-# LINE 3187 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- copy rule (down)
-                             _tlOsynNoGroup =
-                                 ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                                  _lhsIsynNoGroup
-                                  {-# LINE 3193 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             ( _hdIhasMoreProds,_hdIppA,_hdIppCata,_hdIppD,_hdIppDI,_hdIppL,_hdIppLI,_hdIppR,_hdIppRA,_hdIppSF,_hdIppSPF,_hdIprdInh) =
-                                 hd_ _hdOext _hdOinh _hdOinhMap _hdOinhNoGroup _hdOnewAtts _hdOnewNT _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOppNt _hdOsyn _hdOsynMap _hdOsynNoGroup
-                             ( _tlIhasMoreProds,_tlIppA,_tlIppCata,_tlIppDL,_tlIppL,_tlIppLI,_tlIppR,_tlIppRA,_tlIppSF,_tlIppSPF,_tlIprdInh) =
-                                 tl_ _tlOext _tlOinh _tlOinhMap _tlOinhNoGroup _tlOnewAtts _tlOnewNT _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOppNt _tlOsyn _tlOsynMap _tlOsynNoGroup
-                         in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
-sem_Productions_Nil :: T_Productions
-sem_Productions_Nil =
-    (T_Productions (\ _lhsIext
-                      _lhsIinh
-                      _lhsIinhMap
-                      _lhsIinhNoGroup
-                      _lhsInewAtts
-                      _lhsInewNT
-                      _lhsInewProds
-                      _lhsIo_noGroup
-                      _lhsIo_rename
-                      _lhsIppNt
-                      _lhsIsyn
-                      _lhsIsynMap
-                      _lhsIsynNoGroup ->
-                        (let _lhsOppDL :: ([PP_Doc])
-                             _lhsOhasMoreProds :: ( Bool )
-                             _lhsOppA :: PP_Doc
-                             _lhsOppCata :: PP_Doc
-                             _lhsOppL :: PP_Doc
-                             _lhsOppLI :: ([PP_Doc])
-                             _lhsOppR :: PP_Doc
-                             _lhsOppRA :: ([PP_Doc])
-                             _lhsOppSF :: PP_Doc
-                             _lhsOppSPF :: PP_Doc
-                             _lhsOprdInh :: Attributes
-                             -- "./src-ag/AG2AspectAG.ag"(line 235, column 33)
-                             _lhsOppDL =
-                                 ({-# LINE 235 "./src-ag/AG2AspectAG.ag" #-}
-                                  []
-                                  {-# LINE 3230 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 101, column 51)
-                             _lhsOhasMoreProds =
-                                 ({-# LINE 101 "./src-ag/AG2AspectAG.ag" #-}
-                                  False
-                                  {-# LINE 3236 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 321, column 64)
-                             _lhsOppA =
-                                 ({-# LINE 321 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3242 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 732, column 67)
-                             _lhsOppCata =
-                                 ({-# LINE 732 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3248 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 79)
-                             _lhsOppL =
-                                 ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3254 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 259, column 112)
-                             _lhsOppLI =
-                                 ({-# LINE 259 "./src-ag/AG2AspectAG.ag" #-}
-                                  []
-                                  {-# LINE 3260 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 418, column 79)
-                             _lhsOppR =
-                                 ({-# LINE 418 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3266 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 419, column 43)
-                             _lhsOppRA =
-                                 ({-# LINE 419 "./src-ag/AG2AspectAG.ag" #-}
-                                  []
-                                  {-# LINE 3272 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 773, column 66)
-                             _lhsOppSF =
-                                 ({-# LINE 773 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3278 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 774, column 42)
-                             _lhsOppSPF =
-                                 ({-# LINE 774 "./src-ag/AG2AspectAG.ag" #-}
-                                  empty
-                                  {-# LINE 3284 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                             -- use rule "./src-ag/AG2AspectAG.ag"(line 65, column 57)
-                             _lhsOprdInh =
-                                 ({-# LINE 65 "./src-ag/AG2AspectAG.ag" #-}
-                                  Map.empty
-                                  {-# LINE 3290 "dist/build/AG2AspectAG.hs" #-}
-                                  )
-                         in  ( _lhsOhasMoreProds,_lhsOppA,_lhsOppCata,_lhsOppDL,_lhsOppL,_lhsOppLI,_lhsOppR,_lhsOppRA,_lhsOppSF,_lhsOppSPF,_lhsOprdInh))))
+newtype T_Productions  = T_Productions {
+                                       attach_T_Productions :: Identity (T_Productions_s38 )
+                                       }
+newtype T_Productions_s38  = C_Productions_s38 {
+                                               inv_Productions_s38 :: (T_Productions_v37 )
+                                               }
+data T_Productions_s39  = C_Productions_s39
+type T_Productions_v37  = (T_Productions_vIn37 ) -> (T_Productions_vOut37 )
+data T_Productions_vIn37  = T_Productions_vIn37 (Maybe String) ( Attributes ) (Map Identifier Attributes) ([String]) ( Attributes ) (Bool) ( Map.Map ConstructorIdent FieldMap ) ([String]) (Bool) (PP_Doc) ( Attributes ) (Map Identifier Attributes) ([String])
+data T_Productions_vOut37  = T_Productions_vOut37 ( Bool ) (PP_Doc) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) ([PP_Doc]) (PP_Doc) (PP_Doc) (Attributes)
+{-# NOINLINE sem_Productions_Cons #-}
+sem_Productions_Cons :: T_Production  -> T_Productions  -> T_Productions 
+sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st38) where
+   {-# NOINLINE st38 #-}
+   st38 = let
+      v37 :: T_Productions_v37 
+      v37 = \ (T_Productions_vIn37 _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _hdX35 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_))
+         _tlX38 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_))
+         (T_Production_vOut34 _hdIhasMoreProds _hdIppA _hdIppCata _hdIppD _hdIppDI _hdIppL _hdIppLI _hdIppR _hdIppRA _hdIppSF _hdIppSPF _hdIprdInh) = inv_Production_s35 _hdX35 (T_Production_vIn34 _hdOext _hdOinh _hdOinhMap _hdOinhNoGroup _hdOnewAtts _hdOnewNT _hdOnewProds _hdOo_noGroup _hdOo_rename _hdOppNt _hdOsyn _hdOsynMap _hdOsynNoGroup)
+         (T_Productions_vOut37 _tlIhasMoreProds _tlIppA _tlIppCata _tlIppDL _tlIppL _tlIppLI _tlIppR _tlIppRA _tlIppSF _tlIppSPF _tlIprdInh) = inv_Productions_s38 _tlX38 (T_Productions_vIn37 _tlOext _tlOinh _tlOinhMap _tlOinhNoGroup _tlOnewAtts _tlOnewNT _tlOnewProds _tlOo_noGroup _tlOo_rename _tlOppNt _tlOsyn _tlOsynMap _tlOsynNoGroup)
+         _hdOinhNoGroup = rule203 _hdIprdInh _lhsIinhNoGroup
+         _lhsOppDL :: [PP_Doc]
+         _lhsOppDL = rule204 _hdIppD _tlIppDL
+         _lhsOhasMoreProds ::  Bool 
+         _lhsOhasMoreProds = rule205 _hdIhasMoreProds _tlIhasMoreProds
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule206 _hdIppA _tlIppA
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule207 _hdIppCata _tlIppCata
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule208 _hdIppL _tlIppL
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule209 _hdIppLI _tlIppLI
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule210 _hdIppR _tlIppR
+         _lhsOppRA :: [PP_Doc]
+         _lhsOppRA = rule211 _hdIppRA _tlIppRA
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule212 _hdIppSF _tlIppSF
+         _lhsOppSPF :: PP_Doc
+         _lhsOppSPF = rule213 _hdIppSPF _tlIppSPF
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule214 _hdIprdInh _tlIprdInh
+         _hdOext = rule215 _lhsIext
+         _hdOinh = rule216 _lhsIinh
+         _hdOinhMap = rule217 _lhsIinhMap
+         _hdOnewAtts = rule218 _lhsInewAtts
+         _hdOnewNT = rule219 _lhsInewNT
+         _hdOnewProds = rule220 _lhsInewProds
+         _hdOo_noGroup = rule221 _lhsIo_noGroup
+         _hdOo_rename = rule222 _lhsIo_rename
+         _hdOppNt = rule223 _lhsIppNt
+         _hdOsyn = rule224 _lhsIsyn
+         _hdOsynMap = rule225 _lhsIsynMap
+         _hdOsynNoGroup = rule226 _lhsIsynNoGroup
+         _tlOext = rule227 _lhsIext
+         _tlOinh = rule228 _lhsIinh
+         _tlOinhMap = rule229 _lhsIinhMap
+         _tlOinhNoGroup = rule230 _lhsIinhNoGroup
+         _tlOnewAtts = rule231 _lhsInewAtts
+         _tlOnewNT = rule232 _lhsInewNT
+         _tlOnewProds = rule233 _lhsInewProds
+         _tlOo_noGroup = rule234 _lhsIo_noGroup
+         _tlOo_rename = rule235 _lhsIo_rename
+         _tlOppNt = rule236 _lhsIppNt
+         _tlOsyn = rule237 _lhsIsyn
+         _tlOsynMap = rule238 _lhsIsynMap
+         _tlOsynNoGroup = rule239 _lhsIsynNoGroup
+         __result_ = T_Productions_vOut37 _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh
+         in __result_ )
+     in C_Productions_s38 v37
+   {-# INLINE rule203 #-}
+   {-# LINE 62 "./src-ag/AG2AspectAG.ag" #-}
+   rule203 = \ ((_hdIprdInh) :: Attributes) ((_lhsIinhNoGroup) :: [String]) ->
+                                {-# LINE 62 "./src-ag/AG2AspectAG.ag" #-}
+                                filter (flip Map.member _hdIprdInh . identifier) _lhsIinhNoGroup
+                                {-# LINE 2436 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule204 #-}
+   {-# LINE 234 "./src-ag/AG2AspectAG.ag" #-}
+   rule204 = \ ((_hdIppD) :: PP_Doc) ((_tlIppDL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 234 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  _hdIppD : _tlIppDL
+                                                                                  {-# LINE 2442 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule205 #-}
+   rule205 = \ ((_hdIhasMoreProds) ::  Bool ) ((_tlIhasMoreProds) ::  Bool ) ->
+     _hdIhasMoreProds  ||  _tlIhasMoreProds
+   {-# INLINE rule206 #-}
+   rule206 = \ ((_hdIppA) :: PP_Doc) ((_tlIppA) :: PP_Doc) ->
+     _hdIppA >-< _tlIppA
+   {-# INLINE rule207 #-}
+   rule207 = \ ((_hdIppCata) :: PP_Doc) ((_tlIppCata) :: PP_Doc) ->
+     _hdIppCata >-< _tlIppCata
+   {-# INLINE rule208 #-}
+   rule208 = \ ((_hdIppL) :: PP_Doc) ((_tlIppL) :: PP_Doc) ->
+     _hdIppL >-< _tlIppL
+   {-# INLINE rule209 #-}
+   rule209 = \ ((_hdIppLI) :: [PP_Doc]) ((_tlIppLI) :: [PP_Doc]) ->
+     _hdIppLI ++ _tlIppLI
+   {-# INLINE rule210 #-}
+   rule210 = \ ((_hdIppR) :: PP_Doc) ((_tlIppR) :: PP_Doc) ->
+     _hdIppR >-< _tlIppR
+   {-# INLINE rule211 #-}
+   rule211 = \ ((_hdIppRA) :: [PP_Doc]) ((_tlIppRA) :: [PP_Doc]) ->
+     _hdIppRA ++ _tlIppRA
+   {-# INLINE rule212 #-}
+   rule212 = \ ((_hdIppSF) :: PP_Doc) ((_tlIppSF) :: PP_Doc) ->
+     _hdIppSF >-< _tlIppSF
+   {-# INLINE rule213 #-}
+   rule213 = \ ((_hdIppSPF) :: PP_Doc) ((_tlIppSPF) :: PP_Doc) ->
+     _hdIppSPF >-< _tlIppSPF
+   {-# INLINE rule214 #-}
+   rule214 = \ ((_hdIprdInh) :: Attributes) ((_tlIprdInh) :: Attributes) ->
+     _hdIprdInh `Map.union` _tlIprdInh
+   {-# INLINE rule215 #-}
+   rule215 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule216 #-}
+   rule216 = \ ((_lhsIinh) ::  Attributes ) ->
+     _lhsIinh
+   {-# INLINE rule217 #-}
+   rule217 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule218 #-}
+   rule218 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule219 #-}
+   rule219 = \ ((_lhsInewNT) :: Bool) ->
+     _lhsInewNT
+   {-# INLINE rule220 #-}
+   rule220 = \ ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) ->
+     _lhsInewProds
+   {-# INLINE rule221 #-}
+   rule221 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule222 #-}
+   rule222 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule223 #-}
+   rule223 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule224 #-}
+   rule224 = \ ((_lhsIsyn) ::  Attributes ) ->
+     _lhsIsyn
+   {-# INLINE rule225 #-}
+   rule225 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule226 #-}
+   rule226 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+   {-# INLINE rule227 #-}
+   rule227 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule228 #-}
+   rule228 = \ ((_lhsIinh) ::  Attributes ) ->
+     _lhsIinh
+   {-# INLINE rule229 #-}
+   rule229 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+     _lhsIinhMap
+   {-# INLINE rule230 #-}
+   rule230 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule231 #-}
+   rule231 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule232 #-}
+   rule232 = \ ((_lhsInewNT) :: Bool) ->
+     _lhsInewNT
+   {-# INLINE rule233 #-}
+   rule233 = \ ((_lhsInewProds) ::  Map.Map ConstructorIdent FieldMap ) ->
+     _lhsInewProds
+   {-# INLINE rule234 #-}
+   rule234 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule235 #-}
+   rule235 = \ ((_lhsIo_rename) :: Bool) ->
+     _lhsIo_rename
+   {-# INLINE rule236 #-}
+   rule236 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule237 #-}
+   rule237 = \ ((_lhsIsyn) ::  Attributes ) ->
+     _lhsIsyn
+   {-# INLINE rule238 #-}
+   rule238 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+     _lhsIsynMap
+   {-# INLINE rule239 #-}
+   rule239 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+{-# NOINLINE sem_Productions_Nil #-}
+sem_Productions_Nil ::  T_Productions 
+sem_Productions_Nil  = T_Productions (return st38) where
+   {-# NOINLINE st38 #-}
+   st38 = let
+      v37 :: T_Productions_v37 
+      v37 = \ (T_Productions_vIn37 _lhsIext _lhsIinh _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsInewNT _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIsyn _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _lhsOppDL :: [PP_Doc]
+         _lhsOppDL = rule240  ()
+         _lhsOhasMoreProds ::  Bool 
+         _lhsOhasMoreProds = rule241  ()
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule242  ()
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule243  ()
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule244  ()
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule245  ()
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule246  ()
+         _lhsOppRA :: [PP_Doc]
+         _lhsOppRA = rule247  ()
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule248  ()
+         _lhsOppSPF :: PP_Doc
+         _lhsOppSPF = rule249  ()
+         _lhsOprdInh :: Attributes
+         _lhsOprdInh = rule250  ()
+         __result_ = T_Productions_vOut37 _lhsOhasMoreProds _lhsOppA _lhsOppCata _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOppRA _lhsOppSF _lhsOppSPF _lhsOprdInh
+         in __result_ )
+     in C_Productions_s38 v37
+   {-# INLINE rule240 #-}
+   {-# LINE 235 "./src-ag/AG2AspectAG.ag" #-}
+   rule240 = \  (_ :: ()) ->
+                                                                                  {-# LINE 235 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 2585 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule241 #-}
+   rule241 = \  (_ :: ()) ->
+     False
+   {-# INLINE rule242 #-}
+   rule242 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule243 #-}
+   rule243 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule244 #-}
+   rule244 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule245 #-}
+   rule245 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule246 #-}
+   rule246 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule247 #-}
+   rule247 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule248 #-}
+   rule248 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule249 #-}
+   rule249 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule250 #-}
+   rule250 = \  (_ :: ()) ->
+     Map.empty
+
 -- Rule --------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         newProd              : Bool
-         o_noGroup            : [String]
-         ppNt                 : PP_Doc
-         ppProd               : PP_Doc
-         synNoGroup           : [String]
-      synthesized attributes:
-         locals               : [Identifier]
-         ppRL                 : [ PPRule ]
-   alternatives:
-      alternative Rule:
-         child mbName         : {Maybe Identifier}
-         child pattern        : Pattern 
-         child rhs            : Expression 
-         child owrt           : {Bool}
-         child origin         : {String}
-         child explicit       : {Bool}
-         child pure           : {Bool}
-         child identity       : {Bool}
-         child mbError        : {Maybe Error}
-         child eager          : {Bool}
--}
+-- wrapper
+data Inh_Rule  = Inh_Rule { ext_Inh_Rule :: (Maybe String), inhNoGroup_Inh_Rule :: ([String]), newAtts_Inh_Rule :: ( Attributes ), newProd_Inh_Rule :: (Bool), o_noGroup_Inh_Rule :: ([String]), ppNt_Inh_Rule :: (PP_Doc), ppProd_Inh_Rule :: (PP_Doc), synNoGroup_Inh_Rule :: ([String]) }
+data Syn_Rule  = Syn_Rule { locals_Syn_Rule :: ([Identifier]), ppRL_Syn_Rule :: ([ PPRule ]) }
+{-# INLINABLE wrap_Rule #-}
+wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
+wrap_Rule (T_Rule act) (Inh_Rule _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Rule_vIn40 _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup
+        (T_Rule_vOut40 _lhsOlocals _lhsOppRL) <- return (inv_Rule_s41 sem arg)
+        return (Syn_Rule _lhsOlocals _lhsOppRL)
+   )
+
 -- cata
-sem_Rule :: Rule ->
-            T_Rule
-sem_Rule (Rule _mbName _pattern _rhs _owrt _origin _explicit _pure _identity _mbError _eager) =
-    (sem_Rule_Rule _mbName (sem_Pattern _pattern) (sem_Expression _rhs) _owrt _origin _explicit _pure _identity _mbError _eager)
+{-# INLINE sem_Rule #-}
+sem_Rule :: Rule  -> T_Rule 
+sem_Rule ( Rule mbName_ pattern_ rhs_ owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_ ) = sem_Rule_Rule mbName_ ( sem_Pattern pattern_ ) ( sem_Expression rhs_ ) owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
+
 -- semantic domain
-newtype T_Rule = T_Rule ((Maybe String) ->
-                         ([String]) ->
-                         ( Attributes ) ->
-                         Bool ->
-                         ([String]) ->
-                         PP_Doc ->
-                         PP_Doc ->
-                         ([String]) ->
-                         ( ([Identifier]),([ PPRule ])))
-data Inh_Rule = Inh_Rule {ext_Inh_Rule :: (Maybe String),inhNoGroup_Inh_Rule :: ([String]),newAtts_Inh_Rule :: ( Attributes ),newProd_Inh_Rule :: Bool,o_noGroup_Inh_Rule :: ([String]),ppNt_Inh_Rule :: PP_Doc,ppProd_Inh_Rule :: PP_Doc,synNoGroup_Inh_Rule :: ([String])}
-data Syn_Rule = Syn_Rule {locals_Syn_Rule :: ([Identifier]),ppRL_Syn_Rule :: ([ PPRule ])}
-wrap_Rule :: T_Rule ->
-             Inh_Rule ->
-             Syn_Rule
-wrap_Rule (T_Rule sem) (Inh_Rule _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) =
-    (let ( _lhsOlocals,_lhsOppRL) = sem _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup
-     in  (Syn_Rule _lhsOlocals _lhsOppRL))
-sem_Rule_Rule :: (Maybe Identifier) ->
-                 T_Pattern ->
-                 T_Expression ->
-                 Bool ->
-                 String ->
-                 Bool ->
-                 Bool ->
-                 Bool ->
-                 (Maybe Error) ->
-                 Bool ->
-                 T_Rule
-sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_ =
-    (T_Rule (\ _lhsIext
-               _lhsIinhNoGroup
-               _lhsInewAtts
-               _lhsInewProd
-               _lhsIo_noGroup
-               _lhsIppNt
-               _lhsIppProd
-               _lhsIsynNoGroup ->
-                 (let _lhsOlocals :: ([Identifier])
-                      _lhsOppRL :: ([ PPRule ])
-                      _rhsOppNt :: PP_Doc
-                      _rhsOppProd :: PP_Doc
-                      _patternIcopy :: Pattern
-                      _patternIinfo :: ((Identifier, Identifier))
-                      _rhsIppRE :: ([String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc)
-                      -- "./src-ag/AG2AspectAG.ag"(line 375, column 25)
-                      _lhsOlocals =
-                          ({-# LINE 375 "./src-ag/AG2AspectAG.ag" #-}
-                           if (show (fst _patternIinfo) == "loc")
-                            then [ snd _patternIinfo ]
-                            else [ ]
-                           {-# LINE 3377 "dist/build/AG2AspectAG.hs" #-}
-                           )
-                      -- "./src-ag/AG2AspectAG.ag"(line 472, column 33)
-                      _lhsOppRL =
-                          ({-# LINE 472 "./src-ag/AG2AspectAG.ag" #-}
-                           if (not explicit_ &&  not _lhsInewProd && not (Map.member (snd _patternIinfo) _lhsInewAtts) )
-                           then []
-                           else [ ppRule _patternIinfo owrt_ (defRule _lhsIppNt _patternIinfo _lhsIo_noGroup _rhsIppRE) ]
-                           {-# LINE 3385 "dist/build/AG2AspectAG.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _rhsOppNt =
-                          ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                           _lhsIppNt
-                           {-# LINE 3391 "dist/build/AG2AspectAG.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _rhsOppProd =
-                          ({-# LINE 192 "./src-ag/AG2AspectAG.ag" #-}
-                           _lhsIppProd
-                           {-# LINE 3397 "dist/build/AG2AspectAG.hs" #-}
-                           )
-                      ( _patternIcopy,_patternIinfo) =
-                          pattern_
-                      ( _rhsIppRE) =
-                          rhs_ _rhsOppNt _rhsOppProd
-                  in  ( _lhsOlocals,_lhsOppRL))))
+newtype T_Rule  = T_Rule {
+                         attach_T_Rule :: Identity (T_Rule_s41 )
+                         }
+newtype T_Rule_s41  = C_Rule_s41 {
+                                 inv_Rule_s41 :: (T_Rule_v40 )
+                                 }
+data T_Rule_s42  = C_Rule_s42
+type T_Rule_v40  = (T_Rule_vIn40 ) -> (T_Rule_vOut40 )
+data T_Rule_vIn40  = T_Rule_vIn40 (Maybe String) ([String]) ( Attributes ) (Bool) ([String]) (PP_Doc) (PP_Doc) ([String])
+data T_Rule_vOut40  = T_Rule_vOut40 ([Identifier]) ([ PPRule ])
+{-# NOINLINE sem_Rule_Rule #-}
+sem_Rule_Rule :: (Maybe Identifier) -> T_Pattern  -> T_Expression  -> (Bool) -> (String) -> (Bool) -> (Bool) -> (Bool) -> (Maybe Error) -> (Bool) -> T_Rule 
+sem_Rule_Rule _ arg_pattern_ arg_rhs_ arg_owrt_ _ arg_explicit_ _ _ _ _ = T_Rule (return st41) where
+   {-# NOINLINE st41 #-}
+   st41 = let
+      v40 :: T_Rule_v40 
+      v40 = \ (T_Rule_vIn40 _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) -> ( let
+         _patternX29 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_))
+         _rhsX8 = Control.Monad.Identity.runIdentity (attach_T_Expression (arg_rhs_))
+         (T_Pattern_vOut28 _patternIcopy _patternIinfo) = inv_Pattern_s29 _patternX29 (T_Pattern_vIn28 )
+         (T_Expression_vOut7 _rhsIppRE) = inv_Expression_s8 _rhsX8 (T_Expression_vIn7 _rhsOppNt _rhsOppProd)
+         _lhsOlocals :: [Identifier]
+         _lhsOlocals = rule251 _patternIinfo
+         _lhsOppRL :: [ PPRule ]
+         _lhsOppRL = rule252 _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _patternIinfo _rhsIppRE arg_explicit_ arg_owrt_
+         _rhsOppNt = rule253 _lhsIppNt
+         _rhsOppProd = rule254 _lhsIppProd
+         __result_ = T_Rule_vOut40 _lhsOlocals _lhsOppRL
+         in __result_ )
+     in C_Rule_s41 v40
+   {-# INLINE rule251 #-}
+   {-# LINE 375 "./src-ag/AG2AspectAG.ag" #-}
+   rule251 = \ ((_patternIinfo) :: (Identifier, Identifier)) ->
+                                                       {-# LINE 375 "./src-ag/AG2AspectAG.ag" #-}
+                                                       if (show (fst _patternIinfo) == "loc")
+                                                        then [ snd _patternIinfo ]
+                                                        else [ ]
+                                                       {-# LINE 2674 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule252 #-}
+   {-# LINE 472 "./src-ag/AG2AspectAG.ag" #-}
+   rule252 = \ ((_lhsInewAtts) ::  Attributes ) ((_lhsInewProd) :: Bool) ((_lhsIo_noGroup) :: [String]) ((_lhsIppNt) :: PP_Doc) ((_patternIinfo) :: (Identifier, Identifier)) ((_rhsIppRE) :: [String] -> Identifier -> [(Identifier,Type)] -> [Identifier] -> PP_Doc) explicit_ owrt_ ->
+                                                                             {-# LINE 472 "./src-ag/AG2AspectAG.ag" #-}
+                                                                             if (not explicit_ &&  not _lhsInewProd && not (Map.member (snd _patternIinfo) _lhsInewAtts) )
+                                                                             then []
+                                                                             else [ ppRule _patternIinfo owrt_ (defRule _lhsIppNt _patternIinfo _lhsIo_noGroup _rhsIppRE) ]
+                                                                             {-# LINE 2682 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule253 #-}
+   rule253 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule254 #-}
+   rule254 = \ ((_lhsIppProd) :: PP_Doc) ->
+     _lhsIppProd
+
 -- Rules -------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         ext                  : Maybe String
-         inhNoGroup           : [String]
-         newAtts              :  Attributes 
-         newProd              : Bool
-         o_noGroup            : [String]
-         ppNt                 : PP_Doc
-         ppProd               : PP_Doc
-         synNoGroup           : [String]
-      synthesized attributes:
-         locals               : [Identifier]
-         ppRL                 : [ PPRule ]
-   alternatives:
-      alternative Cons:
-         child hd             : Rule 
-         child tl             : Rules 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Rules  = Inh_Rules { ext_Inh_Rules :: (Maybe String), inhNoGroup_Inh_Rules :: ([String]), newAtts_Inh_Rules :: ( Attributes ), newProd_Inh_Rules :: (Bool), o_noGroup_Inh_Rules :: ([String]), ppNt_Inh_Rules :: (PP_Doc), ppProd_Inh_Rules :: (PP_Doc), synNoGroup_Inh_Rules :: ([String]) }
+data Syn_Rules  = Syn_Rules { locals_Syn_Rules :: ([Identifier]), ppRL_Syn_Rules :: ([ PPRule ]) }
+{-# INLINABLE wrap_Rules #-}
+wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
+wrap_Rules (T_Rules act) (Inh_Rules _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Rules_vIn43 _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup
+        (T_Rules_vOut43 _lhsOlocals _lhsOppRL) <- return (inv_Rules_s44 sem arg)
+        return (Syn_Rules _lhsOlocals _lhsOppRL)
+   )
+
 -- cata
-sem_Rules :: Rules ->
-             T_Rules
-sem_Rules list =
-    (Prelude.foldr sem_Rules_Cons sem_Rules_Nil (Prelude.map sem_Rule list))
+{-# NOINLINE sem_Rules #-}
+sem_Rules :: Rules  -> T_Rules 
+sem_Rules list = Prelude.foldr sem_Rules_Cons sem_Rules_Nil (Prelude.map sem_Rule list)
+
 -- semantic domain
-newtype T_Rules = T_Rules ((Maybe String) ->
-                           ([String]) ->
-                           ( Attributes ) ->
-                           Bool ->
-                           ([String]) ->
-                           PP_Doc ->
-                           PP_Doc ->
-                           ([String]) ->
-                           ( ([Identifier]),([ PPRule ])))
-data Inh_Rules = Inh_Rules {ext_Inh_Rules :: (Maybe String),inhNoGroup_Inh_Rules :: ([String]),newAtts_Inh_Rules :: ( Attributes ),newProd_Inh_Rules :: Bool,o_noGroup_Inh_Rules :: ([String]),ppNt_Inh_Rules :: PP_Doc,ppProd_Inh_Rules :: PP_Doc,synNoGroup_Inh_Rules :: ([String])}
-data Syn_Rules = Syn_Rules {locals_Syn_Rules :: ([Identifier]),ppRL_Syn_Rules :: ([ PPRule ])}
-wrap_Rules :: T_Rules ->
-              Inh_Rules ->
-              Syn_Rules
-wrap_Rules (T_Rules sem) (Inh_Rules _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) =
-    (let ( _lhsOlocals,_lhsOppRL) = sem _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup
-     in  (Syn_Rules _lhsOlocals _lhsOppRL))
-sem_Rules_Cons :: T_Rule ->
-                  T_Rules ->
-                  T_Rules
-sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
-    (T_Rules (\ _lhsIext
-                _lhsIinhNoGroup
-                _lhsInewAtts
-                _lhsInewProd
-                _lhsIo_noGroup
-                _lhsIppNt
-                _lhsIppProd
-                _lhsIsynNoGroup ->
-                  (let _lhsOppRL :: ([ PPRule ])
-                       _lhsOlocals :: ([Identifier])
-                       _hdOext :: (Maybe String)
-                       _hdOinhNoGroup :: ([String])
-                       _hdOnewAtts :: ( Attributes )
-                       _hdOnewProd :: Bool
-                       _hdOo_noGroup :: ([String])
-                       _hdOppNt :: PP_Doc
-                       _hdOppProd :: PP_Doc
-                       _hdOsynNoGroup :: ([String])
-                       _tlOext :: (Maybe String)
-                       _tlOinhNoGroup :: ([String])
-                       _tlOnewAtts :: ( Attributes )
-                       _tlOnewProd :: Bool
-                       _tlOo_noGroup :: ([String])
-                       _tlOppNt :: PP_Doc
-                       _tlOppProd :: PP_Doc
-                       _tlOsynNoGroup :: ([String])
-                       _hdIlocals :: ([Identifier])
-                       _hdIppRL :: ([ PPRule ])
-                       _tlIlocals :: ([Identifier])
-                       _tlIppRL :: ([ PPRule ])
-                       -- "./src-ag/AG2AspectAG.ag"(line 468, column 33)
-                       _lhsOppRL =
-                           ({-# LINE 468 "./src-ag/AG2AspectAG.ag" #-}
-                            _hdIppRL ++ _tlIppRL
-                            {-# LINE 3486 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- use rule "./src-ag/AG2AspectAG.ag"(line 371, column 30)
-                       _lhsOlocals =
-                           ({-# LINE 371 "./src-ag/AG2AspectAG.ag" #-}
-                            _hdIlocals ++ _tlIlocals
-                            {-# LINE 3492 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOext =
-                           ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIext
-                            {-# LINE 3498 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOinhNoGroup =
-                           ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIinhNoGroup
-                            {-# LINE 3504 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOnewAtts =
-                           ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsInewAtts
-                            {-# LINE 3510 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOnewProd =
-                           ({-# LINE 412 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsInewProd
-                            {-# LINE 3516 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOo_noGroup =
-                           ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIo_noGroup
-                            {-# LINE 3522 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOppNt =
-                           ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIppNt
-                            {-# LINE 3528 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOppProd =
-                           ({-# LINE 192 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIppProd
-                            {-# LINE 3534 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOsynNoGroup =
-                           ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIsynNoGroup
-                            {-# LINE 3540 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOext =
-                           ({-# LINE 119 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIext
-                            {-# LINE 3546 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOinhNoGroup =
-                           ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIinhNoGroup
-                            {-# LINE 3552 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOnewAtts =
-                           ({-# LINE 78 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsInewAtts
-                            {-# LINE 3558 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOnewProd =
-                           ({-# LINE 412 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsInewProd
-                            {-# LINE 3564 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOo_noGroup =
-                           ({-# LINE 45 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIo_noGroup
-                            {-# LINE 3570 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOppNt =
-                           ({-# LINE 187 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIppNt
-                            {-# LINE 3576 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOppProd =
-                           ({-# LINE 192 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIppProd
-                            {-# LINE 3582 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOsynNoGroup =
-                           ({-# LINE 55 "./src-ag/AG2AspectAG.ag" #-}
-                            _lhsIsynNoGroup
-                            {-# LINE 3588 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       ( _hdIlocals,_hdIppRL) =
-                           hd_ _hdOext _hdOinhNoGroup _hdOnewAtts _hdOnewProd _hdOo_noGroup _hdOppNt _hdOppProd _hdOsynNoGroup
-                       ( _tlIlocals,_tlIppRL) =
-                           tl_ _tlOext _tlOinhNoGroup _tlOnewAtts _tlOnewProd _tlOo_noGroup _tlOppNt _tlOppProd _tlOsynNoGroup
-                   in  ( _lhsOlocals,_lhsOppRL))))
-sem_Rules_Nil :: T_Rules
-sem_Rules_Nil =
-    (T_Rules (\ _lhsIext
-                _lhsIinhNoGroup
-                _lhsInewAtts
-                _lhsInewProd
-                _lhsIo_noGroup
-                _lhsIppNt
-                _lhsIppProd
-                _lhsIsynNoGroup ->
-                  (let _lhsOppRL :: ([ PPRule ])
-                       _lhsOlocals :: ([Identifier])
-                       -- "./src-ag/AG2AspectAG.ag"(line 469, column 33)
-                       _lhsOppRL =
-                           ({-# LINE 469 "./src-ag/AG2AspectAG.ag" #-}
-                            []
-                            {-# LINE 3611 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                       -- use rule "./src-ag/AG2AspectAG.ag"(line 371, column 30)
-                       _lhsOlocals =
-                           ({-# LINE 371 "./src-ag/AG2AspectAG.ag" #-}
-                            []
-                            {-# LINE 3617 "dist/build/AG2AspectAG.hs" #-}
-                            )
-                   in  ( _lhsOlocals,_lhsOppRL))))
+newtype T_Rules  = T_Rules {
+                           attach_T_Rules :: Identity (T_Rules_s44 )
+                           }
+newtype T_Rules_s44  = C_Rules_s44 {
+                                   inv_Rules_s44 :: (T_Rules_v43 )
+                                   }
+data T_Rules_s45  = C_Rules_s45
+type T_Rules_v43  = (T_Rules_vIn43 ) -> (T_Rules_vOut43 )
+data T_Rules_vIn43  = T_Rules_vIn43 (Maybe String) ([String]) ( Attributes ) (Bool) ([String]) (PP_Doc) (PP_Doc) ([String])
+data T_Rules_vOut43  = T_Rules_vOut43 ([Identifier]) ([ PPRule ])
+{-# NOINLINE sem_Rules_Cons #-}
+sem_Rules_Cons :: T_Rule  -> T_Rules  -> T_Rules 
+sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_Rules_v43 
+      v43 = \ (T_Rules_vIn43 _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) -> ( let
+         _hdX41 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_))
+         _tlX44 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_))
+         (T_Rule_vOut40 _hdIlocals _hdIppRL) = inv_Rule_s41 _hdX41 (T_Rule_vIn40 _hdOext _hdOinhNoGroup _hdOnewAtts _hdOnewProd _hdOo_noGroup _hdOppNt _hdOppProd _hdOsynNoGroup)
+         (T_Rules_vOut43 _tlIlocals _tlIppRL) = inv_Rules_s44 _tlX44 (T_Rules_vIn43 _tlOext _tlOinhNoGroup _tlOnewAtts _tlOnewProd _tlOo_noGroup _tlOppNt _tlOppProd _tlOsynNoGroup)
+         _lhsOppRL :: [ PPRule ]
+         _lhsOppRL = rule255 _hdIppRL _tlIppRL
+         _lhsOlocals :: [Identifier]
+         _lhsOlocals = rule256 _hdIlocals _tlIlocals
+         _hdOext = rule257 _lhsIext
+         _hdOinhNoGroup = rule258 _lhsIinhNoGroup
+         _hdOnewAtts = rule259 _lhsInewAtts
+         _hdOnewProd = rule260 _lhsInewProd
+         _hdOo_noGroup = rule261 _lhsIo_noGroup
+         _hdOppNt = rule262 _lhsIppNt
+         _hdOppProd = rule263 _lhsIppProd
+         _hdOsynNoGroup = rule264 _lhsIsynNoGroup
+         _tlOext = rule265 _lhsIext
+         _tlOinhNoGroup = rule266 _lhsIinhNoGroup
+         _tlOnewAtts = rule267 _lhsInewAtts
+         _tlOnewProd = rule268 _lhsInewProd
+         _tlOo_noGroup = rule269 _lhsIo_noGroup
+         _tlOppNt = rule270 _lhsIppNt
+         _tlOppProd = rule271 _lhsIppProd
+         _tlOsynNoGroup = rule272 _lhsIsynNoGroup
+         __result_ = T_Rules_vOut43 _lhsOlocals _lhsOppRL
+         in __result_ )
+     in C_Rules_s44 v43
+   {-# INLINE rule255 #-}
+   {-# LINE 468 "./src-ag/AG2AspectAG.ag" #-}
+   rule255 = \ ((_hdIppRL) :: [ PPRule ]) ((_tlIppRL) :: [ PPRule ]) ->
+                                                                                  {-# LINE 468 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  _hdIppRL ++ _tlIppRL
+                                                                                  {-# LINE 2759 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule256 #-}
+   rule256 = \ ((_hdIlocals) :: [Identifier]) ((_tlIlocals) :: [Identifier]) ->
+     _hdIlocals ++ _tlIlocals
+   {-# INLINE rule257 #-}
+   rule257 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule258 #-}
+   rule258 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule259 #-}
+   rule259 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule260 #-}
+   rule260 = \ ((_lhsInewProd) :: Bool) ->
+     _lhsInewProd
+   {-# INLINE rule261 #-}
+   rule261 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule262 #-}
+   rule262 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule263 #-}
+   rule263 = \ ((_lhsIppProd) :: PP_Doc) ->
+     _lhsIppProd
+   {-# INLINE rule264 #-}
+   rule264 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+   {-# INLINE rule265 #-}
+   rule265 = \ ((_lhsIext) :: Maybe String) ->
+     _lhsIext
+   {-# INLINE rule266 #-}
+   rule266 = \ ((_lhsIinhNoGroup) :: [String]) ->
+     _lhsIinhNoGroup
+   {-# INLINE rule267 #-}
+   rule267 = \ ((_lhsInewAtts) ::  Attributes ) ->
+     _lhsInewAtts
+   {-# INLINE rule268 #-}
+   rule268 = \ ((_lhsInewProd) :: Bool) ->
+     _lhsInewProd
+   {-# INLINE rule269 #-}
+   rule269 = \ ((_lhsIo_noGroup) :: [String]) ->
+     _lhsIo_noGroup
+   {-# INLINE rule270 #-}
+   rule270 = \ ((_lhsIppNt) :: PP_Doc) ->
+     _lhsIppNt
+   {-# INLINE rule271 #-}
+   rule271 = \ ((_lhsIppProd) :: PP_Doc) ->
+     _lhsIppProd
+   {-# INLINE rule272 #-}
+   rule272 = \ ((_lhsIsynNoGroup) :: [String]) ->
+     _lhsIsynNoGroup
+{-# NOINLINE sem_Rules_Nil #-}
+sem_Rules_Nil ::  T_Rules 
+sem_Rules_Nil  = T_Rules (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_Rules_v43 
+      v43 = \ (T_Rules_vIn43 _lhsIext _lhsIinhNoGroup _lhsInewAtts _lhsInewProd _lhsIo_noGroup _lhsIppNt _lhsIppProd _lhsIsynNoGroup) -> ( let
+         _lhsOppRL :: [ PPRule ]
+         _lhsOppRL = rule273  ()
+         _lhsOlocals :: [Identifier]
+         _lhsOlocals = rule274  ()
+         __result_ = T_Rules_vOut43 _lhsOlocals _lhsOppRL
+         in __result_ )
+     in C_Rules_s44 v43
+   {-# INLINE rule273 #-}
+   {-# LINE 469 "./src-ag/AG2AspectAG.ag" #-}
+   rule273 = \  (_ :: ()) ->
+                                                                                  {-# LINE 469 "./src-ag/AG2AspectAG.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 2830 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule274 #-}
+   rule274 = \  (_ :: ()) ->
+     []
+
 -- TypeSig -----------------------------------------------------
-{-
-   alternatives:
-      alternative TypeSig:
-         child name           : {Identifier}
-         child tp             : {Type}
--}
+-- wrapper
+data Inh_TypeSig  = Inh_TypeSig {  }
+data Syn_TypeSig  = Syn_TypeSig {  }
+{-# INLINABLE wrap_TypeSig #-}
+wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
+wrap_TypeSig (T_TypeSig act) (Inh_TypeSig ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_TypeSig_vIn46 
+        (T_TypeSig_vOut46 ) <- return (inv_TypeSig_s47 sem arg)
+        return (Syn_TypeSig )
+   )
+
 -- cata
-sem_TypeSig :: TypeSig ->
-               T_TypeSig
-sem_TypeSig (TypeSig _name _tp) =
-    (sem_TypeSig_TypeSig _name _tp)
+{-# INLINE sem_TypeSig #-}
+sem_TypeSig :: TypeSig  -> T_TypeSig 
+sem_TypeSig ( TypeSig name_ tp_ ) = sem_TypeSig_TypeSig name_ tp_
+
 -- semantic domain
-newtype T_TypeSig = T_TypeSig (( ))
-data Inh_TypeSig = Inh_TypeSig {}
-data Syn_TypeSig = Syn_TypeSig {}
-wrap_TypeSig :: T_TypeSig ->
-                Inh_TypeSig ->
-                Syn_TypeSig
-wrap_TypeSig (T_TypeSig sem) (Inh_TypeSig) =
-    (let ( ) = sem
-     in  (Syn_TypeSig))
-sem_TypeSig_TypeSig :: Identifier ->
-                       Type ->
-                       T_TypeSig
-sem_TypeSig_TypeSig name_ tp_ =
-    (T_TypeSig (let
-                in  ( )))
+newtype T_TypeSig  = T_TypeSig {
+                               attach_T_TypeSig :: Identity (T_TypeSig_s47 )
+                               }
+newtype T_TypeSig_s47  = C_TypeSig_s47 {
+                                       inv_TypeSig_s47 :: (T_TypeSig_v46 )
+                                       }
+data T_TypeSig_s48  = C_TypeSig_s48
+type T_TypeSig_v46  = (T_TypeSig_vIn46 ) -> (T_TypeSig_vOut46 )
+data T_TypeSig_vIn46  = T_TypeSig_vIn46 
+data T_TypeSig_vOut46  = T_TypeSig_vOut46 
+{-# NOINLINE sem_TypeSig_TypeSig #-}
+sem_TypeSig_TypeSig :: (Identifier) -> (Type) -> T_TypeSig 
+sem_TypeSig_TypeSig _ _ = T_TypeSig (return st47) where
+   {-# NOINLINE st47 #-}
+   st47 = let
+      v46 :: T_TypeSig_v46 
+      v46 = \ (T_TypeSig_vIn46 ) -> ( let
+         __result_ = T_TypeSig_vOut46 
+         in __result_ )
+     in C_TypeSig_s47 v46
+
 -- TypeSigs ----------------------------------------------------
-{-
-   alternatives:
-      alternative Cons:
-         child hd             : TypeSig 
-         child tl             : TypeSigs 
-      alternative Nil:
--}
+-- wrapper
+data Inh_TypeSigs  = Inh_TypeSigs {  }
+data Syn_TypeSigs  = Syn_TypeSigs {  }
+{-# INLINABLE wrap_TypeSigs #-}
+wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
+wrap_TypeSigs (T_TypeSigs act) (Inh_TypeSigs ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_TypeSigs_vIn49 
+        (T_TypeSigs_vOut49 ) <- return (inv_TypeSigs_s50 sem arg)
+        return (Syn_TypeSigs )
+   )
+
 -- cata
-sem_TypeSigs :: TypeSigs ->
-                T_TypeSigs
-sem_TypeSigs list =
-    (Prelude.foldr sem_TypeSigs_Cons sem_TypeSigs_Nil (Prelude.map sem_TypeSig list))
+{-# NOINLINE sem_TypeSigs #-}
+sem_TypeSigs :: TypeSigs  -> T_TypeSigs 
+sem_TypeSigs list = Prelude.foldr sem_TypeSigs_Cons sem_TypeSigs_Nil (Prelude.map sem_TypeSig list)
+
 -- semantic domain
-newtype T_TypeSigs = T_TypeSigs (( ))
-data Inh_TypeSigs = Inh_TypeSigs {}
-data Syn_TypeSigs = Syn_TypeSigs {}
-wrap_TypeSigs :: T_TypeSigs ->
-                 Inh_TypeSigs ->
-                 Syn_TypeSigs
-wrap_TypeSigs (T_TypeSigs sem) (Inh_TypeSigs) =
-    (let ( ) = sem
-     in  (Syn_TypeSigs))
-sem_TypeSigs_Cons :: T_TypeSig ->
-                     T_TypeSigs ->
-                     T_TypeSigs
-sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
-    (T_TypeSigs (let
-                 in  ( )))
-sem_TypeSigs_Nil :: T_TypeSigs
-sem_TypeSigs_Nil =
-    (T_TypeSigs (let
-                 in  ( )))
+newtype T_TypeSigs  = T_TypeSigs {
+                                 attach_T_TypeSigs :: Identity (T_TypeSigs_s50 )
+                                 }
+newtype T_TypeSigs_s50  = C_TypeSigs_s50 {
+                                         inv_TypeSigs_s50 :: (T_TypeSigs_v49 )
+                                         }
+data T_TypeSigs_s51  = C_TypeSigs_s51
+type T_TypeSigs_v49  = (T_TypeSigs_vIn49 ) -> (T_TypeSigs_vOut49 )
+data T_TypeSigs_vIn49  = T_TypeSigs_vIn49 
+data T_TypeSigs_vOut49  = T_TypeSigs_vOut49 
+{-# NOINLINE sem_TypeSigs_Cons #-}
+sem_TypeSigs_Cons :: T_TypeSig  -> T_TypeSigs  -> T_TypeSigs 
+sem_TypeSigs_Cons arg_hd_ arg_tl_ = T_TypeSigs (return st50) where
+   {-# NOINLINE st50 #-}
+   st50 = let
+      v49 :: T_TypeSigs_v49 
+      v49 = \ (T_TypeSigs_vIn49 ) -> ( let
+         _hdX47 = Control.Monad.Identity.runIdentity (attach_T_TypeSig (arg_hd_))
+         _tlX50 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_tl_))
+         (T_TypeSig_vOut46 ) = inv_TypeSig_s47 _hdX47 (T_TypeSig_vIn46 )
+         (T_TypeSigs_vOut49 ) = inv_TypeSigs_s50 _tlX50 (T_TypeSigs_vIn49 )
+         __result_ = T_TypeSigs_vOut49 
+         in __result_ )
+     in C_TypeSigs_s50 v49
+{-# NOINLINE sem_TypeSigs_Nil #-}
+sem_TypeSigs_Nil ::  T_TypeSigs 
+sem_TypeSigs_Nil  = T_TypeSigs (return st50) where
+   {-# NOINLINE st50 #-}
+   st50 = let
+      v49 :: T_TypeSigs_v49 
+      v49 = \ (T_TypeSigs_vIn49 ) -> ( let
+         __result_ = T_TypeSigs_vOut49 
+         in __result_ )
+     in C_TypeSigs_s50 v49

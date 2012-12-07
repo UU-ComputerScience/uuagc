@@ -1,6 +1,6 @@
+{-# LANGUAGE Rank2Types, GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-
--- UUAGC 0.9.42.2 (src-ag/Transform.ag)
 module Transform where
 {-# LINE 8 "./src-ag/Transform.ag" #-}
 
@@ -40,45 +40,47 @@ import Macro --marcos
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 43 "dist/build/Transform.hs" #-}
+import Control.Monad.Identity (Identity)
+import qualified Control.Monad.Identity
 {-# LINE 104 "./src-ag/Transform.ag" #-}
 type DefinedSets = Map Identifier (Set NontermIdent) 
-{-# LINE 46 "dist/build/Transform.hs" #-}
+{-# LINE 48 "dist/build/Transform.hs" #-}
 
 {-# LINE 124 "./src-ag/Transform.ag" #-}
 type FieldMap  = [(Identifier, Type)] 
-{-# LINE 50 "dist/build/Transform.hs" #-}
+{-# LINE 52 "dist/build/Transform.hs" #-}
 
 {-# LINE 125 "./src-ag/Transform.ag" #-}
 type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap) 
-{-# LINE 54 "dist/build/Transform.hs" #-}
+{-# LINE 56 "dist/build/Transform.hs" #-}
 
 {-# LINE 148 "./src-ag/Transform.ag" #-}
 type AttrName   = (Identifier,Identifier) 
-{-# LINE 58 "dist/build/Transform.hs" #-}
+{-# LINE 60 "dist/build/Transform.hs" #-}
 
 {-# LINE 149 "./src-ag/Transform.ag" #-}
 type RuleInfo   = (Maybe Identifier, [AttrName]->Pattern, Expression, [AttrName], Bool, String, Bool, Bool) 
-{-# LINE 62 "dist/build/Transform.hs" #-}
+{-# LINE 64 "dist/build/Transform.hs" #-}
 
 {-# LINE 150 "./src-ag/Transform.ag" #-}
 type SigInfo    = (Identifier,Type) 
-{-# LINE 66 "dist/build/Transform.hs" #-}
+{-# LINE 68 "dist/build/Transform.hs" #-}
 
 {-# LINE 151 "./src-ag/Transform.ag" #-}
 type UniqueInfo = (Identifier,Identifier) 
-{-# LINE 70 "dist/build/Transform.hs" #-}
+{-# LINE 72 "dist/build/Transform.hs" #-}
 
 {-# LINE 152 "./src-ag/Transform.ag" #-}
 type AugmentInfo = (Identifier,Expression)
-{-# LINE 74 "dist/build/Transform.hs" #-}
+{-# LINE 76 "dist/build/Transform.hs" #-}
 
 {-# LINE 153 "./src-ag/Transform.ag" #-}
 type AroundInfo  = (Identifier,Expression)
-{-# LINE 78 "dist/build/Transform.hs" #-}
+{-# LINE 80 "dist/build/Transform.hs" #-}
 
 {-# LINE 154 "./src-ag/Transform.ag" #-}
 type MergeInfo   = (Identifier, Identifier, [Identifier], Expression)
-{-# LINE 82 "dist/build/Transform.hs" #-}
+{-# LINE 84 "dist/build/Transform.hs" #-}
 
 {-# LINE 203 "./src-ag/Transform.ag" #-}
 
@@ -110,7 +112,7 @@ checkForDuplicates err (x:xs) = let (same,other) = partition (equalId x) xs
 equalId :: Identifier -> Identifier -> Bool
 equalId x y = getName x == getName y
 
-{-# LINE 114 "dist/build/Transform.hs" #-}
+{-# LINE 116 "dist/build/Transform.hs" #-}
 
 {-# LINE 354 "./src-ag/Transform.ag" #-}
 
@@ -267,7 +269,7 @@ checkMerges allNts allInsts fieldMap _ con merges
 
 unionunionplusplus :: Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a])
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
-{-# LINE 271 "dist/build/Transform.hs" #-}
+{-# LINE 273 "dist/build/Transform.hs" #-}
 
 {-# LINE 511 "./src-ag/Transform.ag" #-}
 
@@ -307,7 +309,7 @@ mkUniqueRules opts allRules allFields allInsts allAttrDecls nt con usMap
     h s = [HsToken s noPos]
     finalout noGenCont us = h ("(" ++ concat (intersperse "," ( (if noGenCont then [] else ["__cont"]) ++ map getName us)) ++ ")")
     wrap ref inp = h "let __cont = " ++ [AGField _LHS ref noPos Nothing] ++ h " in seq __cont ( " ++ inp ++ h " )"
-{-# LINE 311 "dist/build/Transform.hs" #-}
+{-# LINE 313 "dist/build/Transform.hs" #-}
 
 {-# LINE 747 "./src-ag/Transform.ag" #-}
 
@@ -332,7 +334,7 @@ path table from to = let children = Map.findWithDefault Set.empty from table
                          backward = reachableFrom (invert table)
                                                   (Set.singleton to)
                      in  Set.intersection forward backward
-{-# LINE 336 "dist/build/Transform.hs" #-}
+{-# LINE 338 "dist/build/Transform.hs" #-}
 
 {-# LINE 873 "./src-ag/Transform.ag" #-}
 
@@ -343,7 +345,7 @@ extract s = case dropWhile isSeparator s of
                                       where (w, s'') = break isSeparator  s'
 isSeparator :: Char -> Bool
 isSeparator x = x == '_'
-{-# LINE 347 "dist/build/Transform.hs" #-}
+{-# LINE 349 "dist/build/Transform.hs" #-}
 
 {-# LINE 899 "./src-ag/Transform.ag" #-}
 
@@ -352,7 +354,7 @@ pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 pragmaMapSingle :: NontermIdent -> ConstructorIdent -> Set Identifier -> PragmaMap
 pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
-{-# LINE 356 "dist/build/Transform.hs" #-}
+{-# LINE 358 "dist/build/Transform.hs" #-}
 
 {-# LINE 931 "./src-ag/Transform.ag" #-}
 
@@ -361,13 +363,13 @@ orderMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 orderMapSingle :: NontermIdent -> ConstructorIdent -> Set Dependency -> AttrOrderMap
 orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
-{-# LINE 365 "dist/build/Transform.hs" #-}
+{-# LINE 367 "dist/build/Transform.hs" #-}
 
 {-# LINE 957 "./src-ag/Transform.ag" #-}
 
 mergeParams :: ParamMap -> ParamMap -> ParamMap
 mergeParams = Map.unionWith (++)
-{-# LINE 371 "dist/build/Transform.hs" #-}
+{-# LINE 373 "dist/build/Transform.hs" #-}
 
 {-# LINE 980 "./src-ag/Transform.ag" #-}
 
@@ -375,26 +377,26 @@ mergeCtx :: ContextMap -> ContextMap -> ContextMap
 mergeCtx
   = Map.unionWith nubconcat
   where nubconcat a b = nub (a ++ b)
-{-# LINE 379 "dist/build/Transform.hs" #-}
+{-# LINE 381 "dist/build/Transform.hs" #-}
 
 {-# LINE 999 "./src-ag/Transform.ag" #-}
 
 mergeQuant :: QuantMap -> QuantMap -> QuantMap
 mergeQuant = Map.unionWith (++)
-{-# LINE 385 "dist/build/Transform.hs" #-}
+{-# LINE 387 "dist/build/Transform.hs" #-}
 
 {-# LINE 1010 "./src-ag/Transform.ag" #-}
 
 mergeDerivings :: Derivings -> Derivings -> Derivings
 mergeDerivings m1 m2 = foldr (\(n,cs) m -> Map.insertWith Set.union n cs m) m2 (Map.toList m1)
-{-# LINE 391 "dist/build/Transform.hs" #-}
+{-# LINE 393 "dist/build/Transform.hs" #-}
 
 {-# LINE 1022 "./src-ag/Transform.ag" #-}
 
 merge ::(Ord k, Ord k1) => Map k (Map k1 a) -> Map k (Map k1 a) -> Map k (Map k1 a)
 merge x y = foldr f y (Map.toList x)
  where f ~(k,v) m = Map.insertWith (Map.union) k v m
-{-# LINE 398 "dist/build/Transform.hs" #-}
+{-# LINE 400 "dist/build/Transform.hs" #-}
 
 {-# LINE 1065 "./src-ag/Transform.ag" #-}
 
@@ -405,14 +407,14 @@ checkAttrs allFields nts inherited synthesized decls' = foldErrors check decls' 
                                    (inh',einh) = checkDuplicates (DupInhAttr nt) inherited   inh
                                    (syn',esyn) = checkDuplicates (DupSynAttr nt) synthesized syn
                                in (Map.insert nt (inh',syn') decls,einh >< esyn)
-{-# LINE 409 "dist/build/Transform.hs" #-}
+{-# LINE 411 "dist/build/Transform.hs" #-}
 
 {-# LINE 1077 "./src-ag/Transform.ag" #-}
 
 addSelf :: Ord k1 => k1 -> Map k1 (Map k a, Attributes) -> Map k1 (Map k a, Attributes)
 addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
                      in  Map.insert name (eInh, Map.insert (Ident "self" noPos) Self eSyn)atMap
-{-# LINE 416 "dist/build/Transform.hs" #-}
+{-# LINE 418 "dist/build/Transform.hs" #-}
 
 {-# LINE 1219 "./src-ag/Transform.ag" #-}
 
@@ -420,7 +422,7 @@ makeType :: Set NontermIdent -> Type -> Type
 makeType nts tp@(NT x _ _)   | Set.member x nts = tp
                              | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
 makeType _   tp                                 = tp
-{-# LINE 424 "dist/build/Transform.hs" #-}
+{-# LINE 426 "dist/build/Transform.hs" #-}
 
 {-# LINE 1225 "./src-ag/Transform.ag" #-}
 
@@ -492,7 +494,7 @@ constructGrammar _ ntParams prodParams gram prodOrder constraints attrs uses der
                                    in Production con ps cs cldrn rules tsigs' mbMacro
                             in Nonterminal nt params inh syn (map alt prs)
    in Grammar tsyns uses derivings wrap nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
-{-# LINE 496 "dist/build/Transform.hs" #-}
+{-# LINE 498 "dist/build/Transform.hs" #-}
 
 {-# LINE 1296 "./src-ag/Transform.ag" #-}
 
@@ -500,7538 +502,5677 @@ mapUnionWithSetUnion :: Map NontermIdent (Set ConstructorIdent) -> Map NontermId
 mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus :: Map BlockInfo [a] -> Map BlockInfo [a] -> Map BlockInfo [a]
 mapUnionWithPlusPlus = Map.unionWith (++)
-{-# LINE 504 "dist/build/Transform.hs" #-}
+{-# LINE 506 "dist/build/Transform.hs" #-}
 -- AG ----------------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         options              : Options
-      synthesized attributes:
-         agi                  : (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))
-         blocks               : Blocks
-         errors               : Seq Error
-         moduleDecl           : Maybe (String,String,String)
-         output               : Grammar
-         pragmas              : Options -> Options
-   alternatives:
-      alternative AG:
-         child elems          : Elems 
-         visit 0:
-            local prodOrder   : _
-            local allFields   : _
-            local allConstraints : _
-            local allConParams : _
-            local allConstrs  : _
-            local allRules    : _
-            local allSigs     : _
-            local allInsts    : _
-            local allUniques  : _
-            local allAugments : _
-            local allArounds  : _
-            local allMerges   : _
-            local augmentSigs : _
-            local allRulesErrs : _
-            local allNamesErrs : _
-            local allSigsErrs : _
-            local allInstsErrs : _
-            local allUniquesErrs : _
-            local allAugmentErrs : _
-            local allAroundsErrs : _
-            local allMergesErrs : _
-            local checkedRulesPre : _
-            local checkedSigs : _
-            local checkedInsts : _
-            local checkedUniques : _
-            local checkedAugments : _
-            local checkedArounds : _
-            local checkedRules : _
-            local checkedMerges : _
-            local errs1       : _
-            local errs2       : _
-            local errs3       : _
-            local errs4       : _
-            local errs5       : _
-            local errs6       : _
-            local errs7       : _
-            local errs8       : _
-            local errs9       : _
-            local errs10      : _
-            local errs11      : _
-            local allNonterminals : _
-            local allAttrDecls : _
-            local allMacros   : _
-            local allAttrs    : _
--}
+-- wrapper
+data Inh_AG  = Inh_AG { options_Inh_AG :: (Options) }
+data Syn_AG  = Syn_AG { agi_Syn_AG :: ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))), blocks_Syn_AG :: (Blocks), errors_Syn_AG :: (Seq Error), moduleDecl_Syn_AG :: (Maybe (String,String,String)), output_Syn_AG :: (Grammar), pragmas_Syn_AG :: (Options -> Options) }
+{-# INLINABLE wrap_AG #-}
+wrap_AG :: T_AG  -> Inh_AG  -> (Syn_AG )
+wrap_AG (T_AG act) (Inh_AG _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_AG_vIn1 _lhsIoptions
+        (T_AG_vOut1 _lhsOagi _lhsOblocks _lhsOerrors _lhsOmoduleDecl _lhsOoutput _lhsOpragmas) <- return (inv_AG_s2 sem arg)
+        return (Syn_AG _lhsOagi _lhsOblocks _lhsOerrors _lhsOmoduleDecl _lhsOoutput _lhsOpragmas)
+   )
+
 -- cata
-sem_AG :: AG ->
-          T_AG
-sem_AG (AG _elems) =
-    (sem_AG_AG (sem_Elems _elems))
+{-# INLINE sem_AG #-}
+sem_AG :: AG  -> T_AG 
+sem_AG ( AG elems_ ) = sem_AG_AG ( sem_Elems elems_ )
+
 -- semantic domain
-newtype T_AG = T_AG (Options ->
-                     ( ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))),Blocks,(Seq Error),(Maybe (String,String,String)),Grammar,(Options -> Options)))
-data Inh_AG = Inh_AG {options_Inh_AG :: !(Options)}
-data Syn_AG = Syn_AG {agi_Syn_AG :: !(((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes)))),blocks_Syn_AG :: !(Blocks),errors_Syn_AG :: !((Seq Error)),moduleDecl_Syn_AG :: !((Maybe (String,String,String))),output_Syn_AG :: !(Grammar),pragmas_Syn_AG :: !((Options -> Options))}
-wrap_AG :: T_AG ->
-           Inh_AG ->
-           Syn_AG
-wrap_AG (T_AG sem) (Inh_AG _lhsIoptions) =
-    (let ( _lhsOagi,_lhsOblocks,_lhsOerrors,_lhsOmoduleDecl,_lhsOoutput,_lhsOpragmas) = sem _lhsIoptions
-     in  (Syn_AG _lhsOagi _lhsOblocks _lhsOerrors _lhsOmoduleDecl _lhsOoutput _lhsOpragmas))
-sem_AG_AG :: T_Elems ->
-             T_AG
-sem_AG_AG (T_Elems elems_) =
-    (T_AG (\ _lhsIoptions ->
-               (let _lhsOoutput :: Grammar
-                    _lhsOerrors :: (Seq Error)
-                    _elemsOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                    _elemsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                    _elemsOdefinedSets :: DefinedSets
-                    _elemsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                    _lhsOagi :: ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes)))
-                    _elemsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                    _lhsOblocks :: Blocks
-                    _lhsOmoduleDecl :: (Maybe (String,String,String))
-                    _lhsOpragmas :: (Options -> Options)
-                    _elemsOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                    _elemsOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                    _elemsOallFields :: DataTypes
-                    _elemsOallNonterminals :: (Set NontermIdent)
-                    _elemsOoptions :: Options
-                    _elemsIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                    _elemsIattrOrderCollect :: AttrOrderMap
-                    _elemsIattrs :: (Map NontermIdent (Attributes, Attributes))
-                    _elemsIblocks :: Blocks
-                    _elemsIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                    _elemsIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                    _elemsIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                    _elemsIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                    _elemsIcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                    _elemsIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                    _elemsIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                    _elemsIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                    _elemsIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                    _elemsIcollectedNames :: (Set Identifier)
-                    _elemsIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                    _elemsIcollectedSetNames :: (Set Identifier)
-                    _elemsIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                    _elemsIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                    _elemsIctxCollect :: ContextMap
-                    _elemsIdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                    _elemsIderivings :: Derivings
-                    _elemsIerrors :: (Seq Error)
-                    _elemsImoduleDecl :: (Maybe (String,String,String))
-                    _elemsIparamsCollect :: ParamMap
-                    _elemsIpragmas :: (Options -> Options)
-                    _elemsIquantCollect :: QuantMap
-                    _elemsIsemPragmasCollect :: PragmaMap
-                    _elemsItypeSyns :: TypeSyns
-                    _elemsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                    _elemsIwrappers :: (Set NontermIdent)
-                    -- "./src-ag/Transform.ag"(line 50, column 8)
-                    _lhsOoutput =
-                        ({-# LINE 50 "./src-ag/Transform.ag" #-}
-                         constructGrammar _allNonterminals
-                                          _elemsIparamsCollect
-                                          _allConParams
-                                          _allFields
-                                          _prodOrder
-                                          _allConstraints
-                                          _allAttrDecls
-                                          _elemsIuseMap
-                                          _elemsIderivings
-                                          (if wrappers _lhsIoptions then _allNonterminals     else _elemsIwrappers)
-                                          _checkedRules
-                                          _checkedSigs
-                                          _checkedInsts
-                                          _elemsItypeSyns
-                                          _elemsIsemPragmasCollect
-                                          _elemsIattrOrderCollect
-                                          _elemsIctxCollect
-                                          _elemsIquantCollect
-                                          _checkedUniques
-                                          _checkedAugments
-                                          _checkedArounds
-                                          _checkedMerges
-                                          _allMacros
-                         {-# LINE 658 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 258, column 10)
-                    _prodOrder =
-                        ({-# LINE 258 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,_) = Map.insertWith g nt [con]
-                             g [con] lst | con `elem` lst = lst
-                                         | otherwise      = con : lst
-                             g _ _ = error "This is not possible"
-                         in  foldr f Map.empty _elemsIcollectedFields
-                         {-# LINE 668 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 263, column 10)
-                    _allFields =
-                        ({-# LINE 263 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
-                         in  foldr f (Map.empty) _elemsIcollectedFields
-                         {-# LINE 675 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 266, column 10)
-                    _allConstraints =
-                        ({-# LINE 266 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
-                         in  foldr f (Map.empty) _elemsIcollectedConstraints
-                         {-# LINE 682 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 269, column 10)
-                    _allConParams =
-                        ({-# LINE 269 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,fm) = Map.insertWith (Map.unionWith Set.union) nt (Map.singleton con fm)
-                         in  foldr f (Map.empty) _elemsIcollectedConParams
-                         {-# LINE 689 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 272, column 10)
-                    _allConstrs =
-                        ({-# LINE 272 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,_) = Map.insertWith (++) nt [con]
-                         in  foldr f (Map.empty) _elemsIcollectedFields
-                         {-# LINE 696 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 275, column 10)
-                    _allRules =
-                        ({-# LINE 275 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
-                         in  foldr f (Map.empty) _elemsIcollectedRules
-                         {-# LINE 703 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 278, column 10)
-                    _allSigs =
-                        ({-# LINE 278 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
-                             typeof nt r = Map.findWithDefault (Haskell "<unknown>") r $ fst $ Map.findWithDefault (Map.empty,Map.empty) nt _allAttrDecls
-                         in  foldr f (Map.empty) ( _elemsIcollectedSigs
-                                                 ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- _elemsIcollectedUniques, (ident,ref) <- us ]
-                                                 )
-                         {-# LINE 713 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 284, column 10)
-                    _allInsts =
-                        ({-# LINE 284 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
-                         in  foldr f (Map.empty) _elemsIcollectedInsts
-                         {-# LINE 720 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 287, column 10)
-                    _allUniques =
-                        ({-# LINE 287 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
-                         in foldr f (Map.empty) _elemsIcollectedUniques
-                         {-# LINE 727 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 289, column 10)
-                    _allAugments =
-                        ({-# LINE 289 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
-                         in foldr f Map.empty _elemsIcollectedAugments
-                         {-# LINE 734 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 291, column 10)
-                    _allArounds =
-                        ({-# LINE 291 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
-                         in foldr f Map.empty _elemsIcollectedArounds
-                         {-# LINE 741 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 293, column 10)
-                    _allMerges =
-                        ({-# LINE 293 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
-                          in foldr f Map.empty _elemsIcollectedMerges
-                         {-# LINE 748 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 296, column 10)
-                    _augmentSigs =
-                        ({-# LINE 296 "./src-ag/Transform.ag" #-}
-                         let gen _ = []
-                         in Map.map (Map.map gen) _allAugments
-                         {-# LINE 755 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 299, column 10)
-                    _allRulesErrs =
-                        ({-# LINE 299 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkRules _allAttrDecls _allFields _allInsts _allSigs     _allMerges    )) _allRules
-                         {-# LINE 761 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 300, column 10)
-                    _allNamesErrs =
-                        ({-# LINE 300 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . checkRuleNames) _allRules
-                         {-# LINE 767 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 301, column 10)
-                    _allSigsErrs =
-                        ({-# LINE 301 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) _allSigs
-                         {-# LINE 773 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 302, column 10)
-                    _allInstsErrs =
-                        ({-# LINE 302 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkInsts _allNonterminals     _allSigs     _allFields   )) _allInsts
-                         {-# LINE 779 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 303, column 10)
-                    _allUniquesErrs =
-                        ({-# LINE 303 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkUniques _allAttrDecls                                )) _allUniques
-                         {-# LINE 785 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 304, column 10)
-                    _allAugmentErrs =
-                        ({-# LINE 304 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkAugments _allAttrDecls                               )) _allAugments
-                         {-# LINE 791 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 305, column 10)
-                    _allAroundsErrs =
-                        ({-# LINE 305 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkArounds _allFields    )) _allArounds
-                         {-# LINE 797 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 306, column 10)
-                    _allMergesErrs =
-                        ({-# LINE 306 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkMerges _allNonterminals     _allInsts     _allFields    )) _allMerges
-                         {-# LINE 803 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 308, column 10)
-                    _checkedRulesPre =
-                        ({-# LINE 308 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allRulesErrs
-                         {-# LINE 809 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 309, column 10)
-                    _checkedSigs =
-                        ({-# LINE 309 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allSigsErrs     `unionunionplusplus` _augmentSigs
-                         {-# LINE 815 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 310, column 10)
-                    _checkedInsts =
-                        ({-# LINE 310 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allInstsErrs
-                         {-# LINE 821 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 311, column 10)
-                    _checkedUniques =
-                        ({-# LINE 311 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allUniquesErrs
-                         {-# LINE 827 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 312, column 10)
-                    _checkedAugments =
-                        ({-# LINE 312 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allAugmentErrs
-                         {-# LINE 833 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 313, column 10)
-                    _checkedArounds =
-                        ({-# LINE 313 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allAroundsErrs
-                         {-# LINE 839 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 314, column 10)
-                    _checkedRules =
-                        ({-# LINE 314 "./src-ag/Transform.ag" #-}
-                         Map.unionWith (Map.unionWith (++)) _checkedRulesPre     (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules _lhsIoptions _allRules     _allFields     _checkedInsts     _allAttrDecls    )) _checkedUniques    )
-                         {-# LINE 845 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 315, column 10)
-                    _checkedMerges =
-                        ({-# LINE 315 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allMergesErrs
-                         {-# LINE 851 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 317, column 10)
-                    _errs1 =
-                        ({-# LINE 317 "./src-ag/Transform.ag" #-}
-                         let f = checkForDuplicates (DupSynonym)
-                         in  Seq.fromList . f . map fst $ _elemsItypeSyns
-                         {-# LINE 858 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 320, column 10)
-                    _errs2 =
-                        ({-# LINE 320 "./src-ag/Transform.ag" #-}
-                         let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
-                             f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
-                         in  Seq.fromList . concat . map f . Map.toList $ _allFields
-                         {-# LINE 866 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 324, column 10)
-                    _errs3 =
-                        ({-# LINE 324 "./src-ag/Transform.ag" #-}
-                         let
-                         in   Seq.empty
-                         {-# LINE 873 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 328, column 10)
-                    _errs4 =
-                        ({-# LINE 328 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allRulesErrs
-                         {-# LINE 880 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 331, column 10)
-                    _errs5 =
-                        ({-# LINE 331 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allSigsErrs
-                         {-# LINE 887 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 334, column 10)
-                    _errs6 =
-                        ({-# LINE 334 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allInstsErrs
-                         {-# LINE 894 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 337, column 10)
-                    _errs7 =
-                        ({-# LINE 337 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allUniquesErrs
-                         {-# LINE 901 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 340, column 10)
-                    _errs8 =
-                        ({-# LINE 340 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allAugmentErrs
-                         {-# LINE 908 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 343, column 10)
-                    _errs9 =
-                        ({-# LINE 343 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allAroundsErrs
-                         {-# LINE 915 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 346, column 10)
-                    _errs10 =
-                        ({-# LINE 346 "./src-ag/Transform.ag" #-}
-                         let  f m s = Map.fold ((><)) s m
-                         in Map.fold f Seq.empty _allNamesErrs
-                         {-# LINE 922 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 349, column 10)
-                    _errs11 =
-                        ({-# LINE 349 "./src-ag/Transform.ag" #-}
-                         let f m s = Map.fold ((><) . snd) s m
-                         in Map.fold f Seq.empty _allMergesErrs
-                         {-# LINE 929 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 352, column 10)
-                    _lhsOerrors =
-                        ({-# LINE 352 "./src-ag/Transform.ag" #-}
-                         _elemsIerrors >< _errs1 >< _errs2 >< _errs3 >< _errs4 >< _errs5 >< _errs6 >< _errs7 >< _errs8 >< _errs9 >< _errs10 >< _errs11
-                         {-# LINE 935 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 606, column 10)
-                    _allNonterminals =
-                        ({-# LINE 606 "./src-ag/Transform.ag" #-}
-                         _elemsIcollectedNames `Set.difference` _elemsIcollectedSetNames
-                         {-# LINE 941 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 626, column 8)
-                    _elemsOallConstructors =
-                        ({-# LINE 626 "./src-ag/Transform.ag" #-}
-                         _elemsIcollectedConstructorsMap
-                         {-# LINE 947 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 709, column 8)
-                    _elemsOdefSets =
-                        ({-# LINE 709 "./src-ag/Transform.ag" #-}
-                         Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList _allNonterminals    ))
-                         {-# LINE 953 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 710, column 8)
-                    _elemsOdefinedSets =
-                        ({-# LINE 710 "./src-ag/Transform.ag" #-}
-                         Map.map fst _elemsIdefSets
-                         {-# LINE 959 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1029, column 8)
-                    _elemsOattrDecls =
-                        ({-# LINE 1029 "./src-ag/Transform.ag" #-}
-                         Map.empty
-                         {-# LINE 965 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1085, column 9)
-                    _allAttrDecls =
-                        ({-# LINE 1085 "./src-ag/Transform.ag" #-}
-                         if withSelf _lhsIoptions
-                          then foldr addSelf _elemsIattrDecls (Set.toList _allNonterminals    )
-                          else               _elemsIattrDecls
-                         {-# LINE 973 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1323, column 10)
-                    _allMacros =
-                        ({-# LINE 1323 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,m) = Map.insertWith (Map.union) nt (Map.singleton con m)
-                         in  foldr f (Map.empty) _elemsIcollectedMacros
-                         {-# LINE 980 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1336, column 8)
-                    _lhsOagi =
-                        ({-# LINE 1336 "./src-ag/Transform.ag" #-}
-                         (_allNonterminals    ,_allFields    ,_allAttrs    )
-                         {-# LINE 986 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1338, column 8)
-                    _allAttrs =
-                        ({-# LINE 1338 "./src-ag/Transform.ag" #-}
+newtype T_AG  = T_AG {
+                     attach_T_AG :: Identity (T_AG_s2 )
+                     }
+newtype T_AG_s2  = C_AG_s2 {
+                           inv_AG_s2 :: (T_AG_v1 )
+                           }
+data T_AG_s3  = C_AG_s3
+type T_AG_v1  = (T_AG_vIn1 ) -> (T_AG_vOut1 )
+data T_AG_vIn1  = T_AG_vIn1 (Options)
+data T_AG_vOut1  = T_AG_vOut1 ((Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) (Blocks) (Seq Error) (Maybe (String,String,String)) (Grammar) (Options -> Options)
+{-# NOINLINE sem_AG_AG #-}
+sem_AG_AG :: T_Elems  -> T_AG 
+sem_AG_AG arg_elems_ = T_AG (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_AG_v1 
+      v1 = \ (T_AG_vIn1 _lhsIoptions) -> ( let
+         _elemsX20 = Control.Monad.Identity.runIdentity (attach_T_Elems (arg_elems_))
+         (T_Elems_vOut19 _elemsIattrDecls _elemsIattrOrderCollect _elemsIattrs _elemsIblocks _elemsIcollectedArounds _elemsIcollectedAugments _elemsIcollectedConParams _elemsIcollectedConstraints _elemsIcollectedConstructorsMap _elemsIcollectedFields _elemsIcollectedInsts _elemsIcollectedMacros _elemsIcollectedMerges _elemsIcollectedNames _elemsIcollectedRules _elemsIcollectedSetNames _elemsIcollectedSigs _elemsIcollectedUniques _elemsIctxCollect _elemsIdefSets _elemsIderivings _elemsIerrors _elemsImoduleDecl _elemsIparamsCollect _elemsIpragmas _elemsIquantCollect _elemsIsemPragmasCollect _elemsItypeSyns _elemsIuseMap _elemsIwrappers) = inv_Elems_s20 _elemsX20 (T_Elems_vIn19 _elemsOallAttrDecls _elemsOallAttrs _elemsOallConstructors _elemsOallFields _elemsOallNonterminals _elemsOattrDecls _elemsOattrs _elemsOdefSets _elemsOdefinedSets _elemsOoptions)
+         _lhsOoutput :: Grammar
+         _lhsOoutput = rule0 _allAttrDecls _allConParams _allConstraints _allFields _allMacros _allNonterminals _checkedArounds _checkedAugments _checkedInsts _checkedMerges _checkedRules _checkedSigs _checkedUniques _elemsIattrOrderCollect _elemsIctxCollect _elemsIderivings _elemsIparamsCollect _elemsIquantCollect _elemsIsemPragmasCollect _elemsItypeSyns _elemsIuseMap _elemsIwrappers _lhsIoptions _prodOrder
+         _prodOrder = rule1 _elemsIcollectedFields
+         _allFields = rule2 _elemsIcollectedFields
+         _allConstraints = rule3 _elemsIcollectedConstraints
+         _allConParams = rule4 _elemsIcollectedConParams
+         _allConstrs = rule5 _elemsIcollectedFields
+         _allRules = rule6 _elemsIcollectedRules
+         _allSigs = rule7 _allAttrDecls _elemsIcollectedSigs _elemsIcollectedUniques
+         _allInsts = rule8 _elemsIcollectedInsts
+         _allUniques = rule9 _elemsIcollectedUniques
+         _allAugments = rule10 _elemsIcollectedAugments
+         _allArounds = rule11 _elemsIcollectedArounds
+         _allMerges = rule12 _elemsIcollectedMerges
+         _augmentSigs = rule13 _allAugments
+         _allRulesErrs = rule14 _allAttrDecls _allFields _allInsts _allMerges _allRules _allSigs
+         _allNamesErrs = rule15 _allRules
+         _allSigsErrs = rule16 _allSigs
+         _allInstsErrs = rule17 _allFields _allInsts _allNonterminals _allSigs
+         _allUniquesErrs = rule18 _allAttrDecls _allUniques
+         _allAugmentErrs = rule19 _allAttrDecls _allAugments
+         _allAroundsErrs = rule20 _allArounds _allFields
+         _allMergesErrs = rule21 _allFields _allInsts _allMerges _allNonterminals
+         _checkedRulesPre = rule22 _allRulesErrs
+         _checkedSigs = rule23 _allSigsErrs _augmentSigs
+         _checkedInsts = rule24 _allInstsErrs
+         _checkedUniques = rule25 _allUniquesErrs
+         _checkedAugments = rule26 _allAugmentErrs
+         _checkedArounds = rule27 _allAroundsErrs
+         _checkedRules = rule28 _allAttrDecls _allFields _allRules _checkedInsts _checkedRulesPre _checkedUniques _lhsIoptions
+         _checkedMerges = rule29 _allMergesErrs
+         _errs1 = rule30 _elemsItypeSyns
+         _errs2 = rule31 _allFields
+         _errs3 = rule32  ()
+         _errs4 = rule33 _allRulesErrs
+         _errs5 = rule34 _allSigsErrs
+         _errs6 = rule35 _allInstsErrs
+         _errs7 = rule36 _allUniquesErrs
+         _errs8 = rule37 _allAugmentErrs
+         _errs9 = rule38 _allAroundsErrs
+         _errs10 = rule39 _allNamesErrs
+         _errs11 = rule40 _allMergesErrs
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule41 _elemsIerrors _errs1 _errs10 _errs11 _errs2 _errs3 _errs4 _errs5 _errs6 _errs7 _errs8 _errs9
+         _allNonterminals = rule42 _elemsIcollectedNames _elemsIcollectedSetNames
+         _elemsOallConstructors = rule43 _elemsIcollectedConstructorsMap
+         _elemsOdefSets = rule44 _allNonterminals
+         _elemsOdefinedSets = rule45 _elemsIdefSets
+         _elemsOattrDecls = rule46  ()
+         _allAttrDecls = rule47 _allNonterminals _elemsIattrDecls _lhsIoptions
+         _allMacros = rule48 _elemsIcollectedMacros
+         _lhsOagi :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))
+         _lhsOagi = rule49 _allAttrs _allFields _allNonterminals
+         _allAttrs = rule50 _allNonterminals _elemsIattrs _lhsIoptions
+         _elemsOattrs = rule51  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule52 _elemsIblocks
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule53 _elemsImoduleDecl
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule54 _elemsIpragmas
+         _elemsOallAttrDecls = rule55 _allAttrDecls
+         _elemsOallAttrs = rule56 _allAttrs
+         _elemsOallFields = rule57 _allFields
+         _elemsOallNonterminals = rule58 _allNonterminals
+         _elemsOoptions = rule59 _lhsIoptions
+         __result_ = T_AG_vOut1 _lhsOagi _lhsOblocks _lhsOerrors _lhsOmoduleDecl _lhsOoutput _lhsOpragmas
+         in __result_ )
+     in C_AG_s2 v1
+   {-# INLINE rule0 #-}
+   {-# LINE 50 "./src-ag/Transform.ag" #-}
+   rule0 = \ _allAttrDecls _allConParams _allConstraints _allFields _allMacros _allNonterminals _checkedArounds _checkedAugments _checkedInsts _checkedMerges _checkedRules _checkedSigs _checkedUniques ((_elemsIattrOrderCollect) :: AttrOrderMap) ((_elemsIctxCollect) :: ContextMap) ((_elemsIderivings) :: Derivings) ((_elemsIparamsCollect) :: ParamMap) ((_elemsIquantCollect) :: QuantMap) ((_elemsIsemPragmasCollect) :: PragmaMap) ((_elemsItypeSyns) :: TypeSyns) ((_elemsIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ((_elemsIwrappers) :: Set NontermIdent) ((_lhsIoptions) :: Options) _prodOrder ->
+                      {-# LINE 50 "./src-ag/Transform.ag" #-}
+                      constructGrammar _allNonterminals
+                                       _elemsIparamsCollect
+                                       _allConParams
+                                       _allFields
+                                       _prodOrder
+                                       _allConstraints
+                                       _allAttrDecls
+                                       _elemsIuseMap
+                                       _elemsIderivings
+                                       (if wrappers _lhsIoptions then _allNonterminals     else _elemsIwrappers)
+                                       _checkedRules
+                                       _checkedSigs
+                                       _checkedInsts
+                                       _elemsItypeSyns
+                                       _elemsIsemPragmasCollect
+                                       _elemsIattrOrderCollect
+                                       _elemsIctxCollect
+                                       _elemsIquantCollect
+                                       _checkedUniques
+                                       _checkedAugments
+                                       _checkedArounds
+                                       _checkedMerges
+                                       _allMacros
+                      {-# LINE 642 "dist/build/Transform.hs"#-}
+   {-# INLINE rule1 #-}
+   {-# LINE 258 "./src-ag/Transform.ag" #-}
+   rule1 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+                             {-# LINE 258 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,_) = Map.insertWith g nt [con]
+                                 g [con] lst | con `elem` lst = lst
+                                             | otherwise      = con : lst
+                                 g _ _ = error "This is not possible"
+                             in  foldr f Map.empty _elemsIcollectedFields
+                             {-# LINE 652 "dist/build/Transform.hs"#-}
+   {-# INLINE rule2 #-}
+   {-# LINE 263 "./src-ag/Transform.ag" #-}
+   rule2 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+                             {-# LINE 263 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
+                             in  foldr f (Map.empty) _elemsIcollectedFields
+                             {-# LINE 659 "dist/build/Transform.hs"#-}
+   {-# INLINE rule3 #-}
+   {-# LINE 266 "./src-ag/Transform.ag" #-}
+   rule3 = \ ((_elemsIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ->
+                                {-# LINE 266 "./src-ag/Transform.ag" #-}
+                                let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
+                                in  foldr f (Map.empty) _elemsIcollectedConstraints
+                                {-# LINE 666 "dist/build/Transform.hs"#-}
+   {-# INLINE rule4 #-}
+   {-# LINE 269 "./src-ag/Transform.ag" #-}
+   rule4 = \ ((_elemsIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ->
+                                {-# LINE 269 "./src-ag/Transform.ag" #-}
+                                let f (nt,con,fm) = Map.insertWith (Map.unionWith Set.union) nt (Map.singleton con fm)
+                                in  foldr f (Map.empty) _elemsIcollectedConParams
+                                {-# LINE 673 "dist/build/Transform.hs"#-}
+   {-# INLINE rule5 #-}
+   {-# LINE 272 "./src-ag/Transform.ag" #-}
+   rule5 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+                             {-# LINE 272 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,_) = Map.insertWith (++) nt [con]
+                             in  foldr f (Map.empty) _elemsIcollectedFields
+                             {-# LINE 680 "dist/build/Transform.hs"#-}
+   {-# INLINE rule6 #-}
+   {-# LINE 275 "./src-ag/Transform.ag" #-}
+   rule6 = \ ((_elemsIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ->
+                             {-# LINE 275 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
+                             in  foldr f (Map.empty) _elemsIcollectedRules
+                             {-# LINE 687 "dist/build/Transform.hs"#-}
+   {-# INLINE rule7 #-}
+   {-# LINE 278 "./src-ag/Transform.ag" #-}
+   rule7 = \ _allAttrDecls ((_elemsIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ((_elemsIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
+                             {-# LINE 278 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
+                                 typeof nt r = Map.findWithDefault (Haskell "<unknown>") r $ fst $ Map.findWithDefault (Map.empty,Map.empty) nt _allAttrDecls
+                             in  foldr f (Map.empty) ( _elemsIcollectedSigs
+                                                     ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- _elemsIcollectedUniques, (ident,ref) <- us ]
+                                                     )
+                             {-# LINE 697 "dist/build/Transform.hs"#-}
+   {-# INLINE rule8 #-}
+   {-# LINE 284 "./src-ag/Transform.ag" #-}
+   rule8 = \ ((_elemsIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ->
+                             {-# LINE 284 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
+                             in  foldr f (Map.empty) _elemsIcollectedInsts
+                             {-# LINE 704 "dist/build/Transform.hs"#-}
+   {-# INLINE rule9 #-}
+   {-# LINE 287 "./src-ag/Transform.ag" #-}
+   rule9 = \ ((_elemsIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
+                             {-# LINE 287 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
+                             in foldr f (Map.empty) _elemsIcollectedUniques
+                             {-# LINE 711 "dist/build/Transform.hs"#-}
+   {-# INLINE rule10 #-}
+   {-# LINE 289 "./src-ag/Transform.ag" #-}
+   rule10 = \ ((_elemsIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ->
+                             {-# LINE 289 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                             in foldr f Map.empty _elemsIcollectedAugments
+                             {-# LINE 718 "dist/build/Transform.hs"#-}
+   {-# INLINE rule11 #-}
+   {-# LINE 291 "./src-ag/Transform.ag" #-}
+   rule11 = \ ((_elemsIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ->
+                              {-# LINE 291 "./src-ag/Transform.ag" #-}
+                              let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                              in foldr f Map.empty _elemsIcollectedArounds
+                              {-# LINE 725 "dist/build/Transform.hs"#-}
+   {-# INLINE rule12 #-}
+   {-# LINE 293 "./src-ag/Transform.ag" #-}
+   rule12 = \ ((_elemsIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ->
+                              {-# LINE 293 "./src-ag/Transform.ag" #-}
+                              let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
+                               in foldr f Map.empty _elemsIcollectedMerges
+                              {-# LINE 732 "dist/build/Transform.hs"#-}
+   {-# INLINE rule13 #-}
+   {-# LINE 296 "./src-ag/Transform.ag" #-}
+   rule13 = \ _allAugments ->
+                                {-# LINE 296 "./src-ag/Transform.ag" #-}
+                                let gen _ = []
+                                in Map.map (Map.map gen) _allAugments
+                                {-# LINE 739 "dist/build/Transform.hs"#-}
+   {-# INLINE rule14 #-}
+   {-# LINE 299 "./src-ag/Transform.ag" #-}
+   rule14 = \ _allAttrDecls _allFields _allInsts _allMerges _allRules _allSigs ->
+                                {-# LINE 299 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkRules _allAttrDecls _allFields _allInsts _allSigs     _allMerges    )) _allRules
+                                {-# LINE 745 "dist/build/Transform.hs"#-}
+   {-# INLINE rule15 #-}
+   {-# LINE 300 "./src-ag/Transform.ag" #-}
+   rule15 = \ _allRules ->
+                                {-# LINE 300 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . checkRuleNames) _allRules
+                                {-# LINE 751 "dist/build/Transform.hs"#-}
+   {-# INLINE rule16 #-}
+   {-# LINE 301 "./src-ag/Transform.ag" #-}
+   rule16 = \ _allSigs ->
+                                {-# LINE 301 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) _allSigs
+                                {-# LINE 757 "dist/build/Transform.hs"#-}
+   {-# INLINE rule17 #-}
+   {-# LINE 302 "./src-ag/Transform.ag" #-}
+   rule17 = \ _allFields _allInsts _allNonterminals _allSigs ->
+                                {-# LINE 302 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkInsts _allNonterminals     _allSigs     _allFields   )) _allInsts
+                                {-# LINE 763 "dist/build/Transform.hs"#-}
+   {-# INLINE rule18 #-}
+   {-# LINE 303 "./src-ag/Transform.ag" #-}
+   rule18 = \ _allAttrDecls _allUniques ->
+                                {-# LINE 303 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkUniques _allAttrDecls                                )) _allUniques
+                                {-# LINE 769 "dist/build/Transform.hs"#-}
+   {-# INLINE rule19 #-}
+   {-# LINE 304 "./src-ag/Transform.ag" #-}
+   rule19 = \ _allAttrDecls _allAugments ->
+                                {-# LINE 304 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkAugments _allAttrDecls                               )) _allAugments
+                                {-# LINE 775 "dist/build/Transform.hs"#-}
+   {-# INLINE rule20 #-}
+   {-# LINE 305 "./src-ag/Transform.ag" #-}
+   rule20 = \ _allArounds _allFields ->
+                                {-# LINE 305 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkArounds _allFields    )) _allArounds
+                                {-# LINE 781 "dist/build/Transform.hs"#-}
+   {-# INLINE rule21 #-}
+   {-# LINE 306 "./src-ag/Transform.ag" #-}
+   rule21 = \ _allFields _allInsts _allMerges _allNonterminals ->
+                                {-# LINE 306 "./src-ag/Transform.ag" #-}
+                                Map.mapWithKey (Map.mapWithKey . (checkMerges _allNonterminals     _allInsts     _allFields    )) _allMerges
+                                {-# LINE 787 "dist/build/Transform.hs"#-}
+   {-# INLINE rule22 #-}
+   {-# LINE 308 "./src-ag/Transform.ag" #-}
+   rule22 = \ _allRulesErrs ->
+                                 {-# LINE 308 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allRulesErrs
+                                 {-# LINE 793 "dist/build/Transform.hs"#-}
+   {-# INLINE rule23 #-}
+   {-# LINE 309 "./src-ag/Transform.ag" #-}
+   rule23 = \ _allSigsErrs _augmentSigs ->
+                                 {-# LINE 309 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allSigsErrs     `unionunionplusplus` _augmentSigs
+                                 {-# LINE 799 "dist/build/Transform.hs"#-}
+   {-# INLINE rule24 #-}
+   {-# LINE 310 "./src-ag/Transform.ag" #-}
+   rule24 = \ _allInstsErrs ->
+                                 {-# LINE 310 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allInstsErrs
+                                 {-# LINE 805 "dist/build/Transform.hs"#-}
+   {-# INLINE rule25 #-}
+   {-# LINE 311 "./src-ag/Transform.ag" #-}
+   rule25 = \ _allUniquesErrs ->
+                                 {-# LINE 311 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allUniquesErrs
+                                 {-# LINE 811 "dist/build/Transform.hs"#-}
+   {-# INLINE rule26 #-}
+   {-# LINE 312 "./src-ag/Transform.ag" #-}
+   rule26 = \ _allAugmentErrs ->
+                                 {-# LINE 312 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allAugmentErrs
+                                 {-# LINE 817 "dist/build/Transform.hs"#-}
+   {-# INLINE rule27 #-}
+   {-# LINE 313 "./src-ag/Transform.ag" #-}
+   rule27 = \ _allAroundsErrs ->
+                                 {-# LINE 313 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allAroundsErrs
+                                 {-# LINE 823 "dist/build/Transform.hs"#-}
+   {-# INLINE rule28 #-}
+   {-# LINE 314 "./src-ag/Transform.ag" #-}
+   rule28 = \ _allAttrDecls _allFields _allRules _checkedInsts _checkedRulesPre _checkedUniques ((_lhsIoptions) :: Options) ->
+                                 {-# LINE 314 "./src-ag/Transform.ag" #-}
+                                 Map.unionWith (Map.unionWith (++)) _checkedRulesPre     (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules _lhsIoptions _allRules     _allFields     _checkedInsts     _allAttrDecls    )) _checkedUniques    )
+                                 {-# LINE 829 "dist/build/Transform.hs"#-}
+   {-# INLINE rule29 #-}
+   {-# LINE 315 "./src-ag/Transform.ag" #-}
+   rule29 = \ _allMergesErrs ->
+                                 {-# LINE 315 "./src-ag/Transform.ag" #-}
+                                 Map.map (Map.map fst) _allMergesErrs
+                                 {-# LINE 835 "dist/build/Transform.hs"#-}
+   {-# INLINE rule30 #-}
+   {-# LINE 317 "./src-ag/Transform.ag" #-}
+   rule30 = \ ((_elemsItypeSyns) :: TypeSyns) ->
+                             {-# LINE 317 "./src-ag/Transform.ag" #-}
+                             let f = checkForDuplicates (DupSynonym)
+                             in  Seq.fromList . f . map fst $ _elemsItypeSyns
+                             {-# LINE 842 "dist/build/Transform.hs"#-}
+   {-# INLINE rule31 #-}
+   {-# LINE 320 "./src-ag/Transform.ag" #-}
+   rule31 = \ _allFields ->
+                             {-# LINE 320 "./src-ag/Transform.ag" #-}
+                             let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
+                                 f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
+                             in  Seq.fromList . concat . map f . Map.toList $ _allFields
+                             {-# LINE 850 "dist/build/Transform.hs"#-}
+   {-# INLINE rule32 #-}
+   {-# LINE 324 "./src-ag/Transform.ag" #-}
+   rule32 = \  (_ :: ()) ->
+                             {-# LINE 324 "./src-ag/Transform.ag" #-}
+                             let
+                             in   Seq.empty
+                             {-# LINE 857 "dist/build/Transform.hs"#-}
+   {-# INLINE rule33 #-}
+   {-# LINE 328 "./src-ag/Transform.ag" #-}
+   rule33 = \ _allRulesErrs ->
+                             {-# LINE 328 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allRulesErrs
+                             {-# LINE 864 "dist/build/Transform.hs"#-}
+   {-# INLINE rule34 #-}
+   {-# LINE 331 "./src-ag/Transform.ag" #-}
+   rule34 = \ _allSigsErrs ->
+                             {-# LINE 331 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allSigsErrs
+                             {-# LINE 871 "dist/build/Transform.hs"#-}
+   {-# INLINE rule35 #-}
+   {-# LINE 334 "./src-ag/Transform.ag" #-}
+   rule35 = \ _allInstsErrs ->
+                             {-# LINE 334 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allInstsErrs
+                             {-# LINE 878 "dist/build/Transform.hs"#-}
+   {-# INLINE rule36 #-}
+   {-# LINE 337 "./src-ag/Transform.ag" #-}
+   rule36 = \ _allUniquesErrs ->
+                             {-# LINE 337 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allUniquesErrs
+                             {-# LINE 885 "dist/build/Transform.hs"#-}
+   {-# INLINE rule37 #-}
+   {-# LINE 340 "./src-ag/Transform.ag" #-}
+   rule37 = \ _allAugmentErrs ->
+                             {-# LINE 340 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allAugmentErrs
+                             {-# LINE 892 "dist/build/Transform.hs"#-}
+   {-# INLINE rule38 #-}
+   {-# LINE 343 "./src-ag/Transform.ag" #-}
+   rule38 = \ _allAroundsErrs ->
+                             {-# LINE 343 "./src-ag/Transform.ag" #-}
+                             let  f m s = Map.fold ((><) . snd) s m
+                             in Map.fold f Seq.empty _allAroundsErrs
+                             {-# LINE 899 "dist/build/Transform.hs"#-}
+   {-# INLINE rule39 #-}
+   {-# LINE 346 "./src-ag/Transform.ag" #-}
+   rule39 = \ _allNamesErrs ->
+                              {-# LINE 346 "./src-ag/Transform.ag" #-}
+                              let  f m s = Map.fold ((><)) s m
+                              in Map.fold f Seq.empty _allNamesErrs
+                              {-# LINE 906 "dist/build/Transform.hs"#-}
+   {-# INLINE rule40 #-}
+   {-# LINE 349 "./src-ag/Transform.ag" #-}
+   rule40 = \ _allMergesErrs ->
+                              {-# LINE 349 "./src-ag/Transform.ag" #-}
+                              let f m s = Map.fold ((><) . snd) s m
+                              in Map.fold f Seq.empty _allMergesErrs
+                              {-# LINE 913 "dist/build/Transform.hs"#-}
+   {-# INLINE rule41 #-}
+   {-# LINE 352 "./src-ag/Transform.ag" #-}
+   rule41 = \ ((_elemsIerrors) :: Seq Error) _errs1 _errs10 _errs11 _errs2 _errs3 _errs4 _errs5 _errs6 _errs7 _errs8 _errs9 ->
+                             {-# LINE 352 "./src-ag/Transform.ag" #-}
+                             _elemsIerrors >< _errs1 >< _errs2 >< _errs3 >< _errs4 >< _errs5 >< _errs6 >< _errs7 >< _errs8 >< _errs9 >< _errs10 >< _errs11
+                             {-# LINE 919 "dist/build/Transform.hs"#-}
+   {-# INLINE rule42 #-}
+   {-# LINE 606 "./src-ag/Transform.ag" #-}
+   rule42 = \ ((_elemsIcollectedNames) :: Set Identifier) ((_elemsIcollectedSetNames) :: Set Identifier) ->
+                                 {-# LINE 606 "./src-ag/Transform.ag" #-}
+                                 _elemsIcollectedNames `Set.difference` _elemsIcollectedSetNames
+                                 {-# LINE 925 "dist/build/Transform.hs"#-}
+   {-# INLINE rule43 #-}
+   {-# LINE 626 "./src-ag/Transform.ag" #-}
+   rule43 = \ ((_elemsIcollectedConstructorsMap) :: Map NontermIdent (Set ConstructorIdent)) ->
+                                 {-# LINE 626 "./src-ag/Transform.ag" #-}
+                                 _elemsIcollectedConstructorsMap
+                                 {-# LINE 931 "dist/build/Transform.hs"#-}
+   {-# INLINE rule44 #-}
+   {-# LINE 709 "./src-ag/Transform.ag" #-}
+   rule44 = \ _allNonterminals ->
+                             {-# LINE 709 "./src-ag/Transform.ag" #-}
+                             Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList _allNonterminals    ))
+                             {-# LINE 937 "dist/build/Transform.hs"#-}
+   {-# INLINE rule45 #-}
+   {-# LINE 710 "./src-ag/Transform.ag" #-}
+   rule45 = \ ((_elemsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+                             {-# LINE 710 "./src-ag/Transform.ag" #-}
+                             Map.map fst _elemsIdefSets
+                             {-# LINE 943 "dist/build/Transform.hs"#-}
+   {-# INLINE rule46 #-}
+   {-# LINE 1029 "./src-ag/Transform.ag" #-}
+   rule46 = \  (_ :: ()) ->
+                           {-# LINE 1029 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 949 "dist/build/Transform.hs"#-}
+   {-# INLINE rule47 #-}
+   {-# LINE 1085 "./src-ag/Transform.ag" #-}
+   rule47 = \ _allNonterminals ((_elemsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ((_lhsIoptions) :: Options) ->
+                             {-# LINE 1085 "./src-ag/Transform.ag" #-}
+                             if withSelf _lhsIoptions
+                              then foldr addSelf _elemsIattrDecls (Set.toList _allNonterminals    )
+                              else               _elemsIattrDecls
+                             {-# LINE 957 "dist/build/Transform.hs"#-}
+   {-# INLINE rule48 #-}
+   {-# LINE 1323 "./src-ag/Transform.ag" #-}
+   rule48 = \ ((_elemsIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ->
+                             {-# LINE 1323 "./src-ag/Transform.ag" #-}
+                             let f (nt,con,m) = Map.insertWith (Map.union) nt (Map.singleton con m)
+                             in  foldr f (Map.empty) _elemsIcollectedMacros
+                             {-# LINE 964 "dist/build/Transform.hs"#-}
+   {-# INLINE rule49 #-}
+   {-# LINE 1336 "./src-ag/Transform.ag" #-}
+   rule49 = \ _allAttrs _allFields _allNonterminals ->
+                        {-# LINE 1336 "./src-ag/Transform.ag" #-}
+                        (_allNonterminals    ,_allFields    ,_allAttrs    )
+                        {-# LINE 970 "dist/build/Transform.hs"#-}
+   {-# INLINE rule50 #-}
+   {-# LINE 1338 "./src-ag/Transform.ag" #-}
+   rule50 = \ _allNonterminals ((_elemsIattrs) :: Map NontermIdent (Attributes, Attributes)) ((_lhsIoptions) :: Options) ->
+                         {-# LINE 1338 "./src-ag/Transform.ag" #-}
                          if withSelf _lhsIoptions
                               then foldr addSelf _elemsIattrs (Set.toList _allNonterminals    )
                               else               _elemsIattrs
-                         {-# LINE 994 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1346, column 9)
-                    _elemsOattrs =
-                        ({-# LINE 1346 "./src-ag/Transform.ag" #-}
-                         Map.empty
-                         {-# LINE 1000 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                    _lhsOblocks =
-                        ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                         _elemsIblocks
-                         {-# LINE 1006 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                    _lhsOmoduleDecl =
-                        ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                         _elemsImoduleDecl
-                         {-# LINE 1012 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                    _lhsOpragmas =
-                        ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                         _elemsIpragmas
-                         {-# LINE 1018 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (from local)
-                    _elemsOallAttrDecls =
-                        ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                         _allAttrDecls
-                         {-# LINE 1024 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (from local)
-                    _elemsOallAttrs =
-                        ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                         _allAttrs
-                         {-# LINE 1030 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (from local)
-                    _elemsOallFields =
-                        ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                         _allFields
-                         {-# LINE 1036 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (from local)
-                    _elemsOallNonterminals =
-                        ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                         _allNonterminals
-                         {-# LINE 1042 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (down)
-                    _elemsOoptions =
-                        ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                         _lhsIoptions
-                         {-# LINE 1048 "dist/build/Transform.hs" #-}
-                         )
-                    ( _elemsIattrDecls,_elemsIattrOrderCollect,_elemsIattrs,_elemsIblocks,_elemsIcollectedArounds,_elemsIcollectedAugments,_elemsIcollectedConParams,_elemsIcollectedConstraints,_elemsIcollectedConstructorsMap,_elemsIcollectedFields,_elemsIcollectedInsts,_elemsIcollectedMacros,_elemsIcollectedMerges,_elemsIcollectedNames,_elemsIcollectedRules,_elemsIcollectedSetNames,_elemsIcollectedSigs,_elemsIcollectedUniques,_elemsIctxCollect,_elemsIdefSets,_elemsIderivings,_elemsIerrors,_elemsImoduleDecl,_elemsIparamsCollect,_elemsIpragmas,_elemsIquantCollect,_elemsIsemPragmasCollect,_elemsItypeSyns,_elemsIuseMap,_elemsIwrappers) =
-                        elems_ _elemsOallAttrDecls _elemsOallAttrs _elemsOallConstructors _elemsOallFields _elemsOallNonterminals _elemsOattrDecls _elemsOattrs _elemsOdefSets _elemsOdefinedSets _elemsOoptions
-                in  ( _lhsOagi,_lhsOblocks,_lhsOerrors,_lhsOmoduleDecl,_lhsOoutput,_lhsOpragmas))))
+                         {-# LINE 978 "dist/build/Transform.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 1346 "./src-ag/Transform.ag" #-}
+   rule51 = \  (_ :: ()) ->
+                        {-# LINE 1346 "./src-ag/Transform.ag" #-}
+                        Map.empty
+                        {-# LINE 984 "dist/build/Transform.hs"#-}
+   {-# INLINE rule52 #-}
+   rule52 = \ ((_elemsIblocks) :: Blocks) ->
+     _elemsIblocks
+   {-# INLINE rule53 #-}
+   rule53 = \ ((_elemsImoduleDecl) :: Maybe (String,String,String)) ->
+     _elemsImoduleDecl
+   {-# INLINE rule54 #-}
+   rule54 = \ ((_elemsIpragmas) :: Options -> Options) ->
+     _elemsIpragmas
+   {-# INLINE rule55 #-}
+   rule55 = \ _allAttrDecls ->
+     _allAttrDecls
+   {-# INLINE rule56 #-}
+   rule56 = \ _allAttrs ->
+     _allAttrs
+   {-# INLINE rule57 #-}
+   rule57 = \ _allFields ->
+     _allFields
+   {-# INLINE rule58 #-}
+   rule58 = \ _allNonterminals ->
+     _allNonterminals
+   {-# INLINE rule59 #-}
+   rule59 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+
 -- Alt ---------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allConstructors      : Map NontermIdent (Set ConstructorIdent)
-         allNonterminals      : Set NontermIdent
-         nts                  : Set NontermIdent
-      synthesized attributes:
-         collectedConParams   : [(NontermIdent, ConstructorIdent, Set Identifier)]
-         collectedConstraints : [(NontermIdent, ConstructorIdent, [Type])]
-         collectedConstructorNames : Set ConstructorIdent
-         collectedFields      : [(NontermIdent, ConstructorIdent, FieldMap)]
-         collectedMacros      : [(NontermIdent, ConstructorIdent, MaybeMacro)]
-   alternatives:
-      alternative Alt:
-         child pos            : {Pos}
-         child names          : ConstructorSet 
-         child tyvars         : {[Identifier]}
-         child fields         : Fields 
-         child macro          : {MaybeMacro}
--}
+-- wrapper
+data Inh_Alt  = Inh_Alt { allConstructors_Inh_Alt :: (Map NontermIdent (Set ConstructorIdent)), allNonterminals_Inh_Alt :: (Set NontermIdent), nts_Inh_Alt :: (Set NontermIdent) }
+data Syn_Alt  = Syn_Alt { collectedConParams_Syn_Alt :: ([(NontermIdent, ConstructorIdent, Set Identifier)]), collectedConstraints_Syn_Alt :: ([(NontermIdent, ConstructorIdent, [Type])]), collectedConstructorNames_Syn_Alt :: (Set ConstructorIdent), collectedFields_Syn_Alt :: ([(NontermIdent, ConstructorIdent, FieldMap)]), collectedMacros_Syn_Alt :: ([(NontermIdent, ConstructorIdent, MaybeMacro)]) }
+{-# INLINABLE wrap_Alt #-}
+wrap_Alt :: T_Alt  -> Inh_Alt  -> (Syn_Alt )
+wrap_Alt (T_Alt act) (Inh_Alt _lhsIallConstructors _lhsIallNonterminals _lhsInts) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Alt_vIn4 _lhsIallConstructors _lhsIallNonterminals _lhsInts
+        (T_Alt_vOut4 _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros) <- return (inv_Alt_s5 sem arg)
+        return (Syn_Alt _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros)
+   )
+
 -- cata
-sem_Alt :: Alt ->
-           T_Alt
-sem_Alt (Alt _pos _names _tyvars _fields _macro) =
-    (sem_Alt_Alt _pos (sem_ConstructorSet _names) _tyvars (sem_Fields _fields) _macro)
+{-# INLINE sem_Alt #-}
+sem_Alt :: Alt  -> T_Alt 
+sem_Alt ( Alt pos_ names_ tyvars_ fields_ macro_ ) = sem_Alt_Alt pos_ ( sem_ConstructorSet names_ ) tyvars_ ( sem_Fields fields_ ) macro_
+
 -- semantic domain
-newtype T_Alt = T_Alt ((Map NontermIdent (Set ConstructorIdent)) ->
-                       (Set NontermIdent) ->
-                       (Set NontermIdent) ->
-                       ( ([(NontermIdent, ConstructorIdent, Set Identifier)]),([(NontermIdent, ConstructorIdent, [Type])]),(Set ConstructorIdent),([(NontermIdent, ConstructorIdent, FieldMap)]),([(NontermIdent, ConstructorIdent, MaybeMacro)])))
-data Inh_Alt = Inh_Alt {allConstructors_Inh_Alt :: !((Map NontermIdent (Set ConstructorIdent))),allNonterminals_Inh_Alt :: !((Set NontermIdent)),nts_Inh_Alt :: !((Set NontermIdent))}
-data Syn_Alt = Syn_Alt {collectedConParams_Syn_Alt :: !(([(NontermIdent, ConstructorIdent, Set Identifier)])),collectedConstraints_Syn_Alt :: !(([(NontermIdent, ConstructorIdent, [Type])])),collectedConstructorNames_Syn_Alt :: !((Set ConstructorIdent)),collectedFields_Syn_Alt :: !(([(NontermIdent, ConstructorIdent, FieldMap)])),collectedMacros_Syn_Alt :: !(([(NontermIdent, ConstructorIdent, MaybeMacro)]))}
-wrap_Alt :: T_Alt ->
-            Inh_Alt ->
-            Syn_Alt
-wrap_Alt (T_Alt sem) (Inh_Alt _lhsIallConstructors _lhsIallNonterminals _lhsInts) =
-    (let ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros) = sem _lhsIallConstructors _lhsIallNonterminals _lhsInts
-     in  (Syn_Alt _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros))
-sem_Alt_Alt :: Pos ->
-               T_ConstructorSet ->
-               ([Identifier]) ->
-               T_Fields ->
-               MaybeMacro ->
-               T_Alt
-sem_Alt_Alt pos_ (T_ConstructorSet names_) tyvars_ (T_Fields fields_) macro_ =
-    (T_Alt (\ _lhsIallConstructors
-              _lhsIallNonterminals
-              _lhsInts ->
-                (let _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                     _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                     _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                     _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                     _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                     _fieldsOallNonterminals :: (Set NontermIdent)
-                     _namesIcollectedConstructorNames :: (Set ConstructorIdent)
-                     _namesIconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                     _namesIerrors :: (Seq Error)
-                     _fieldsIcollectedConstraints :: ([Type])
-                     _fieldsIcollectedFields :: ([(Identifier, Type)])
-                     -- "./src-ag/Transform.ag"(line 240, column 10)
-                     _lhsOcollectedFields =
-                         ({-# LINE 240 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, _fieldsIcollectedFields)
-                          | nt  <- Set.toList _lhsInts
-                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
-                          ]
-                          {-# LINE 1120 "dist/build/Transform.hs" #-}
-                          )
-                     -- "./src-ag/Transform.ag"(line 244, column 10)
-                     _lhsOcollectedConstraints =
-                         ({-# LINE 244 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, _fieldsIcollectedConstraints)
-                          | nt  <- Set.toList _lhsInts
-                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
-                          ]
-                          {-# LINE 1129 "dist/build/Transform.hs" #-}
-                          )
-                     -- "./src-ag/Transform.ag"(line 248, column 10)
-                     _lhsOcollectedConParams =
-                         ({-# LINE 248 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, Set.fromList tyvars_)
-                          | nt  <- Set.toList _lhsInts
-                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
-                          ]
-                          {-# LINE 1138 "dist/build/Transform.hs" #-}
-                          )
-                     -- "./src-ag/Transform.ag"(line 1314, column 10)
-                     _lhsOcollectedMacros =
-                         ({-# LINE 1314 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, macro_)
-                          | nt  <- Set.toList _lhsInts
-                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
-                          ]
-                          {-# LINE 1147 "dist/build/Transform.hs" #-}
-                          )
-                     -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                     _lhsOcollectedConstructorNames =
-                         ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                          _namesIcollectedConstructorNames
-                          {-# LINE 1153 "dist/build/Transform.hs" #-}
-                          )
-                     -- copy rule (down)
-                     _fieldsOallNonterminals =
-                         ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                          _lhsIallNonterminals
-                          {-# LINE 1159 "dist/build/Transform.hs" #-}
-                          )
-                     ( _namesIcollectedConstructorNames,_namesIconstructors,_namesIerrors) =
-                         names_
-                     ( _fieldsIcollectedConstraints,_fieldsIcollectedFields) =
-                         fields_ _fieldsOallNonterminals
-                 in  ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros))))
+newtype T_Alt  = T_Alt {
+                       attach_T_Alt :: Identity (T_Alt_s5 )
+                       }
+newtype T_Alt_s5  = C_Alt_s5 {
+                             inv_Alt_s5 :: (T_Alt_v4 )
+                             }
+data T_Alt_s6  = C_Alt_s6
+type T_Alt_v4  = (T_Alt_vIn4 ) -> (T_Alt_vOut4 )
+data T_Alt_vIn4  = T_Alt_vIn4 (Map NontermIdent (Set ConstructorIdent)) (Set NontermIdent) (Set NontermIdent)
+data T_Alt_vOut4  = T_Alt_vOut4 ([(NontermIdent, ConstructorIdent, Set Identifier)]) ([(NontermIdent, ConstructorIdent, [Type])]) (Set ConstructorIdent) ([(NontermIdent, ConstructorIdent, FieldMap)]) ([(NontermIdent, ConstructorIdent, MaybeMacro)])
+{-# NOINLINE sem_Alt_Alt #-}
+sem_Alt_Alt :: (Pos) -> T_ConstructorSet  -> ([Identifier]) -> T_Fields  -> (MaybeMacro) -> T_Alt 
+sem_Alt_Alt _ arg_names_ arg_tyvars_ arg_fields_ arg_macro_ = T_Alt (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Alt_v4 
+      v4 = \ (T_Alt_vIn4 _lhsIallConstructors _lhsIallNonterminals _lhsInts) -> ( let
+         _namesX14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_names_))
+         _fieldsX26 = Control.Monad.Identity.runIdentity (attach_T_Fields (arg_fields_))
+         (T_ConstructorSet_vOut13 _namesIcollectedConstructorNames _namesIconstructors _namesIerrors) = inv_ConstructorSet_s14 _namesX14 (T_ConstructorSet_vIn13 )
+         (T_Fields_vOut25 _fieldsIcollectedConstraints _fieldsIcollectedFields) = inv_Fields_s26 _fieldsX26 (T_Fields_vIn25 _fieldsOallNonterminals)
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule60 _fieldsIcollectedFields _lhsIallConstructors _lhsInts _namesIconstructors
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule61 _fieldsIcollectedConstraints _lhsIallConstructors _lhsInts _namesIconstructors
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule62 _lhsIallConstructors _lhsInts _namesIconstructors arg_tyvars_
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule63 _lhsIallConstructors _lhsInts _namesIconstructors arg_macro_
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule64 _namesIcollectedConstructorNames
+         _fieldsOallNonterminals = rule65 _lhsIallNonterminals
+         __result_ = T_Alt_vOut4 _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros
+         in __result_ )
+     in C_Alt_s5 v4
+   {-# INLINE rule60 #-}
+   {-# LINE 240 "./src-ag/Transform.ag" #-}
+   rule60 = \ ((_fieldsIcollectedFields) :: [(Identifier, Type)]) ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
+                                        {-# LINE 240 "./src-ag/Transform.ag" #-}
+                                        [ (nt, con, _fieldsIcollectedFields)
+                                        | nt  <- Set.toList _lhsInts
+                                        , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
+                                        ]
+                                        {-# LINE 1073 "dist/build/Transform.hs"#-}
+   {-# INLINE rule61 #-}
+   {-# LINE 244 "./src-ag/Transform.ag" #-}
+   rule61 = \ ((_fieldsIcollectedConstraints) :: [Type]) ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
+                                        {-# LINE 244 "./src-ag/Transform.ag" #-}
+                                        [ (nt, con, _fieldsIcollectedConstraints)
+                                        | nt  <- Set.toList _lhsInts
+                                        , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
+                                        ]
+                                        {-# LINE 1082 "dist/build/Transform.hs"#-}
+   {-# INLINE rule62 #-}
+   {-# LINE 248 "./src-ag/Transform.ag" #-}
+   rule62 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) tyvars_ ->
+                                        {-# LINE 248 "./src-ag/Transform.ag" #-}
+                                        [ (nt, con, Set.fromList tyvars_)
+                                        | nt  <- Set.toList _lhsInts
+                                        , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
+                                        ]
+                                        {-# LINE 1091 "dist/build/Transform.hs"#-}
+   {-# INLINE rule63 #-}
+   {-# LINE 1314 "./src-ag/Transform.ag" #-}
+   rule63 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) macro_ ->
+                                        {-# LINE 1314 "./src-ag/Transform.ag" #-}
+                                        [ (nt, con, macro_)
+                                        | nt  <- Set.toList _lhsInts
+                                        , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
+                                        ]
+                                        {-# LINE 1100 "dist/build/Transform.hs"#-}
+   {-# INLINE rule64 #-}
+   rule64 = \ ((_namesIcollectedConstructorNames) :: Set ConstructorIdent) ->
+     _namesIcollectedConstructorNames
+   {-# INLINE rule65 #-}
+   rule65 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+
 -- Alts --------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allConstructors      : Map NontermIdent (Set ConstructorIdent)
-         allNonterminals      : Set NontermIdent
-         nts                  : Set NontermIdent
-      synthesized attributes:
-         collectedConParams   : [(NontermIdent, ConstructorIdent, Set Identifier)]
-         collectedConstraints : [(NontermIdent, ConstructorIdent, [Type])]
-         collectedConstructorNames : Set ConstructorIdent
-         collectedFields      : [(NontermIdent, ConstructorIdent, FieldMap)]
-         collectedMacros      : [(NontermIdent, ConstructorIdent, MaybeMacro)]
-   alternatives:
-      alternative Cons:
-         child hd             : Alt 
-         child tl             : Alts 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Alts  = Inh_Alts { allConstructors_Inh_Alts :: (Map NontermIdent (Set ConstructorIdent)), allNonterminals_Inh_Alts :: (Set NontermIdent), nts_Inh_Alts :: (Set NontermIdent) }
+data Syn_Alts  = Syn_Alts { collectedConParams_Syn_Alts :: ([(NontermIdent, ConstructorIdent, Set Identifier)]), collectedConstraints_Syn_Alts :: ([(NontermIdent, ConstructorIdent, [Type])]), collectedConstructorNames_Syn_Alts :: (Set ConstructorIdent), collectedFields_Syn_Alts :: ([(NontermIdent, ConstructorIdent, FieldMap)]), collectedMacros_Syn_Alts :: ([(NontermIdent, ConstructorIdent, MaybeMacro)]) }
+{-# INLINABLE wrap_Alts #-}
+wrap_Alts :: T_Alts  -> Inh_Alts  -> (Syn_Alts )
+wrap_Alts (T_Alts act) (Inh_Alts _lhsIallConstructors _lhsIallNonterminals _lhsInts) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Alts_vIn7 _lhsIallConstructors _lhsIallNonterminals _lhsInts
+        (T_Alts_vOut7 _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros) <- return (inv_Alts_s8 sem arg)
+        return (Syn_Alts _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros)
+   )
+
 -- cata
-sem_Alts :: Alts ->
-            T_Alts
-sem_Alts list =
-    (Prelude.foldr sem_Alts_Cons sem_Alts_Nil (Prelude.map sem_Alt list))
+{-# NOINLINE sem_Alts #-}
+sem_Alts :: Alts  -> T_Alts 
+sem_Alts list = Prelude.foldr sem_Alts_Cons sem_Alts_Nil (Prelude.map sem_Alt list)
+
 -- semantic domain
-newtype T_Alts = T_Alts ((Map NontermIdent (Set ConstructorIdent)) ->
-                         (Set NontermIdent) ->
-                         (Set NontermIdent) ->
-                         ( ([(NontermIdent, ConstructorIdent, Set Identifier)]),([(NontermIdent, ConstructorIdent, [Type])]),(Set ConstructorIdent),([(NontermIdent, ConstructorIdent, FieldMap)]),([(NontermIdent, ConstructorIdent, MaybeMacro)])))
-data Inh_Alts = Inh_Alts {allConstructors_Inh_Alts :: !((Map NontermIdent (Set ConstructorIdent))),allNonterminals_Inh_Alts :: !((Set NontermIdent)),nts_Inh_Alts :: !((Set NontermIdent))}
-data Syn_Alts = Syn_Alts {collectedConParams_Syn_Alts :: !(([(NontermIdent, ConstructorIdent, Set Identifier)])),collectedConstraints_Syn_Alts :: !(([(NontermIdent, ConstructorIdent, [Type])])),collectedConstructorNames_Syn_Alts :: !((Set ConstructorIdent)),collectedFields_Syn_Alts :: !(([(NontermIdent, ConstructorIdent, FieldMap)])),collectedMacros_Syn_Alts :: !(([(NontermIdent, ConstructorIdent, MaybeMacro)]))}
-wrap_Alts :: T_Alts ->
-             Inh_Alts ->
-             Syn_Alts
-wrap_Alts (T_Alts sem) (Inh_Alts _lhsIallConstructors _lhsIallNonterminals _lhsInts) =
-    (let ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros) = sem _lhsIallConstructors _lhsIallNonterminals _lhsInts
-     in  (Syn_Alts _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros))
-sem_Alts_Cons :: T_Alt ->
-                 T_Alts ->
-                 T_Alts
-sem_Alts_Cons (T_Alt hd_) (T_Alts tl_) =
-    (T_Alts (\ _lhsIallConstructors
-               _lhsIallNonterminals
-               _lhsInts ->
-                 (let _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _hdOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                      _hdOallNonterminals :: (Set NontermIdent)
-                      _hdOnts :: (Set NontermIdent)
-                      _tlOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                      _tlOallNonterminals :: (Set NontermIdent)
-                      _tlOnts :: (Set NontermIdent)
-                      _hdIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _hdIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _hdIcollectedConstructorNames :: (Set ConstructorIdent)
-                      _hdIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _hdIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _tlIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _tlIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _tlIcollectedConstructorNames :: (Set ConstructorIdent)
-                      _tlIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _tlIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           _hdIcollectedConParams ++ _tlIcollectedConParams
-                           {-# LINE 1235 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                           {-# LINE 1241 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                      _lhsOcollectedConstructorNames =
-                          ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                           _hdIcollectedConstructorNames `Set.union` _tlIcollectedConstructorNames
-                           {-# LINE 1247 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           _hdIcollectedFields ++ _tlIcollectedFields
-                           {-# LINE 1253 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           _hdIcollectedMacros ++ _tlIcollectedMacros
-                           {-# LINE 1259 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _hdOallConstructors =
-                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
-                           _lhsIallConstructors
-                           {-# LINE 1265 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _hdOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 1271 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _hdOnts =
-                          ({-# LINE 173 "./src-ag/Transform.ag" #-}
-                           _lhsInts
-                           {-# LINE 1277 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _tlOallConstructors =
-                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
-                           _lhsIallConstructors
-                           {-# LINE 1283 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _tlOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 1289 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _tlOnts =
-                          ({-# LINE 173 "./src-ag/Transform.ag" #-}
-                           _lhsInts
-                           {-# LINE 1295 "dist/build/Transform.hs" #-}
-                           )
-                      ( _hdIcollectedConParams,_hdIcollectedConstraints,_hdIcollectedConstructorNames,_hdIcollectedFields,_hdIcollectedMacros) =
-                          hd_ _hdOallConstructors _hdOallNonterminals _hdOnts
-                      ( _tlIcollectedConParams,_tlIcollectedConstraints,_tlIcollectedConstructorNames,_tlIcollectedFields,_tlIcollectedMacros) =
-                          tl_ _tlOallConstructors _tlOallNonterminals _tlOnts
-                  in  ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros))))
-sem_Alts_Nil :: T_Alts
-sem_Alts_Nil =
-    (T_Alts (\ _lhsIallConstructors
-               _lhsIallNonterminals
-               _lhsInts ->
-                 (let _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1316 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1322 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                      _lhsOcollectedConstructorNames =
-                          ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 1328 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1334 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1340 "dist/build/Transform.hs" #-}
-                           )
-                  in  ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros))))
+newtype T_Alts  = T_Alts {
+                         attach_T_Alts :: Identity (T_Alts_s8 )
+                         }
+newtype T_Alts_s8  = C_Alts_s8 {
+                               inv_Alts_s8 :: (T_Alts_v7 )
+                               }
+data T_Alts_s9  = C_Alts_s9
+type T_Alts_v7  = (T_Alts_vIn7 ) -> (T_Alts_vOut7 )
+data T_Alts_vIn7  = T_Alts_vIn7 (Map NontermIdent (Set ConstructorIdent)) (Set NontermIdent) (Set NontermIdent)
+data T_Alts_vOut7  = T_Alts_vOut7 ([(NontermIdent, ConstructorIdent, Set Identifier)]) ([(NontermIdent, ConstructorIdent, [Type])]) (Set ConstructorIdent) ([(NontermIdent, ConstructorIdent, FieldMap)]) ([(NontermIdent, ConstructorIdent, MaybeMacro)])
+{-# NOINLINE sem_Alts_Cons #-}
+sem_Alts_Cons :: T_Alt  -> T_Alts  -> T_Alts 
+sem_Alts_Cons arg_hd_ arg_tl_ = T_Alts (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_Alts_v7 
+      v7 = \ (T_Alts_vIn7 _lhsIallConstructors _lhsIallNonterminals _lhsInts) -> ( let
+         _hdX5 = Control.Monad.Identity.runIdentity (attach_T_Alt (arg_hd_))
+         _tlX8 = Control.Monad.Identity.runIdentity (attach_T_Alts (arg_tl_))
+         (T_Alt_vOut4 _hdIcollectedConParams _hdIcollectedConstraints _hdIcollectedConstructorNames _hdIcollectedFields _hdIcollectedMacros) = inv_Alt_s5 _hdX5 (T_Alt_vIn4 _hdOallConstructors _hdOallNonterminals _hdOnts)
+         (T_Alts_vOut7 _tlIcollectedConParams _tlIcollectedConstraints _tlIcollectedConstructorNames _tlIcollectedFields _tlIcollectedMacros) = inv_Alts_s8 _tlX8 (T_Alts_vIn7 _tlOallConstructors _tlOallNonterminals _tlOnts)
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule66 _hdIcollectedConParams _tlIcollectedConParams
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule67 _hdIcollectedConstraints _tlIcollectedConstraints
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule68 _hdIcollectedConstructorNames _tlIcollectedConstructorNames
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule69 _hdIcollectedFields _tlIcollectedFields
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule70 _hdIcollectedMacros _tlIcollectedMacros
+         _hdOallConstructors = rule71 _lhsIallConstructors
+         _hdOallNonterminals = rule72 _lhsIallNonterminals
+         _hdOnts = rule73 _lhsInts
+         _tlOallConstructors = rule74 _lhsIallConstructors
+         _tlOallNonterminals = rule75 _lhsIallNonterminals
+         _tlOnts = rule76 _lhsInts
+         __result_ = T_Alts_vOut7 _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros
+         in __result_ )
+     in C_Alts_s8 v7
+   {-# INLINE rule66 #-}
+   rule66 = \ ((_hdIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ((_tlIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ->
+     _hdIcollectedConParams ++ _tlIcollectedConParams
+   {-# INLINE rule67 #-}
+   rule67 = \ ((_hdIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ((_tlIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ->
+     _hdIcollectedConstraints ++ _tlIcollectedConstraints
+   {-# INLINE rule68 #-}
+   rule68 = \ ((_hdIcollectedConstructorNames) :: Set ConstructorIdent) ((_tlIcollectedConstructorNames) :: Set ConstructorIdent) ->
+     _hdIcollectedConstructorNames `Set.union` _tlIcollectedConstructorNames
+   {-# INLINE rule69 #-}
+   rule69 = \ ((_hdIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ((_tlIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+     _hdIcollectedFields ++ _tlIcollectedFields
+   {-# INLINE rule70 #-}
+   rule70 = \ ((_hdIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ((_tlIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ->
+     _hdIcollectedMacros ++ _tlIcollectedMacros
+   {-# INLINE rule71 #-}
+   rule71 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _lhsIallConstructors
+   {-# INLINE rule72 #-}
+   rule72 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule73 #-}
+   rule73 = \ ((_lhsInts) :: Set NontermIdent) ->
+     _lhsInts
+   {-# INLINE rule74 #-}
+   rule74 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _lhsIallConstructors
+   {-# INLINE rule75 #-}
+   rule75 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule76 #-}
+   rule76 = \ ((_lhsInts) :: Set NontermIdent) ->
+     _lhsInts
+{-# NOINLINE sem_Alts_Nil #-}
+sem_Alts_Nil ::  T_Alts 
+sem_Alts_Nil  = T_Alts (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_Alts_v7 
+      v7 = \ (T_Alts_vIn7 _lhsIallConstructors _lhsIallNonterminals _lhsInts) -> ( let
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule77  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule78  ()
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule79  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule80  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule81  ()
+         __result_ = T_Alts_vOut7 _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorNames _lhsOcollectedFields _lhsOcollectedMacros
+         in __result_ )
+     in C_Alts_s8 v7
+   {-# INLINE rule77 #-}
+   rule77 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule78 #-}
+   rule78 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule79 #-}
+   rule79 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule80 #-}
+   rule80 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule81 #-}
+   rule81 = \  (_ :: ()) ->
+     []
+
 -- Attrs -------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allFields            : DataTypes
-         allNonterminals      : Set NontermIdent
-         nts                  : Set NontermIdent
-         options              : Options
-      chained attributes:
-         attrDecls            : Map NontermIdent (Attributes, Attributes)
-         attrs                : Map NontermIdent (Attributes, Attributes)
-      synthesized attributes:
-         errors               : Seq Error
-         useMap               : Map NontermIdent (Map Identifier (String,String,String))
-   alternatives:
-      alternative Attrs:
-         child pos            : {Pos}
-         child inh            : {AttrNames}
-         child chn            : {AttrNames}
-         child syn            : {AttrNames}
-         visit 0:
-            local attrDecls   : _
-            local errors      : _
-            local inherited   : _
-            local synthesized : _
-            local useMap      : _
-            local errors1     : _
--}
+-- wrapper
+data Inh_Attrs  = Inh_Attrs { allFields_Inh_Attrs :: (DataTypes), allNonterminals_Inh_Attrs :: (Set NontermIdent), attrDecls_Inh_Attrs :: (Map NontermIdent (Attributes, Attributes)), attrs_Inh_Attrs :: (Map NontermIdent (Attributes, Attributes)), nts_Inh_Attrs :: (Set NontermIdent), options_Inh_Attrs :: (Options) }
+data Syn_Attrs  = Syn_Attrs { attrDecls_Syn_Attrs :: (Map NontermIdent (Attributes, Attributes)), attrs_Syn_Attrs :: (Map NontermIdent (Attributes, Attributes)), errors_Syn_Attrs :: (Seq Error), useMap_Syn_Attrs :: (Map NontermIdent (Map Identifier (String,String,String))) }
+{-# INLINABLE wrap_Attrs #-}
+wrap_Attrs :: T_Attrs  -> Inh_Attrs  -> (Syn_Attrs )
+wrap_Attrs (T_Attrs act) (Inh_Attrs _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsInts _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Attrs_vIn10 _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsInts _lhsIoptions
+        (T_Attrs_vOut10 _lhsOattrDecls _lhsOattrs _lhsOerrors _lhsOuseMap) <- return (inv_Attrs_s11 sem arg)
+        return (Syn_Attrs _lhsOattrDecls _lhsOattrs _lhsOerrors _lhsOuseMap)
+   )
+
 -- cata
-sem_Attrs :: Attrs ->
-             T_Attrs
-sem_Attrs (Attrs _pos _inh _chn _syn) =
-    (sem_Attrs_Attrs _pos _inh _chn _syn)
+{-# INLINE sem_Attrs #-}
+sem_Attrs :: Attrs  -> T_Attrs 
+sem_Attrs ( Attrs pos_ inh_ chn_ syn_ ) = sem_Attrs_Attrs pos_ inh_ chn_ syn_
+
 -- semantic domain
-newtype T_Attrs = T_Attrs (DataTypes ->
-                           (Set NontermIdent) ->
-                           (Map NontermIdent (Attributes, Attributes)) ->
-                           (Map NontermIdent (Attributes, Attributes)) ->
-                           (Set NontermIdent) ->
-                           Options ->
-                           ( (Map NontermIdent (Attributes, Attributes)),(Map NontermIdent (Attributes, Attributes)),(Seq Error),(Map NontermIdent (Map Identifier (String,String,String)))))
-data Inh_Attrs = Inh_Attrs {allFields_Inh_Attrs :: !(DataTypes),allNonterminals_Inh_Attrs :: !((Set NontermIdent)),attrDecls_Inh_Attrs :: !((Map NontermIdent (Attributes, Attributes))),attrs_Inh_Attrs :: !((Map NontermIdent (Attributes, Attributes))),nts_Inh_Attrs :: !((Set NontermIdent)),options_Inh_Attrs :: !(Options)}
-data Syn_Attrs = Syn_Attrs {attrDecls_Syn_Attrs :: !((Map NontermIdent (Attributes, Attributes))),attrs_Syn_Attrs :: !((Map NontermIdent (Attributes, Attributes))),errors_Syn_Attrs :: !((Seq Error)),useMap_Syn_Attrs :: !((Map NontermIdent (Map Identifier (String,String,String))))}
-wrap_Attrs :: T_Attrs ->
-              Inh_Attrs ->
-              Syn_Attrs
-wrap_Attrs (T_Attrs sem) (Inh_Attrs _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsInts _lhsIoptions) =
-    (let ( _lhsOattrDecls,_lhsOattrs,_lhsOerrors,_lhsOuseMap) = sem _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsInts _lhsIoptions
-     in  (Syn_Attrs _lhsOattrDecls _lhsOattrs _lhsOerrors _lhsOuseMap))
-sem_Attrs_Attrs :: Pos ->
-                   AttrNames ->
-                   AttrNames ->
-                   AttrNames ->
-                   T_Attrs
-sem_Attrs_Attrs pos_ inh_ chn_ syn_ =
-    (T_Attrs (\ _lhsIallFields
-                _lhsIallNonterminals
-                _lhsIattrDecls
-                _lhsIattrs
-                _lhsInts
-                _lhsIoptions ->
-                  (let _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                       _lhsOerrors :: (Seq Error)
-                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       -- "./src-ag/Transform.ag"(line 1038, column 15)
-                       (_attrDecls,_errors) =
-                           ({-# LINE 1038 "./src-ag/Transform.ag" #-}
-                            checkAttrs _lhsIallFields (Set.toList _lhsInts) _inherited _synthesized _lhsIattrDecls
-                            {-# LINE 1412 "dist/build/Transform.hs" #-}
-                            )
-                       -- "./src-ag/Transform.ag"(line 1040, column 15)
-                       (_inherited,_synthesized,_useMap) =
-                           ({-# LINE 1040 "./src-ag/Transform.ag" #-}
-                            let splitAttrs xs = unzip [ ((n,makeType _lhsIallNonterminals t),(n,ud))
-                                                      | (n,t,ud) <- xs
-                                                      ]
-                                (inh,_)     = splitAttrs inh_
-                                (chn,uses1) = splitAttrs chn_
-                                (syn,uses2) = splitAttrs syn_
-                                isUse (_,(e1,e2,_)) = not (null e1 || null e2)
-                            in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
-                            {-# LINE 1425 "dist/build/Transform.hs" #-}
-                            )
-                       -- "./src-ag/Transform.ag"(line 1048, column 11)
-                       _lhsOuseMap =
-                           ({-# LINE 1048 "./src-ag/Transform.ag" #-}
-                            Map.fromList (zip (Set.toList _lhsInts) (repeat _useMap))
-                            {-# LINE 1431 "dist/build/Transform.hs" #-}
-                            )
-                       -- "./src-ag/Transform.ag"(line 1050, column 11)
-                       _errors1 =
-                           ({-# LINE 1050 "./src-ag/Transform.ag" #-}
-                            if checkParseTy _lhsIoptions
-                            then let attrs  = inh_ ++ syn_ ++ chn_
-                                     items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
-                                     errs  = map check items
-                                     check (pos,Haskell s) =
-                                       let ex  = Expression pos tks
-                                           tks = [tk]
-                                           tk  = HsToken s pos
-                                       in Seq.fromList $ checkTy ex
-                                     check _ = Seq.empty
-                                 in foldr (Seq.><) Seq.empty errs
-                            else Seq.empty
-                            {-# LINE 1448 "dist/build/Transform.hs" #-}
-                            )
-                       -- "./src-ag/Transform.ag"(line 1062, column 11)
-                       _lhsOerrors =
-                           ({-# LINE 1062 "./src-ag/Transform.ag" #-}
-                            _errors     Seq.>< _errors1
-                            {-# LINE 1454 "dist/build/Transform.hs" #-}
-                            )
-                       -- "./src-ag/Transform.ag"(line 1350, column 11)
-                       _lhsOattrs =
-                           ({-# LINE 1350 "./src-ag/Transform.ag" #-}
-                            let ins decls nt = if Map.member nt decls
-                                               then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList _inherited
-                                                                                         , Map.union syn $ Map.fromList _synthesized)) nt decls
-                                               else  Map.insert nt (Map.fromList _inherited, Map.fromList _synthesized) decls
-                            in  foldl ins _lhsIattrs (Set.toList _lhsInts)
-                            {-# LINE 1464 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (from local)
-                       _lhsOattrDecls =
-                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                            _attrDecls
-                            {-# LINE 1470 "dist/build/Transform.hs" #-}
-                            )
-                   in  ( _lhsOattrDecls,_lhsOattrs,_lhsOerrors,_lhsOuseMap))))
+newtype T_Attrs  = T_Attrs {
+                           attach_T_Attrs :: Identity (T_Attrs_s11 )
+                           }
+newtype T_Attrs_s11  = C_Attrs_s11 {
+                                   inv_Attrs_s11 :: (T_Attrs_v10 )
+                                   }
+data T_Attrs_s12  = C_Attrs_s12
+type T_Attrs_v10  = (T_Attrs_vIn10 ) -> (T_Attrs_vOut10 )
+data T_Attrs_vIn10  = T_Attrs_vIn10 (DataTypes) (Set NontermIdent) (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Set NontermIdent) (Options)
+data T_Attrs_vOut10  = T_Attrs_vOut10 (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Seq Error) (Map NontermIdent (Map Identifier (String,String,String)))
+{-# NOINLINE sem_Attrs_Attrs #-}
+sem_Attrs_Attrs :: (Pos) -> (AttrNames) -> (AttrNames) -> (AttrNames) -> T_Attrs 
+sem_Attrs_Attrs _ arg_inh_ arg_chn_ arg_syn_ = T_Attrs (return st11) where
+   {-# NOINLINE st11 #-}
+   st11 = let
+      v10 :: T_Attrs_v10 
+      v10 = \ (T_Attrs_vIn10 _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsInts _lhsIoptions) -> ( let
+         (_attrDecls,_errors) = rule82 _inherited _lhsIallFields _lhsIattrDecls _lhsInts _synthesized
+         (_inherited,_synthesized,_useMap) = rule83 _lhsIallNonterminals arg_chn_ arg_inh_ arg_syn_
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule84 _lhsInts _useMap
+         _errors1 = rule85 _lhsIoptions arg_chn_ arg_inh_ arg_syn_
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule86 _errors _errors1
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule87 _inherited _lhsIattrs _lhsInts _synthesized
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule88 _attrDecls
+         __result_ = T_Attrs_vOut10 _lhsOattrDecls _lhsOattrs _lhsOerrors _lhsOuseMap
+         in __result_ )
+     in C_Attrs_s11 v10
+   {-# INLINE rule82 #-}
+   {-# LINE 1038 "./src-ag/Transform.ag" #-}
+   rule82 = \ _inherited ((_lhsIallFields) :: DataTypes) ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ((_lhsInts) :: Set NontermIdent) _synthesized ->
+                                     {-# LINE 1038 "./src-ag/Transform.ag" #-}
+                                     checkAttrs _lhsIallFields (Set.toList _lhsInts) _inherited _synthesized _lhsIattrDecls
+                                     {-# LINE 1293 "dist/build/Transform.hs"#-}
+   {-# INLINE rule83 #-}
+   {-# LINE 1040 "./src-ag/Transform.ag" #-}
+   rule83 = \ ((_lhsIallNonterminals) :: Set NontermIdent) chn_ inh_ syn_ ->
+                                                 {-# LINE 1040 "./src-ag/Transform.ag" #-}
+                                                 let splitAttrs xs = unzip [ ((n,makeType _lhsIallNonterminals t),(n,ud))
+                                                                           | (n,t,ud) <- xs
+                                                                           ]
+                                                     (inh,_)     = splitAttrs inh_
+                                                     (chn,uses1) = splitAttrs chn_
+                                                     (syn,uses2) = splitAttrs syn_
+                                                     isUse (_,(e1,e2,_)) = not (null e1 || null e2)
+                                                 in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
+                                                 {-# LINE 1306 "dist/build/Transform.hs"#-}
+   {-# INLINE rule84 #-}
+   {-# LINE 1048 "./src-ag/Transform.ag" #-}
+   rule84 = \ ((_lhsInts) :: Set NontermIdent) _useMap ->
+                         {-# LINE 1048 "./src-ag/Transform.ag" #-}
+                         Map.fromList (zip (Set.toList _lhsInts) (repeat _useMap))
+                         {-# LINE 1312 "dist/build/Transform.hs"#-}
+   {-# INLINE rule85 #-}
+   {-# LINE 1050 "./src-ag/Transform.ag" #-}
+   rule85 = \ ((_lhsIoptions) :: Options) chn_ inh_ syn_ ->
+                          {-# LINE 1050 "./src-ag/Transform.ag" #-}
+                          if checkParseTy _lhsIoptions
+                          then let attrs  = inh_ ++ syn_ ++ chn_
+                                   items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
+                                   errs  = map check items
+                                   check (pos,Haskell s) =
+                                     let ex  = Expression pos tks
+                                         tks = [tk]
+                                         tk  = HsToken s pos
+                                     in Seq.fromList $ checkTy ex
+                                   check _ = Seq.empty
+                               in foldr (Seq.><) Seq.empty errs
+                          else Seq.empty
+                          {-# LINE 1329 "dist/build/Transform.hs"#-}
+   {-# INLINE rule86 #-}
+   {-# LINE 1062 "./src-ag/Transform.ag" #-}
+   rule86 = \ _errors _errors1 ->
+                         {-# LINE 1062 "./src-ag/Transform.ag" #-}
+                         _errors     Seq.>< _errors1
+                         {-# LINE 1335 "dist/build/Transform.hs"#-}
+   {-# INLINE rule87 #-}
+   {-# LINE 1350 "./src-ag/Transform.ag" #-}
+   rule87 = \ _inherited ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ((_lhsInts) :: Set NontermIdent) _synthesized ->
+                          {-# LINE 1350 "./src-ag/Transform.ag" #-}
+                          let ins decls nt = if Map.member nt decls
+                                             then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList _inherited
+                                                                                       , Map.union syn $ Map.fromList _synthesized)) nt decls
+                                             else  Map.insert nt (Map.fromList _inherited, Map.fromList _synthesized) decls
+                          in  foldl ins _lhsIattrs (Set.toList _lhsInts)
+                          {-# LINE 1345 "dist/build/Transform.hs"#-}
+   {-# INLINE rule88 #-}
+   rule88 = \ _attrDecls ->
+     _attrDecls
+
 -- ConstructorSet ----------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         collectedConstructorNames : Set ConstructorIdent
-         constructors         : (Set ConstructorIdent->Set ConstructorIdent)
-         errors               : Seq Error
-   alternatives:
-      alternative CName:
-         child name           : {ConstructorIdent}
-      alternative CUnion:
-         child set1           : ConstructorSet 
-         child set2           : ConstructorSet 
-      alternative CDifference:
-         child set1           : ConstructorSet 
-         child set2           : ConstructorSet 
-      alternative CAll:
--}
+-- wrapper
+data Inh_ConstructorSet  = Inh_ConstructorSet {  }
+data Syn_ConstructorSet  = Syn_ConstructorSet { collectedConstructorNames_Syn_ConstructorSet :: (Set ConstructorIdent), constructors_Syn_ConstructorSet :: ((Set ConstructorIdent->Set ConstructorIdent)), errors_Syn_ConstructorSet :: (Seq Error) }
+{-# INLINABLE wrap_ConstructorSet #-}
+wrap_ConstructorSet :: T_ConstructorSet  -> Inh_ConstructorSet  -> (Syn_ConstructorSet )
+wrap_ConstructorSet (T_ConstructorSet act) (Inh_ConstructorSet ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_ConstructorSet_vIn13 
+        (T_ConstructorSet_vOut13 _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors) <- return (inv_ConstructorSet_s14 sem arg)
+        return (Syn_ConstructorSet _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors)
+   )
+
 -- cata
-sem_ConstructorSet :: ConstructorSet ->
-                      T_ConstructorSet
-sem_ConstructorSet (CName _name) =
-    (sem_ConstructorSet_CName _name)
-sem_ConstructorSet (CUnion _set1 _set2) =
-    (sem_ConstructorSet_CUnion (sem_ConstructorSet _set1) (sem_ConstructorSet _set2))
-sem_ConstructorSet (CDifference _set1 _set2) =
-    (sem_ConstructorSet_CDifference (sem_ConstructorSet _set1) (sem_ConstructorSet _set2))
-sem_ConstructorSet (CAll) =
-    (sem_ConstructorSet_CAll)
+{-# NOINLINE sem_ConstructorSet #-}
+sem_ConstructorSet :: ConstructorSet  -> T_ConstructorSet 
+sem_ConstructorSet ( CName name_ ) = sem_ConstructorSet_CName name_
+sem_ConstructorSet ( CUnion set1_ set2_ ) = sem_ConstructorSet_CUnion ( sem_ConstructorSet set1_ ) ( sem_ConstructorSet set2_ )
+sem_ConstructorSet ( CDifference set1_ set2_ ) = sem_ConstructorSet_CDifference ( sem_ConstructorSet set1_ ) ( sem_ConstructorSet set2_ )
+sem_ConstructorSet ( CAll  ) = sem_ConstructorSet_CAll 
+
 -- semantic domain
-newtype T_ConstructorSet = T_ConstructorSet (( (Set ConstructorIdent),((Set ConstructorIdent->Set ConstructorIdent)),(Seq Error)))
-data Inh_ConstructorSet = Inh_ConstructorSet {}
-data Syn_ConstructorSet = Syn_ConstructorSet {collectedConstructorNames_Syn_ConstructorSet :: !((Set ConstructorIdent)),constructors_Syn_ConstructorSet :: !(((Set ConstructorIdent->Set ConstructorIdent))),errors_Syn_ConstructorSet :: !((Seq Error))}
-wrap_ConstructorSet :: T_ConstructorSet ->
-                       Inh_ConstructorSet ->
-                       Syn_ConstructorSet
-wrap_ConstructorSet (T_ConstructorSet sem) (Inh_ConstructorSet) =
-    (let ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors) = sem
-     in  (Syn_ConstructorSet _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors))
-sem_ConstructorSet_CName :: ConstructorIdent ->
-                            T_ConstructorSet
-sem_ConstructorSet_CName name_ =
-    (T_ConstructorSet (let _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                           _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _lhsOerrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 614, column 11)
-                           _lhsOcollectedConstructorNames =
-                               ({-# LINE 614 "./src-ag/Transform.ag" #-}
-                                Set.singleton name_
-                                {-# LINE 1522 "dist/build/Transform.hs" #-}
-                                )
-                           -- "./src-ag/Transform.ag"(line 777, column 17)
-                           _lhsOconstructors =
-                               ({-# LINE 777 "./src-ag/Transform.ag" #-}
-                                \_  -> Set.singleton name_
-                                {-# LINE 1528 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                           _lhsOerrors =
-                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                                Seq.empty
-                                {-# LINE 1534 "dist/build/Transform.hs" #-}
-                                )
-                       in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
-sem_ConstructorSet_CUnion :: T_ConstructorSet ->
-                             T_ConstructorSet ->
-                             T_ConstructorSet
-sem_ConstructorSet_CUnion (T_ConstructorSet set1_) (T_ConstructorSet set2_) =
-    (T_ConstructorSet (let _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                           _lhsOerrors :: (Seq Error)
-                           _set1IcollectedConstructorNames :: (Set ConstructorIdent)
-                           _set1Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _set1Ierrors :: (Seq Error)
-                           _set2IcollectedConstructorNames :: (Set ConstructorIdent)
-                           _set2Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _set2Ierrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 778, column 17)
-                           _lhsOconstructors =
-                               ({-# LINE 778 "./src-ag/Transform.ag" #-}
-                                \ds -> _set1Iconstructors ds `Set.union`      _set2Iconstructors ds
-                                {-# LINE 1554 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                           _lhsOcollectedConstructorNames =
-                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                                _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
-                                {-# LINE 1560 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                           _lhsOerrors =
-                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                                _set1Ierrors Seq.>< _set2Ierrors
-                                {-# LINE 1566 "dist/build/Transform.hs" #-}
-                                )
-                           ( _set1IcollectedConstructorNames,_set1Iconstructors,_set1Ierrors) =
-                               set1_
-                           ( _set2IcollectedConstructorNames,_set2Iconstructors,_set2Ierrors) =
-                               set2_
-                       in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
-sem_ConstructorSet_CDifference :: T_ConstructorSet ->
-                                  T_ConstructorSet ->
-                                  T_ConstructorSet
-sem_ConstructorSet_CDifference (T_ConstructorSet set1_) (T_ConstructorSet set2_) =
-    (T_ConstructorSet (let _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                           _lhsOerrors :: (Seq Error)
-                           _set1IcollectedConstructorNames :: (Set ConstructorIdent)
-                           _set1Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _set1Ierrors :: (Seq Error)
-                           _set2IcollectedConstructorNames :: (Set ConstructorIdent)
-                           _set2Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _set2Ierrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 779, column 17)
-                           _lhsOconstructors =
-                               ({-# LINE 779 "./src-ag/Transform.ag" #-}
-                                \ds -> _set1Iconstructors ds `Set.difference` _set2Iconstructors ds
-                                {-# LINE 1590 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                           _lhsOcollectedConstructorNames =
-                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                                _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
-                                {-# LINE 1596 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                           _lhsOerrors =
-                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                                _set1Ierrors Seq.>< _set2Ierrors
-                                {-# LINE 1602 "dist/build/Transform.hs" #-}
-                                )
-                           ( _set1IcollectedConstructorNames,_set1Iconstructors,_set1Ierrors) =
-                               set1_
-                           ( _set2IcollectedConstructorNames,_set2Iconstructors,_set2Ierrors) =
-                               set2_
-                       in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
-sem_ConstructorSet_CAll :: T_ConstructorSet
-sem_ConstructorSet_CAll =
-    (T_ConstructorSet (let _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                           _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
-                           _lhsOerrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 780, column 17)
-                           _lhsOconstructors =
-                               ({-# LINE 780 "./src-ag/Transform.ag" #-}
-                                \ds -> ds
-                                {-# LINE 1618 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
-                           _lhsOcollectedConstructorNames =
-                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
-                                Set.empty
-                                {-# LINE 1624 "dist/build/Transform.hs" #-}
-                                )
-                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                           _lhsOerrors =
-                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                                Seq.empty
-                                {-# LINE 1630 "dist/build/Transform.hs" #-}
-                                )
-                       in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
+newtype T_ConstructorSet  = T_ConstructorSet {
+                                             attach_T_ConstructorSet :: Identity (T_ConstructorSet_s14 )
+                                             }
+newtype T_ConstructorSet_s14  = C_ConstructorSet_s14 {
+                                                     inv_ConstructorSet_s14 :: (T_ConstructorSet_v13 )
+                                                     }
+data T_ConstructorSet_s15  = C_ConstructorSet_s15
+type T_ConstructorSet_v13  = (T_ConstructorSet_vIn13 ) -> (T_ConstructorSet_vOut13 )
+data T_ConstructorSet_vIn13  = T_ConstructorSet_vIn13 
+data T_ConstructorSet_vOut13  = T_ConstructorSet_vOut13 (Set ConstructorIdent) ((Set ConstructorIdent->Set ConstructorIdent)) (Seq Error)
+{-# NOINLINE sem_ConstructorSet_CName #-}
+sem_ConstructorSet_CName :: (ConstructorIdent) -> T_ConstructorSet 
+sem_ConstructorSet_CName arg_name_ = T_ConstructorSet (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_ConstructorSet_v13 
+      v13 = \ (T_ConstructorSet_vIn13 ) -> ( let
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule89 arg_name_
+         _lhsOconstructors :: (Set ConstructorIdent->Set ConstructorIdent)
+         _lhsOconstructors = rule90 arg_name_
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule91  ()
+         __result_ = T_ConstructorSet_vOut13 _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors
+         in __result_ )
+     in C_ConstructorSet_s14 v13
+   {-# INLINE rule89 #-}
+   {-# LINE 614 "./src-ag/Transform.ag" #-}
+   rule89 = \ name_ ->
+                                            {-# LINE 614 "./src-ag/Transform.ag" #-}
+                                            Set.singleton name_
+                                            {-# LINE 1404 "dist/build/Transform.hs"#-}
+   {-# INLINE rule90 #-}
+   {-# LINE 777 "./src-ag/Transform.ag" #-}
+   rule90 = \ name_ ->
+                                     {-# LINE 777 "./src-ag/Transform.ag" #-}
+                                     \_  -> Set.singleton name_
+                                     {-# LINE 1410 "dist/build/Transform.hs"#-}
+   {-# INLINE rule91 #-}
+   rule91 = \  (_ :: ()) ->
+     Seq.empty
+{-# NOINLINE sem_ConstructorSet_CUnion #-}
+sem_ConstructorSet_CUnion :: T_ConstructorSet  -> T_ConstructorSet  -> T_ConstructorSet 
+sem_ConstructorSet_CUnion arg_set1_ arg_set2_ = T_ConstructorSet (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_ConstructorSet_v13 
+      v13 = \ (T_ConstructorSet_vIn13 ) -> ( let
+         _set1X14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_set1_))
+         _set2X14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_set2_))
+         (T_ConstructorSet_vOut13 _set1IcollectedConstructorNames _set1Iconstructors _set1Ierrors) = inv_ConstructorSet_s14 _set1X14 (T_ConstructorSet_vIn13 )
+         (T_ConstructorSet_vOut13 _set2IcollectedConstructorNames _set2Iconstructors _set2Ierrors) = inv_ConstructorSet_s14 _set2X14 (T_ConstructorSet_vIn13 )
+         _lhsOconstructors :: (Set ConstructorIdent->Set ConstructorIdent)
+         _lhsOconstructors = rule92 _set1Iconstructors _set2Iconstructors
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule93 _set1IcollectedConstructorNames _set2IcollectedConstructorNames
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule94 _set1Ierrors _set2Ierrors
+         __result_ = T_ConstructorSet_vOut13 _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors
+         in __result_ )
+     in C_ConstructorSet_s14 v13
+   {-# INLINE rule92 #-}
+   {-# LINE 778 "./src-ag/Transform.ag" #-}
+   rule92 = \ ((_set1Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_set2Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
+                                     {-# LINE 778 "./src-ag/Transform.ag" #-}
+                                     \ds -> _set1Iconstructors ds `Set.union`      _set2Iconstructors ds
+                                     {-# LINE 1439 "dist/build/Transform.hs"#-}
+   {-# INLINE rule93 #-}
+   rule93 = \ ((_set1IcollectedConstructorNames) :: Set ConstructorIdent) ((_set2IcollectedConstructorNames) :: Set ConstructorIdent) ->
+     _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
+   {-# INLINE rule94 #-}
+   rule94 = \ ((_set1Ierrors) :: Seq Error) ((_set2Ierrors) :: Seq Error) ->
+     _set1Ierrors Seq.>< _set2Ierrors
+{-# NOINLINE sem_ConstructorSet_CDifference #-}
+sem_ConstructorSet_CDifference :: T_ConstructorSet  -> T_ConstructorSet  -> T_ConstructorSet 
+sem_ConstructorSet_CDifference arg_set1_ arg_set2_ = T_ConstructorSet (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_ConstructorSet_v13 
+      v13 = \ (T_ConstructorSet_vIn13 ) -> ( let
+         _set1X14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_set1_))
+         _set2X14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_set2_))
+         (T_ConstructorSet_vOut13 _set1IcollectedConstructorNames _set1Iconstructors _set1Ierrors) = inv_ConstructorSet_s14 _set1X14 (T_ConstructorSet_vIn13 )
+         (T_ConstructorSet_vOut13 _set2IcollectedConstructorNames _set2Iconstructors _set2Ierrors) = inv_ConstructorSet_s14 _set2X14 (T_ConstructorSet_vIn13 )
+         _lhsOconstructors :: (Set ConstructorIdent->Set ConstructorIdent)
+         _lhsOconstructors = rule95 _set1Iconstructors _set2Iconstructors
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule96 _set1IcollectedConstructorNames _set2IcollectedConstructorNames
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule97 _set1Ierrors _set2Ierrors
+         __result_ = T_ConstructorSet_vOut13 _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors
+         in __result_ )
+     in C_ConstructorSet_s14 v13
+   {-# INLINE rule95 #-}
+   {-# LINE 779 "./src-ag/Transform.ag" #-}
+   rule95 = \ ((_set1Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_set2Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
+                                     {-# LINE 779 "./src-ag/Transform.ag" #-}
+                                     \ds -> _set1Iconstructors ds `Set.difference` _set2Iconstructors ds
+                                     {-# LINE 1471 "dist/build/Transform.hs"#-}
+   {-# INLINE rule96 #-}
+   rule96 = \ ((_set1IcollectedConstructorNames) :: Set ConstructorIdent) ((_set2IcollectedConstructorNames) :: Set ConstructorIdent) ->
+     _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
+   {-# INLINE rule97 #-}
+   rule97 = \ ((_set1Ierrors) :: Seq Error) ((_set2Ierrors) :: Seq Error) ->
+     _set1Ierrors Seq.>< _set2Ierrors
+{-# NOINLINE sem_ConstructorSet_CAll #-}
+sem_ConstructorSet_CAll ::  T_ConstructorSet 
+sem_ConstructorSet_CAll  = T_ConstructorSet (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_ConstructorSet_v13 
+      v13 = \ (T_ConstructorSet_vIn13 ) -> ( let
+         _lhsOconstructors :: (Set ConstructorIdent->Set ConstructorIdent)
+         _lhsOconstructors = rule98  ()
+         _lhsOcollectedConstructorNames :: Set ConstructorIdent
+         _lhsOcollectedConstructorNames = rule99  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule100  ()
+         __result_ = T_ConstructorSet_vOut13 _lhsOcollectedConstructorNames _lhsOconstructors _lhsOerrors
+         in __result_ )
+     in C_ConstructorSet_s14 v13
+   {-# INLINE rule98 #-}
+   {-# LINE 780 "./src-ag/Transform.ag" #-}
+   rule98 = \  (_ :: ()) ->
+                                     {-# LINE 780 "./src-ag/Transform.ag" #-}
+                                     \ds -> ds
+                                     {-# LINE 1499 "dist/build/Transform.hs"#-}
+   {-# INLINE rule99 #-}
+   rule99 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule100 #-}
+   rule100 = \  (_ :: ()) ->
+     Seq.empty
+
 -- Elem --------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allAttrDecls         : Map NontermIdent (Attributes, Attributes)
-         allAttrs             : Map NontermIdent (Attributes, Attributes)
-         allConstructors      : Map NontermIdent (Set ConstructorIdent)
-         allFields            : DataTypes
-         allNonterminals      : Set NontermIdent
-         definedSets          : DefinedSets
-         options              : Options
-      chained attributes:
-         attrDecls            : Map NontermIdent (Attributes, Attributes)
-         attrs                : Map NontermIdent (Attributes, Attributes)
-         defSets              : Map Identifier (Set NontermIdent,Set Identifier)
-      synthesized attributes:
-         attrOrderCollect     : AttrOrderMap
-         blocks               : Blocks
-         collectedArounds     : [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
-         collectedAugments    : [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
-         collectedConParams   : [(NontermIdent, ConstructorIdent, Set Identifier)]
-         collectedConstraints : [(NontermIdent, ConstructorIdent, [Type])]
-         collectedConstructorsMap : Map NontermIdent (Set ConstructorIdent)
-         collectedFields      : [(NontermIdent, ConstructorIdent, FieldMap)]
-         collectedInsts       : [ (NontermIdent, ConstructorIdent, [Identifier]) ]
-         collectedMacros      : [(NontermIdent, ConstructorIdent, MaybeMacro)]
-         collectedMerges      : [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
-         collectedNames       : Set Identifier
-         collectedRules       : [ (NontermIdent, ConstructorIdent, RuleInfo)]
-         collectedSetNames    : Set Identifier
-         collectedSigs        : [ (NontermIdent, ConstructorIdent, SigInfo) ]
-         collectedUniques     : [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
-         ctxCollect           : ContextMap
-         derivings            : Derivings
-         errors               : Seq Error
-         moduleDecl           : Maybe (String,String,String)
-         paramsCollect        : ParamMap
-         pragmas              : Options -> Options
-         quantCollect         : QuantMap
-         semPragmasCollect    : PragmaMap
-         typeSyns             : TypeSyns
-         useMap               : Map NontermIdent (Map Identifier (String,String,String))
-         wrappers             : Set NontermIdent
-   alternatives:
-      alternative Data:
-         child pos            : {Pos}
-         child ctx            : {ClassContext}
-         child names          : NontSet 
-         child params         : {[Identifier]}
-         child attrs          : Attrs 
-         child alts           : Alts 
-         child ext            : {Bool}
-      alternative Type:
-         child pos            : {Pos}
-         child ctx            : {ClassContext}
-         child name           : {NontermIdent}
-         child params         : {[Identifier]}
-         child type           : {ComplexType}
-         visit 0:
-            local expanded    : _
-            local argType     : _
-      alternative Attr:
-         child pos            : {Pos}
-         child ctx            : {ClassContext}
-         child names          : NontSet 
-         child quants         : {[String]}
-         child attrs          : Attrs 
-      alternative Sem:
-         child pos            : {Pos}
-         child ctx            : {ClassContext}
-         child names          : NontSet 
-         child attrs          : Attrs 
-         child quants         : {[String]}
-         child alts           : SemAlts 
-      alternative Txt:
-         child pos            : {Pos}
-         child kind           : {BlockKind}
-         child mbNt           : {Maybe NontermIdent}
-         child lines          : {[String]}
-         visit 0:
-            local blockInfo   : _
-            local blockValue  : _
-      alternative Set:
-         child pos            : {Pos}
-         child name           : {NontermIdent}
-         child merge          : {Bool}
-         child set            : NontSet 
-         visit 0:
-            local defSets2    : _
-            local errs        : _
-      alternative Deriving:
-         child pos            : {Pos}
-         child set            : NontSet 
-         child classes        : {[NontermIdent]}
-      alternative Wrapper:
-         child pos            : {Pos}
-         child set            : NontSet 
-      alternative Nocatas:
-         child pos            : {Pos}
-         child set            : NontSet 
-      alternative Pragma:
-         child pos            : {Pos}
-         child names          : {[NontermIdent]}
-      alternative Module:
-         child pos            : {Pos}
-         child name           : {String}
-         child exports        : {String}
-         child imports        : {String}
--}
+-- wrapper
+data Inh_Elem  = Inh_Elem { allAttrDecls_Inh_Elem :: (Map NontermIdent (Attributes, Attributes)), allAttrs_Inh_Elem :: (Map NontermIdent (Attributes, Attributes)), allConstructors_Inh_Elem :: (Map NontermIdent (Set ConstructorIdent)), allFields_Inh_Elem :: (DataTypes), allNonterminals_Inh_Elem :: (Set NontermIdent), attrDecls_Inh_Elem :: (Map NontermIdent (Attributes, Attributes)), attrs_Inh_Elem :: (Map NontermIdent (Attributes, Attributes)), defSets_Inh_Elem :: (Map Identifier (Set NontermIdent,Set Identifier)), definedSets_Inh_Elem :: (DefinedSets), options_Inh_Elem :: (Options) }
+data Syn_Elem  = Syn_Elem { attrDecls_Syn_Elem :: (Map NontermIdent (Attributes, Attributes)), attrOrderCollect_Syn_Elem :: (AttrOrderMap), attrs_Syn_Elem :: (Map NontermIdent (Attributes, Attributes)), blocks_Syn_Elem :: (Blocks), collectedArounds_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]), collectedAugments_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]), collectedConParams_Syn_Elem :: ([(NontermIdent, ConstructorIdent, Set Identifier)]), collectedConstraints_Syn_Elem :: ([(NontermIdent, ConstructorIdent, [Type])]), collectedConstructorsMap_Syn_Elem :: (Map NontermIdent (Set ConstructorIdent)), collectedFields_Syn_Elem :: ([(NontermIdent, ConstructorIdent, FieldMap)]), collectedInsts_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ]), collectedMacros_Syn_Elem :: ([(NontermIdent, ConstructorIdent, MaybeMacro)]), collectedMerges_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]), collectedNames_Syn_Elem :: (Set Identifier), collectedRules_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, RuleInfo)]), collectedSetNames_Syn_Elem :: (Set Identifier), collectedSigs_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, SigInfo) ]), collectedUniques_Syn_Elem :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]), ctxCollect_Syn_Elem :: (ContextMap), defSets_Syn_Elem :: (Map Identifier (Set NontermIdent,Set Identifier)), derivings_Syn_Elem :: (Derivings), errors_Syn_Elem :: (Seq Error), moduleDecl_Syn_Elem :: (Maybe (String,String,String)), paramsCollect_Syn_Elem :: (ParamMap), pragmas_Syn_Elem :: (Options -> Options), quantCollect_Syn_Elem :: (QuantMap), semPragmasCollect_Syn_Elem :: (PragmaMap), typeSyns_Syn_Elem :: (TypeSyns), useMap_Syn_Elem :: (Map NontermIdent (Map Identifier (String,String,String))), wrappers_Syn_Elem :: (Set NontermIdent) }
+{-# INLINABLE wrap_Elem #-}
+wrap_Elem :: T_Elem  -> Inh_Elem  -> (Syn_Elem )
+wrap_Elem (T_Elem act) (Inh_Elem _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions
+        (T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers) <- return (inv_Elem_s17 sem arg)
+        return (Syn_Elem _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers)
+   )
+
 -- cata
-sem_Elem :: Elem ->
-            T_Elem
-sem_Elem (Data _pos _ctx _names _params _attrs _alts _ext) =
-    (sem_Elem_Data _pos _ctx (sem_NontSet _names) _params (sem_Attrs _attrs) (sem_Alts _alts) _ext)
-sem_Elem (Type _pos _ctx _name _params _type) =
-    (sem_Elem_Type _pos _ctx _name _params _type)
-sem_Elem (Attr _pos _ctx _names _quants _attrs) =
-    (sem_Elem_Attr _pos _ctx (sem_NontSet _names) _quants (sem_Attrs _attrs))
-sem_Elem (Sem _pos _ctx _names _attrs _quants _alts) =
-    (sem_Elem_Sem _pos _ctx (sem_NontSet _names) (sem_Attrs _attrs) _quants (sem_SemAlts _alts))
-sem_Elem (Txt _pos _kind _mbNt _lines) =
-    (sem_Elem_Txt _pos _kind _mbNt _lines)
-sem_Elem (Set _pos _name _merge _set) =
-    (sem_Elem_Set _pos _name _merge (sem_NontSet _set))
-sem_Elem (Deriving _pos _set _classes) =
-    (sem_Elem_Deriving _pos (sem_NontSet _set) _classes)
-sem_Elem (Wrapper _pos _set) =
-    (sem_Elem_Wrapper _pos (sem_NontSet _set))
-sem_Elem (Nocatas _pos _set) =
-    (sem_Elem_Nocatas _pos (sem_NontSet _set))
-sem_Elem (Pragma _pos _names) =
-    (sem_Elem_Pragma _pos _names)
-sem_Elem (Module _pos _name _exports _imports) =
-    (sem_Elem_Module _pos _name _exports _imports)
+{-# NOINLINE sem_Elem #-}
+sem_Elem :: Elem  -> T_Elem 
+sem_Elem ( Data pos_ ctx_ names_ params_ attrs_ alts_ ext_ ) = sem_Elem_Data pos_ ctx_ ( sem_NontSet names_ ) params_ ( sem_Attrs attrs_ ) ( sem_Alts alts_ ) ext_
+sem_Elem ( Type pos_ ctx_ name_ params_ type_ ) = sem_Elem_Type pos_ ctx_ name_ params_ type_
+sem_Elem ( Attr pos_ ctx_ names_ quants_ attrs_ ) = sem_Elem_Attr pos_ ctx_ ( sem_NontSet names_ ) quants_ ( sem_Attrs attrs_ )
+sem_Elem ( Sem pos_ ctx_ names_ attrs_ quants_ alts_ ) = sem_Elem_Sem pos_ ctx_ ( sem_NontSet names_ ) ( sem_Attrs attrs_ ) quants_ ( sem_SemAlts alts_ )
+sem_Elem ( Txt pos_ kind_ mbNt_ lines_ ) = sem_Elem_Txt pos_ kind_ mbNt_ lines_
+sem_Elem ( Set pos_ name_ merge_ set_ ) = sem_Elem_Set pos_ name_ merge_ ( sem_NontSet set_ )
+sem_Elem ( Deriving pos_ set_ classes_ ) = sem_Elem_Deriving pos_ ( sem_NontSet set_ ) classes_
+sem_Elem ( Wrapper pos_ set_ ) = sem_Elem_Wrapper pos_ ( sem_NontSet set_ )
+sem_Elem ( Nocatas pos_ set_ ) = sem_Elem_Nocatas pos_ ( sem_NontSet set_ )
+sem_Elem ( Pragma pos_ names_ ) = sem_Elem_Pragma pos_ names_
+sem_Elem ( Module pos_ name_ exports_ imports_ ) = sem_Elem_Module pos_ name_ exports_ imports_
+
 -- semantic domain
-newtype T_Elem = T_Elem ((Map NontermIdent (Attributes, Attributes)) ->
-                         (Map NontermIdent (Attributes, Attributes)) ->
-                         (Map NontermIdent (Set ConstructorIdent)) ->
-                         DataTypes ->
-                         (Set NontermIdent) ->
-                         (Map NontermIdent (Attributes, Attributes)) ->
-                         (Map NontermIdent (Attributes, Attributes)) ->
-                         (Map Identifier (Set NontermIdent,Set Identifier)) ->
-                         DefinedSets ->
-                         Options ->
-                         ( (Map NontermIdent (Attributes, Attributes)),AttrOrderMap,(Map NontermIdent (Attributes, Attributes)),Blocks,([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]),([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]),([(NontermIdent, ConstructorIdent, Set Identifier)]),([(NontermIdent, ConstructorIdent, [Type])]),(Map NontermIdent (Set ConstructorIdent)),([(NontermIdent, ConstructorIdent, FieldMap)]),([ (NontermIdent, ConstructorIdent, [Identifier]) ]),([(NontermIdent, ConstructorIdent, MaybeMacro)]),([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]),(Set Identifier),([ (NontermIdent, ConstructorIdent, RuleInfo)]),(Set Identifier),([ (NontermIdent, ConstructorIdent, SigInfo) ]),([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]),ContextMap,(Map Identifier (Set NontermIdent,Set Identifier)),Derivings,(Seq Error),(Maybe (String,String,String)),ParamMap,(Options -> Options),QuantMap,PragmaMap,TypeSyns,(Map NontermIdent (Map Identifier (String,String,String))),(Set NontermIdent)))
-data Inh_Elem = Inh_Elem {allAttrDecls_Inh_Elem :: !((Map NontermIdent (Attributes, Attributes))),allAttrs_Inh_Elem :: !((Map NontermIdent (Attributes, Attributes))),allConstructors_Inh_Elem :: !((Map NontermIdent (Set ConstructorIdent))),allFields_Inh_Elem :: !(DataTypes),allNonterminals_Inh_Elem :: !((Set NontermIdent)),attrDecls_Inh_Elem :: !((Map NontermIdent (Attributes, Attributes))),attrs_Inh_Elem :: !((Map NontermIdent (Attributes, Attributes))),defSets_Inh_Elem :: !((Map Identifier (Set NontermIdent,Set Identifier))),definedSets_Inh_Elem :: !(DefinedSets),options_Inh_Elem :: !(Options)}
-data Syn_Elem = Syn_Elem {attrDecls_Syn_Elem :: !((Map NontermIdent (Attributes, Attributes))),attrOrderCollect_Syn_Elem :: !(AttrOrderMap),attrs_Syn_Elem :: !((Map NontermIdent (Attributes, Attributes))),blocks_Syn_Elem :: !(Blocks),collectedArounds_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])),collectedAugments_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])),collectedConParams_Syn_Elem :: !(([(NontermIdent, ConstructorIdent, Set Identifier)])),collectedConstraints_Syn_Elem :: !(([(NontermIdent, ConstructorIdent, [Type])])),collectedConstructorsMap_Syn_Elem :: !((Map NontermIdent (Set ConstructorIdent))),collectedFields_Syn_Elem :: !(([(NontermIdent, ConstructorIdent, FieldMap)])),collectedInsts_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, [Identifier]) ])),collectedMacros_Syn_Elem :: !(([(NontermIdent, ConstructorIdent, MaybeMacro)])),collectedMerges_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])),collectedNames_Syn_Elem :: !((Set Identifier)),collectedRules_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, RuleInfo)])),collectedSetNames_Syn_Elem :: !((Set Identifier)),collectedSigs_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, SigInfo) ])),collectedUniques_Syn_Elem :: !(([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])),ctxCollect_Syn_Elem :: !(ContextMap),defSets_Syn_Elem :: !((Map Identifier (Set NontermIdent,Set Identifier))),derivings_Syn_Elem :: !(Derivings),errors_Syn_Elem :: !((Seq Error)),moduleDecl_Syn_Elem :: !((Maybe (String,String,String))),paramsCollect_Syn_Elem :: !(ParamMap),pragmas_Syn_Elem :: !((Options -> Options)),quantCollect_Syn_Elem :: !(QuantMap),semPragmasCollect_Syn_Elem :: !(PragmaMap),typeSyns_Syn_Elem :: !(TypeSyns),useMap_Syn_Elem :: !((Map NontermIdent (Map Identifier (String,String,String)))),wrappers_Syn_Elem :: !((Set NontermIdent))}
-wrap_Elem :: T_Elem ->
-             Inh_Elem ->
-             Syn_Elem
-wrap_Elem (T_Elem sem) (Inh_Elem _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) =
-    (let ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers) = sem _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions
-     in  (Syn_Elem _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers))
-sem_Elem_Data :: Pos ->
-                 ClassContext ->
-                 T_NontSet ->
-                 ([Identifier]) ->
-                 T_Attrs ->
-                 T_Alts ->
-                 Bool ->
-                 T_Elem
-sem_Elem_Data pos_ ctx_ (T_NontSet names_) params_ (T_Attrs attrs_) (T_Alts alts_) ext_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _altsOnts :: (Set NontermIdent)
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOctxCollect :: ContextMap
-                      _attrsOnts :: (Set NontermIdent)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _namesOallFields :: DataTypes
-                      _namesOallNonterminals :: (Set NontermIdent)
-                      _namesOdefinedSets :: DefinedSets
-                      _attrsOallFields :: DataTypes
-                      _attrsOallNonterminals :: (Set NontermIdent)
-                      _attrsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOoptions :: Options
-                      _altsOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                      _altsOallNonterminals :: (Set NontermIdent)
-                      _namesIcollectedNames :: (Set Identifier)
-                      _namesIerrors :: (Seq Error)
-                      _namesInontSet :: (Set NontermIdent)
-                      _attrsIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIerrors :: (Seq Error)
-                      _attrsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _altsIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _altsIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _altsIcollectedConstructorNames :: (Set ConstructorIdent)
-                      _altsIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _altsIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- "./src-ag/Transform.ag"(line 176, column 10)
-                      _altsOnts =
-                          ({-# LINE 176 "./src-ag/Transform.ag" #-}
-                           _namesInontSet
-                           {-# LINE 1864 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 620, column 11)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 620 "./src-ag/Transform.ag" #-}
-                           Map.fromList
-                           [ (n, _altsIcollectedConstructorNames)
-                           | n <- Set.toList _namesInontSet
-                           ]
-                           {-# LINE 1873 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 947, column 7)
-                      _lhsOparamsCollect =
-                          ({-# LINE 947 "./src-ag/Transform.ag" #-}
-                           if null params_
-                           then Map.empty
-                           else Map.fromList [(nt, params_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 1881 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 970, column 7)
-                      _lhsOctxCollect =
-                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
-                           if null ctx_
-                           then Map.empty
-                           else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 1889 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 1032, column 10)
-                      _attrsOnts =
-                          ({-# LINE 1032 "./src-ag/Transform.ag" #-}
-                           _namesInontSet
-                           {-# LINE 1895 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 1901 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 1907 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1913 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1919 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedConParams
-                           {-# LINE 1925 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedConstraints
-                           {-# LINE 1931 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedFields
-                           {-# LINE 1937 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1943 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedMacros
-                           {-# LINE 1949 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1955 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 1961 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1967 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 1973 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1979 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1985 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 1991 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors
-                           {-# LINE 1997 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2003 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2009 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2015 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2021 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2027 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2033 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2039 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _attrsIattrDecls
-                           {-# LINE 2045 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _attrsIattrs
-                           {-# LINE 2051 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 2057 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 2063 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 2069 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 2075 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 2081 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 2087 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 2093 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 2099 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOoptions =
-                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                           _lhsIoptions
-                           {-# LINE 2105 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOallConstructors =
-                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
-                           _lhsIallConstructors
-                           {-# LINE 2111 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 2117 "dist/build/Transform.hs" #-}
-                           )
-                      ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
-                          names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
-                      ( _attrsIattrDecls,_attrsIattrs,_attrsIerrors,_attrsIuseMap) =
-                          attrs_ _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions
-                      ( _altsIcollectedConParams,_altsIcollectedConstraints,_altsIcollectedConstructorNames,_altsIcollectedFields,_altsIcollectedMacros) =
-                          alts_ _altsOallConstructors _altsOallNonterminals _altsOnts
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Type :: Pos ->
-                 ClassContext ->
-                 NontermIdent ->
-                 ([Identifier]) ->
-                 ComplexType ->
-                 T_Elem
-sem_Elem_Type pos_ ctx_ name_ params_ type_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 254, column 10)
-                      _lhsOcollectedFields =
-                          ({-# LINE 254 "./src-ag/Transform.ag" #-}
-                           map (\(x,y)->(name_, x, y)) _expanded
-                           {-# LINE 2177 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 600, column 11)
-                      _lhsOcollectedNames =
-                          ({-# LINE 600 "./src-ag/Transform.ag" #-}
-                           Set.singleton name_
-                           {-# LINE 2183 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 654, column 11)
-                      _expanded =
-                          ({-# LINE 654 "./src-ag/Transform.ag" #-}
-                           case _argType of
-                                   List tp -> [(Ident "Cons" pos_, [(Ident "hd" pos_, tp)
-                                                                   ,(Ident "tl" pos_, NT name_ (map getName params_) False)
-                                                                   ]
-                                               )
-                                              ,(Ident "Nil" pos_,  [])
-                                              ]
-                                   Maybe tp -> [(Ident "Just" pos_, [(Ident "just" pos_, tp)
-                                                                   ]
-                                               )
-                                              ,(Ident "Nothing" pos_,  [])
-                                              ]
-                                   Either tp1 tp2 -> [
-                                                (Ident "Left"    pos_,  [(Ident "left"  pos_, tp1) ])
-                                              , (Ident "Right"   pos_,  [(Ident "right" pos_, tp2) ])
-                                              ]
-                                   Map tp1 tp2 -> [ (Ident "Entry" pos_, [ (Ident "key" pos_, tp1)
-                                                                         , (Ident "val" pos_, tp2)
-                                                                         , (Ident "tl" pos_, NT name_ (map getName params_) False)
-                                                                         ])
-                                                  , (Ident "Nil" pos_, [])
-                                                  ]
-                                   IntMap tp   -> [ (Ident "Entry" pos_, [ (Ident "key" pos_, Haskell "Int")
-                                                                         , (Ident "val" pos_, tp)
-                                                                         , (Ident "tl" pos_, NT name_ (map getName params_) False)
-                                                                         ])
-                                                  , (Ident "Nil" pos_, [])
-                                                  ]
-                                   OrdSet tp   -> [ (Ident "Entry" pos_, [ (Ident "val" pos_, tp)
-                                                                         , (Ident "tl" pos_, NT name_ (map getName params_) False) ])
-                                                  , (Ident "Nil" pos_, [])
-                                                  ]
-                                   IntSet      -> [ (Ident "Entry" pos_, [ (Ident "val" pos_, Haskell "Int")
-                                                                         , (Ident "tl" pos_, NT name_ (map getName params_) False) ])
-                                                  , (Ident "Nil" pos_, [])
-                                                  ]
-                                   Tuple xs -> [(Ident "Tuple" pos_, xs)]
-                           {-# LINE 2225 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 691, column 11)
-                      _argType =
-                          ({-# LINE 691 "./src-ag/Transform.ag" #-}
-                           case type_ of
-                            Maybe tp       -> Maybe  (  makeType _lhsIallNonterminals tp)
-                            Either tp1 tp2 -> Either (  makeType _lhsIallNonterminals tp1) (makeType _lhsIallNonterminals tp2)
-                            List tp        -> List   (  makeType _lhsIallNonterminals tp)
-                            Tuple xs       -> Tuple [(f,makeType _lhsIallNonterminals tp) | (f,tp) <- xs]
-                            Map tp1 tp2    -> Map    (  makeType _lhsIallNonterminals tp1) (makeType _lhsIallNonterminals tp2)
-                            IntMap tp      -> IntMap (  makeType _lhsIallNonterminals tp)
-                            OrdSet tp      -> OrdSet (  makeType _lhsIallNonterminals tp)
-                            IntSet         -> IntSet
-                           {-# LINE 2239 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 700, column 11)
-                      _lhsOtypeSyns =
-                          ({-# LINE 700 "./src-ag/Transform.ag" #-}
-                           [(name_,_argType)]
-                           {-# LINE 2245 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 953, column 7)
-                      _lhsOparamsCollect =
-                          ({-# LINE 953 "./src-ag/Transform.ag" #-}
-                           if null params_
-                           then Map.empty
-                           else Map.singleton name_ params_
-                           {-# LINE 2253 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 976, column 7)
-                      _lhsOctxCollect =
-                          ({-# LINE 976 "./src-ag/Transform.ag" #-}
-                           if null ctx_
-                           then Map.empty
-                           else Map.singleton name_ ctx_
-                           {-# LINE 2261 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2267 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2273 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2279 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2285 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2291 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2297 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2303 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2309 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2315 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2321 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2327 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2333 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2339 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2345 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2351 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 2357 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2363 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2369 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2375 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2381 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2387 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2393 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 2399 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 2405 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 2411 "dist/build/Transform.hs" #-}
-                           )
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Attr :: Pos ->
-                 ClassContext ->
-                 T_NontSet ->
-                 ([String]) ->
-                 T_Attrs ->
-                 T_Elem
-sem_Elem_Attr pos_ ctx_ (T_NontSet names_) quants_ (T_Attrs attrs_) =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOctxCollect :: ContextMap
-                      _lhsOquantCollect :: QuantMap
-                      _attrsOnts :: (Set NontermIdent)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _namesOallFields :: DataTypes
-                      _namesOallNonterminals :: (Set NontermIdent)
-                      _namesOdefinedSets :: DefinedSets
-                      _attrsOallFields :: DataTypes
-                      _attrsOallNonterminals :: (Set NontermIdent)
-                      _attrsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOoptions :: Options
-                      _namesIcollectedNames :: (Set Identifier)
-                      _namesIerrors :: (Seq Error)
-                      _namesInontSet :: (Set NontermIdent)
-                      _attrsIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIerrors :: (Seq Error)
-                      _attrsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      -- "./src-ag/Transform.ag"(line 970, column 7)
-                      _lhsOctxCollect =
-                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
-                           if null ctx_
-                           then Map.empty
-                           else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2483 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 995, column 7)
-                      _lhsOquantCollect =
-                          ({-# LINE 995 "./src-ag/Transform.ag" #-}
+newtype T_Elem  = T_Elem {
+                         attach_T_Elem :: Identity (T_Elem_s17 )
+                         }
+newtype T_Elem_s17  = C_Elem_s17 {
+                                 inv_Elem_s17 :: (T_Elem_v16 )
+                                 }
+data T_Elem_s18  = C_Elem_s18
+type T_Elem_v16  = (T_Elem_vIn16 ) -> (T_Elem_vOut16 )
+data T_Elem_vIn16  = T_Elem_vIn16 (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Set ConstructorIdent)) (DataTypes) (Set NontermIdent) (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Map Identifier (Set NontermIdent,Set Identifier)) (DefinedSets) (Options)
+data T_Elem_vOut16  = T_Elem_vOut16 (Map NontermIdent (Attributes, Attributes)) (AttrOrderMap) (Map NontermIdent (Attributes, Attributes)) (Blocks) ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ([(NontermIdent, ConstructorIdent, Set Identifier)]) ([(NontermIdent, ConstructorIdent, [Type])]) (Map NontermIdent (Set ConstructorIdent)) ([(NontermIdent, ConstructorIdent, FieldMap)]) ([ (NontermIdent, ConstructorIdent, [Identifier]) ]) ([(NontermIdent, ConstructorIdent, MaybeMacro)]) ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) (Set Identifier) ([ (NontermIdent, ConstructorIdent, RuleInfo)]) (Set Identifier) ([ (NontermIdent, ConstructorIdent, SigInfo) ]) ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) (ContextMap) (Map Identifier (Set NontermIdent,Set Identifier)) (Derivings) (Seq Error) (Maybe (String,String,String)) (ParamMap) (Options -> Options) (QuantMap) (PragmaMap) (TypeSyns) (Map NontermIdent (Map Identifier (String,String,String))) (Set NontermIdent)
+{-# NOINLINE sem_Elem_Data #-}
+sem_Elem_Data :: (Pos) -> (ClassContext) -> T_NontSet  -> ([Identifier]) -> T_Attrs  -> T_Alts  -> (Bool) -> T_Elem 
+sem_Elem_Data _ arg_ctx_ arg_names_ arg_params_ arg_attrs_ arg_alts_ _ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _namesX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_names_))
+         _attrsX11 = Control.Monad.Identity.runIdentity (attach_T_Attrs (arg_attrs_))
+         _altsX8 = Control.Monad.Identity.runIdentity (attach_T_Alts (arg_alts_))
+         (T_NontSet_vOut28 _namesIcollectedNames _namesIerrors _namesInontSet) = inv_NontSet_s29 _namesX29 (T_NontSet_vIn28 _namesOallFields _namesOallNonterminals _namesOdefinedSets)
+         (T_Attrs_vOut10 _attrsIattrDecls _attrsIattrs _attrsIerrors _attrsIuseMap) = inv_Attrs_s11 _attrsX11 (T_Attrs_vIn10 _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions)
+         (T_Alts_vOut7 _altsIcollectedConParams _altsIcollectedConstraints _altsIcollectedConstructorNames _altsIcollectedFields _altsIcollectedMacros) = inv_Alts_s8 _altsX8 (T_Alts_vIn7 _altsOallConstructors _altsOallNonterminals _altsOnts)
+         _altsOnts = rule101 _namesInontSet
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule102 _altsIcollectedConstructorNames _namesInontSet
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule103 _namesInontSet arg_params_
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule104 _namesInontSet arg_ctx_
+         _attrsOnts = rule105 _namesInontSet
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule106  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule107  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule108  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule109  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule110 _altsIcollectedConParams
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule111 _altsIcollectedConstraints
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule112 _altsIcollectedFields
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule113  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule114 _altsIcollectedMacros
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule115  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule116 _namesIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule117  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule118  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule119  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule120  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule121  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule122 _attrsIerrors _namesIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule123  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule124  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule125  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule126  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule127  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule128 _attrsIuseMap
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule129  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule130 _attrsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule131 _attrsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule132 _lhsIdefSets
+         _namesOallFields = rule133 _lhsIallFields
+         _namesOallNonterminals = rule134 _lhsIallNonterminals
+         _namesOdefinedSets = rule135 _lhsIdefinedSets
+         _attrsOallFields = rule136 _lhsIallFields
+         _attrsOallNonterminals = rule137 _lhsIallNonterminals
+         _attrsOattrDecls = rule138 _lhsIattrDecls
+         _attrsOattrs = rule139 _lhsIattrs
+         _attrsOoptions = rule140 _lhsIoptions
+         _altsOallConstructors = rule141 _lhsIallConstructors
+         _altsOallNonterminals = rule142 _lhsIallNonterminals
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule101 #-}
+   {-# LINE 176 "./src-ag/Transform.ag" #-}
+   rule101 = \ ((_namesInontSet) :: Set NontermIdent) ->
+                      {-# LINE 176 "./src-ag/Transform.ag" #-}
+                      _namesInontSet
+                      {-# LINE 1640 "dist/build/Transform.hs"#-}
+   {-# INLINE rule102 #-}
+   {-# LINE 620 "./src-ag/Transform.ag" #-}
+   rule102 = \ ((_altsIcollectedConstructorNames) :: Set ConstructorIdent) ((_namesInontSet) :: Set NontermIdent) ->
+                                           {-# LINE 620 "./src-ag/Transform.ag" #-}
+                                           Map.fromList
+                                           [ (n, _altsIcollectedConstructorNames)
+                                           | n <- Set.toList _namesInontSet
+                                           ]
+                                           {-# LINE 1649 "dist/build/Transform.hs"#-}
+   {-# INLINE rule103 #-}
+   {-# LINE 947 "./src-ag/Transform.ag" #-}
+   rule103 = \ ((_namesInontSet) :: Set NontermIdent) params_ ->
+                            {-# LINE 947 "./src-ag/Transform.ag" #-}
+                            if null params_
+                            then Map.empty
+                            else Map.fromList [(nt, params_) | nt <- Set.toList _namesInontSet]
+                            {-# LINE 1657 "dist/build/Transform.hs"#-}
+   {-# INLINE rule104 #-}
+   {-# LINE 970 "./src-ag/Transform.ag" #-}
+   rule104 = \ ((_namesInontSet) :: Set NontermIdent) ctx_ ->
+                         {-# LINE 970 "./src-ag/Transform.ag" #-}
+                         if null ctx_
+                         then Map.empty
+                         else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
+                         {-# LINE 1665 "dist/build/Transform.hs"#-}
+   {-# INLINE rule105 #-}
+   {-# LINE 1032 "./src-ag/Transform.ag" #-}
+   rule105 = \ ((_namesInontSet) :: Set NontermIdent) ->
+                       {-# LINE 1032 "./src-ag/Transform.ag" #-}
+                       _namesInontSet
+                       {-# LINE 1671 "dist/build/Transform.hs"#-}
+   {-# INLINE rule106 #-}
+   rule106 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule107 #-}
+   rule107 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule108 #-}
+   rule108 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule109 #-}
+   rule109 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule110 #-}
+   rule110 = \ ((_altsIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ->
+     _altsIcollectedConParams
+   {-# INLINE rule111 #-}
+   rule111 = \ ((_altsIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ->
+     _altsIcollectedConstraints
+   {-# INLINE rule112 #-}
+   rule112 = \ ((_altsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+     _altsIcollectedFields
+   {-# INLINE rule113 #-}
+   rule113 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule114 #-}
+   rule114 = \ ((_altsIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ->
+     _altsIcollectedMacros
+   {-# INLINE rule115 #-}
+   rule115 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule116 #-}
+   rule116 = \ ((_namesIcollectedNames) :: Set Identifier) ->
+     _namesIcollectedNames
+   {-# INLINE rule117 #-}
+   rule117 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule118 #-}
+   rule118 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule119 #-}
+   rule119 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule120 #-}
+   rule120 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule121 #-}
+   rule121 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule122 #-}
+   rule122 = \ ((_attrsIerrors) :: Seq Error) ((_namesIerrors) :: Seq Error) ->
+     _namesIerrors Seq.>< _attrsIerrors
+   {-# INLINE rule123 #-}
+   rule123 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule124 #-}
+   rule124 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule125 #-}
+   rule125 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule126 #-}
+   rule126 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule127 #-}
+   rule127 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule128 #-}
+   rule128 = \ ((_attrsIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ->
+     _attrsIuseMap
+   {-# INLINE rule129 #-}
+   rule129 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule130 #-}
+   rule130 = \ ((_attrsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrDecls
+   {-# INLINE rule131 #-}
+   rule131 = \ ((_attrsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrs
+   {-# INLINE rule132 #-}
+   rule132 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule133 #-}
+   rule133 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule134 #-}
+   rule134 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule135 #-}
+   rule135 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule136 #-}
+   rule136 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule137 #-}
+   rule137 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule138 #-}
+   rule138 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule139 #-}
+   rule139 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule140 #-}
+   rule140 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule141 #-}
+   rule141 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _lhsIallConstructors
+   {-# INLINE rule142 #-}
+   rule142 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+{-# NOINLINE sem_Elem_Type #-}
+sem_Elem_Type :: (Pos) -> (ClassContext) -> (NontermIdent) -> ([Identifier]) -> (ComplexType) -> T_Elem 
+sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule143 _expanded arg_name_
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule144 arg_name_
+         _expanded = rule145 _argType arg_name_ arg_params_ arg_pos_
+         _argType = rule146 _lhsIallNonterminals arg_type_
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule147 _argType arg_name_
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule148 arg_name_ arg_params_
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule149 arg_ctx_ arg_name_
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule150  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule151  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule152  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule153  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule154  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule155  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule156  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule157  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule158  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule159  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule160  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule161  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule162  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule163  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule164  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule165  ()
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule166  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule167  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule168  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule169  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule170  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule171  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule172 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule173 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule174 _lhsIdefSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule143 #-}
+   {-# LINE 254 "./src-ag/Transform.ag" #-}
+   rule143 = \ _expanded name_ ->
+                                 {-# LINE 254 "./src-ag/Transform.ag" #-}
+                                 map (\(x,y)->(name_, x, y)) _expanded
+                                 {-# LINE 1860 "dist/build/Transform.hs"#-}
+   {-# INLINE rule144 #-}
+   {-# LINE 600 "./src-ag/Transform.ag" #-}
+   rule144 = \ name_ ->
+                                 {-# LINE 600 "./src-ag/Transform.ag" #-}
+                                 Set.singleton name_
+                                 {-# LINE 1866 "dist/build/Transform.hs"#-}
+   {-# INLINE rule145 #-}
+   {-# LINE 654 "./src-ag/Transform.ag" #-}
+   rule145 = \ _argType name_ params_ pos_ ->
+                                 {-# LINE 654 "./src-ag/Transform.ag" #-}
+                                 case _argType of
+                                         List tp -> [(Ident "Cons" pos_, [(Ident "hd" pos_, tp)
+                                                                         ,(Ident "tl" pos_, NT name_ (map getName params_) False)
+                                                                         ]
+                                                     )
+                                                    ,(Ident "Nil" pos_,  [])
+                                                    ]
+                                         Maybe tp -> [(Ident "Just" pos_, [(Ident "just" pos_, tp)
+                                                                         ]
+                                                     )
+                                                    ,(Ident "Nothing" pos_,  [])
+                                                    ]
+                                         Either tp1 tp2 -> [
+                                                      (Ident "Left"    pos_,  [(Ident "left"  pos_, tp1) ])
+                                                    , (Ident "Right"   pos_,  [(Ident "right" pos_, tp2) ])
+                                                    ]
+                                         Map tp1 tp2 -> [ (Ident "Entry" pos_, [ (Ident "key" pos_, tp1)
+                                                                               , (Ident "val" pos_, tp2)
+                                                                               , (Ident "tl" pos_, NT name_ (map getName params_) False)
+                                                                               ])
+                                                        , (Ident "Nil" pos_, [])
+                                                        ]
+                                         IntMap tp   -> [ (Ident "Entry" pos_, [ (Ident "key" pos_, Haskell "Int")
+                                                                               , (Ident "val" pos_, tp)
+                                                                               , (Ident "tl" pos_, NT name_ (map getName params_) False)
+                                                                               ])
+                                                        , (Ident "Nil" pos_, [])
+                                                        ]
+                                         OrdSet tp   -> [ (Ident "Entry" pos_, [ (Ident "val" pos_, tp)
+                                                                               , (Ident "tl" pos_, NT name_ (map getName params_) False) ])
+                                                        , (Ident "Nil" pos_, [])
+                                                        ]
+                                         IntSet      -> [ (Ident "Entry" pos_, [ (Ident "val" pos_, Haskell "Int")
+                                                                               , (Ident "tl" pos_, NT name_ (map getName params_) False) ])
+                                                        , (Ident "Nil" pos_, [])
+                                                        ]
+                                         Tuple xs -> [(Ident "Tuple" pos_, xs)]
+                                 {-# LINE 1908 "dist/build/Transform.hs"#-}
+   {-# INLINE rule146 #-}
+   {-# LINE 691 "./src-ag/Transform.ag" #-}
+   rule146 = \ ((_lhsIallNonterminals) :: Set NontermIdent) type_ ->
+                                 {-# LINE 691 "./src-ag/Transform.ag" #-}
+                                 case type_ of
+                                  Maybe tp       -> Maybe  (  makeType _lhsIallNonterminals tp)
+                                  Either tp1 tp2 -> Either (  makeType _lhsIallNonterminals tp1) (makeType _lhsIallNonterminals tp2)
+                                  List tp        -> List   (  makeType _lhsIallNonterminals tp)
+                                  Tuple xs       -> Tuple [(f,makeType _lhsIallNonterminals tp) | (f,tp) <- xs]
+                                  Map tp1 tp2    -> Map    (  makeType _lhsIallNonterminals tp1) (makeType _lhsIallNonterminals tp2)
+                                  IntMap tp      -> IntMap (  makeType _lhsIallNonterminals tp)
+                                  OrdSet tp      -> OrdSet (  makeType _lhsIallNonterminals tp)
+                                  IntSet         -> IntSet
+                                 {-# LINE 1922 "dist/build/Transform.hs"#-}
+   {-# INLINE rule147 #-}
+   {-# LINE 700 "./src-ag/Transform.ag" #-}
+   rule147 = \ _argType name_ ->
+                                 {-# LINE 700 "./src-ag/Transform.ag" #-}
+                                 [(name_,_argType)]
+                                 {-# LINE 1928 "dist/build/Transform.hs"#-}
+   {-# INLINE rule148 #-}
+   {-# LINE 953 "./src-ag/Transform.ag" #-}
+   rule148 = \ name_ params_ ->
+                            {-# LINE 953 "./src-ag/Transform.ag" #-}
+                            if null params_
+                            then Map.empty
+                            else Map.singleton name_ params_
+                            {-# LINE 1936 "dist/build/Transform.hs"#-}
+   {-# INLINE rule149 #-}
+   {-# LINE 976 "./src-ag/Transform.ag" #-}
+   rule149 = \ ctx_ name_ ->
+                         {-# LINE 976 "./src-ag/Transform.ag" #-}
+                         if null ctx_
+                         then Map.empty
+                         else Map.singleton name_ ctx_
+                         {-# LINE 1944 "dist/build/Transform.hs"#-}
+   {-# INLINE rule150 #-}
+   rule150 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule151 #-}
+   rule151 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule152 #-}
+   rule152 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule153 #-}
+   rule153 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule154 #-}
+   rule154 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule155 #-}
+   rule155 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule156 #-}
+   rule156 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule157 #-}
+   rule157 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule158 #-}
+   rule158 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule159 #-}
+   rule159 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule160 #-}
+   rule160 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule161 #-}
+   rule161 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule162 #-}
+   rule162 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule163 #-}
+   rule163 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule164 #-}
+   rule164 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule165 #-}
+   rule165 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule166 #-}
+   rule166 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule167 #-}
+   rule167 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule168 #-}
+   rule168 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule169 #-}
+   rule169 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule170 #-}
+   rule170 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule171 #-}
+   rule171 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule172 #-}
+   rule172 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule173 #-}
+   rule173 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule174 #-}
+   rule174 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+{-# NOINLINE sem_Elem_Attr #-}
+sem_Elem_Attr :: (Pos) -> (ClassContext) -> T_NontSet  -> ([String]) -> T_Attrs  -> T_Elem 
+sem_Elem_Attr _ arg_ctx_ arg_names_ arg_quants_ arg_attrs_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _namesX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_names_))
+         _attrsX11 = Control.Monad.Identity.runIdentity (attach_T_Attrs (arg_attrs_))
+         (T_NontSet_vOut28 _namesIcollectedNames _namesIerrors _namesInontSet) = inv_NontSet_s29 _namesX29 (T_NontSet_vIn28 _namesOallFields _namesOallNonterminals _namesOdefinedSets)
+         (T_Attrs_vOut10 _attrsIattrDecls _attrsIattrs _attrsIerrors _attrsIuseMap) = inv_Attrs_s11 _attrsX11 (T_Attrs_vIn10 _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions)
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule175 _namesInontSet arg_ctx_
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule176 _namesInontSet arg_quants_
+         _attrsOnts = rule177 _namesInontSet
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule178  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule179  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule180  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule181  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule182  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule183  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule184  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule185  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule186  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule187  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule188  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule189 _namesIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule190  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule191  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule192  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule193  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule194  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule195 _attrsIerrors _namesIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule196  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule197  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule198  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule199  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule200  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule201 _attrsIuseMap
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule202  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule203 _attrsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule204 _attrsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule205 _lhsIdefSets
+         _namesOallFields = rule206 _lhsIallFields
+         _namesOallNonterminals = rule207 _lhsIallNonterminals
+         _namesOdefinedSets = rule208 _lhsIdefinedSets
+         _attrsOallFields = rule209 _lhsIallFields
+         _attrsOallNonterminals = rule210 _lhsIallNonterminals
+         _attrsOattrDecls = rule211 _lhsIattrDecls
+         _attrsOattrs = rule212 _lhsIattrs
+         _attrsOoptions = rule213 _lhsIoptions
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule175 #-}
+   {-# LINE 970 "./src-ag/Transform.ag" #-}
+   rule175 = \ ((_namesInontSet) :: Set NontermIdent) ctx_ ->
+                         {-# LINE 970 "./src-ag/Transform.ag" #-}
+                         if null ctx_
+                         then Map.empty
+                         else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
+                         {-# LINE 2110 "dist/build/Transform.hs"#-}
+   {-# INLINE rule176 #-}
+   {-# LINE 995 "./src-ag/Transform.ag" #-}
+   rule176 = \ ((_namesInontSet) :: Set NontermIdent) quants_ ->
+                           {-# LINE 995 "./src-ag/Transform.ag" #-}
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2491 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 1033, column 10)
-                      _attrsOnts =
-                          ({-# LINE 1033 "./src-ag/Transform.ag" #-}
-                           _namesInontSet
-                           {-# LINE 2497 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2503 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2509 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2515 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2521 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2527 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2533 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2539 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2545 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2551 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2557 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2563 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 2569 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2575 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2581 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2587 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2593 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2599 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors
-                           {-# LINE 2605 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2611 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2617 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2623 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2629 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2635 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2641 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2647 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _attrsIattrDecls
-                           {-# LINE 2653 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _attrsIattrs
-                           {-# LINE 2659 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 2665 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 2671 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 2677 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 2683 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 2689 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 2695 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 2701 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 2707 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOoptions =
-                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                           _lhsIoptions
-                           {-# LINE 2713 "dist/build/Transform.hs" #-}
-                           )
-                      ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
-                          names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
-                      ( _attrsIattrDecls,_attrsIattrs,_attrsIerrors,_attrsIuseMap) =
-                          attrs_ _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Sem :: Pos ->
-                ClassContext ->
-                T_NontSet ->
-                T_Attrs ->
-                ([String]) ->
-                T_SemAlts ->
-                T_Elem
-sem_Elem_Sem pos_ ctx_ (T_NontSet names_) (T_Attrs attrs_) quants_ (T_SemAlts alts_) =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _altsOnts :: (Set NontermIdent)
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOquantCollect :: QuantMap
-                      _attrsOnts :: (Set NontermIdent)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _namesOallFields :: DataTypes
-                      _namesOallNonterminals :: (Set NontermIdent)
-                      _namesOdefinedSets :: DefinedSets
-                      _attrsOallFields :: DataTypes
-                      _attrsOallNonterminals :: (Set NontermIdent)
-                      _attrsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsOoptions :: Options
-                      _altsOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _altsOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                      _altsOallFields :: DataTypes
-                      _altsOoptions :: Options
-                      _namesIcollectedNames :: (Set Identifier)
-                      _namesIerrors :: (Seq Error)
-                      _namesInontSet :: (Set NontermIdent)
-                      _attrsIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _attrsIerrors :: (Seq Error)
-                      _attrsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _altsIattrOrderCollect :: AttrOrderMap
-                      _altsIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _altsIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _altsIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _altsIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _altsIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _altsIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _altsIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _altsIerrors :: (Seq Error)
-                      _altsIsemPragmasCollect :: PragmaMap
-                      -- "./src-ag/Transform.ag"(line 177, column 10)
-                      _altsOnts =
-                          ({-# LINE 177 "./src-ag/Transform.ag" #-}
-                           _namesInontSet
-                           {-# LINE 2803 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 970, column 7)
-                      _lhsOctxCollect =
-                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
-                           if null ctx_
-                           then Map.empty
-                           else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2811 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 995, column 7)
-                      _lhsOquantCollect =
-                          ({-# LINE 995 "./src-ag/Transform.ag" #-}
+                           {-# LINE 2118 "dist/build/Transform.hs"#-}
+   {-# INLINE rule177 #-}
+   {-# LINE 1033 "./src-ag/Transform.ag" #-}
+   rule177 = \ ((_namesInontSet) :: Set NontermIdent) ->
+                       {-# LINE 1033 "./src-ag/Transform.ag" #-}
+                       _namesInontSet
+                       {-# LINE 2124 "dist/build/Transform.hs"#-}
+   {-# INLINE rule178 #-}
+   rule178 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule179 #-}
+   rule179 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule180 #-}
+   rule180 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule181 #-}
+   rule181 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule182 #-}
+   rule182 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule183 #-}
+   rule183 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule184 #-}
+   rule184 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule185 #-}
+   rule185 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule186 #-}
+   rule186 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule187 #-}
+   rule187 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule188 #-}
+   rule188 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule189 #-}
+   rule189 = \ ((_namesIcollectedNames) :: Set Identifier) ->
+     _namesIcollectedNames
+   {-# INLINE rule190 #-}
+   rule190 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule191 #-}
+   rule191 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule192 #-}
+   rule192 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule193 #-}
+   rule193 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule194 #-}
+   rule194 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule195 #-}
+   rule195 = \ ((_attrsIerrors) :: Seq Error) ((_namesIerrors) :: Seq Error) ->
+     _namesIerrors Seq.>< _attrsIerrors
+   {-# INLINE rule196 #-}
+   rule196 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule197 #-}
+   rule197 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule198 #-}
+   rule198 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule199 #-}
+   rule199 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule200 #-}
+   rule200 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule201 #-}
+   rule201 = \ ((_attrsIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ->
+     _attrsIuseMap
+   {-# INLINE rule202 #-}
+   rule202 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule203 #-}
+   rule203 = \ ((_attrsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrDecls
+   {-# INLINE rule204 #-}
+   rule204 = \ ((_attrsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrs
+   {-# INLINE rule205 #-}
+   rule205 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule206 #-}
+   rule206 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule207 #-}
+   rule207 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule208 #-}
+   rule208 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule209 #-}
+   rule209 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule210 #-}
+   rule210 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule211 #-}
+   rule211 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule212 #-}
+   rule212 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule213 #-}
+   rule213 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_Elem_Sem #-}
+sem_Elem_Sem :: (Pos) -> (ClassContext) -> T_NontSet  -> T_Attrs  -> ([String]) -> T_SemAlts  -> T_Elem 
+sem_Elem_Sem _ arg_ctx_ arg_names_ arg_attrs_ arg_quants_ arg_alts_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _namesX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_names_))
+         _attrsX11 = Control.Monad.Identity.runIdentity (attach_T_Attrs (arg_attrs_))
+         _altsX41 = Control.Monad.Identity.runIdentity (attach_T_SemAlts (arg_alts_))
+         (T_NontSet_vOut28 _namesIcollectedNames _namesIerrors _namesInontSet) = inv_NontSet_s29 _namesX29 (T_NontSet_vIn28 _namesOallFields _namesOallNonterminals _namesOdefinedSets)
+         (T_Attrs_vOut10 _attrsIattrDecls _attrsIattrs _attrsIerrors _attrsIuseMap) = inv_Attrs_s11 _attrsX11 (T_Attrs_vIn10 _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions)
+         (T_SemAlts_vOut40 _altsIattrOrderCollect _altsIcollectedArounds _altsIcollectedAugments _altsIcollectedInsts _altsIcollectedMerges _altsIcollectedRules _altsIcollectedSigs _altsIcollectedUniques _altsIerrors _altsIsemPragmasCollect) = inv_SemAlts_s41 _altsX41 (T_SemAlts_vIn40 _altsOallAttrDecls _altsOallAttrs _altsOallFields _altsOnts _altsOoptions)
+         _altsOnts = rule214 _namesInontSet
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule215 _namesInontSet arg_ctx_
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule216 _namesInontSet arg_quants_
+         _attrsOnts = rule217 _namesInontSet
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule218 _altsIattrOrderCollect
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule219  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule220 _altsIcollectedArounds
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule221 _altsIcollectedAugments
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule222  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule223  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule224  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule225  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule226 _altsIcollectedInsts
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule227  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule228 _altsIcollectedMerges
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule229 _namesIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule230 _altsIcollectedRules
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule231  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule232 _altsIcollectedSigs
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule233 _altsIcollectedUniques
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule234  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule235 _altsIerrors _attrsIerrors _namesIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule236  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule237  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule238  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule239 _altsIsemPragmasCollect
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule240  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule241 _attrsIuseMap
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule242  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule243 _attrsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule244 _attrsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule245 _lhsIdefSets
+         _namesOallFields = rule246 _lhsIallFields
+         _namesOallNonterminals = rule247 _lhsIallNonterminals
+         _namesOdefinedSets = rule248 _lhsIdefinedSets
+         _attrsOallFields = rule249 _lhsIallFields
+         _attrsOallNonterminals = rule250 _lhsIallNonterminals
+         _attrsOattrDecls = rule251 _lhsIattrDecls
+         _attrsOattrs = rule252 _lhsIattrs
+         _attrsOoptions = rule253 _lhsIoptions
+         _altsOallAttrDecls = rule254 _lhsIallAttrDecls
+         _altsOallAttrs = rule255 _lhsIallAttrs
+         _altsOallFields = rule256 _lhsIallFields
+         _altsOoptions = rule257 _lhsIoptions
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule214 #-}
+   {-# LINE 177 "./src-ag/Transform.ag" #-}
+   rule214 = \ ((_namesInontSet) :: Set NontermIdent) ->
+                      {-# LINE 177 "./src-ag/Transform.ag" #-}
+                      _namesInontSet
+                      {-# LINE 2328 "dist/build/Transform.hs"#-}
+   {-# INLINE rule215 #-}
+   {-# LINE 970 "./src-ag/Transform.ag" #-}
+   rule215 = \ ((_namesInontSet) :: Set NontermIdent) ctx_ ->
+                         {-# LINE 970 "./src-ag/Transform.ag" #-}
+                         if null ctx_
+                         then Map.empty
+                         else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
+                         {-# LINE 2336 "dist/build/Transform.hs"#-}
+   {-# INLINE rule216 #-}
+   {-# LINE 995 "./src-ag/Transform.ag" #-}
+   rule216 = \ ((_namesInontSet) :: Set NontermIdent) quants_ ->
+                           {-# LINE 995 "./src-ag/Transform.ag" #-}
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2819 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 1034, column 10)
-                      _attrsOnts =
-                          ({-# LINE 1034 "./src-ag/Transform.ag" #-}
-                           _namesInontSet
-                           {-# LINE 2825 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           _altsIattrOrderCollect
-                           {-# LINE 2831 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2837 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedArounds
-                           {-# LINE 2843 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedAugments
-                           {-# LINE 2849 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2855 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2861 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2867 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2873 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedInsts
-                           {-# LINE 2879 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2885 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedMerges
-                           {-# LINE 2891 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 2897 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedRules
-                           {-# LINE 2903 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2909 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedSigs
-                           {-# LINE 2915 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedUniques
-                           {-# LINE 2921 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2927 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors Seq.>< _altsIerrors
-                           {-# LINE 2933 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2939 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2945 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2951 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           _altsIsemPragmasCollect
-                           {-# LINE 2957 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2963 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2969 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2975 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _attrsIattrDecls
-                           {-# LINE 2981 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (up)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _attrsIattrs
-                           {-# LINE 2987 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 2993 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 2999 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 3005 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _namesOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 3011 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 3017 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 3023 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 3029 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 3035 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _attrsOoptions =
-                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                           _lhsIoptions
-                           {-# LINE 3041 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOallAttrDecls =
-                          ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                           _lhsIallAttrDecls
-                           {-# LINE 3047 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOallAttrs =
-                          ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                           _lhsIallAttrs
-                           {-# LINE 3053 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 3059 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _altsOoptions =
-                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                           _lhsIoptions
-                           {-# LINE 3065 "dist/build/Transform.hs" #-}
-                           )
-                      ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
-                          names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
-                      ( _attrsIattrDecls,_attrsIattrs,_attrsIerrors,_attrsIuseMap) =
-                          attrs_ _attrsOallFields _attrsOallNonterminals _attrsOattrDecls _attrsOattrs _attrsOnts _attrsOoptions
-                      ( _altsIattrOrderCollect,_altsIcollectedArounds,_altsIcollectedAugments,_altsIcollectedInsts,_altsIcollectedMerges,_altsIcollectedRules,_altsIcollectedSigs,_altsIcollectedUniques,_altsIerrors,_altsIsemPragmasCollect) =
-                          alts_ _altsOallAttrDecls _altsOallAttrs _altsOallFields _altsOnts _altsOoptions
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Txt :: Pos ->
-                BlockKind ->
-                (Maybe NontermIdent) ->
-                ([String]) ->
-                T_Elem
-sem_Elem_Txt pos_ kind_ mbNt_ lines_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOblocks :: Blocks
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 186, column 10)
-                      _blockInfo =
-                          ({-# LINE 186 "./src-ag/Transform.ag" #-}
-                           ( kind_
-                           , mbNt_
-                           )
-                           {-# LINE 3126 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 189, column 10)
-                      _blockValue =
-                          ({-# LINE 189 "./src-ag/Transform.ag" #-}
-                           [(lines_, pos_)]
-                           {-# LINE 3132 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 190, column 10)
-                      _lhsOblocks =
-                          ({-# LINE 190 "./src-ag/Transform.ag" #-}
-                           Map.singleton _blockInfo     _blockValue
-                           {-# LINE 3138 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 191, column 10)
-                      _lhsOerrors =
-                          ({-# LINE 191 "./src-ag/Transform.ag" #-}
-                           if checkParseBlock _lhsIoptions
-                           then let ex  = Expression pos_ tks
-                                    tks = [tk]
-                                    tk  = HsToken (unlines lines_) pos_
-                                in Seq.fromList $ checkBlock $ ex
-                           else Seq.empty
-                           {-# LINE 3149 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3155 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3161 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3167 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3173 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3179 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3185 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3191 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3197 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3203 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3209 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3215 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3221 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3227 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3233 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3239 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3245 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3251 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3257 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3263 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3269 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3275 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3281 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3287 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3293 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3299 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 3305 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 3311 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 3317 "dist/build/Transform.hs" #-}
-                           )
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Set :: Pos ->
-                NontermIdent ->
-                Bool ->
-                T_NontSet ->
-                T_Elem
-sem_Elem_Set pos_ name_ merge_ (T_NontSet set_) =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _setOallFields :: DataTypes
-                      _setOallNonterminals :: (Set NontermIdent)
-                      _setOdefinedSets :: DefinedSets
-                      _setIcollectedNames :: (Set Identifier)
-                      _setIerrors :: (Seq Error)
-                      _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 597, column 10)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 597 "./src-ag/Transform.ag" #-}
-                           Set.singleton name_
-                           {-# LINE 3376 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 714, column 13)
-                      (_defSets2,_errs) =
-                          ({-# LINE 714 "./src-ag/Transform.ag" #-}
-                           let allUsedNames = Set.unions [ maybe (Set.singleton n)
-                                                                 snd
-                                                                 (Map.lookup n _lhsIdefSets)
-                                                         | n <- Set.toList _setIcollectedNames
-                                                         ]
-                               (nontSet,e1) | Set.member name_ allUsedNames
-                                                        = (Set.empty, Seq.singleton(CyclicSet name_))
-                                            | otherwise = (_setInontSet, Seq.empty)
-                               (res, e2) = let toAdd = (nontSet,Set.insert name_ allUsedNames)
-                                               un (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
-                                           in if Set.member name_ _lhsIallNonterminals || not merge_
-                                              then checkDuplicate DupSet name_ toAdd _lhsIdefSets
-                                              else (Map.insertWith un name_ toAdd _lhsIdefSets, Seq.empty)
-                           in (res, e1 Seq.>< e2)
-                           {-# LINE 3395 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 728, column 9)
-                      _lhsOdefSets =
-                          ({-# LINE 728 "./src-ag/Transform.ag" #-}
-                           _defSets2
-                           {-# LINE 3401 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 728, column 9)
-                      _lhsOerrors =
-                          ({-# LINE 729 "./src-ag/Transform.ag" #-}
-                           _errs >< _setIerrors
-                           {-# LINE 3407 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3413 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3419 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3425 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3431 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3437 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3443 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3449 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3455 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3461 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3467 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3473 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3479 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3485 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3491 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3497 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3503 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3509 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3515 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3521 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3527 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3533 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3539 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3545 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3551 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3557 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 3563 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 3569 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 3575 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 3581 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 3587 "dist/build/Transform.hs" #-}
-                           )
-                      ( _setIcollectedNames,_setIerrors,_setInontSet) =
-                          set_ _setOallFields _setOallNonterminals _setOdefinedSets
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Deriving :: Pos ->
-                     T_NontSet ->
-                     ([NontermIdent]) ->
-                     T_Elem
-sem_Elem_Deriving pos_ (T_NontSet set_) classes_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOderivings :: Derivings
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _setOallFields :: DataTypes
-                      _setOallNonterminals :: (Set NontermIdent)
-                      _setOdefinedSets :: DefinedSets
-                      _setIcollectedNames :: (Set Identifier)
-                      _setIerrors :: (Seq Error)
-                      _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 1016, column 14)
-                      _lhsOderivings =
-                          ({-# LINE 1016 "./src-ag/Transform.ag" #-}
-                           Map.fromList [(nt,Set.fromList classes_) | nt <- Set.toList _setInontSet]
-                           {-# LINE 3647 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3653 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3659 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3665 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3671 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3677 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3683 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3689 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3695 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3701 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3707 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3713 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3719 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3725 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3731 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3737 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3743 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3749 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 3755 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3761 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3767 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3773 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3779 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3785 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3791 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3797 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3803 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 3809 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 3815 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 3821 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 3827 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 3833 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 3839 "dist/build/Transform.hs" #-}
-                           )
-                      ( _setIcollectedNames,_setIerrors,_setInontSet) =
-                          set_ _setOallFields _setOallNonterminals _setOdefinedSets
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Wrapper :: Pos ->
-                    T_NontSet ->
-                    T_Elem
-sem_Elem_Wrapper pos_ (T_NontSet set_) =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _setOallFields :: DataTypes
-                      _setOallNonterminals :: (Set NontermIdent)
-                      _setOdefinedSets :: DefinedSets
-                      _setIcollectedNames :: (Set Identifier)
-                      _setIerrors :: (Seq Error)
-                      _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 789, column 13)
-                      _lhsOwrappers =
-                          ({-# LINE 789 "./src-ag/Transform.ag" #-}
-                           _setInontSet
-                           {-# LINE 3898 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3904 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3910 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3916 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3922 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3928 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3934 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3940 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3946 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3952 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3958 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3964 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3970 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3976 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3982 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3988 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3994 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4000 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4006 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 4012 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4018 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4024 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 4030 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4036 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4042 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4048 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4054 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 4060 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 4066 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 4072 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 4078 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 4084 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 4090 "dist/build/Transform.hs" #-}
-                           )
-                      ( _setIcollectedNames,_setIerrors,_setInontSet) =
-                          set_ _setOallFields _setOallNonterminals _setOdefinedSets
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Nocatas :: Pos ->
-                    T_NontSet ->
-                    T_Elem
-sem_Elem_Nocatas pos_ (T_NontSet set_) =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOpragmas :: (Options -> Options)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      _setOallFields :: DataTypes
-                      _setOallNonterminals :: (Set NontermIdent)
-                      _setOdefinedSets :: DefinedSets
-                      _setIcollectedNames :: (Set Identifier)
-                      _setIerrors :: (Seq Error)
-                      _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 796, column 14)
-                      _lhsOpragmas =
-                          ({-# LINE 796 "./src-ag/Transform.ag" #-}
-                           \o -> o { nocatas = _setInontSet `Set.union` nocatas o }
-                           {-# LINE 4149 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4155 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4161 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4167 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4173 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4179 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4185 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4191 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4197 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4203 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4209 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4215 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 4221 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4227 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4233 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4239 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4245 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4251 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4257 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 4263 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4269 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4275 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4281 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4287 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4293 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4299 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4305 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 4311 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 4317 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 4323 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallFields =
-                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                           _lhsIallFields
-                           {-# LINE 4329 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOallNonterminals =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           _lhsIallNonterminals
-                           {-# LINE 4335 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (down)
-                      _setOdefinedSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                           _lhsIdefinedSets
-                           {-# LINE 4341 "dist/build/Transform.hs" #-}
-                           )
-                      ( _setIcollectedNames,_setIerrors,_setInontSet) =
-                          set_ _setOallFields _setOallNonterminals _setOdefinedSets
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Pragma :: Pos ->
-                   ([NontermIdent]) ->
-                   T_Elem
-sem_Elem_Pragma pos_ names_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOpragmas :: (Options -> Options)
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 805, column 13)
-                      _lhsOpragmas =
-                          ({-# LINE 805 "./src-ag/Transform.ag" #-}
-                           let mk n o = case getName n of
-                                          "gencatas"     -> o { folds       = True  }
-                                          "nogencatas"   -> o { folds       = False }
-                                          "gendatas"     -> o { dataTypes   = True  }
-                                          "datarecords"  -> o { dataRecords = True  }
-                                          "nogendatas"   -> o { dataTypes   = False }
-                                          "gensems"      -> o { semfuns     = True  }
-                                          "nogensems"    -> o { semfuns     = False }
-                                          "gentypesigs"  -> o { typeSigs    = True  }
-                                          "nogentypesigs"-> o { typeSigs    = False }
-                                          "nocycle"      -> o { withCycle   = False }
-                                          "cycle"        -> o { withCycle   = True  }
-                                          "nostrictdata" -> o { strictData  = False }
-                                          "strictdata"   -> o { strictData  = True  }
-                                          "nostrictcase" -> o { strictCases = False }
-                                          "strictcase"   -> o { strictCases = True  }
-                                          "strictercase" -> o { strictCases = True, stricterCases = True }
-                                          "nostrictwrap" -> o { strictWrap  = False }
-                                          "strictwrap"   -> o { strictWrap  = True  }
-                                          "novisit"      -> o { visit       = False }
-                                          "visit"        -> o { visit       = True  }
-                                          "nocase"       -> o { cases       = False }
-                                          "case"         -> o { cases       = True  }
-                                          "noseq"        -> o { withSeq     = False }
-                                          "seq"          -> o { withSeq     = True  }
-                                          "nounbox"      -> o { unbox       = False }
-                                          "unbox"        -> o { unbox       = True  }
-                                          "bangpats"     -> o { bangpats    = True  }
-                                          "breadthfirst" -> o { breadthFirst = True }
-                                          "breadthfirstStrict" -> o { breadthFirstStrict = True }
-                                          "nooptimize"   -> o { cases = False , visit = False }
-                                          "optimize"     -> o { cases = True  , visit = True  }
-                                          "strictsem"    -> o { strictSems = True }
-                                          "gentraces"    -> o { genTraces = True }
-                                          "genusetraces" -> o { genUseTraces = True }
-                                          "splitsems"    -> o { splitSems = True }
-                                          "gencostcentres" -> o { genCostCentres = True }
-                                          "sepsemmods"   -> sepSemModsOpt o
-                                          "genlinepragmas" -> o { genLinePragmas = True }
-                                          "newtypes"       -> o { newtypes = True }
-                                          "nonewtypes"     -> o { newtypes = False }
-                                          "nooptimizations" -> o { noOptimizations = True }
-                                          "kennedywarren"   -> o { kennedyWarren = True }
-                                          "aspectag"        -> o { genAspectAG = True }
-                                          'n':'o':'g':'r':'o':'u':'p':'_':atts
-                                                            -> o { noGroup =  extract atts  ++ noGroup o }
-                                          "rename"          -> o { rename = True }
-                                          "parallel"        -> o { parallelInvoke = True }
-                                          "monadicwrappers" -> o { monadicWrappers = True }
-                                          "dummytokenvisit" -> o { dummyTokenVisit = True }
-                                          "tupleasdummytoken" -> o { tupleAsDummyToken = True }
-                                          "stateasdummytoken" -> o { tupleAsDummyToken = False }
-                                          "strictdummytoken" -> o { strictDummyToken = True }
-                                          "noperruletypesigs" -> o { noPerRuleTypeSigs = True }
-                                          "noperstatetypesigs" -> o { noPerStateTypeSigs = True }
-                                          "noeagerblackholing" -> o { noEagerBlackholing = True }
-                                          "noperrulecostcentres" -> o { noPerRuleCostCentres = True }
-                                          "nopervisitcostcentres" -> o { noPerVisitCostCentres = True }
-                                          "helpinlining" -> o { helpInlining = True }
-                                          "noinlinepragmas" -> o { noInlinePragmas = True }
-                                          "aggressiveinlinepragmas" -> o { aggressiveInlinePragmas = True }
-                                          "latehigherorderbindings" -> o { lateHigherOrderBinding = True }
-                                          "ocaml"                   -> ocamlOpt o
-                                          s              -> trace ("uuagc: ignoring unknown pragma: " ++ s) o
-                           in \o -> foldr mk o names_
-                           {-# LINE 4458 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4464 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4470 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4476 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4482 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4488 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4494 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4500 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4506 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4512 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4518 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4524 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4530 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4536 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4542 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4548 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4554 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4560 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4566 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 4572 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4578 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4584 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4590 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4596 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4602 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4608 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4614 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 4620 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 4626 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 4632 "dist/build/Transform.hs" #-}
-                           )
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elem_Module :: Pos ->
-                   String ->
-                   String ->
-                   String ->
-                   T_Elem
-sem_Elem_Module pos_ name_ exports_ imports_ =
-    (T_Elem (\ _lhsIallAttrDecls
-               _lhsIallAttrs
-               _lhsIallConstructors
-               _lhsIallFields
-               _lhsIallNonterminals
-               _lhsIattrDecls
-               _lhsIattrs
-               _lhsIdefSets
-               _lhsIdefinedSets
-               _lhsIoptions ->
-                 (let _lhsOmoduleDecl :: (Maybe (String,String,String))
-                      _lhsOattrOrderCollect :: AttrOrderMap
-                      _lhsOblocks :: Blocks
-                      _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                      _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                      _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                      _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                      _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                      _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                      _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                      _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                      _lhsOcollectedNames :: (Set Identifier)
-                      _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                      _lhsOcollectedSetNames :: (Set Identifier)
-                      _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                      _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                      _lhsOctxCollect :: ContextMap
-                      _lhsOderivings :: Derivings
-                      _lhsOerrors :: (Seq Error)
-                      _lhsOparamsCollect :: ParamMap
-                      _lhsOpragmas :: (Options -> Options)
-                      _lhsOquantCollect :: QuantMap
-                      _lhsOsemPragmasCollect :: PragmaMap
-                      _lhsOtypeSyns :: TypeSyns
-                      _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      _lhsOwrappers :: (Set NontermIdent)
-                      _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                      _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 1213, column 7)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1213 "./src-ag/Transform.ag" #-}
-                           Just (name_, exports_, imports_)
-                           {-# LINE 4685 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                      _lhsOattrOrderCollect =
-                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4691 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                      _lhsOblocks =
-                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4697 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4703 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4709 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4715 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4721 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4727 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4733 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                      _lhsOcollectedInsts =
-                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4739 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4745 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4751 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4757 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4763 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4769 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                      _lhsOcollectedSigs =
-                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4775 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedUniques =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4781 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4787 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4793 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 4799 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4805 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 4811 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4817 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4823 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4829 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4835 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4841 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrDecls =
-                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                           _lhsIattrDecls
-                           {-# LINE 4847 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOattrs =
-                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                           _lhsIattrs
-                           {-# LINE 4853 "dist/build/Transform.hs" #-}
-                           )
-                      -- copy rule (chain)
-                      _lhsOdefSets =
-                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                           _lhsIdefSets
-                           {-# LINE 4859 "dist/build/Transform.hs" #-}
-                           )
-                  in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
+                           {-# LINE 2344 "dist/build/Transform.hs"#-}
+   {-# INLINE rule217 #-}
+   {-# LINE 1034 "./src-ag/Transform.ag" #-}
+   rule217 = \ ((_namesInontSet) :: Set NontermIdent) ->
+                       {-# LINE 1034 "./src-ag/Transform.ag" #-}
+                       _namesInontSet
+                       {-# LINE 2350 "dist/build/Transform.hs"#-}
+   {-# INLINE rule218 #-}
+   rule218 = \ ((_altsIattrOrderCollect) :: AttrOrderMap) ->
+     _altsIattrOrderCollect
+   {-# INLINE rule219 #-}
+   rule219 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule220 #-}
+   rule220 = \ ((_altsIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ->
+     _altsIcollectedArounds
+   {-# INLINE rule221 #-}
+   rule221 = \ ((_altsIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ->
+     _altsIcollectedAugments
+   {-# INLINE rule222 #-}
+   rule222 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule223 #-}
+   rule223 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule224 #-}
+   rule224 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule225 #-}
+   rule225 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule226 #-}
+   rule226 = \ ((_altsIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ->
+     _altsIcollectedInsts
+   {-# INLINE rule227 #-}
+   rule227 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule228 #-}
+   rule228 = \ ((_altsIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ->
+     _altsIcollectedMerges
+   {-# INLINE rule229 #-}
+   rule229 = \ ((_namesIcollectedNames) :: Set Identifier) ->
+     _namesIcollectedNames
+   {-# INLINE rule230 #-}
+   rule230 = \ ((_altsIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ->
+     _altsIcollectedRules
+   {-# INLINE rule231 #-}
+   rule231 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule232 #-}
+   rule232 = \ ((_altsIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ->
+     _altsIcollectedSigs
+   {-# INLINE rule233 #-}
+   rule233 = \ ((_altsIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
+     _altsIcollectedUniques
+   {-# INLINE rule234 #-}
+   rule234 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule235 #-}
+   rule235 = \ ((_altsIerrors) :: Seq Error) ((_attrsIerrors) :: Seq Error) ((_namesIerrors) :: Seq Error) ->
+     _namesIerrors Seq.>< _attrsIerrors Seq.>< _altsIerrors
+   {-# INLINE rule236 #-}
+   rule236 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule237 #-}
+   rule237 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule238 #-}
+   rule238 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule239 #-}
+   rule239 = \ ((_altsIsemPragmasCollect) :: PragmaMap) ->
+     _altsIsemPragmasCollect
+   {-# INLINE rule240 #-}
+   rule240 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule241 #-}
+   rule241 = \ ((_attrsIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ->
+     _attrsIuseMap
+   {-# INLINE rule242 #-}
+   rule242 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule243 #-}
+   rule243 = \ ((_attrsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrDecls
+   {-# INLINE rule244 #-}
+   rule244 = \ ((_attrsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _attrsIattrs
+   {-# INLINE rule245 #-}
+   rule245 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule246 #-}
+   rule246 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule247 #-}
+   rule247 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule248 #-}
+   rule248 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule249 #-}
+   rule249 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule250 #-}
+   rule250 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule251 #-}
+   rule251 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule252 #-}
+   rule252 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule253 #-}
+   rule253 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule254 #-}
+   rule254 = \ ((_lhsIallAttrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrDecls
+   {-# INLINE rule255 #-}
+   rule255 = \ ((_lhsIallAttrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrs
+   {-# INLINE rule256 #-}
+   rule256 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule257 #-}
+   rule257 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_Elem_Txt #-}
+sem_Elem_Txt :: (Pos) -> (BlockKind) -> (Maybe NontermIdent) -> ([String]) -> T_Elem 
+sem_Elem_Txt arg_pos_ arg_kind_ arg_mbNt_ arg_lines_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _blockInfo = rule258 arg_kind_ arg_mbNt_
+         _blockValue = rule259 arg_lines_ arg_pos_
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule260 _blockInfo _blockValue
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule261 _lhsIoptions arg_lines_ arg_pos_
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule262  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule263  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule264  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule265  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule266  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule267  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule268  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule269  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule270  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule271  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule272  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule273  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule274  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule275  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule276  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule277  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule278  ()
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule279  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule280  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule281  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule282  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule283  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule284  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule285  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule286  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule287 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule288 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule289 _lhsIdefSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule258 #-}
+   {-# LINE 186 "./src-ag/Transform.ag" #-}
+   rule258 = \ kind_ mbNt_ ->
+                            {-# LINE 186 "./src-ag/Transform.ag" #-}
+                            ( kind_
+                            , mbNt_
+                            )
+                            {-# LINE 2550 "dist/build/Transform.hs"#-}
+   {-# INLINE rule259 #-}
+   {-# LINE 189 "./src-ag/Transform.ag" #-}
+   rule259 = \ lines_ pos_ ->
+                            {-# LINE 189 "./src-ag/Transform.ag" #-}
+                            [(lines_, pos_)]
+                            {-# LINE 2556 "dist/build/Transform.hs"#-}
+   {-# INLINE rule260 #-}
+   {-# LINE 190 "./src-ag/Transform.ag" #-}
+   rule260 = \ _blockInfo _blockValue ->
+                            {-# LINE 190 "./src-ag/Transform.ag" #-}
+                            Map.singleton _blockInfo     _blockValue
+                            {-# LINE 2562 "dist/build/Transform.hs"#-}
+   {-# INLINE rule261 #-}
+   {-# LINE 191 "./src-ag/Transform.ag" #-}
+   rule261 = \ ((_lhsIoptions) :: Options) lines_ pos_ ->
+                            {-# LINE 191 "./src-ag/Transform.ag" #-}
+                            if checkParseBlock _lhsIoptions
+                            then let ex  = Expression pos_ tks
+                                     tks = [tk]
+                                     tk  = HsToken (unlines lines_) pos_
+                                 in Seq.fromList $ checkBlock $ ex
+                            else Seq.empty
+                            {-# LINE 2573 "dist/build/Transform.hs"#-}
+   {-# INLINE rule262 #-}
+   rule262 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule263 #-}
+   rule263 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule264 #-}
+   rule264 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule265 #-}
+   rule265 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule266 #-}
+   rule266 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule267 #-}
+   rule267 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule268 #-}
+   rule268 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule269 #-}
+   rule269 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule270 #-}
+   rule270 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule271 #-}
+   rule271 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule272 #-}
+   rule272 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule273 #-}
+   rule273 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule274 #-}
+   rule274 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule275 #-}
+   rule275 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule276 #-}
+   rule276 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule277 #-}
+   rule277 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule278 #-}
+   rule278 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule279 #-}
+   rule279 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule280 #-}
+   rule280 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule281 #-}
+   rule281 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule282 #-}
+   rule282 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule283 #-}
+   rule283 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule284 #-}
+   rule284 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule285 #-}
+   rule285 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule286 #-}
+   rule286 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule287 #-}
+   rule287 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule288 #-}
+   rule288 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule289 #-}
+   rule289 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+{-# NOINLINE sem_Elem_Set #-}
+sem_Elem_Set :: (Pos) -> (NontermIdent) -> (Bool) -> T_NontSet  -> T_Elem 
+sem_Elem_Set _ arg_name_ arg_merge_ arg_set_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _setX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set_))
+         (T_NontSet_vOut28 _setIcollectedNames _setIerrors _setInontSet) = inv_NontSet_s29 _setX29 (T_NontSet_vIn28 _setOallFields _setOallNonterminals _setOdefinedSets)
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule290 arg_name_
+         (_defSets2,_errs) = rule291 _lhsIallNonterminals _lhsIdefSets _setIcollectedNames _setInontSet arg_merge_ arg_name_
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule292 _defSets2
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule293 _errs _setIerrors
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule294  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule295  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule296  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule297  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule298  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule299  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule300  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule301  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule302  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule303  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule304  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule305 _setIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule306  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule307  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule308  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule309  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule310  ()
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule311  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule312  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule313  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule314  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule315  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule316  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule317  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule318  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule319 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule320 _lhsIattrs
+         _setOallFields = rule321 _lhsIallFields
+         _setOallNonterminals = rule322 _lhsIallNonterminals
+         _setOdefinedSets = rule323 _lhsIdefinedSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule290 #-}
+   {-# LINE 597 "./src-ag/Transform.ag" #-}
+   rule290 = \ name_ ->
+                                   {-# LINE 597 "./src-ag/Transform.ag" #-}
+                                   Set.singleton name_
+                                   {-# LINE 2739 "dist/build/Transform.hs"#-}
+   {-# INLINE rule291 #-}
+   {-# LINE 714 "./src-ag/Transform.ag" #-}
+   rule291 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ((_setIcollectedNames) :: Set Identifier) ((_setInontSet) :: Set NontermIdent) merge_ name_ ->
+                                {-# LINE 714 "./src-ag/Transform.ag" #-}
+                                let allUsedNames = Set.unions [ maybe (Set.singleton n)
+                                                                      snd
+                                                                      (Map.lookup n _lhsIdefSets)
+                                                              | n <- Set.toList _setIcollectedNames
+                                                              ]
+                                    (nontSet,e1) | Set.member name_ allUsedNames
+                                                             = (Set.empty, Seq.singleton(CyclicSet name_))
+                                                 | otherwise = (_setInontSet, Seq.empty)
+                                    (res, e2) = let toAdd = (nontSet,Set.insert name_ allUsedNames)
+                                                    un (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
+                                                in if Set.member name_ _lhsIallNonterminals || not merge_
+                                                   then checkDuplicate DupSet name_ toAdd _lhsIdefSets
+                                                   else (Map.insertWith un name_ toAdd _lhsIdefSets, Seq.empty)
+                                in (res, e1 Seq.>< e2)
+                                {-# LINE 2758 "dist/build/Transform.hs"#-}
+   {-# INLINE rule292 #-}
+   {-# LINE 728 "./src-ag/Transform.ag" #-}
+   rule292 = \ _defSets2 ->
+                                {-# LINE 728 "./src-ag/Transform.ag" #-}
+                                _defSets2
+                                {-# LINE 2764 "dist/build/Transform.hs"#-}
+   {-# INLINE rule293 #-}
+   {-# LINE 729 "./src-ag/Transform.ag" #-}
+   rule293 = \ _errs ((_setIerrors) :: Seq Error) ->
+                                {-# LINE 729 "./src-ag/Transform.ag" #-}
+                                _errs >< _setIerrors
+                                {-# LINE 2770 "dist/build/Transform.hs"#-}
+   {-# INLINE rule294 #-}
+   rule294 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule295 #-}
+   rule295 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule296 #-}
+   rule296 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule297 #-}
+   rule297 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule298 #-}
+   rule298 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule299 #-}
+   rule299 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule300 #-}
+   rule300 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule301 #-}
+   rule301 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule302 #-}
+   rule302 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule303 #-}
+   rule303 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule304 #-}
+   rule304 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule305 #-}
+   rule305 = \ ((_setIcollectedNames) :: Set Identifier) ->
+     _setIcollectedNames
+   {-# INLINE rule306 #-}
+   rule306 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule307 #-}
+   rule307 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule308 #-}
+   rule308 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule309 #-}
+   rule309 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule310 #-}
+   rule310 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule311 #-}
+   rule311 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule312 #-}
+   rule312 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule313 #-}
+   rule313 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule314 #-}
+   rule314 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule315 #-}
+   rule315 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule316 #-}
+   rule316 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule317 #-}
+   rule317 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule318 #-}
+   rule318 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule319 #-}
+   rule319 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule320 #-}
+   rule320 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule321 #-}
+   rule321 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule322 #-}
+   rule322 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule323 #-}
+   rule323 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_Elem_Deriving #-}
+sem_Elem_Deriving :: (Pos) -> T_NontSet  -> ([NontermIdent]) -> T_Elem 
+sem_Elem_Deriving _ arg_set_ arg_classes_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _setX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set_))
+         (T_NontSet_vOut28 _setIcollectedNames _setIerrors _setInontSet) = inv_NontSet_s29 _setX29 (T_NontSet_vIn28 _setOallFields _setOallNonterminals _setOdefinedSets)
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule324 _setInontSet arg_classes_
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule325  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule326  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule327  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule328  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule329  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule330  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule331  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule332  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule333  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule334  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule335  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule336 _setIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule337  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule338  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule339  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule340  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule341  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule342 _setIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule343  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule344  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule345  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule346  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule347  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule348  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule349  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule350  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule351 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule352 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule353 _lhsIdefSets
+         _setOallFields = rule354 _lhsIallFields
+         _setOallNonterminals = rule355 _lhsIallNonterminals
+         _setOdefinedSets = rule356 _lhsIdefinedSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule324 #-}
+   {-# LINE 1016 "./src-ag/Transform.ag" #-}
+   rule324 = \ ((_setInontSet) :: Set NontermIdent) classes_ ->
+                               {-# LINE 1016 "./src-ag/Transform.ag" #-}
+                               Map.fromList [(nt,Set.fromList classes_) | nt <- Set.toList _setInontSet]
+                               {-# LINE 2941 "dist/build/Transform.hs"#-}
+   {-# INLINE rule325 #-}
+   rule325 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule326 #-}
+   rule326 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule327 #-}
+   rule327 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule328 #-}
+   rule328 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule329 #-}
+   rule329 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule330 #-}
+   rule330 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule331 #-}
+   rule331 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule332 #-}
+   rule332 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule333 #-}
+   rule333 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule334 #-}
+   rule334 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule335 #-}
+   rule335 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule336 #-}
+   rule336 = \ ((_setIcollectedNames) :: Set Identifier) ->
+     _setIcollectedNames
+   {-# INLINE rule337 #-}
+   rule337 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule338 #-}
+   rule338 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule339 #-}
+   rule339 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule340 #-}
+   rule340 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule341 #-}
+   rule341 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule342 #-}
+   rule342 = \ ((_setIerrors) :: Seq Error) ->
+     _setIerrors
+   {-# INLINE rule343 #-}
+   rule343 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule344 #-}
+   rule344 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule345 #-}
+   rule345 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule346 #-}
+   rule346 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule347 #-}
+   rule347 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule348 #-}
+   rule348 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule349 #-}
+   rule349 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule350 #-}
+   rule350 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule351 #-}
+   rule351 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule352 #-}
+   rule352 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule353 #-}
+   rule353 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule354 #-}
+   rule354 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule355 #-}
+   rule355 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule356 #-}
+   rule356 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_Elem_Wrapper #-}
+sem_Elem_Wrapper :: (Pos) -> T_NontSet  -> T_Elem 
+sem_Elem_Wrapper _ arg_set_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _setX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set_))
+         (T_NontSet_vOut28 _setIcollectedNames _setIerrors _setInontSet) = inv_NontSet_s29 _setX29 (T_NontSet_vIn28 _setOallFields _setOallNonterminals _setOdefinedSets)
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule357 _setInontSet
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule358  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule359  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule360  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule361  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule362  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule363  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule364  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule365  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule366  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule367  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule368  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule369 _setIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule370  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule371  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule372  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule373  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule374  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule375  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule376 _setIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule377  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule378  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule379  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule380  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule381  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule382  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule383  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule384 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule385 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule386 _lhsIdefSets
+         _setOallFields = rule387 _lhsIallFields
+         _setOallNonterminals = rule388 _lhsIallNonterminals
+         _setOdefinedSets = rule389 _lhsIdefinedSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule357 #-}
+   {-# LINE 789 "./src-ag/Transform.ag" #-}
+   rule357 = \ ((_setInontSet) :: Set NontermIdent) ->
+                             {-# LINE 789 "./src-ag/Transform.ag" #-}
+                             _setInontSet
+                             {-# LINE 3118 "dist/build/Transform.hs"#-}
+   {-# INLINE rule358 #-}
+   rule358 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule359 #-}
+   rule359 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule360 #-}
+   rule360 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule361 #-}
+   rule361 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule362 #-}
+   rule362 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule363 #-}
+   rule363 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule364 #-}
+   rule364 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule365 #-}
+   rule365 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule366 #-}
+   rule366 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule367 #-}
+   rule367 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule368 #-}
+   rule368 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule369 #-}
+   rule369 = \ ((_setIcollectedNames) :: Set Identifier) ->
+     _setIcollectedNames
+   {-# INLINE rule370 #-}
+   rule370 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule371 #-}
+   rule371 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule372 #-}
+   rule372 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule373 #-}
+   rule373 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule374 #-}
+   rule374 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule375 #-}
+   rule375 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule376 #-}
+   rule376 = \ ((_setIerrors) :: Seq Error) ->
+     _setIerrors
+   {-# INLINE rule377 #-}
+   rule377 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule378 #-}
+   rule378 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule379 #-}
+   rule379 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule380 #-}
+   rule380 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule381 #-}
+   rule381 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule382 #-}
+   rule382 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule383 #-}
+   rule383 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule384 #-}
+   rule384 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule385 #-}
+   rule385 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule386 #-}
+   rule386 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule387 #-}
+   rule387 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule388 #-}
+   rule388 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule389 #-}
+   rule389 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_Elem_Nocatas #-}
+sem_Elem_Nocatas :: (Pos) -> T_NontSet  -> T_Elem 
+sem_Elem_Nocatas _ arg_set_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _setX29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set_))
+         (T_NontSet_vOut28 _setIcollectedNames _setIerrors _setInontSet) = inv_NontSet_s29 _setX29 (T_NontSet_vIn28 _setOallFields _setOallNonterminals _setOdefinedSets)
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule390 _setInontSet
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule391  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule392  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule393  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule394  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule395  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule396  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule397  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule398  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule399  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule400  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule401  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule402 _setIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule403  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule404  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule405  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule406  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule407  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule408  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule409 _setIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule410  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule411  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule412  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule413  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule414  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule415  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule416  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule417 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule418 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule419 _lhsIdefSets
+         _setOallFields = rule420 _lhsIallFields
+         _setOallNonterminals = rule421 _lhsIallNonterminals
+         _setOdefinedSets = rule422 _lhsIdefinedSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule390 #-}
+   {-# LINE 796 "./src-ag/Transform.ag" #-}
+   rule390 = \ ((_setInontSet) :: Set NontermIdent) ->
+                             {-# LINE 796 "./src-ag/Transform.ag" #-}
+                             \o -> o { nocatas = _setInontSet `Set.union` nocatas o }
+                             {-# LINE 3295 "dist/build/Transform.hs"#-}
+   {-# INLINE rule391 #-}
+   rule391 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule392 #-}
+   rule392 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule393 #-}
+   rule393 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule394 #-}
+   rule394 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule395 #-}
+   rule395 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule396 #-}
+   rule396 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule397 #-}
+   rule397 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule398 #-}
+   rule398 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule399 #-}
+   rule399 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule400 #-}
+   rule400 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule401 #-}
+   rule401 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule402 #-}
+   rule402 = \ ((_setIcollectedNames) :: Set Identifier) ->
+     _setIcollectedNames
+   {-# INLINE rule403 #-}
+   rule403 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule404 #-}
+   rule404 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule405 #-}
+   rule405 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule406 #-}
+   rule406 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule407 #-}
+   rule407 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule408 #-}
+   rule408 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule409 #-}
+   rule409 = \ ((_setIerrors) :: Seq Error) ->
+     _setIerrors
+   {-# INLINE rule410 #-}
+   rule410 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule411 #-}
+   rule411 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule412 #-}
+   rule412 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule413 #-}
+   rule413 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule414 #-}
+   rule414 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule415 #-}
+   rule415 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule416 #-}
+   rule416 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule417 #-}
+   rule417 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule418 #-}
+   rule418 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule419 #-}
+   rule419 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule420 #-}
+   rule420 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule421 #-}
+   rule421 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule422 #-}
+   rule422 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_Elem_Pragma #-}
+sem_Elem_Pragma :: (Pos) -> ([NontermIdent]) -> T_Elem 
+sem_Elem_Pragma _ arg_names_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule423 arg_names_
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule424  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule425  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule426  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule427  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule428  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule429  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule430  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule431  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule432  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule433  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule434  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule435  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule436  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule437  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule438  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule439  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule440  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule441  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule442  ()
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule443  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule444  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule445  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule446  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule447  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule448  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule449  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule450 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule451 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule452 _lhsIdefSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule423 #-}
+   {-# LINE 805 "./src-ag/Transform.ag" #-}
+   rule423 = \ names_ ->
+                            {-# LINE 805 "./src-ag/Transform.ag" #-}
+                            let mk n o = case getName n of
+                                           "gencatas"     -> o { folds       = True  }
+                                           "nogencatas"   -> o { folds       = False }
+                                           "gendatas"     -> o { dataTypes   = True  }
+                                           "datarecords"  -> o { dataRecords = True  }
+                                           "nogendatas"   -> o { dataTypes   = False }
+                                           "gensems"      -> o { semfuns     = True  }
+                                           "nogensems"    -> o { semfuns     = False }
+                                           "gentypesigs"  -> o { typeSigs    = True  }
+                                           "nogentypesigs"-> o { typeSigs    = False }
+                                           "nocycle"      -> o { withCycle   = False }
+                                           "cycle"        -> o { withCycle   = True  }
+                                           "nostrictdata" -> o { strictData  = False }
+                                           "strictdata"   -> o { strictData  = True  }
+                                           "nostrictcase" -> o { strictCases = False }
+                                           "strictcase"   -> o { strictCases = True  }
+                                           "strictercase" -> o { strictCases = True, stricterCases = True }
+                                           "nostrictwrap" -> o { strictWrap  = False }
+                                           "strictwrap"   -> o { strictWrap  = True  }
+                                           "novisit"      -> o { visit       = False }
+                                           "visit"        -> o { visit       = True  }
+                                           "nocase"       -> o { cases       = False }
+                                           "case"         -> o { cases       = True  }
+                                           "noseq"        -> o { withSeq     = False }
+                                           "seq"          -> o { withSeq     = True  }
+                                           "nounbox"      -> o { unbox       = False }
+                                           "unbox"        -> o { unbox       = True  }
+                                           "bangpats"     -> o { bangpats    = True  }
+                                           "breadthfirst" -> o { breadthFirst = True }
+                                           "breadthfirstStrict" -> o { breadthFirstStrict = True }
+                                           "nooptimize"   -> o { cases = False , visit = False }
+                                           "optimize"     -> o { cases = True  , visit = True  }
+                                           "strictsem"    -> o { strictSems = True }
+                                           "gentraces"    -> o { genTraces = True }
+                                           "genusetraces" -> o { genUseTraces = True }
+                                           "splitsems"    -> o { splitSems = True }
+                                           "gencostcentres" -> o { genCostCentres = True }
+                                           "sepsemmods"   -> sepSemModsOpt o
+                                           "genlinepragmas" -> o { genLinePragmas = True }
+                                           "newtypes"       -> o { newtypes = True }
+                                           "nonewtypes"     -> o { newtypes = False }
+                                           "nooptimizations" -> o { noOptimizations = True }
+                                           "kennedywarren"   -> o { kennedyWarren = True }
+                                           "aspectag"        -> o { genAspectAG = True }
+                                           'n':'o':'g':'r':'o':'u':'p':'_':atts
+                                                             -> o { noGroup =  extract atts  ++ noGroup o }
+                                           "rename"          -> o { rename = True }
+                                           "parallel"        -> o { parallelInvoke = True }
+                                           "monadicwrappers" -> o { monadicWrappers = True }
+                                           "dummytokenvisit" -> o { dummyTokenVisit = True }
+                                           "tupleasdummytoken" -> o { tupleAsDummyToken = True }
+                                           "stateasdummytoken" -> o { tupleAsDummyToken = False }
+                                           "strictdummytoken" -> o { strictDummyToken = True }
+                                           "noperruletypesigs" -> o { noPerRuleTypeSigs = True }
+                                           "noperstatetypesigs" -> o { noPerStateTypeSigs = True }
+                                           "noeagerblackholing" -> o { noEagerBlackholing = True }
+                                           "noperrulecostcentres" -> o { noPerRuleCostCentres = True }
+                                           "nopervisitcostcentres" -> o { noPerVisitCostCentres = True }
+                                           "helpinlining" -> o { helpInlining = True }
+                                           "noinlinepragmas" -> o { noInlinePragmas = True }
+                                           "aggressiveinlinepragmas" -> o { aggressiveInlinePragmas = True }
+                                           "latehigherorderbindings" -> o { lateHigherOrderBinding = True }
+                                           "ocaml"                   -> ocamlOpt o
+                                           s              -> trace ("uuagc: ignoring unknown pragma: " ++ s) o
+                            in \o -> foldr mk o names_
+                            {-# LINE 3531 "dist/build/Transform.hs"#-}
+   {-# INLINE rule424 #-}
+   rule424 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule425 #-}
+   rule425 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule426 #-}
+   rule426 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule427 #-}
+   rule427 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule428 #-}
+   rule428 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule429 #-}
+   rule429 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule430 #-}
+   rule430 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule431 #-}
+   rule431 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule432 #-}
+   rule432 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule433 #-}
+   rule433 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule434 #-}
+   rule434 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule435 #-}
+   rule435 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule436 #-}
+   rule436 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule437 #-}
+   rule437 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule438 #-}
+   rule438 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule439 #-}
+   rule439 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule440 #-}
+   rule440 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule441 #-}
+   rule441 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule442 #-}
+   rule442 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule443 #-}
+   rule443 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule444 #-}
+   rule444 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule445 #-}
+   rule445 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule446 #-}
+   rule446 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule447 #-}
+   rule447 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule448 #-}
+   rule448 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule449 #-}
+   rule449 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule450 #-}
+   rule450 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule451 #-}
+   rule451 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule452 #-}
+   rule452 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+{-# NOINLINE sem_Elem_Module #-}
+sem_Elem_Module :: (Pos) -> (String) -> (String) -> (String) -> T_Elem 
+sem_Elem_Module _ arg_name_ arg_exports_ arg_imports_ = T_Elem (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Elem_v16 
+      v16 = \ (T_Elem_vIn16 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule453 arg_exports_ arg_imports_ arg_name_
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule454  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule455  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule456  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule457  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule458  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule459  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule460  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule461  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule462  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule463  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule464  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule465  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule466  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule467  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule468  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule469  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule470  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule471  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule472  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule473  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule474  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule475  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule476  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule477  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule478  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule479  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule480 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule481 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule482 _lhsIdefSets
+         __result_ = T_Elem_vOut16 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elem_s17 v16
+   {-# INLINE rule453 #-}
+   {-# LINE 1213 "./src-ag/Transform.ag" #-}
+   rule453 = \ exports_ imports_ name_ ->
+                         {-# LINE 1213 "./src-ag/Transform.ag" #-}
+                         Just (name_, exports_, imports_)
+                         {-# LINE 3694 "dist/build/Transform.hs"#-}
+   {-# INLINE rule454 #-}
+   rule454 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule455 #-}
+   rule455 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule456 #-}
+   rule456 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule457 #-}
+   rule457 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule458 #-}
+   rule458 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule459 #-}
+   rule459 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule460 #-}
+   rule460 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule461 #-}
+   rule461 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule462 #-}
+   rule462 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule463 #-}
+   rule463 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule464 #-}
+   rule464 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule465 #-}
+   rule465 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule466 #-}
+   rule466 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule467 #-}
+   rule467 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule468 #-}
+   rule468 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule469 #-}
+   rule469 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule470 #-}
+   rule470 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule471 #-}
+   rule471 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule472 #-}
+   rule472 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule473 #-}
+   rule473 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule474 #-}
+   rule474 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule475 #-}
+   rule475 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule476 #-}
+   rule476 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule477 #-}
+   rule477 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule478 #-}
+   rule478 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule479 #-}
+   rule479 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule480 #-}
+   rule480 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule481 #-}
+   rule481 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule482 #-}
+   rule482 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+
 -- Elems -------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allAttrDecls         : Map NontermIdent (Attributes, Attributes)
-         allAttrs             : Map NontermIdent (Attributes, Attributes)
-         allConstructors      : Map NontermIdent (Set ConstructorIdent)
-         allFields            : DataTypes
-         allNonterminals      : Set NontermIdent
-         definedSets          : DefinedSets
-         options              : Options
-      chained attributes:
-         attrDecls            : Map NontermIdent (Attributes, Attributes)
-         attrs                : Map NontermIdent (Attributes, Attributes)
-         defSets              : Map Identifier (Set NontermIdent,Set Identifier)
-      synthesized attributes:
-         attrOrderCollect     : AttrOrderMap
-         blocks               : Blocks
-         collectedArounds     : [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
-         collectedAugments    : [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
-         collectedConParams   : [(NontermIdent, ConstructorIdent, Set Identifier)]
-         collectedConstraints : [(NontermIdent, ConstructorIdent, [Type])]
-         collectedConstructorsMap : Map NontermIdent (Set ConstructorIdent)
-         collectedFields      : [(NontermIdent, ConstructorIdent, FieldMap)]
-         collectedInsts       : [ (NontermIdent, ConstructorIdent, [Identifier]) ]
-         collectedMacros      : [(NontermIdent, ConstructorIdent, MaybeMacro)]
-         collectedMerges      : [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
-         collectedNames       : Set Identifier
-         collectedRules       : [ (NontermIdent, ConstructorIdent, RuleInfo)]
-         collectedSetNames    : Set Identifier
-         collectedSigs        : [ (NontermIdent, ConstructorIdent, SigInfo) ]
-         collectedUniques     : [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
-         ctxCollect           : ContextMap
-         derivings            : Derivings
-         errors               : Seq Error
-         moduleDecl           : Maybe (String,String,String)
-         paramsCollect        : ParamMap
-         pragmas              : Options -> Options
-         quantCollect         : QuantMap
-         semPragmasCollect    : PragmaMap
-         typeSyns             : TypeSyns
-         useMap               : Map NontermIdent (Map Identifier (String,String,String))
-         wrappers             : Set NontermIdent
-   alternatives:
-      alternative Cons:
-         child hd             : Elem 
-         child tl             : Elems 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Elems  = Inh_Elems { allAttrDecls_Inh_Elems :: (Map NontermIdent (Attributes, Attributes)), allAttrs_Inh_Elems :: (Map NontermIdent (Attributes, Attributes)), allConstructors_Inh_Elems :: (Map NontermIdent (Set ConstructorIdent)), allFields_Inh_Elems :: (DataTypes), allNonterminals_Inh_Elems :: (Set NontermIdent), attrDecls_Inh_Elems :: (Map NontermIdent (Attributes, Attributes)), attrs_Inh_Elems :: (Map NontermIdent (Attributes, Attributes)), defSets_Inh_Elems :: (Map Identifier (Set NontermIdent,Set Identifier)), definedSets_Inh_Elems :: (DefinedSets), options_Inh_Elems :: (Options) }
+data Syn_Elems  = Syn_Elems { attrDecls_Syn_Elems :: (Map NontermIdent (Attributes, Attributes)), attrOrderCollect_Syn_Elems :: (AttrOrderMap), attrs_Syn_Elems :: (Map NontermIdent (Attributes, Attributes)), blocks_Syn_Elems :: (Blocks), collectedArounds_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]), collectedAugments_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]), collectedConParams_Syn_Elems :: ([(NontermIdent, ConstructorIdent, Set Identifier)]), collectedConstraints_Syn_Elems :: ([(NontermIdent, ConstructorIdent, [Type])]), collectedConstructorsMap_Syn_Elems :: (Map NontermIdent (Set ConstructorIdent)), collectedFields_Syn_Elems :: ([(NontermIdent, ConstructorIdent, FieldMap)]), collectedInsts_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ]), collectedMacros_Syn_Elems :: ([(NontermIdent, ConstructorIdent, MaybeMacro)]), collectedMerges_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]), collectedNames_Syn_Elems :: (Set Identifier), collectedRules_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, RuleInfo)]), collectedSetNames_Syn_Elems :: (Set Identifier), collectedSigs_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, SigInfo) ]), collectedUniques_Syn_Elems :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]), ctxCollect_Syn_Elems :: (ContextMap), defSets_Syn_Elems :: (Map Identifier (Set NontermIdent,Set Identifier)), derivings_Syn_Elems :: (Derivings), errors_Syn_Elems :: (Seq Error), moduleDecl_Syn_Elems :: (Maybe (String,String,String)), paramsCollect_Syn_Elems :: (ParamMap), pragmas_Syn_Elems :: (Options -> Options), quantCollect_Syn_Elems :: (QuantMap), semPragmasCollect_Syn_Elems :: (PragmaMap), typeSyns_Syn_Elems :: (TypeSyns), useMap_Syn_Elems :: (Map NontermIdent (Map Identifier (String,String,String))), wrappers_Syn_Elems :: (Set NontermIdent) }
+{-# INLINABLE wrap_Elems #-}
+wrap_Elems :: T_Elems  -> Inh_Elems  -> (Syn_Elems )
+wrap_Elems (T_Elems act) (Inh_Elems _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Elems_vIn19 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions
+        (T_Elems_vOut19 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers) <- return (inv_Elems_s20 sem arg)
+        return (Syn_Elems _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers)
+   )
+
 -- cata
-sem_Elems :: Elems ->
-             T_Elems
-sem_Elems list =
-    (Prelude.foldr sem_Elems_Cons sem_Elems_Nil (Prelude.map sem_Elem list))
+{-# NOINLINE sem_Elems #-}
+sem_Elems :: Elems  -> T_Elems 
+sem_Elems list = Prelude.foldr sem_Elems_Cons sem_Elems_Nil (Prelude.map sem_Elem list)
+
 -- semantic domain
-newtype T_Elems = T_Elems ((Map NontermIdent (Attributes, Attributes)) ->
-                           (Map NontermIdent (Attributes, Attributes)) ->
-                           (Map NontermIdent (Set ConstructorIdent)) ->
-                           DataTypes ->
-                           (Set NontermIdent) ->
-                           (Map NontermIdent (Attributes, Attributes)) ->
-                           (Map NontermIdent (Attributes, Attributes)) ->
-                           (Map Identifier (Set NontermIdent,Set Identifier)) ->
-                           DefinedSets ->
-                           Options ->
-                           ( (Map NontermIdent (Attributes, Attributes)),AttrOrderMap,(Map NontermIdent (Attributes, Attributes)),Blocks,([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]),([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]),([(NontermIdent, ConstructorIdent, Set Identifier)]),([(NontermIdent, ConstructorIdent, [Type])]),(Map NontermIdent (Set ConstructorIdent)),([(NontermIdent, ConstructorIdent, FieldMap)]),([ (NontermIdent, ConstructorIdent, [Identifier]) ]),([(NontermIdent, ConstructorIdent, MaybeMacro)]),([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]),(Set Identifier),([ (NontermIdent, ConstructorIdent, RuleInfo)]),(Set Identifier),([ (NontermIdent, ConstructorIdent, SigInfo) ]),([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]),ContextMap,(Map Identifier (Set NontermIdent,Set Identifier)),Derivings,(Seq Error),(Maybe (String,String,String)),ParamMap,(Options -> Options),QuantMap,PragmaMap,TypeSyns,(Map NontermIdent (Map Identifier (String,String,String))),(Set NontermIdent)))
-data Inh_Elems = Inh_Elems {allAttrDecls_Inh_Elems :: !((Map NontermIdent (Attributes, Attributes))),allAttrs_Inh_Elems :: !((Map NontermIdent (Attributes, Attributes))),allConstructors_Inh_Elems :: !((Map NontermIdent (Set ConstructorIdent))),allFields_Inh_Elems :: !(DataTypes),allNonterminals_Inh_Elems :: !((Set NontermIdent)),attrDecls_Inh_Elems :: !((Map NontermIdent (Attributes, Attributes))),attrs_Inh_Elems :: !((Map NontermIdent (Attributes, Attributes))),defSets_Inh_Elems :: !((Map Identifier (Set NontermIdent,Set Identifier))),definedSets_Inh_Elems :: !(DefinedSets),options_Inh_Elems :: !(Options)}
-data Syn_Elems = Syn_Elems {attrDecls_Syn_Elems :: !((Map NontermIdent (Attributes, Attributes))),attrOrderCollect_Syn_Elems :: !(AttrOrderMap),attrs_Syn_Elems :: !((Map NontermIdent (Attributes, Attributes))),blocks_Syn_Elems :: !(Blocks),collectedArounds_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])),collectedAugments_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])),collectedConParams_Syn_Elems :: !(([(NontermIdent, ConstructorIdent, Set Identifier)])),collectedConstraints_Syn_Elems :: !(([(NontermIdent, ConstructorIdent, [Type])])),collectedConstructorsMap_Syn_Elems :: !((Map NontermIdent (Set ConstructorIdent))),collectedFields_Syn_Elems :: !(([(NontermIdent, ConstructorIdent, FieldMap)])),collectedInsts_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, [Identifier]) ])),collectedMacros_Syn_Elems :: !(([(NontermIdent, ConstructorIdent, MaybeMacro)])),collectedMerges_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])),collectedNames_Syn_Elems :: !((Set Identifier)),collectedRules_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, RuleInfo)])),collectedSetNames_Syn_Elems :: !((Set Identifier)),collectedSigs_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, SigInfo) ])),collectedUniques_Syn_Elems :: !(([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])),ctxCollect_Syn_Elems :: !(ContextMap),defSets_Syn_Elems :: !((Map Identifier (Set NontermIdent,Set Identifier))),derivings_Syn_Elems :: !(Derivings),errors_Syn_Elems :: !((Seq Error)),moduleDecl_Syn_Elems :: !((Maybe (String,String,String))),paramsCollect_Syn_Elems :: !(ParamMap),pragmas_Syn_Elems :: !((Options -> Options)),quantCollect_Syn_Elems :: !(QuantMap),semPragmasCollect_Syn_Elems :: !(PragmaMap),typeSyns_Syn_Elems :: !(TypeSyns),useMap_Syn_Elems :: !((Map NontermIdent (Map Identifier (String,String,String)))),wrappers_Syn_Elems :: !((Set NontermIdent))}
-wrap_Elems :: T_Elems ->
-              Inh_Elems ->
-              Syn_Elems
-wrap_Elems (T_Elems sem) (Inh_Elems _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) =
-    (let ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers) = sem _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions
-     in  (Syn_Elems _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers))
-sem_Elems_Cons :: T_Elem ->
-                  T_Elems ->
-                  T_Elems
-sem_Elems_Cons (T_Elem hd_) (T_Elems tl_) =
-    (T_Elems (\ _lhsIallAttrDecls
-                _lhsIallAttrs
-                _lhsIallConstructors
-                _lhsIallFields
-                _lhsIallNonterminals
-                _lhsIattrDecls
-                _lhsIattrs
-                _lhsIdefSets
-                _lhsIdefinedSets
-                _lhsIoptions ->
-                  (let _lhsOattrOrderCollect :: AttrOrderMap
-                       _lhsOblocks :: Blocks
-                       _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                       _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                       _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                       _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                       _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                       _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                       _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                       _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                       _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                       _lhsOcollectedNames :: (Set Identifier)
-                       _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                       _lhsOcollectedSetNames :: (Set Identifier)
-                       _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                       _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                       _lhsOctxCollect :: ContextMap
-                       _lhsOderivings :: Derivings
-                       _lhsOerrors :: (Seq Error)
-                       _lhsOmoduleDecl :: (Maybe (String,String,String))
-                       _lhsOparamsCollect :: ParamMap
-                       _lhsOpragmas :: (Options -> Options)
-                       _lhsOquantCollect :: QuantMap
-                       _lhsOsemPragmasCollect :: PragmaMap
-                       _lhsOtypeSyns :: TypeSyns
-                       _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                       _lhsOwrappers :: (Set NontermIdent)
-                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       _hdOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _hdOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                       _hdOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                       _hdOallFields :: DataTypes
-                       _hdOallNonterminals :: (Set NontermIdent)
-                       _hdOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _hdOattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _hdOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       _hdOdefinedSets :: DefinedSets
-                       _hdOoptions :: Options
-                       _tlOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _tlOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                       _tlOallConstructors :: (Map NontermIdent (Set ConstructorIdent))
-                       _tlOallFields :: DataTypes
-                       _tlOallNonterminals :: (Set NontermIdent)
-                       _tlOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _tlOattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _tlOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       _tlOdefinedSets :: DefinedSets
-                       _tlOoptions :: Options
-                       _hdIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _hdIattrOrderCollect :: AttrOrderMap
-                       _hdIattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _hdIblocks :: Blocks
-                       _hdIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                       _hdIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                       _hdIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                       _hdIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                       _hdIcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                       _hdIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                       _hdIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                       _hdIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                       _hdIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                       _hdIcollectedNames :: (Set Identifier)
-                       _hdIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                       _hdIcollectedSetNames :: (Set Identifier)
-                       _hdIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                       _hdIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                       _hdIctxCollect :: ContextMap
-                       _hdIdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       _hdIderivings :: Derivings
-                       _hdIerrors :: (Seq Error)
-                       _hdImoduleDecl :: (Maybe (String,String,String))
-                       _hdIparamsCollect :: ParamMap
-                       _hdIpragmas :: (Options -> Options)
-                       _hdIquantCollect :: QuantMap
-                       _hdIsemPragmasCollect :: PragmaMap
-                       _hdItypeSyns :: TypeSyns
-                       _hdIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                       _hdIwrappers :: (Set NontermIdent)
-                       _tlIattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _tlIattrOrderCollect :: AttrOrderMap
-                       _tlIattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _tlIblocks :: Blocks
-                       _tlIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                       _tlIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                       _tlIcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                       _tlIcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                       _tlIcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                       _tlIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                       _tlIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                       _tlIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                       _tlIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                       _tlIcollectedNames :: (Set Identifier)
-                       _tlIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                       _tlIcollectedSetNames :: (Set Identifier)
-                       _tlIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                       _tlIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                       _tlIctxCollect :: ContextMap
-                       _tlIdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       _tlIderivings :: Derivings
-                       _tlIerrors :: (Seq Error)
-                       _tlImoduleDecl :: (Maybe (String,String,String))
-                       _tlIparamsCollect :: ParamMap
-                       _tlIpragmas :: (Options -> Options)
-                       _tlIquantCollect :: QuantMap
-                       _tlIsemPragmasCollect :: PragmaMap
-                       _tlItypeSyns :: TypeSyns
-                       _tlIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                       _tlIwrappers :: (Set NontermIdent)
-                       -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                       _lhsOattrOrderCollect =
-                           ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                            _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
-                            {-# LINE 5064 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                       _lhsOblocks =
-                           ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                            _hdIblocks `mapUnionWithPlusPlus` _tlIblocks
-                            {-# LINE 5070 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                       _lhsOcollectedArounds =
-                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedArounds ++ _tlIcollectedArounds
-                            {-# LINE 5076 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                       _lhsOcollectedAugments =
-                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedAugments ++ _tlIcollectedAugments
-                            {-# LINE 5082 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                       _lhsOcollectedConParams =
-                           ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConParams ++ _tlIcollectedConParams
-                            {-# LINE 5088 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                            {-# LINE 5094 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                       _lhsOcollectedConstructorsMap =
-                           ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConstructorsMap `mapUnionWithSetUnion` _tlIcollectedConstructorsMap
-                            {-# LINE 5100 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                       _lhsOcollectedFields =
-                           ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedFields ++ _tlIcollectedFields
-                            {-# LINE 5106 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                       _lhsOcollectedInsts =
-                           ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedInsts ++ _tlIcollectedInsts
-                            {-# LINE 5112 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                       _lhsOcollectedMacros =
-                           ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedMacros ++ _tlIcollectedMacros
-                            {-# LINE 5118 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                       _lhsOcollectedMerges =
-                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedMerges ++ _tlIcollectedMerges
-                            {-# LINE 5124 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                       _lhsOcollectedNames =
-                           ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedNames `Set.union` _tlIcollectedNames
-                            {-# LINE 5130 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                       _lhsOcollectedRules =
-                           ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedRules ++ _tlIcollectedRules
-                            {-# LINE 5136 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                       _lhsOcollectedSetNames =
-                           ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedSetNames `Set.union` _tlIcollectedSetNames
-                            {-# LINE 5142 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                       _lhsOcollectedSigs =
-                           ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedSigs ++ _tlIcollectedSigs
-                            {-# LINE 5148 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                       _lhsOcollectedUniques =
-                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedUniques ++ _tlIcollectedUniques
-                            {-# LINE 5154 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                       _lhsOctxCollect =
-                           ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                            _hdIctxCollect `mergeCtx` _tlIctxCollect
-                            {-# LINE 5160 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                       _lhsOderivings =
-                           ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                            _hdIderivings `mergeDerivings` _tlIderivings
-                            {-# LINE 5166 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                       _lhsOerrors =
-                           ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                            _hdIerrors Seq.>< _tlIerrors
-                            {-# LINE 5172 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                       _lhsOmoduleDecl =
-                           ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                            _hdImoduleDecl `mplus` _tlImoduleDecl
-                            {-# LINE 5178 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                       _lhsOparamsCollect =
-                           ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                            _hdIparamsCollect `mergeParams` _tlIparamsCollect
-                            {-# LINE 5184 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                       _lhsOpragmas =
-                           ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                            _hdIpragmas . _tlIpragmas
-                            {-# LINE 5190 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                       _lhsOquantCollect =
-                           ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                            _hdIquantCollect `mergeQuant` _tlIquantCollect
-                            {-# LINE 5196 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                       _lhsOsemPragmasCollect =
-                           ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                            _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
-                            {-# LINE 5202 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                       _lhsOtypeSyns =
-                           ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                            _hdItypeSyns ++ _tlItypeSyns
-                            {-# LINE 5208 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                       _lhsOuseMap =
-                           ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                            _hdIuseMap `merge` _tlIuseMap
-                            {-# LINE 5214 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                       _lhsOwrappers =
-                           ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                            _hdIwrappers `Set.union` _tlIwrappers
-                            {-# LINE 5220 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (up)
-                       _lhsOattrDecls =
-                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                            _tlIattrDecls
-                            {-# LINE 5226 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (up)
-                       _lhsOattrs =
-                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                            _tlIattrs
-                            {-# LINE 5232 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (up)
-                       _lhsOdefSets =
-                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                            _tlIdefSets
-                            {-# LINE 5238 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOallAttrDecls =
-                           ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                            _lhsIallAttrDecls
-                            {-# LINE 5244 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOallAttrs =
-                           ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                            _lhsIallAttrs
-                            {-# LINE 5250 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOallConstructors =
-                           ({-# LINE 99 "./src-ag/Transform.ag" #-}
-                            _lhsIallConstructors
-                            {-# LINE 5256 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOallFields =
-                           ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                            _lhsIallFields
-                            {-# LINE 5262 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOallNonterminals =
-                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                            _lhsIallNonterminals
-                            {-# LINE 5268 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOattrDecls =
-                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                            _lhsIattrDecls
-                            {-# LINE 5274 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOattrs =
-                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                            _lhsIattrs
-                            {-# LINE 5280 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOdefSets =
-                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                            _lhsIdefSets
-                            {-# LINE 5286 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOdefinedSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                            _lhsIdefinedSets
-                            {-# LINE 5292 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _hdOoptions =
-                           ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                            _lhsIoptions
-                            {-# LINE 5298 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOallAttrDecls =
-                           ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                            _lhsIallAttrDecls
-                            {-# LINE 5304 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOallAttrs =
-                           ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                            _lhsIallAttrs
-                            {-# LINE 5310 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOallConstructors =
-                           ({-# LINE 99 "./src-ag/Transform.ag" #-}
-                            _lhsIallConstructors
-                            {-# LINE 5316 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOallFields =
-                           ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                            _lhsIallFields
-                            {-# LINE 5322 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOallNonterminals =
-                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                            _lhsIallNonterminals
-                            {-# LINE 5328 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _tlOattrDecls =
-                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                            _hdIattrDecls
-                            {-# LINE 5334 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _tlOattrs =
-                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                            _hdIattrs
-                            {-# LINE 5340 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _tlOdefSets =
-                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                            _hdIdefSets
-                            {-# LINE 5346 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOdefinedSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                            _lhsIdefinedSets
-                            {-# LINE 5352 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (down)
-                       _tlOoptions =
-                           ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                            _lhsIoptions
-                            {-# LINE 5358 "dist/build/Transform.hs" #-}
-                            )
-                       ( _hdIattrDecls,_hdIattrOrderCollect,_hdIattrs,_hdIblocks,_hdIcollectedArounds,_hdIcollectedAugments,_hdIcollectedConParams,_hdIcollectedConstraints,_hdIcollectedConstructorsMap,_hdIcollectedFields,_hdIcollectedInsts,_hdIcollectedMacros,_hdIcollectedMerges,_hdIcollectedNames,_hdIcollectedRules,_hdIcollectedSetNames,_hdIcollectedSigs,_hdIcollectedUniques,_hdIctxCollect,_hdIdefSets,_hdIderivings,_hdIerrors,_hdImoduleDecl,_hdIparamsCollect,_hdIpragmas,_hdIquantCollect,_hdIsemPragmasCollect,_hdItypeSyns,_hdIuseMap,_hdIwrappers) =
-                           hd_ _hdOallAttrDecls _hdOallAttrs _hdOallConstructors _hdOallFields _hdOallNonterminals _hdOattrDecls _hdOattrs _hdOdefSets _hdOdefinedSets _hdOoptions
-                       ( _tlIattrDecls,_tlIattrOrderCollect,_tlIattrs,_tlIblocks,_tlIcollectedArounds,_tlIcollectedAugments,_tlIcollectedConParams,_tlIcollectedConstraints,_tlIcollectedConstructorsMap,_tlIcollectedFields,_tlIcollectedInsts,_tlIcollectedMacros,_tlIcollectedMerges,_tlIcollectedNames,_tlIcollectedRules,_tlIcollectedSetNames,_tlIcollectedSigs,_tlIcollectedUniques,_tlIctxCollect,_tlIdefSets,_tlIderivings,_tlIerrors,_tlImoduleDecl,_tlIparamsCollect,_tlIpragmas,_tlIquantCollect,_tlIsemPragmasCollect,_tlItypeSyns,_tlIuseMap,_tlIwrappers) =
-                           tl_ _tlOallAttrDecls _tlOallAttrs _tlOallConstructors _tlOallFields _tlOallNonterminals _tlOattrDecls _tlOattrs _tlOdefSets _tlOdefinedSets _tlOoptions
-                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
-sem_Elems_Nil :: T_Elems
-sem_Elems_Nil =
-    (T_Elems (\ _lhsIallAttrDecls
-                _lhsIallAttrs
-                _lhsIallConstructors
-                _lhsIallFields
-                _lhsIallNonterminals
-                _lhsIattrDecls
-                _lhsIattrs
-                _lhsIdefSets
-                _lhsIdefinedSets
-                _lhsIoptions ->
-                  (let _lhsOattrOrderCollect :: AttrOrderMap
-                       _lhsOblocks :: Blocks
-                       _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                       _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                       _lhsOcollectedConParams :: ([(NontermIdent, ConstructorIdent, Set Identifier)])
-                       _lhsOcollectedConstraints :: ([(NontermIdent, ConstructorIdent, [Type])])
-                       _lhsOcollectedConstructorsMap :: (Map NontermIdent (Set ConstructorIdent))
-                       _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
-                       _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                       _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                       _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                       _lhsOcollectedNames :: (Set Identifier)
-                       _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                       _lhsOcollectedSetNames :: (Set Identifier)
-                       _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                       _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                       _lhsOctxCollect :: ContextMap
-                       _lhsOderivings :: Derivings
-                       _lhsOerrors :: (Seq Error)
-                       _lhsOmoduleDecl :: (Maybe (String,String,String))
-                       _lhsOparamsCollect :: ParamMap
-                       _lhsOpragmas :: (Options -> Options)
-                       _lhsOquantCollect :: QuantMap
-                       _lhsOsemPragmasCollect :: PragmaMap
-                       _lhsOtypeSyns :: TypeSyns
-                       _lhsOuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                       _lhsOwrappers :: (Set NontermIdent)
-                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
-                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                       _lhsOattrOrderCollect =
-                           ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5411 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 43, column 19)
-                       _lhsOblocks =
-                           ({-# LINE 43 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5417 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                       _lhsOcollectedArounds =
-                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5423 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                       _lhsOcollectedAugments =
-                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5429 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 130, column 31)
-                       _lhsOcollectedConParams =
-                           ({-# LINE 130 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5435 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 129, column 33)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 129 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5441 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 97, column 48)
-                       _lhsOcollectedConstructorsMap =
-                           ({-# LINE 97 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5447 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 128, column 28)
-                       _lhsOcollectedFields =
-                           ({-# LINE 128 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5453 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                       _lhsOcollectedInsts =
-                           ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5459 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
-                       _lhsOcollectedMacros =
-                           ({-# LINE 1310 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5465 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                       _lhsOcollectedMerges =
-                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5471 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                       _lhsOcollectedNames =
-                           ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                            Set.empty
-                            {-# LINE 5477 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                       _lhsOcollectedRules =
-                           ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5483 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 88, column 50)
-                       _lhsOcollectedSetNames =
-                           ({-# LINE 88 "./src-ag/Transform.ag" #-}
-                            Set.empty
-                            {-# LINE 5489 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                       _lhsOcollectedSigs =
-                           ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5495 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                       _lhsOcollectedUniques =
-                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5501 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 966, column 34)
-                       _lhsOctxCollect =
-                           ({-# LINE 966 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5507 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
-                       _lhsOderivings =
-                           ({-# LINE 1008 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5513 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                       _lhsOerrors =
-                           ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                            Seq.empty
-                            {-# LINE 5519 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
-                       _lhsOmoduleDecl =
-                           ({-# LINE 1209 "./src-ag/Transform.ag" #-}
-                            mzero
-                            {-# LINE 5525 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 943, column 37)
-                       _lhsOparamsCollect =
-                           ({-# LINE 943 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5531 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 802, column 34)
-                       _lhsOpragmas =
-                           ({-# LINE 802 "./src-ag/Transform.ag" #-}
-                            id
-                            {-# LINE 5537 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 991, column 36)
-                       _lhsOquantCollect =
-                           ({-# LINE 991 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5543 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                       _lhsOsemPragmasCollect =
-                           ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5549 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 641, column 32)
-                       _lhsOtypeSyns =
-                           ({-# LINE 641 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5555 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 143, column 15)
-                       _lhsOuseMap =
-                           ({-# LINE 143 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5561 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 786, column 32)
-                       _lhsOwrappers =
-                           ({-# LINE 786 "./src-ag/Transform.ag" #-}
-                            Set.empty
-                            {-# LINE 5567 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _lhsOattrDecls =
-                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
-                            _lhsIattrDecls
-                            {-# LINE 5573 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _lhsOattrs =
-                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
-                            _lhsIattrs
-                            {-# LINE 5579 "dist/build/Transform.hs" #-}
-                            )
-                       -- copy rule (chain)
-                       _lhsOdefSets =
-                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
-                            _lhsIdefSets
-                            {-# LINE 5585 "dist/build/Transform.hs" #-}
-                            )
-                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
+newtype T_Elems  = T_Elems {
+                           attach_T_Elems :: Identity (T_Elems_s20 )
+                           }
+newtype T_Elems_s20  = C_Elems_s20 {
+                                   inv_Elems_s20 :: (T_Elems_v19 )
+                                   }
+data T_Elems_s21  = C_Elems_s21
+type T_Elems_v19  = (T_Elems_vIn19 ) -> (T_Elems_vOut19 )
+data T_Elems_vIn19  = T_Elems_vIn19 (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Set ConstructorIdent)) (DataTypes) (Set NontermIdent) (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (Map Identifier (Set NontermIdent,Set Identifier)) (DefinedSets) (Options)
+data T_Elems_vOut19  = T_Elems_vOut19 (Map NontermIdent (Attributes, Attributes)) (AttrOrderMap) (Map NontermIdent (Attributes, Attributes)) (Blocks) ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ([(NontermIdent, ConstructorIdent, Set Identifier)]) ([(NontermIdent, ConstructorIdent, [Type])]) (Map NontermIdent (Set ConstructorIdent)) ([(NontermIdent, ConstructorIdent, FieldMap)]) ([ (NontermIdent, ConstructorIdent, [Identifier]) ]) ([(NontermIdent, ConstructorIdent, MaybeMacro)]) ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) (Set Identifier) ([ (NontermIdent, ConstructorIdent, RuleInfo)]) (Set Identifier) ([ (NontermIdent, ConstructorIdent, SigInfo) ]) ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) (ContextMap) (Map Identifier (Set NontermIdent,Set Identifier)) (Derivings) (Seq Error) (Maybe (String,String,String)) (ParamMap) (Options -> Options) (QuantMap) (PragmaMap) (TypeSyns) (Map NontermIdent (Map Identifier (String,String,String))) (Set NontermIdent)
+{-# NOINLINE sem_Elems_Cons #-}
+sem_Elems_Cons :: T_Elem  -> T_Elems  -> T_Elems 
+sem_Elems_Cons arg_hd_ arg_tl_ = T_Elems (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Elems_v19 
+      v19 = \ (T_Elems_vIn19 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _hdX17 = Control.Monad.Identity.runIdentity (attach_T_Elem (arg_hd_))
+         _tlX20 = Control.Monad.Identity.runIdentity (attach_T_Elems (arg_tl_))
+         (T_Elem_vOut16 _hdIattrDecls _hdIattrOrderCollect _hdIattrs _hdIblocks _hdIcollectedArounds _hdIcollectedAugments _hdIcollectedConParams _hdIcollectedConstraints _hdIcollectedConstructorsMap _hdIcollectedFields _hdIcollectedInsts _hdIcollectedMacros _hdIcollectedMerges _hdIcollectedNames _hdIcollectedRules _hdIcollectedSetNames _hdIcollectedSigs _hdIcollectedUniques _hdIctxCollect _hdIdefSets _hdIderivings _hdIerrors _hdImoduleDecl _hdIparamsCollect _hdIpragmas _hdIquantCollect _hdIsemPragmasCollect _hdItypeSyns _hdIuseMap _hdIwrappers) = inv_Elem_s17 _hdX17 (T_Elem_vIn16 _hdOallAttrDecls _hdOallAttrs _hdOallConstructors _hdOallFields _hdOallNonterminals _hdOattrDecls _hdOattrs _hdOdefSets _hdOdefinedSets _hdOoptions)
+         (T_Elems_vOut19 _tlIattrDecls _tlIattrOrderCollect _tlIattrs _tlIblocks _tlIcollectedArounds _tlIcollectedAugments _tlIcollectedConParams _tlIcollectedConstraints _tlIcollectedConstructorsMap _tlIcollectedFields _tlIcollectedInsts _tlIcollectedMacros _tlIcollectedMerges _tlIcollectedNames _tlIcollectedRules _tlIcollectedSetNames _tlIcollectedSigs _tlIcollectedUniques _tlIctxCollect _tlIdefSets _tlIderivings _tlIerrors _tlImoduleDecl _tlIparamsCollect _tlIpragmas _tlIquantCollect _tlIsemPragmasCollect _tlItypeSyns _tlIuseMap _tlIwrappers) = inv_Elems_s20 _tlX20 (T_Elems_vIn19 _tlOallAttrDecls _tlOallAttrs _tlOallConstructors _tlOallFields _tlOallNonterminals _tlOattrDecls _tlOattrs _tlOdefSets _tlOdefinedSets _tlOoptions)
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule483 _hdIattrOrderCollect _tlIattrOrderCollect
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule484 _hdIblocks _tlIblocks
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule485 _hdIcollectedArounds _tlIcollectedArounds
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule486 _hdIcollectedAugments _tlIcollectedAugments
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule487 _hdIcollectedConParams _tlIcollectedConParams
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule488 _hdIcollectedConstraints _tlIcollectedConstraints
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule489 _hdIcollectedConstructorsMap _tlIcollectedConstructorsMap
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule490 _hdIcollectedFields _tlIcollectedFields
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule491 _hdIcollectedInsts _tlIcollectedInsts
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule492 _hdIcollectedMacros _tlIcollectedMacros
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule493 _hdIcollectedMerges _tlIcollectedMerges
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule494 _hdIcollectedNames _tlIcollectedNames
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule495 _hdIcollectedRules _tlIcollectedRules
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule496 _hdIcollectedSetNames _tlIcollectedSetNames
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule497 _hdIcollectedSigs _tlIcollectedSigs
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule498 _hdIcollectedUniques _tlIcollectedUniques
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule499 _hdIctxCollect _tlIctxCollect
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule500 _hdIderivings _tlIderivings
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule501 _hdIerrors _tlIerrors
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule502 _hdImoduleDecl _tlImoduleDecl
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule503 _hdIparamsCollect _tlIparamsCollect
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule504 _hdIpragmas _tlIpragmas
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule505 _hdIquantCollect _tlIquantCollect
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule506 _hdIsemPragmasCollect _tlIsemPragmasCollect
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule507 _hdItypeSyns _tlItypeSyns
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule508 _hdIuseMap _tlIuseMap
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule509 _hdIwrappers _tlIwrappers
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule510 _tlIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule511 _tlIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule512 _tlIdefSets
+         _hdOallAttrDecls = rule513 _lhsIallAttrDecls
+         _hdOallAttrs = rule514 _lhsIallAttrs
+         _hdOallConstructors = rule515 _lhsIallConstructors
+         _hdOallFields = rule516 _lhsIallFields
+         _hdOallNonterminals = rule517 _lhsIallNonterminals
+         _hdOattrDecls = rule518 _lhsIattrDecls
+         _hdOattrs = rule519 _lhsIattrs
+         _hdOdefSets = rule520 _lhsIdefSets
+         _hdOdefinedSets = rule521 _lhsIdefinedSets
+         _hdOoptions = rule522 _lhsIoptions
+         _tlOallAttrDecls = rule523 _lhsIallAttrDecls
+         _tlOallAttrs = rule524 _lhsIallAttrs
+         _tlOallConstructors = rule525 _lhsIallConstructors
+         _tlOallFields = rule526 _lhsIallFields
+         _tlOallNonterminals = rule527 _lhsIallNonterminals
+         _tlOattrDecls = rule528 _hdIattrDecls
+         _tlOattrs = rule529 _hdIattrs
+         _tlOdefSets = rule530 _hdIdefSets
+         _tlOdefinedSets = rule531 _lhsIdefinedSets
+         _tlOoptions = rule532 _lhsIoptions
+         __result_ = T_Elems_vOut19 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elems_s20 v19
+   {-# INLINE rule483 #-}
+   rule483 = \ ((_hdIattrOrderCollect) :: AttrOrderMap) ((_tlIattrOrderCollect) :: AttrOrderMap) ->
+     _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
+   {-# INLINE rule484 #-}
+   rule484 = \ ((_hdIblocks) :: Blocks) ((_tlIblocks) :: Blocks) ->
+     _hdIblocks `mapUnionWithPlusPlus` _tlIblocks
+   {-# INLINE rule485 #-}
+   rule485 = \ ((_hdIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ((_tlIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ->
+     _hdIcollectedArounds ++ _tlIcollectedArounds
+   {-# INLINE rule486 #-}
+   rule486 = \ ((_hdIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ((_tlIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ->
+     _hdIcollectedAugments ++ _tlIcollectedAugments
+   {-# INLINE rule487 #-}
+   rule487 = \ ((_hdIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ((_tlIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ->
+     _hdIcollectedConParams ++ _tlIcollectedConParams
+   {-# INLINE rule488 #-}
+   rule488 = \ ((_hdIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ((_tlIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ->
+     _hdIcollectedConstraints ++ _tlIcollectedConstraints
+   {-# INLINE rule489 #-}
+   rule489 = \ ((_hdIcollectedConstructorsMap) :: Map NontermIdent (Set ConstructorIdent)) ((_tlIcollectedConstructorsMap) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _hdIcollectedConstructorsMap `mapUnionWithSetUnion` _tlIcollectedConstructorsMap
+   {-# INLINE rule490 #-}
+   rule490 = \ ((_hdIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ((_tlIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
+     _hdIcollectedFields ++ _tlIcollectedFields
+   {-# INLINE rule491 #-}
+   rule491 = \ ((_hdIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ((_tlIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ->
+     _hdIcollectedInsts ++ _tlIcollectedInsts
+   {-# INLINE rule492 #-}
+   rule492 = \ ((_hdIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ((_tlIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ->
+     _hdIcollectedMacros ++ _tlIcollectedMacros
+   {-# INLINE rule493 #-}
+   rule493 = \ ((_hdIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ((_tlIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ->
+     _hdIcollectedMerges ++ _tlIcollectedMerges
+   {-# INLINE rule494 #-}
+   rule494 = \ ((_hdIcollectedNames) :: Set Identifier) ((_tlIcollectedNames) :: Set Identifier) ->
+     _hdIcollectedNames `Set.union` _tlIcollectedNames
+   {-# INLINE rule495 #-}
+   rule495 = \ ((_hdIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ((_tlIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ->
+     _hdIcollectedRules ++ _tlIcollectedRules
+   {-# INLINE rule496 #-}
+   rule496 = \ ((_hdIcollectedSetNames) :: Set Identifier) ((_tlIcollectedSetNames) :: Set Identifier) ->
+     _hdIcollectedSetNames `Set.union` _tlIcollectedSetNames
+   {-# INLINE rule497 #-}
+   rule497 = \ ((_hdIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ((_tlIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ->
+     _hdIcollectedSigs ++ _tlIcollectedSigs
+   {-# INLINE rule498 #-}
+   rule498 = \ ((_hdIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ((_tlIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
+     _hdIcollectedUniques ++ _tlIcollectedUniques
+   {-# INLINE rule499 #-}
+   rule499 = \ ((_hdIctxCollect) :: ContextMap) ((_tlIctxCollect) :: ContextMap) ->
+     _hdIctxCollect `mergeCtx` _tlIctxCollect
+   {-# INLINE rule500 #-}
+   rule500 = \ ((_hdIderivings) :: Derivings) ((_tlIderivings) :: Derivings) ->
+     _hdIderivings `mergeDerivings` _tlIderivings
+   {-# INLINE rule501 #-}
+   rule501 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
+   {-# INLINE rule502 #-}
+   rule502 = \ ((_hdImoduleDecl) :: Maybe (String,String,String)) ((_tlImoduleDecl) :: Maybe (String,String,String)) ->
+     _hdImoduleDecl `mplus` _tlImoduleDecl
+   {-# INLINE rule503 #-}
+   rule503 = \ ((_hdIparamsCollect) :: ParamMap) ((_tlIparamsCollect) :: ParamMap) ->
+     _hdIparamsCollect `mergeParams` _tlIparamsCollect
+   {-# INLINE rule504 #-}
+   rule504 = \ ((_hdIpragmas) :: Options -> Options) ((_tlIpragmas) :: Options -> Options) ->
+     _hdIpragmas . _tlIpragmas
+   {-# INLINE rule505 #-}
+   rule505 = \ ((_hdIquantCollect) :: QuantMap) ((_tlIquantCollect) :: QuantMap) ->
+     _hdIquantCollect `mergeQuant` _tlIquantCollect
+   {-# INLINE rule506 #-}
+   rule506 = \ ((_hdIsemPragmasCollect) :: PragmaMap) ((_tlIsemPragmasCollect) :: PragmaMap) ->
+     _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
+   {-# INLINE rule507 #-}
+   rule507 = \ ((_hdItypeSyns) :: TypeSyns) ((_tlItypeSyns) :: TypeSyns) ->
+     _hdItypeSyns ++ _tlItypeSyns
+   {-# INLINE rule508 #-}
+   rule508 = \ ((_hdIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ((_tlIuseMap) :: Map NontermIdent (Map Identifier (String,String,String))) ->
+     _hdIuseMap `merge` _tlIuseMap
+   {-# INLINE rule509 #-}
+   rule509 = \ ((_hdIwrappers) :: Set NontermIdent) ((_tlIwrappers) :: Set NontermIdent) ->
+     _hdIwrappers `Set.union` _tlIwrappers
+   {-# INLINE rule510 #-}
+   rule510 = \ ((_tlIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _tlIattrDecls
+   {-# INLINE rule511 #-}
+   rule511 = \ ((_tlIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _tlIattrs
+   {-# INLINE rule512 #-}
+   rule512 = \ ((_tlIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _tlIdefSets
+   {-# INLINE rule513 #-}
+   rule513 = \ ((_lhsIallAttrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrDecls
+   {-# INLINE rule514 #-}
+   rule514 = \ ((_lhsIallAttrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrs
+   {-# INLINE rule515 #-}
+   rule515 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _lhsIallConstructors
+   {-# INLINE rule516 #-}
+   rule516 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule517 #-}
+   rule517 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule518 #-}
+   rule518 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule519 #-}
+   rule519 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule520 #-}
+   rule520 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+   {-# INLINE rule521 #-}
+   rule521 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule522 #-}
+   rule522 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule523 #-}
+   rule523 = \ ((_lhsIallAttrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrDecls
+   {-# INLINE rule524 #-}
+   rule524 = \ ((_lhsIallAttrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrs
+   {-# INLINE rule525 #-}
+   rule525 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ->
+     _lhsIallConstructors
+   {-# INLINE rule526 #-}
+   rule526 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule527 #-}
+   rule527 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule528 #-}
+   rule528 = \ ((_hdIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _hdIattrDecls
+   {-# INLINE rule529 #-}
+   rule529 = \ ((_hdIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _hdIattrs
+   {-# INLINE rule530 #-}
+   rule530 = \ ((_hdIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _hdIdefSets
+   {-# INLINE rule531 #-}
+   rule531 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule532 #-}
+   rule532 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_Elems_Nil #-}
+sem_Elems_Nil ::  T_Elems 
+sem_Elems_Nil  = T_Elems (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Elems_v19 
+      v19 = \ (T_Elems_vIn19 _lhsIallAttrDecls _lhsIallAttrs _lhsIallConstructors _lhsIallFields _lhsIallNonterminals _lhsIattrDecls _lhsIattrs _lhsIdefSets _lhsIdefinedSets _lhsIoptions) -> ( let
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule533  ()
+         _lhsOblocks :: Blocks
+         _lhsOblocks = rule534  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule535  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule536  ()
+         _lhsOcollectedConParams :: [(NontermIdent, ConstructorIdent, Set Identifier)]
+         _lhsOcollectedConParams = rule537  ()
+         _lhsOcollectedConstraints :: [(NontermIdent, ConstructorIdent, [Type])]
+         _lhsOcollectedConstraints = rule538  ()
+         _lhsOcollectedConstructorsMap :: Map NontermIdent (Set ConstructorIdent)
+         _lhsOcollectedConstructorsMap = rule539  ()
+         _lhsOcollectedFields :: [(NontermIdent, ConstructorIdent, FieldMap)]
+         _lhsOcollectedFields = rule540  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule541  ()
+         _lhsOcollectedMacros :: [(NontermIdent, ConstructorIdent, MaybeMacro)]
+         _lhsOcollectedMacros = rule542  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule543  ()
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule544  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule545  ()
+         _lhsOcollectedSetNames :: Set Identifier
+         _lhsOcollectedSetNames = rule546  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule547  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule548  ()
+         _lhsOctxCollect :: ContextMap
+         _lhsOctxCollect = rule549  ()
+         _lhsOderivings :: Derivings
+         _lhsOderivings = rule550  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule551  ()
+         _lhsOmoduleDecl :: Maybe (String,String,String)
+         _lhsOmoduleDecl = rule552  ()
+         _lhsOparamsCollect :: ParamMap
+         _lhsOparamsCollect = rule553  ()
+         _lhsOpragmas :: Options -> Options
+         _lhsOpragmas = rule554  ()
+         _lhsOquantCollect :: QuantMap
+         _lhsOquantCollect = rule555  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule556  ()
+         _lhsOtypeSyns :: TypeSyns
+         _lhsOtypeSyns = rule557  ()
+         _lhsOuseMap :: Map NontermIdent (Map Identifier (String,String,String))
+         _lhsOuseMap = rule558  ()
+         _lhsOwrappers :: Set NontermIdent
+         _lhsOwrappers = rule559  ()
+         _lhsOattrDecls :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrDecls = rule560 _lhsIattrDecls
+         _lhsOattrs :: Map NontermIdent (Attributes, Attributes)
+         _lhsOattrs = rule561 _lhsIattrs
+         _lhsOdefSets :: Map Identifier (Set NontermIdent,Set Identifier)
+         _lhsOdefSets = rule562 _lhsIdefSets
+         __result_ = T_Elems_vOut19 _lhsOattrDecls _lhsOattrOrderCollect _lhsOattrs _lhsOblocks _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedConParams _lhsOcollectedConstraints _lhsOcollectedConstructorsMap _lhsOcollectedFields _lhsOcollectedInsts _lhsOcollectedMacros _lhsOcollectedMerges _lhsOcollectedNames _lhsOcollectedRules _lhsOcollectedSetNames _lhsOcollectedSigs _lhsOcollectedUniques _lhsOctxCollect _lhsOdefSets _lhsOderivings _lhsOerrors _lhsOmoduleDecl _lhsOparamsCollect _lhsOpragmas _lhsOquantCollect _lhsOsemPragmasCollect _lhsOtypeSyns _lhsOuseMap _lhsOwrappers
+         in __result_ )
+     in C_Elems_s20 v19
+   {-# INLINE rule533 #-}
+   rule533 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule534 #-}
+   rule534 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule535 #-}
+   rule535 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule536 #-}
+   rule536 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule537 #-}
+   rule537 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule538 #-}
+   rule538 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule539 #-}
+   rule539 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule540 #-}
+   rule540 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule541 #-}
+   rule541 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule542 #-}
+   rule542 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule543 #-}
+   rule543 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule544 #-}
+   rule544 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule545 #-}
+   rule545 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule546 #-}
+   rule546 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule547 #-}
+   rule547 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule548 #-}
+   rule548 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule549 #-}
+   rule549 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule550 #-}
+   rule550 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule551 #-}
+   rule551 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule552 #-}
+   rule552 = \  (_ :: ()) ->
+     mzero
+   {-# INLINE rule553 #-}
+   rule553 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule554 #-}
+   rule554 = \  (_ :: ()) ->
+     id
+   {-# INLINE rule555 #-}
+   rule555 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule556 #-}
+   rule556 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule557 #-}
+   rule557 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule558 #-}
+   rule558 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule559 #-}
+   rule559 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule560 #-}
+   rule560 = \ ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrDecls
+   {-# INLINE rule561 #-}
+   rule561 = \ ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIattrs
+   {-# INLINE rule562 #-}
+   rule562 = \ ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
+     _lhsIdefSets
+
 -- Field -------------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         allNonterminals      : Set NontermIdent
-      synthesized attributes:
-         collectedConstraints : [Type]
-         collectedFields      : [(Identifier, Type)]
-   alternatives:
-      alternative FChild:
-         child name           : {Identifier}
-         child tp             : {Type}
-      alternative FCtx:
-         child tps            : {[Type]}
--}
+-- wrapper
+data Inh_Field  = Inh_Field { allNonterminals_Inh_Field :: (Set NontermIdent) }
+data Syn_Field  = Syn_Field { collectedConstraints_Syn_Field :: ([Type]), collectedFields_Syn_Field :: ([(Identifier, Type)]) }
+{-# INLINABLE wrap_Field #-}
+wrap_Field :: T_Field  -> Inh_Field  -> (Syn_Field )
+wrap_Field (T_Field act) (Inh_Field _lhsIallNonterminals) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Field_vIn22 _lhsIallNonterminals
+        (T_Field_vOut22 _lhsOcollectedConstraints _lhsOcollectedFields) <- return (inv_Field_s23 sem arg)
+        return (Syn_Field _lhsOcollectedConstraints _lhsOcollectedFields)
+   )
+
 -- cata
-sem_Field :: Field ->
-             T_Field
-sem_Field (FChild _name _tp) =
-    (sem_Field_FChild _name _tp)
-sem_Field (FCtx _tps) =
-    (sem_Field_FCtx _tps)
+{-# NOINLINE sem_Field #-}
+sem_Field :: Field  -> T_Field 
+sem_Field ( FChild name_ tp_ ) = sem_Field_FChild name_ tp_
+sem_Field ( FCtx tps_ ) = sem_Field_FCtx tps_
+
 -- semantic domain
-newtype T_Field = T_Field ((Set NontermIdent) ->
-                           ( ([Type]),([(Identifier, Type)])))
-data Inh_Field = Inh_Field {allNonterminals_Inh_Field :: !((Set NontermIdent))}
-data Syn_Field = Syn_Field {collectedConstraints_Syn_Field :: !(([Type])),collectedFields_Syn_Field :: !(([(Identifier, Type)]))}
-wrap_Field :: T_Field ->
-              Inh_Field ->
-              Syn_Field
-wrap_Field (T_Field sem) (Inh_Field _lhsIallNonterminals) =
-    (let ( _lhsOcollectedConstraints,_lhsOcollectedFields) = sem _lhsIallNonterminals
-     in  (Syn_Field _lhsOcollectedConstraints _lhsOcollectedFields))
-sem_Field_FChild :: Identifier ->
-                    Type ->
-                    T_Field
-sem_Field_FChild name_ tp_ =
-    (T_Field (\ _lhsIallNonterminals ->
-                  (let _lhsOcollectedFields :: ([(Identifier, Type)])
-                       _lhsOcollectedConstraints :: ([Type])
-                       -- "./src-ag/Transform.ag"(line 579, column 3)
-                       _lhsOcollectedFields =
-                           ({-# LINE 579 "./src-ag/Transform.ag" #-}
-                            [(name_, makeType _lhsIallNonterminals tp_)]
-                            {-# LINE 5632 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 585, column 46)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 585 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5638 "dist/build/Transform.hs" #-}
-                            )
-                   in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
-sem_Field_FCtx :: ([Type]) ->
-                  T_Field
-sem_Field_FCtx tps_ =
-    (T_Field (\ _lhsIallNonterminals ->
-                  (let _lhsOcollectedConstraints :: ([Type])
-                       _lhsOcollectedFields :: ([(Identifier, Type)])
-                       -- "./src-ag/Transform.ag"(line 588, column 3)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 588 "./src-ag/Transform.ag" #-}
-                            tps_
-                            {-# LINE 5651 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 576, column 41)
-                       _lhsOcollectedFields =
-                           ({-# LINE 576 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5657 "dist/build/Transform.hs" #-}
-                            )
-                   in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
+newtype T_Field  = T_Field {
+                           attach_T_Field :: Identity (T_Field_s23 )
+                           }
+newtype T_Field_s23  = C_Field_s23 {
+                                   inv_Field_s23 :: (T_Field_v22 )
+                                   }
+data T_Field_s24  = C_Field_s24
+type T_Field_v22  = (T_Field_vIn22 ) -> (T_Field_vOut22 )
+data T_Field_vIn22  = T_Field_vIn22 (Set NontermIdent)
+data T_Field_vOut22  = T_Field_vOut22 ([Type]) ([(Identifier, Type)])
+{-# NOINLINE sem_Field_FChild #-}
+sem_Field_FChild :: (Identifier) -> (Type) -> T_Field 
+sem_Field_FChild arg_name_ arg_tp_ = T_Field (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_Field_v22 
+      v22 = \ (T_Field_vIn22 _lhsIallNonterminals) -> ( let
+         _lhsOcollectedFields :: [(Identifier, Type)]
+         _lhsOcollectedFields = rule563 _lhsIallNonterminals arg_name_ arg_tp_
+         _lhsOcollectedConstraints :: [Type]
+         _lhsOcollectedConstraints = rule564  ()
+         __result_ = T_Field_vOut22 _lhsOcollectedConstraints _lhsOcollectedFields
+         in __result_ )
+     in C_Field_s23 v22
+   {-# INLINE rule563 #-}
+   {-# LINE 579 "./src-ag/Transform.ag" #-}
+   rule563 = \ ((_lhsIallNonterminals) :: Set NontermIdent) name_ tp_ ->
+                          {-# LINE 579 "./src-ag/Transform.ag" #-}
+                          [(name_, makeType _lhsIallNonterminals tp_)]
+                          {-# LINE 4268 "dist/build/Transform.hs"#-}
+   {-# INLINE rule564 #-}
+   rule564 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_Field_FCtx #-}
+sem_Field_FCtx :: ([Type]) -> T_Field 
+sem_Field_FCtx arg_tps_ = T_Field (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_Field_v22 
+      v22 = \ (T_Field_vIn22 _lhsIallNonterminals) -> ( let
+         _lhsOcollectedConstraints :: [Type]
+         _lhsOcollectedConstraints = rule565 arg_tps_
+         _lhsOcollectedFields :: [(Identifier, Type)]
+         _lhsOcollectedFields = rule566  ()
+         __result_ = T_Field_vOut22 _lhsOcollectedConstraints _lhsOcollectedFields
+         in __result_ )
+     in C_Field_s23 v22
+   {-# INLINE rule565 #-}
+   {-# LINE 588 "./src-ag/Transform.ag" #-}
+   rule565 = \ tps_ ->
+                               {-# LINE 588 "./src-ag/Transform.ag" #-}
+                               tps_
+                               {-# LINE 4291 "dist/build/Transform.hs"#-}
+   {-# INLINE rule566 #-}
+   rule566 = \  (_ :: ()) ->
+     []
+
 -- Fields ------------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         allNonterminals      : Set NontermIdent
-      synthesized attributes:
-         collectedConstraints : [Type]
-         collectedFields      : [(Identifier, Type)]
-   alternatives:
-      alternative Cons:
-         child hd             : Field 
-         child tl             : Fields 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Fields  = Inh_Fields { allNonterminals_Inh_Fields :: (Set NontermIdent) }
+data Syn_Fields  = Syn_Fields { collectedConstraints_Syn_Fields :: ([Type]), collectedFields_Syn_Fields :: ([(Identifier, Type)]) }
+{-# INLINABLE wrap_Fields #-}
+wrap_Fields :: T_Fields  -> Inh_Fields  -> (Syn_Fields )
+wrap_Fields (T_Fields act) (Inh_Fields _lhsIallNonterminals) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Fields_vIn25 _lhsIallNonterminals
+        (T_Fields_vOut25 _lhsOcollectedConstraints _lhsOcollectedFields) <- return (inv_Fields_s26 sem arg)
+        return (Syn_Fields _lhsOcollectedConstraints _lhsOcollectedFields)
+   )
+
 -- cata
-sem_Fields :: Fields ->
-              T_Fields
-sem_Fields list =
-    (Prelude.foldr sem_Fields_Cons sem_Fields_Nil (Prelude.map sem_Field list))
+{-# NOINLINE sem_Fields #-}
+sem_Fields :: Fields  -> T_Fields 
+sem_Fields list = Prelude.foldr sem_Fields_Cons sem_Fields_Nil (Prelude.map sem_Field list)
+
 -- semantic domain
-newtype T_Fields = T_Fields ((Set NontermIdent) ->
-                             ( ([Type]),([(Identifier, Type)])))
-data Inh_Fields = Inh_Fields {allNonterminals_Inh_Fields :: !((Set NontermIdent))}
-data Syn_Fields = Syn_Fields {collectedConstraints_Syn_Fields :: !(([Type])),collectedFields_Syn_Fields :: !(([(Identifier, Type)]))}
-wrap_Fields :: T_Fields ->
-               Inh_Fields ->
-               Syn_Fields
-wrap_Fields (T_Fields sem) (Inh_Fields _lhsIallNonterminals) =
-    (let ( _lhsOcollectedConstraints,_lhsOcollectedFields) = sem _lhsIallNonterminals
-     in  (Syn_Fields _lhsOcollectedConstraints _lhsOcollectedFields))
-sem_Fields_Cons :: T_Field ->
-                   T_Fields ->
-                   T_Fields
-sem_Fields_Cons (T_Field hd_) (T_Fields tl_) =
-    (T_Fields (\ _lhsIallNonterminals ->
-                   (let _lhsOcollectedConstraints :: ([Type])
-                        _lhsOcollectedFields :: ([(Identifier, Type)])
-                        _hdOallNonterminals :: (Set NontermIdent)
-                        _tlOallNonterminals :: (Set NontermIdent)
-                        _hdIcollectedConstraints :: ([Type])
-                        _hdIcollectedFields :: ([(Identifier, Type)])
-                        _tlIcollectedConstraints :: ([Type])
-                        _tlIcollectedFields :: ([(Identifier, Type)])
-                        -- use rule "./src-ag/Transform.ag"(line 585, column 46)
-                        _lhsOcollectedConstraints =
-                            ({-# LINE 585 "./src-ag/Transform.ag" #-}
-                             _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                             {-# LINE 5707 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 576, column 41)
-                        _lhsOcollectedFields =
-                            ({-# LINE 576 "./src-ag/Transform.ag" #-}
-                             _hdIcollectedFields ++ _tlIcollectedFields
-                             {-# LINE 5713 "dist/build/Transform.hs" #-}
-                             )
-                        -- copy rule (down)
-                        _hdOallNonterminals =
-                            ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                             _lhsIallNonterminals
-                             {-# LINE 5719 "dist/build/Transform.hs" #-}
-                             )
-                        -- copy rule (down)
-                        _tlOallNonterminals =
-                            ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                             _lhsIallNonterminals
-                             {-# LINE 5725 "dist/build/Transform.hs" #-}
-                             )
-                        ( _hdIcollectedConstraints,_hdIcollectedFields) =
-                            hd_ _hdOallNonterminals
-                        ( _tlIcollectedConstraints,_tlIcollectedFields) =
-                            tl_ _tlOallNonterminals
-                    in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
-sem_Fields_Nil :: T_Fields
-sem_Fields_Nil =
-    (T_Fields (\ _lhsIallNonterminals ->
-                   (let _lhsOcollectedConstraints :: ([Type])
-                        _lhsOcollectedFields :: ([(Identifier, Type)])
-                        -- use rule "./src-ag/Transform.ag"(line 585, column 46)
-                        _lhsOcollectedConstraints =
-                            ({-# LINE 585 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 5741 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 576, column 41)
-                        _lhsOcollectedFields =
-                            ({-# LINE 576 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 5747 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
+newtype T_Fields  = T_Fields {
+                             attach_T_Fields :: Identity (T_Fields_s26 )
+                             }
+newtype T_Fields_s26  = C_Fields_s26 {
+                                     inv_Fields_s26 :: (T_Fields_v25 )
+                                     }
+data T_Fields_s27  = C_Fields_s27
+type T_Fields_v25  = (T_Fields_vIn25 ) -> (T_Fields_vOut25 )
+data T_Fields_vIn25  = T_Fields_vIn25 (Set NontermIdent)
+data T_Fields_vOut25  = T_Fields_vOut25 ([Type]) ([(Identifier, Type)])
+{-# NOINLINE sem_Fields_Cons #-}
+sem_Fields_Cons :: T_Field  -> T_Fields  -> T_Fields 
+sem_Fields_Cons arg_hd_ arg_tl_ = T_Fields (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_Fields_v25 
+      v25 = \ (T_Fields_vIn25 _lhsIallNonterminals) -> ( let
+         _hdX23 = Control.Monad.Identity.runIdentity (attach_T_Field (arg_hd_))
+         _tlX26 = Control.Monad.Identity.runIdentity (attach_T_Fields (arg_tl_))
+         (T_Field_vOut22 _hdIcollectedConstraints _hdIcollectedFields) = inv_Field_s23 _hdX23 (T_Field_vIn22 _hdOallNonterminals)
+         (T_Fields_vOut25 _tlIcollectedConstraints _tlIcollectedFields) = inv_Fields_s26 _tlX26 (T_Fields_vIn25 _tlOallNonterminals)
+         _lhsOcollectedConstraints :: [Type]
+         _lhsOcollectedConstraints = rule567 _hdIcollectedConstraints _tlIcollectedConstraints
+         _lhsOcollectedFields :: [(Identifier, Type)]
+         _lhsOcollectedFields = rule568 _hdIcollectedFields _tlIcollectedFields
+         _hdOallNonterminals = rule569 _lhsIallNonterminals
+         _tlOallNonterminals = rule570 _lhsIallNonterminals
+         __result_ = T_Fields_vOut25 _lhsOcollectedConstraints _lhsOcollectedFields
+         in __result_ )
+     in C_Fields_s26 v25
+   {-# INLINE rule567 #-}
+   rule567 = \ ((_hdIcollectedConstraints) :: [Type]) ((_tlIcollectedConstraints) :: [Type]) ->
+     _hdIcollectedConstraints ++ _tlIcollectedConstraints
+   {-# INLINE rule568 #-}
+   rule568 = \ ((_hdIcollectedFields) :: [(Identifier, Type)]) ((_tlIcollectedFields) :: [(Identifier, Type)]) ->
+     _hdIcollectedFields ++ _tlIcollectedFields
+   {-# INLINE rule569 #-}
+   rule569 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule570 #-}
+   rule570 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+{-# NOINLINE sem_Fields_Nil #-}
+sem_Fields_Nil ::  T_Fields 
+sem_Fields_Nil  = T_Fields (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_Fields_v25 
+      v25 = \ (T_Fields_vIn25 _lhsIallNonterminals) -> ( let
+         _lhsOcollectedConstraints :: [Type]
+         _lhsOcollectedConstraints = rule571  ()
+         _lhsOcollectedFields :: [(Identifier, Type)]
+         _lhsOcollectedFields = rule572  ()
+         __result_ = T_Fields_vOut25 _lhsOcollectedConstraints _lhsOcollectedFields
+         in __result_ )
+     in C_Fields_s26 v25
+   {-# INLINE rule571 #-}
+   rule571 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule572 #-}
+   rule572 = \  (_ :: ()) ->
+     []
+
 -- NontSet -----------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allFields            : DataTypes
-         allNonterminals      : Set NontermIdent
-         definedSets          : DefinedSets
-      synthesized attributes:
-         collectedNames       : Set Identifier
-         errors               : Seq Error
-         nontSet              : Set NontermIdent
-   alternatives:
-      alternative NamedSet:
-         child name           : {NontermIdent}
-         visit 0:
-            local nontSet     : _
-            local errors      : _
-      alternative All:
-      alternative Union:
-         child set1           : NontSet 
-         child set2           : NontSet 
-      alternative Intersect:
-         child set1           : NontSet 
-         child set2           : NontSet 
-      alternative Difference:
-         child set1           : NontSet 
-         child set2           : NontSet 
-      alternative Path:
-         child from           : {NontermIdent}
-         child to             : {NontermIdent}
--}
+-- wrapper
+data Inh_NontSet  = Inh_NontSet { allFields_Inh_NontSet :: (DataTypes), allNonterminals_Inh_NontSet :: (Set NontermIdent), definedSets_Inh_NontSet :: (DefinedSets) }
+data Syn_NontSet  = Syn_NontSet { collectedNames_Syn_NontSet :: (Set Identifier), errors_Syn_NontSet :: (Seq Error), nontSet_Syn_NontSet :: (Set NontermIdent) }
+{-# INLINABLE wrap_NontSet #-}
+wrap_NontSet :: T_NontSet  -> Inh_NontSet  -> (Syn_NontSet )
+wrap_NontSet (T_NontSet act) (Inh_NontSet _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets
+        (T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet) <- return (inv_NontSet_s29 sem arg)
+        return (Syn_NontSet _lhsOcollectedNames _lhsOerrors _lhsOnontSet)
+   )
+
 -- cata
-sem_NontSet :: NontSet ->
-               T_NontSet
-sem_NontSet (NamedSet _name) =
-    (sem_NontSet_NamedSet _name)
-sem_NontSet (All) =
-    (sem_NontSet_All)
-sem_NontSet (Union _set1 _set2) =
-    (sem_NontSet_Union (sem_NontSet _set1) (sem_NontSet _set2))
-sem_NontSet (Intersect _set1 _set2) =
-    (sem_NontSet_Intersect (sem_NontSet _set1) (sem_NontSet _set2))
-sem_NontSet (Difference _set1 _set2) =
-    (sem_NontSet_Difference (sem_NontSet _set1) (sem_NontSet _set2))
-sem_NontSet (Path _from _to) =
-    (sem_NontSet_Path _from _to)
+{-# NOINLINE sem_NontSet #-}
+sem_NontSet :: NontSet  -> T_NontSet 
+sem_NontSet ( NamedSet name_ ) = sem_NontSet_NamedSet name_
+sem_NontSet ( All  ) = sem_NontSet_All 
+sem_NontSet ( Union set1_ set2_ ) = sem_NontSet_Union ( sem_NontSet set1_ ) ( sem_NontSet set2_ )
+sem_NontSet ( Intersect set1_ set2_ ) = sem_NontSet_Intersect ( sem_NontSet set1_ ) ( sem_NontSet set2_ )
+sem_NontSet ( Difference set1_ set2_ ) = sem_NontSet_Difference ( sem_NontSet set1_ ) ( sem_NontSet set2_ )
+sem_NontSet ( Path from_ to_ ) = sem_NontSet_Path from_ to_
+
 -- semantic domain
-newtype T_NontSet = T_NontSet (DataTypes ->
-                               (Set NontermIdent) ->
-                               DefinedSets ->
-                               ( (Set Identifier),(Seq Error),(Set NontermIdent)))
-data Inh_NontSet = Inh_NontSet {allFields_Inh_NontSet :: !(DataTypes),allNonterminals_Inh_NontSet :: !((Set NontermIdent)),definedSets_Inh_NontSet :: !(DefinedSets)}
-data Syn_NontSet = Syn_NontSet {collectedNames_Syn_NontSet :: !((Set Identifier)),errors_Syn_NontSet :: !((Seq Error)),nontSet_Syn_NontSet :: !((Set NontermIdent))}
-wrap_NontSet :: T_NontSet ->
-                Inh_NontSet ->
-                Syn_NontSet
-wrap_NontSet (T_NontSet sem) (Inh_NontSet _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) =
-    (let ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet) = sem _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets
-     in  (Syn_NontSet _lhsOcollectedNames _lhsOerrors _lhsOnontSet))
-sem_NontSet_NamedSet :: NontermIdent ->
-                        T_NontSet
-sem_NontSet_NamedSet name_ =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOcollectedNames :: (Set Identifier)
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOnontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 603, column 14)
-                         _lhsOcollectedNames =
-                             ({-# LINE 603 "./src-ag/Transform.ag" #-}
-                              Set.singleton name_
-                              {-# LINE 5822 "dist/build/Transform.hs" #-}
-                              )
-                         -- "./src-ag/Transform.ag"(line 733, column 20)
-                         (_nontSet,_errors) =
-                             ({-# LINE 733 "./src-ag/Transform.ag" #-}
-                              case Map.lookup name_ _lhsIdefinedSets of
-                                           Nothing  -> (Set.empty, Seq.singleton (UndefNont name_))
-                                           Just set -> (set, Seq.empty)
-                              {-# LINE 5830 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _errors
-                              {-# LINE 5836 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (from local)
-                         _lhsOnontSet =
-                             ({-# LINE 115 "./src-ag/Transform.ag" #-}
-                              _nontSet
-                              {-# LINE 5842 "dist/build/Transform.hs" #-}
-                              )
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
-sem_NontSet_All :: T_NontSet
-sem_NontSet_All =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOnontSet :: (Set NontermIdent)
-                         _lhsOcollectedNames :: (Set Identifier)
-                         _lhsOerrors :: (Seq Error)
-                         -- "./src-ag/Transform.ag"(line 732, column 16)
-                         _lhsOnontSet =
-                             ({-# LINE 732 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 5857 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                         _lhsOcollectedNames =
-                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                              Set.empty
-                              {-# LINE 5863 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              Seq.empty
-                              {-# LINE 5869 "dist/build/Transform.hs" #-}
-                              )
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
-sem_NontSet_Union :: T_NontSet ->
-                     T_NontSet ->
-                     T_NontSet
-sem_NontSet_Union (T_NontSet set1_) (T_NontSet set2_) =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOnontSet :: (Set NontermIdent)
-                         _lhsOcollectedNames :: (Set Identifier)
-                         _lhsOerrors :: (Seq Error)
-                         _set1OallFields :: DataTypes
-                         _set1OallNonterminals :: (Set NontermIdent)
-                         _set1OdefinedSets :: DefinedSets
-                         _set2OallFields :: DataTypes
-                         _set2OallNonterminals :: (Set NontermIdent)
-                         _set2OdefinedSets :: DefinedSets
-                         _set1IcollectedNames :: (Set Identifier)
-                         _set1Ierrors :: (Seq Error)
-                         _set1InontSet :: (Set NontermIdent)
-                         _set2IcollectedNames :: (Set Identifier)
-                         _set2Ierrors :: (Seq Error)
-                         _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 736, column 16)
-                         _lhsOnontSet =
-                             ({-# LINE 736 "./src-ag/Transform.ag" #-}
-                              Set.union         _set1InontSet _set2InontSet
-                              {-# LINE 5898 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                         _lhsOcollectedNames =
-                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                              _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 5904 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 5910 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 5916 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 5922 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 5928 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 5934 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 5940 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 5946 "dist/build/Transform.hs" #-}
-                              )
-                         ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
-                             set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
-                         ( _set2IcollectedNames,_set2Ierrors,_set2InontSet) =
-                             set2_ _set2OallFields _set2OallNonterminals _set2OdefinedSets
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
-sem_NontSet_Intersect :: T_NontSet ->
-                         T_NontSet ->
-                         T_NontSet
-sem_NontSet_Intersect (T_NontSet set1_) (T_NontSet set2_) =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOnontSet :: (Set NontermIdent)
-                         _lhsOcollectedNames :: (Set Identifier)
-                         _lhsOerrors :: (Seq Error)
-                         _set1OallFields :: DataTypes
-                         _set1OallNonterminals :: (Set NontermIdent)
-                         _set1OdefinedSets :: DefinedSets
-                         _set2OallFields :: DataTypes
-                         _set2OallNonterminals :: (Set NontermIdent)
-                         _set2OdefinedSets :: DefinedSets
-                         _set1IcollectedNames :: (Set Identifier)
-                         _set1Ierrors :: (Seq Error)
-                         _set1InontSet :: (Set NontermIdent)
-                         _set2IcollectedNames :: (Set Identifier)
-                         _set2Ierrors :: (Seq Error)
-                         _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 737, column 16)
-                         _lhsOnontSet =
-                             ({-# LINE 737 "./src-ag/Transform.ag" #-}
-                              Set.intersection  _set1InontSet _set2InontSet
-                              {-# LINE 5979 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                         _lhsOcollectedNames =
-                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                              _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 5985 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 5991 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 5997 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 6003 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 6009 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 6015 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 6021 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 6027 "dist/build/Transform.hs" #-}
-                              )
-                         ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
-                             set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
-                         ( _set2IcollectedNames,_set2Ierrors,_set2InontSet) =
-                             set2_ _set2OallFields _set2OallNonterminals _set2OdefinedSets
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
-sem_NontSet_Difference :: T_NontSet ->
-                          T_NontSet ->
-                          T_NontSet
-sem_NontSet_Difference (T_NontSet set1_) (T_NontSet set2_) =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOnontSet :: (Set NontermIdent)
-                         _lhsOcollectedNames :: (Set Identifier)
-                         _lhsOerrors :: (Seq Error)
-                         _set1OallFields :: DataTypes
-                         _set1OallNonterminals :: (Set NontermIdent)
-                         _set1OdefinedSets :: DefinedSets
-                         _set2OallFields :: DataTypes
-                         _set2OallNonterminals :: (Set NontermIdent)
-                         _set2OdefinedSets :: DefinedSets
-                         _set1IcollectedNames :: (Set Identifier)
-                         _set1Ierrors :: (Seq Error)
-                         _set1InontSet :: (Set NontermIdent)
-                         _set2IcollectedNames :: (Set Identifier)
-                         _set2Ierrors :: (Seq Error)
-                         _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 738, column 16)
-                         _lhsOnontSet =
-                             ({-# LINE 738 "./src-ag/Transform.ag" #-}
-                              Set.difference    _set1InontSet _set2InontSet
-                              {-# LINE 6060 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                         _lhsOcollectedNames =
-                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                              _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 6066 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 6072 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 6078 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 6084 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set1OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 6090 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 6096 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OallNonterminals =
-                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                              _lhsIallNonterminals
-                              {-# LINE 6102 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _set2OdefinedSets =
-                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
-                              _lhsIdefinedSets
-                              {-# LINE 6108 "dist/build/Transform.hs" #-}
-                              )
-                         ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
-                             set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
-                         ( _set2IcollectedNames,_set2Ierrors,_set2InontSet) =
-                             set2_ _set2OallFields _set2OallNonterminals _set2OdefinedSets
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
-sem_NontSet_Path :: NontermIdent ->
-                    NontermIdent ->
-                    T_NontSet
-sem_NontSet_Path from_ to_ =
-    (T_NontSet (\ _lhsIallFields
-                  _lhsIallNonterminals
-                  _lhsIdefinedSets ->
-                    (let _lhsOnontSet :: (Set NontermIdent)
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOcollectedNames :: (Set Identifier)
-                         -- "./src-ag/Transform.ag"(line 739, column 16)
-                         _lhsOnontSet =
-                             ({-# LINE 739 "./src-ag/Transform.ag" #-}
-                              let table = flattenDatas _lhsIallFields
-                              in path table from_ to_
-                              {-# LINE 6130 "dist/build/Transform.hs" #-}
-                              )
-                         -- "./src-ag/Transform.ag"(line 741, column 16)
-                         _lhsOerrors =
-                             ({-# LINE 741 "./src-ag/Transform.ag" #-}
+newtype T_NontSet  = T_NontSet {
+                               attach_T_NontSet :: Identity (T_NontSet_s29 )
+                               }
+newtype T_NontSet_s29  = C_NontSet_s29 {
+                                       inv_NontSet_s29 :: (T_NontSet_v28 )
+                                       }
+data T_NontSet_s30  = C_NontSet_s30
+type T_NontSet_v28  = (T_NontSet_vIn28 ) -> (T_NontSet_vOut28 )
+data T_NontSet_vIn28  = T_NontSet_vIn28 (DataTypes) (Set NontermIdent) (DefinedSets)
+data T_NontSet_vOut28  = T_NontSet_vOut28 (Set Identifier) (Seq Error) (Set NontermIdent)
+{-# NOINLINE sem_NontSet_NamedSet #-}
+sem_NontSet_NamedSet :: (NontermIdent) -> T_NontSet 
+sem_NontSet_NamedSet arg_name_ = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule573 arg_name_
+         (_nontSet,_errors) = rule574 _lhsIdefinedSets arg_name_
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule575 _errors
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule576 _nontSet
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule573 #-}
+   {-# LINE 603 "./src-ag/Transform.ag" #-}
+   rule573 = \ name_ ->
+                                    {-# LINE 603 "./src-ag/Transform.ag" #-}
+                                    Set.singleton name_
+                                    {-# LINE 4436 "dist/build/Transform.hs"#-}
+   {-# INLINE rule574 #-}
+   {-# LINE 733 "./src-ag/Transform.ag" #-}
+   rule574 = \ ((_lhsIdefinedSets) :: DefinedSets) name_ ->
+                                        {-# LINE 733 "./src-ag/Transform.ag" #-}
+                                        case Map.lookup name_ _lhsIdefinedSets of
+                                                     Nothing  -> (Set.empty, Seq.singleton (UndefNont name_))
+                                                     Just set -> (set, Seq.empty)
+                                        {-# LINE 4444 "dist/build/Transform.hs"#-}
+   {-# INLINE rule575 #-}
+   rule575 = \ _errors ->
+     _errors
+   {-# INLINE rule576 #-}
+   rule576 = \ _nontSet ->
+     _nontSet
+{-# NOINLINE sem_NontSet_All #-}
+sem_NontSet_All ::  T_NontSet 
+sem_NontSet_All  = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule577 _lhsIallNonterminals
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule578  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule579  ()
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule577 #-}
+   {-# LINE 732 "./src-ag/Transform.ag" #-}
+   rule577 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+                               {-# LINE 732 "./src-ag/Transform.ag" #-}
+                               _lhsIallNonterminals
+                               {-# LINE 4472 "dist/build/Transform.hs"#-}
+   {-# INLINE rule578 #-}
+   rule578 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule579 #-}
+   rule579 = \  (_ :: ()) ->
+     Seq.empty
+{-# NOINLINE sem_NontSet_Union #-}
+sem_NontSet_Union :: T_NontSet  -> T_NontSet  -> T_NontSet 
+sem_NontSet_Union arg_set1_ arg_set2_ = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _set1X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set1_))
+         _set2X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set2_))
+         (T_NontSet_vOut28 _set1IcollectedNames _set1Ierrors _set1InontSet) = inv_NontSet_s29 _set1X29 (T_NontSet_vIn28 _set1OallFields _set1OallNonterminals _set1OdefinedSets)
+         (T_NontSet_vOut28 _set2IcollectedNames _set2Ierrors _set2InontSet) = inv_NontSet_s29 _set2X29 (T_NontSet_vIn28 _set2OallFields _set2OallNonterminals _set2OdefinedSets)
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule580 _set1InontSet _set2InontSet
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule581 _set1IcollectedNames _set2IcollectedNames
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule582 _set1Ierrors _set2Ierrors
+         _set1OallFields = rule583 _lhsIallFields
+         _set1OallNonterminals = rule584 _lhsIallNonterminals
+         _set1OdefinedSets = rule585 _lhsIdefinedSets
+         _set2OallFields = rule586 _lhsIallFields
+         _set2OallNonterminals = rule587 _lhsIallNonterminals
+         _set2OdefinedSets = rule588 _lhsIdefinedSets
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule580 #-}
+   {-# LINE 736 "./src-ag/Transform.ag" #-}
+   rule580 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
+                               {-# LINE 736 "./src-ag/Transform.ag" #-}
+                               Set.union         _set1InontSet _set2InontSet
+                               {-# LINE 4510 "dist/build/Transform.hs"#-}
+   {-# INLINE rule581 #-}
+   rule581 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
+     _set1IcollectedNames `Set.union` _set2IcollectedNames
+   {-# INLINE rule582 #-}
+   rule582 = \ ((_set1Ierrors) :: Seq Error) ((_set2Ierrors) :: Seq Error) ->
+     _set1Ierrors Seq.>< _set2Ierrors
+   {-# INLINE rule583 #-}
+   rule583 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule584 #-}
+   rule584 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule585 #-}
+   rule585 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule586 #-}
+   rule586 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule587 #-}
+   rule587 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule588 #-}
+   rule588 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_NontSet_Intersect #-}
+sem_NontSet_Intersect :: T_NontSet  -> T_NontSet  -> T_NontSet 
+sem_NontSet_Intersect arg_set1_ arg_set2_ = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _set1X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set1_))
+         _set2X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set2_))
+         (T_NontSet_vOut28 _set1IcollectedNames _set1Ierrors _set1InontSet) = inv_NontSet_s29 _set1X29 (T_NontSet_vIn28 _set1OallFields _set1OallNonterminals _set1OdefinedSets)
+         (T_NontSet_vOut28 _set2IcollectedNames _set2Ierrors _set2InontSet) = inv_NontSet_s29 _set2X29 (T_NontSet_vIn28 _set2OallFields _set2OallNonterminals _set2OdefinedSets)
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule589 _set1InontSet _set2InontSet
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule590 _set1IcollectedNames _set2IcollectedNames
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule591 _set1Ierrors _set2Ierrors
+         _set1OallFields = rule592 _lhsIallFields
+         _set1OallNonterminals = rule593 _lhsIallNonterminals
+         _set1OdefinedSets = rule594 _lhsIdefinedSets
+         _set2OallFields = rule595 _lhsIallFields
+         _set2OallNonterminals = rule596 _lhsIallNonterminals
+         _set2OdefinedSets = rule597 _lhsIdefinedSets
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule589 #-}
+   {-# LINE 737 "./src-ag/Transform.ag" #-}
+   rule589 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
+                               {-# LINE 737 "./src-ag/Transform.ag" #-}
+                               Set.intersection  _set1InontSet _set2InontSet
+                               {-# LINE 4566 "dist/build/Transform.hs"#-}
+   {-# INLINE rule590 #-}
+   rule590 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
+     _set1IcollectedNames `Set.union` _set2IcollectedNames
+   {-# INLINE rule591 #-}
+   rule591 = \ ((_set1Ierrors) :: Seq Error) ((_set2Ierrors) :: Seq Error) ->
+     _set1Ierrors Seq.>< _set2Ierrors
+   {-# INLINE rule592 #-}
+   rule592 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule593 #-}
+   rule593 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule594 #-}
+   rule594 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule595 #-}
+   rule595 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule596 #-}
+   rule596 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule597 #-}
+   rule597 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_NontSet_Difference #-}
+sem_NontSet_Difference :: T_NontSet  -> T_NontSet  -> T_NontSet 
+sem_NontSet_Difference arg_set1_ arg_set2_ = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _set1X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set1_))
+         _set2X29 = Control.Monad.Identity.runIdentity (attach_T_NontSet (arg_set2_))
+         (T_NontSet_vOut28 _set1IcollectedNames _set1Ierrors _set1InontSet) = inv_NontSet_s29 _set1X29 (T_NontSet_vIn28 _set1OallFields _set1OallNonterminals _set1OdefinedSets)
+         (T_NontSet_vOut28 _set2IcollectedNames _set2Ierrors _set2InontSet) = inv_NontSet_s29 _set2X29 (T_NontSet_vIn28 _set2OallFields _set2OallNonterminals _set2OdefinedSets)
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule598 _set1InontSet _set2InontSet
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule599 _set1IcollectedNames _set2IcollectedNames
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule600 _set1Ierrors _set2Ierrors
+         _set1OallFields = rule601 _lhsIallFields
+         _set1OallNonterminals = rule602 _lhsIallNonterminals
+         _set1OdefinedSets = rule603 _lhsIdefinedSets
+         _set2OallFields = rule604 _lhsIallFields
+         _set2OallNonterminals = rule605 _lhsIallNonterminals
+         _set2OdefinedSets = rule606 _lhsIdefinedSets
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule598 #-}
+   {-# LINE 738 "./src-ag/Transform.ag" #-}
+   rule598 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
+                               {-# LINE 738 "./src-ag/Transform.ag" #-}
+                               Set.difference    _set1InontSet _set2InontSet
+                               {-# LINE 4622 "dist/build/Transform.hs"#-}
+   {-# INLINE rule599 #-}
+   rule599 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
+     _set1IcollectedNames `Set.union` _set2IcollectedNames
+   {-# INLINE rule600 #-}
+   rule600 = \ ((_set1Ierrors) :: Seq Error) ((_set2Ierrors) :: Seq Error) ->
+     _set1Ierrors Seq.>< _set2Ierrors
+   {-# INLINE rule601 #-}
+   rule601 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule602 #-}
+   rule602 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule603 #-}
+   rule603 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+   {-# INLINE rule604 #-}
+   rule604 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule605 #-}
+   rule605 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
+     _lhsIallNonterminals
+   {-# INLINE rule606 #-}
+   rule606 = \ ((_lhsIdefinedSets) :: DefinedSets) ->
+     _lhsIdefinedSets
+{-# NOINLINE sem_NontSet_Path #-}
+sem_NontSet_Path :: (NontermIdent) -> (NontermIdent) -> T_NontSet 
+sem_NontSet_Path arg_from_ arg_to_ = T_NontSet (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_NontSet_v28 
+      v28 = \ (T_NontSet_vIn28 _lhsIallFields _lhsIallNonterminals _lhsIdefinedSets) -> ( let
+         _lhsOnontSet :: Set NontermIdent
+         _lhsOnontSet = rule607 _lhsIallFields arg_from_ arg_to_
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule608 _lhsIallNonterminals arg_from_ arg_to_
+         _lhsOcollectedNames :: Set Identifier
+         _lhsOcollectedNames = rule609  ()
+         __result_ = T_NontSet_vOut28 _lhsOcollectedNames _lhsOerrors _lhsOnontSet
+         in __result_ )
+     in C_NontSet_s29 v28
+   {-# INLINE rule607 #-}
+   {-# LINE 739 "./src-ag/Transform.ag" #-}
+   rule607 = \ ((_lhsIallFields) :: DataTypes) from_ to_ ->
+                               {-# LINE 739 "./src-ag/Transform.ag" #-}
+                               let table = flattenDatas _lhsIallFields
+                               in path table from_ to_
+                               {-# LINE 4669 "dist/build/Transform.hs"#-}
+   {-# INLINE rule608 #-}
+   {-# LINE 741 "./src-ag/Transform.ag" #-}
+   rule608 = \ ((_lhsIallNonterminals) :: Set NontermIdent) from_ to_ ->
+                              {-# LINE 741 "./src-ag/Transform.ag" #-}
                               let check name | Set.member name _lhsIallNonterminals
                                                          = Seq.empty
                                              | otherwise = Seq.singleton (UndefNont name)
                               in check from_ >< check to_
-                              {-# LINE 6139 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
-                         _lhsOcollectedNames =
-                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
-                              Set.empty
-                              {-# LINE 6145 "dist/build/Transform.hs" #-}
-                              )
-                     in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
+                              {-# LINE 4678 "dist/build/Transform.hs"#-}
+   {-# INLINE rule609 #-}
+   rule609 = \  (_ :: ()) ->
+     Set.empty
+
 -- Pattern -----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         copy                 : Pattern 
-         definedAttrs         : [AttrName]
-         definedInsts         : [Identifier]
-         patunder             : [AttrName]->Pattern
-         stpos                : Pos
-   alternatives:
-      alternative Constr:
-         child name           : {ConstructorIdent}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Product:
-         child pos            : {Pos}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Alias:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Irrefutable:
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Underscore:
-         child pos            : {Pos}
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Pattern  = Inh_Pattern {  }
+data Syn_Pattern  = Syn_Pattern { copy_Syn_Pattern :: (Pattern), definedAttrs_Syn_Pattern :: ([AttrName]), definedInsts_Syn_Pattern :: ([Identifier]), patunder_Syn_Pattern :: ([AttrName]->Pattern), stpos_Syn_Pattern :: (Pos) }
+{-# INLINABLE wrap_Pattern #-}
+wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
+wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Pattern_vIn31 
+        (T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos) <- return (inv_Pattern_s32 sem arg)
+        return (Syn_Pattern _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos)
+   )
+
 -- cata
-sem_Pattern :: Pattern ->
-               T_Pattern
-sem_Pattern (Constr _name _pats) =
-    (sem_Pattern_Constr _name (sem_Patterns _pats))
-sem_Pattern (Product _pos _pats) =
-    (sem_Pattern_Product _pos (sem_Patterns _pats))
-sem_Pattern (Alias _field _attr _pat) =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat))
-sem_Pattern (Irrefutable _pat) =
-    (sem_Pattern_Irrefutable (sem_Pattern _pat))
-sem_Pattern (Underscore _pos) =
-    (sem_Pattern_Underscore _pos)
+{-# NOINLINE sem_Pattern #-}
+sem_Pattern :: Pattern  -> T_Pattern 
+sem_Pattern ( Constr name_ pats_ ) = sem_Pattern_Constr name_ ( sem_Patterns pats_ )
+sem_Pattern ( Product pos_ pats_ ) = sem_Pattern_Product pos_ ( sem_Patterns pats_ )
+sem_Pattern ( Alias field_ attr_ pat_ ) = sem_Pattern_Alias field_ attr_ ( sem_Pattern pat_ )
+sem_Pattern ( Irrefutable pat_ ) = sem_Pattern_Irrefutable ( sem_Pattern pat_ )
+sem_Pattern ( Underscore pos_ ) = sem_Pattern_Underscore pos_
+
 -- semantic domain
-newtype T_Pattern = T_Pattern (( Pattern,([AttrName]),([Identifier]),([AttrName]->Pattern),Pos))
-data Inh_Pattern = Inh_Pattern {}
-data Syn_Pattern = Syn_Pattern {copy_Syn_Pattern :: !(Pattern),definedAttrs_Syn_Pattern :: !(([AttrName])),definedInsts_Syn_Pattern :: !(([Identifier])),patunder_Syn_Pattern :: !(([AttrName]->Pattern)),stpos_Syn_Pattern :: !(Pos)}
-wrap_Pattern :: T_Pattern ->
-                Inh_Pattern ->
-                Syn_Pattern
-wrap_Pattern (T_Pattern sem) (Inh_Pattern) =
-    (let ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos) = sem
-     in  (Syn_Pattern _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos))
-sem_Pattern_Constr :: ConstructorIdent ->
-                      T_Patterns ->
-                      T_Pattern
-sem_Pattern_Constr name_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOpatunder :: ([AttrName]->Pattern)
-                    _lhsOstpos :: Pos
-                    _lhsOdefinedAttrs :: ([AttrName])
-                    _lhsOdefinedInsts :: ([Identifier])
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    _patsIdefinedAttrs :: ([AttrName])
-                    _patsIdefinedInsts :: ([Identifier])
-                    _patsIpatunder :: ([AttrName]->Patterns)
-                    -- "./src-ag/Transform.ag"(line 1189, column 12)
-                    _lhsOpatunder =
-                        ({-# LINE 1189 "./src-ag/Transform.ag" #-}
-                         \us -> Constr name_ (_patsIpatunder us)
-                         {-# LINE 6223 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1200, column 16)
-                    _lhsOstpos =
-                        ({-# LINE 1200 "./src-ag/Transform.ag" #-}
-                         getPos name_
-                         {-# LINE 6229 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                    _lhsOdefinedAttrs =
-                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                         _patsIdefinedAttrs
-                         {-# LINE 6235 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                    _lhsOdefinedInsts =
-                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                         _patsIdefinedInsts
-                         {-# LINE 6241 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Constr name_ _patsIcopy
-                         {-# LINE 6247 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 6253 "dist/build/Transform.hs" #-}
-                         )
-                    ( _patsIcopy,_patsIdefinedAttrs,_patsIdefinedInsts,_patsIpatunder) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
-sem_Pattern_Product :: Pos ->
-                       T_Patterns ->
-                       T_Pattern
-sem_Pattern_Product pos_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOpatunder :: ([AttrName]->Pattern)
-                    _lhsOstpos :: Pos
-                    _lhsOdefinedAttrs :: ([AttrName])
-                    _lhsOdefinedInsts :: ([Identifier])
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    _patsIdefinedAttrs :: ([AttrName])
-                    _patsIdefinedInsts :: ([Identifier])
-                    _patsIpatunder :: ([AttrName]->Patterns)
-                    -- "./src-ag/Transform.ag"(line 1190, column 13)
-                    _lhsOpatunder =
-                        ({-# LINE 1190 "./src-ag/Transform.ag" #-}
-                         \us -> Product pos_ (_patsIpatunder us)
-                         {-# LINE 6275 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1201, column 16)
-                    _lhsOstpos =
-                        ({-# LINE 1201 "./src-ag/Transform.ag" #-}
-                         pos_
-                         {-# LINE 6281 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                    _lhsOdefinedAttrs =
-                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                         _patsIdefinedAttrs
-                         {-# LINE 6287 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                    _lhsOdefinedInsts =
-                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                         _patsIdefinedInsts
-                         {-# LINE 6293 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Product pos_ _patsIcopy
-                         {-# LINE 6299 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 6305 "dist/build/Transform.hs" #-}
-                         )
-                    ( _patsIcopy,_patsIdefinedAttrs,_patsIdefinedInsts,_patsIpatunder) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
-sem_Pattern_Alias :: Identifier ->
-                     Identifier ->
-                     T_Pattern ->
-                     T_Pattern
-sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
-    (T_Pattern (let _lhsOdefinedAttrs :: ([AttrName])
-                    _lhsOpatunder :: ([AttrName]->Pattern)
-                    _lhsOdefinedInsts :: ([Identifier])
-                    _lhsOstpos :: Pos
-                    _lhsOcopy :: Pattern
-                    _patIcopy :: Pattern
-                    _patIdefinedAttrs :: ([AttrName])
-                    _patIdefinedInsts :: ([Identifier])
-                    _patIpatunder :: ([AttrName]->Pattern)
-                    _patIstpos :: Pos
-                    -- "./src-ag/Transform.ag"(line 1185, column 11)
-                    _lhsOdefinedAttrs =
-                        ({-# LINE 1185 "./src-ag/Transform.ag" #-}
-                         (field_, attr_) : _patIdefinedAttrs
-                         {-# LINE 6329 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1186, column 11)
-                    _lhsOpatunder =
-                        ({-# LINE 1186 "./src-ag/Transform.ag" #-}
-                         \us -> if ((field_,attr_) `elem` us) then Underscore noPos else _copy
-                         {-# LINE 6335 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1187, column 11)
-                    _lhsOdefinedInsts =
-                        ({-# LINE 1187 "./src-ag/Transform.ag" #-}
-                         (if field_ == _INST then [attr_] else []) ++ _patIdefinedInsts
-                         {-# LINE 6341 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1202, column 16)
-                    _lhsOstpos =
-                        ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                         getPos field_
-                         {-# LINE 6347 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Alias field_ attr_ _patIcopy
-                         {-# LINE 6353 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 6359 "dist/build/Transform.hs" #-}
-                         )
-                    ( _patIcopy,_patIdefinedAttrs,_patIdefinedInsts,_patIpatunder,_patIstpos) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
-sem_Pattern_Irrefutable :: T_Pattern ->
-                           T_Pattern
-sem_Pattern_Irrefutable (T_Pattern pat_) =
-    (T_Pattern (let _lhsOpatunder :: ([AttrName]->Pattern)
-                    _lhsOdefinedAttrs :: ([AttrName])
-                    _lhsOdefinedInsts :: ([Identifier])
-                    _lhsOcopy :: Pattern
-                    _lhsOstpos :: Pos
-                    _patIcopy :: Pattern
-                    _patIdefinedAttrs :: ([AttrName])
-                    _patIdefinedInsts :: ([Identifier])
-                    _patIpatunder :: ([AttrName]->Pattern)
-                    _patIstpos :: Pos
-                    -- "./src-ag/Transform.ag"(line 1191, column 17)
-                    _lhsOpatunder =
-                        ({-# LINE 1191 "./src-ag/Transform.ag" #-}
-                         \us -> Irrefutable (_patIpatunder us)
-                         {-# LINE 6381 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                    _lhsOdefinedAttrs =
-                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                         _patIdefinedAttrs
-                         {-# LINE 6387 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                    _lhsOdefinedInsts =
-                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                         _patIdefinedInsts
-                         {-# LINE 6393 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Irrefutable _patIcopy
-                         {-# LINE 6399 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 6405 "dist/build/Transform.hs" #-}
-                         )
-                    -- copy rule (up)
-                    _lhsOstpos =
-                        ({-# LINE 1197 "./src-ag/Transform.ag" #-}
-                         _patIstpos
-                         {-# LINE 6411 "dist/build/Transform.hs" #-}
-                         )
-                    ( _patIcopy,_patIdefinedAttrs,_patIdefinedInsts,_patIpatunder,_patIstpos) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
-sem_Pattern_Underscore :: Pos ->
-                          T_Pattern
-sem_Pattern_Underscore pos_ =
-    (T_Pattern (let _lhsOpatunder :: ([AttrName]->Pattern)
-                    _lhsOstpos :: Pos
-                    _lhsOdefinedAttrs :: ([AttrName])
-                    _lhsOdefinedInsts :: ([Identifier])
-                    _lhsOcopy :: Pattern
-                    -- "./src-ag/Transform.ag"(line 1188, column 16)
-                    _lhsOpatunder =
-                        ({-# LINE 1188 "./src-ag/Transform.ag" #-}
-                         \_ -> _copy
-                         {-# LINE 6428 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 1203, column 16)
-                    _lhsOstpos =
-                        ({-# LINE 1203 "./src-ag/Transform.ag" #-}
-                         pos_
-                         {-# LINE 6434 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                    _lhsOdefinedAttrs =
-                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                         []
-                         {-# LINE 6440 "dist/build/Transform.hs" #-}
-                         )
-                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                    _lhsOdefinedInsts =
-                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                         []
-                         {-# LINE 6446 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Underscore pos_
-                         {-# LINE 6452 "dist/build/Transform.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 6458 "dist/build/Transform.hs" #-}
-                         )
-                in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
+newtype T_Pattern  = T_Pattern {
+                               attach_T_Pattern :: Identity (T_Pattern_s32 )
+                               }
+newtype T_Pattern_s32  = C_Pattern_s32 {
+                                       inv_Pattern_s32 :: (T_Pattern_v31 )
+                                       }
+data T_Pattern_s33  = C_Pattern_s33
+type T_Pattern_v31  = (T_Pattern_vIn31 ) -> (T_Pattern_vOut31 )
+data T_Pattern_vIn31  = T_Pattern_vIn31 
+data T_Pattern_vOut31  = T_Pattern_vOut31 (Pattern) ([AttrName]) ([Identifier]) ([AttrName]->Pattern) (Pos)
+{-# NOINLINE sem_Pattern_Constr #-}
+sem_Pattern_Constr :: (ConstructorIdent) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Pattern_v31 
+      v31 = \ (T_Pattern_vIn31 ) -> ( let
+         _patsX35 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut34 _patsIcopy _patsIdefinedAttrs _patsIdefinedInsts _patsIpatunder) = inv_Patterns_s35 _patsX35 (T_Patterns_vIn34 )
+         _lhsOpatunder :: [AttrName]->Pattern
+         _lhsOpatunder = rule610 _patsIpatunder arg_name_
+         _lhsOstpos :: Pos
+         _lhsOstpos = rule611 arg_name_
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule612 _patsIdefinedAttrs
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule613 _patsIdefinedInsts
+         _copy = rule614 _patsIcopy arg_name_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule615 _copy
+         __result_ = T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos
+         in __result_ )
+     in C_Pattern_s32 v31
+   {-# INLINE rule610 #-}
+   {-# LINE 1189 "./src-ag/Transform.ag" #-}
+   rule610 = \ ((_patsIpatunder) :: [AttrName]->Patterns) name_ ->
+                               {-# LINE 1189 "./src-ag/Transform.ag" #-}
+                               \us -> Constr name_ (_patsIpatunder us)
+                               {-# LINE 4745 "dist/build/Transform.hs"#-}
+   {-# INLINE rule611 #-}
+   {-# LINE 1200 "./src-ag/Transform.ag" #-}
+   rule611 = \ name_ ->
+                             {-# LINE 1200 "./src-ag/Transform.ag" #-}
+                             getPos name_
+                             {-# LINE 4751 "dist/build/Transform.hs"#-}
+   {-# INLINE rule612 #-}
+   rule612 = \ ((_patsIdefinedAttrs) :: [AttrName]) ->
+     _patsIdefinedAttrs
+   {-# INLINE rule613 #-}
+   rule613 = \ ((_patsIdefinedInsts) :: [Identifier]) ->
+     _patsIdefinedInsts
+   {-# INLINE rule614 #-}
+   rule614 = \ ((_patsIcopy) :: Patterns) name_ ->
+     Constr name_ _patsIcopy
+   {-# INLINE rule615 #-}
+   rule615 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Product #-}
+sem_Pattern_Product :: (Pos) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Pattern_v31 
+      v31 = \ (T_Pattern_vIn31 ) -> ( let
+         _patsX35 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut34 _patsIcopy _patsIdefinedAttrs _patsIdefinedInsts _patsIpatunder) = inv_Patterns_s35 _patsX35 (T_Patterns_vIn34 )
+         _lhsOpatunder :: [AttrName]->Pattern
+         _lhsOpatunder = rule616 _patsIpatunder arg_pos_
+         _lhsOstpos :: Pos
+         _lhsOstpos = rule617 arg_pos_
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule618 _patsIdefinedAttrs
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule619 _patsIdefinedInsts
+         _copy = rule620 _patsIcopy arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule621 _copy
+         __result_ = T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos
+         in __result_ )
+     in C_Pattern_s32 v31
+   {-# INLINE rule616 #-}
+   {-# LINE 1190 "./src-ag/Transform.ag" #-}
+   rule616 = \ ((_patsIpatunder) :: [AttrName]->Patterns) pos_ ->
+                                {-# LINE 1190 "./src-ag/Transform.ag" #-}
+                                \us -> Product pos_ (_patsIpatunder us)
+                                {-# LINE 4792 "dist/build/Transform.hs"#-}
+   {-# INLINE rule617 #-}
+   {-# LINE 1201 "./src-ag/Transform.ag" #-}
+   rule617 = \ pos_ ->
+                             {-# LINE 1201 "./src-ag/Transform.ag" #-}
+                             pos_
+                             {-# LINE 4798 "dist/build/Transform.hs"#-}
+   {-# INLINE rule618 #-}
+   rule618 = \ ((_patsIdefinedAttrs) :: [AttrName]) ->
+     _patsIdefinedAttrs
+   {-# INLINE rule619 #-}
+   rule619 = \ ((_patsIdefinedInsts) :: [Identifier]) ->
+     _patsIdefinedInsts
+   {-# INLINE rule620 #-}
+   rule620 = \ ((_patsIcopy) :: Patterns) pos_ ->
+     Product pos_ _patsIcopy
+   {-# INLINE rule621 #-}
+   rule621 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Alias #-}
+sem_Pattern_Alias :: (Identifier) -> (Identifier) -> T_Pattern  -> T_Pattern 
+sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Pattern_v31 
+      v31 = \ (T_Pattern_vIn31 ) -> ( let
+         _patX32 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut31 _patIcopy _patIdefinedAttrs _patIdefinedInsts _patIpatunder _patIstpos) = inv_Pattern_s32 _patX32 (T_Pattern_vIn31 )
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule622 _patIdefinedAttrs arg_attr_ arg_field_
+         _lhsOpatunder :: [AttrName]->Pattern
+         _lhsOpatunder = rule623 _copy arg_attr_ arg_field_
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule624 _patIdefinedInsts arg_attr_ arg_field_
+         _lhsOstpos :: Pos
+         _lhsOstpos = rule625 arg_field_
+         _copy = rule626 _patIcopy arg_attr_ arg_field_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule627 _copy
+         __result_ = T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos
+         in __result_ )
+     in C_Pattern_s32 v31
+   {-# INLINE rule622 #-}
+   {-# LINE 1185 "./src-ag/Transform.ag" #-}
+   rule622 = \ ((_patIdefinedAttrs) :: [AttrName]) attr_ field_ ->
+                               {-# LINE 1185 "./src-ag/Transform.ag" #-}
+                               (field_, attr_) : _patIdefinedAttrs
+                               {-# LINE 4839 "dist/build/Transform.hs"#-}
+   {-# INLINE rule623 #-}
+   {-# LINE 1186 "./src-ag/Transform.ag" #-}
+   rule623 = \ _copy attr_ field_ ->
+                               {-# LINE 1186 "./src-ag/Transform.ag" #-}
+                               \us -> if ((field_,attr_) `elem` us) then Underscore noPos else _copy
+                               {-# LINE 4845 "dist/build/Transform.hs"#-}
+   {-# INLINE rule624 #-}
+   {-# LINE 1187 "./src-ag/Transform.ag" #-}
+   rule624 = \ ((_patIdefinedInsts) :: [Identifier]) attr_ field_ ->
+                               {-# LINE 1187 "./src-ag/Transform.ag" #-}
+                               (if field_ == _INST then [attr_] else []) ++ _patIdefinedInsts
+                               {-# LINE 4851 "dist/build/Transform.hs"#-}
+   {-# INLINE rule625 #-}
+   {-# LINE 1202 "./src-ag/Transform.ag" #-}
+   rule625 = \ field_ ->
+                             {-# LINE 1202 "./src-ag/Transform.ag" #-}
+                             getPos field_
+                             {-# LINE 4857 "dist/build/Transform.hs"#-}
+   {-# INLINE rule626 #-}
+   rule626 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
+     Alias field_ attr_ _patIcopy
+   {-# INLINE rule627 #-}
+   rule627 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Irrefutable #-}
+sem_Pattern_Irrefutable :: T_Pattern  -> T_Pattern 
+sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Pattern_v31 
+      v31 = \ (T_Pattern_vIn31 ) -> ( let
+         _patX32 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut31 _patIcopy _patIdefinedAttrs _patIdefinedInsts _patIpatunder _patIstpos) = inv_Pattern_s32 _patX32 (T_Pattern_vIn31 )
+         _lhsOpatunder :: [AttrName]->Pattern
+         _lhsOpatunder = rule628 _patIpatunder
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule629 _patIdefinedAttrs
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule630 _patIdefinedInsts
+         _copy = rule631 _patIcopy
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule632 _copy
+         _lhsOstpos :: Pos
+         _lhsOstpos = rule633 _patIstpos
+         __result_ = T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos
+         in __result_ )
+     in C_Pattern_s32 v31
+   {-# INLINE rule628 #-}
+   {-# LINE 1191 "./src-ag/Transform.ag" #-}
+   rule628 = \ ((_patIpatunder) :: [AttrName]->Pattern) ->
+                                 {-# LINE 1191 "./src-ag/Transform.ag" #-}
+                                 \us -> Irrefutable (_patIpatunder us)
+                                 {-# LINE 4892 "dist/build/Transform.hs"#-}
+   {-# INLINE rule629 #-}
+   rule629 = \ ((_patIdefinedAttrs) :: [AttrName]) ->
+     _patIdefinedAttrs
+   {-# INLINE rule630 #-}
+   rule630 = \ ((_patIdefinedInsts) :: [Identifier]) ->
+     _patIdefinedInsts
+   {-# INLINE rule631 #-}
+   rule631 = \ ((_patIcopy) :: Pattern) ->
+     Irrefutable _patIcopy
+   {-# INLINE rule632 #-}
+   rule632 = \ _copy ->
+     _copy
+   {-# INLINE rule633 #-}
+   rule633 = \ ((_patIstpos) :: Pos) ->
+     _patIstpos
+{-# NOINLINE sem_Pattern_Underscore #-}
+sem_Pattern_Underscore :: (Pos) -> T_Pattern 
+sem_Pattern_Underscore arg_pos_ = T_Pattern (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Pattern_v31 
+      v31 = \ (T_Pattern_vIn31 ) -> ( let
+         _lhsOpatunder :: [AttrName]->Pattern
+         _lhsOpatunder = rule634 _copy
+         _lhsOstpos :: Pos
+         _lhsOstpos = rule635 arg_pos_
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule636  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule637  ()
+         _copy = rule638 arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule639 _copy
+         __result_ = T_Pattern_vOut31 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder _lhsOstpos
+         in __result_ )
+     in C_Pattern_s32 v31
+   {-# INLINE rule634 #-}
+   {-# LINE 1188 "./src-ag/Transform.ag" #-}
+   rule634 = \ _copy ->
+                                {-# LINE 1188 "./src-ag/Transform.ag" #-}
+                                \_ -> _copy
+                                {-# LINE 4934 "dist/build/Transform.hs"#-}
+   {-# INLINE rule635 #-}
+   {-# LINE 1203 "./src-ag/Transform.ag" #-}
+   rule635 = \ pos_ ->
+                             {-# LINE 1203 "./src-ag/Transform.ag" #-}
+                             pos_
+                             {-# LINE 4940 "dist/build/Transform.hs"#-}
+   {-# INLINE rule636 #-}
+   rule636 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule637 #-}
+   rule637 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule638 #-}
+   rule638 = \ pos_ ->
+     Underscore pos_
+   {-# INLINE rule639 #-}
+   rule639 = \ _copy ->
+     _copy
+
 -- Patterns ----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         copy                 : Patterns 
-         definedAttrs         : [AttrName]
-         definedInsts         : [Identifier]
-         patunder             : [AttrName]->Patterns
-   alternatives:
-      alternative Cons:
-         child hd             : Pattern 
-         child tl             : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Nil:
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Patterns  = Inh_Patterns {  }
+data Syn_Patterns  = Syn_Patterns { copy_Syn_Patterns :: (Patterns), definedAttrs_Syn_Patterns :: ([AttrName]), definedInsts_Syn_Patterns :: ([Identifier]), patunder_Syn_Patterns :: ([AttrName]->Patterns) }
+{-# INLINABLE wrap_Patterns #-}
+wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
+wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Patterns_vIn34 
+        (T_Patterns_vOut34 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder) <- return (inv_Patterns_s35 sem arg)
+        return (Syn_Patterns _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder)
+   )
+
 -- cata
-sem_Patterns :: Patterns ->
-                T_Patterns
-sem_Patterns list =
-    (Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list))
+{-# NOINLINE sem_Patterns #-}
+sem_Patterns :: Patterns  -> T_Patterns 
+sem_Patterns list = Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list)
+
 -- semantic domain
-newtype T_Patterns = T_Patterns (( Patterns,([AttrName]),([Identifier]),([AttrName]->Patterns)))
-data Inh_Patterns = Inh_Patterns {}
-data Syn_Patterns = Syn_Patterns {copy_Syn_Patterns :: !(Patterns),definedAttrs_Syn_Patterns :: !(([AttrName])),definedInsts_Syn_Patterns :: !(([Identifier])),patunder_Syn_Patterns :: !(([AttrName]->Patterns))}
-wrap_Patterns :: T_Patterns ->
-                 Inh_Patterns ->
-                 Syn_Patterns
-wrap_Patterns (T_Patterns sem) (Inh_Patterns) =
-    (let ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder) = sem
-     in  (Syn_Patterns _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder))
-sem_Patterns_Cons :: T_Pattern ->
-                     T_Patterns ->
-                     T_Patterns
-sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
-    (T_Patterns (let _lhsOpatunder :: ([AttrName]->Patterns)
-                     _lhsOdefinedAttrs :: ([AttrName])
-                     _lhsOdefinedInsts :: ([Identifier])
-                     _lhsOcopy :: Patterns
-                     _hdIcopy :: Pattern
-                     _hdIdefinedAttrs :: ([AttrName])
-                     _hdIdefinedInsts :: ([Identifier])
-                     _hdIpatunder :: ([AttrName]->Pattern)
-                     _hdIstpos :: Pos
-                     _tlIcopy :: Patterns
-                     _tlIdefinedAttrs :: ([AttrName])
-                     _tlIdefinedInsts :: ([Identifier])
-                     _tlIpatunder :: ([AttrName]->Patterns)
-                     -- "./src-ag/Transform.ag"(line 1195, column 10)
-                     _lhsOpatunder =
-                         ({-# LINE 1195 "./src-ag/Transform.ag" #-}
+newtype T_Patterns  = T_Patterns {
+                                 attach_T_Patterns :: Identity (T_Patterns_s35 )
+                                 }
+newtype T_Patterns_s35  = C_Patterns_s35 {
+                                         inv_Patterns_s35 :: (T_Patterns_v34 )
+                                         }
+data T_Patterns_s36  = C_Patterns_s36
+type T_Patterns_v34  = (T_Patterns_vIn34 ) -> (T_Patterns_vOut34 )
+data T_Patterns_vIn34  = T_Patterns_vIn34 
+data T_Patterns_vOut34  = T_Patterns_vOut34 (Patterns) ([AttrName]) ([Identifier]) ([AttrName]->Patterns)
+{-# NOINLINE sem_Patterns_Cons #-}
+sem_Patterns_Cons :: T_Pattern  -> T_Patterns  -> T_Patterns 
+sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_Patterns_v34 
+      v34 = \ (T_Patterns_vIn34 ) -> ( let
+         _hdX32 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_))
+         _tlX35 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_))
+         (T_Pattern_vOut31 _hdIcopy _hdIdefinedAttrs _hdIdefinedInsts _hdIpatunder _hdIstpos) = inv_Pattern_s32 _hdX32 (T_Pattern_vIn31 )
+         (T_Patterns_vOut34 _tlIcopy _tlIdefinedAttrs _tlIdefinedInsts _tlIpatunder) = inv_Patterns_s35 _tlX35 (T_Patterns_vIn34 )
+         _lhsOpatunder :: [AttrName]->Patterns
+         _lhsOpatunder = rule640 _hdIpatunder _tlIpatunder
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule641 _hdIdefinedAttrs _tlIdefinedAttrs
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule642 _hdIdefinedInsts _tlIdefinedInsts
+         _copy = rule643 _hdIcopy _tlIcopy
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule644 _copy
+         __result_ = T_Patterns_vOut34 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder
+         in __result_ )
+     in C_Patterns_s35 v34
+   {-# INLINE rule640 #-}
+   {-# LINE 1195 "./src-ag/Transform.ag" #-}
+   rule640 = \ ((_hdIpatunder) :: [AttrName]->Pattern) ((_tlIpatunder) :: [AttrName]->Patterns) ->
+                          {-# LINE 1195 "./src-ag/Transform.ag" #-}
                           \us -> (_hdIpatunder us) : (_tlIpatunder us)
-                          {-# LINE 6515 "dist/build/Transform.hs" #-}
-                          )
-                     -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                     _lhsOdefinedAttrs =
-                         ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                          _hdIdefinedAttrs ++ _tlIdefinedAttrs
-                          {-# LINE 6521 "dist/build/Transform.hs" #-}
-                          )
-                     -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                     _lhsOdefinedInsts =
-                         ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                          _hdIdefinedInsts ++ _tlIdefinedInsts
-                          {-# LINE 6527 "dist/build/Transform.hs" #-}
-                          )
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          (:) _hdIcopy _tlIcopy
-                          {-# LINE 6533 "dist/build/Transform.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 6539 "dist/build/Transform.hs" #-}
-                          )
-                     ( _hdIcopy,_hdIdefinedAttrs,_hdIdefinedInsts,_hdIpatunder,_hdIstpos) =
-                         hd_
-                     ( _tlIcopy,_tlIdefinedAttrs,_tlIdefinedInsts,_tlIpatunder) =
-                         tl_
-                 in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder)))
-sem_Patterns_Nil :: T_Patterns
-sem_Patterns_Nil =
-    (T_Patterns (let _lhsOpatunder :: ([AttrName]->Patterns)
-                     _lhsOdefinedAttrs :: ([AttrName])
-                     _lhsOdefinedInsts :: ([Identifier])
-                     _lhsOcopy :: Patterns
-                     -- "./src-ag/Transform.ag"(line 1194, column 9)
-                     _lhsOpatunder =
-                         ({-# LINE 1194 "./src-ag/Transform.ag" #-}
-                          \_ ->  []
-                          {-# LINE 6556 "dist/build/Transform.hs" #-}
-                          )
-                     -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
-                     _lhsOdefinedAttrs =
-                         ({-# LINE 1180 "./src-ag/Transform.ag" #-}
-                          []
-                          {-# LINE 6562 "dist/build/Transform.hs" #-}
-                          )
-                     -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                     _lhsOdefinedInsts =
-                         ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                          []
-                          {-# LINE 6568 "dist/build/Transform.hs" #-}
-                          )
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          []
-                          {-# LINE 6574 "dist/build/Transform.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 6580 "dist/build/Transform.hs" #-}
-                          )
-                 in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder)))
+                          {-# LINE 5012 "dist/build/Transform.hs"#-}
+   {-# INLINE rule641 #-}
+   rule641 = \ ((_hdIdefinedAttrs) :: [AttrName]) ((_tlIdefinedAttrs) :: [AttrName]) ->
+     _hdIdefinedAttrs ++ _tlIdefinedAttrs
+   {-# INLINE rule642 #-}
+   rule642 = \ ((_hdIdefinedInsts) :: [Identifier]) ((_tlIdefinedInsts) :: [Identifier]) ->
+     _hdIdefinedInsts ++ _tlIdefinedInsts
+   {-# INLINE rule643 #-}
+   rule643 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
+     (:) _hdIcopy _tlIcopy
+   {-# INLINE rule644 #-}
+   rule644 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Patterns_Nil #-}
+sem_Patterns_Nil ::  T_Patterns 
+sem_Patterns_Nil  = T_Patterns (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_Patterns_v34 
+      v34 = \ (T_Patterns_vIn34 ) -> ( let
+         _lhsOpatunder :: [AttrName]->Patterns
+         _lhsOpatunder = rule645  ()
+         _lhsOdefinedAttrs :: [AttrName]
+         _lhsOdefinedAttrs = rule646  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule647  ()
+         _copy = rule648  ()
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule649 _copy
+         __result_ = T_Patterns_vOut34 _lhsOcopy _lhsOdefinedAttrs _lhsOdefinedInsts _lhsOpatunder
+         in __result_ )
+     in C_Patterns_s35 v34
+   {-# INLINE rule645 #-}
+   {-# LINE 1194 "./src-ag/Transform.ag" #-}
+   rule645 = \  (_ :: ()) ->
+                         {-# LINE 1194 "./src-ag/Transform.ag" #-}
+                         \_ ->  []
+                         {-# LINE 5049 "dist/build/Transform.hs"#-}
+   {-# INLINE rule646 #-}
+   rule646 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule647 #-}
+   rule647 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule648 #-}
+   rule648 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule649 #-}
+   rule649 = \ _copy ->
+     _copy
+
 -- SemAlt ------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allAttrDecls         : Map NontermIdent (Attributes, Attributes)
-         allAttrs             : Map NontermIdent (Attributes, Attributes)
-         allFields            : DataTypes
-         nts                  : Set NontermIdent
-         options              : Options
-      synthesized attributes:
-         attrOrderCollect     : AttrOrderMap
-         collectedArounds     : [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
-         collectedAugments    : [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
-         collectedInsts       : [ (NontermIdent, ConstructorIdent, [Identifier]) ]
-         collectedMerges      : [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
-         collectedRules       : [ (NontermIdent, ConstructorIdent, RuleInfo)]
-         collectedSigs        : [ (NontermIdent, ConstructorIdent, SigInfo) ]
-         collectedUniques     : [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
-         errors               : Seq Error
-         semPragmasCollect    : PragmaMap
-   alternatives:
-      alternative SemAlt:
-         child pos            : {Pos}
-         child constructorSet : ConstructorSet 
-         child rules          : SemDefs 
-         visit 0:
-            local pragmaNames : _
-            local attrOrders  : _
-            local coninfo     : _
--}
+-- wrapper
+data Inh_SemAlt  = Inh_SemAlt { allAttrDecls_Inh_SemAlt :: (Map NontermIdent (Attributes, Attributes)), allAttrs_Inh_SemAlt :: (Map NontermIdent (Attributes, Attributes)), allFields_Inh_SemAlt :: (DataTypes), nts_Inh_SemAlt :: (Set NontermIdent), options_Inh_SemAlt :: (Options) }
+data Syn_SemAlt  = Syn_SemAlt { attrOrderCollect_Syn_SemAlt :: (AttrOrderMap), collectedArounds_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]), collectedAugments_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]), collectedInsts_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ]), collectedMerges_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]), collectedRules_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, RuleInfo)]), collectedSigs_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, SigInfo) ]), collectedUniques_Syn_SemAlt :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]), errors_Syn_SemAlt :: (Seq Error), semPragmasCollect_Syn_SemAlt :: (PragmaMap) }
+{-# INLINABLE wrap_SemAlt #-}
+wrap_SemAlt :: T_SemAlt  -> Inh_SemAlt  -> (Syn_SemAlt )
+wrap_SemAlt (T_SemAlt act) (Inh_SemAlt _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_SemAlt_vIn37 _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions
+        (T_SemAlt_vOut37 _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect) <- return (inv_SemAlt_s38 sem arg)
+        return (Syn_SemAlt _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect)
+   )
+
 -- cata
-sem_SemAlt :: SemAlt ->
-              T_SemAlt
-sem_SemAlt (SemAlt _pos _constructorSet _rules) =
-    (sem_SemAlt_SemAlt _pos (sem_ConstructorSet _constructorSet) (sem_SemDefs _rules))
+{-# INLINE sem_SemAlt #-}
+sem_SemAlt :: SemAlt  -> T_SemAlt 
+sem_SemAlt ( SemAlt pos_ constructorSet_ rules_ ) = sem_SemAlt_SemAlt pos_ ( sem_ConstructorSet constructorSet_ ) ( sem_SemDefs rules_ )
+
 -- semantic domain
-newtype T_SemAlt = T_SemAlt ((Map NontermIdent (Attributes, Attributes)) ->
-                             (Map NontermIdent (Attributes, Attributes)) ->
-                             DataTypes ->
-                             (Set NontermIdent) ->
-                             Options ->
-                             ( AttrOrderMap,([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]),([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]),([ (NontermIdent, ConstructorIdent, [Identifier]) ]),([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]),([ (NontermIdent, ConstructorIdent, RuleInfo)]),([ (NontermIdent, ConstructorIdent, SigInfo) ]),([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]),(Seq Error),PragmaMap))
-data Inh_SemAlt = Inh_SemAlt {allAttrDecls_Inh_SemAlt :: !((Map NontermIdent (Attributes, Attributes))),allAttrs_Inh_SemAlt :: !((Map NontermIdent (Attributes, Attributes))),allFields_Inh_SemAlt :: !(DataTypes),nts_Inh_SemAlt :: !((Set NontermIdent)),options_Inh_SemAlt :: !(Options)}
-data Syn_SemAlt = Syn_SemAlt {attrOrderCollect_Syn_SemAlt :: !(AttrOrderMap),collectedArounds_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])),collectedAugments_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])),collectedInsts_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, [Identifier]) ])),collectedMerges_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])),collectedRules_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, RuleInfo)])),collectedSigs_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, SigInfo) ])),collectedUniques_Syn_SemAlt :: !(([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])),errors_Syn_SemAlt :: !((Seq Error)),semPragmasCollect_Syn_SemAlt :: !(PragmaMap)}
-wrap_SemAlt :: T_SemAlt ->
-               Inh_SemAlt ->
-               Syn_SemAlt
-wrap_SemAlt (T_SemAlt sem) (Inh_SemAlt _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) =
-    (let ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect) = sem _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions
-     in  (Syn_SemAlt _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect))
-sem_SemAlt_SemAlt :: Pos ->
-                     T_ConstructorSet ->
-                     T_SemDefs ->
-                     T_SemAlt
-sem_SemAlt_SemAlt pos_ (T_ConstructorSet constructorSet_) (T_SemDefs rules_) =
-    (T_SemAlt (\ _lhsIallAttrDecls
-                 _lhsIallAttrs
-                 _lhsIallFields
-                 _lhsInts
-                 _lhsIoptions ->
-                   (let _lhsOsemPragmasCollect :: PragmaMap
-                        _lhsOattrOrderCollect :: AttrOrderMap
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                        _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                        _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                        _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                        _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                        _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                        _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                        _rulesOoptions :: Options
-                        _constructorSetIcollectedConstructorNames :: (Set ConstructorIdent)
-                        _constructorSetIconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
-                        _constructorSetIerrors :: (Seq Error)
-                        _rulesIaroundInfos :: ([AroundInfo])
-                        _rulesIaugmentInfos :: ([AugmentInfo])
-                        _rulesIdefinedInsts :: ([Identifier])
-                        _rulesIerrors :: (Seq Error)
-                        _rulesImergeInfos :: ([MergeInfo])
-                        _rulesIorderDepsCollect :: (Set Dependency)
-                        _rulesIpragmaNamesCollect :: ([Identifier])
-                        _rulesIruleInfos :: ([RuleInfo])
-                        _rulesIsigInfos :: ([SigInfo])
-                        _rulesIuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 887, column 7)
-                        _pragmaNames =
-                            ({-# LINE 887 "./src-ag/Transform.ag" #-}
-                             Set.fromList _rulesIpragmaNamesCollect
-                             {-# LINE 6671 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 888, column 7)
-                        _lhsOsemPragmasCollect =
-                            ({-# LINE 888 "./src-ag/Transform.ag" #-}
-                             foldr pragmaMapUnion Map.empty [ pragmaMapSingle nt con _pragmaNames
-                                                            | (nt, conset, _) <- _coninfo
-                                                            , con <- Set.toList conset
-                                                            ]
-                             {-# LINE 6680 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 916, column 7)
-                        _attrOrders =
-                            ({-# LINE 916 "./src-ag/Transform.ag" #-}
-                             [ orderMapSingle nt con _rulesIorderDepsCollect
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
+newtype T_SemAlt  = T_SemAlt {
+                             attach_T_SemAlt :: Identity (T_SemAlt_s38 )
+                             }
+newtype T_SemAlt_s38  = C_SemAlt_s38 {
+                                     inv_SemAlt_s38 :: (T_SemAlt_v37 )
+                                     }
+data T_SemAlt_s39  = C_SemAlt_s39
+type T_SemAlt_v37  = (T_SemAlt_vIn37 ) -> (T_SemAlt_vOut37 )
+data T_SemAlt_vIn37  = T_SemAlt_vIn37 (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (DataTypes) (Set NontermIdent) (Options)
+data T_SemAlt_vOut37  = T_SemAlt_vOut37 (AttrOrderMap) ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ([ (NontermIdent, ConstructorIdent, [Identifier]) ]) ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ([ (NontermIdent, ConstructorIdent, RuleInfo)]) ([ (NontermIdent, ConstructorIdent, SigInfo) ]) ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) (Seq Error) (PragmaMap)
+{-# NOINLINE sem_SemAlt_SemAlt #-}
+sem_SemAlt_SemAlt :: (Pos) -> T_ConstructorSet  -> T_SemDefs  -> T_SemAlt 
+sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) where
+   {-# NOINLINE st38 #-}
+   st38 = let
+      v37 :: T_SemAlt_v37 
+      v37 = \ (T_SemAlt_vIn37 _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) -> ( let
+         _constructorSetX14 = Control.Monad.Identity.runIdentity (attach_T_ConstructorSet (arg_constructorSet_))
+         _rulesX47 = Control.Monad.Identity.runIdentity (attach_T_SemDefs (arg_rules_))
+         (T_ConstructorSet_vOut13 _constructorSetIcollectedConstructorNames _constructorSetIconstructors _constructorSetIerrors) = inv_ConstructorSet_s14 _constructorSetX14 (T_ConstructorSet_vIn13 )
+         (T_SemDefs_vOut46 _rulesIaroundInfos _rulesIaugmentInfos _rulesIdefinedInsts _rulesIerrors _rulesImergeInfos _rulesIorderDepsCollect _rulesIpragmaNamesCollect _rulesIruleInfos _rulesIsigInfos _rulesIuniqueInfos) = inv_SemDefs_s47 _rulesX47 (T_SemDefs_vIn46 _rulesOoptions)
+         _pragmaNames = rule650 _rulesIpragmaNamesCollect
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule651 _coninfo _pragmaNames
+         _attrOrders = rule652 _coninfo _rulesIorderDepsCollect
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule653 _attrOrders
+         _coninfo = rule654 _constructorSetIconstructors _lhsIallFields _lhsInts
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule655 _coninfo _rulesIerrors
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule656 _coninfo _rulesIruleInfos
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule657 _coninfo _rulesIsigInfos
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule658 _coninfo _rulesIdefinedInsts
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule659 _coninfo _rulesIuniqueInfos
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule660 _coninfo _rulesIaugmentInfos
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule661 _coninfo _rulesIaroundInfos
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule662 _coninfo _rulesImergeInfos
+         _rulesOoptions = rule663 _lhsIoptions
+         __result_ = T_SemAlt_vOut37 _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect
+         in __result_ )
+     in C_SemAlt_s38 v37
+   {-# INLINE rule650 #-}
+   {-# LINE 887 "./src-ag/Transform.ag" #-}
+   rule650 = \ ((_rulesIpragmaNamesCollect) :: [Identifier]) ->
+                                {-# LINE 887 "./src-ag/Transform.ag" #-}
+                                Set.fromList _rulesIpragmaNamesCollect
+                                {-# LINE 5136 "dist/build/Transform.hs"#-}
+   {-# INLINE rule651 #-}
+   {-# LINE 888 "./src-ag/Transform.ag" #-}
+   rule651 = \ _coninfo _pragmaNames ->
+                                {-# LINE 888 "./src-ag/Transform.ag" #-}
+                                foldr pragmaMapUnion Map.empty [ pragmaMapSingle nt con _pragmaNames
+                                                               | (nt, conset, _) <- _coninfo
+                                                               , con <- Set.toList conset
+                                                               ]
+                                {-# LINE 5145 "dist/build/Transform.hs"#-}
+   {-# INLINE rule652 #-}
+   {-# LINE 917 "./src-ag/Transform.ag" #-}
+   rule652 = \ _coninfo ((_rulesIorderDepsCollect) :: Set Dependency) ->
+            {-# LINE 917 "./src-ag/Transform.ag" #-}
+            [ orderMapSingle nt con _rulesIorderDepsCollect
+            | (nt, conset, _) <- _coninfo
+            , con <- Set.toList conset
+            ]
+            {-# LINE 5154 "dist/build/Transform.hs"#-}
+   {-# INLINE rule653 #-}
+   {-# LINE 922 "./src-ag/Transform.ag" #-}
+   rule653 = \ _attrOrders ->
+                               {-# LINE 922 "./src-ag/Transform.ag" #-}
+                               foldr orderMapUnion Map.empty _attrOrders
+                               {-# LINE 5160 "dist/build/Transform.hs"#-}
+   {-# INLINE rule654 #-}
+   {-# LINE 1104 "./src-ag/Transform.ag" #-}
+   rule654 = \ ((_constructorSetIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_lhsIallFields) :: DataTypes) ((_lhsInts) :: Set NontermIdent) ->
+                           {-# LINE 1104 "./src-ag/Transform.ag" #-}
+                           [ (nt, conset, conkeys)
+                           | nt  <- Set.toList _lhsInts
+                           , let conmap = Map.findWithDefault Map.empty nt _lhsIallFields
+                           , let conkeys = Set.fromList (Map.keys conmap)
+                           , let conset  = _constructorSetIconstructors conkeys
+                           ]
+                           {-# LINE 5171 "dist/build/Transform.hs"#-}
+   {-# INLINE rule655 #-}
+   {-# LINE 1111 "./src-ag/Transform.ag" #-}
+   rule655 = \ _coninfo ((_rulesIerrors) :: Seq Error) ->
+                          {-# LINE 1111 "./src-ag/Transform.ag" #-}
+                          Seq.fromList
+                             [ UndefAlt nt con
+                             | (nt, conset, conkeys) <- _coninfo
+                             , con <- Set.toList (Set.difference conset conkeys)
                              ]
-                             {-# LINE 6689 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 922, column 7)
-                        _lhsOattrOrderCollect =
-                            ({-# LINE 922 "./src-ag/Transform.ag" #-}
-                             foldr orderMapUnion Map.empty _attrOrders
-                             {-# LINE 6695 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1104, column 12)
-                        _coninfo =
-                            ({-# LINE 1104 "./src-ag/Transform.ag" #-}
-                             [ (nt, conset, conkeys)
-                             | nt  <- Set.toList _lhsInts
-                             , let conmap = Map.findWithDefault Map.empty nt _lhsIallFields
-                             , let conkeys = Set.fromList (Map.keys conmap)
-                             , let conset  = _constructorSetIconstructors conkeys
-                             ]
-                             {-# LINE 6706 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1111, column 12)
-                        _lhsOerrors =
-                            ({-# LINE 1111 "./src-ag/Transform.ag" #-}
-                             Seq.fromList
-                                [ UndefAlt nt con
-                                | (nt, conset, conkeys) <- _coninfo
-                                , con <- Set.toList (Set.difference conset conkeys)
-                                ]
-                             Seq.>< _rulesIerrors
-                             {-# LINE 6717 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1117, column 12)
-                        _lhsOcollectedRules =
-                            ({-# LINE 1117 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,r)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             , r <- _rulesIruleInfos
-                             ]
-                             {-# LINE 6727 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1123, column 12)
-                        _lhsOcollectedSigs =
-                            ({-# LINE 1123 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,ts)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             , ts <- _rulesIsigInfos
-                             ]
-                             {-# LINE 6737 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1130, column 12)
-                        _lhsOcollectedInsts =
-                            ({-# LINE 1130 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,_rulesIdefinedInsts)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
-                             {-# LINE 6746 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1136, column 12)
-                        _lhsOcollectedUniques =
-                            ({-# LINE 1136 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,_rulesIuniqueInfos)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
-                             {-# LINE 6755 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1142, column 12)
-                        _lhsOcollectedAugments =
-                            ({-# LINE 1142 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesIaugmentInfos)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
-                             {-# LINE 6764 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1148, column 12)
-                        _lhsOcollectedArounds =
-                            ({-# LINE 1148 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesIaroundInfos)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
-                             {-# LINE 6773 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1154, column 12)
-                        _lhsOcollectedMerges =
-                            ({-# LINE 1154 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesImergeInfos)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
-                             {-# LINE 6782 "dist/build/Transform.hs" #-}
-                             )
-                        -- copy rule (down)
-                        _rulesOoptions =
-                            ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                             _lhsIoptions
-                             {-# LINE 6788 "dist/build/Transform.hs" #-}
-                             )
-                        ( _constructorSetIcollectedConstructorNames,_constructorSetIconstructors,_constructorSetIerrors) =
-                            constructorSet_
-                        ( _rulesIaroundInfos,_rulesIaugmentInfos,_rulesIdefinedInsts,_rulesIerrors,_rulesImergeInfos,_rulesIorderDepsCollect,_rulesIpragmaNamesCollect,_rulesIruleInfos,_rulesIsigInfos,_rulesIuniqueInfos) =
-                            rules_ _rulesOoptions
-                    in  ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect))))
+                          Seq.>< _rulesIerrors
+                          {-# LINE 5182 "dist/build/Transform.hs"#-}
+   {-# INLINE rule656 #-}
+   {-# LINE 1118 "./src-ag/Transform.ag" #-}
+   rule656 = \ _coninfo ((_rulesIruleInfos) :: [RuleInfo]) ->
+                         {-# LINE 1118 "./src-ag/Transform.ag" #-}
+                         [ (nt,con,r)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         , r <- _rulesIruleInfos
+                         ]
+                         {-# LINE 5192 "dist/build/Transform.hs"#-}
+   {-# INLINE rule657 #-}
+   {-# LINE 1124 "./src-ag/Transform.ag" #-}
+   rule657 = \ _coninfo ((_rulesIsigInfos) :: [SigInfo]) ->
+                         {-# LINE 1124 "./src-ag/Transform.ag" #-}
+                         [ (nt,con,ts)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         , ts <- _rulesIsigInfos
+                         ]
+                         {-# LINE 5202 "dist/build/Transform.hs"#-}
+   {-# INLINE rule658 #-}
+   {-# LINE 1131 "./src-ag/Transform.ag" #-}
+   rule658 = \ _coninfo ((_rulesIdefinedInsts) :: [Identifier]) ->
+                         {-# LINE 1131 "./src-ag/Transform.ag" #-}
+                         [ (nt,con,_rulesIdefinedInsts)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         ]
+                         {-# LINE 5211 "dist/build/Transform.hs"#-}
+   {-# INLINE rule659 #-}
+   {-# LINE 1137 "./src-ag/Transform.ag" #-}
+   rule659 = \ _coninfo ((_rulesIuniqueInfos) :: [UniqueInfo]) ->
+                         {-# LINE 1137 "./src-ag/Transform.ag" #-}
+                         [ (nt,con,_rulesIuniqueInfos)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         ]
+                         {-# LINE 5220 "dist/build/Transform.hs"#-}
+   {-# INLINE rule660 #-}
+   {-# LINE 1143 "./src-ag/Transform.ag" #-}
+   rule660 = \ _coninfo ((_rulesIaugmentInfos) :: [AugmentInfo]) ->
+                         {-# LINE 1143 "./src-ag/Transform.ag" #-}
+                         [ (nt, con, _rulesIaugmentInfos)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         ]
+                         {-# LINE 5229 "dist/build/Transform.hs"#-}
+   {-# INLINE rule661 #-}
+   {-# LINE 1149 "./src-ag/Transform.ag" #-}
+   rule661 = \ _coninfo ((_rulesIaroundInfos) :: [AroundInfo]) ->
+                         {-# LINE 1149 "./src-ag/Transform.ag" #-}
+                         [ (nt, con, _rulesIaroundInfos)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         ]
+                         {-# LINE 5238 "dist/build/Transform.hs"#-}
+   {-# INLINE rule662 #-}
+   {-# LINE 1155 "./src-ag/Transform.ag" #-}
+   rule662 = \ _coninfo ((_rulesImergeInfos) :: [MergeInfo]) ->
+                         {-# LINE 1155 "./src-ag/Transform.ag" #-}
+                         [ (nt, con, _rulesImergeInfos)
+                         | (nt, conset, _) <- _coninfo
+                         , con <- Set.toList conset
+                         ]
+                         {-# LINE 5247 "dist/build/Transform.hs"#-}
+   {-# INLINE rule663 #-}
+   rule663 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+
 -- SemAlts -----------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         allAttrDecls         : Map NontermIdent (Attributes, Attributes)
-         allAttrs             : Map NontermIdent (Attributes, Attributes)
-         allFields            : DataTypes
-         nts                  : Set NontermIdent
-         options              : Options
-      synthesized attributes:
-         attrOrderCollect     : AttrOrderMap
-         collectedArounds     : [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
-         collectedAugments    : [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
-         collectedInsts       : [ (NontermIdent, ConstructorIdent, [Identifier]) ]
-         collectedMerges      : [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
-         collectedRules       : [ (NontermIdent, ConstructorIdent, RuleInfo)]
-         collectedSigs        : [ (NontermIdent, ConstructorIdent, SigInfo) ]
-         collectedUniques     : [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
-         errors               : Seq Error
-         semPragmasCollect    : PragmaMap
-   alternatives:
-      alternative Cons:
-         child hd             : SemAlt 
-         child tl             : SemAlts 
-      alternative Nil:
--}
+-- wrapper
+data Inh_SemAlts  = Inh_SemAlts { allAttrDecls_Inh_SemAlts :: (Map NontermIdent (Attributes, Attributes)), allAttrs_Inh_SemAlts :: (Map NontermIdent (Attributes, Attributes)), allFields_Inh_SemAlts :: (DataTypes), nts_Inh_SemAlts :: (Set NontermIdent), options_Inh_SemAlts :: (Options) }
+data Syn_SemAlts  = Syn_SemAlts { attrOrderCollect_Syn_SemAlts :: (AttrOrderMap), collectedArounds_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]), collectedAugments_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]), collectedInsts_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ]), collectedMerges_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]), collectedRules_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, RuleInfo)]), collectedSigs_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, SigInfo) ]), collectedUniques_Syn_SemAlts :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]), errors_Syn_SemAlts :: (Seq Error), semPragmasCollect_Syn_SemAlts :: (PragmaMap) }
+{-# INLINABLE wrap_SemAlts #-}
+wrap_SemAlts :: T_SemAlts  -> Inh_SemAlts  -> (Syn_SemAlts )
+wrap_SemAlts (T_SemAlts act) (Inh_SemAlts _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_SemAlts_vIn40 _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions
+        (T_SemAlts_vOut40 _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect) <- return (inv_SemAlts_s41 sem arg)
+        return (Syn_SemAlts _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect)
+   )
+
 -- cata
-sem_SemAlts :: SemAlts ->
-               T_SemAlts
-sem_SemAlts list =
-    (Prelude.foldr sem_SemAlts_Cons sem_SemAlts_Nil (Prelude.map sem_SemAlt list))
+{-# NOINLINE sem_SemAlts #-}
+sem_SemAlts :: SemAlts  -> T_SemAlts 
+sem_SemAlts list = Prelude.foldr sem_SemAlts_Cons sem_SemAlts_Nil (Prelude.map sem_SemAlt list)
+
 -- semantic domain
-newtype T_SemAlts = T_SemAlts ((Map NontermIdent (Attributes, Attributes)) ->
-                               (Map NontermIdent (Attributes, Attributes)) ->
-                               DataTypes ->
-                               (Set NontermIdent) ->
-                               Options ->
-                               ( AttrOrderMap,([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]),([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]),([ (NontermIdent, ConstructorIdent, [Identifier]) ]),([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]),([ (NontermIdent, ConstructorIdent, RuleInfo)]),([ (NontermIdent, ConstructorIdent, SigInfo) ]),([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]),(Seq Error),PragmaMap))
-data Inh_SemAlts = Inh_SemAlts {allAttrDecls_Inh_SemAlts :: !((Map NontermIdent (Attributes, Attributes))),allAttrs_Inh_SemAlts :: !((Map NontermIdent (Attributes, Attributes))),allFields_Inh_SemAlts :: !(DataTypes),nts_Inh_SemAlts :: !((Set NontermIdent)),options_Inh_SemAlts :: !(Options)}
-data Syn_SemAlts = Syn_SemAlts {attrOrderCollect_Syn_SemAlts :: !(AttrOrderMap),collectedArounds_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])),collectedAugments_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])),collectedInsts_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, [Identifier]) ])),collectedMerges_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])),collectedRules_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, RuleInfo)])),collectedSigs_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, SigInfo) ])),collectedUniques_Syn_SemAlts :: !(([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])),errors_Syn_SemAlts :: !((Seq Error)),semPragmasCollect_Syn_SemAlts :: !(PragmaMap)}
-wrap_SemAlts :: T_SemAlts ->
-                Inh_SemAlts ->
-                Syn_SemAlts
-wrap_SemAlts (T_SemAlts sem) (Inh_SemAlts _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) =
-    (let ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect) = sem _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions
-     in  (Syn_SemAlts _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect))
-sem_SemAlts_Cons :: T_SemAlt ->
-                    T_SemAlts ->
-                    T_SemAlts
-sem_SemAlts_Cons (T_SemAlt hd_) (T_SemAlts tl_) =
-    (T_SemAlts (\ _lhsIallAttrDecls
-                  _lhsIallAttrs
-                  _lhsIallFields
-                  _lhsInts
-                  _lhsIoptions ->
-                    (let _lhsOattrOrderCollect :: AttrOrderMap
-                         _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                         _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                         _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                         _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                         _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                         _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                         _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOsemPragmasCollect :: PragmaMap
-                         _hdOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                         _hdOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                         _hdOallFields :: DataTypes
-                         _hdOnts :: (Set NontermIdent)
-                         _hdOoptions :: Options
-                         _tlOallAttrDecls :: (Map NontermIdent (Attributes, Attributes))
-                         _tlOallAttrs :: (Map NontermIdent (Attributes, Attributes))
-                         _tlOallFields :: DataTypes
-                         _tlOnts :: (Set NontermIdent)
-                         _tlOoptions :: Options
-                         _hdIattrOrderCollect :: AttrOrderMap
-                         _hdIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                         _hdIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                         _hdIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                         _hdIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                         _hdIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                         _hdIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                         _hdIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                         _hdIerrors :: (Seq Error)
-                         _hdIsemPragmasCollect :: PragmaMap
-                         _tlIattrOrderCollect :: AttrOrderMap
-                         _tlIcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                         _tlIcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                         _tlIcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                         _tlIcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                         _tlIcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                         _tlIcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                         _tlIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                         _tlIerrors :: (Seq Error)
-                         _tlIsemPragmasCollect :: PragmaMap
-                         -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                         _lhsOattrOrderCollect =
-                             ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                              _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
-                              {-# LINE 6894 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                         _lhsOcollectedArounds =
-                             ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedArounds ++ _tlIcollectedArounds
-                              {-# LINE 6900 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                         _lhsOcollectedAugments =
-                             ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedAugments ++ _tlIcollectedAugments
-                              {-# LINE 6906 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                         _lhsOcollectedInsts =
-                             ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedInsts ++ _tlIcollectedInsts
-                              {-# LINE 6912 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                         _lhsOcollectedMerges =
-                             ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedMerges ++ _tlIcollectedMerges
-                              {-# LINE 6918 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                         _lhsOcollectedRules =
-                             ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedRules ++ _tlIcollectedRules
-                              {-# LINE 6924 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                         _lhsOcollectedSigs =
-                             ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedSigs ++ _tlIcollectedSigs
-                              {-# LINE 6930 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                         _lhsOcollectedUniques =
-                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedUniques ++ _tlIcollectedUniques
-                              {-# LINE 6936 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _hdIerrors Seq.>< _tlIerrors
-                              {-# LINE 6942 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                         _lhsOsemPragmasCollect =
-                             ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                              _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
-                              {-# LINE 6948 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOallAttrDecls =
-                             ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                              _lhsIallAttrDecls
-                              {-# LINE 6954 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOallAttrs =
-                             ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                              _lhsIallAttrs
-                              {-# LINE 6960 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 6966 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOnts =
-                             ({-# LINE 173 "./src-ag/Transform.ag" #-}
-                              _lhsInts
-                              {-# LINE 6972 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOoptions =
-                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                              _lhsIoptions
-                              {-# LINE 6978 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOallAttrDecls =
-                             ({-# LINE 912 "./src-ag/Transform.ag" #-}
-                              _lhsIallAttrDecls
-                              {-# LINE 6984 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOallAttrs =
-                             ({-# LINE 1333 "./src-ag/Transform.ag" #-}
-                              _lhsIallAttrs
-                              {-# LINE 6990 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOallFields =
-                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
-                              _lhsIallFields
-                              {-# LINE 6996 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOnts =
-                             ({-# LINE 173 "./src-ag/Transform.ag" #-}
-                              _lhsInts
-                              {-# LINE 7002 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOoptions =
-                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                              _lhsIoptions
-                              {-# LINE 7008 "dist/build/Transform.hs" #-}
-                              )
-                         ( _hdIattrOrderCollect,_hdIcollectedArounds,_hdIcollectedAugments,_hdIcollectedInsts,_hdIcollectedMerges,_hdIcollectedRules,_hdIcollectedSigs,_hdIcollectedUniques,_hdIerrors,_hdIsemPragmasCollect) =
-                             hd_ _hdOallAttrDecls _hdOallAttrs _hdOallFields _hdOnts _hdOoptions
-                         ( _tlIattrOrderCollect,_tlIcollectedArounds,_tlIcollectedAugments,_tlIcollectedInsts,_tlIcollectedMerges,_tlIcollectedRules,_tlIcollectedSigs,_tlIcollectedUniques,_tlIerrors,_tlIsemPragmasCollect) =
-                             tl_ _tlOallAttrDecls _tlOallAttrs _tlOallFields _tlOnts _tlOoptions
-                     in  ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect))))
-sem_SemAlts_Nil :: T_SemAlts
-sem_SemAlts_Nil =
-    (T_SemAlts (\ _lhsIallAttrDecls
-                  _lhsIallAttrs
-                  _lhsIallFields
-                  _lhsInts
-                  _lhsIoptions ->
-                    (let _lhsOattrOrderCollect :: AttrOrderMap
-                         _lhsOcollectedArounds :: ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ])
-                         _lhsOcollectedAugments :: ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ])
-                         _lhsOcollectedInsts :: ([ (NontermIdent, ConstructorIdent, [Identifier]) ])
-                         _lhsOcollectedMerges :: ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ])
-                         _lhsOcollectedRules :: ([ (NontermIdent, ConstructorIdent, RuleInfo)])
-                         _lhsOcollectedSigs :: ([ (NontermIdent, ConstructorIdent, SigInfo) ])
-                         _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOsemPragmasCollect :: PragmaMap
-                         -- use rule "./src-ag/Transform.ag"(line 911, column 55)
-                         _lhsOattrOrderCollect =
-                             ({-# LINE 911 "./src-ag/Transform.ag" #-}
-                              Map.empty
-                              {-# LINE 7036 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                         _lhsOcollectedArounds =
-                             ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7042 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                         _lhsOcollectedAugments =
-                             ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7048 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 159, column 32)
-                         _lhsOcollectedInsts =
-                             ({-# LINE 159 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7054 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                         _lhsOcollectedMerges =
-                             ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7060 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 157, column 32)
-                         _lhsOcollectedRules =
-                             ({-# LINE 157 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7066 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 158, column 32)
-                         _lhsOcollectedSigs =
-                             ({-# LINE 158 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7072 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                         _lhsOcollectedUniques =
-                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7078 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              Seq.empty
-                              {-# LINE 7084 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 883, column 56)
-                         _lhsOsemPragmasCollect =
-                             ({-# LINE 883 "./src-ag/Transform.ag" #-}
-                              Map.empty
-                              {-# LINE 7090 "dist/build/Transform.hs" #-}
-                              )
-                     in  ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect))))
+newtype T_SemAlts  = T_SemAlts {
+                               attach_T_SemAlts :: Identity (T_SemAlts_s41 )
+                               }
+newtype T_SemAlts_s41  = C_SemAlts_s41 {
+                                       inv_SemAlts_s41 :: (T_SemAlts_v40 )
+                                       }
+data T_SemAlts_s42  = C_SemAlts_s42
+type T_SemAlts_v40  = (T_SemAlts_vIn40 ) -> (T_SemAlts_vOut40 )
+data T_SemAlts_vIn40  = T_SemAlts_vIn40 (Map NontermIdent (Attributes, Attributes)) (Map NontermIdent (Attributes, Attributes)) (DataTypes) (Set NontermIdent) (Options)
+data T_SemAlts_vOut40  = T_SemAlts_vOut40 (AttrOrderMap) ([ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ([ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ([ (NontermIdent, ConstructorIdent, [Identifier]) ]) ([ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ([ (NontermIdent, ConstructorIdent, RuleInfo)]) ([ (NontermIdent, ConstructorIdent, SigInfo) ]) ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) (Seq Error) (PragmaMap)
+{-# NOINLINE sem_SemAlts_Cons #-}
+sem_SemAlts_Cons :: T_SemAlt  -> T_SemAlts  -> T_SemAlts 
+sem_SemAlts_Cons arg_hd_ arg_tl_ = T_SemAlts (return st41) where
+   {-# NOINLINE st41 #-}
+   st41 = let
+      v40 :: T_SemAlts_v40 
+      v40 = \ (T_SemAlts_vIn40 _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) -> ( let
+         _hdX38 = Control.Monad.Identity.runIdentity (attach_T_SemAlt (arg_hd_))
+         _tlX41 = Control.Monad.Identity.runIdentity (attach_T_SemAlts (arg_tl_))
+         (T_SemAlt_vOut37 _hdIattrOrderCollect _hdIcollectedArounds _hdIcollectedAugments _hdIcollectedInsts _hdIcollectedMerges _hdIcollectedRules _hdIcollectedSigs _hdIcollectedUniques _hdIerrors _hdIsemPragmasCollect) = inv_SemAlt_s38 _hdX38 (T_SemAlt_vIn37 _hdOallAttrDecls _hdOallAttrs _hdOallFields _hdOnts _hdOoptions)
+         (T_SemAlts_vOut40 _tlIattrOrderCollect _tlIcollectedArounds _tlIcollectedAugments _tlIcollectedInsts _tlIcollectedMerges _tlIcollectedRules _tlIcollectedSigs _tlIcollectedUniques _tlIerrors _tlIsemPragmasCollect) = inv_SemAlts_s41 _tlX41 (T_SemAlts_vIn40 _tlOallAttrDecls _tlOallAttrs _tlOallFields _tlOnts _tlOoptions)
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule664 _hdIattrOrderCollect _tlIattrOrderCollect
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule665 _hdIcollectedArounds _tlIcollectedArounds
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule666 _hdIcollectedAugments _tlIcollectedAugments
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule667 _hdIcollectedInsts _tlIcollectedInsts
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule668 _hdIcollectedMerges _tlIcollectedMerges
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule669 _hdIcollectedRules _tlIcollectedRules
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule670 _hdIcollectedSigs _tlIcollectedSigs
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule671 _hdIcollectedUniques _tlIcollectedUniques
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule672 _hdIerrors _tlIerrors
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule673 _hdIsemPragmasCollect _tlIsemPragmasCollect
+         _hdOallAttrDecls = rule674 _lhsIallAttrDecls
+         _hdOallAttrs = rule675 _lhsIallAttrs
+         _hdOallFields = rule676 _lhsIallFields
+         _hdOnts = rule677 _lhsInts
+         _hdOoptions = rule678 _lhsIoptions
+         _tlOallAttrDecls = rule679 _lhsIallAttrDecls
+         _tlOallAttrs = rule680 _lhsIallAttrs
+         _tlOallFields = rule681 _lhsIallFields
+         _tlOnts = rule682 _lhsInts
+         _tlOoptions = rule683 _lhsIoptions
+         __result_ = T_SemAlts_vOut40 _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect
+         in __result_ )
+     in C_SemAlts_s41 v40
+   {-# INLINE rule664 #-}
+   rule664 = \ ((_hdIattrOrderCollect) :: AttrOrderMap) ((_tlIattrOrderCollect) :: AttrOrderMap) ->
+     _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
+   {-# INLINE rule665 #-}
+   rule665 = \ ((_hdIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ((_tlIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ->
+     _hdIcollectedArounds ++ _tlIcollectedArounds
+   {-# INLINE rule666 #-}
+   rule666 = \ ((_hdIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ((_tlIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ->
+     _hdIcollectedAugments ++ _tlIcollectedAugments
+   {-# INLINE rule667 #-}
+   rule667 = \ ((_hdIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ((_tlIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ->
+     _hdIcollectedInsts ++ _tlIcollectedInsts
+   {-# INLINE rule668 #-}
+   rule668 = \ ((_hdIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ((_tlIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ->
+     _hdIcollectedMerges ++ _tlIcollectedMerges
+   {-# INLINE rule669 #-}
+   rule669 = \ ((_hdIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ((_tlIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ->
+     _hdIcollectedRules ++ _tlIcollectedRules
+   {-# INLINE rule670 #-}
+   rule670 = \ ((_hdIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ((_tlIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ->
+     _hdIcollectedSigs ++ _tlIcollectedSigs
+   {-# INLINE rule671 #-}
+   rule671 = \ ((_hdIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ((_tlIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
+     _hdIcollectedUniques ++ _tlIcollectedUniques
+   {-# INLINE rule672 #-}
+   rule672 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
+   {-# INLINE rule673 #-}
+   rule673 = \ ((_hdIsemPragmasCollect) :: PragmaMap) ((_tlIsemPragmasCollect) :: PragmaMap) ->
+     _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
+   {-# INLINE rule674 #-}
+   rule674 = \ ((_lhsIallAttrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrDecls
+   {-# INLINE rule675 #-}
+   rule675 = \ ((_lhsIallAttrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrs
+   {-# INLINE rule676 #-}
+   rule676 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule677 #-}
+   rule677 = \ ((_lhsInts) :: Set NontermIdent) ->
+     _lhsInts
+   {-# INLINE rule678 #-}
+   rule678 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule679 #-}
+   rule679 = \ ((_lhsIallAttrDecls) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrDecls
+   {-# INLINE rule680 #-}
+   rule680 = \ ((_lhsIallAttrs) :: Map NontermIdent (Attributes, Attributes)) ->
+     _lhsIallAttrs
+   {-# INLINE rule681 #-}
+   rule681 = \ ((_lhsIallFields) :: DataTypes) ->
+     _lhsIallFields
+   {-# INLINE rule682 #-}
+   rule682 = \ ((_lhsInts) :: Set NontermIdent) ->
+     _lhsInts
+   {-# INLINE rule683 #-}
+   rule683 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_SemAlts_Nil #-}
+sem_SemAlts_Nil ::  T_SemAlts 
+sem_SemAlts_Nil  = T_SemAlts (return st41) where
+   {-# NOINLINE st41 #-}
+   st41 = let
+      v40 :: T_SemAlts_v40 
+      v40 = \ (T_SemAlts_vIn40 _lhsIallAttrDecls _lhsIallAttrs _lhsIallFields _lhsInts _lhsIoptions) -> ( let
+         _lhsOattrOrderCollect :: AttrOrderMap
+         _lhsOattrOrderCollect = rule684  ()
+         _lhsOcollectedArounds :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]
+         _lhsOcollectedArounds = rule685  ()
+         _lhsOcollectedAugments :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]
+         _lhsOcollectedAugments = rule686  ()
+         _lhsOcollectedInsts :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]
+         _lhsOcollectedInsts = rule687  ()
+         _lhsOcollectedMerges :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]
+         _lhsOcollectedMerges = rule688  ()
+         _lhsOcollectedRules :: [ (NontermIdent, ConstructorIdent, RuleInfo)]
+         _lhsOcollectedRules = rule689  ()
+         _lhsOcollectedSigs :: [ (NontermIdent, ConstructorIdent, SigInfo) ]
+         _lhsOcollectedSigs = rule690  ()
+         _lhsOcollectedUniques :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]
+         _lhsOcollectedUniques = rule691  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule692  ()
+         _lhsOsemPragmasCollect :: PragmaMap
+         _lhsOsemPragmasCollect = rule693  ()
+         __result_ = T_SemAlts_vOut40 _lhsOattrOrderCollect _lhsOcollectedArounds _lhsOcollectedAugments _lhsOcollectedInsts _lhsOcollectedMerges _lhsOcollectedRules _lhsOcollectedSigs _lhsOcollectedUniques _lhsOerrors _lhsOsemPragmasCollect
+         in __result_ )
+     in C_SemAlts_s41 v40
+   {-# INLINE rule684 #-}
+   rule684 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule685 #-}
+   rule685 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule686 #-}
+   rule686 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule687 #-}
+   rule687 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule688 #-}
+   rule688 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule689 #-}
+   rule689 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule690 #-}
+   rule690 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule691 #-}
+   rule691 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule692 #-}
+   rule692 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule693 #-}
+   rule693 = \  (_ :: ()) ->
+     Map.empty
+
 -- SemDef ------------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         options              : Options
-      synthesized attributes:
-         aroundInfos          : [AroundInfo]
-         augmentInfos         : [AugmentInfo]
-         definedInsts         : [Identifier]
-         errors               : Seq Error
-         mergeInfos           : [MergeInfo]
-         orderDepsCollect     : Set Dependency
-         pragmaNamesCollect   : [Identifier]
-         ruleInfos            : [RuleInfo]
-         sigInfos             : [SigInfo]
-         uniqueInfos          : [UniqueInfo]
-   alternatives:
-      alternative Def:
-         child pos            : {Pos}
-         child mbName         : {Maybe Identifier}
-         child pattern        : Pattern 
-         child rhs            : {Expression}
-         child owrt           : {Bool}
-         child pure           : {Bool}
-         child eager          : {Bool}
-      alternative TypeDef:
-         child pos            : {Pos}
-         child ident          : {Identifier}
-         child tp             : {Type}
-      alternative UniqueDef:
-         child ident          : {Identifier}
-         child ref            : {Identifier}
-      alternative AugmentDef:
-         child ident          : {Identifier}
-         child rhs            : {Expression}
-      alternative AroundDef:
-         child ident          : {Identifier}
-         child rhs            : {Expression}
-      alternative MergeDef:
-         child target         : {Identifier}
-         child nt             : {Identifier}
-         child sources        : {[Identifier]}
-         child rhs            : {Expression}
-      alternative SemPragma:
-         child names          : {[NontermIdent]}
-      alternative AttrOrderBefore:
-         child before         : {[Occurrence]}
-         child after          : {[Occurrence]}
-         visit 0:
-            local dependency  : _
--}
+-- wrapper
+data Inh_SemDef  = Inh_SemDef { options_Inh_SemDef :: (Options) }
+data Syn_SemDef  = Syn_SemDef { aroundInfos_Syn_SemDef :: ([AroundInfo]), augmentInfos_Syn_SemDef :: ([AugmentInfo]), definedInsts_Syn_SemDef :: ([Identifier]), errors_Syn_SemDef :: (Seq Error), mergeInfos_Syn_SemDef :: ([MergeInfo]), orderDepsCollect_Syn_SemDef :: (Set Dependency), pragmaNamesCollect_Syn_SemDef :: ([Identifier]), ruleInfos_Syn_SemDef :: ([RuleInfo]), sigInfos_Syn_SemDef :: ([SigInfo]), uniqueInfos_Syn_SemDef :: ([UniqueInfo]) }
+{-# INLINABLE wrap_SemDef #-}
+wrap_SemDef :: T_SemDef  -> Inh_SemDef  -> (Syn_SemDef )
+wrap_SemDef (T_SemDef act) (Inh_SemDef _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_SemDef_vIn43 _lhsIoptions
+        (T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos) <- return (inv_SemDef_s44 sem arg)
+        return (Syn_SemDef _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos)
+   )
+
 -- cata
-sem_SemDef :: SemDef ->
-              T_SemDef
-sem_SemDef (Def _pos _mbName _pattern _rhs _owrt _pure _eager) =
-    (sem_SemDef_Def _pos _mbName (sem_Pattern _pattern) _rhs _owrt _pure _eager)
-sem_SemDef (TypeDef _pos _ident _tp) =
-    (sem_SemDef_TypeDef _pos _ident _tp)
-sem_SemDef (UniqueDef _ident _ref) =
-    (sem_SemDef_UniqueDef _ident _ref)
-sem_SemDef (AugmentDef _ident _rhs) =
-    (sem_SemDef_AugmentDef _ident _rhs)
-sem_SemDef (AroundDef _ident _rhs) =
-    (sem_SemDef_AroundDef _ident _rhs)
-sem_SemDef (MergeDef _target _nt _sources _rhs) =
-    (sem_SemDef_MergeDef _target _nt _sources _rhs)
-sem_SemDef (SemPragma _names) =
-    (sem_SemDef_SemPragma _names)
-sem_SemDef (AttrOrderBefore _before _after) =
-    (sem_SemDef_AttrOrderBefore _before _after)
+{-# NOINLINE sem_SemDef #-}
+sem_SemDef :: SemDef  -> T_SemDef 
+sem_SemDef ( Def pos_ mbName_ pattern_ rhs_ owrt_ pure_ eager_ ) = sem_SemDef_Def pos_ mbName_ ( sem_Pattern pattern_ ) rhs_ owrt_ pure_ eager_
+sem_SemDef ( TypeDef pos_ ident_ tp_ ) = sem_SemDef_TypeDef pos_ ident_ tp_
+sem_SemDef ( UniqueDef ident_ ref_ ) = sem_SemDef_UniqueDef ident_ ref_
+sem_SemDef ( AugmentDef ident_ rhs_ ) = sem_SemDef_AugmentDef ident_ rhs_
+sem_SemDef ( AroundDef ident_ rhs_ ) = sem_SemDef_AroundDef ident_ rhs_
+sem_SemDef ( MergeDef target_ nt_ sources_ rhs_ ) = sem_SemDef_MergeDef target_ nt_ sources_ rhs_
+sem_SemDef ( SemPragma names_ ) = sem_SemDef_SemPragma names_
+sem_SemDef ( AttrOrderBefore before_ after_ ) = sem_SemDef_AttrOrderBefore before_ after_
+
 -- semantic domain
-newtype T_SemDef = T_SemDef (Options ->
-                             ( ([AroundInfo]),([AugmentInfo]),([Identifier]),(Seq Error),([MergeInfo]),(Set Dependency),([Identifier]),([RuleInfo]),([SigInfo]),([UniqueInfo])))
-data Inh_SemDef = Inh_SemDef {options_Inh_SemDef :: !(Options)}
-data Syn_SemDef = Syn_SemDef {aroundInfos_Syn_SemDef :: !(([AroundInfo])),augmentInfos_Syn_SemDef :: !(([AugmentInfo])),definedInsts_Syn_SemDef :: !(([Identifier])),errors_Syn_SemDef :: !((Seq Error)),mergeInfos_Syn_SemDef :: !(([MergeInfo])),orderDepsCollect_Syn_SemDef :: !((Set Dependency)),pragmaNamesCollect_Syn_SemDef :: !(([Identifier])),ruleInfos_Syn_SemDef :: !(([RuleInfo])),sigInfos_Syn_SemDef :: !(([SigInfo])),uniqueInfos_Syn_SemDef :: !(([UniqueInfo]))}
-wrap_SemDef :: T_SemDef ->
-               Inh_SemDef ->
-               Syn_SemDef
-wrap_SemDef (T_SemDef sem) (Inh_SemDef _lhsIoptions) =
-    (let ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos) = sem _lhsIoptions
-     in  (Syn_SemDef _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos))
-sem_SemDef_Def :: Pos ->
-                  (Maybe Identifier) ->
-                  T_Pattern ->
-                  Expression ->
-                  Bool ->
-                  Bool ->
-                  Bool ->
-                  T_SemDef
-sem_SemDef_Def pos_ mbName_ (T_Pattern pattern_) rhs_ owrt_ pure_ eager_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOerrors :: (Seq Error)
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        _patternIcopy :: Pattern
-                        _patternIdefinedAttrs :: ([AttrName])
-                        _patternIdefinedInsts :: ([Identifier])
-                        _patternIpatunder :: ([AttrName]->Pattern)
-                        _patternIstpos :: Pos
-                        -- "./src-ag/Transform.ag"(line 556, column 3)
-                        _lhsOerrors =
-                            ({-# LINE 556 "./src-ag/Transform.ag" #-}
-                             if checkParseRhs _lhsIoptions
-                             then Seq.fromList $ checkRhs rhs_
-                             else Seq.empty
-                             {-# LINE 7205 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1161, column 10)
-                        _lhsOruleInfos =
-                            ({-# LINE 1161 "./src-ag/Transform.ag" #-}
-                             [ (mbName_, _patternIpatunder, rhs_, _patternIdefinedAttrs, owrt_, show _patternIstpos, pure_, eager_) ]
-                             {-# LINE 7211 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7217 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7223 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             _patternIdefinedInsts
-                             {-# LINE 7229 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7235 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7241 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7247 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7253 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7259 "dist/build/Transform.hs" #-}
-                             )
-                        ( _patternIcopy,_patternIdefinedAttrs,_patternIdefinedInsts,_patternIpatunder,_patternIstpos) =
-                            pattern_
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_TypeDef :: Pos ->
-                      Identifier ->
-                      Type ->
-                      T_SemDef
-sem_SemDef_TypeDef pos_ ident_ tp_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOerrors :: (Seq Error)
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 563, column 3)
-                        _lhsOerrors =
-                            ({-# LINE 563 "./src-ag/Transform.ag" #-}
-                             if checkParseTy _lhsIoptions
-                             then case tp_ of
-                                    Haskell s -> let ex  = Expression pos_ tks
-                                                     tks = [tk]
-                                                     tk  = HsToken s pos_
-                                                 in Seq.fromList $ checkTy ex
-                                    _ -> Seq.empty
-                             else Seq.empty
-                             {-# LINE 7291 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1164, column 14)
-                        _lhsOsigInfos =
-                            ({-# LINE 1164 "./src-ag/Transform.ag" #-}
-                             [ (ident_, tp_) ]
-                             {-# LINE 7297 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7303 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7309 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7315 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7321 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7327 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7333 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7339 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7345 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_UniqueDef :: Identifier ->
-                        Identifier ->
-                        T_SemDef
-sem_SemDef_UniqueDef ident_ ref_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOuniqueInfos :: ([UniqueInfo])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        -- "./src-ag/Transform.ag"(line 1167, column 16)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1167 "./src-ag/Transform.ag" #-}
-                             [ (ident_, ref_) ]
-                             {-# LINE 7367 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7373 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7379 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7385 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                        _lhsOerrors =
-                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                             Seq.empty
-                             {-# LINE 7391 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7397 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7403 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7409 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7415 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7421 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_AugmentDef :: Identifier ->
-                         Expression ->
-                         T_SemDef
-sem_SemDef_AugmentDef ident_ rhs_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 1170, column 17)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1170 "./src-ag/Transform.ag" #-}
-                             [ (ident_, rhs_) ]
-                             {-# LINE 7443 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7449 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7455 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                        _lhsOerrors =
-                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                             Seq.empty
-                             {-# LINE 7461 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7467 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7473 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7479 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7485 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7491 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7497 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_AroundDef :: Identifier ->
-                        Expression ->
-                        T_SemDef
-sem_SemDef_AroundDef ident_ rhs_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 1173, column 17)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1173 "./src-ag/Transform.ag" #-}
-                             [ (ident_, rhs_) ]
-                             {-# LINE 7519 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7525 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7531 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                        _lhsOerrors =
-                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                             Seq.empty
-                             {-# LINE 7537 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7543 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7549 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7555 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7561 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7567 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7573 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_MergeDef :: Identifier ->
-                       Identifier ->
-                       ([Identifier]) ->
-                       Expression ->
-                       T_SemDef
-sem_SemDef_MergeDef target_ nt_ sources_ rhs_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 556, column 3)
-                        _lhsOerrors =
-                            ({-# LINE 556 "./src-ag/Transform.ag" #-}
-                             if checkParseRhs _lhsIoptions
-                             then Seq.fromList $ checkRhs rhs_
-                             else Seq.empty
-                             {-# LINE 7599 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1176, column 17)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1176 "./src-ag/Transform.ag" #-}
-                             [ (target_, nt_, sources_, rhs_) ]
-                             {-# LINE 7605 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7611 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7617 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7623 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7629 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7635 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7641 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7647 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7653 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_SemPragma :: ([NontermIdent]) ->
-                        T_SemDef
-sem_SemDef_SemPragma names_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 897, column 7)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 897 "./src-ag/Transform.ag" #-}
-                             names_
-                             {-# LINE 7674 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7680 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7686 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7692 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                        _lhsOerrors =
-                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                             Seq.empty
-                             {-# LINE 7698 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7704 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                             Set.empty
-                             {-# LINE 7710 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7716 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7722 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7728 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDef_AttrOrderBefore :: ([Occurrence]) ->
-                              ([Occurrence]) ->
-                              T_SemDef
-sem_SemDef_AttrOrderBefore before_ after_ =
-    (T_SemDef (\ _lhsIoptions ->
-                   (let _lhsOorderDepsCollect :: (Set Dependency)
-                        _lhsOaroundInfos :: ([AroundInfo])
-                        _lhsOaugmentInfos :: ([AugmentInfo])
-                        _lhsOdefinedInsts :: ([Identifier])
-                        _lhsOerrors :: (Seq Error)
-                        _lhsOmergeInfos :: ([MergeInfo])
-                        _lhsOpragmaNamesCollect :: ([Identifier])
-                        _lhsOruleInfos :: ([RuleInfo])
-                        _lhsOsigInfos :: ([SigInfo])
-                        _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 928, column 7)
-                        _dependency =
-                            ({-# LINE 928 "./src-ag/Transform.ag" #-}
-                             [ Dependency b a | b <- before_, a <- after_ ]
-                             {-# LINE 7750 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 929, column 7)
-                        _lhsOorderDepsCollect =
-                            ({-# LINE 929 "./src-ag/Transform.ag" #-}
-                             Set.fromList _dependency
-                             {-# LINE 7756 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                        _lhsOaroundInfos =
-                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7762 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                        _lhsOaugmentInfos =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7768 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                        _lhsOdefinedInsts =
-                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7774 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                        _lhsOerrors =
-                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                             Seq.empty
-                             {-# LINE 7780 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                        _lhsOmergeInfos =
-                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7786 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                        _lhsOpragmaNamesCollect =
-                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7792 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                        _lhsOruleInfos =
-                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7798 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                        _lhsOsigInfos =
-                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7804 "dist/build/Transform.hs" #-}
-                             )
-                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                        _lhsOuniqueInfos =
-                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                             []
-                             {-# LINE 7810 "dist/build/Transform.hs" #-}
-                             )
-                    in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
+newtype T_SemDef  = T_SemDef {
+                             attach_T_SemDef :: Identity (T_SemDef_s44 )
+                             }
+newtype T_SemDef_s44  = C_SemDef_s44 {
+                                     inv_SemDef_s44 :: (T_SemDef_v43 )
+                                     }
+data T_SemDef_s45  = C_SemDef_s45
+type T_SemDef_v43  = (T_SemDef_vIn43 ) -> (T_SemDef_vOut43 )
+data T_SemDef_vIn43  = T_SemDef_vIn43 (Options)
+data T_SemDef_vOut43  = T_SemDef_vOut43 ([AroundInfo]) ([AugmentInfo]) ([Identifier]) (Seq Error) ([MergeInfo]) (Set Dependency) ([Identifier]) ([RuleInfo]) ([SigInfo]) ([UniqueInfo])
+{-# NOINLINE sem_SemDef_Def #-}
+sem_SemDef_Def :: (Pos) -> (Maybe Identifier) -> T_Pattern  -> (Expression) -> (Bool) -> (Bool) -> (Bool) -> T_SemDef 
+sem_SemDef_Def _ arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_pure_ arg_eager_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _patternX32 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_))
+         (T_Pattern_vOut31 _patternIcopy _patternIdefinedAttrs _patternIdefinedInsts _patternIpatunder _patternIstpos) = inv_Pattern_s32 _patternX32 (T_Pattern_vIn31 )
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule694 _lhsIoptions arg_rhs_
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule695 _patternIdefinedAttrs _patternIpatunder _patternIstpos arg_eager_ arg_mbName_ arg_owrt_ arg_pure_ arg_rhs_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule696  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule697  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule698 _patternIdefinedInsts
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule699  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule700  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule701  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule702  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule703  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule694 #-}
+   {-# LINE 556 "./src-ag/Transform.ag" #-}
+   rule694 = \ ((_lhsIoptions) :: Options) rhs_ ->
+                 {-# LINE 556 "./src-ag/Transform.ag" #-}
+                 if checkParseRhs _lhsIoptions
+                 then Seq.fromList $ checkRhs rhs_
+                 else Seq.empty
+                 {-# LINE 5523 "dist/build/Transform.hs"#-}
+   {-# INLINE rule695 #-}
+   {-# LINE 1161 "./src-ag/Transform.ag" #-}
+   rule695 = \ ((_patternIdefinedAttrs) :: [AttrName]) ((_patternIpatunder) :: [AttrName]->Pattern) ((_patternIstpos) :: Pos) eager_ mbName_ owrt_ pure_ rhs_ ->
+                           {-# LINE 1161 "./src-ag/Transform.ag" #-}
+                           [ (mbName_, _patternIpatunder, rhs_, _patternIdefinedAttrs, owrt_, show _patternIstpos, pure_, eager_) ]
+                           {-# LINE 5529 "dist/build/Transform.hs"#-}
+   {-# INLINE rule696 #-}
+   rule696 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule697 #-}
+   rule697 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule698 #-}
+   rule698 = \ ((_patternIdefinedInsts) :: [Identifier]) ->
+     _patternIdefinedInsts
+   {-# INLINE rule699 #-}
+   rule699 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule700 #-}
+   rule700 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule701 #-}
+   rule701 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule702 #-}
+   rule702 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule703 #-}
+   rule703 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_TypeDef #-}
+sem_SemDef_TypeDef :: (Pos) -> (Identifier) -> (Type) -> T_SemDef 
+sem_SemDef_TypeDef arg_pos_ arg_ident_ arg_tp_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule704 _lhsIoptions arg_pos_ arg_tp_
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule705 arg_ident_ arg_tp_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule706  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule707  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule708  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule709  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule710  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule711  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule712  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule713  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule704 #-}
+   {-# LINE 563 "./src-ag/Transform.ag" #-}
+   rule704 = \ ((_lhsIoptions) :: Options) pos_ tp_ ->
+                 {-# LINE 563 "./src-ag/Transform.ag" #-}
+                 if checkParseTy _lhsIoptions
+                 then case tp_ of
+                        Haskell s -> let ex  = Expression pos_ tks
+                                         tks = [tk]
+                                         tk  = HsToken s pos_
+                                     in Seq.fromList $ checkTy ex
+                        _ -> Seq.empty
+                 else Seq.empty
+                 {-# LINE 5596 "dist/build/Transform.hs"#-}
+   {-# INLINE rule705 #-}
+   {-# LINE 1164 "./src-ag/Transform.ag" #-}
+   rule705 = \ ident_ tp_ ->
+                              {-# LINE 1164 "./src-ag/Transform.ag" #-}
+                              [ (ident_, tp_) ]
+                              {-# LINE 5602 "dist/build/Transform.hs"#-}
+   {-# INLINE rule706 #-}
+   rule706 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule707 #-}
+   rule707 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule708 #-}
+   rule708 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule709 #-}
+   rule709 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule710 #-}
+   rule710 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule711 #-}
+   rule711 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule712 #-}
+   rule712 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule713 #-}
+   rule713 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_UniqueDef #-}
+sem_SemDef_UniqueDef :: (Identifier) -> (Identifier) -> T_SemDef 
+sem_SemDef_UniqueDef arg_ident_ arg_ref_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule714 arg_ident_ arg_ref_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule715  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule716  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule717  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule718  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule719  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule720  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule721  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule722  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule723  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule714 #-}
+   {-# LINE 1167 "./src-ag/Transform.ag" #-}
+   rule714 = \ ident_ ref_ ->
+                                   {-# LINE 1167 "./src-ag/Transform.ag" #-}
+                                   [ (ident_, ref_) ]
+                                   {-# LINE 5662 "dist/build/Transform.hs"#-}
+   {-# INLINE rule715 #-}
+   rule715 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule716 #-}
+   rule716 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule717 #-}
+   rule717 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule718 #-}
+   rule718 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule719 #-}
+   rule719 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule720 #-}
+   rule720 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule721 #-}
+   rule721 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule722 #-}
+   rule722 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule723 #-}
+   rule723 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_AugmentDef #-}
+sem_SemDef_AugmentDef :: (Identifier) -> (Expression) -> T_SemDef 
+sem_SemDef_AugmentDef arg_ident_ arg_rhs_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule724 arg_ident_ arg_rhs_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule725  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule726  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule727  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule728  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule729  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule730  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule731  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule732  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule733  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule724 #-}
+   {-# LINE 1170 "./src-ag/Transform.ag" #-}
+   rule724 = \ ident_ rhs_ ->
+                                     {-# LINE 1170 "./src-ag/Transform.ag" #-}
+                                     [ (ident_, rhs_) ]
+                                     {-# LINE 5725 "dist/build/Transform.hs"#-}
+   {-# INLINE rule725 #-}
+   rule725 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule726 #-}
+   rule726 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule727 #-}
+   rule727 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule728 #-}
+   rule728 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule729 #-}
+   rule729 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule730 #-}
+   rule730 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule731 #-}
+   rule731 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule732 #-}
+   rule732 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule733 #-}
+   rule733 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_AroundDef #-}
+sem_SemDef_AroundDef :: (Identifier) -> (Expression) -> T_SemDef 
+sem_SemDef_AroundDef arg_ident_ arg_rhs_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule734 arg_ident_ arg_rhs_
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule735  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule736  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule737  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule738  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule739  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule740  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule741  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule742  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule743  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule734 #-}
+   {-# LINE 1173 "./src-ag/Transform.ag" #-}
+   rule734 = \ ident_ rhs_ ->
+                                    {-# LINE 1173 "./src-ag/Transform.ag" #-}
+                                    [ (ident_, rhs_) ]
+                                    {-# LINE 5788 "dist/build/Transform.hs"#-}
+   {-# INLINE rule735 #-}
+   rule735 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule736 #-}
+   rule736 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule737 #-}
+   rule737 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule738 #-}
+   rule738 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule739 #-}
+   rule739 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule740 #-}
+   rule740 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule741 #-}
+   rule741 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule742 #-}
+   rule742 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule743 #-}
+   rule743 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_MergeDef #-}
+sem_SemDef_MergeDef :: (Identifier) -> (Identifier) -> ([Identifier]) -> (Expression) -> T_SemDef 
+sem_SemDef_MergeDef arg_target_ arg_nt_ arg_sources_ arg_rhs_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule744 _lhsIoptions arg_rhs_
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule745 arg_nt_ arg_rhs_ arg_sources_ arg_target_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule746  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule747  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule748  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule749  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule750  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule751  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule752  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule753  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule744 #-}
+   {-# LINE 556 "./src-ag/Transform.ag" #-}
+   rule744 = \ ((_lhsIoptions) :: Options) rhs_ ->
+                 {-# LINE 556 "./src-ag/Transform.ag" #-}
+                 if checkParseRhs _lhsIoptions
+                 then Seq.fromList $ checkRhs rhs_
+                 else Seq.empty
+                 {-# LINE 5853 "dist/build/Transform.hs"#-}
+   {-# INLINE rule745 #-}
+   {-# LINE 1176 "./src-ag/Transform.ag" #-}
+   rule745 = \ nt_ rhs_ sources_ target_ ->
+                                   {-# LINE 1176 "./src-ag/Transform.ag" #-}
+                                   [ (target_, nt_, sources_, rhs_) ]
+                                   {-# LINE 5859 "dist/build/Transform.hs"#-}
+   {-# INLINE rule746 #-}
+   rule746 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule747 #-}
+   rule747 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule748 #-}
+   rule748 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule749 #-}
+   rule749 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule750 #-}
+   rule750 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule751 #-}
+   rule751 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule752 #-}
+   rule752 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule753 #-}
+   rule753 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_SemPragma #-}
+sem_SemDef_SemPragma :: ([NontermIdent]) -> T_SemDef 
+sem_SemDef_SemPragma arg_names_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule754 arg_names_
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule755  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule756  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule757  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule758  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule759  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule760  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule761  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule762  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule763  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule754 #-}
+   {-# LINE 897 "./src-ag/Transform.ag" #-}
+   rule754 = \ names_ ->
+                                 {-# LINE 897 "./src-ag/Transform.ag" #-}
+                                 names_
+                                 {-# LINE 5919 "dist/build/Transform.hs"#-}
+   {-# INLINE rule755 #-}
+   rule755 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule756 #-}
+   rule756 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule757 #-}
+   rule757 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule758 #-}
+   rule758 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule759 #-}
+   rule759 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule760 #-}
+   rule760 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule761 #-}
+   rule761 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule762 #-}
+   rule762 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule763 #-}
+   rule763 = \  (_ :: ()) ->
+     []
+{-# NOINLINE sem_SemDef_AttrOrderBefore #-}
+sem_SemDef_AttrOrderBefore :: ([Occurrence]) -> ([Occurrence]) -> T_SemDef 
+sem_SemDef_AttrOrderBefore arg_before_ arg_after_ = T_SemDef (return st44) where
+   {-# NOINLINE st44 #-}
+   st44 = let
+      v43 :: T_SemDef_v43 
+      v43 = \ (T_SemDef_vIn43 _lhsIoptions) -> ( let
+         _dependency = rule764 arg_after_ arg_before_
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule765 _dependency
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule766  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule767  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule768  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule769  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule770  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule771  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule772  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule773  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule774  ()
+         __result_ = T_SemDef_vOut43 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDef_s44 v43
+   {-# INLINE rule764 #-}
+   {-# LINE 928 "./src-ag/Transform.ag" #-}
+   rule764 = \ after_ before_ ->
+                               {-# LINE 928 "./src-ag/Transform.ag" #-}
+                               [ Dependency b a | b <- before_, a <- after_ ]
+                               {-# LINE 5983 "dist/build/Transform.hs"#-}
+   {-# INLINE rule765 #-}
+   {-# LINE 929 "./src-ag/Transform.ag" #-}
+   rule765 = \ _dependency ->
+                               {-# LINE 929 "./src-ag/Transform.ag" #-}
+                               Set.fromList _dependency
+                               {-# LINE 5989 "dist/build/Transform.hs"#-}
+   {-# INLINE rule766 #-}
+   rule766 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule767 #-}
+   rule767 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule768 #-}
+   rule768 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule769 #-}
+   rule769 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule770 #-}
+   rule770 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule771 #-}
+   rule771 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule772 #-}
+   rule772 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule773 #-}
+   rule773 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule774 #-}
+   rule774 = \  (_ :: ()) ->
+     []
+
 -- SemDefs -----------------------------------------------------
-{-
-   visit 0:
-      inherited attribute:
-         options              : Options
-      synthesized attributes:
-         aroundInfos          : [AroundInfo]
-         augmentInfos         : [AugmentInfo]
-         definedInsts         : [Identifier]
-         errors               : Seq Error
-         mergeInfos           : [MergeInfo]
-         orderDepsCollect     : Set Dependency
-         pragmaNamesCollect   : [Identifier]
-         ruleInfos            : [RuleInfo]
-         sigInfos             : [SigInfo]
-         uniqueInfos          : [UniqueInfo]
-   alternatives:
-      alternative Cons:
-         child hd             : SemDef 
-         child tl             : SemDefs 
-      alternative Nil:
--}
+-- wrapper
+data Inh_SemDefs  = Inh_SemDefs { options_Inh_SemDefs :: (Options) }
+data Syn_SemDefs  = Syn_SemDefs { aroundInfos_Syn_SemDefs :: ([AroundInfo]), augmentInfos_Syn_SemDefs :: ([AugmentInfo]), definedInsts_Syn_SemDefs :: ([Identifier]), errors_Syn_SemDefs :: (Seq Error), mergeInfos_Syn_SemDefs :: ([MergeInfo]), orderDepsCollect_Syn_SemDefs :: (Set Dependency), pragmaNamesCollect_Syn_SemDefs :: ([Identifier]), ruleInfos_Syn_SemDefs :: ([RuleInfo]), sigInfos_Syn_SemDefs :: ([SigInfo]), uniqueInfos_Syn_SemDefs :: ([UniqueInfo]) }
+{-# INLINABLE wrap_SemDefs #-}
+wrap_SemDefs :: T_SemDefs  -> Inh_SemDefs  -> (Syn_SemDefs )
+wrap_SemDefs (T_SemDefs act) (Inh_SemDefs _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_SemDefs_vIn46 _lhsIoptions
+        (T_SemDefs_vOut46 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos) <- return (inv_SemDefs_s47 sem arg)
+        return (Syn_SemDefs _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos)
+   )
+
 -- cata
-sem_SemDefs :: SemDefs ->
-               T_SemDefs
-sem_SemDefs list =
-    (Prelude.foldr sem_SemDefs_Cons sem_SemDefs_Nil (Prelude.map sem_SemDef list))
+{-# NOINLINE sem_SemDefs #-}
+sem_SemDefs :: SemDefs  -> T_SemDefs 
+sem_SemDefs list = Prelude.foldr sem_SemDefs_Cons sem_SemDefs_Nil (Prelude.map sem_SemDef list)
+
 -- semantic domain
-newtype T_SemDefs = T_SemDefs (Options ->
-                               ( ([AroundInfo]),([AugmentInfo]),([Identifier]),(Seq Error),([MergeInfo]),(Set Dependency),([Identifier]),([RuleInfo]),([SigInfo]),([UniqueInfo])))
-data Inh_SemDefs = Inh_SemDefs {options_Inh_SemDefs :: !(Options)}
-data Syn_SemDefs = Syn_SemDefs {aroundInfos_Syn_SemDefs :: !(([AroundInfo])),augmentInfos_Syn_SemDefs :: !(([AugmentInfo])),definedInsts_Syn_SemDefs :: !(([Identifier])),errors_Syn_SemDefs :: !((Seq Error)),mergeInfos_Syn_SemDefs :: !(([MergeInfo])),orderDepsCollect_Syn_SemDefs :: !((Set Dependency)),pragmaNamesCollect_Syn_SemDefs :: !(([Identifier])),ruleInfos_Syn_SemDefs :: !(([RuleInfo])),sigInfos_Syn_SemDefs :: !(([SigInfo])),uniqueInfos_Syn_SemDefs :: !(([UniqueInfo]))}
-wrap_SemDefs :: T_SemDefs ->
-                Inh_SemDefs ->
-                Syn_SemDefs
-wrap_SemDefs (T_SemDefs sem) (Inh_SemDefs _lhsIoptions) =
-    (let ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos) = sem _lhsIoptions
-     in  (Syn_SemDefs _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos))
-sem_SemDefs_Cons :: T_SemDef ->
-                    T_SemDefs ->
-                    T_SemDefs
-sem_SemDefs_Cons (T_SemDef hd_) (T_SemDefs tl_) =
-    (T_SemDefs (\ _lhsIoptions ->
-                    (let _lhsOaroundInfos :: ([AroundInfo])
-                         _lhsOaugmentInfos :: ([AugmentInfo])
-                         _lhsOdefinedInsts :: ([Identifier])
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOmergeInfos :: ([MergeInfo])
-                         _lhsOorderDepsCollect :: (Set Dependency)
-                         _lhsOpragmaNamesCollect :: ([Identifier])
-                         _lhsOruleInfos :: ([RuleInfo])
-                         _lhsOsigInfos :: ([SigInfo])
-                         _lhsOuniqueInfos :: ([UniqueInfo])
-                         _hdOoptions :: Options
-                         _tlOoptions :: Options
-                         _hdIaroundInfos :: ([AroundInfo])
-                         _hdIaugmentInfos :: ([AugmentInfo])
-                         _hdIdefinedInsts :: ([Identifier])
-                         _hdIerrors :: (Seq Error)
-                         _hdImergeInfos :: ([MergeInfo])
-                         _hdIorderDepsCollect :: (Set Dependency)
-                         _hdIpragmaNamesCollect :: ([Identifier])
-                         _hdIruleInfos :: ([RuleInfo])
-                         _hdIsigInfos :: ([SigInfo])
-                         _hdIuniqueInfos :: ([UniqueInfo])
-                         _tlIaroundInfos :: ([AroundInfo])
-                         _tlIaugmentInfos :: ([AugmentInfo])
-                         _tlIdefinedInsts :: ([Identifier])
-                         _tlIerrors :: (Seq Error)
-                         _tlImergeInfos :: ([MergeInfo])
-                         _tlIorderDepsCollect :: (Set Dependency)
-                         _tlIpragmaNamesCollect :: ([Identifier])
-                         _tlIruleInfos :: ([RuleInfo])
-                         _tlIsigInfos :: ([SigInfo])
-                         _tlIuniqueInfos :: ([UniqueInfo])
-                         -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                         _lhsOaroundInfos =
-                             ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                              _hdIaroundInfos ++ _tlIaroundInfos
-                              {-# LINE 7892 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                         _lhsOaugmentInfos =
-                             ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                              _hdIaugmentInfos ++ _tlIaugmentInfos
-                              {-# LINE 7898 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                         _lhsOdefinedInsts =
-                             ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                              _hdIdefinedInsts ++ _tlIdefinedInsts
-                              {-# LINE 7904 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              _hdIerrors Seq.>< _tlIerrors
-                              {-# LINE 7910 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                         _lhsOmergeInfos =
-                             ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                              _hdImergeInfos ++ _tlImergeInfos
-                              {-# LINE 7916 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                         _lhsOorderDepsCollect =
-                             ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                              _hdIorderDepsCollect `Set.union` _tlIorderDepsCollect
-                              {-# LINE 7922 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                         _lhsOpragmaNamesCollect =
-                             ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                              _hdIpragmaNamesCollect ++ _tlIpragmaNamesCollect
-                              {-# LINE 7928 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                         _lhsOruleInfos =
-                             ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                              _hdIruleInfos ++ _tlIruleInfos
-                              {-# LINE 7934 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                         _lhsOsigInfos =
-                             ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                              _hdIsigInfos ++ _tlIsigInfos
-                              {-# LINE 7940 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                         _lhsOuniqueInfos =
-                             ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                              _hdIuniqueInfos ++ _tlIuniqueInfos
-                              {-# LINE 7946 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _hdOoptions =
-                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                              _lhsIoptions
-                              {-# LINE 7952 "dist/build/Transform.hs" #-}
-                              )
-                         -- copy rule (down)
-                         _tlOoptions =
-                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
-                              _lhsIoptions
-                              {-# LINE 7958 "dist/build/Transform.hs" #-}
-                              )
-                         ( _hdIaroundInfos,_hdIaugmentInfos,_hdIdefinedInsts,_hdIerrors,_hdImergeInfos,_hdIorderDepsCollect,_hdIpragmaNamesCollect,_hdIruleInfos,_hdIsigInfos,_hdIuniqueInfos) =
-                             hd_ _hdOoptions
-                         ( _tlIaroundInfos,_tlIaugmentInfos,_tlIdefinedInsts,_tlIerrors,_tlImergeInfos,_tlIorderDepsCollect,_tlIpragmaNamesCollect,_tlIruleInfos,_tlIsigInfos,_tlIuniqueInfos) =
-                             tl_ _tlOoptions
-                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
-sem_SemDefs_Nil :: T_SemDefs
-sem_SemDefs_Nil =
-    (T_SemDefs (\ _lhsIoptions ->
-                    (let _lhsOaroundInfos :: ([AroundInfo])
-                         _lhsOaugmentInfos :: ([AugmentInfo])
-                         _lhsOdefinedInsts :: ([Identifier])
-                         _lhsOerrors :: (Seq Error)
-                         _lhsOmergeInfos :: ([MergeInfo])
-                         _lhsOorderDepsCollect :: (Set Dependency)
-                         _lhsOpragmaNamesCollect :: ([Identifier])
-                         _lhsOruleInfos :: ([RuleInfo])
-                         _lhsOsigInfos :: ([SigInfo])
-                         _lhsOuniqueInfos :: ([UniqueInfo])
-                         -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
-                         _lhsOaroundInfos =
-                             ({-# LINE 1098 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7982 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
-                         _lhsOaugmentInfos =
-                             ({-# LINE 1097 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7988 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
-                         _lhsOdefinedInsts =
-                             ({-# LINE 1179 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7994 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
-                         _lhsOerrors =
-                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
-                              Seq.empty
-                              {-# LINE 8000 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
-                         _lhsOmergeInfos =
-                             ({-# LINE 1099 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 8006 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 924, column 44)
-                         _lhsOorderDepsCollect =
-                             ({-# LINE 924 "./src-ag/Transform.ag" #-}
-                              Set.empty
-                              {-# LINE 8012 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 893, column 46)
-                         _lhsOpragmaNamesCollect =
-                             ({-# LINE 893 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 8018 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
-                         _lhsOruleInfos =
-                             ({-# LINE 1094 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 8024 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
-                         _lhsOsigInfos =
-                             ({-# LINE 1095 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 8030 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
-                         _lhsOuniqueInfos =
-                             ({-# LINE 1096 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 8036 "dist/build/Transform.hs" #-}
-                              )
-                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
+newtype T_SemDefs  = T_SemDefs {
+                               attach_T_SemDefs :: Identity (T_SemDefs_s47 )
+                               }
+newtype T_SemDefs_s47  = C_SemDefs_s47 {
+                                       inv_SemDefs_s47 :: (T_SemDefs_v46 )
+                                       }
+data T_SemDefs_s48  = C_SemDefs_s48
+type T_SemDefs_v46  = (T_SemDefs_vIn46 ) -> (T_SemDefs_vOut46 )
+data T_SemDefs_vIn46  = T_SemDefs_vIn46 (Options)
+data T_SemDefs_vOut46  = T_SemDefs_vOut46 ([AroundInfo]) ([AugmentInfo]) ([Identifier]) (Seq Error) ([MergeInfo]) (Set Dependency) ([Identifier]) ([RuleInfo]) ([SigInfo]) ([UniqueInfo])
+{-# NOINLINE sem_SemDefs_Cons #-}
+sem_SemDefs_Cons :: T_SemDef  -> T_SemDefs  -> T_SemDefs 
+sem_SemDefs_Cons arg_hd_ arg_tl_ = T_SemDefs (return st47) where
+   {-# NOINLINE st47 #-}
+   st47 = let
+      v46 :: T_SemDefs_v46 
+      v46 = \ (T_SemDefs_vIn46 _lhsIoptions) -> ( let
+         _hdX44 = Control.Monad.Identity.runIdentity (attach_T_SemDef (arg_hd_))
+         _tlX47 = Control.Monad.Identity.runIdentity (attach_T_SemDefs (arg_tl_))
+         (T_SemDef_vOut43 _hdIaroundInfos _hdIaugmentInfos _hdIdefinedInsts _hdIerrors _hdImergeInfos _hdIorderDepsCollect _hdIpragmaNamesCollect _hdIruleInfos _hdIsigInfos _hdIuniqueInfos) = inv_SemDef_s44 _hdX44 (T_SemDef_vIn43 _hdOoptions)
+         (T_SemDefs_vOut46 _tlIaroundInfos _tlIaugmentInfos _tlIdefinedInsts _tlIerrors _tlImergeInfos _tlIorderDepsCollect _tlIpragmaNamesCollect _tlIruleInfos _tlIsigInfos _tlIuniqueInfos) = inv_SemDefs_s47 _tlX47 (T_SemDefs_vIn46 _tlOoptions)
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule775 _hdIaroundInfos _tlIaroundInfos
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule776 _hdIaugmentInfos _tlIaugmentInfos
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule777 _hdIdefinedInsts _tlIdefinedInsts
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule778 _hdIerrors _tlIerrors
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule779 _hdImergeInfos _tlImergeInfos
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule780 _hdIorderDepsCollect _tlIorderDepsCollect
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule781 _hdIpragmaNamesCollect _tlIpragmaNamesCollect
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule782 _hdIruleInfos _tlIruleInfos
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule783 _hdIsigInfos _tlIsigInfos
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule784 _hdIuniqueInfos _tlIuniqueInfos
+         _hdOoptions = rule785 _lhsIoptions
+         _tlOoptions = rule786 _lhsIoptions
+         __result_ = T_SemDefs_vOut46 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDefs_s47 v46
+   {-# INLINE rule775 #-}
+   rule775 = \ ((_hdIaroundInfos) :: [AroundInfo]) ((_tlIaroundInfos) :: [AroundInfo]) ->
+     _hdIaroundInfos ++ _tlIaroundInfos
+   {-# INLINE rule776 #-}
+   rule776 = \ ((_hdIaugmentInfos) :: [AugmentInfo]) ((_tlIaugmentInfos) :: [AugmentInfo]) ->
+     _hdIaugmentInfos ++ _tlIaugmentInfos
+   {-# INLINE rule777 #-}
+   rule777 = \ ((_hdIdefinedInsts) :: [Identifier]) ((_tlIdefinedInsts) :: [Identifier]) ->
+     _hdIdefinedInsts ++ _tlIdefinedInsts
+   {-# INLINE rule778 #-}
+   rule778 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
+   {-# INLINE rule779 #-}
+   rule779 = \ ((_hdImergeInfos) :: [MergeInfo]) ((_tlImergeInfos) :: [MergeInfo]) ->
+     _hdImergeInfos ++ _tlImergeInfos
+   {-# INLINE rule780 #-}
+   rule780 = \ ((_hdIorderDepsCollect) :: Set Dependency) ((_tlIorderDepsCollect) :: Set Dependency) ->
+     _hdIorderDepsCollect `Set.union` _tlIorderDepsCollect
+   {-# INLINE rule781 #-}
+   rule781 = \ ((_hdIpragmaNamesCollect) :: [Identifier]) ((_tlIpragmaNamesCollect) :: [Identifier]) ->
+     _hdIpragmaNamesCollect ++ _tlIpragmaNamesCollect
+   {-# INLINE rule782 #-}
+   rule782 = \ ((_hdIruleInfos) :: [RuleInfo]) ((_tlIruleInfos) :: [RuleInfo]) ->
+     _hdIruleInfos ++ _tlIruleInfos
+   {-# INLINE rule783 #-}
+   rule783 = \ ((_hdIsigInfos) :: [SigInfo]) ((_tlIsigInfos) :: [SigInfo]) ->
+     _hdIsigInfos ++ _tlIsigInfos
+   {-# INLINE rule784 #-}
+   rule784 = \ ((_hdIuniqueInfos) :: [UniqueInfo]) ((_tlIuniqueInfos) :: [UniqueInfo]) ->
+     _hdIuniqueInfos ++ _tlIuniqueInfos
+   {-# INLINE rule785 #-}
+   rule785 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule786 #-}
+   rule786 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_SemDefs_Nil #-}
+sem_SemDefs_Nil ::  T_SemDefs 
+sem_SemDefs_Nil  = T_SemDefs (return st47) where
+   {-# NOINLINE st47 #-}
+   st47 = let
+      v46 :: T_SemDefs_v46 
+      v46 = \ (T_SemDefs_vIn46 _lhsIoptions) -> ( let
+         _lhsOaroundInfos :: [AroundInfo]
+         _lhsOaroundInfos = rule787  ()
+         _lhsOaugmentInfos :: [AugmentInfo]
+         _lhsOaugmentInfos = rule788  ()
+         _lhsOdefinedInsts :: [Identifier]
+         _lhsOdefinedInsts = rule789  ()
+         _lhsOerrors :: Seq Error
+         _lhsOerrors = rule790  ()
+         _lhsOmergeInfos :: [MergeInfo]
+         _lhsOmergeInfos = rule791  ()
+         _lhsOorderDepsCollect :: Set Dependency
+         _lhsOorderDepsCollect = rule792  ()
+         _lhsOpragmaNamesCollect :: [Identifier]
+         _lhsOpragmaNamesCollect = rule793  ()
+         _lhsOruleInfos :: [RuleInfo]
+         _lhsOruleInfos = rule794  ()
+         _lhsOsigInfos :: [SigInfo]
+         _lhsOsigInfos = rule795  ()
+         _lhsOuniqueInfos :: [UniqueInfo]
+         _lhsOuniqueInfos = rule796  ()
+         __result_ = T_SemDefs_vOut46 _lhsOaroundInfos _lhsOaugmentInfos _lhsOdefinedInsts _lhsOerrors _lhsOmergeInfos _lhsOorderDepsCollect _lhsOpragmaNamesCollect _lhsOruleInfos _lhsOsigInfos _lhsOuniqueInfos
+         in __result_ )
+     in C_SemDefs_s47 v46
+   {-# INLINE rule787 #-}
+   rule787 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule788 #-}
+   rule788 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule789 #-}
+   rule789 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule790 #-}
+   rule790 = \  (_ :: ()) ->
+     Seq.empty
+   {-# INLINE rule791 #-}
+   rule791 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule792 #-}
+   rule792 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule793 #-}
+   rule793 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule794 #-}
+   rule794 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule795 #-}
+   rule795 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule796 #-}
+   rule796 = \  (_ :: ()) ->
+     []

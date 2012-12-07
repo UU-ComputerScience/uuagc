@@ -1,6 +1,6 @@
+{-# LANGUAGE Rank2Types, GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-
--- UUAGC 0.9.42.2 (src-ag/AbstractSyntaxDump.ag)
 module AbstractSyntaxDump where
 {-# LINE 6 "./src-ag/AbstractSyntaxDump.ag" #-}
 
@@ -38,1003 +38,1046 @@ import CommonTypes (ConstructorIdent,Identifier)
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 41 "dist/build/AbstractSyntaxDump.hs" #-}
+import Control.Monad.Identity (Identity)
+import qualified Control.Monad.Identity
 -- Child -------------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Child:
-         child name           : {Identifier}
-         child tp             : {Type}
-         child kind           : {ChildKind}
--}
+-- wrapper
+data Inh_Child  = Inh_Child {  }
+data Syn_Child  = Syn_Child { pp_Syn_Child :: (PP_Doc) }
+{-# INLINABLE wrap_Child #-}
+wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
+wrap_Child (T_Child act) (Inh_Child ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Child_vIn1 
+        (T_Child_vOut1 _lhsOpp) <- return (inv_Child_s2 sem arg)
+        return (Syn_Child _lhsOpp)
+   )
+
 -- cata
-sem_Child :: Child ->
-             T_Child
-sem_Child (Child _name _tp _kind) =
-    (sem_Child_Child _name _tp _kind)
+{-# INLINE sem_Child #-}
+sem_Child :: Child  -> T_Child 
+sem_Child ( Child name_ tp_ kind_ ) = sem_Child_Child name_ tp_ kind_
+
 -- semantic domain
-newtype T_Child = T_Child (( PP_Doc))
-data Inh_Child = Inh_Child {}
-data Syn_Child = Syn_Child {pp_Syn_Child :: PP_Doc}
-wrap_Child :: T_Child ->
-              Inh_Child ->
-              Syn_Child
-wrap_Child (T_Child sem) (Inh_Child) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Child _lhsOpp))
-sem_Child_Child :: Identifier ->
-                   Type ->
-                   ChildKind ->
-                   T_Child
-sem_Child_Child name_ tp_ kind_ =
-    (T_Child (let _lhsOpp :: PP_Doc
-                  -- "./src-ag/AbstractSyntaxDump.ag"(line 35, column 33)
-                  _lhsOpp =
-                      ({-# LINE 35 "./src-ag/AbstractSyntaxDump.ag" #-}
-                       ppNestInfo ["Child","Child"] [pp name_, ppShow tp_] [ppF "kind" $ ppShow kind_] []
-                       {-# LINE 78 "dist/build/AbstractSyntaxDump.hs" #-}
-                       )
-              in  ( _lhsOpp)))
+newtype T_Child  = T_Child {
+                           attach_T_Child :: Identity (T_Child_s2 )
+                           }
+newtype T_Child_s2  = C_Child_s2 {
+                                 inv_Child_s2 :: (T_Child_v1 )
+                                 }
+data T_Child_s3  = C_Child_s3
+type T_Child_v1  = (T_Child_vIn1 ) -> (T_Child_vOut1 )
+data T_Child_vIn1  = T_Child_vIn1 
+data T_Child_vOut1  = T_Child_vOut1 (PP_Doc)
+{-# NOINLINE sem_Child_Child #-}
+sem_Child_Child :: (Identifier) -> (Type) -> (ChildKind) -> T_Child 
+sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Child_v1 
+      v1 = \ (T_Child_vIn1 ) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule0 arg_kind_ arg_name_ arg_tp_
+         __result_ = T_Child_vOut1 _lhsOpp
+         in __result_ )
+     in C_Child_s2 v1
+   {-# INLINE rule0 #-}
+   {-# LINE 35 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule0 = \ kind_ name_ tp_ ->
+                                                              {-# LINE 35 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["Child","Child"] [pp name_, ppShow tp_] [ppF "kind" $ ppShow kind_] []
+                                                              {-# LINE 91 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Children ----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : Child 
-         child tl             : Children 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Children  = Inh_Children {  }
+data Syn_Children  = Syn_Children { pp_Syn_Children :: (PP_Doc), ppL_Syn_Children :: ([PP_Doc]) }
+{-# INLINABLE wrap_Children #-}
+wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
+wrap_Children (T_Children act) (Inh_Children ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Children_vIn4 
+        (T_Children_vOut4 _lhsOpp _lhsOppL) <- return (inv_Children_s5 sem arg)
+        return (Syn_Children _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_Children :: Children ->
-                T_Children
-sem_Children list =
-    (Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.map sem_Child list))
+{-# NOINLINE sem_Children #-}
+sem_Children :: Children  -> T_Children 
+sem_Children list = Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.map sem_Child list)
+
 -- semantic domain
-newtype T_Children = T_Children (( PP_Doc,([PP_Doc])))
-data Inh_Children = Inh_Children {}
-data Syn_Children = Syn_Children {pp_Syn_Children :: PP_Doc,ppL_Syn_Children :: ([PP_Doc])}
-wrap_Children :: T_Children ->
-                 Inh_Children ->
-                 Syn_Children
-wrap_Children (T_Children sem) (Inh_Children) =
-    (let ( _lhsOpp,_lhsOppL) = sem
-     in  (Syn_Children _lhsOpp _lhsOppL))
-sem_Children_Cons :: T_Child ->
-                     T_Children ->
-                     T_Children
-sem_Children_Cons (T_Child hd_) (T_Children tl_) =
-    (T_Children (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     _hdIpp :: PP_Doc
-                     _tlIpp :: PP_Doc
-                     _tlIppL :: ([PP_Doc])
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 67, column 33)
-                     _lhsOppL =
-                         ({-# LINE 67 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp : _tlIppL
-                          {-# LINE 121 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp >-< _tlIpp
-                          {-# LINE 127 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     ( _hdIpp) =
-                         hd_
-                     ( _tlIpp,_tlIppL) =
-                         tl_
-                 in  ( _lhsOpp,_lhsOppL)))
-sem_Children_Nil :: T_Children
-sem_Children_Nil =
-    (T_Children (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 68, column 33)
-                     _lhsOppL =
-                         ({-# LINE 68 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          []
-                          {-# LINE 142 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          empty
-                          {-# LINE 148 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                 in  ( _lhsOpp,_lhsOppL)))
+newtype T_Children  = T_Children {
+                                 attach_T_Children :: Identity (T_Children_s5 )
+                                 }
+newtype T_Children_s5  = C_Children_s5 {
+                                       inv_Children_s5 :: (T_Children_v4 )
+                                       }
+data T_Children_s6  = C_Children_s6
+type T_Children_v4  = (T_Children_vIn4 ) -> (T_Children_vOut4 )
+data T_Children_vIn4  = T_Children_vIn4 
+data T_Children_vOut4  = T_Children_vOut4 (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_Children_Cons #-}
+sem_Children_Cons :: T_Child  -> T_Children  -> T_Children 
+sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Children_v4 
+      v4 = \ (T_Children_vIn4 ) -> ( let
+         _hdX2 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_))
+         _tlX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_))
+         (T_Child_vOut1 _hdIpp) = inv_Child_s2 _hdX2 (T_Child_vIn1 )
+         (T_Children_vOut4 _tlIpp _tlIppL) = inv_Children_s5 _tlX5 (T_Children_vIn4 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule1 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule2 _hdIpp _tlIpp
+         __result_ = T_Children_vOut4 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Children_s5 v4
+   {-# INLINE rule1 #-}
+   {-# LINE 67 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule1 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 67 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 146 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule2 #-}
+   rule2 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+{-# NOINLINE sem_Children_Nil #-}
+sem_Children_Nil ::  T_Children 
+sem_Children_Nil  = T_Children (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Children_v4 
+      v4 = \ (T_Children_vIn4 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule3  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule4  ()
+         __result_ = T_Children_vOut4 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Children_s5 v4
+   {-# INLINE rule3 #-}
+   {-# LINE 68 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule3 = \  (_ :: ()) ->
+                                                                                  {-# LINE 68 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 169 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule4 #-}
+   rule4 = \  (_ :: ()) ->
+     empty
+
 -- Expression --------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Expression:
-         child pos            : {Pos}
-         child tks            : {[HsToken]}
--}
+-- wrapper
+data Inh_Expression  = Inh_Expression {  }
+data Syn_Expression  = Syn_Expression { pp_Syn_Expression :: (PP_Doc) }
+{-# INLINABLE wrap_Expression #-}
+wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
+wrap_Expression (T_Expression act) (Inh_Expression ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Expression_vIn7 
+        (T_Expression_vOut7 _lhsOpp) <- return (inv_Expression_s8 sem arg)
+        return (Syn_Expression _lhsOpp)
+   )
+
 -- cata
-sem_Expression :: Expression ->
-                  T_Expression
-sem_Expression (Expression _pos _tks) =
-    (sem_Expression_Expression _pos _tks)
+{-# INLINE sem_Expression #-}
+sem_Expression :: Expression  -> T_Expression 
+sem_Expression ( Expression pos_ tks_ ) = sem_Expression_Expression pos_ tks_
+
 -- semantic domain
-newtype T_Expression = T_Expression (( PP_Doc))
-data Inh_Expression = Inh_Expression {}
-data Syn_Expression = Syn_Expression {pp_Syn_Expression :: PP_Doc}
-wrap_Expression :: T_Expression ->
-                   Inh_Expression ->
-                   Syn_Expression
-wrap_Expression (T_Expression sem) (Inh_Expression) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Expression _lhsOpp))
-sem_Expression_Expression :: Pos ->
-                             ([HsToken]) ->
-                             T_Expression
-sem_Expression_Expression pos_ tks_ =
-    (T_Expression (let _lhsOpp :: PP_Doc
-                       -- "./src-ag/AbstractSyntaxDump.ag"(line 50, column 25)
-                       _lhsOpp =
-                           ({-# LINE 50 "./src-ag/AbstractSyntaxDump.ag" #-}
-                            ppNestInfo ["Expression","Expression"] [ppShow pos_] [ppF "txt" $ vlist . showTokens . tokensToStrings $ tks_] []
-                            {-# LINE 185 "dist/build/AbstractSyntaxDump.hs" #-}
-                            )
-                   in  ( _lhsOpp)))
+newtype T_Expression  = T_Expression {
+                                     attach_T_Expression :: Identity (T_Expression_s8 )
+                                     }
+newtype T_Expression_s8  = C_Expression_s8 {
+                                           inv_Expression_s8 :: (T_Expression_v7 )
+                                           }
+data T_Expression_s9  = C_Expression_s9
+type T_Expression_v7  = (T_Expression_vIn7 ) -> (T_Expression_vOut7 )
+data T_Expression_vIn7  = T_Expression_vIn7 
+data T_Expression_vOut7  = T_Expression_vOut7 (PP_Doc)
+{-# NOINLINE sem_Expression_Expression #-}
+sem_Expression_Expression :: (Pos) -> ([HsToken]) -> T_Expression 
+sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
+   {-# NOINLINE st8 #-}
+   st8 = let
+      v7 :: T_Expression_v7 
+      v7 = \ (T_Expression_vIn7 ) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule5 arg_pos_ arg_tks_
+         __result_ = T_Expression_vOut7 _lhsOpp
+         in __result_ )
+     in C_Expression_s8 v7
+   {-# INLINE rule5 #-}
+   {-# LINE 50 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule5 = \ pos_ tks_ ->
+                                                      {-# LINE 50 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                      ppNestInfo ["Expression","Expression"] [ppShow pos_] [ppF "txt" $ vlist . showTokens . tokensToStrings $ tks_] []
+                                                      {-# LINE 221 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Grammar -----------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Grammar:
-         child typeSyns       : {TypeSyns}
-         child useMap         : {UseMap}
-         child derivings      : {Derivings}
-         child wrappers       : {Set NontermIdent}
-         child nonts          : Nonterminals 
-         child pragmas        : {PragmaMap}
-         child manualAttrOrderMap : {AttrOrderMap}
-         child paramMap       : {ParamMap}
-         child contextMap     : {ContextMap}
-         child quantMap       : {QuantMap}
-         child uniqueMap      : {UniqueMap}
-         child augmentsMap    : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
-         child aroundsMap     : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))}
-         child mergeMap       : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))}
--}
+-- wrapper
+data Inh_Grammar  = Inh_Grammar {  }
+data Syn_Grammar  = Syn_Grammar { pp_Syn_Grammar :: (PP_Doc) }
+{-# INLINABLE wrap_Grammar #-}
+wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
+wrap_Grammar (T_Grammar act) (Inh_Grammar ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Grammar_vIn10 
+        (T_Grammar_vOut10 _lhsOpp) <- return (inv_Grammar_s11 sem arg)
+        return (Syn_Grammar _lhsOpp)
+   )
+
 -- cata
-sem_Grammar :: Grammar ->
-               T_Grammar
-sem_Grammar (Grammar _typeSyns _useMap _derivings _wrappers _nonts _pragmas _manualAttrOrderMap _paramMap _contextMap _quantMap _uniqueMap _augmentsMap _aroundsMap _mergeMap) =
-    (sem_Grammar_Grammar _typeSyns _useMap _derivings _wrappers (sem_Nonterminals _nonts) _pragmas _manualAttrOrderMap _paramMap _contextMap _quantMap _uniqueMap _augmentsMap _aroundsMap _mergeMap)
+{-# INLINE sem_Grammar #-}
+sem_Grammar :: Grammar  -> T_Grammar 
+sem_Grammar ( Grammar typeSyns_ useMap_ derivings_ wrappers_ nonts_ pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_ ) = sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ ( sem_Nonterminals nonts_ ) pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_
+
 -- semantic domain
-newtype T_Grammar = T_Grammar (( PP_Doc))
-data Inh_Grammar = Inh_Grammar {}
-data Syn_Grammar = Syn_Grammar {pp_Syn_Grammar :: PP_Doc}
-wrap_Grammar :: T_Grammar ->
-                Inh_Grammar ->
-                Syn_Grammar
-wrap_Grammar (T_Grammar sem) (Inh_Grammar) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Grammar _lhsOpp))
-sem_Grammar_Grammar :: TypeSyns ->
-                       UseMap ->
-                       Derivings ->
-                       (Set NontermIdent) ->
-                       T_Nonterminals ->
-                       PragmaMap ->
-                       AttrOrderMap ->
-                       ParamMap ->
-                       ContextMap ->
-                       QuantMap ->
-                       UniqueMap ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
-                       (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) ->
-                       T_Grammar
-sem_Grammar_Grammar typeSyns_ useMap_ derivings_ wrappers_ (T_Nonterminals nonts_) pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_ =
-    (T_Grammar (let _lhsOpp :: PP_Doc
-                    _nontsIpp :: PP_Doc
-                    _nontsIppL :: ([PP_Doc])
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 20, column 25)
-                    _lhsOpp =
-                        ({-# LINE 20 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["Grammar","Grammar"] []
-                            [ ppF "typeSyns" $ ppAssocL typeSyns_
-                            , ppF "useMap" $ ppMap $ Map.map ppMap $ useMap_
-                            , ppF "derivings" $ ppMap $ derivings_
-                            , ppF "wrappers" $ ppShow $ wrappers_
-                            , ppF "nonts" $ ppVList _nontsIppL
-                            ] []
-                         {-# LINE 254 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    ( _nontsIpp,_nontsIppL) =
-                        nonts_
-                in  ( _lhsOpp)))
+newtype T_Grammar  = T_Grammar {
+                               attach_T_Grammar :: Identity (T_Grammar_s11 )
+                               }
+newtype T_Grammar_s11  = C_Grammar_s11 {
+                                       inv_Grammar_s11 :: (T_Grammar_v10 )
+                                       }
+data T_Grammar_s12  = C_Grammar_s12
+type T_Grammar_v10  = (T_Grammar_vIn10 ) -> (T_Grammar_vOut10 )
+data T_Grammar_vIn10  = T_Grammar_vIn10 
+data T_Grammar_vOut10  = T_Grammar_vOut10 (PP_Doc)
+{-# NOINLINE sem_Grammar_Grammar #-}
+sem_Grammar_Grammar :: (TypeSyns) -> (UseMap) -> (Derivings) -> (Set NontermIdent) -> T_Nonterminals  -> (PragmaMap) -> (AttrOrderMap) -> (ParamMap) -> (ContextMap) -> (QuantMap) -> (UniqueMap) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) -> T_Grammar 
+sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_nonts_ _ _ _ _ _ _ _ _ _ = T_Grammar (return st11) where
+   {-# NOINLINE st11 #-}
+   st11 = let
+      v10 :: T_Grammar_v10 
+      v10 = \ (T_Grammar_vIn10 ) -> ( let
+         _nontsX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
+         (T_Nonterminals_vOut16 _nontsIpp _nontsIppL) = inv_Nonterminals_s17 _nontsX17 (T_Nonterminals_vIn16 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule6 _nontsIppL arg_derivings_ arg_typeSyns_ arg_useMap_ arg_wrappers_
+         __result_ = T_Grammar_vOut10 _lhsOpp
+         in __result_ )
+     in C_Grammar_s11 v10
+   {-# INLINE rule6 #-}
+   {-# LINE 20 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule6 = \ ((_nontsIppL) :: [PP_Doc]) derivings_ typeSyns_ useMap_ wrappers_ ->
+                                                      {-# LINE 20 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                      ppNestInfo ["Grammar","Grammar"] []
+                                                         [ ppF "typeSyns" $ ppAssocL typeSyns_
+                                                         , ppF "useMap" $ ppMap $ Map.map ppMap $ useMap_
+                                                         , ppF "derivings" $ ppMap $ derivings_
+                                                         , ppF "wrappers" $ ppShow $ wrappers_
+                                                         , ppF "nonts" $ ppVList _nontsIppL
+                                                         ] []
+                                                      {-# LINE 278 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Nonterminal -------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Nonterminal:
-         child nt             : {NontermIdent}
-         child params         : {[Identifier]}
-         child inh            : {Attributes}
-         child syn            : {Attributes}
-         child prods          : Productions 
--}
+-- wrapper
+data Inh_Nonterminal  = Inh_Nonterminal {  }
+data Syn_Nonterminal  = Syn_Nonterminal { pp_Syn_Nonterminal :: (PP_Doc) }
+{-# INLINABLE wrap_Nonterminal #-}
+wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
+wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Nonterminal_vIn13 
+        (T_Nonterminal_vOut13 _lhsOpp) <- return (inv_Nonterminal_s14 sem arg)
+        return (Syn_Nonterminal _lhsOpp)
+   )
+
 -- cata
-sem_Nonterminal :: Nonterminal ->
-                   T_Nonterminal
-sem_Nonterminal (Nonterminal _nt _params _inh _syn _prods) =
-    (sem_Nonterminal_Nonterminal _nt _params _inh _syn (sem_Productions _prods))
+{-# INLINE sem_Nonterminal #-}
+sem_Nonterminal :: Nonterminal  -> T_Nonterminal 
+sem_Nonterminal ( Nonterminal nt_ params_ inh_ syn_ prods_ ) = sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ ( sem_Productions prods_ )
+
 -- semantic domain
-newtype T_Nonterminal = T_Nonterminal (( PP_Doc))
-data Inh_Nonterminal = Inh_Nonterminal {}
-data Syn_Nonterminal = Syn_Nonterminal {pp_Syn_Nonterminal :: PP_Doc}
-wrap_Nonterminal :: T_Nonterminal ->
-                    Inh_Nonterminal ->
-                    Syn_Nonterminal
-wrap_Nonterminal (T_Nonterminal sem) (Inh_Nonterminal) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Nonterminal _lhsOpp))
-sem_Nonterminal_Nonterminal :: NontermIdent ->
-                               ([Identifier]) ->
-                               Attributes ->
-                               Attributes ->
-                               T_Productions ->
-                               T_Nonterminal
-sem_Nonterminal_Nonterminal nt_ params_ inh_ syn_ (T_Productions prods_) =
-    (T_Nonterminal (let _lhsOpp :: PP_Doc
-                        _prodsIpp :: PP_Doc
-                        _prodsIppL :: ([PP_Doc])
-                        -- "./src-ag/AbstractSyntaxDump.ag"(line 29, column 25)
-                        _lhsOpp =
-                            ({-# LINE 29 "./src-ag/AbstractSyntaxDump.ag" #-}
-                             ppNestInfo ["Nonterminal","Nonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL] []
-                             {-# LINE 301 "dist/build/AbstractSyntaxDump.hs" #-}
-                             )
-                        ( _prodsIpp,_prodsIppL) =
-                            prods_
-                    in  ( _lhsOpp)))
+newtype T_Nonterminal  = T_Nonterminal {
+                                       attach_T_Nonterminal :: Identity (T_Nonterminal_s14 )
+                                       }
+newtype T_Nonterminal_s14  = C_Nonterminal_s14 {
+                                               inv_Nonterminal_s14 :: (T_Nonterminal_v13 )
+                                               }
+data T_Nonterminal_s15  = C_Nonterminal_s15
+type T_Nonterminal_v13  = (T_Nonterminal_vIn13 ) -> (T_Nonterminal_vOut13 )
+data T_Nonterminal_vIn13  = T_Nonterminal_vIn13 
+data T_Nonterminal_vOut13  = T_Nonterminal_vOut13 (PP_Doc)
+{-# NOINLINE sem_Nonterminal_Nonterminal #-}
+sem_Nonterminal_Nonterminal :: (NontermIdent) -> ([Identifier]) -> (Attributes) -> (Attributes) -> T_Productions  -> T_Nonterminal 
+sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T_Nonterminal (return st14) where
+   {-# NOINLINE st14 #-}
+   st14 = let
+      v13 :: T_Nonterminal_v13 
+      v13 = \ (T_Nonterminal_vIn13 ) -> ( let
+         _prodsX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
+         (T_Productions_vOut28 _prodsIpp _prodsIppL) = inv_Productions_s29 _prodsX29 (T_Productions_vIn28 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule7 _prodsIppL arg_inh_ arg_nt_ arg_params_ arg_syn_
+         __result_ = T_Nonterminal_vOut13 _lhsOpp
+         in __result_ )
+     in C_Nonterminal_s14 v13
+   {-# INLINE rule7 #-}
+   {-# LINE 29 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule7 = \ ((_prodsIppL) :: [PP_Doc]) inh_ nt_ params_ syn_ ->
+                                                      {-# LINE 29 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                      ppNestInfo ["Nonterminal","Nonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL] []
+                                                      {-# LINE 329 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Nonterminals ------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : Nonterminal 
-         child tl             : Nonterminals 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Nonterminals  = Inh_Nonterminals {  }
+data Syn_Nonterminals  = Syn_Nonterminals { pp_Syn_Nonterminals :: (PP_Doc), ppL_Syn_Nonterminals :: ([PP_Doc]) }
+{-# INLINABLE wrap_Nonterminals #-}
+wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
+wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Nonterminals_vIn16 
+        (T_Nonterminals_vOut16 _lhsOpp _lhsOppL) <- return (inv_Nonterminals_s17 sem arg)
+        return (Syn_Nonterminals _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_Nonterminals :: Nonterminals ->
-                    T_Nonterminals
-sem_Nonterminals list =
-    (Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil (Prelude.map sem_Nonterminal list))
+{-# NOINLINE sem_Nonterminals #-}
+sem_Nonterminals :: Nonterminals  -> T_Nonterminals 
+sem_Nonterminals list = Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil (Prelude.map sem_Nonterminal list)
+
 -- semantic domain
-newtype T_Nonterminals = T_Nonterminals (( PP_Doc,([PP_Doc])))
-data Inh_Nonterminals = Inh_Nonterminals {}
-data Syn_Nonterminals = Syn_Nonterminals {pp_Syn_Nonterminals :: PP_Doc,ppL_Syn_Nonterminals :: ([PP_Doc])}
-wrap_Nonterminals :: T_Nonterminals ->
-                     Inh_Nonterminals ->
-                     Syn_Nonterminals
-wrap_Nonterminals (T_Nonterminals sem) (Inh_Nonterminals) =
-    (let ( _lhsOpp,_lhsOppL) = sem
-     in  (Syn_Nonterminals _lhsOpp _lhsOppL))
-sem_Nonterminals_Cons :: T_Nonterminal ->
-                         T_Nonterminals ->
-                         T_Nonterminals
-sem_Nonterminals_Cons (T_Nonterminal hd_) (T_Nonterminals tl_) =
-    (T_Nonterminals (let _lhsOppL :: ([PP_Doc])
-                         _lhsOpp :: PP_Doc
-                         _hdIpp :: PP_Doc
-                         _tlIpp :: PP_Doc
-                         _tlIppL :: ([PP_Doc])
-                         -- "./src-ag/AbstractSyntaxDump.ag"(line 75, column 33)
-                         _lhsOppL =
-                             ({-# LINE 75 "./src-ag/AbstractSyntaxDump.ag" #-}
-                              _hdIpp : _tlIppL
-                              {-# LINE 346 "dist/build/AbstractSyntaxDump.hs" #-}
-                              )
-                         -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                         _lhsOpp =
-                             ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                              _hdIpp >-< _tlIpp
-                              {-# LINE 352 "dist/build/AbstractSyntaxDump.hs" #-}
-                              )
-                         ( _hdIpp) =
-                             hd_
-                         ( _tlIpp,_tlIppL) =
-                             tl_
-                     in  ( _lhsOpp,_lhsOppL)))
-sem_Nonterminals_Nil :: T_Nonterminals
-sem_Nonterminals_Nil =
-    (T_Nonterminals (let _lhsOppL :: ([PP_Doc])
-                         _lhsOpp :: PP_Doc
-                         -- "./src-ag/AbstractSyntaxDump.ag"(line 76, column 33)
-                         _lhsOppL =
-                             ({-# LINE 76 "./src-ag/AbstractSyntaxDump.ag" #-}
-                              []
-                              {-# LINE 367 "dist/build/AbstractSyntaxDump.hs" #-}
-                              )
-                         -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                         _lhsOpp =
-                             ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                              empty
-                              {-# LINE 373 "dist/build/AbstractSyntaxDump.hs" #-}
-                              )
-                     in  ( _lhsOpp,_lhsOppL)))
+newtype T_Nonterminals  = T_Nonterminals {
+                                         attach_T_Nonterminals :: Identity (T_Nonterminals_s17 )
+                                         }
+newtype T_Nonterminals_s17  = C_Nonterminals_s17 {
+                                                 inv_Nonterminals_s17 :: (T_Nonterminals_v16 )
+                                                 }
+data T_Nonterminals_s18  = C_Nonterminals_s18
+type T_Nonterminals_v16  = (T_Nonterminals_vIn16 ) -> (T_Nonterminals_vOut16 )
+data T_Nonterminals_vIn16  = T_Nonterminals_vIn16 
+data T_Nonterminals_vOut16  = T_Nonterminals_vOut16 (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_Nonterminals_Cons #-}
+sem_Nonterminals_Cons :: T_Nonterminal  -> T_Nonterminals  -> T_Nonterminals 
+sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Nonterminals_v16 
+      v16 = \ (T_Nonterminals_vIn16 ) -> ( let
+         _hdX14 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_))
+         _tlX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_))
+         (T_Nonterminal_vOut13 _hdIpp) = inv_Nonterminal_s14 _hdX14 (T_Nonterminal_vIn13 )
+         (T_Nonterminals_vOut16 _tlIpp _tlIppL) = inv_Nonterminals_s17 _tlX17 (T_Nonterminals_vIn16 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule8 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule9 _hdIpp _tlIpp
+         __result_ = T_Nonterminals_vOut16 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Nonterminals_s17 v16
+   {-# INLINE rule8 #-}
+   {-# LINE 75 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule8 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 75 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 384 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule9 #-}
+   rule9 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+{-# NOINLINE sem_Nonterminals_Nil #-}
+sem_Nonterminals_Nil ::  T_Nonterminals 
+sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
+   {-# NOINLINE st17 #-}
+   st17 = let
+      v16 :: T_Nonterminals_v16 
+      v16 = \ (T_Nonterminals_vIn16 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule10  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule11  ()
+         __result_ = T_Nonterminals_vOut16 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Nonterminals_s17 v16
+   {-# INLINE rule10 #-}
+   {-# LINE 76 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule10 = \  (_ :: ()) ->
+                                                                                  {-# LINE 76 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 407 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule11 #-}
+   rule11 = \  (_ :: ()) ->
+     empty
+
 -- Pattern -----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         copy                 : Pattern 
-         pp                   : PP_Doc
-   alternatives:
-      alternative Constr:
-         child name           : {ConstructorIdent}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Product:
-         child pos            : {Pos}
-         child pats           : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Alias:
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Irrefutable:
-         child pat            : Pattern 
-         visit 0:
-            local copy        : _
-      alternative Underscore:
-         child pos            : {Pos}
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Pattern  = Inh_Pattern {  }
+data Syn_Pattern  = Syn_Pattern { copy_Syn_Pattern :: (Pattern), pp_Syn_Pattern :: (PP_Doc) }
+{-# INLINABLE wrap_Pattern #-}
+wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
+wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Pattern_vIn19 
+        (T_Pattern_vOut19 _lhsOcopy _lhsOpp) <- return (inv_Pattern_s20 sem arg)
+        return (Syn_Pattern _lhsOcopy _lhsOpp)
+   )
+
 -- cata
-sem_Pattern :: Pattern ->
-               T_Pattern
-sem_Pattern (Constr _name _pats) =
-    (sem_Pattern_Constr _name (sem_Patterns _pats))
-sem_Pattern (Product _pos _pats) =
-    (sem_Pattern_Product _pos (sem_Patterns _pats))
-sem_Pattern (Alias _field _attr _pat) =
-    (sem_Pattern_Alias _field _attr (sem_Pattern _pat))
-sem_Pattern (Irrefutable _pat) =
-    (sem_Pattern_Irrefutable (sem_Pattern _pat))
-sem_Pattern (Underscore _pos) =
-    (sem_Pattern_Underscore _pos)
+{-# NOINLINE sem_Pattern #-}
+sem_Pattern :: Pattern  -> T_Pattern 
+sem_Pattern ( Constr name_ pats_ ) = sem_Pattern_Constr name_ ( sem_Patterns pats_ )
+sem_Pattern ( Product pos_ pats_ ) = sem_Pattern_Product pos_ ( sem_Patterns pats_ )
+sem_Pattern ( Alias field_ attr_ pat_ ) = sem_Pattern_Alias field_ attr_ ( sem_Pattern pat_ )
+sem_Pattern ( Irrefutable pat_ ) = sem_Pattern_Irrefutable ( sem_Pattern pat_ )
+sem_Pattern ( Underscore pos_ ) = sem_Pattern_Underscore pos_
+
 -- semantic domain
-newtype T_Pattern = T_Pattern (( Pattern,PP_Doc))
-data Inh_Pattern = Inh_Pattern {}
-data Syn_Pattern = Syn_Pattern {copy_Syn_Pattern :: Pattern,pp_Syn_Pattern :: PP_Doc}
-wrap_Pattern :: T_Pattern ->
-                Inh_Pattern ->
-                Syn_Pattern
-wrap_Pattern (T_Pattern sem) (Inh_Pattern) =
-    (let ( _lhsOcopy,_lhsOpp) = sem
-     in  (Syn_Pattern _lhsOcopy _lhsOpp))
-sem_Pattern_Constr :: ConstructorIdent ->
-                      T_Patterns ->
-                      T_Pattern
-sem_Pattern_Constr name_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOpp :: PP_Doc
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    _patsIpp :: PP_Doc
-                    _patsIppL :: ([PP_Doc])
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 44, column 33)
-                    _lhsOpp =
-                        ({-# LINE 44 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 444 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Constr name_ _patsIcopy
-                         {-# LINE 450 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 456 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    ( _patsIcopy,_patsIpp,_patsIppL) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOpp)))
-sem_Pattern_Product :: Pos ->
-                       T_Patterns ->
-                       T_Pattern
-sem_Pattern_Product pos_ (T_Patterns pats_) =
-    (T_Pattern (let _lhsOpp :: PP_Doc
-                    _lhsOcopy :: Pattern
-                    _patsIcopy :: Patterns
-                    _patsIpp :: PP_Doc
-                    _patsIppL :: ([PP_Doc])
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 45, column 33)
-                    _lhsOpp =
-                        ({-# LINE 45 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
-                         {-# LINE 474 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Product pos_ _patsIcopy
-                         {-# LINE 480 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 486 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    ( _patsIcopy,_patsIpp,_patsIppL) =
-                        pats_
-                in  ( _lhsOcopy,_lhsOpp)))
-sem_Pattern_Alias :: Identifier ->
-                     Identifier ->
-                     T_Pattern ->
-                     T_Pattern
-sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
-    (T_Pattern (let _lhsOpp :: PP_Doc
-                    _lhsOcopy :: Pattern
-                    _patIcopy :: Pattern
-                    _patIpp :: PP_Doc
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 46, column 33)
-                    _lhsOpp =
-                        ({-# LINE 46 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
-                         {-# LINE 504 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Alias field_ attr_ _patIcopy
-                         {-# LINE 510 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 516 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    ( _patIcopy,_patIpp) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOpp)))
-sem_Pattern_Irrefutable :: T_Pattern ->
-                           T_Pattern
-sem_Pattern_Irrefutable (T_Pattern pat_) =
-    (T_Pattern (let _lhsOpp :: PP_Doc
-                    _lhsOcopy :: Pattern
-                    _patIcopy :: Pattern
-                    _patIpp :: PP_Doc
-                    -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                    _lhsOpp =
-                        ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         _patIpp
-                         {-# LINE 532 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Irrefutable _patIcopy
-                         {-# LINE 538 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 544 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    ( _patIcopy,_patIpp) =
-                        pat_
-                in  ( _lhsOcopy,_lhsOpp)))
-sem_Pattern_Underscore :: Pos ->
-                          T_Pattern
-sem_Pattern_Underscore pos_ =
-    (T_Pattern (let _lhsOpp :: PP_Doc
-                    _lhsOcopy :: Pattern
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 47, column 25)
-                    _lhsOpp =
-                        ({-# LINE 47 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
-                         {-# LINE 558 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _copy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         Underscore pos_
-                         {-# LINE 564 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                    -- self rule
-                    _lhsOcopy =
-                        ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                         _copy
-                         {-# LINE 570 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                in  ( _lhsOcopy,_lhsOpp)))
+newtype T_Pattern  = T_Pattern {
+                               attach_T_Pattern :: Identity (T_Pattern_s20 )
+                               }
+newtype T_Pattern_s20  = C_Pattern_s20 {
+                                       inv_Pattern_s20 :: (T_Pattern_v19 )
+                                       }
+data T_Pattern_s21  = C_Pattern_s21
+type T_Pattern_v19  = (T_Pattern_vIn19 ) -> (T_Pattern_vOut19 )
+data T_Pattern_vIn19  = T_Pattern_vIn19 
+data T_Pattern_vOut19  = T_Pattern_vOut19 (Pattern) (PP_Doc)
+{-# NOINLINE sem_Pattern_Constr #-}
+sem_Pattern_Constr :: (ConstructorIdent) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Pattern_v19 
+      v19 = \ (T_Pattern_vIn19 ) -> ( let
+         _patsX23 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut22 _patsIcopy _patsIpp _patsIppL) = inv_Patterns_s23 _patsX23 (T_Patterns_vIn22 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule12 _patsIppL arg_name_
+         _copy = rule13 _patsIcopy arg_name_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule14 _copy
+         __result_ = T_Pattern_vOut19 _lhsOcopy _lhsOpp
+         in __result_ )
+     in C_Pattern_s20 v19
+   {-# INLINE rule12 #-}
+   {-# LINE 44 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule12 = \ ((_patsIppL) :: [PP_Doc]) name_ ->
+                                                              {-# LINE 44 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
+                                                              {-# LINE 468 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule13 #-}
+   rule13 = \ ((_patsIcopy) :: Patterns) name_ ->
+     Constr name_ _patsIcopy
+   {-# INLINE rule14 #-}
+   rule14 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Product #-}
+sem_Pattern_Product :: (Pos) -> T_Patterns  -> T_Pattern 
+sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Pattern_v19 
+      v19 = \ (T_Pattern_vIn19 ) -> ( let
+         _patsX23 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
+         (T_Patterns_vOut22 _patsIcopy _patsIpp _patsIppL) = inv_Patterns_s23 _patsX23 (T_Patterns_vIn22 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule15 _patsIppL arg_pos_
+         _copy = rule16 _patsIcopy arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule17 _copy
+         __result_ = T_Pattern_vOut19 _lhsOcopy _lhsOpp
+         in __result_ )
+     in C_Pattern_s20 v19
+   {-# INLINE rule15 #-}
+   {-# LINE 45 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule15 = \ ((_patsIppL) :: [PP_Doc]) pos_ ->
+                                                              {-# LINE 45 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
+                                                              {-# LINE 497 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule16 #-}
+   rule16 = \ ((_patsIcopy) :: Patterns) pos_ ->
+     Product pos_ _patsIcopy
+   {-# INLINE rule17 #-}
+   rule17 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Alias #-}
+sem_Pattern_Alias :: (Identifier) -> (Identifier) -> T_Pattern  -> T_Pattern 
+sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Pattern_v19 
+      v19 = \ (T_Pattern_vIn19 ) -> ( let
+         _patX20 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut19 _patIcopy _patIpp) = inv_Pattern_s20 _patX20 (T_Pattern_vIn19 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule18 _patIpp arg_attr_ arg_field_
+         _copy = rule19 _patIcopy arg_attr_ arg_field_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule20 _copy
+         __result_ = T_Pattern_vOut19 _lhsOcopy _lhsOpp
+         in __result_ )
+     in C_Pattern_s20 v19
+   {-# INLINE rule18 #-}
+   {-# LINE 46 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule18 = \ ((_patIpp) :: PP_Doc) attr_ field_ ->
+                                                              {-# LINE 46 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
+                                                              {-# LINE 526 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule19 #-}
+   rule19 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
+     Alias field_ attr_ _patIcopy
+   {-# INLINE rule20 #-}
+   rule20 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Irrefutable #-}
+sem_Pattern_Irrefutable :: T_Pattern  -> T_Pattern 
+sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Pattern_v19 
+      v19 = \ (T_Pattern_vIn19 ) -> ( let
+         _patX20 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
+         (T_Pattern_vOut19 _patIcopy _patIpp) = inv_Pattern_s20 _patX20 (T_Pattern_vIn19 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule21 _patIpp
+         _copy = rule22 _patIcopy
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule23 _copy
+         __result_ = T_Pattern_vOut19 _lhsOcopy _lhsOpp
+         in __result_ )
+     in C_Pattern_s20 v19
+   {-# INLINE rule21 #-}
+   rule21 = \ ((_patIpp) :: PP_Doc) ->
+     _patIpp
+   {-# INLINE rule22 #-}
+   rule22 = \ ((_patIcopy) :: Pattern) ->
+     Irrefutable _patIcopy
+   {-# INLINE rule23 #-}
+   rule23 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Pattern_Underscore #-}
+sem_Pattern_Underscore :: (Pos) -> T_Pattern 
+sem_Pattern_Underscore arg_pos_ = T_Pattern (return st20) where
+   {-# NOINLINE st20 #-}
+   st20 = let
+      v19 :: T_Pattern_v19 
+      v19 = \ (T_Pattern_vIn19 ) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule24 arg_pos_
+         _copy = rule25 arg_pos_
+         _lhsOcopy :: Pattern
+         _lhsOcopy = rule26 _copy
+         __result_ = T_Pattern_vOut19 _lhsOcopy _lhsOpp
+         in __result_ )
+     in C_Pattern_s20 v19
+   {-# INLINE rule24 #-}
+   {-# LINE 47 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule24 = \ pos_ ->
+                                                      {-# LINE 47 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                      ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
+                                                      {-# LINE 579 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule25 #-}
+   rule25 = \ pos_ ->
+     Underscore pos_
+   {-# INLINE rule26 #-}
+   rule26 = \ _copy ->
+     _copy
+
 -- Patterns ----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         copy                 : Patterns 
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : Pattern 
-         child tl             : Patterns 
-         visit 0:
-            local copy        : _
-      alternative Nil:
-         visit 0:
-            local copy        : _
--}
+-- wrapper
+data Inh_Patterns  = Inh_Patterns {  }
+data Syn_Patterns  = Syn_Patterns { copy_Syn_Patterns :: (Patterns), pp_Syn_Patterns :: (PP_Doc), ppL_Syn_Patterns :: ([PP_Doc]) }
+{-# INLINABLE wrap_Patterns #-}
+wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
+wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Patterns_vIn22 
+        (T_Patterns_vOut22 _lhsOcopy _lhsOpp _lhsOppL) <- return (inv_Patterns_s23 sem arg)
+        return (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_Patterns :: Patterns ->
-                T_Patterns
-sem_Patterns list =
-    (Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list))
+{-# NOINLINE sem_Patterns #-}
+sem_Patterns :: Patterns  -> T_Patterns 
+sem_Patterns list = Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.map sem_Pattern list)
+
 -- semantic domain
-newtype T_Patterns = T_Patterns (( Patterns,PP_Doc,([PP_Doc])))
-data Inh_Patterns = Inh_Patterns {}
-data Syn_Patterns = Syn_Patterns {copy_Syn_Patterns :: Patterns,pp_Syn_Patterns :: PP_Doc,ppL_Syn_Patterns :: ([PP_Doc])}
-wrap_Patterns :: T_Patterns ->
-                 Inh_Patterns ->
-                 Syn_Patterns
-wrap_Patterns (T_Patterns sem) (Inh_Patterns) =
-    (let ( _lhsOcopy,_lhsOpp,_lhsOppL) = sem
-     in  (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL))
-sem_Patterns_Cons :: T_Pattern ->
-                     T_Patterns ->
-                     T_Patterns
-sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
-    (T_Patterns (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     _lhsOcopy :: Patterns
-                     _hdIcopy :: Pattern
-                     _hdIpp :: PP_Doc
-                     _tlIcopy :: Patterns
-                     _tlIpp :: PP_Doc
-                     _tlIppL :: ([PP_Doc])
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 55, column 33)
-                     _lhsOppL =
-                         ({-# LINE 55 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp : _tlIppL
-                          {-# LINE 621 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp >-< _tlIpp
-                          {-# LINE 627 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          (:) _hdIcopy _tlIcopy
-                          {-# LINE 633 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 639 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     ( _hdIcopy,_hdIpp) =
-                         hd_
-                     ( _tlIcopy,_tlIpp,_tlIppL) =
-                         tl_
-                 in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
-sem_Patterns_Nil :: T_Patterns
-sem_Patterns_Nil =
-    (T_Patterns (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     _lhsOcopy :: Patterns
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 56, column 33)
-                     _lhsOppL =
-                         ({-# LINE 56 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          []
-                          {-# LINE 655 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          empty
-                          {-# LINE 661 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- self rule
-                     _copy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          []
-                          {-# LINE 667 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- self rule
-                     _lhsOcopy =
-                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
-                          _copy
-                          {-# LINE 673 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                 in  ( _lhsOcopy,_lhsOpp,_lhsOppL)))
+newtype T_Patterns  = T_Patterns {
+                                 attach_T_Patterns :: Identity (T_Patterns_s23 )
+                                 }
+newtype T_Patterns_s23  = C_Patterns_s23 {
+                                         inv_Patterns_s23 :: (T_Patterns_v22 )
+                                         }
+data T_Patterns_s24  = C_Patterns_s24
+type T_Patterns_v22  = (T_Patterns_vIn22 ) -> (T_Patterns_vOut22 )
+data T_Patterns_vIn22  = T_Patterns_vIn22 
+data T_Patterns_vOut22  = T_Patterns_vOut22 (Patterns) (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_Patterns_Cons #-}
+sem_Patterns_Cons :: T_Pattern  -> T_Patterns  -> T_Patterns 
+sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_Patterns_v22 
+      v22 = \ (T_Patterns_vIn22 ) -> ( let
+         _hdX20 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_))
+         _tlX23 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_))
+         (T_Pattern_vOut19 _hdIcopy _hdIpp) = inv_Pattern_s20 _hdX20 (T_Pattern_vIn19 )
+         (T_Patterns_vOut22 _tlIcopy _tlIpp _tlIppL) = inv_Patterns_s23 _tlX23 (T_Patterns_vIn22 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule27 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule28 _hdIpp _tlIpp
+         _copy = rule29 _hdIcopy _tlIcopy
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule30 _copy
+         __result_ = T_Patterns_vOut22 _lhsOcopy _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Patterns_s23 v22
+   {-# INLINE rule27 #-}
+   {-# LINE 55 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule27 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 55 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 643 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule28 #-}
+   rule28 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+   {-# INLINE rule29 #-}
+   rule29 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
+     (:) _hdIcopy _tlIcopy
+   {-# INLINE rule30 #-}
+   rule30 = \ _copy ->
+     _copy
+{-# NOINLINE sem_Patterns_Nil #-}
+sem_Patterns_Nil ::  T_Patterns 
+sem_Patterns_Nil  = T_Patterns (return st23) where
+   {-# NOINLINE st23 #-}
+   st23 = let
+      v22 :: T_Patterns_v22 
+      v22 = \ (T_Patterns_vIn22 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule31  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule32  ()
+         _copy = rule33  ()
+         _lhsOcopy :: Patterns
+         _lhsOcopy = rule34 _copy
+         __result_ = T_Patterns_vOut22 _lhsOcopy _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Patterns_s23 v22
+   {-# INLINE rule31 #-}
+   {-# LINE 56 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule31 = \  (_ :: ()) ->
+                                                                                  {-# LINE 56 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 675 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule32 #-}
+   rule32 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule33 #-}
+   rule33 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule34 #-}
+   rule34 = \ _copy ->
+     _copy
+
 -- Production --------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Production:
-         child con            : {ConstructorIdent}
-         child params         : {[Identifier]}
-         child constraints    : {[Type]}
-         child children       : Children 
-         child rules          : Rules 
-         child typeSigs       : TypeSigs 
-         child macro          : {MaybeMacro}
--}
+-- wrapper
+data Inh_Production  = Inh_Production {  }
+data Syn_Production  = Syn_Production { pp_Syn_Production :: (PP_Doc) }
+{-# INLINABLE wrap_Production #-}
+wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
+wrap_Production (T_Production act) (Inh_Production ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Production_vIn25 
+        (T_Production_vOut25 _lhsOpp) <- return (inv_Production_s26 sem arg)
+        return (Syn_Production _lhsOpp)
+   )
+
 -- cata
-sem_Production :: Production ->
-                  T_Production
-sem_Production (Production _con _params _constraints _children _rules _typeSigs _macro) =
-    (sem_Production_Production _con _params _constraints (sem_Children _children) (sem_Rules _rules) (sem_TypeSigs _typeSigs) _macro)
+{-# INLINE sem_Production #-}
+sem_Production :: Production  -> T_Production 
+sem_Production ( Production con_ params_ constraints_ children_ rules_ typeSigs_ macro_ ) = sem_Production_Production con_ params_ constraints_ ( sem_Children children_ ) ( sem_Rules rules_ ) ( sem_TypeSigs typeSigs_ ) macro_
+
 -- semantic domain
-newtype T_Production = T_Production (( PP_Doc))
-data Inh_Production = Inh_Production {}
-data Syn_Production = Syn_Production {pp_Syn_Production :: PP_Doc}
-wrap_Production :: T_Production ->
-                   Inh_Production ->
-                   Syn_Production
-wrap_Production (T_Production sem) (Inh_Production) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Production _lhsOpp))
-sem_Production_Production :: ConstructorIdent ->
-                             ([Identifier]) ->
-                             ([Type]) ->
-                             T_Children ->
-                             T_Rules ->
-                             T_TypeSigs ->
-                             MaybeMacro ->
-                             T_Production
-sem_Production_Production con_ params_ constraints_ (T_Children children_) (T_Rules rules_) (T_TypeSigs typeSigs_) macro_ =
-    (T_Production (let _lhsOpp :: PP_Doc
-                       _childrenIpp :: PP_Doc
-                       _childrenIppL :: ([PP_Doc])
-                       _rulesIpp :: PP_Doc
-                       _rulesIppL :: ([PP_Doc])
-                       _typeSigsIpp :: PP_Doc
-                       _typeSigsIppL :: ([PP_Doc])
-                       -- "./src-ag/AbstractSyntaxDump.ag"(line 32, column 25)
-                       _lhsOpp =
-                           ({-# LINE 32 "./src-ag/AbstractSyntaxDump.ag" #-}
-                            ppNestInfo ["Production","Production"] [pp con_] [ppF "children" $ ppVList _childrenIppL,ppF "rules" $ ppVList _rulesIppL,ppF "typeSigs" $ ppVList _typeSigsIppL] []
-                            {-# LINE 726 "dist/build/AbstractSyntaxDump.hs" #-}
-                            )
-                       ( _childrenIpp,_childrenIppL) =
-                           children_
-                       ( _rulesIpp,_rulesIppL) =
-                           rules_
-                       ( _typeSigsIpp,_typeSigsIppL) =
-                           typeSigs_
-                   in  ( _lhsOpp)))
+newtype T_Production  = T_Production {
+                                     attach_T_Production :: Identity (T_Production_s26 )
+                                     }
+newtype T_Production_s26  = C_Production_s26 {
+                                             inv_Production_s26 :: (T_Production_v25 )
+                                             }
+data T_Production_s27  = C_Production_s27
+type T_Production_v25  = (T_Production_vIn25 ) -> (T_Production_vOut25 )
+data T_Production_vIn25  = T_Production_vIn25 
+data T_Production_vOut25  = T_Production_vOut25 (PP_Doc)
+{-# NOINLINE sem_Production_Production #-}
+sem_Production_Production :: (ConstructorIdent) -> ([Identifier]) -> ([Type]) -> T_Children  -> T_Rules  -> T_TypeSigs  -> (MaybeMacro) -> T_Production 
+sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ = T_Production (return st26) where
+   {-# NOINLINE st26 #-}
+   st26 = let
+      v25 :: T_Production_v25 
+      v25 = \ (T_Production_vIn25 ) -> ( let
+         _childrenX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_))
+         _rulesX35 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_))
+         _typeSigsX41 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_))
+         (T_Children_vOut4 _childrenIpp _childrenIppL) = inv_Children_s5 _childrenX5 (T_Children_vIn4 )
+         (T_Rules_vOut34 _rulesIpp _rulesIppL) = inv_Rules_s35 _rulesX35 (T_Rules_vIn34 )
+         (T_TypeSigs_vOut40 _typeSigsIpp _typeSigsIppL) = inv_TypeSigs_s41 _typeSigsX41 (T_TypeSigs_vIn40 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule35 _childrenIppL _rulesIppL _typeSigsIppL arg_con_
+         __result_ = T_Production_vOut25 _lhsOpp
+         in __result_ )
+     in C_Production_s26 v25
+   {-# INLINE rule35 #-}
+   {-# LINE 32 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule35 = \ ((_childrenIppL) :: [PP_Doc]) ((_rulesIppL) :: [PP_Doc]) ((_typeSigsIppL) :: [PP_Doc]) con_ ->
+                                                      {-# LINE 32 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                      ppNestInfo ["Production","Production"] [pp con_] [ppF "children" $ ppVList _childrenIppL,ppF "rules" $ ppVList _rulesIppL,ppF "typeSigs" $ ppVList _typeSigsIppL] []
+                                                      {-# LINE 739 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Productions -------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : Production 
-         child tl             : Productions 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Productions  = Inh_Productions {  }
+data Syn_Productions  = Syn_Productions { pp_Syn_Productions :: (PP_Doc), ppL_Syn_Productions :: ([PP_Doc]) }
+{-# INLINABLE wrap_Productions #-}
+wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
+wrap_Productions (T_Productions act) (Inh_Productions ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Productions_vIn28 
+        (T_Productions_vOut28 _lhsOpp _lhsOppL) <- return (inv_Productions_s29 sem arg)
+        return (Syn_Productions _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_Productions :: Productions ->
-                   T_Productions
-sem_Productions list =
-    (Prelude.foldr sem_Productions_Cons sem_Productions_Nil (Prelude.map sem_Production list))
+{-# NOINLINE sem_Productions #-}
+sem_Productions :: Productions  -> T_Productions 
+sem_Productions list = Prelude.foldr sem_Productions_Cons sem_Productions_Nil (Prelude.map sem_Production list)
+
 -- semantic domain
-newtype T_Productions = T_Productions (( PP_Doc,([PP_Doc])))
-data Inh_Productions = Inh_Productions {}
-data Syn_Productions = Syn_Productions {pp_Syn_Productions :: PP_Doc,ppL_Syn_Productions :: ([PP_Doc])}
-wrap_Productions :: T_Productions ->
-                    Inh_Productions ->
-                    Syn_Productions
-wrap_Productions (T_Productions sem) (Inh_Productions) =
-    (let ( _lhsOpp,_lhsOppL) = sem
-     in  (Syn_Productions _lhsOpp _lhsOppL))
-sem_Productions_Cons :: T_Production ->
-                        T_Productions ->
-                        T_Productions
-sem_Productions_Cons (T_Production hd_) (T_Productions tl_) =
-    (T_Productions (let _lhsOppL :: ([PP_Doc])
-                        _lhsOpp :: PP_Doc
-                        _hdIpp :: PP_Doc
-                        _tlIpp :: PP_Doc
-                        _tlIppL :: ([PP_Doc])
-                        -- "./src-ag/AbstractSyntaxDump.ag"(line 71, column 33)
-                        _lhsOppL =
-                            ({-# LINE 71 "./src-ag/AbstractSyntaxDump.ag" #-}
-                             _hdIpp : _tlIppL
-                             {-# LINE 775 "dist/build/AbstractSyntaxDump.hs" #-}
-                             )
-                        -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                        _lhsOpp =
-                            ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                             _hdIpp >-< _tlIpp
-                             {-# LINE 781 "dist/build/AbstractSyntaxDump.hs" #-}
-                             )
-                        ( _hdIpp) =
-                            hd_
-                        ( _tlIpp,_tlIppL) =
-                            tl_
-                    in  ( _lhsOpp,_lhsOppL)))
-sem_Productions_Nil :: T_Productions
-sem_Productions_Nil =
-    (T_Productions (let _lhsOppL :: ([PP_Doc])
-                        _lhsOpp :: PP_Doc
-                        -- "./src-ag/AbstractSyntaxDump.ag"(line 72, column 33)
-                        _lhsOppL =
-                            ({-# LINE 72 "./src-ag/AbstractSyntaxDump.ag" #-}
-                             []
-                             {-# LINE 796 "dist/build/AbstractSyntaxDump.hs" #-}
-                             )
-                        -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                        _lhsOpp =
-                            ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                             empty
-                             {-# LINE 802 "dist/build/AbstractSyntaxDump.hs" #-}
-                             )
-                    in  ( _lhsOpp,_lhsOppL)))
+newtype T_Productions  = T_Productions {
+                                       attach_T_Productions :: Identity (T_Productions_s29 )
+                                       }
+newtype T_Productions_s29  = C_Productions_s29 {
+                                               inv_Productions_s29 :: (T_Productions_v28 )
+                                               }
+data T_Productions_s30  = C_Productions_s30
+type T_Productions_v28  = (T_Productions_vIn28 ) -> (T_Productions_vOut28 )
+data T_Productions_vIn28  = T_Productions_vIn28 
+data T_Productions_vOut28  = T_Productions_vOut28 (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_Productions_Cons #-}
+sem_Productions_Cons :: T_Production  -> T_Productions  -> T_Productions 
+sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Productions_v28 
+      v28 = \ (T_Productions_vIn28 ) -> ( let
+         _hdX26 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_))
+         _tlX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_))
+         (T_Production_vOut25 _hdIpp) = inv_Production_s26 _hdX26 (T_Production_vIn25 )
+         (T_Productions_vOut28 _tlIpp _tlIppL) = inv_Productions_s29 _tlX29 (T_Productions_vIn28 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule36 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule37 _hdIpp _tlIpp
+         __result_ = T_Productions_vOut28 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Productions_s29 v28
+   {-# INLINE rule36 #-}
+   {-# LINE 71 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule36 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 71 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 794 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule37 #-}
+   rule37 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+{-# NOINLINE sem_Productions_Nil #-}
+sem_Productions_Nil ::  T_Productions 
+sem_Productions_Nil  = T_Productions (return st29) where
+   {-# NOINLINE st29 #-}
+   st29 = let
+      v28 :: T_Productions_v28 
+      v28 = \ (T_Productions_vIn28 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule38  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule39  ()
+         __result_ = T_Productions_vOut28 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Productions_s29 v28
+   {-# INLINE rule38 #-}
+   {-# LINE 72 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule38 = \  (_ :: ()) ->
+                                                                                  {-# LINE 72 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 817 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule39 #-}
+   rule39 = \  (_ :: ()) ->
+     empty
+
 -- Rule --------------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Rule:
-         child mbName         : {Maybe Identifier}
-         child pattern        : Pattern 
-         child rhs            : Expression 
-         child owrt           : {Bool}
-         child origin         : {String}
-         child explicit       : {Bool}
-         child pure           : {Bool}
-         child identity       : {Bool}
-         child mbError        : {Maybe Error}
-         child eager          : {Bool}
--}
+-- wrapper
+data Inh_Rule  = Inh_Rule {  }
+data Syn_Rule  = Syn_Rule { pp_Syn_Rule :: (PP_Doc) }
+{-# INLINABLE wrap_Rule #-}
+wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
+wrap_Rule (T_Rule act) (Inh_Rule ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Rule_vIn31 
+        (T_Rule_vOut31 _lhsOpp) <- return (inv_Rule_s32 sem arg)
+        return (Syn_Rule _lhsOpp)
+   )
+
 -- cata
-sem_Rule :: Rule ->
-            T_Rule
-sem_Rule (Rule _mbName _pattern _rhs _owrt _origin _explicit _pure _identity _mbError _eager) =
-    (sem_Rule_Rule _mbName (sem_Pattern _pattern) (sem_Expression _rhs) _owrt _origin _explicit _pure _identity _mbError _eager)
+{-# INLINE sem_Rule #-}
+sem_Rule :: Rule  -> T_Rule 
+sem_Rule ( Rule mbName_ pattern_ rhs_ owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_ ) = sem_Rule_Rule mbName_ ( sem_Pattern pattern_ ) ( sem_Expression rhs_ ) owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
+
 -- semantic domain
-newtype T_Rule = T_Rule (( PP_Doc))
-data Inh_Rule = Inh_Rule {}
-data Syn_Rule = Syn_Rule {pp_Syn_Rule :: PP_Doc}
-wrap_Rule :: T_Rule ->
-             Inh_Rule ->
-             Syn_Rule
-wrap_Rule (T_Rule sem) (Inh_Rule) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_Rule _lhsOpp))
-sem_Rule_Rule :: (Maybe Identifier) ->
-                 T_Pattern ->
-                 T_Expression ->
-                 Bool ->
-                 String ->
-                 Bool ->
-                 Bool ->
-                 Bool ->
-                 (Maybe Error) ->
-                 Bool ->
-                 T_Rule
-sem_Rule_Rule mbName_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_ =
-    (T_Rule (let _lhsOpp :: PP_Doc
-                 _patternIcopy :: Pattern
-                 _patternIpp :: PP_Doc
-                 _rhsIpp :: PP_Doc
-                 -- "./src-ag/AbstractSyntaxDump.ag"(line 38, column 33)
-                 _lhsOpp =
-                     ({-# LINE 38 "./src-ag/AbstractSyntaxDump.ag" #-}
-                      ppNestInfo ["Rule","Rule"] [ppShow owrt_, pp origin_] [ppF "pattern" $ _patternIpp, ppF "rhs" $ _rhsIpp] []
-                      {-# LINE 858 "dist/build/AbstractSyntaxDump.hs" #-}
-                      )
-                 ( _patternIcopy,_patternIpp) =
-                     pattern_
-                 ( _rhsIpp) =
-                     rhs_
-             in  ( _lhsOpp)))
+newtype T_Rule  = T_Rule {
+                         attach_T_Rule :: Identity (T_Rule_s32 )
+                         }
+newtype T_Rule_s32  = C_Rule_s32 {
+                                 inv_Rule_s32 :: (T_Rule_v31 )
+                                 }
+data T_Rule_s33  = C_Rule_s33
+type T_Rule_v31  = (T_Rule_vIn31 ) -> (T_Rule_vOut31 )
+data T_Rule_vIn31  = T_Rule_vIn31 
+data T_Rule_vOut31  = T_Rule_vOut31 (PP_Doc)
+{-# NOINLINE sem_Rule_Rule #-}
+sem_Rule_Rule :: (Maybe Identifier) -> T_Pattern  -> T_Expression  -> (Bool) -> (String) -> (Bool) -> (Bool) -> (Bool) -> (Maybe Error) -> (Bool) -> T_Rule 
+sem_Rule_Rule _ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ _ _ _ _ _ = T_Rule (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_Rule_v31 
+      v31 = \ (T_Rule_vIn31 ) -> ( let
+         _patternX20 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_))
+         _rhsX8 = Control.Monad.Identity.runIdentity (attach_T_Expression (arg_rhs_))
+         (T_Pattern_vOut19 _patternIcopy _patternIpp) = inv_Pattern_s20 _patternX20 (T_Pattern_vIn19 )
+         (T_Expression_vOut7 _rhsIpp) = inv_Expression_s8 _rhsX8 (T_Expression_vIn7 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule40 _patternIpp _rhsIpp arg_origin_ arg_owrt_
+         __result_ = T_Rule_vOut31 _lhsOpp
+         in __result_ )
+     in C_Rule_s32 v31
+   {-# INLINE rule40 #-}
+   {-# LINE 38 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule40 = \ ((_patternIpp) :: PP_Doc) ((_rhsIpp) :: PP_Doc) origin_ owrt_ ->
+                                                              {-# LINE 38 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["Rule","Rule"] [ppShow owrt_, pp origin_] [ppF "pattern" $ _patternIpp, ppF "rhs" $ _rhsIpp] []
+                                                              {-# LINE 873 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- Rules -------------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : Rule 
-         child tl             : Rules 
-      alternative Nil:
--}
+-- wrapper
+data Inh_Rules  = Inh_Rules {  }
+data Syn_Rules  = Syn_Rules { pp_Syn_Rules :: (PP_Doc), ppL_Syn_Rules :: ([PP_Doc]) }
+{-# INLINABLE wrap_Rules #-}
+wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
+wrap_Rules (T_Rules act) (Inh_Rules ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Rules_vIn34 
+        (T_Rules_vOut34 _lhsOpp _lhsOppL) <- return (inv_Rules_s35 sem arg)
+        return (Syn_Rules _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_Rules :: Rules ->
-             T_Rules
-sem_Rules list =
-    (Prelude.foldr sem_Rules_Cons sem_Rules_Nil (Prelude.map sem_Rule list))
+{-# NOINLINE sem_Rules #-}
+sem_Rules :: Rules  -> T_Rules 
+sem_Rules list = Prelude.foldr sem_Rules_Cons sem_Rules_Nil (Prelude.map sem_Rule list)
+
 -- semantic domain
-newtype T_Rules = T_Rules (( PP_Doc,([PP_Doc])))
-data Inh_Rules = Inh_Rules {}
-data Syn_Rules = Syn_Rules {pp_Syn_Rules :: PP_Doc,ppL_Syn_Rules :: ([PP_Doc])}
-wrap_Rules :: T_Rules ->
-              Inh_Rules ->
-              Syn_Rules
-wrap_Rules (T_Rules sem) (Inh_Rules) =
-    (let ( _lhsOpp,_lhsOppL) = sem
-     in  (Syn_Rules _lhsOpp _lhsOppL))
-sem_Rules_Cons :: T_Rule ->
-                  T_Rules ->
-                  T_Rules
-sem_Rules_Cons (T_Rule hd_) (T_Rules tl_) =
-    (T_Rules (let _lhsOppL :: ([PP_Doc])
-                  _lhsOpp :: PP_Doc
-                  _hdIpp :: PP_Doc
-                  _tlIpp :: PP_Doc
-                  _tlIppL :: ([PP_Doc])
-                  -- "./src-ag/AbstractSyntaxDump.ag"(line 63, column 33)
-                  _lhsOppL =
-                      ({-# LINE 63 "./src-ag/AbstractSyntaxDump.ag" #-}
-                       _hdIpp : _tlIppL
-                       {-# LINE 905 "dist/build/AbstractSyntaxDump.hs" #-}
-                       )
-                  -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                  _lhsOpp =
-                      ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                       _hdIpp >-< _tlIpp
-                       {-# LINE 911 "dist/build/AbstractSyntaxDump.hs" #-}
-                       )
-                  ( _hdIpp) =
-                      hd_
-                  ( _tlIpp,_tlIppL) =
-                      tl_
-              in  ( _lhsOpp,_lhsOppL)))
-sem_Rules_Nil :: T_Rules
-sem_Rules_Nil =
-    (T_Rules (let _lhsOppL :: ([PP_Doc])
-                  _lhsOpp :: PP_Doc
-                  -- "./src-ag/AbstractSyntaxDump.ag"(line 64, column 33)
-                  _lhsOppL =
-                      ({-# LINE 64 "./src-ag/AbstractSyntaxDump.ag" #-}
-                       []
-                       {-# LINE 926 "dist/build/AbstractSyntaxDump.hs" #-}
-                       )
-                  -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                  _lhsOpp =
-                      ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                       empty
-                       {-# LINE 932 "dist/build/AbstractSyntaxDump.hs" #-}
-                       )
-              in  ( _lhsOpp,_lhsOppL)))
+newtype T_Rules  = T_Rules {
+                           attach_T_Rules :: Identity (T_Rules_s35 )
+                           }
+newtype T_Rules_s35  = C_Rules_s35 {
+                                   inv_Rules_s35 :: (T_Rules_v34 )
+                                   }
+data T_Rules_s36  = C_Rules_s36
+type T_Rules_v34  = (T_Rules_vIn34 ) -> (T_Rules_vOut34 )
+data T_Rules_vIn34  = T_Rules_vIn34 
+data T_Rules_vOut34  = T_Rules_vOut34 (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_Rules_Cons #-}
+sem_Rules_Cons :: T_Rule  -> T_Rules  -> T_Rules 
+sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_Rules_v34 
+      v34 = \ (T_Rules_vIn34 ) -> ( let
+         _hdX32 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_))
+         _tlX35 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_))
+         (T_Rule_vOut31 _hdIpp) = inv_Rule_s32 _hdX32 (T_Rule_vIn31 )
+         (T_Rules_vOut34 _tlIpp _tlIppL) = inv_Rules_s35 _tlX35 (T_Rules_vIn34 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule41 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule42 _hdIpp _tlIpp
+         __result_ = T_Rules_vOut34 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Rules_s35 v34
+   {-# INLINE rule41 #-}
+   {-# LINE 63 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule41 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 63 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 928 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule42 #-}
+   rule42 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+{-# NOINLINE sem_Rules_Nil #-}
+sem_Rules_Nil ::  T_Rules 
+sem_Rules_Nil  = T_Rules (return st35) where
+   {-# NOINLINE st35 #-}
+   st35 = let
+      v34 :: T_Rules_v34 
+      v34 = \ (T_Rules_vIn34 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule43  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule44  ()
+         __result_ = T_Rules_vOut34 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_Rules_s35 v34
+   {-# INLINE rule43 #-}
+   {-# LINE 64 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule43 = \  (_ :: ()) ->
+                                                                                  {-# LINE 64 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 951 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule44 #-}
+   rule44 = \  (_ :: ()) ->
+     empty
+
 -- TypeSig -----------------------------------------------------
-{-
-   visit 0:
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative TypeSig:
-         child name           : {Identifier}
-         child tp             : {Type}
--}
+-- wrapper
+data Inh_TypeSig  = Inh_TypeSig {  }
+data Syn_TypeSig  = Syn_TypeSig { pp_Syn_TypeSig :: (PP_Doc) }
+{-# INLINABLE wrap_TypeSig #-}
+wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
+wrap_TypeSig (T_TypeSig act) (Inh_TypeSig ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_TypeSig_vIn37 
+        (T_TypeSig_vOut37 _lhsOpp) <- return (inv_TypeSig_s38 sem arg)
+        return (Syn_TypeSig _lhsOpp)
+   )
+
 -- cata
-sem_TypeSig :: TypeSig ->
-               T_TypeSig
-sem_TypeSig (TypeSig _name _tp) =
-    (sem_TypeSig_TypeSig _name _tp)
+{-# INLINE sem_TypeSig #-}
+sem_TypeSig :: TypeSig  -> T_TypeSig 
+sem_TypeSig ( TypeSig name_ tp_ ) = sem_TypeSig_TypeSig name_ tp_
+
 -- semantic domain
-newtype T_TypeSig = T_TypeSig (( PP_Doc))
-data Inh_TypeSig = Inh_TypeSig {}
-data Syn_TypeSig = Syn_TypeSig {pp_Syn_TypeSig :: PP_Doc}
-wrap_TypeSig :: T_TypeSig ->
-                Inh_TypeSig ->
-                Syn_TypeSig
-wrap_TypeSig (T_TypeSig sem) (Inh_TypeSig) =
-    (let ( _lhsOpp) = sem
-     in  (Syn_TypeSig _lhsOpp))
-sem_TypeSig_TypeSig :: Identifier ->
-                       Type ->
-                       T_TypeSig
-sem_TypeSig_TypeSig name_ tp_ =
-    (T_TypeSig (let _lhsOpp :: PP_Doc
-                    -- "./src-ag/AbstractSyntaxDump.ag"(line 41, column 33)
-                    _lhsOpp =
-                        ({-# LINE 41 "./src-ag/AbstractSyntaxDump.ag" #-}
-                         ppNestInfo ["TypeSig","TypeSig"] [pp name_, ppShow tp_] [] []
-                         {-# LINE 969 "dist/build/AbstractSyntaxDump.hs" #-}
-                         )
-                in  ( _lhsOpp)))
+newtype T_TypeSig  = T_TypeSig {
+                               attach_T_TypeSig :: Identity (T_TypeSig_s38 )
+                               }
+newtype T_TypeSig_s38  = C_TypeSig_s38 {
+                                       inv_TypeSig_s38 :: (T_TypeSig_v37 )
+                                       }
+data T_TypeSig_s39  = C_TypeSig_s39
+type T_TypeSig_v37  = (T_TypeSig_vIn37 ) -> (T_TypeSig_vOut37 )
+data T_TypeSig_vIn37  = T_TypeSig_vIn37 
+data T_TypeSig_vOut37  = T_TypeSig_vOut37 (PP_Doc)
+{-# NOINLINE sem_TypeSig_TypeSig #-}
+sem_TypeSig_TypeSig :: (Identifier) -> (Type) -> T_TypeSig 
+sem_TypeSig_TypeSig arg_name_ arg_tp_ = T_TypeSig (return st38) where
+   {-# NOINLINE st38 #-}
+   st38 = let
+      v37 :: T_TypeSig_v37 
+      v37 = \ (T_TypeSig_vIn37 ) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule45 arg_name_ arg_tp_
+         __result_ = T_TypeSig_vOut37 _lhsOpp
+         in __result_ )
+     in C_TypeSig_s38 v37
+   {-# INLINE rule45 #-}
+   {-# LINE 41 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule45 = \ name_ tp_ ->
+                                                              {-# LINE 41 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                              ppNestInfo ["TypeSig","TypeSig"] [pp name_, ppShow tp_] [] []
+                                                              {-# LINE 1003 "dist/build/AbstractSyntaxDump.hs"#-}
+
 -- TypeSigs ----------------------------------------------------
-{-
-   visit 0:
-      synthesized attributes:
-         pp                   : PP_Doc
-         ppL                  : [PP_Doc]
-   alternatives:
-      alternative Cons:
-         child hd             : TypeSig 
-         child tl             : TypeSigs 
-      alternative Nil:
--}
+-- wrapper
+data Inh_TypeSigs  = Inh_TypeSigs {  }
+data Syn_TypeSigs  = Syn_TypeSigs { pp_Syn_TypeSigs :: (PP_Doc), ppL_Syn_TypeSigs :: ([PP_Doc]) }
+{-# INLINABLE wrap_TypeSigs #-}
+wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
+wrap_TypeSigs (T_TypeSigs act) (Inh_TypeSigs ) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_TypeSigs_vIn40 
+        (T_TypeSigs_vOut40 _lhsOpp _lhsOppL) <- return (inv_TypeSigs_s41 sem arg)
+        return (Syn_TypeSigs _lhsOpp _lhsOppL)
+   )
+
 -- cata
-sem_TypeSigs :: TypeSigs ->
-                T_TypeSigs
-sem_TypeSigs list =
-    (Prelude.foldr sem_TypeSigs_Cons sem_TypeSigs_Nil (Prelude.map sem_TypeSig list))
+{-# NOINLINE sem_TypeSigs #-}
+sem_TypeSigs :: TypeSigs  -> T_TypeSigs 
+sem_TypeSigs list = Prelude.foldr sem_TypeSigs_Cons sem_TypeSigs_Nil (Prelude.map sem_TypeSig list)
+
 -- semantic domain
-newtype T_TypeSigs = T_TypeSigs (( PP_Doc,([PP_Doc])))
-data Inh_TypeSigs = Inh_TypeSigs {}
-data Syn_TypeSigs = Syn_TypeSigs {pp_Syn_TypeSigs :: PP_Doc,ppL_Syn_TypeSigs :: ([PP_Doc])}
-wrap_TypeSigs :: T_TypeSigs ->
-                 Inh_TypeSigs ->
-                 Syn_TypeSigs
-wrap_TypeSigs (T_TypeSigs sem) (Inh_TypeSigs) =
-    (let ( _lhsOpp,_lhsOppL) = sem
-     in  (Syn_TypeSigs _lhsOpp _lhsOppL))
-sem_TypeSigs_Cons :: T_TypeSig ->
-                     T_TypeSigs ->
-                     T_TypeSigs
-sem_TypeSigs_Cons (T_TypeSig hd_) (T_TypeSigs tl_) =
-    (T_TypeSigs (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     _hdIpp :: PP_Doc
-                     _tlIpp :: PP_Doc
-                     _tlIppL :: ([PP_Doc])
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 59, column 33)
-                     _lhsOppL =
-                         ({-# LINE 59 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp : _tlIppL
-                          {-# LINE 1012 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          _hdIpp >-< _tlIpp
-                          {-# LINE 1018 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     ( _hdIpp) =
-                         hd_
-                     ( _tlIpp,_tlIppL) =
-                         tl_
-                 in  ( _lhsOpp,_lhsOppL)))
-sem_TypeSigs_Nil :: T_TypeSigs
-sem_TypeSigs_Nil =
-    (T_TypeSigs (let _lhsOppL :: ([PP_Doc])
-                     _lhsOpp :: PP_Doc
-                     -- "./src-ag/AbstractSyntaxDump.ag"(line 60, column 33)
-                     _lhsOppL =
-                         ({-# LINE 60 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          []
-                          {-# LINE 1033 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                     -- use rule "./src-ag/AbstractSyntaxDump.ag"(line 17, column 58)
-                     _lhsOpp =
-                         ({-# LINE 17 "./src-ag/AbstractSyntaxDump.ag" #-}
-                          empty
-                          {-# LINE 1039 "dist/build/AbstractSyntaxDump.hs" #-}
-                          )
-                 in  ( _lhsOpp,_lhsOppL)))
+newtype T_TypeSigs  = T_TypeSigs {
+                                 attach_T_TypeSigs :: Identity (T_TypeSigs_s41 )
+                                 }
+newtype T_TypeSigs_s41  = C_TypeSigs_s41 {
+                                         inv_TypeSigs_s41 :: (T_TypeSigs_v40 )
+                                         }
+data T_TypeSigs_s42  = C_TypeSigs_s42
+type T_TypeSigs_v40  = (T_TypeSigs_vIn40 ) -> (T_TypeSigs_vOut40 )
+data T_TypeSigs_vIn40  = T_TypeSigs_vIn40 
+data T_TypeSigs_vOut40  = T_TypeSigs_vOut40 (PP_Doc) ([PP_Doc])
+{-# NOINLINE sem_TypeSigs_Cons #-}
+sem_TypeSigs_Cons :: T_TypeSig  -> T_TypeSigs  -> T_TypeSigs 
+sem_TypeSigs_Cons arg_hd_ arg_tl_ = T_TypeSigs (return st41) where
+   {-# NOINLINE st41 #-}
+   st41 = let
+      v40 :: T_TypeSigs_v40 
+      v40 = \ (T_TypeSigs_vIn40 ) -> ( let
+         _hdX38 = Control.Monad.Identity.runIdentity (attach_T_TypeSig (arg_hd_))
+         _tlX41 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_tl_))
+         (T_TypeSig_vOut37 _hdIpp) = inv_TypeSig_s38 _hdX38 (T_TypeSig_vIn37 )
+         (T_TypeSigs_vOut40 _tlIpp _tlIppL) = inv_TypeSigs_s41 _tlX41 (T_TypeSigs_vIn40 )
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule46 _hdIpp _tlIppL
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule47 _hdIpp _tlIpp
+         __result_ = T_TypeSigs_vOut40 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_TypeSigs_s41 v40
+   {-# INLINE rule46 #-}
+   {-# LINE 59 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule46 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
+                                                                                  {-# LINE 59 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  _hdIpp : _tlIppL
+                                                                                  {-# LINE 1058 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule47 #-}
+   rule47 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
+     _hdIpp >-< _tlIpp
+{-# NOINLINE sem_TypeSigs_Nil #-}
+sem_TypeSigs_Nil ::  T_TypeSigs 
+sem_TypeSigs_Nil  = T_TypeSigs (return st41) where
+   {-# NOINLINE st41 #-}
+   st41 = let
+      v40 :: T_TypeSigs_v40 
+      v40 = \ (T_TypeSigs_vIn40 ) -> ( let
+         _lhsOppL :: [PP_Doc]
+         _lhsOppL = rule48  ()
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule49  ()
+         __result_ = T_TypeSigs_vOut40 _lhsOpp _lhsOppL
+         in __result_ )
+     in C_TypeSigs_s41 v40
+   {-# INLINE rule48 #-}
+   {-# LINE 60 "./src-ag/AbstractSyntaxDump.ag" #-}
+   rule48 = \  (_ :: ()) ->
+                                                                                  {-# LINE 60 "./src-ag/AbstractSyntaxDump.ag" #-}
+                                                                                  []
+                                                                                  {-# LINE 1081 "dist/build/AbstractSyntaxDump.hs"#-}
+   {-# INLINE rule49 #-}
+   rule49 = \  (_ :: ()) ->
+     empty
