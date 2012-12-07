@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/Macro.ag)
+-- UUAGC 0.9.42.2 (src-ag/Macro.ag)
 module Macro where
 {-# LINE 4 "./src-ag/Macro.ag" #-}
 

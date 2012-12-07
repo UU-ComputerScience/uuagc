@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/ExecutionPlan2Caml.ag)
+-- UUAGC 0.9.42.2 (src-ag/ExecutionPlan2Caml.ag)
 module ExecutionPlan2Caml where
 {-# LINE 32 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
@@ -87,7 +87,7 @@ ppFieldsType record defor fields
   | otherwise   = pp_block "(" ")" "*" [ if defor then d else f | (_,_,d,f) <- fields ]
 {-# LINE 89 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 285 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 286 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 ppTp :: Type -> PP_Doc
 ppTp tp = case tp of
@@ -109,7 +109,7 @@ ppTypeParams [x] = pp x
 ppTypeParams xs  = pp_block "(" ")" "," (map pp xs)
 {-# LINE 111 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 357 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 359 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 -- convention for nonterminals to module names
 modName :: NontermIdent -> PP_Doc
@@ -131,11 +131,11 @@ ppArg gensigs arg tp
 
 {-# LINE 133 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 424 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 426 "./src-ag/ExecutionPlan2Caml.ag" #-}
 type VisitStateState = (VisitIdentifier,StateIdentifier, StateIdentifier)
 {-# LINE 137 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 460 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 462 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 --
 -- conventions
@@ -175,7 +175,7 @@ orderStates initial edges = res where
   res = flattenSCCs cps
 {-# LINE 177 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 517 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 519 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 type_caller_visit nt v = "c_" >|< nt >|< "_v" >|< v
 con_visit nt v = "C_" >|< nt >|< "_v" >|< v
@@ -185,7 +185,7 @@ nm_inh nt v  = "inh_" >|< nt >|< "_v" >|< v
 nm_cont nt v = "cont_" >|< nt >|< "_v" >|< v
 {-# LINE 187 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 563 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 565 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 -- more naming conventions
 nm_inarg nm nt v = "i_" >|< nm >|< "_" >|< nt >|< "_v" >|< v
@@ -203,7 +203,7 @@ ppMonadType opts
   | otherwise           = text "Identity"
 {-# LINE 205 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 776 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 778 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 nm_visit v = "__v" >|< v
 nm_k st = "__k" >|< st
@@ -215,7 +215,7 @@ mklets defs body = res where
   res = vlist (map ppLet defs) >-< body
 {-# LINE 217 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 818 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 820 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 resultValName :: String
 resultValName = "__result_"
@@ -224,7 +224,7 @@ nextStName :: String
 nextStName = "__st_"
 {-# LINE 226 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 959 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 961 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 stname :: Identifier -> Int -> String
 stname child st = "_" ++ getName child ++ "X" ++ show st
@@ -234,7 +234,7 @@ compatibleAttach :: VisitKind -> NontermIdent -> Options -> Bool
 compatibleAttach _ _ _ = True
 {-# LINE 236 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 1026 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 1028 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 dummyPat :: Options -> Bool -> PP_Doc
 dummyPat opts noArgs
@@ -253,7 +253,7 @@ dummyType opts noArgs
   | otherwise             = text "unit"
 {-# LINE 255 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 1102 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 1104 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 data NonLocalAttr
   = AttrInh Identifier Identifier
@@ -286,7 +286,7 @@ noParameters (Haskell _)   = True
 noParameters (NT _ args _) = null args
 {-# LINE 288 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 1199 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 1201 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 contNm = text "__cont_"
 inpsNm = text "__inps_"
@@ -300,12 +300,12 @@ compatibleRule (VisitPure _) False = False
 compatibleRule _             _     = True
 {-# LINE 302 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 1224 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 1226 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 unionWithSum = Map.unionWith (+)
 {-# LINE 307 "dist/build/ExecutionPlan2Caml.hs" #-}
 
-{-# LINE 1247 "./src-ag/ExecutionPlan2Caml.ag" #-}
+{-# LINE 1249 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 uwSetUnion :: (Ord a, Ord b) => Map a (Set b) -> Map a (Set b) -> Map a (Set b)
 uwSetUnion = Map.unionWith Set.union
@@ -401,70 +401,70 @@ sem_EChild_EChild name_ tp_ kind_ hasAround_ merges_ isMerged_ =
                         _lhsOchildintros :: (Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr))))
                         _lhsOchildTypes :: (Map Identifier Type)
                         _lhsOterminaldefs :: (Set String)
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 275, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 276, column 7)
                         _tpDocFor =
-                            ({-# LINE 275 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 276 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              ppTp $ removeDeforested tp_
                              {-# LINE 409 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 276, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 277, column 7)
                         _tpDocDefor =
-                            ({-# LINE 276 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 277 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              ppTp $ forceDeforested tp_
                              {-# LINE 415 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 277, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 278, column 7)
                         _fieldNm =
-                            ({-# LINE 277 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 278 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              text $ recordFieldname _lhsInt _lhsIcon name_
                              {-# LINE 421 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 278, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 279, column 7)
                         _childNm =
-                            ({-# LINE 278 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 279 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              text (fieldname name_)
                              {-# LINE 427 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 279, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 280, column 7)
                         _field =
-                            ({-# LINE 279 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 280 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              (_fieldNm    , _childNm    , _tpDocDefor    , _tpDocFor    )
                              {-# LINE 433 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 280, column 13)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 281, column 13)
                         _lhsOsigs =
-                            ({-# LINE 280 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 281 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              case kind_ of
                                ChildAttr -> []
                                _         -> [_field    ]
                              {-# LINE 441 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 392, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 394, column 12)
                         _lhsOargnamesw =
-                            ({-# LINE 392 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 394 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              case kind_ of
                                ChildSyntax     -> "(" >#< prefix _lhsIoptions >|< _nt     >#< name_ >|< "_" >#< ")"
                                ChildAttr       -> empty
                                ChildReplace tp -> "(" >#< prefix _lhsIoptions >|< extractNonterminal tp >#< name_ >|< "_" >#< ")"
                              {-# LINE 450 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 919, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 921, column 12)
                         _lhsOchildintros =
-                            ({-# LINE 919 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 921 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.singleton name_ _introcode
                              {-# LINE 456 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 920, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 922, column 12)
                         _isDefor =
-                            ({-# LINE 920 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 922 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              case tp_ of
                                NT _ _ defor -> defor
                                _            -> False
                              {-# LINE 464 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 923, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 925, column 12)
                         _valcode =
-                            ({-# LINE 923 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 925 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              case kind_ of
                                ChildSyntax -> name_ >|< "_"
                                ChildAttr   ->
@@ -477,17 +477,17 @@ sem_EChild_EChild name_ tp_ kind_ hasAround_ merges_ isMerged_ =
                                                  pp_parens (instname name_ >#< name_ >|< "_")
                              {-# LINE 479 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 934, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 936, column 12)
                         _aroundcode =
-                            ({-# LINE 934 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 936 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              if hasAround_
                              then locname name_ >|< "_around"
                              else empty
                              {-# LINE 487 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 937, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 939, column 12)
                         _introcode =
-                            ({-# LINE 937 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 939 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              \kind -> let pat    = text $ stname name_ _initSt
                                           attach = pp_parens (_aroundcode     >#< _valcode    ) >|< "." >|< nm_attach _nt     >#< "()"
                                           decl   = pat >#< "=" >#< attach
@@ -510,27 +510,27 @@ sem_EChild_EChild name_ tp_ kind_ hasAround_ merges_ isMerged_ =
                                          else Left $ IncompatibleAttachKind name_ kind
                              {-# LINE 512 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 957, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 959, column 12)
                         _nt =
-                            ({-# LINE 957 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 959 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              extractNonterminal tp_
                              {-# LINE 518 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1419, column 3)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1421, column 3)
                         _lhsOchildTypes =
-                            ({-# LINE 1419 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1421 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.singleton name_ tp_
                              {-# LINE 524 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1463, column 3)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1465, column 3)
                         _initSt =
-                            ({-# LINE 1463 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1465 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.findWithDefault (error "nonterminal not in allInitStates map") _nt     _lhsIallInitStates
                              {-# LINE 530 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1258, column 42)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1260, column 42)
                         _lhsOterminaldefs =
-                            ({-# LINE 1258 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1260 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Set.empty
                              {-# LINE 536 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
@@ -550,63 +550,63 @@ sem_EChild_ETerm name_ tp_ =
                         _lhsOchildintros :: (Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr))))
                         _lhsOterminaldefs :: (Set String)
                         _lhsOchildTypes :: (Map Identifier Type)
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 275, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 276, column 7)
                         _tpDocFor =
-                            ({-# LINE 275 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 276 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              ppTp $ removeDeforested tp_
                              {-# LINE 558 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 276, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 277, column 7)
                         _tpDocDefor =
-                            ({-# LINE 276 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 277 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              ppTp $ forceDeforested tp_
                              {-# LINE 564 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 277, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 278, column 7)
                         _fieldNm =
-                            ({-# LINE 277 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 278 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              text $ recordFieldname _lhsInt _lhsIcon name_
                              {-# LINE 570 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 278, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 279, column 7)
                         _childNm =
-                            ({-# LINE 278 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 279 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              text (fieldname name_)
                              {-# LINE 576 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 279, column 7)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 280, column 7)
                         _field =
-                            ({-# LINE 279 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 280 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              (_fieldNm    , _childNm    , _tpDocDefor    , _tpDocFor    )
                              {-# LINE 582 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 283, column 13)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 284, column 13)
                         _lhsOsigs =
-                            ({-# LINE 283 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              [_field    ]
                              {-# LINE 588 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 396, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 398, column 12)
                         _lhsOargnamesw =
-                            ({-# LINE 396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              text $ fieldname name_
                              {-# LINE 594 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 918, column 12)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 920, column 12)
                         _lhsOchildintros =
-                            ({-# LINE 918 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 920 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.singleton name_ (\_ -> Right (empty, Set.empty, Map.empty))
                              {-# LINE 600 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1261, column 3)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1263, column 3)
                         _lhsOterminaldefs =
-                            ({-# LINE 1261 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1263 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Set.singleton $ fieldname name_
                              {-# LINE 606 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1419, column 3)
+                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1421, column 3)
                         _lhsOchildTypes =
-                            ({-# LINE 1419 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1421 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.singleton name_ tp_
                              {-# LINE 612 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
@@ -691,39 +691,39 @@ sem_EChildren_Cons (T_EChild hd_) (T_EChildren tl_) =
                            _tlIchildintros :: (Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr))))
                            _tlIsigs :: ([(PP_Doc,PP_Doc,PP_Doc,PP_Doc)])
                            _tlIterminaldefs :: (Set String)
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 389, column 32)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 391, column 32)
                            _lhsOargnamesw =
-                               ({-# LINE 389 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 391 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _hdIargnamesw : _tlIargnamesw
                                 {-# LINE 699 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1412, column 40)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1414, column 40)
                            _lhsOchildTypes =
-                               ({-# LINE 1412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _hdIchildTypes `mappend` _tlIchildTypes
                                 {-# LINE 705 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 909, column 21)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 911, column 21)
                            _lhsOchildintros =
-                               ({-# LINE 909 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 911 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _hdIchildintros `Map.union` _tlIchildintros
                                 {-# LINE 711 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 271, column 34)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 272, column 34)
                            _lhsOsigs =
-                               ({-# LINE 271 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 272 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _hdIsigs ++ _tlIsigs
                                 {-# LINE 717 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1258, column 42)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1260, column 42)
                            _lhsOterminaldefs =
-                               ({-# LINE 1258 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1260 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _hdIterminaldefs `Set.union` _tlIterminaldefs
                                 {-# LINE 723 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _hdOallInitStates =
-                               ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallInitStates
                                 {-# LINE 729 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
@@ -759,7 +759,7 @@ sem_EChildren_Cons (T_EChild hd_) (T_EChildren tl_) =
                                 )
                            -- copy rule (down)
                            _tlOallInitStates =
-                               ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallInitStates
                                 {-# LINE 765 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
@@ -811,33 +811,33 @@ sem_EChildren_Nil =
                            _lhsOchildintros :: (Map Identifier (VisitKind -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr))))
                            _lhsOsigs :: ([(PP_Doc,PP_Doc,PP_Doc,PP_Doc)])
                            _lhsOterminaldefs :: (Set String)
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 389, column 32)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 391, column 32)
                            _lhsOargnamesw =
-                               ({-# LINE 389 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 391 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 []
                                 {-# LINE 819 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1412, column 40)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1414, column 40)
                            _lhsOchildTypes =
-                               ({-# LINE 1412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 mempty
                                 {-# LINE 825 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 909, column 21)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 911, column 21)
                            _lhsOchildintros =
-                               ({-# LINE 909 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 911 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.empty
                                 {-# LINE 831 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 271, column 34)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 272, column 34)
                            _lhsOsigs =
-                               ({-# LINE 271 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 272 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 []
                                 {-# LINE 837 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1258, column 42)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1260, column 42)
                            _lhsOterminaldefs =
-                               ({-# LINE 1258 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1260 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Set.empty
                                 {-# LINE 843 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
@@ -1169,75 +1169,77 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 241, column 3)
                               _moduleDecl =
                                   ({-# LINE 241 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   let ppModule expr = "module" >#< modName nt_ >#< "="
+                                   let ppModule :: PP a => a -> PP_Doc
+                                       ppModule expr = "module" >#< modName nt_ >#< "="
                                    in case lookup nt_ _lhsItypeSyns of
                                         Just (Map k _)  -> ppModule ("Map.Make" >#< pp_parens (ppTp k))
                                         Just (IntMap _) -> ppModule ("Map.Make ()")
                                         Just (OrdSet t) -> ppModule ("Set.Make" >#< pp_parens (ppTp t))
                                         Just IntSet     -> ppModule ("Set.Make (struct  type t = int  let compare = Pervasives.compare  end)")
                                         _               -> empty
-                                   {-# LINE 1180 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1181 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 250, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 251, column 3)
                               _datatypeProds =
-                                  ({-# LINE 250 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 251 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    vlist _prodsIdatatype
-                                   {-# LINE 1186 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 310, column 3)
-                              _fsemname =
-                                  ({-# LINE 310 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   \x -> prefix _lhsIoptions ++ show x
-                                   {-# LINE 1192 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1187 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 311, column 3)
-                              _semname =
+                              _fsemname =
                                   ({-# LINE 311 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _fsemname     nt_
-                                   {-# LINE 1198 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   \x -> prefix _lhsIoptions ++ show x
+                                   {-# LINE 1193 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 312, column 3)
-                              _frecarg =
+                              _semname =
                                   ({-# LINE 312 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _fsemname     nt_
+                                   {-# LINE 1199 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 313, column 3)
+                              _frecarg =
+                                  ({-# LINE 313 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    \t x -> case t of
                                      NT nt _ _ -> pp_parens (_fsemname nt >#< x)
                                      _         -> x
-                                   {-# LINE 1206 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 316, column 3)
-                              _sem_param_tp =
-                                  ({-# LINE 316 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _t_params     >#< nt_
-                                   {-# LINE 1212 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1207 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 317, column 3)
-                              _sem_res_tp =
+                              _sem_param_tp =
                                   ({-# LINE 317 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _t_params     >#< _t_type
-                                   {-# LINE 1218 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _t_params     >#< nt_
+                                   {-# LINE 1213 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 318, column 3)
-                              _sem_tp =
+                              _sem_res_tp =
                                   ({-# LINE 318 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _sem_param_tp     >#< "->" >#< _sem_res_tp
-                                   {-# LINE 1224 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _t_params     >#< _t_type
+                                   {-# LINE 1219 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 320, column 3)
-                              _o_sigs =
-                                  ({-# LINE 320 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   typeSigs _lhsIoptions
-                                   {-# LINE 1230 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 319, column 3)
+                              _sem_tp =
+                                  ({-# LINE 319 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _sem_param_tp     >#< "->" >#< _sem_res_tp
+                                   {-# LINE 1225 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 321, column 3)
-                              _sem_nt_body =
+                              _o_sigs =
                                   ({-# LINE 321 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   "match arg with" >-< (indent 2 $ _prodsIsem_nt)
-                                   {-# LINE 1236 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   typeSigs _lhsIoptions
+                                   {-# LINE 1231 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 322, column 3)
-                              _sem_nt =
+                              _sem_nt_body =
                                   ({-# LINE 322 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   let genSem nm body = "and" >#< ppFunDecl _o_sigs     (pp _semname    ) [(pp nm, _sem_param_tp    )] _sem_res_tp     body
+                                   "match arg with" >-< (indent 2 $ _prodsIsem_nt)
+                                   {-# LINE 1237 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 323, column 3)
+                              _sem_nt =
+                                  ({-# LINE 323 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   let genSem :: PP a => a -> PP_Doc -> PP_Doc
+                                       genSem nm body = "and" >#< ppFunDecl _o_sigs     (pp _semname    ) [(pp nm, _sem_param_tp    )] _sem_res_tp     body
                                        genAlias alts = genSem (pp "arg") (pp "match arg with" >-< (indent 2 $ vlist $ map (pp "|" >#<) alts))
                                        genMap v = let body = modName nt_ >|< ".fold" >#< _semname     >|< "_Entry" >#< _semname     >|< "_Nil" >#< els
                                                       els  = case v of
@@ -1268,65 +1270,65 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                                              _         -> Nothing
                                         Just (IntSet) -> genSet Nothing
                                         _ -> genSem "arg" _sem_nt_body
-                                   {-# LINE 1272 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1274 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 416, column 19)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 418, column 19)
                               (Just _prodsOinhmap) =
-                                  ({-# LINE 416 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.lookup nt_ _lhsIinhmap
-                                   {-# LINE 1278 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 417, column 19)
-                              (Just _prodsOsynmap) =
-                                  ({-# LINE 417 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.lookup nt_ _lhsIsynmap
-                                   {-# LINE 1284 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 418, column 18)
-                              _prodsOallInhmap =
                                   ({-# LINE 418 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _lhsIinhmap
-                                   {-# LINE 1290 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   Map.lookup nt_ _lhsIinhmap
+                                   {-# LINE 1280 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 419, column 18)
-                              _prodsOallSynmap =
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 419, column 19)
+                              (Just _prodsOsynmap) =
                                   ({-# LINE 419 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   Map.lookup nt_ _lhsIsynmap
+                                   {-# LINE 1286 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 420, column 18)
+                              _prodsOallInhmap =
+                                  ({-# LINE 420 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _lhsIinhmap
+                                   {-# LINE 1292 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 421, column 18)
+                              _prodsOallSynmap =
+                                  ({-# LINE 421 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 1296 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 440, column 3)
-                              _allstates =
-                                  ({-# LINE 440 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   orderStates initial_ _prodsIallvisits
-                                   {-# LINE 1302 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 441, column 3)
-                              _stvisits =
-                                  ({-# LINE 441 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   \st -> filter (\(v,f,t) -> f == st) _prodsIallvisits
-                                   {-# LINE 1308 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1298 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 442, column 3)
-                              _t_type =
+                              _allstates =
                                   ({-# LINE 442 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   type_nt_sem_top nt_
-                                   {-# LINE 1314 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   orderStates initial_ _prodsIallvisits
+                                   {-# LINE 1304 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 443, column 3)
-                              _t_c_params =
+                              _stvisits =
                                   ({-# LINE 443 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   \st -> filter (\(v,f,t) -> f == st) _prodsIallvisits
+                                   {-# LINE 1310 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 444, column 3)
+                              _t_type =
+                                  ({-# LINE 444 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   type_nt_sem_top nt_
+                                   {-# LINE 1316 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 445, column 3)
+                              _t_c_params =
+                                  ({-# LINE 445 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    ppTypeParams (cont_tvar : map pp params_)
-                                   {-# LINE 1320 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1322 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 446, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 448, column 3)
                               _t_init =
-                                  ({-# LINE 446 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 448 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    "and" >#< _t_params     >#< _t_type     >#< "=" >#< pp_braces ( nm_attach nt_ >#< ":" >#< "unit" >#< "->" >#< _t_params     >#< type_nt_sem nt_ initial_)
-                                   {-# LINE 1326 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1328 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 449, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 451, column 3)
                               _t_states =
-                                  ({-# LINE 449 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 451 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    vlist $ map (\st ->
                                      let s_st = type_nt_state nt_ st
                                          t_st  = type_nt_sem nt_ st
@@ -1337,11 +1339,11 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                           NoneVis    -> decl >#< "unit"
                                           _          -> decl >#< ppRecordVal [ nm_invoke nt_ st >#< ":" >#< cont_tvar >#< "." >#< _t_c_params     >#< c_st >#< "->" >#< cont_tvar ]
                                     ) _allstates
-                                   {-# LINE 1341 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1343 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 502, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 504, column 3)
                               _c_states =
-                                  ({-# LINE 502 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 504 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    vlist $ map (\st ->
                                      let nt_st = type_nt_state nt_ st
                                          c_st  = type_caller nt_ st
@@ -1356,127 +1358,127 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                           OneVis v -> declHead >#< _t_c_params     >#< type_caller_visit nt_ v
                                           ManyVis  -> declHead >-< indent 3 visitcons
                                     ) _allstates
-                                   {-# LINE 1360 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 584, column 3)
-                              _wr_inh =
-                                  ({-# LINE 584 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _genwrap     "inh" _wr_inhs1
-                                   {-# LINE 1366 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 585, column 3)
-                              _wr_syn =
-                                  ({-# LINE 585 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _genwrap     "syn" _wr_syns
-                                   {-# LINE 1372 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1362 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 586, column 3)
-                              _genwrap =
+                              _wr_inh =
                                   ({-# LINE 586 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _genwrap     "inh" _wr_inhs1
+                                   {-# LINE 1368 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 587, column 3)
+                              _wr_syn =
+                                  ({-# LINE 587 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _genwrap     "syn" _wr_syns
+                                   {-# LINE 1374 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 588, column 3)
+                              _genwrap =
+                                  ({-# LINE 588 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    \nm attrs ->
                                      "and" >#< _t_params     >#< nm >|< "_" >|< nt_ >#< "=" >#< ppRecordTp
                                        [ i >|< "_" >|< nm >|< "_" >|< nt_ >#< ":" >#< ppTp t | (i,t) <- attrs ]
-                                   {-# LINE 1380 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 590, column 3)
-                              _inhAttrs =
-                                  ({-# LINE 590 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   fromJust $ Map.lookup nt_ _lhsIinhmap
-                                   {-# LINE 1386 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 591, column 3)
-                              _wr_inhs =
-                                  ({-# LINE 591 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.toList $ _wr_filter     $ _inhAttrs
-                                   {-# LINE 1392 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1382 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 592, column 3)
-                              _wr_inhs1 =
+                              _inhAttrs =
                                   ({-# LINE 592 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.toList _inhAttrs
-                                   {-# LINE 1398 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   fromJust $ Map.lookup nt_ _lhsIinhmap
+                                   {-# LINE 1388 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 593, column 3)
-                              _wr_filter =
+                              _wr_inhs =
                                   ({-# LINE 593 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   Map.toList $ _wr_filter     $ _inhAttrs
+                                   {-# LINE 1394 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 594, column 3)
+                              _wr_inhs1 =
+                                  ({-# LINE 594 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   Map.toList _inhAttrs
+                                   {-# LINE 1400 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 595, column 3)
+                              _wr_filter =
+                                  ({-# LINE 595 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    if kennedyWarren _lhsIoptions && lateHigherOrderBinding _lhsIoptions
                                    then Map.delete idLateBindingAttr
                                    else id
-                                   {-# LINE 1406 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 596, column 3)
-                              _wr_syns =
-                                  ({-# LINE 596 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.toList $ fromJust $ Map.lookup nt_ _lhsIsynmap
-                                   {-# LINE 1412 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1408 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 598, column 3)
-                              _wrapname =
+                              _wr_syns =
                                   ({-# LINE 598 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   text ("wrap_" ++ show nt_)
-                                   {-# LINE 1418 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 599, column 3)
-                              _inhname =
-                                  ({-# LINE 599 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   text ("inh_" ++ show nt_)
-                                   {-# LINE 1424 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   Map.toList $ fromJust $ Map.lookup nt_ _lhsIsynmap
+                                   {-# LINE 1414 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 600, column 3)
-                              _synname =
+                              _wrapname =
                                   ({-# LINE 600 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   text ("syn_" ++ show nt_)
-                                   {-# LINE 1430 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   text ("wrap_" ++ show nt_)
+                                   {-# LINE 1420 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 601, column 3)
-                              _firstVisitInfo =
+                              _inhname =
                                   ({-# LINE 601 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   Map.findWithDefault ManyVis initial_ nextVisits_
-                                   {-# LINE 1436 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   text ("inh_" ++ show nt_)
+                                   {-# LINE 1426 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 602, column 3)
+                              _synname =
+                                  ({-# LINE 602 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   text ("syn_" ++ show nt_)
+                                   {-# LINE 1432 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 603, column 3)
-                              _wrapArgSemTp =
+                              _firstVisitInfo =
                                   ({-# LINE 603 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _t_params     >#< _t_type
-                                   {-# LINE 1442 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 604, column 3)
-                              _wrapArgInhTp =
-                                  ({-# LINE 604 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _t_params     >#< _inhname
-                                   {-# LINE 1448 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   Map.findWithDefault ManyVis initial_ nextVisits_
+                                   {-# LINE 1438 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 605, column 3)
-                              _wrapArgPats =
+                              _wrapArgSemTp =
                                   ({-# LINE 605 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   ppRecordVal [ i >|< "_inh_" >|< nt_ >#< "=" >#< lhsname True i | (i,_) <- _wr_inhs1     ]
-                                   {-# LINE 1454 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _t_params     >#< _t_type
+                                   {-# LINE 1444 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 606, column 3)
-                              _wrapResTp =
+                              _wrapArgInhTp =
                                   ({-# LINE 606 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _t_params     >#< _synname
-                                   {-# LINE 1460 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _t_params     >#< _inhname
+                                   {-# LINE 1450 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 607, column 3)
-                              _wrapper =
+                              _wrapArgPats =
                                   ({-# LINE 607 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   "and" >#< ppFunDecl _o_sigs     _wrapname     [(pp "act", _wrapArgSemTp    ), (_wrapArgPats    , _wrapArgInhTp    )] _wrapResTp     _wrapperPreamble
-                                   {-# LINE 1466 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   ppRecordVal [ i >|< "_inh_" >|< nt_ >#< "=" >#< lhsname True i | (i,_) <- _wr_inhs1     ]
+                                   {-# LINE 1456 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 608, column 3)
-                              _wrapperPreamble =
+                              _wrapResTp =
                                   ({-# LINE 608 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _t_params     >#< _synname
+                                   {-# LINE 1462 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 609, column 3)
+                              _wrapper =
+                                  ({-# LINE 609 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   "and" >#< ppFunDecl _o_sigs     _wrapname     [(pp "act", _wrapArgSemTp    ), (_wrapArgPats    , _wrapArgInhTp    )] _wrapResTp     _wrapperPreamble
+                                   {-# LINE 1468 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 610, column 3)
+                              _wrapperPreamble =
+                                  ({-# LINE 610 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    ( if lateHigherOrderBinding _lhsIoptions
                                      then "let" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm _lhsImainName >#< "in"
                                      else empty
                                    )
                                    >-< _wrapperBody
-                                   {-# LINE 1476 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1478 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 614, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 616, column 3)
                               _wrapperBody =
-                                  ({-# LINE 614 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 616 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    case initialv_ of
                                      Nothing -> text "{ }"
                                      Just initv ->
@@ -1495,175 +1497,175 @@ sem_ENonterminal_ENonterminal nt_ params_ classCtxs_ initial_ initialv_ nextVisi
                                                        ]
                                            invoke  = "sem." >|< nm_invoke nt_ initial_ >#< "arg"
                                        in attach >-< res >-< inps >-< arg >-< invoke
-                                   {-# LINE 1499 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 3)
-                              _lhsOsemFunBndDefs =
-                                  ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _semFunBndDef     Seq.<| _prodsIsemFunBndDefs
-                                   {-# LINE 1505 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                   )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 645, column 3)
-                              _lhsOsemFunBndTps =
-                                  ({-# LINE 645 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _semFunBndTp     Seq.<| _prodsIsemFunBndTps
-                                   {-# LINE 1511 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1501 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 646, column 3)
-                              _semFunBndDef =
+                              _lhsOsemFunBndDefs =
                                   ({-# LINE 646 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _semFunBndNm     >#< "=" >#< _semname
-                                   {-# LINE 1517 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _semFunBndDef     Seq.<| _prodsIsemFunBndDefs
+                                   {-# LINE 1507 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 647, column 3)
-                              _semFunBndTp =
+                              _lhsOsemFunBndTps =
                                   ({-# LINE 647 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                   _semFunBndNm     >#< ":" >#< _sem_tp
-                                   {-# LINE 1523 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   _semFunBndTp     Seq.<| _prodsIsemFunBndTps
+                                   {-# LINE 1513 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 648, column 3)
-                              _semFunBndNm =
+                              _semFunBndDef =
                                   ({-# LINE 648 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _semFunBndNm     >#< "=" >#< _semname
+                                   {-# LINE 1519 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 649, column 3)
+                              _semFunBndTp =
+                                  ({-# LINE 649 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   _semFunBndNm     >#< ":" >#< _sem_tp
+                                   {-# LINE 1525 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   )
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 650, column 3)
+                              _semFunBndNm =
+                                  ({-# LINE 650 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    lateSemNtLabel nt_
-                                   {-# LINE 1529 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1531 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 678, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 680, column 3)
                               _prodsOinitial =
-                                  ({-# LINE 678 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 680 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    initial_
-                                   {-# LINE 1535 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1537 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 679, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 681, column 3)
                               _prodsOallstates =
-                                  ({-# LINE 679 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 681 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _allstates
-                                   {-# LINE 1541 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1543 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1385, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1387, column 3)
                               _prodsOnextVisits =
-                                  ({-# LINE 1385 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1387 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    nextVisits_
-                                   {-# LINE 1547 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1549 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1386, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1388, column 3)
                               _prodsOprevVisits =
-                                  ({-# LINE 1386 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1388 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    prevVisits_
-                                   {-# LINE 1553 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1555 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1430, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1432, column 3)
                               _prodsOlocalAttrTypes =
-                                  ({-# LINE 1430 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1432 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Map.findWithDefault Map.empty nt_ _lhsIlocalAttrTypes
-                                   {-# LINE 1559 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1561 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1457, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1459, column 3)
                               _lhsOinitStates =
-                                  ({-# LINE 1457 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1459 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Map.singleton nt_ initial_
-                                   {-# LINE 1565 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1567 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1471, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 1473, column 3)
                               _ntType =
-                                  ({-# LINE 1471 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1473 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    NT nt_ (map show params_) False
-                                   {-# LINE 1571 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1573 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                               _lhsOchildvisit =
-                                  ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIchildvisit
-                                   {-# LINE 1577 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1579 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                               _lhsOerrors =
-                                  ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIerrors
-                                   {-# LINE 1583 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1585 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                               _lhsOfromToStates =
-                                  ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIfromToStates
-                                   {-# LINE 1589 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1591 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                               _lhsOvisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIvisitKinds
-                                   {-# LINE 1595 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1597 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                               _lhsOvisitdefs =
-                                  ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIvisitdefs
-                                   {-# LINE 1601 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1603 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                               _lhsOvisituses =
-                                  ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _prodsIvisituses
-                                   {-# LINE 1607 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1609 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallFromToStates =
-                                  ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 1613 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1615 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallInitStates =
-                                  ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 1619 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1621 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallVisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 1625 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1627 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOallchildvisit =
-                                  ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 1631 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1633 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOavisitdefs =
-                                  ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 1637 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1639 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOavisituses =
-                                  ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 1643 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1645 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOmainFile =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 1649 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1651 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOmainName =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 1655 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1657 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (from local)
                               _prodsOntType =
-                                  ({-# LINE 1469 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1471 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _ntType
-                                   {-# LINE 1661 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1663 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _prodsOoptions =
                                   ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 1667 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 1669 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               ( _prodsIallvisits,_prodsIchildvisit,_prodsIcount,_prodsIdatatype,_prodsIdatatype_call,_prodsIdatatype_con,_prodsIerrors,_prodsIfromToStates,_prodsIsemFunBndDefs,_prodsIsemFunBndTps,_prodsIsem_nt,_prodsIsem_prod,_prodsIt_visits,_prodsIvisitKinds,_prodsIvisitdefs,_prodsIvisituses) =
                                   prods_ _prodsOallFromToStates _prodsOallInhmap _prodsOallInitStates _prodsOallSynmap _prodsOallVisitKinds _prodsOallchildvisit _prodsOallstates _prodsOavisitdefs _prodsOavisituses _prodsOinhmap _prodsOinitial _prodsOlocalAttrTypes _prodsOmainFile _prodsOmainName _prodsOnextVisits _prodsOnt _prodsOntType _prodsOoptions _prodsOparams _prodsOprevVisits _prodsOrename _prodsOsynmap
@@ -1816,245 +1818,245 @@ sem_ENonterminals_Cons (T_ENonterminal hd_) (T_ENonterminals tl_) =
                                _tlIvisitKinds :: (Map VisitIdentifier VisitKind)
                                _tlIvisitdefs :: (Map VisitIdentifier (Set Identifier))
                                _tlIvisituses :: (Map VisitIdentifier (Set Identifier))
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                                _lhsOchildvisit =
-                                   ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIchildvisit `Map.union` _tlIchildvisit
-                                    {-# LINE 1824 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1826 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOcode =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIcode >-< _tlIcode
-                                    {-# LINE 1830 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1832 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOdatas =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIdatas >-< _tlIdatas
-                                    {-# LINE 1836 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1838 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                                _lhsOerrors =
-                                   ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIerrors Seq.>< _tlIerrors
-                                    {-# LINE 1842 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1844 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                                _lhsOfromToStates =
-                                   ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIfromToStates `mappend` _tlIfromToStates
-                                    {-# LINE 1848 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1850 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1452, column 50)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1454, column 50)
                                _lhsOinitStates =
-                                   ({-# LINE 1452 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIinitStates `mappend` _tlIinitStates
-                                    {-# LINE 1854 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1856 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOmodules =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdImodules >-< _tlImodules
-                                    {-# LINE 1860 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1862 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                                _lhsOsemFunBndDefs =
-                                   ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIsemFunBndDefs Seq.>< _tlIsemFunBndDefs
-                                    {-# LINE 1866 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1868 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                                _lhsOsemFunBndTps =
-                                   ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIsemFunBndTps Seq.>< _tlIsemFunBndTps
-                                    {-# LINE 1872 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1874 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                                _lhsOvisitKinds =
-                                   ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIvisitKinds `mappend` _tlIvisitKinds
-                                    {-# LINE 1878 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1880 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                                _lhsOvisitdefs =
-                                   ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                                    {-# LINE 1884 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1886 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                                _lhsOvisituses =
-                                   ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _hdIvisituses `uwSetUnion` _tlIvisituses
-                                    {-# LINE 1890 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1892 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallFromToStates =
-                                   ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallFromToStates
-                                    {-# LINE 1896 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1898 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallInitStates =
-                                   ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallInitStates
-                                    {-# LINE 1902 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1904 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallVisitKinds =
-                                   ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallVisitKinds
-                                    {-# LINE 1908 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1910 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOallchildvisit =
-                                   ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallchildvisit
-                                    {-# LINE 1914 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1916 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOavisitdefs =
-                                   ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIavisitdefs
-                                    {-# LINE 1920 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1922 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOavisituses =
-                                   ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIavisituses
-                                    {-# LINE 1926 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1928 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOinhmap =
-                                   ({-# LINE 403 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 405 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 1932 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1934 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOlocalAttrTypes =
-                                   ({-# LINE 1425 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 1938 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1940 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOmainFile =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 1944 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1946 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOmainName =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 1950 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1952 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOoptions =
                                    ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 1956 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1958 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOsynmap =
-                                   ({-# LINE 404 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 406 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 1962 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1964 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOtypeSyns =
                                    ({-# LINE 168 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 1968 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1970 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _hdOwrappers =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 1974 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1976 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallFromToStates =
-                                   ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallFromToStates
-                                    {-# LINE 1980 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1982 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallInitStates =
-                                   ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallInitStates
-                                    {-# LINE 1986 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1988 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallVisitKinds =
-                                   ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallVisitKinds
-                                    {-# LINE 1992 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 1994 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOallchildvisit =
-                                   ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIallchildvisit
-                                    {-# LINE 1998 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2000 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOavisitdefs =
-                                   ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIavisitdefs
-                                    {-# LINE 2004 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2006 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOavisituses =
-                                   ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIavisituses
-                                    {-# LINE 2010 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2012 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOinhmap =
-                                   ({-# LINE 403 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 405 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 2016 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2018 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOlocalAttrTypes =
-                                   ({-# LINE 1425 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 2022 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2024 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOmainFile =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 2028 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2030 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOmainName =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 2034 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2036 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOoptions =
                                    ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 2040 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2042 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOsynmap =
-                                   ({-# LINE 404 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 406 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 2046 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2048 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOtypeSyns =
                                    ({-# LINE 168 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsItypeSyns
-                                    {-# LINE 2052 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2054 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _tlOwrappers =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIwrappers
-                                    {-# LINE 2058 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2060 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                ( _hdIchildvisit,_hdIcode,_hdIdatas,_hdIerrors,_hdIfromToStates,_hdIinitStates,_hdImodules,_hdIsemFunBndDefs,_hdIsemFunBndTps,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                                    hd_ _hdOallFromToStates _hdOallInitStates _hdOallVisitKinds _hdOallchildvisit _hdOavisitdefs _hdOavisituses _hdOinhmap _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOoptions _hdOsynmap _hdOtypeSyns _hdOwrappers
@@ -2089,77 +2091,77 @@ sem_ENonterminals_Nil =
                                _lhsOvisitKinds :: (Map VisitIdentifier VisitKind)
                                _lhsOvisitdefs :: (Map VisitIdentifier (Set Identifier))
                                _lhsOvisituses :: (Map VisitIdentifier (Set Identifier))
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                                _lhsOchildvisit =
-                                   ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Map.empty
-                                    {-# LINE 2097 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2099 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOcode =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     empty
-                                    {-# LINE 2103 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2105 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOdatas =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     empty
-                                    {-# LINE 2109 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2111 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                                _lhsOerrors =
-                                   ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2115 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2117 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                                _lhsOfromToStates =
-                                   ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     mempty
-                                    {-# LINE 2121 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2123 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1452, column 50)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1454, column 50)
                                _lhsOinitStates =
-                                   ({-# LINE 1452 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     mempty
-                                    {-# LINE 2127 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2129 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 107, column 58)
                                _lhsOmodules =
                                    ({-# LINE 107 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     empty
-                                    {-# LINE 2133 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2135 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                                _lhsOsemFunBndDefs =
-                                   ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2139 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2141 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                                _lhsOsemFunBndTps =
-                                   ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Seq.empty
-                                    {-# LINE 2145 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2147 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                                _lhsOvisitKinds =
-                                   ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     mempty
-                                    {-# LINE 2151 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2153 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                                _lhsOvisitdefs =
-                                   ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Map.empty
-                                    {-# LINE 2157 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2159 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                                _lhsOvisituses =
-                                   ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     Map.empty
-                                    {-# LINE 2163 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 2165 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                            in  ( _lhsOchildvisit,_lhsOcode,_lhsOdatas,_lhsOerrors,_lhsOfromToStates,_lhsOinitStates,_lhsOmodules,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- EProduction -------------------------------------------------
@@ -2393,161 +2395,161 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                              _childrenOcon =
                                  ({-# LINE 88 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   con_
-                                  {-# LINE 2397 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2399 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 89, column 3)
                              _rulesOcon =
                                  ({-# LINE 89 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   con_
-                                  {-# LINE 2403 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2405 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 90, column 3)
                              _visitsOcon =
                                  ({-# LINE 90 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   con_
-                                  {-# LINE 2409 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 256, column 3)
-                             _o_records =
-                                 ({-# LINE 256 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  dataRecords _lhsIoptions
-                                  {-# LINE 2415 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2411 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 257, column 3)
-                             _t_params =
+                             _o_records =
                                  ({-# LINE 257 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  ppTypeParams _lhsIparams
-                                  {-# LINE 2421 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  dataRecords _lhsIoptions
+                                  {-# LINE 2417 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 258, column 3)
-                             _t_c_params =
+                             _t_params =
                                  ({-# LINE 258 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  ppTypeParams (cont_tvar : map pp params_)
-                                  {-# LINE 2427 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  ppTypeParams _lhsIparams
+                                  {-# LINE 2423 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 259, column 3)
-                             _conname =
+                             _t_c_params =
                                  ({-# LINE 259 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  conname _lhsIrename _lhsInt con_
-                                  {-# LINE 2433 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  ppTypeParams (cont_tvar : map pp params_)
+                                  {-# LINE 2429 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 260, column 3)
-                             _recname =
+                             _conname =
                                  ({-# LINE 260 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  pp "fields_" >|< _conname
-                                  {-# LINE 2439 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  conname _lhsIrename _lhsInt con_
+                                  {-# LINE 2435 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 261, column 3)
-                             _lhsOdatatype =
+                             _recname =
                                  ({-# LINE 261 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  pp "fields_" >|< _conname
+                                  {-# LINE 2441 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 262, column 3)
+                             _lhsOdatatype =
+                                 ({-# LINE 262 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   "and" >#< _t_params     >#< _recname     >#< "="
                                   >#< ppFieldsType _o_records     False _childrenIsigs
-                                  {-# LINE 2446 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 263, column 3)
-                             _lhsOdatatype_call =
-                                 ({-# LINE 263 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  pp "|" >#< _conname     >#< "of" >#< pp_parens (_t_params     >#< _recname    )
-                                  {-# LINE 2452 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2448 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 264, column 3)
-                             _lhsOdatatype_con =
+                             _lhsOdatatype_call =
                                  ({-# LINE 264 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  pp "|" >#< _conname     >#< "of" >#< pp_parens (_t_params     >#< _recname    )
+                                  {-# LINE 2454 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 265, column 3)
+                             _lhsOdatatype_con =
+                                 ({-# LINE 265 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   let funNm  = _lhsInt >|< "_" >|< con_
                                       decl   = "and" >#< ppFunDecl _o_sigs     funNm params (_t_params     >#< _lhsInt) body
                                       params = [ (x, t) | (_,x,_,t) <- _childrenIsigs ]
                                       body   = _conname     >#< ppFieldsVal _o_records     _childrenIsigs
                                   in decl
-                                  {-# LINE 2462 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2464 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 380, column 32)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 382, column 32)
                              _lhsOcount =
-                                 ({-# LINE 380 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 382 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   1
-                                  {-# LINE 2468 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2470 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 385, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 387, column 3)
                              _lhsOsem_nt =
-                                 ({-# LINE 385 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 387 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   "|" >#< conname _lhsIrename _lhsInt con_ >#< ppFieldsVal _o_records     _childrenIsigs >#< "->" >#<
                                     prefix _lhsIoptions >|< _lhsInt >|< "_" >|< con_ >#< ppSpaced _childrenIargnamesw
-                                  {-# LINE 2475 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 651, column 3)
-                             _lhsOsemFunBndDefs =
-                                 ({-# LINE 651 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  Seq.singleton _semFunBndDef
-                                  {-# LINE 2481 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 652, column 3)
-                             _lhsOsemFunBndTps =
-                                 ({-# LINE 652 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  Seq.singleton _semFunBndTp
-                                  {-# LINE 2487 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2477 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 653, column 3)
-                             _semFunBndDef =
+                             _lhsOsemFunBndDefs =
                                  ({-# LINE 653 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  _semFunBndNm     >#< "=" >#< _semname
-                                  {-# LINE 2493 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  Seq.singleton _semFunBndDef
+                                  {-# LINE 2483 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 654, column 3)
-                             _semFunBndTp =
+                             _lhsOsemFunBndTps =
                                  ({-# LINE 654 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  _semFunBndNm     >#< ":" >#< _sem_tp
-                                  {-# LINE 2499 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  Seq.singleton _semFunBndTp
+                                  {-# LINE 2489 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 655, column 3)
-                             _semFunBndNm =
+                             _semFunBndDef =
                                  ({-# LINE 655 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  _semFunBndNm     >#< "=" >#< _semname
+                                  {-# LINE 2495 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 656, column 3)
+                             _semFunBndTp =
+                                 ({-# LINE 656 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  _semFunBndNm     >#< ":" >#< _sem_tp
+                                  {-# LINE 2501 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 657, column 3)
+                             _semFunBndNm =
+                                 ({-# LINE 657 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   lateSemConLabel _lhsInt con_
-                                  {-# LINE 2505 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 682, column 3)
-                             _o_sigs =
-                                 ({-# LINE 682 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  typeSigs _lhsIoptions
-                                  {-# LINE 2511 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                  )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 683, column 3)
-                             _t_type =
-                                 ({-# LINE 683 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  type_nt_sem_top _lhsInt
-                                  {-# LINE 2517 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2507 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 684, column 3)
-                             _semname =
+                             _o_sigs =
                                  ({-# LINE 684 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  prefix _lhsIoptions >|< _lhsInt >|< "_" >|< con_
-                                  {-# LINE 2523 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  typeSigs _lhsIoptions
+                                  {-# LINE 2513 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 685, column 3)
-                             _sem_res_tp =
+                             _t_type =
                                  ({-# LINE 685 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  _t_params     >#< _t_type
-                                  {-# LINE 2529 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  type_nt_sem_top _lhsInt
+                                  {-# LINE 2519 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 686, column 3)
-                             _sem_tp =
+                             _semname =
                                  ({-# LINE 686 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                  pp_block "" "" "->" [ d | (_,_,d,_) <- _childrenIsigs ] >#< "->" >#< _sem_res_tp
-                                  {-# LINE 2535 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  prefix _lhsIoptions >|< _lhsInt >|< "_" >|< con_
+                                  {-# LINE 2525 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 687, column 3)
+                             _sem_res_tp =
+                                 ({-# LINE 687 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  _t_params     >#< _t_type
+                                  {-# LINE 2531 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 688, column 3)
-                             _initializer =
+                             _sem_tp =
                                  ({-# LINE 688 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  pp_block "" "" "->" [ d | (_,_,d,_) <- _childrenIsigs ] >#< "->" >#< _sem_res_tp
+                                  {-# LINE 2537 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  )
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 690, column 3)
+                             _initializer =
+                                 ({-# LINE 690 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   empty
-                                  {-# LINE 2541 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2543 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 695, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 697, column 3)
                              _sem_prod =
-                                 ({-# LINE 695 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 697 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   "and" >#< ppFunDecl _o_sigs     _semname     [ (x,d) | (_,x,d,_) <- _childrenIsigs ] _sem_res_tp     _prod_body
-                                  {-# LINE 2547 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2549 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 696, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 698, column 3)
                              _prod_body =
-                                 ({-# LINE 696 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 698 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _initializer
                                   >-< "{" >#< nm_attach _lhsInt >#< "=" >#< "function () ->"
                                   >-< indent 2
@@ -2558,17 +2560,17 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                       >-< nm_st _lhsIinitial
                                       )
                                   >#< "}"
-                                  {-# LINE 2562 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2564 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 713, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 715, column 3)
                              _statefuns =
-                                 ({-# LINE 713 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 715 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   map _genstfn     _lhsIallstates
-                                  {-# LINE 2568 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2570 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 714, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 716, column 3)
                              _genstfn =
-                                 ({-# LINE 714 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 716 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   \st -> let nextVisitInfo = Map.findWithDefault ManyVis st _lhsInextVisits
                                              stNm = nm_st st
                                              stDef body = "let" >#< stNm >#< (if st == _lhsIinitial then empty else _stargs     st) >#< "="
@@ -2580,11 +2582,11 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                                          else empty
                                               _       -> stDef $ mklets (_stvs     st ++ _stks     st) $ ppRecordVal
                                                            [ nm_invoke _lhsInt st >#< "=" >#< nm_k st ]
-                                  {-# LINE 2584 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2586 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 734, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 736, column 3)
                              _stargs =
-                                 ({-# LINE 734 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 736 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   \st -> let attrs = maybe Map.empty id $ Map.lookup st _visitsIintramap in ppSpaced
                                            [ case mbAttr of
                                                Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs _lhsIoptions) ->
@@ -2598,17 +2600,17 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                                _ -> pp strNm
                                            | (strNm, mbAttr) <- Map.assocs attrs
                                            ] >#< dummyPat _lhsIoptions (Map.null attrs)
-                                  {-# LINE 2602 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2604 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 750, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 752, column 3)
                              _stvisits =
-                                 ({-# LINE 750 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 752 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   \st -> filter (\(_,f,_) -> f == st) _visitsIallvisits
-                                  {-# LINE 2608 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2610 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 751, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 753, column 3)
                              _stks =
-                                 ({-# LINE 751 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 753 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   \st -> let stvisits = _stvisits     st
                                              def = ppFunDecl False                   (pp $ nm_k st)
                                                      [(pp "arg", _t_c_params     >#< type_caller _lhsInt st)] (pp cont_tvar) body
@@ -2626,325 +2628,325 @@ sem_EProduction_EProduction con_ params_ constraints_ (T_ERules rules_) (T_EChil
                                          in if null stvisits
                                             then []
                                             else [ "(* k-function for production" >#< con_ >#< " *)" >-< def ]
-                                  {-# LINE 2630 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2632 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 773, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 775, column 3)
                              _stvs =
-                                 ({-# LINE 773 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 775 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   \st -> [ppf | (f,ppf) <- _visitsIsem_visit, f == st]
-                                  {-# LINE 2636 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2638 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 774, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 776, column 3)
                              _visitsOmrules =
-                                 ({-# LINE 774 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 776 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _rulesImrules
-                                  {-# LINE 2642 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2644 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 915, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 917, column 3)
                              _visitsOchildintros =
-                                 ({-# LINE 915 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 917 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _childrenIchildintros
-                                  {-# LINE 2648 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2650 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1220, column 32)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1222, column 32)
                              _rulesOusageInfo =
-                                 ({-# LINE 1220 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1222 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIruleUsage
-                                  {-# LINE 2654 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2656 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1235, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1237, column 3)
                              _rulesOruleKinds =
-                                 ({-# LINE 1235 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1237 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIruleKinds
-                                  {-# LINE 2660 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2662 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1264, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1266, column 3)
                              _visitsOallintramap =
-                                 ({-# LINE 1264 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1266 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIintramap
-                                  {-# LINE 2666 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2668 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1265, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1267, column 3)
                              _visitsOterminaldefs =
-                                 ({-# LINE 1265 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1267 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _childrenIterminaldefs
-                                  {-# LINE 2672 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2674 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1289, column 17)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1291, column 17)
                              _visitsOruledefs =
-                                 ({-# LINE 1289 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1291 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _rulesIruledefs
-                                  {-# LINE 2678 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2680 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1290, column 17)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1292, column 17)
                              _visitsOruleuses =
-                                 ({-# LINE 1290 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1292 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _rulesIruleuses
-                                  {-# LINE 2684 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2686 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1344, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1346, column 3)
                              _lazyIntras =
-                                 ({-# LINE 1344 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1346 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIlazyIntras
-                                  {-# LINE 2690 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2692 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1416, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1418, column 3)
                              _childTypes =
-                                 ({-# LINE 1416 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1418 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   Map.singleton _LHS _lhsIntType `Map.union` _childrenIchildTypes
-                                  {-# LINE 2696 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2698 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1433, column 3)
+                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 1435, column 3)
                              _localAttrTypes =
-                                 ({-# LINE 1433 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1435 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   Map.findWithDefault Map.empty con_ _lhsIlocalAttrTypes
-                                  {-# LINE 2702 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2704 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                              _lhsOchildvisit =
-                                 ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIchildvisit
-                                  {-# LINE 2708 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2710 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                              _lhsOerrors =
-                                 ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _rulesIerrors Seq.>< _visitsIerrors
-                                  {-# LINE 2714 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2716 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                              _lhsOfromToStates =
-                                 ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIfromToStates
-                                  {-# LINE 2720 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2722 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 527, column 59)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 529, column 59)
                              _lhsOt_visits =
-                                 ({-# LINE 527 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 529 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIt_visits
-                                  {-# LINE 2726 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2728 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                              _lhsOvisitKinds =
-                                 ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIvisitKinds
-                                  {-# LINE 2732 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2734 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                              _lhsOvisitdefs =
-                                 ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIvisitdefs
-                                  {-# LINE 2738 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2740 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
-                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                             -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                              _lhsOvisituses =
-                                 ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIvisituses
-                                  {-# LINE 2744 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2746 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (up)
                              _lhsOallvisits =
-                                 ({-# LINE 429 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 431 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _visitsIallvisits
-                                  {-# LINE 2750 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2752 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (from local)
                              _lhsOsem_prod =
-                                 ({-# LINE 672 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 674 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _sem_prod
-                                  {-# LINE 2756 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2758 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOallInhmap =
-                                 ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallInhmap
-                                  {-# LINE 2762 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2764 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOallSynmap =
-                                 ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallSynmap
-                                  {-# LINE 2768 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2770 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOchildTypes =
-                                 ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _childTypes
-                                  {-# LINE 2774 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2776 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOinhmap =
-                                 ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIinhmap
-                                  {-# LINE 2780 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2782 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOlazyIntras =
-                                 ({-# LINE 1330 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1332 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lazyIntras
-                                  {-# LINE 2786 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2788 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (from local)
                              _rulesOlocalAttrTypes =
-                                 ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _localAttrTypes
-                                  {-# LINE 2792 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2794 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOmainFile =
                                  ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsImainFile
-                                  {-# LINE 2798 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2800 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOmainName =
                                  ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsImainName
-                                  {-# LINE 2804 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2806 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOnt =
                                  ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2810 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2812 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOoptions =
                                  ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2816 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2818 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _rulesOsynmap =
-                                 ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIsynmap
-                                  {-# LINE 2822 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2824 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOallInitStates =
-                                 ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallInitStates
-                                  {-# LINE 2828 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2830 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOmainFile =
                                  ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsImainFile
-                                  {-# LINE 2834 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2836 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOmainName =
                                  ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsImainName
-                                  {-# LINE 2840 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2842 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOnt =
                                  ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2846 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2848 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _childrenOoptions =
                                  ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2852 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2854 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallFromToStates =
-                                 ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallFromToStates
-                                  {-# LINE 2858 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2860 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallInhmap =
-                                 ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallInhmap
-                                  {-# LINE 2864 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2866 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallInitStates =
-                                 ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallInitStates
-                                  {-# LINE 2870 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2872 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallSynmap =
-                                 ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallSynmap
-                                  {-# LINE 2876 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2878 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallVisitKinds =
-                                 ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallVisitKinds
-                                  {-# LINE 2882 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2884 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOallchildvisit =
-                                 ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIallchildvisit
-                                  {-# LINE 2888 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2890 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOavisitdefs =
-                                 ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIavisitdefs
-                                  {-# LINE 2894 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2896 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOavisituses =
-                                 ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIavisituses
-                                  {-# LINE 2900 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2902 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (from local)
                              _visitsOchildTypes =
-                                 ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _childTypes
-                                  {-# LINE 2906 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2908 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOinhmap =
-                                 ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIinhmap
-                                  {-# LINE 2912 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2914 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOnextVisits =
-                                 ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsInextVisits
-                                  {-# LINE 2918 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2920 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOnt =
                                  ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsInt
-                                  {-# LINE 2924 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2926 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOoptions =
                                  ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIoptions
-                                  {-# LINE 2930 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2932 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOparams =
                                  ({-# LINE 92 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIparams
-                                  {-# LINE 2936 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2938 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOprevVisits =
-                                 ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIprevVisits
-                                  {-# LINE 2942 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2944 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              -- copy rule (down)
                              _visitsOsynmap =
-                                 ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                   _lhsIsynmap
-                                  {-# LINE 2948 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                  {-# LINE 2950 "dist/build/ExecutionPlan2Caml.hs" #-}
                                   )
                              ( _rulesIerrors,_rulesImrules,_rulesIruledefs,_rulesIruleuses,_rulesIsem_rules) =
                                  rules_ _rulesOallInhmap _rulesOallSynmap _rulesOchildTypes _rulesOcon _rulesOinhmap _rulesOlazyIntras _rulesOlocalAttrTypes _rulesOmainFile _rulesOmainName _rulesOnt _rulesOoptions _rulesOruleKinds _rulesOsynmap _rulesOusageInfo
@@ -3157,365 +3159,365 @@ sem_EProductions_Cons (T_EProduction hd_) (T_EProductions tl_) =
                               _tlIvisitKinds :: (Map VisitIdentifier VisitKind)
                               _tlIvisitdefs :: (Map VisitIdentifier (Set Identifier))
                               _tlIvisituses :: (Map VisitIdentifier (Set Identifier))
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 435, column 10)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 437, column 10)
                               _lhsOallvisits =
-                                  ({-# LINE 435 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 437 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIallvisits
-                                   {-# LINE 3165 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3167 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 530, column 3)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 532, column 3)
                               _lhsOt_visits =
-                                  ({-# LINE 530 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 532 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIt_visits
-                                   {-# LINE 3171 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3173 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                               _lhsOchildvisit =
-                                  ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIchildvisit `Map.union` _tlIchildvisit
-                                   {-# LINE 3177 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3179 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 379, column 43)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 381, column 43)
                               _lhsOcount =
-                                  ({-# LINE 379 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 381 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIcount + _tlIcount
-                                   {-# LINE 3183 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3185 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIdatatype : _tlIdatatype
-                                   {-# LINE 3189 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3191 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype_call =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIdatatype_call : _tlIdatatype_call
-                                   {-# LINE 3195 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3197 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype_con =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIdatatype_con : _tlIdatatype_con
-                                   {-# LINE 3201 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3203 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                               _lhsOerrors =
-                                  ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIerrors Seq.>< _tlIerrors
-                                   {-# LINE 3207 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3209 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                               _lhsOfromToStates =
-                                  ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIfromToStates `mappend` _tlIfromToStates
-                                   {-# LINE 3213 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3215 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                               _lhsOsemFunBndDefs =
-                                  ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIsemFunBndDefs Seq.>< _tlIsemFunBndDefs
-                                   {-# LINE 3219 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3221 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                               _lhsOsemFunBndTps =
-                                  ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIsemFunBndTps Seq.>< _tlIsemFunBndTps
-                                   {-# LINE 3225 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3227 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 383, column 44)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 385, column 44)
                               _lhsOsem_nt =
-                                  ({-# LINE 383 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 385 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIsem_nt >-< _tlIsem_nt
-                                   {-# LINE 3231 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3233 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 673, column 34)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 675, column 34)
                               _lhsOsem_prod =
-                                  ({-# LINE 673 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 675 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIsem_prod >-< _tlIsem_prod
-                                   {-# LINE 3237 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3239 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                               _lhsOvisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIvisitKinds `mappend` _tlIvisitKinds
-                                   {-# LINE 3243 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3245 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                               _lhsOvisitdefs =
-                                  ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                                   {-# LINE 3249 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3251 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                               _lhsOvisituses =
-                                  ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _hdIvisituses `uwSetUnion` _tlIvisituses
-                                   {-# LINE 3255 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3257 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallFromToStates =
-                                  ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 3261 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3263 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallInhmap =
-                                  ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallInhmap
-                                   {-# LINE 3267 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3269 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallInitStates =
-                                  ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 3273 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3275 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallSynmap =
-                                  ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallSynmap
-                                   {-# LINE 3279 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3281 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallVisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 3285 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3287 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallchildvisit =
-                                  ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 3291 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3293 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOallstates =
-                                  ({-# LINE 676 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 678 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallstates
-                                   {-# LINE 3297 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3299 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOavisitdefs =
-                                  ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 3303 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3305 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOavisituses =
-                                  ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 3309 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3311 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOinhmap =
-                                  ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIinhmap
-                                   {-# LINE 3315 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3317 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOinitial =
-                                  ({-# LINE 675 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 677 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIinitial
-                                   {-# LINE 3321 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3323 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOlocalAttrTypes =
-                                  ({-# LINE 1426 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1428 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIlocalAttrTypes
-                                   {-# LINE 3327 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3329 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOmainFile =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 3333 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3335 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOmainName =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 3339 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3341 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOnextVisits =
-                                  ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsInextVisits
-                                   {-# LINE 3345 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3347 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOnt =
                                   ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsInt
-                                   {-# LINE 3351 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3353 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOntType =
-                                  ({-# LINE 1469 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1471 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIntType
-                                   {-# LINE 3357 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3359 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOoptions =
                                   ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 3363 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3365 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOparams =
                                   ({-# LINE 92 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIparams
-                                   {-# LINE 3369 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3371 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOprevVisits =
-                                  ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIprevVisits
-                                   {-# LINE 3375 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3377 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOrename =
                                   ({-# LINE 73 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIrename
-                                   {-# LINE 3381 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3383 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _hdOsynmap =
-                                  ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 3387 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3389 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallFromToStates =
-                                  ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallFromToStates
-                                   {-# LINE 3393 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3395 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallInhmap =
-                                  ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallInhmap
-                                   {-# LINE 3399 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3401 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallInitStates =
-                                  ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallInitStates
-                                   {-# LINE 3405 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3407 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallSynmap =
-                                  ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallSynmap
-                                   {-# LINE 3411 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3413 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallVisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallVisitKinds
-                                   {-# LINE 3417 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3419 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallchildvisit =
-                                  ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallchildvisit
-                                   {-# LINE 3423 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3425 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOallstates =
-                                  ({-# LINE 676 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 678 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIallstates
-                                   {-# LINE 3429 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3431 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOavisitdefs =
-                                  ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisitdefs
-                                   {-# LINE 3435 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3437 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOavisituses =
-                                  ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIavisituses
-                                   {-# LINE 3441 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3443 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOinhmap =
-                                  ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIinhmap
-                                   {-# LINE 3447 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3449 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOinitial =
-                                  ({-# LINE 675 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 677 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIinitial
-                                   {-# LINE 3453 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3455 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOlocalAttrTypes =
-                                  ({-# LINE 1426 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1428 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIlocalAttrTypes
-                                   {-# LINE 3459 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3461 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOmainFile =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainFile
-                                   {-# LINE 3465 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3467 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOmainName =
                                   ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsImainName
-                                   {-# LINE 3471 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3473 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOnextVisits =
-                                  ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsInextVisits
-                                   {-# LINE 3477 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3479 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOnt =
                                   ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsInt
-                                   {-# LINE 3483 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3485 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOntType =
-                                  ({-# LINE 1469 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1471 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIntType
-                                   {-# LINE 3489 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3491 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOoptions =
                                   ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIoptions
-                                   {-# LINE 3495 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3497 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOparams =
                                   ({-# LINE 92 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIparams
-                                   {-# LINE 3501 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3503 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOprevVisits =
-                                  ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIprevVisits
-                                   {-# LINE 3507 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3509 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOrename =
                                   ({-# LINE 73 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIrename
-                                   {-# LINE 3513 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3515 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               -- copy rule (down)
                               _tlOsynmap =
-                                  ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    _lhsIsynmap
-                                   {-# LINE 3519 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3521 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                               ( _hdIallvisits,_hdIchildvisit,_hdIcount,_hdIdatatype,_hdIdatatype_call,_hdIdatatype_con,_hdIerrors,_hdIfromToStates,_hdIsemFunBndDefs,_hdIsemFunBndTps,_hdIsem_nt,_hdIsem_prod,_hdIt_visits,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                                   hd_ _hdOallFromToStates _hdOallInhmap _hdOallInitStates _hdOallSynmap _hdOallVisitKinds _hdOallchildvisit _hdOallstates _hdOavisitdefs _hdOavisituses _hdOinhmap _hdOinitial _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOnextVisits _hdOnt _hdOntType _hdOoptions _hdOparams _hdOprevVisits _hdOrename _hdOsynmap
@@ -3562,101 +3564,101 @@ sem_EProductions_Nil =
                               _lhsOvisitKinds :: (Map VisitIdentifier VisitKind)
                               _lhsOvisitdefs :: (Map VisitIdentifier (Set Identifier))
                               _lhsOvisituses :: (Map VisitIdentifier (Set Identifier))
-                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 436, column 10)
+                              -- "./src-ag/ExecutionPlan2Caml.ag"(line 438, column 10)
                               _lhsOallvisits =
-                                  ({-# LINE 436 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 438 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    error "Every nonterminal should have at least 1 production"
-                                   {-# LINE 3570 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3572 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                               _lhsOchildvisit =
-                                  ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Map.empty
-                                   {-# LINE 3576 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3578 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 379, column 43)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 381, column 43)
                               _lhsOcount =
-                                  ({-# LINE 379 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 381 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    0
-                                   {-# LINE 3582 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3584 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    []
-                                   {-# LINE 3588 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3590 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype_call =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    []
-                                   {-# LINE 3594 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3596 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 253, column 63)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 254, column 63)
                               _lhsOdatatype_con =
-                                  ({-# LINE 253 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 254 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    []
-                                   {-# LINE 3600 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3602 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                               _lhsOerrors =
-                                  ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Seq.empty
-                                   {-# LINE 3606 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3608 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                               _lhsOfromToStates =
-                                  ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    mempty
-                                   {-# LINE 3612 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3614 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                               _lhsOsemFunBndDefs =
-                                  ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Seq.empty
-                                   {-# LINE 3618 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3620 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 642, column 92)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 644, column 92)
                               _lhsOsemFunBndTps =
-                                  ({-# LINE 642 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 644 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Seq.empty
-                                   {-# LINE 3624 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3626 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 383, column 44)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 385, column 44)
                               _lhsOsem_nt =
-                                  ({-# LINE 383 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 385 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    empty
-                                   {-# LINE 3630 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3632 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 673, column 34)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 675, column 34)
                               _lhsOsem_prod =
-                                  ({-# LINE 673 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 675 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    empty
-                                   {-# LINE 3636 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3638 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 527, column 59)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 529, column 59)
                               _lhsOt_visits =
-                                  ({-# LINE 527 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 529 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    empty
-                                   {-# LINE 3642 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3644 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                               _lhsOvisitKinds =
-                                  ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    mempty
-                                   {-# LINE 3648 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3650 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                               _lhsOvisitdefs =
-                                  ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Map.empty
-                                   {-# LINE 3654 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3656 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
-                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                              -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                               _lhsOvisituses =
-                                  ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                  ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                    Map.empty
-                                   {-# LINE 3660 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                   {-# LINE 3662 "dist/build/ExecutionPlan2Caml.hs" #-}
                                    )
                           in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOcount,_lhsOdatatype,_lhsOdatatype_call,_lhsOdatatype_con,_lhsOerrors,_lhsOfromToStates,_lhsOsemFunBndDefs,_lhsOsemFunBndTps,_lhsOsem_nt,_lhsOsem_prod,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))
 -- ERule -------------------------------------------------------
@@ -3782,17 +3784,17 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                        _rhsIpos :: Pos
                        _rhsIsemfunc :: PP_Doc
                        _rhsItks :: ([HsToken])
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 973, column 6)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 975, column 6)
                        _lhsOsem_rules =
-                           ({-# LINE 973 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 975 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             if _used     == 0
                             then empty
                             else _rulecode
-                            {-# LINE 3792 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3794 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 976, column 6)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 978, column 6)
                        _rulecode =
-                           ({-# LINE 976 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 978 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ( if _genpragma
                               then _pragma
                               else empty
@@ -3804,41 +3806,41 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                     else _rhsIsemfunc
                                   )
                             >#< "in"
-                            {-# LINE 3808 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 989, column 7)
-                       _pragma =
-                           ({-# LINE 989 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            ppLinePragma _lhsIoptions (line _rhsIpos) (file _rhsIpos)
-                            {-# LINE 3814 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 990, column 7)
-                       _endpragma =
-                           ({-# LINE 990 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            ppWithLineNr (\ln -> ppLinePragma _lhsIoptions (ln+1) _lhsImainFile)
-                            {-# LINE 3820 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3810 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 991, column 7)
-                       _genpragma =
+                       _pragma =
                            ({-# LINE 991 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            genLinePragmas _lhsIoptions && explicit_ && _haspos
-                            {-# LINE 3826 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            ppLinePragma _lhsIoptions (line _rhsIpos) (file _rhsIpos)
+                            {-# LINE 3816 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 992, column 7)
-                       _haspos =
+                       _endpragma =
                            ({-# LINE 992 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ppWithLineNr (\ln -> ppLinePragma _lhsIoptions (ln+1) _lhsImainFile)
+                            {-# LINE 3822 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 993, column 7)
+                       _genpragma =
+                           ({-# LINE 993 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            genLinePragmas _lhsIoptions && explicit_ && _haspos
+                            {-# LINE 3828 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 994, column 7)
+                       _haspos =
+                           ({-# LINE 994 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             line _rhsIpos > 0 && column _rhsIpos >= 0 && not (null (file _rhsIpos))
-                            {-# LINE 3832 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3834 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 996, column 7)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 998, column 7)
                        _declHead =
-                           ({-# LINE 996 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 998 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             "let" >#< name_ >#< _argPats     >#< dummyPat _lhsIoptions (Map.null _rhsIattrs) >#< "="
-                            {-# LINE 3838 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3840 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 997, column 7)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 999, column 7)
                        _argPats =
-                           ({-# LINE 997 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 999 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ppSpaced
                               [ case mbAttr of
                                   Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs _lhsIoptions) ->
@@ -3852,110 +3854,110 @@ sem_ERule_ERule name_ (T_Pattern pattern_) (T_Expression rhs_) owrt_ origin_ exp
                                   _ -> pp strNm
                               | (strNm, mbAttr) <- Map.assocs _rhsIattrs
                               ]
-                            {-# LINE 3856 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3858 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1012, column 7)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1014, column 7)
                        _argExprs =
-                           ({-# LINE 1012 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1014 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ppSpaced $ Map.keys _rhsIattrs
-                            {-# LINE 3862 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3864 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1013, column 7)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1015, column 7)
                        _stepcode =
-                           ({-# LINE 1013 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1015 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             \kind ->
                               let mkBind (pat,expr) = "let" >#< pat >#< "=" >#< expr >#< "in"
                               in if kind `compatibleRule` pure_
                                  then Right $ mkBind (_patternIsem_lhs, name_ >#< _argExprs     >#< dummyArg _lhsIoptions (Map.null _rhsIattrs))
                                               >-< vlist (map mkBind _patternIextraDefs)
                                  else Left $ IncompatibleRuleKind name_ kind
-                            {-# LINE 3873 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3875 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1020, column 7)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1022, column 7)
                        _lhsOmrules =
-                           ({-# LINE 1020 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1022 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton name_ _stepcode
-                            {-# LINE 3879 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3881 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1222, column 32)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1224, column 32)
                        _used =
-                           ({-# LINE 1222 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1224 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.findWithDefault 0 name_ _lhsIusageInfo
-                            {-# LINE 3885 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3887 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1238, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1240, column 3)
                        _kinds =
-                           ({-# LINE 1238 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1240 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.findWithDefault Set.empty name_ _lhsIruleKinds
-                            {-# LINE 3891 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3893 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1239, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1241, column 3)
                        _anyLazyKind =
-                           ({-# LINE 1239 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Set.fold (\k r -> isLazyKind k || r) False _kinds
-                            {-# LINE 3897 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3899 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1285, column 11)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1287, column 11)
                        _lhsOruledefs =
-                           ({-# LINE 1285 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1287 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton name_ _patternIattrs
-                            {-# LINE 3903 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3905 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1286, column 11)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1288, column 11)
                        _lhsOruleuses =
-                           ({-# LINE 1286 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1288 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton name_ _rhsIattrs
-                            {-# LINE 3909 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3911 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1482, column 3)
                        _lhsOerrors =
-                           ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1482 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             case mbError_ of
                               Just e | _used     > 0 -> Seq.singleton e
                               _                      -> Seq.empty
-                            {-# LINE 3917 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3919 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOallInhmap =
-                           ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallInhmap
-                            {-# LINE 3923 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3925 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOallSynmap =
-                           ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallSynmap
-                            {-# LINE 3929 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3931 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (from local)
                        _patternOanyLazyKind =
-                           ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _anyLazyKind
-                            {-# LINE 3935 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3937 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOinhmap =
-                           ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIinhmap
-                            {-# LINE 3941 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3943 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOlocalAttrTypes =
-                           ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIlocalAttrTypes
-                            {-# LINE 3947 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3949 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOoptions =
                            ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIoptions
-                            {-# LINE 3953 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3955 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _patternOsynmap =
-                           ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIsynmap
-                            {-# LINE 3959 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 3961 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        ( _patternIattrTypes,_patternIattrs,_patternIcopy,_patternIextraDefs,_patternIisUnderscore,_patternIsem_lhs) =
                            pattern_ _patternOallInhmap _patternOallSynmap _patternOanyLazyKind _patternOinhmap _patternOlocalAttrTypes _patternOoptions _patternOsynmap
@@ -4082,203 +4084,203 @@ sem_ERules_Cons (T_ERule hd_) (T_ERules tl_) =
                         _tlIruledefs :: (Map Identifier (Set String))
                         _tlIruleuses :: (Map Identifier (Map String (Maybe NonLocalAttr)))
                         _tlIsem_rules :: PP_Doc
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                         _lhsOerrors =
-                            ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIerrors Seq.>< _tlIerrors
-                             {-# LINE 4090 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4092 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 970, column 32)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 972, column 32)
                         _lhsOmrules =
-                            ({-# LINE 970 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 972 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdImrules `Map.union` _tlImrules
-                             {-# LINE 4096 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4098 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1278, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1280, column 34)
                         _lhsOruledefs =
-                            ({-# LINE 1278 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1280 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIruledefs `uwSetUnion` _tlIruledefs
-                             {-# LINE 4102 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4104 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1279, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1281, column 34)
                         _lhsOruleuses =
-                            ({-# LINE 1279 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIruleuses `uwMapUnion` _tlIruleuses
-                             {-# LINE 4108 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4110 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 969, column 35)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 971, column 35)
                         _lhsOsem_rules =
-                            ({-# LINE 969 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 971 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIsem_rules >-< _tlIsem_rules
-                             {-# LINE 4114 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4116 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInhmap =
-                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 4120 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4122 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallSynmap =
-                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 4126 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4128 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildTypes =
-                            ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 4132 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4134 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOcon =
                             ({-# LINE 86 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIcon
-                             {-# LINE 4138 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4140 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOinhmap =
-                            ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 4144 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4146 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOlazyIntras =
-                            ({-# LINE 1330 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1332 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIlazyIntras
-                             {-# LINE 4150 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4152 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOlocalAttrTypes =
-                            ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIlocalAttrTypes
-                             {-# LINE 4156 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4158 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmainFile =
                             ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImainFile
-                             {-# LINE 4162 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4164 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmainName =
                             ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImainName
-                             {-# LINE 4168 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4170 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnt =
                             ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInt
-                             {-# LINE 4174 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4176 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOoptions =
                             ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIoptions
-                             {-# LINE 4180 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4182 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruleKinds =
-                            ({-# LINE 1233 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1235 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruleKinds
-                             {-# LINE 4186 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4188 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOsynmap =
-                            ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 4192 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4194 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOusageInfo =
-                            ({-# LINE 1218 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1220 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIusageInfo
-                             {-# LINE 4198 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4200 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInhmap =
-                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 4204 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4206 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallSynmap =
-                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 4210 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4212 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildTypes =
-                            ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 4216 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4218 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOcon =
                             ({-# LINE 86 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIcon
-                             {-# LINE 4222 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4224 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOinhmap =
-                            ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 4228 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4230 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOlazyIntras =
-                            ({-# LINE 1330 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1332 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIlazyIntras
-                             {-# LINE 4234 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4236 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOlocalAttrTypes =
-                            ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIlocalAttrTypes
-                             {-# LINE 4240 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4242 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmainFile =
                             ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImainFile
-                             {-# LINE 4246 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4248 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmainName =
                             ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImainName
-                             {-# LINE 4252 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4254 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnt =
                             ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInt
-                             {-# LINE 4258 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4260 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOoptions =
                             ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIoptions
-                             {-# LINE 4264 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4266 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruleKinds =
-                            ({-# LINE 1233 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1235 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruleKinds
-                             {-# LINE 4270 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4272 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOsynmap =
-                            ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 4276 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4278 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOusageInfo =
-                            ({-# LINE 1218 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1220 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIusageInfo
-                             {-# LINE 4282 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4284 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         ( _hdIerrors,_hdImrules,_hdIruledefs,_hdIruleuses,_hdIsem_rules) =
                             hd_ _hdOallInhmap _hdOallSynmap _hdOchildTypes _hdOcon _hdOinhmap _hdOlazyIntras _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOnt _hdOoptions _hdOruleKinds _hdOsynmap _hdOusageInfo
@@ -4306,35 +4308,35 @@ sem_ERules_Nil =
                         _lhsOruledefs :: (Map Identifier (Set String))
                         _lhsOruleuses :: (Map Identifier (Map String (Maybe NonLocalAttr)))
                         _lhsOsem_rules :: PP_Doc
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                         _lhsOerrors =
-                            ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Seq.empty
-                             {-# LINE 4314 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4316 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 970, column 32)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 972, column 32)
                         _lhsOmrules =
-                            ({-# LINE 970 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 972 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 4320 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4322 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1278, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1280, column 34)
                         _lhsOruledefs =
-                            ({-# LINE 1278 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1280 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 4326 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4328 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1279, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1281, column 34)
                         _lhsOruleuses =
-                            ({-# LINE 1279 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 4332 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4334 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 969, column 35)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 971, column 35)
                         _lhsOsem_rules =
-                            ({-# LINE 969 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 971 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              empty
-                             {-# LINE 4338 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 4340 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                     in  ( _lhsOerrors,_lhsOmrules,_lhsOruledefs,_lhsOruleuses,_lhsOsem_rules))))
 -- ExecutionPlan -----------------------------------------------
@@ -4431,138 +4433,138 @@ sem_ExecutionPlan_ExecutionPlan (T_ENonterminals nonts_) typeSyns_ wrappers_ der
                                _lhsOcode =
                                    ({-# LINE 103 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIcode  >-< _wrappersExtra
-                                    {-# LINE 4435 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4437 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- "./src-ag/ExecutionPlan2Caml.ag"(line 104, column 3)
                                _lhsOdatas =
                                    ({-# LINE 104 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIdatas >-< _commonExtra
-                                    {-# LINE 4441 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4443 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- "./src-ag/ExecutionPlan2Caml.ag"(line 110, column 3)
                                _nontsOwrappers =
                                    ({-# LINE 110 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     wrappers_
-                                    {-# LINE 4447 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4449 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- "./src-ag/ExecutionPlan2Caml.ag"(line 171, column 3)
                                _nontsOtypeSyns =
                                    ({-# LINE 171 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     typeSyns_
-                                    {-# LINE 4453 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4455 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 659, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 661, column 3)
                                _wrappersExtra =
-                                   ({-# LINE 659 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 661 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     if lateHigherOrderBinding _lhsIoptions
                                     then _lateSemBndDef
                                     else empty
-                                    {-# LINE 4461 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4463 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 662, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 664, column 3)
                                _commonExtra =
-                                   ({-# LINE 662 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 664 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     if lateHigherOrderBinding _lhsIoptions
                                     then _lateSemBndTp
                                     else empty
-                                    {-# LINE 4469 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4471 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 665, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 667, column 3)
                                _lateSemBndTp =
-                                   ({-# LINE 665 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 667 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     "and" >#< lateBindingTypeNm _lhsImainName >#< "=" >#< ppRecordTp (toList _nontsIsemFunBndTps)
-                                    {-# LINE 4475 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4477 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 666, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 668, column 3)
                                _lateSemBndDef =
-                                   ({-# LINE 666 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 668 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     "and" >#< lateBindingFieldNm _lhsImainName >#< ":" >#< lateBindingTypeNm _lhsImainName >#< "="
                                     >-< (indent 2 $ ppRecordVal $ toList _nontsIsemFunBndDefs)
-                                    {-# LINE 4482 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4484 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1152, column 19)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1154, column 19)
                                _nontsOallchildvisit =
-                                   ({-# LINE 1152 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1154 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIchildvisit
-                                    {-# LINE 4488 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4490 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1310, column 19)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1312, column 19)
                                _nontsOavisitdefs =
-                                   ({-# LINE 1310 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1312 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIvisitdefs
-                                    {-# LINE 4494 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4496 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1311, column 19)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1313, column 19)
                                _nontsOavisituses =
-                                   ({-# LINE 1311 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1313 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIvisituses
-                                    {-# LINE 4500 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4502 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1402, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1404, column 3)
                                _nontsOallFromToStates =
-                                   ({-# LINE 1402 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1404 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIfromToStates
-                                    {-# LINE 4506 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4508 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1446, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1448, column 3)
                                _nontsOallVisitKinds =
-                                   ({-# LINE 1446 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1448 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIvisitKinds
-                                    {-# LINE 4512 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4514 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1460, column 3)
+                               -- "./src-ag/ExecutionPlan2Caml.ag"(line 1462, column 3)
                                _nontsOallInitStates =
-                                   ({-# LINE 1460 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1462 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIinitStates
-                                    {-# LINE 4518 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4520 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
-                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                               -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                                _lhsOerrors =
-                                   ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsIerrors
-                                    {-# LINE 4524 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4526 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (up)
                                _lhsOmodules =
                                    ({-# LINE 100 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _nontsImodules
-                                    {-# LINE 4530 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4532 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOinhmap =
-                                   ({-# LINE 403 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 405 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIinhmap
-                                    {-# LINE 4536 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4538 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOlocalAttrTypes =
-                                   ({-# LINE 1425 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIlocalAttrTypes
-                                    {-# LINE 4542 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4544 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOmainFile =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainFile
-                                    {-# LINE 4548 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4550 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOmainName =
                                    ({-# LINE 60 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsImainName
-                                    {-# LINE 4554 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4556 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOoptions =
                                    ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIoptions
-                                    {-# LINE 4560 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4562 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                -- copy rule (down)
                                _nontsOsynmap =
-                                   ({-# LINE 404 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                   ({-# LINE 406 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                     _lhsIsynmap
-                                    {-# LINE 4566 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                    {-# LINE 4568 "dist/build/ExecutionPlan2Caml.hs" #-}
                                     )
                                ( _nontsIchildvisit,_nontsIcode,_nontsIdatas,_nontsIerrors,_nontsIfromToStates,_nontsIinitStates,_nontsImodules,_nontsIsemFunBndDefs,_nontsIsemFunBndTps,_nontsIvisitKinds,_nontsIvisitdefs,_nontsIvisituses) =
                                    nonts_ _nontsOallFromToStates _nontsOallInitStates _nontsOallVisitKinds _nontsOallchildvisit _nontsOavisitdefs _nontsOavisituses _nontsOinhmap _nontsOlocalAttrTypes _nontsOmainFile _nontsOmainName _nontsOoptions _nontsOsynmap _nontsOtypeSyns _nontsOwrappers
@@ -4603,29 +4605,29 @@ sem_Expression_Expression pos_ tks_ =
                        _lhsOpos :: Pos
                        _lhsOattrs :: (Map String (Maybe NonLocalAttr))
                        _lhsOsemfunc :: PP_Doc
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1024, column 16)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1026, column 16)
                        _lhsOtks =
-                           ({-# LINE 1024 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1026 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             tks_
-                            {-# LINE 4611 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 4613 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1045, column 29)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1047, column 29)
                        _lhsOpos =
-                           ({-# LINE 1045 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1047 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             pos_
-                            {-# LINE 4617 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 4619 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1137, column 16)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1139, column 16)
                        _lhsOattrs =
-                           ({-# LINE 1137 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1139 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                            {-# LINE 4623 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 4625 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1138, column 16)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1140, column 16)
                        _lhsOsemfunc =
-                           ({-# LINE 1138 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1140 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                            {-# LINE 4629 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 4631 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                    in  ( _lhsOattrs,_lhsOpos,_lhsOsemfunc,_lhsOtks)))
 -- HsToken -----------------------------------------------------
@@ -4694,23 +4696,23 @@ sem_HsToken_AGLocal :: Identifier ->
 sem_HsToken_AGLocal var_ pos_ rdesc_ =
     (T_HsToken (let _lhsOattrs :: (Map String (Maybe NonLocalAttr))
                     _lhsOtok :: ((Pos,String))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1096, column 15)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1098, column 15)
                     _lhsOattrs =
-                        ({-# LINE 1096 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1098 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.singleton (fieldname var_) Nothing
-                         {-# LINE 4702 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4704 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1358, column 15)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1360, column 15)
                     _tok =
-                        ({-# LINE 1358 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1360 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_,fieldname var_)
-                         {-# LINE 4708 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4710 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                     -- copy rule (from local)
                     _lhsOtok =
-                        ({-# LINE 1360 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1362 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          _tok
-                         {-# LINE 4714 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4716 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_AGField :: Identifier ->
@@ -4721,33 +4723,33 @@ sem_HsToken_AGField :: Identifier ->
 sem_HsToken_AGField field_ attr_ pos_ rdesc_ =
     (T_HsToken (let _lhsOattrs :: (Map String (Maybe NonLocalAttr))
                     _lhsOtok :: ((Pos,String))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1097, column 15)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1099, column 15)
                     _mbAttr =
-                        ({-# LINE 1097 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1099 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          if field_ == _INST || field_ == _FIELD || field_ == _INST'
                          then Nothing
                          else Just $ mkNonLocalAttr (field_ == _LHS) field_ attr_
-                         {-# LINE 4731 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4733 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1100, column 15)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1102, column 15)
                     _lhsOattrs =
-                        ({-# LINE 1100 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1102 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.singleton (attrname True field_ attr_) _mbAttr
-                         {-# LINE 4737 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4739 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1362, column 8)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1364, column 8)
                     _addTrace =
-                        ({-# LINE 1362 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1364 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          case rdesc_ of
                            Just d  -> \x -> "(prerr_endline " ++ show (d ++ " -> " ++ show field_ ++ "." ++ show attr_) ++ "; " ++ x ++ ")"
                            Nothing -> id
-                         {-# LINE 4745 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4747 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1365, column 8)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1367, column 8)
                     _lhsOtok =
-                        ({-# LINE 1365 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1367 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_, _addTrace     $ attrname True field_ attr_)
-                         {-# LINE 4751 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4753 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_HsToken :: String ->
@@ -4756,17 +4758,17 @@ sem_HsToken_HsToken :: String ->
 sem_HsToken_HsToken value_ pos_ =
     (T_HsToken (let _lhsOtok :: ((Pos,String))
                     _lhsOattrs :: (Map String (Maybe NonLocalAttr))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1367, column 14)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1369, column 14)
                     _lhsOtok =
-                        ({-# LINE 1367 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1369 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_, value_)
-                         {-# LINE 4764 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4766 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1094, column 37)
+                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1096, column 37)
                     _lhsOattrs =
-                        ({-# LINE 1094 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1096 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.empty
-                         {-# LINE 4770 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4772 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_CharToken :: String ->
@@ -4775,20 +4777,20 @@ sem_HsToken_CharToken :: String ->
 sem_HsToken_CharToken value_ pos_ =
     (T_HsToken (let _lhsOtok :: ((Pos,String))
                     _lhsOattrs :: (Map String (Maybe NonLocalAttr))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1369, column 16)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1371, column 16)
                     _lhsOtok =
-                        ({-# LINE 1369 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1371 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_, if null value_
                                    then ""
                                    else showCharShort (head value_)
                          )
-                         {-# LINE 4786 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4788 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1094, column 37)
+                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1096, column 37)
                     _lhsOattrs =
-                        ({-# LINE 1094 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1096 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.empty
-                         {-# LINE 4792 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4794 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_StrToken :: String ->
@@ -4797,17 +4799,17 @@ sem_HsToken_StrToken :: String ->
 sem_HsToken_StrToken value_ pos_ =
     (T_HsToken (let _lhsOtok :: ((Pos,String))
                     _lhsOattrs :: (Map String (Maybe NonLocalAttr))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1374, column 16)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1376, column 16)
                     _lhsOtok =
-                        ({-# LINE 1374 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1376 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_, showStrShort value_)
-                         {-# LINE 4805 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4807 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1094, column 37)
+                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1096, column 37)
                     _lhsOattrs =
-                        ({-# LINE 1094 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1096 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.empty
-                         {-# LINE 4811 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4813 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 sem_HsToken_Err :: String ->
@@ -4816,17 +4818,17 @@ sem_HsToken_Err :: String ->
 sem_HsToken_Err mesg_ pos_ =
     (T_HsToken (let _lhsOtok :: ((Pos,String))
                     _lhsOattrs :: (Map String (Maybe NonLocalAttr))
-                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1375, column 16)
+                    -- "./src-ag/ExecutionPlan2Caml.ag"(line 1377, column 16)
                     _lhsOtok =
-                        ({-# LINE 1375 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1377 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          (pos_, "")
-                         {-# LINE 4824 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4826 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
-                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1094, column 37)
+                    -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1096, column 37)
                     _lhsOattrs =
-                        ({-# LINE 1094 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                        ({-# LINE 1096 "./src-ag/ExecutionPlan2Caml.ag" #-}
                          Map.empty
-                         {-# LINE 4830 "dist/build/ExecutionPlan2Caml.hs" #-}
+                         {-# LINE 4832 "dist/build/ExecutionPlan2Caml.hs" #-}
                          )
                 in  ( _lhsOattrs,_lhsOtok)))
 -- HsTokens ----------------------------------------------------
@@ -4863,11 +4865,11 @@ sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
                      _hdIattrs :: (Map String (Maybe NonLocalAttr))
                      _hdItok :: ((Pos,String))
                      _tlItks :: ([(Pos,String)])
-                     -- "./src-ag/ExecutionPlan2Caml.ag"(line 1354, column 10)
+                     -- "./src-ag/ExecutionPlan2Caml.ag"(line 1356, column 10)
                      _lhsOtks =
-                         ({-# LINE 1354 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                         ({-# LINE 1356 "./src-ag/ExecutionPlan2Caml.ag" #-}
                           _hdItok : _tlItks
-                          {-# LINE 4871 "dist/build/ExecutionPlan2Caml.hs" #-}
+                          {-# LINE 4873 "dist/build/ExecutionPlan2Caml.hs" #-}
                           )
                      ( _hdIattrs,_hdItok) =
                          hd_
@@ -4877,11 +4879,11 @@ sem_HsTokens_Cons (T_HsToken hd_) (T_HsTokens tl_) =
 sem_HsTokens_Nil :: T_HsTokens
 sem_HsTokens_Nil =
     (T_HsTokens (let _lhsOtks :: ([(Pos,String)])
-                     -- "./src-ag/ExecutionPlan2Caml.ag"(line 1355, column 10)
+                     -- "./src-ag/ExecutionPlan2Caml.ag"(line 1357, column 10)
                      _lhsOtks =
-                         ({-# LINE 1355 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                         ({-# LINE 1357 "./src-ag/ExecutionPlan2Caml.ag" #-}
                           []
-                          {-# LINE 4885 "dist/build/ExecutionPlan2Caml.hs" #-}
+                          {-# LINE 4887 "dist/build/ExecutionPlan2Caml.hs" #-}
                           )
                  in  ( _lhsOtks)))
 -- HsTokensRoot ------------------------------------------------
@@ -5019,89 +5021,89 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                          _patsIcopy :: Patterns
                          _patsIextraDefs :: ([(PP_Doc,PP_Doc)])
                          _patsIsem_lhs :: ([PP_Doc])
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1062, column 17)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1064, column 17)
                          _lhsOsem_lhs =
-                             ({-# LINE 1062 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1064 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               pp_parens $ name_ >#< pp_block "(" ")" "," _patsIsem_lhs
-                              {-# LINE 5027 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5029 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1071, column 16)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1073, column 16)
                          _lhsOisUnderscore =
-                             ({-# LINE 1071 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1073 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               False
-                              {-# LINE 5033 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5035 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                          _lhsOattrTypes =
-                             ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIattrTypes
-                              {-# LINE 5039 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5041 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                          _lhsOattrs =
-                             ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIattrs
-                              {-# LINE 5045 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5047 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                          _lhsOextraDefs =
-                             ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIextraDefs
-                              {-# LINE 5051 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5053 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               Constr name_ _patsIcopy
-                              {-# LINE 5057 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5059 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 5063 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5065 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallInhmap =
-                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 5069 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5071 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallSynmap =
-                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 5075 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5077 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOanyLazyKind =
-                             ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 5081 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5083 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOinhmap =
-                             ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 5087 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5089 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOlocalAttrTypes =
-                             ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 5093 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5095 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOoptions =
                              ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIoptions
-                              {-# LINE 5099 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5101 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOsynmap =
-                             ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 5105 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5107 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          ( _patsIattrTypes,_patsIattrs,_patsIcopy,_patsIextraDefs,_patsIsem_lhs) =
                              pats_ _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap
@@ -5135,89 +5137,89 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                          _patsIcopy :: Patterns
                          _patsIextraDefs :: ([(PP_Doc,PP_Doc)])
                          _patsIsem_lhs :: ([PP_Doc])
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1061, column 17)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1063, column 17)
                          _lhsOsem_lhs =
-                             ({-# LINE 1061 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1063 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               pp_block "(" ")" "," _patsIsem_lhs
-                              {-# LINE 5143 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5145 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1072, column 16)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1074, column 16)
                          _lhsOisUnderscore =
-                             ({-# LINE 1072 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1074 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               False
-                              {-# LINE 5149 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5151 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                          _lhsOattrTypes =
-                             ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIattrTypes
-                              {-# LINE 5155 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5157 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                          _lhsOattrs =
-                             ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIattrs
-                              {-# LINE 5161 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5163 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                          _lhsOextraDefs =
-                             ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patsIextraDefs
-                              {-# LINE 5167 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5169 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               Product pos_ _patsIcopy
-                              {-# LINE 5173 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5175 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 5179 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5181 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallInhmap =
-                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 5185 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5187 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOallSynmap =
-                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 5191 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5193 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOanyLazyKind =
-                             ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 5197 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5199 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOinhmap =
-                             ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 5203 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5205 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOlocalAttrTypes =
-                             ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 5209 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5211 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOoptions =
                              ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIoptions
-                              {-# LINE 5215 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5217 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patsOsynmap =
-                             ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 5221 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5223 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          ( _patsIattrTypes,_patsIattrs,_patsIcopy,_patsIextraDefs,_patsIsem_lhs) =
                              pats_ _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap
@@ -5253,120 +5255,120 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                          _patIextraDefs :: ([(PP_Doc,PP_Doc)])
                          _patIisUnderscore :: Bool
                          _patIsem_lhs :: ( PP_Doc )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1053, column 17)
-                         _var =
-                             ({-# LINE 1053 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                              text $ attrname False field_ attr_
-                              {-# LINE 5261 "dist/build/ExecutionPlan2Caml.hs" #-}
-                              )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1054, column 17)
-                         _hasTp =
-                             ({-# LINE 1054 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                              isJust _mbTp
-                              {-# LINE 5267 "dist/build/ExecutionPlan2Caml.hs" #-}
-                              )
                          -- "./src-ag/ExecutionPlan2Caml.ag"(line 1055, column 17)
-                         _o_sigs =
+                         _var =
                              ({-# LINE 1055 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                              typeSigs _lhsIoptions
-                              {-# LINE 5273 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              text $ attrname False field_ attr_
+                              {-# LINE 5263 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              )
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1056, column 17)
+                         _hasTp =
+                             ({-# LINE 1056 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              isJust _mbTp
+                              {-# LINE 5269 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- "./src-ag/ExecutionPlan2Caml.ag"(line 1057, column 17)
-                         _lhsOsem_lhs =
+                         _o_sigs =
                              ({-# LINE 1057 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                              ppArg (_hasTp     && _o_sigs    ) _var     (maybe (text "?no type?") ppTp _mbTp    )
-                              {-# LINE 5279 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              typeSigs _lhsIoptions
+                              {-# LINE 5275 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1058, column 17)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1059, column 17)
+                         _lhsOsem_lhs =
+                             ({-# LINE 1059 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ppArg (_hasTp     && _o_sigs    ) _var     (maybe (text "?no type?") ppTp _mbTp    )
+                              {-# LINE 5281 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              )
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1060, column 17)
                          _lhsOextraDefs =
-                             ({-# LINE 1058 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1060 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               if _patIisUnderscore
                               then []
                               else [ (_patIsem_lhs, _var    ) ]
-                              {-# LINE 5287 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5289 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1073, column 16)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1075, column 16)
                          _lhsOisUnderscore =
-                             ({-# LINE 1073 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1075 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               False
-                              {-# LINE 5293 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5295 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 3)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1081, column 3)
                          _lhsOattrs =
-                             ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1081 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               Set.insert (attrname False field_ attr_) _patIattrs
-                              {-# LINE 5299 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5301 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 3)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1087, column 3)
                          _mbTp =
-                             ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1087 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               if field_ == _LHS
                               then Map.lookup attr_ _lhsIsynmap
                               else if field_ == _LOC
                                    then Map.lookup attr_ _lhsIlocalAttrTypes
                                    else Nothing
-                              {-# LINE 5309 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5311 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1090, column 3)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1092, column 3)
                          _lhsOattrTypes =
-                             ({-# LINE 1090 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1092 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               maybe empty (\tp -> (attrname False field_ attr_) >#< "::" >#< ppTp tp) _mbTp
                               >-< _patIattrTypes
-                              {-# LINE 5316 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5318 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               Alias field_ attr_ _patIcopy
-                              {-# LINE 5322 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5324 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 5328 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5330 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOallInhmap =
-                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 5334 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5336 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOallSynmap =
-                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 5340 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5342 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOanyLazyKind =
-                             ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 5346 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5348 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOinhmap =
-                             ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 5352 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5354 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOlocalAttrTypes =
-                             ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 5358 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5360 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOoptions =
                              ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIoptions
-                              {-# LINE 5364 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5366 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOsynmap =
-                             ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 5370 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5372 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          ( _patIattrTypes,_patIattrs,_patIcopy,_patIextraDefs,_patIisUnderscore,_patIsem_lhs) =
                              pat_ _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap
@@ -5400,89 +5402,89 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                          _patIextraDefs :: ([(PP_Doc,PP_Doc)])
                          _patIisUnderscore :: Bool
                          _patIsem_lhs :: ( PP_Doc )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1064, column 17)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1066, column 17)
                          _lhsOsem_lhs =
-                             ({-# LINE 1064 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1066 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               pp_parens (text "lazy" >#< _patIsem_lhs)
-                              {-# LINE 5408 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5410 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                          _lhsOattrTypes =
-                             ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patIattrTypes
-                              {-# LINE 5414 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5416 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                          _lhsOattrs =
-                             ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patIattrs
-                              {-# LINE 5420 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5422 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                          _lhsOextraDefs =
-                             ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patIextraDefs
-                              {-# LINE 5426 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5428 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               Irrefutable _patIcopy
-                              {-# LINE 5432 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5434 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 5438 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5440 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (up)
                          _lhsOisUnderscore =
-                             ({-# LINE 1069 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1071 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _patIisUnderscore
-                              {-# LINE 5444 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5446 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOallInhmap =
-                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallInhmap
-                              {-# LINE 5450 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5452 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOallSynmap =
-                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIallSynmap
-                              {-# LINE 5456 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5458 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOanyLazyKind =
-                             ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIanyLazyKind
-                              {-# LINE 5462 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5464 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOinhmap =
-                             ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIinhmap
-                              {-# LINE 5468 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5470 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOlocalAttrTypes =
-                             ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIlocalAttrTypes
-                              {-# LINE 5474 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5476 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOoptions =
                              ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIoptions
-                              {-# LINE 5480 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5482 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- copy rule (down)
                          _patOsynmap =
-                             ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               _lhsIsynmap
-                              {-# LINE 5486 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5488 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          ( _patIattrTypes,_patIattrs,_patIcopy,_patIextraDefs,_patIisUnderscore,_patIsem_lhs) =
                              pat_ _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap
@@ -5503,47 +5505,47 @@ sem_Pattern_Underscore pos_ =
                          _lhsOattrs :: (Set String)
                          _lhsOextraDefs :: ([(PP_Doc,PP_Doc)])
                          _lhsOcopy :: Pattern
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1063, column 17)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1065, column 17)
                          _lhsOsem_lhs =
-                             ({-# LINE 1063 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1065 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               text "_"
-                              {-# LINE 5511 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5513 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1074, column 16)
+                         -- "./src-ag/ExecutionPlan2Caml.ag"(line 1076, column 16)
                          _lhsOisUnderscore =
-                             ({-# LINE 1074 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1076 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               True
-                              {-# LINE 5517 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5519 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                          _lhsOattrTypes =
-                             ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               empty
-                              {-# LINE 5523 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5525 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                          _lhsOattrs =
-                             ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               Set.empty
-                              {-# LINE 5529 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5531 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
-                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                         -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                          _lhsOextraDefs =
-                             ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                             ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                               []
-                              {-# LINE 5535 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5537 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _copy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               Underscore pos_
-                              {-# LINE 5541 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5543 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                          -- self rule
                          _lhsOcopy =
                              ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                               _copy
-                              {-# LINE 5547 "dist/build/ExecutionPlan2Caml.hs" #-}
+                              {-# LINE 5549 "dist/build/ExecutionPlan2Caml.hs" #-}
                               )
                      in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOextraDefs,_lhsOisUnderscore,_lhsOsem_lhs))))
 -- Patterns ----------------------------------------------------
@@ -5636,125 +5638,125 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                           _tlIcopy :: Patterns
                           _tlIextraDefs :: ([(PP_Doc,PP_Doc)])
                           _tlIsem_lhs :: ([PP_Doc])
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                           _lhsOattrTypes =
-                              ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _hdIattrTypes >-< _tlIattrTypes
-                               {-# LINE 5644 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5646 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                           _lhsOattrs =
-                              ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _hdIattrs `Set.union` _tlIattrs
-                               {-# LINE 5650 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5652 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                           _lhsOextraDefs =
-                              ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _hdIextraDefs ++ _tlIextraDefs
-                               {-# LINE 5656 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5658 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1049, column 29)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1051, column 29)
                           _lhsOsem_lhs =
-                              ({-# LINE 1049 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1051 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _hdIsem_lhs : _tlIsem_lhs
-                               {-# LINE 5662 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5664 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                                (:) _hdIcopy _tlIcopy
-                               {-# LINE 5668 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5670 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 5674 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5676 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOallInhmap =
-                              ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIallInhmap
-                               {-# LINE 5680 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5682 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOallSynmap =
-                              ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIallSynmap
-                               {-# LINE 5686 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5688 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOanyLazyKind =
-                              ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIanyLazyKind
-                               {-# LINE 5692 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5694 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOinhmap =
-                              ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIinhmap
-                               {-# LINE 5698 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5700 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOlocalAttrTypes =
-                              ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIlocalAttrTypes
-                               {-# LINE 5704 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5706 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOoptions =
                               ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIoptions
-                               {-# LINE 5710 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5712 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _hdOsynmap =
-                              ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIsynmap
-                               {-# LINE 5716 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5718 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOallInhmap =
-                              ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIallInhmap
-                               {-# LINE 5722 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5724 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOallSynmap =
-                              ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIallSynmap
-                               {-# LINE 5728 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5730 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOanyLazyKind =
-                              ({-# LINE 1241 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1243 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIanyLazyKind
-                               {-# LINE 5734 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5736 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOinhmap =
-                              ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIinhmap
-                               {-# LINE 5740 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5742 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOlocalAttrTypes =
-                              ({-# LINE 1427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIlocalAttrTypes
-                               {-# LINE 5746 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5748 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOoptions =
                               ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIoptions
-                               {-# LINE 5752 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5754 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- copy rule (down)
                           _tlOsynmap =
-                              ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                _lhsIsynmap
-                               {-# LINE 5758 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5760 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           ( _hdIattrTypes,_hdIattrs,_hdIcopy,_hdIextraDefs,_hdIisUnderscore,_hdIsem_lhs) =
                               hd_ _hdOallInhmap _hdOallSynmap _hdOanyLazyKind _hdOinhmap _hdOlocalAttrTypes _hdOoptions _hdOsynmap
@@ -5775,41 +5777,41 @@ sem_Patterns_Nil =
                           _lhsOextraDefs :: ([(PP_Doc,PP_Doc)])
                           _lhsOsem_lhs :: ([PP_Doc])
                           _lhsOcopy :: Patterns
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1083, column 40)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1085, column 40)
                           _lhsOattrTypes =
-                              ({-# LINE 1083 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1085 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                empty
-                               {-# LINE 5783 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5785 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1077, column 36)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1079, column 36)
                           _lhsOattrs =
-                              ({-# LINE 1077 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1079 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                Set.empty
-                               {-# LINE 5789 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5791 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1050, column 39)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1052, column 39)
                           _lhsOextraDefs =
-                              ({-# LINE 1050 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1052 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                []
-                               {-# LINE 5795 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5797 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
-                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1049, column 29)
+                          -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1051, column 29)
                           _lhsOsem_lhs =
-                              ({-# LINE 1049 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                              ({-# LINE 1051 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                []
-                               {-# LINE 5801 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5803 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- self rule
                           _copy =
                               ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                                []
-                               {-# LINE 5807 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5809 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                           -- self rule
                           _lhsOcopy =
                               ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                                _copy
-                               {-# LINE 5813 "dist/build/ExecutionPlan2Caml.hs" #-}
+                               {-# LINE 5815 "dist/build/ExecutionPlan2Caml.hs" #-}
                                )
                       in  ( _lhsOattrTypes,_lhsOattrs,_lhsOcopy,_lhsOextraDefs,_lhsOsem_lhs))))
 -- Visit -------------------------------------------------------
@@ -6003,189 +6005,189 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                        _stepsIsize :: Int
                        _stepsIuses :: (Map String (Maybe NonLocalAttr))
                        _stepsIvisitKinds :: (Map VisitIdentifier VisitKind)
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 432, column 11)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 434, column 11)
                        _lhsOallvisits =
-                           ({-# LINE 432 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 434 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             (ident_, from_, to_)
-                            {-# LINE 6011 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 535, column 3)
-                       _nameTIn_visit =
-                           ({-# LINE 535 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            conNmTVisitIn _lhsInt ident_
-                            {-# LINE 6017 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 536, column 3)
-                       _nameTOut_visit =
-                           ({-# LINE 536 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            conNmTVisitOut _lhsInt ident_
-                            {-# LINE 6023 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6013 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 537, column 3)
-                       _nameNextState =
+                       _nameTIn_visit =
                            ({-# LINE 537 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            type_nt_sem _lhsInt to_
-                            {-# LINE 6029 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            conNmTVisitIn _lhsInt ident_
+                            {-# LINE 6019 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 538, column 3)
-                       _nameCaller_visit =
+                       _nameTOut_visit =
                            ({-# LINE 538 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            type_caller_visit _lhsInt ident_
-                            {-# LINE 6035 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            conNmTVisitOut _lhsInt ident_
+                            {-# LINE 6025 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 539, column 3)
+                       _nameNextState =
+                           ({-# LINE 539 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            type_nt_sem _lhsInt to_
+                            {-# LINE 6031 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 540, column 3)
-                       _nextVisitInfo =
+                       _nameCaller_visit =
                            ({-# LINE 540 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            Map.findWithDefault ManyVis to_ _lhsInextVisits
-                            {-# LINE 6041 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            type_caller_visit _lhsInt ident_
+                            {-# LINE 6037 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 542, column 3)
-                       _t_params =
+                       _nextVisitInfo =
                            ({-# LINE 542 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            Map.findWithDefault ManyVis to_ _lhsInextVisits
+                            {-# LINE 6043 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 544, column 3)
+                       _t_params =
+                           ({-# LINE 544 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ppTypeParams _lhsIparams
-                            {-# LINE 6047 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6049 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 543, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 545, column 3)
                        _t_c_params =
-                           ({-# LINE 543 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 545 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ppTypeParams (cont_tvar : map pp _lhsIparams)
-                            {-# LINE 6053 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6055 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 547, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 549, column 3)
                        _lhsOt_visits =
-                           ({-# LINE 547 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 549 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             "and" >#< _t_c_params     >#< _nameCaller_visit     >#< "=" >#< ppRecordTp
                               [ nm_inh _lhsInt ident_ >#< ":" >#< _t_params     >#< conNmTVisitIn _lhsInt ident_
                               , nm_cont _lhsInt ident_ >#< ":" >#< _t_params     >#< conNmTVisitOut _lhsInt ident_ >#< "->" >#< cont_tvar
                               ]
                             >-< "and" >#< _t_params     >#< _nameTIn_visit      >#< "=" >#< ppRecordTp _inhpart
                             >-< "and" >#< _t_params     >#< _nameTOut_visit     >#< "=" >#< ppRecordTp (_synpart     ++ _contpart    )
-                            {-# LINE 6064 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6066 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 554, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 556, column 3)
                        _contpart =
-                           ({-# LINE 554 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 556 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             case _nextVisitInfo     of
                               NoneVis -> []
                               _       -> [ nm_outarg_cont _lhsInt ident_ >#< ":" >#< _t_params     >#< _nameNextState     ]
-                            {-# LINE 6072 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 558, column 3)
-                       _inhpart =
-                           ({-# LINE 558 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            _ppTypeList     nm_inarg inh_ _lhsIinhmap
-                            {-# LINE 6078 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 559, column 3)
-                       _synpart =
-                           ({-# LINE 559 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            _ppTypeList     nm_outarg syn_ _lhsIsynmap
-                            {-# LINE 6084 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6074 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 560, column 3)
-                       _ppTypeList =
+                       _inhpart =
                            ({-# LINE 560 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            _ppTypeList     nm_inarg inh_ _lhsIinhmap
+                            {-# LINE 6080 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 561, column 3)
+                       _synpart =
+                           ({-# LINE 561 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            _ppTypeList     nm_outarg syn_ _lhsIsynmap
+                            {-# LINE 6086 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 562, column 3)
+                       _ppTypeList =
+                           ({-# LINE 562 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             \f s m -> map (\i -> case Map.lookup i m of
                                                    Just tp -> f i _lhsInt ident_ >#< ":" >#< ppTp tp ) $ Set.toList s
-                            {-# LINE 6091 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6093 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 794, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 796, column 3)
                        _o_sigs =
-                           ({-# LINE 794 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 796 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             typeSigs _lhsIoptions
-                            {-# LINE 6097 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6099 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 795, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 797, column 3)
                        _lhsOsem_visit =
-                           ({-# LINE 795 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 797 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ( from_
                             , let resTp = _t_params     >#< _nameTOut_visit
                                   argTp = _t_params     >#< _nameTIn_visit
                                   argMatch = ppRecordVal [ nm_inarg i _lhsInt ident_ >#< "=" >#< lhsname True i | i <- Set.toList inh_ ]
                               in ppFunDecl _o_sigs     (nm_visit ident_) [(argMatch, argTp)] resTp _stepsIsem_steps
                             )
-                            {-# LINE 6108 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 802, column 3)
-                       _stepsOfollow =
-                           ({-# LINE 802 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            _nextStBuild     >-< _resultval
-                            {-# LINE 6114 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6110 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 804, column 3)
-                       _nextArgsMp =
+                       _stepsOfollow =
                            ({-# LINE 804 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                            {-# LINE 6120 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 805, column 3)
-                       _nextArgs =
-                           ({-# LINE 805 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            ppSpaced $ Map.keys $ _nextArgsMp
-                            {-# LINE 6126 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            _nextStBuild     >-< _resultval
+                            {-# LINE 6116 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 806, column 3)
-                       _nextStExp =
+                       _nextArgsMp =
                            ({-# LINE 806 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            nm_st to_ >#< _nextArgs     >#< dummyArg _lhsIoptions (Map.null _nextArgsMp    )
-                            {-# LINE 6132 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
+                            {-# LINE 6122 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 807, column 3)
+                       _nextArgs =
+                           ({-# LINE 807 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ppSpaced $ Map.keys $ _nextArgsMp
+                            {-# LINE 6128 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 808, column 3)
-                       _resultval =
+                       _nextStExp =
                            ({-# LINE 808 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            nm_st to_ >#< _nextArgs     >#< dummyArg _lhsIoptions (Map.null _nextArgsMp    )
+                            {-# LINE 6134 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 810, column 3)
+                       _resultval =
+                           ({-# LINE 810 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             ppRecordVal
                               (  [ nm_outarg i _lhsInt ident_ >#< "=" >#< lhsname False i | i <- Set.toList syn_ ]
                               ++ [ _nextStRefExp     ])
-                            {-# LINE 6140 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6142 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 812, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 814, column 3)
                        (_nextStBuild,_nextStRefExp) =
-                           ({-# LINE 812 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 814 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             case _nextVisitInfo     of
                               NoneVis  -> (empty, empty)
                               _        -> ( "let" >#< nextStName >#< "=" >#< _nextStExp     >#< "in"
                                           , nm_outarg_cont _lhsInt ident_ >#< "=" >#< nextStName)
-                            {-# LINE 6149 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6151 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 828, column 20)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 830, column 20)
                        _stepsOkind =
-                           ({-# LINE 828 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 830 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             kind_
-                            {-# LINE 6155 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6157 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 880, column 22)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 882, column 22)
                        _stepsOindex =
-                           ({-# LINE 880 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 882 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             0
-                            {-# LINE 6161 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6163 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 887, column 22)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 889, column 22)
                        _stepsOprevMaxSimRefs =
-                           ({-# LINE 887 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 889 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             0
-                            {-# LINE 6167 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6169 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 904, column 22)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 906, column 22)
                        _stepsOuseParallel =
-                           ({-# LINE 904 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 906 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             False
-                            {-# LINE 6173 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1160, column 3)
-                       _prevVisitInfo =
-                           ({-# LINE 1160 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            Map.findWithDefault ManyVis from_ _lhsInextVisits
-                            {-# LINE 6179 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1161, column 3)
-                       _lhsOchildvisit =
-                           ({-# LINE 1161 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            Map.singleton ident_ _invokecode
-                            {-# LINE 6185 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6175 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1162, column 3)
-                       _invokecode =
+                       _prevVisitInfo =
                            ({-# LINE 1162 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            Map.findWithDefault ManyVis from_ _lhsInextVisits
+                            {-# LINE 6181 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1163, column 3)
+                       _lhsOchildvisit =
+                           ({-# LINE 1163 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            Map.singleton ident_ _invokecode
+                            {-# LINE 6187 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1164, column 3)
+                       _invokecode =
+                           ({-# LINE 1164 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             \chld childTp kind follow ->
                               let code = cont >-< inps >-< call
                                   childNmTo   = text $ stname chld to_
@@ -6214,179 +6216,179 @@ sem_Visit_Visit ident_ from_ to_ inh_ syn_ (T_VisitSteps steps_) kind_ =
                               in if kind `compatibleKind` kind_
                                  then Right code
                                  else Left $ IncompatibleVisitKind chld ident_ kind kind_
-                            {-# LINE 6218 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1268, column 11)
-                       _thisintra =
-                           ({-# LINE 1268 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            (_uses     `Map.union` _nextintra    ) `Map.difference` _defsAsMap
-                            {-# LINE 6224 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1269, column 11)
-                       _lhsOintramap =
-                           ({-# LINE 1269 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            Map.singleton from_ _thisintra
-                            {-# LINE 6230 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6220 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1270, column 11)
-                       _nextintra =
+                       _thisintra =
                            ({-# LINE 1270 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                            {-# LINE 6236 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            (_uses     `Map.union` _nextintra    ) `Map.difference` _defsAsMap
+                            {-# LINE 6226 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1271, column 11)
-                       _uses =
+                       _lhsOintramap =
                            ({-# LINE 1271 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            Map.singleton from_ _thisintra
+                            {-# LINE 6232 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1272, column 11)
+                       _nextintra =
+                           ({-# LINE 1272 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
+                            {-# LINE 6238 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1273, column 11)
+                       _uses =
+                           ({-# LINE 1273 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             let mp1 = _stepsIuses
                                 mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems syn_ ]
                             in mp1 `Map.union` mp2
-                            {-# LINE 6244 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1274, column 11)
-                       _inhVarNms =
-                           ({-# LINE 1274 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            Set.map (lhsname True) inh_
-                            {-# LINE 6250 "dist/build/ExecutionPlan2Caml.hs" #-}
-                            )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1275, column 11)
-                       _defs =
-                           ({-# LINE 1275 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                            _stepsIdefs `Set.union` _inhVarNms     `Set.union` _lhsIterminaldefs
-                            {-# LINE 6256 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6246 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- "./src-ag/ExecutionPlan2Caml.ag"(line 1276, column 11)
-                       _defsAsMap =
+                       _inhVarNms =
                            ({-# LINE 1276 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            Set.map (lhsname True) inh_
+                            {-# LINE 6252 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1277, column 11)
+                       _defs =
+                           ({-# LINE 1277 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            _stepsIdefs `Set.union` _inhVarNms     `Set.union` _lhsIterminaldefs
+                            {-# LINE 6258 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            )
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1278, column 11)
+                       _defsAsMap =
+                           ({-# LINE 1278 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.fromList [ (a, Nothing) | a <- Set.elems _defs     ]
-                            {-# LINE 6262 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6264 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1300, column 11)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1302, column 11)
                        _lhsOvisitdefs =
-                           ({-# LINE 1300 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1302 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton ident_ syn_
-                            {-# LINE 6268 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6270 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1301, column 11)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1303, column 11)
                        _lhsOvisituses =
-                           ({-# LINE 1301 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1303 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton ident_ inh_
-                            {-# LINE 6274 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6276 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1333, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1335, column 3)
                        _lazyIntrasInh =
-                           ({-# LINE 1333 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1335 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             case kind_ of
                               VisitPure False -> _inhVarNms     `Set.union` _stepsIdefs
                               _               -> Set.empty
-                            {-# LINE 6282 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6284 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1336, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1338, column 3)
                        _lhsOlazyIntras =
-                           ({-# LINE 1336 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1338 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lazyIntrasInh     `Set.union` _stepsIlazyIntras
-                            {-# LINE 6288 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6290 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1399, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1401, column 3)
                        _lhsOfromToStates =
-                           ({-# LINE 1399 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1401 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton ident_ (from_, to_)
-                            {-# LINE 6294 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6296 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1443, column 3)
+                       -- "./src-ag/ExecutionPlan2Caml.ag"(line 1445, column 3)
                        _lhsOvisitKinds =
-                           ({-# LINE 1443 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1445 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             Map.singleton ident_ kind_
-                            {-# LINE 6300 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6302 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                        _lhsOerrors =
-                           ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _stepsIerrors
-                            {-# LINE 6306 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6308 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                        _lhsOruleKinds =
-                           ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _stepsIruleKinds
-                            {-# LINE 6312 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6314 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
-                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                       -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                        _lhsOruleUsage =
-                           ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _stepsIruleUsage
-                            {-# LINE 6318 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6320 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallFromToStates =
-                           ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallFromToStates
-                            {-# LINE 6324 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6326 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallInitStates =
-                           ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallInitStates
-                            {-# LINE 6330 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6332 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallVisitKinds =
-                           ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallVisitKinds
-                            {-# LINE 6336 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6338 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOallchildvisit =
-                           ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1151 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIallchildvisit
-                            {-# LINE 6342 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6344 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOavisitdefs =
-                           ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIavisitdefs
-                            {-# LINE 6348 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6350 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOavisituses =
-                           ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIavisituses
-                            {-# LINE 6354 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6356 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOchildTypes =
-                           ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIchildTypes
-                            {-# LINE 6360 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6362 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOchildintros =
-                           ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIchildintros
-                            {-# LINE 6366 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6368 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOmrules =
-                           ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsImrules
-                            {-# LINE 6372 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6374 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOoptions =
                            ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIoptions
-                            {-# LINE 6378 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6380 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOruledefs =
-                           ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIruledefs
-                            {-# LINE 6384 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6386 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        -- copy rule (down)
                        _stepsOruleuses =
-                           ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                           ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                             _lhsIruleuses
-                            {-# LINE 6390 "dist/build/ExecutionPlan2Caml.hs" #-}
+                            {-# LINE 6392 "dist/build/ExecutionPlan2Caml.hs" #-}
                             )
                        ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIuses,_stepsIvisitKinds) =
                            steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfollow _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
@@ -6524,79 +6526,79 @@ sem_VisitStep_Sem name_ =
                            _lhsOindex :: Int
                            _lhsOisLast :: Bool
                            _lhsOprevMaxSimRefs :: Int
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 845, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 847, column 16)
                            _ruleItf =
-                               ({-# LINE 845 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 847 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.findWithDefault (error $ "Rule "  ++ show name_  ++ " not found") name_ _lhsImrules
-                                {-# LINE 6532 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6534 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 846, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 848, column 16)
                            (_lhsOerrors,_sem_steps) =
-                               ({-# LINE 846 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 848 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 case _ruleItf     _lhsIkind of
                                   Left e     -> (Seq.singleton e, empty)
                                   Right stmt -> (Seq.empty, stmt)
-                                {-# LINE 6540 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6542 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 849, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 851, column 16)
                            _lhsOsem_steps =
-                               ({-# LINE 849 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 851 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _sem_steps     >-< _lhsIfollow
-                                {-# LINE 6546 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6548 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1221, column 32)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1223, column 32)
                            _lhsOruleUsage =
-                               ({-# LINE 1221 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1223 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.singleton name_ 1
-                                {-# LINE 6552 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6554 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 3)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1233, column 3)
                            _lhsOruleKinds =
-                               ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1233 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.singleton name_ (Set.singleton _lhsIkind)
-                                {-# LINE 6558 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6560 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1316, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1318, column 16)
                            _lhsOdefs =
-                               ({-# LINE 1316 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1318 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruledefs
-                                {-# LINE 6564 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6566 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1317, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1319, column 16)
                            _lhsOuses =
-                               ({-# LINE 1317 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1319 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruleuses
-                                {-# LINE 6570 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6572 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                            _lhsOlazyIntras =
-                               ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Set.empty
-                                {-# LINE 6576 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6578 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                            _lhsOvisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 mempty
-                                {-# LINE 6582 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6584 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
-                               ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIindex
-                                {-# LINE 6588 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6590 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
-                               ({-# LINE 894 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 896 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 6594 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6596 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 6600 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6602 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_ChildVisit :: Identifier ->
@@ -6633,87 +6635,87 @@ sem_VisitStep_ChildVisit child_ nonterm_ visit_ =
                            _lhsOindex :: Int
                            _lhsOisLast :: Bool
                            _lhsOprevMaxSimRefs :: Int
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 856, column 16)
-                           _visitItf =
-                               ({-# LINE 856 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                Map.findWithDefault (error $ "Visit " ++ show visit_ ++ " not found") visit_ _lhsIallchildvisit
-                                {-# LINE 6641 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 857, column 16)
-                           _childType =
-                               ({-# LINE 857 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                Map.findWithDefault (error ("type of child " ++ show child_ ++ " is not in the childTypes map! " ++ show _lhsIchildTypes)) child_ _lhsIchildTypes
-                                {-# LINE 6647 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                )
                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 858, column 16)
-                           (_lhsOerrors,_lhsOsem_steps) =
+                           _visitItf =
                                ({-# LINE 858 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                Map.findWithDefault (error $ "Visit " ++ show visit_ ++ " not found") visit_ _lhsIallchildvisit
+                                {-# LINE 6643 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                )
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 859, column 16)
+                           _childType =
+                               ({-# LINE 859 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                Map.findWithDefault (error ("type of child " ++ show child_ ++ " is not in the childTypes map! " ++ show _lhsIchildTypes)) child_ _lhsIchildTypes
+                                {-# LINE 6649 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                )
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 860, column 16)
+                           (_lhsOerrors,_lhsOsem_steps) =
+                               ({-# LINE 860 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 case _visitItf     child_ _childType     _lhsIkind _lhsIfollow of
                                   Left e      -> (Seq.singleton e, empty)
                                   Right steps -> (Seq.empty, steps)
-                                {-# LINE 6655 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6657 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1318, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1320, column 16)
                            _lhsOdefs =
-                               ({-# LINE 1318 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1320 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Set.insert (stname child_ _to) $ maybe (error "Visit not found") (Set.map $ attrname True child_) $ Map.lookup visit_ _lhsIavisitdefs
-                                {-# LINE 6661 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6663 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1319, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1321, column 16)
                            _lhsOuses =
-                               ({-# LINE 1319 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1321 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 let convert attrs = Map.fromList [ (attrname False child_ attr, Just $ mkNonLocalAttr True child_ attr) | attr <- Set.elems attrs ]
                                 in Map.insert (stname child_ _from) Nothing $ convert $
                                      maybe (error "Visit not found") id $ Map.lookup visit_ _lhsIavisituses
-                                {-# LINE 6669 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6671 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1405, column 3)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1407, column 3)
                            (_from,_to) =
-                               ({-# LINE 1405 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1407 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.findWithDefault (error "visit not in allFromToStates") visit_ _lhsIallFromToStates
-                                {-# LINE 6675 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6677 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                            _lhsOlazyIntras =
-                               ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Set.empty
-                                {-# LINE 6681 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6683 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                            _lhsOruleKinds =
-                               ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.empty
-                                {-# LINE 6687 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6689 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                            _lhsOruleUsage =
-                               ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.empty
-                                {-# LINE 6693 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6695 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                            _lhsOvisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 mempty
-                                {-# LINE 6699 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6701 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
-                               ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIindex
-                                {-# LINE 6705 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6707 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
-                               ({-# LINE 894 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 896 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 6711 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6713 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 6717 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6719 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOuses,_lhsOvisitKinds))))
 sem_VisitStep_PureGroup :: T_VisitSteps ->
@@ -6778,175 +6780,175 @@ sem_VisitStep_PureGroup (T_VisitSteps steps_) ordered_ =
                            _stepsIsize :: Int
                            _stepsIuses :: (Map String (Maybe NonLocalAttr))
                            _stepsIvisitKinds :: (Map VisitIdentifier VisitKind)
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 832, column 3)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 834, column 3)
                            _stepsOkind =
-                               ({-# LINE 832 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 834 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 VisitPure ordered_
-                                {-# LINE 6786 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6788 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1339, column 3)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 1341, column 3)
                            _lhsOlazyIntras =
-                               ({-# LINE 1339 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1341 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 if ordered_
                                 then _stepsIlazyIntras
                                 else _stepsIdefs
-                                {-# LINE 6794 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6796 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1313, column 38)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1315, column 38)
                            _lhsOdefs =
-                               ({-# LINE 1313 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1315 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIdefs
-                                {-# LINE 6800 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6802 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                            _lhsOerrors =
-                               ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIerrors
-                                {-# LINE 6806 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6808 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                            _lhsOruleKinds =
-                               ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIruleKinds
-                                {-# LINE 6812 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6814 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                            _lhsOruleUsage =
-                               ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIruleUsage
-                                {-# LINE 6818 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6820 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 836, column 59)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 838, column 59)
                            _lhsOsem_steps =
-                               ({-# LINE 836 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 838 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIsem_steps
-                                {-# LINE 6824 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6826 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1314, column 38)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1316, column 38)
                            _lhsOuses =
-                               ({-# LINE 1314 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1316 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIuses
-                                {-# LINE 6830 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6832 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                            _lhsOvisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIvisitKinds
-                                {-# LINE 6836 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6838 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOindex =
-                               ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIindex
-                                {-# LINE 6842 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6844 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOisLast =
-                               ({-# LINE 894 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 896 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIisLast
-                                {-# LINE 6848 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6850 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIprevMaxSimRefs
-                                {-# LINE 6854 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6856 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallFromToStates =
-                               ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallFromToStates
-                                {-# LINE 6860 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6862 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallInitStates =
-                               ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 6866 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6868 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallVisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallVisitKinds
-                                {-# LINE 6872 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6874 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallchildvisit =
-                               ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1151 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallchildvisit
-                                {-# LINE 6878 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6880 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisitdefs =
-                               ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIavisitdefs
-                                {-# LINE 6884 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6886 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisituses =
-                               ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIavisituses
-                                {-# LINE 6890 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6892 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildTypes =
-                               ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIchildTypes
-                                {-# LINE 6896 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6898 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildintros =
-                               ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIchildintros
-                                {-# LINE 6902 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6904 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOfollow =
-                               ({-# LINE 836 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 838 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIfollow
-                                {-# LINE 6908 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6910 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOindex =
-                               ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIindex
-                                {-# LINE 6914 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6916 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOmrules =
-                               ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsImrules
-                                {-# LINE 6920 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6922 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOoptions =
                                ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 6926 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6928 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 6932 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6934 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruledefs =
-                               ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIruledefs
-                                {-# LINE 6938 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6940 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruleuses =
-                               ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIruleuses
-                                {-# LINE 6944 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6946 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOuseParallel =
-                               ({-# LINE 903 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 905 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIuseParallel
-                                {-# LINE 6950 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 6952 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIuses,_stepsIvisitKinds) =
                                steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfollow _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
@@ -7012,181 +7014,181 @@ sem_VisitStep_Sim (T_VisitSteps steps_) =
                            _stepsIsize :: Int
                            _stepsIuses :: (Map String (Maybe NonLocalAttr))
                            _stepsIvisitKinds :: (Map VisitIdentifier VisitKind)
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 881, column 22)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 883, column 22)
                            _stepsOindex =
-                               ({-# LINE 881 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 883 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 0
-                                {-# LINE 7020 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7022 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 882, column 22)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 884, column 22)
                            _lhsOindex =
-                               ({-# LINE 882 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 884 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIindex
-                                {-# LINE 7026 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7028 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 889, column 3)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 891, column 3)
                            _lhsOprevMaxSimRefs =
-                               ({-# LINE 889 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 891 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 if _useParallel
                                 then _lhsIprevMaxSimRefs `max` (_stepsIindex - 1)
                                 else _lhsIprevMaxSimRefs
-                                {-# LINE 7034 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7036 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 905, column 22)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 907, column 22)
                            _useParallel =
-                               ({-# LINE 905 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 907 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 parallelInvoke _lhsIoptions && _stepsIsize > 1
-                                {-# LINE 7040 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7042 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1313, column 38)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1315, column 38)
                            _lhsOdefs =
-                               ({-# LINE 1313 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1315 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIdefs
-                                {-# LINE 7046 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7048 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                            _lhsOerrors =
-                               ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIerrors
-                                {-# LINE 7052 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7054 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                            _lhsOlazyIntras =
-                               ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIlazyIntras
-                                {-# LINE 7058 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7060 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                            _lhsOruleKinds =
-                               ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIruleKinds
-                                {-# LINE 7064 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7066 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                            _lhsOruleUsage =
-                               ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIruleUsage
-                                {-# LINE 7070 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7072 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 836, column 59)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 838, column 59)
                            _lhsOsem_steps =
-                               ({-# LINE 836 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 838 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIsem_steps
-                                {-# LINE 7076 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7078 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1314, column 38)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1316, column 38)
                            _lhsOuses =
-                               ({-# LINE 1314 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1316 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIuses
-                                {-# LINE 7082 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7084 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                            _lhsOvisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIvisitKinds
-                                {-# LINE 7088 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7090 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (up)
                            _lhsOisLast =
-                               ({-# LINE 894 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 896 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _stepsIisLast
-                                {-# LINE 7094 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7096 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallFromToStates =
-                               ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallFromToStates
-                                {-# LINE 7100 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7102 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallInitStates =
-                               ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallInitStates
-                                {-# LINE 7106 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7108 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallVisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallVisitKinds
-                                {-# LINE 7112 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7114 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOallchildvisit =
-                               ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1151 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIallchildvisit
-                                {-# LINE 7118 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7120 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisitdefs =
-                               ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIavisitdefs
-                                {-# LINE 7124 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7126 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOavisituses =
-                               ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIavisituses
-                                {-# LINE 7130 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7132 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildTypes =
-                               ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIchildTypes
-                                {-# LINE 7136 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7138 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOchildintros =
-                               ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIchildintros
-                                {-# LINE 7142 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7144 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOfollow =
-                               ({-# LINE 836 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 838 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIfollow
-                                {-# LINE 7148 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7150 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOkind =
-                               ({-# LINE 827 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 829 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIkind
-                                {-# LINE 7154 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7156 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOmrules =
-                               ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsImrules
-                                {-# LINE 7160 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7162 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOoptions =
                                ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIoptions
-                                {-# LINE 7166 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7168 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 7172 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7174 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruledefs =
-                               ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIruledefs
-                                {-# LINE 7178 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7180 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (down)
                            _stepsOruleuses =
-                               ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIruleuses
-                                {-# LINE 7184 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7186 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (from local)
                            _stepsOuseParallel =
-                               ({-# LINE 903 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 905 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _useParallel
-                                {-# LINE 7190 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7192 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            ( _stepsIdefs,_stepsIerrors,_stepsIindex,_stepsIisLast,_stepsIlazyIntras,_stepsIprevMaxSimRefs,_stepsIruleKinds,_stepsIruleUsage,_stepsIsem_steps,_stepsIsize,_stepsIuses,_stepsIvisitKinds) =
                                steps_ _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfollow _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel
@@ -7223,67 +7225,67 @@ sem_VisitStep_ChildIntro child_ =
                            _lhsOindex :: Int
                            _lhsOisLast :: Bool
                            _lhsOprevMaxSimRefs :: Int
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 850, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 852, column 16)
                            _attachItf =
-                               ({-# LINE 850 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 852 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.findWithDefault (error $ "Child " ++ show child_ ++ " not found") child_ _lhsIchildintros
-                                {-# LINE 7231 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7233 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 851, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 853, column 16)
                            (_lhsOerrors,_sem_steps,_lhsOdefs,_lhsOuses) =
-                               ({-# LINE 851 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 853 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 case _attachItf     _lhsIkind of
                                   Left e                   -> (Seq.singleton e, empty, Set.empty, Map.empty)
                                   Right (code, defs, uses) -> (Seq.empty, code, defs, uses)
-                                {-# LINE 7239 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7241 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 855, column 16)
+                           -- "./src-ag/ExecutionPlan2Caml.ag"(line 857, column 16)
                            _lhsOsem_steps =
-                               ({-# LINE 855 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 857 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _sem_steps     >-< _lhsIfollow
-                                {-# LINE 7245 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7247 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                            _lhsOlazyIntras =
-                               ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Set.empty
-                                {-# LINE 7251 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7253 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                            _lhsOruleKinds =
-                               ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.empty
-                                {-# LINE 7257 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7259 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                            _lhsOruleUsage =
-                               ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 Map.empty
-                                {-# LINE 7263 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7265 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
-                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                           -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                            _lhsOvisitKinds =
-                               ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 mempty
-                                {-# LINE 7269 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7271 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOindex =
-                               ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIindex
-                                {-# LINE 7275 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7277 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOisLast =
-                               ({-# LINE 894 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 896 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIisLast
-                                {-# LINE 7281 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7283 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                            -- copy rule (chain)
                            _lhsOprevMaxSimRefs =
-                               ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                               ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                 _lhsIprevMaxSimRefs
-                                {-# LINE 7287 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                {-# LINE 7289 "dist/build/ExecutionPlan2Caml.hs" #-}
                                 )
                        in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOuses,_lhsOvisitKinds))))
 -- VisitSteps --------------------------------------------------
@@ -7448,287 +7450,287 @@ sem_VisitSteps_Cons (T_VisitStep hd_) (T_VisitSteps tl_) =
                             _tlIsize :: Int
                             _tlIuses :: (Map String (Maybe NonLocalAttr))
                             _tlIvisitKinds :: (Map VisitIdentifier VisitKind)
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 840, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 842, column 11)
                             _hdOfollow =
-                                ({-# LINE 840 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 842 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _tlIsem_steps
-                                 {-# LINE 7456 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7458 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 841, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 843, column 11)
                             _lhsOsem_steps =
-                                ({-# LINE 841 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 843 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIsem_steps
-                                 {-# LINE 7462 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7464 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 872, column 10)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 874, column 10)
                             _lhsOsize =
-                                ({-# LINE 872 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 874 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  1 + _tlIsize
-                                 {-# LINE 7468 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                 )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 877, column 3)
-                            _hdOindex =
-                                ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                 _lhsIindex
-                                 {-# LINE 7474 "dist/build/ExecutionPlan2Caml.hs" #-}
-                                 )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 878, column 3)
-                            _tlOindex =
-                                ({-# LINE 878 "./src-ag/ExecutionPlan2Caml.ag" #-}
-                                 1 + _lhsIindex
-                                 {-# LINE 7480 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7470 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- "./src-ag/ExecutionPlan2Caml.ag"(line 879, column 3)
-                            _lhsOindex =
+                            _hdOindex =
                                 ({-# LINE 879 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 _lhsIindex
+                                 {-# LINE 7476 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 )
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 880, column 3)
+                            _tlOindex =
+                                ({-# LINE 880 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                 1 + _lhsIindex
+                                 {-# LINE 7482 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 )
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 881, column 3)
+                            _lhsOindex =
+                                ({-# LINE 881 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _tlIindex
-                                 {-# LINE 7486 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7488 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 898, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 900, column 11)
                             _lhsOisLast =
-                                ({-# LINE 898 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 900 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  False
-                                 {-# LINE 7492 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7494 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 899, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 901, column 11)
                             _hdOisLast =
-                                ({-# LINE 899 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 901 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _tlIisLast
-                                 {-# LINE 7498 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7500 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1313, column 38)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1315, column 38)
                             _lhsOdefs =
-                                ({-# LINE 1313 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1315 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIdefs `Set.union` _tlIdefs
-                                 {-# LINE 7504 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7506 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                             _lhsOerrors =
-                                ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIerrors Seq.>< _tlIerrors
-                                 {-# LINE 7510 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7512 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                             _lhsOlazyIntras =
-                                ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIlazyIntras `Set.union` _tlIlazyIntras
-                                 {-# LINE 7516 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7518 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                             _lhsOruleKinds =
-                                ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIruleKinds `unionWithMappend` _tlIruleKinds
-                                 {-# LINE 7522 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7524 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                             _lhsOruleUsage =
-                                ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIruleUsage `unionWithSum` _tlIruleUsage
-                                 {-# LINE 7528 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7530 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1314, column 38)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1316, column 38)
                             _lhsOuses =
-                                ({-# LINE 1314 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1316 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIuses `Map.union` _tlIuses
-                                 {-# LINE 7534 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7536 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                             _lhsOvisitKinds =
-                                ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIvisitKinds `mappend` _tlIvisitKinds
-                                 {-# LINE 7540 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7542 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (up)
                             _lhsOprevMaxSimRefs =
-                                ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _tlIprevMaxSimRefs
-                                 {-# LINE 7546 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7548 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallFromToStates =
-                                ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallFromToStates
-                                 {-# LINE 7552 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7554 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallInitStates =
-                                ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallInitStates
-                                 {-# LINE 7558 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7560 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallVisitKinds =
-                                ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallVisitKinds
-                                 {-# LINE 7564 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7566 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOallchildvisit =
-                                ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1151 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallchildvisit
-                                 {-# LINE 7570 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7572 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOavisitdefs =
-                                ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIavisitdefs
-                                 {-# LINE 7576 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7578 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOavisituses =
-                                ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIavisituses
-                                 {-# LINE 7582 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7584 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOchildTypes =
-                                ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIchildTypes
-                                 {-# LINE 7588 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7590 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOchildintros =
-                                ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIchildintros
-                                 {-# LINE 7594 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7596 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOkind =
-                                ({-# LINE 827 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 829 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIkind
-                                 {-# LINE 7600 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7602 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOmrules =
-                                ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsImrules
-                                 {-# LINE 7606 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7608 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOoptions =
                                 ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 7612 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7614 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOprevMaxSimRefs =
-                                ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIprevMaxSimRefs
-                                 {-# LINE 7618 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7620 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOruledefs =
-                                ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIruledefs
-                                 {-# LINE 7624 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7626 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOruleuses =
-                                ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIruleuses
-                                 {-# LINE 7630 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7632 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _hdOuseParallel =
-                                ({-# LINE 903 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 905 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIuseParallel
-                                 {-# LINE 7636 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7638 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallFromToStates =
-                                ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallFromToStates
-                                 {-# LINE 7642 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7644 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallInitStates =
-                                ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallInitStates
-                                 {-# LINE 7648 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7650 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallVisitKinds =
-                                ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallVisitKinds
-                                 {-# LINE 7654 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7656 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOallchildvisit =
-                                ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1151 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIallchildvisit
-                                 {-# LINE 7660 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7662 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOavisitdefs =
-                                ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIavisitdefs
-                                 {-# LINE 7666 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7668 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOavisituses =
-                                ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIavisituses
-                                 {-# LINE 7672 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7674 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOchildTypes =
-                                ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIchildTypes
-                                 {-# LINE 7678 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7680 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOchildintros =
-                                ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIchildintros
-                                 {-# LINE 7684 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7686 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOfollow =
-                                ({-# LINE 836 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 838 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIfollow
-                                 {-# LINE 7690 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7692 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOkind =
-                                ({-# LINE 827 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 829 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIkind
-                                 {-# LINE 7696 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7698 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOmrules =
-                                ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsImrules
-                                 {-# LINE 7702 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7704 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOoptions =
                                 ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIoptions
-                                 {-# LINE 7708 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7710 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (chain)
                             _tlOprevMaxSimRefs =
-                                ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _hdIprevMaxSimRefs
-                                 {-# LINE 7714 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7716 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOruledefs =
-                                ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIruledefs
-                                 {-# LINE 7720 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7722 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOruleuses =
-                                ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIruleuses
-                                 {-# LINE 7726 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7728 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (down)
                             _tlOuseParallel =
-                                ({-# LINE 903 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 905 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIuseParallel
-                                 {-# LINE 7732 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7734 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             ( _hdIdefs,_hdIerrors,_hdIindex,_hdIisLast,_hdIlazyIntras,_hdIprevMaxSimRefs,_hdIruleKinds,_hdIruleUsage,_hdIsem_steps,_hdIuses,_hdIvisitKinds) =
                                 hd_ _hdOallFromToStates _hdOallInitStates _hdOallVisitKinds _hdOallchildvisit _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOfollow _hdOindex _hdOisLast _hdOkind _hdOmrules _hdOoptions _hdOprevMaxSimRefs _hdOruledefs _hdOruleuses _hdOuseParallel
@@ -7766,77 +7768,77 @@ sem_VisitSteps_Nil =
                             _lhsOvisitKinds :: (Map VisitIdentifier VisitKind)
                             _lhsOindex :: Int
                             _lhsOprevMaxSimRefs :: Int
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 842, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 844, column 11)
                             _lhsOsem_steps =
-                                ({-# LINE 842 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 844 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIfollow
-                                 {-# LINE 7774 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7776 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 871, column 10)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 873, column 10)
                             _lhsOsize =
-                                ({-# LINE 871 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 873 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  0
-                                 {-# LINE 7780 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7782 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 897, column 11)
+                            -- "./src-ag/ExecutionPlan2Caml.ag"(line 899, column 11)
                             _lhsOisLast =
-                                ({-# LINE 897 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 899 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  True
-                                 {-# LINE 7786 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7788 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1313, column 38)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1315, column 38)
                             _lhsOdefs =
-                                ({-# LINE 1313 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1315 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Set.empty
-                                 {-# LINE 7792 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7794 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                             _lhsOerrors =
-                                ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Seq.empty
-                                 {-# LINE 7798 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7800 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                             _lhsOlazyIntras =
-                                ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Set.empty
-                                 {-# LINE 7804 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7806 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                             _lhsOruleKinds =
-                                ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Map.empty
-                                 {-# LINE 7810 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7812 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                             _lhsOruleUsage =
-                                ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Map.empty
-                                 {-# LINE 7816 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7818 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1314, column 38)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1316, column 38)
                             _lhsOuses =
-                                ({-# LINE 1314 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1316 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  Map.empty
-                                 {-# LINE 7822 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7824 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
-                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                            -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                             _lhsOvisitKinds =
-                                ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  mempty
-                                 {-# LINE 7828 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7830 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (chain)
                             _lhsOindex =
-                                ({-# LINE 875 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 877 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIindex
-                                 {-# LINE 7834 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7836 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                             -- copy rule (chain)
                             _lhsOprevMaxSimRefs =
-                                ({-# LINE 886 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                                ({-# LINE 888 "./src-ag/ExecutionPlan2Caml.ag" #-}
                                  _lhsIprevMaxSimRefs
-                                 {-# LINE 7840 "dist/build/ExecutionPlan2Caml.hs" #-}
+                                 {-# LINE 7842 "dist/build/ExecutionPlan2Caml.hs" #-}
                                  )
                         in  ( _lhsOdefs,_lhsOerrors,_lhsOindex,_lhsOisLast,_lhsOlazyIntras,_lhsOprevMaxSimRefs,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_steps,_lhsOsize,_lhsOuses,_lhsOvisitKinds))))
 -- Visits ------------------------------------------------------
@@ -8036,359 +8038,359 @@ sem_Visits_Cons (T_Visit hd_) (T_Visits tl_) =
                         _tlIvisitKinds :: (Map VisitIdentifier VisitKind)
                         _tlIvisitdefs :: (Map VisitIdentifier (Set Identifier))
                         _tlIvisituses :: (Map VisitIdentifier (Set Identifier))
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 427, column 29)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 429, column 29)
                         _lhsOallvisits =
-                            ({-# LINE 427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIallvisits : _tlIallvisits
-                             {-# LINE 8044 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8046 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                         _lhsOchildvisit =
-                            ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIchildvisit `Map.union` _tlIchildvisit
-                             {-# LINE 8050 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8052 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                         _lhsOerrors =
-                            ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIerrors Seq.>< _tlIerrors
-                             {-# LINE 8056 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8058 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                         _lhsOfromToStates =
-                            ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIfromToStates `mappend` _tlIfromToStates
-                             {-# LINE 8062 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8064 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1255, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1257, column 34)
                         _lhsOintramap =
-                            ({-# LINE 1255 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1257 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIintramap `uwMapUnion` _tlIintramap
-                             {-# LINE 8068 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8070 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                         _lhsOlazyIntras =
-                            ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIlazyIntras `Set.union` _tlIlazyIntras
-                             {-# LINE 8074 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8076 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                         _lhsOruleKinds =
-                            ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIruleKinds `unionWithMappend` _tlIruleKinds
-                             {-# LINE 8080 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8082 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                         _lhsOruleUsage =
-                            ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIruleUsage `unionWithSum` _tlIruleUsage
-                             {-# LINE 8086 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8088 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 791, column 29)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 793, column 29)
                         _lhsOsem_visit =
-                            ({-# LINE 791 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 793 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIsem_visit : _tlIsem_visit
-                             {-# LINE 8092 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8094 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 527, column 59)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 529, column 59)
                         _lhsOt_visits =
-                            ({-# LINE 527 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 529 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIt_visits >-< _tlIt_visits
-                             {-# LINE 8098 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8100 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                         _lhsOvisitKinds =
-                            ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIvisitKinds `mappend` _tlIvisitKinds
-                             {-# LINE 8104 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8106 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                         _lhsOvisitdefs =
-                            ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
-                             {-# LINE 8110 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8112 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                         _lhsOvisituses =
-                            ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _hdIvisituses `uwSetUnion` _tlIvisituses
-                             {-# LINE 8116 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8118 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallFromToStates =
-                            ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallFromToStates
-                             {-# LINE 8122 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8124 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInhmap =
-                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 8128 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8130 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallInitStates =
-                            ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInitStates
-                             {-# LINE 8134 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8136 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallSynmap =
-                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 8140 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8142 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallVisitKinds =
-                            ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallVisitKinds
-                             {-# LINE 8146 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8148 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallchildvisit =
-                            ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallchildvisit
-                             {-# LINE 8152 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8154 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallintramap =
-                            ({-# LINE 1254 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1256 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallintramap
-                             {-# LINE 8158 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8160 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOavisitdefs =
-                            ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIavisitdefs
-                             {-# LINE 8164 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8166 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOavisituses =
-                            ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIavisituses
-                             {-# LINE 8170 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8172 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildTypes =
-                            ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 8176 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8178 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOchildintros =
-                            ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildintros
-                             {-# LINE 8182 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8184 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOcon =
                             ({-# LINE 86 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIcon
-                             {-# LINE 8188 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8190 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOinhmap =
-                            ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 8194 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8196 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOmrules =
-                            ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImrules
-                             {-# LINE 8200 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8202 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnextVisits =
-                            ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInextVisits
-                             {-# LINE 8206 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8208 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOnt =
                             ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInt
-                             {-# LINE 8212 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8214 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOoptions =
                             ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIoptions
-                             {-# LINE 8218 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8220 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOparams =
                             ({-# LINE 92 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIparams
-                             {-# LINE 8224 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8226 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOprevVisits =
-                            ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIprevVisits
-                             {-# LINE 8230 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8232 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruledefs =
-                            ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruledefs
-                             {-# LINE 8236 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8238 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOruleuses =
-                            ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruleuses
-                             {-# LINE 8242 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8244 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOsynmap =
-                            ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 8248 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8250 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOterminaldefs =
-                            ({-# LINE 1257 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1259 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIterminaldefs
-                             {-# LINE 8254 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8256 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallFromToStates =
-                            ({-# LINE 1396 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1398 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallFromToStates
-                             {-# LINE 8260 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8262 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInhmap =
-                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 414 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInhmap
-                             {-# LINE 8266 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8268 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallInitStates =
-                            ({-# LINE 1454 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1456 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallInitStates
-                             {-# LINE 8272 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8274 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallSynmap =
-                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallSynmap
-                             {-# LINE 8278 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8280 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallVisitKinds =
-                            ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallVisitKinds
-                             {-# LINE 8284 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8286 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallchildvisit =
-                            ({-# LINE 1146 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1148 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallchildvisit
-                             {-# LINE 8290 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8292 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallintramap =
-                            ({-# LINE 1254 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1256 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIallintramap
-                             {-# LINE 8296 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8298 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOavisitdefs =
-                            ({-# LINE 1306 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1308 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIavisitdefs
-                             {-# LINE 8302 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8304 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOavisituses =
-                            ({-# LINE 1307 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1309 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIavisituses
-                             {-# LINE 8308 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8310 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildTypes =
-                            ({-# LINE 1413 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1415 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildTypes
-                             {-# LINE 8314 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8316 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOchildintros =
-                            ({-# LINE 912 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 914 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIchildintros
-                             {-# LINE 8320 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8322 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOcon =
                             ({-# LINE 86 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIcon
-                             {-# LINE 8326 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8328 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOinhmap =
-                            ({-# LINE 410 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 412 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIinhmap
-                             {-# LINE 8332 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8334 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOmrules =
-                            ({-# LINE 835 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 837 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsImrules
-                             {-# LINE 8338 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8340 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnextVisits =
-                            ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInextVisits
-                             {-# LINE 8344 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8346 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOnt =
                             ({-# LINE 82 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsInt
-                             {-# LINE 8350 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8352 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOoptions =
                             ({-# LINE 72 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIoptions
-                             {-# LINE 8356 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8358 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOparams =
                             ({-# LINE 92 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIparams
-                             {-# LINE 8362 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8364 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOprevVisits =
-                            ({-# LINE 1382 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1384 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIprevVisits
-                             {-# LINE 8368 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8370 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruledefs =
-                            ({-# LINE 1281 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1283 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruledefs
-                             {-# LINE 8374 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8376 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOruleuses =
-                            ({-# LINE 1282 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1284 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIruleuses
-                             {-# LINE 8380 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8382 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOsynmap =
-                            ({-# LINE 411 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 413 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIsynmap
-                             {-# LINE 8386 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8388 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOterminaldefs =
-                            ({-# LINE 1257 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1259 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              _lhsIterminaldefs
-                             {-# LINE 8392 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8394 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                         ( _hdIallvisits,_hdIchildvisit,_hdIerrors,_hdIfromToStates,_hdIintramap,_hdIlazyIntras,_hdIruleKinds,_hdIruleUsage,_hdIsem_visit,_hdIt_visits,_hdIvisitKinds,_hdIvisitdefs,_hdIvisituses) =
                             hd_ _hdOallFromToStates _hdOallInhmap _hdOallInitStates _hdOallSynmap _hdOallVisitKinds _hdOallchildvisit _hdOallintramap _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOcon _hdOinhmap _hdOmrules _hdOnextVisits _hdOnt _hdOoptions _hdOparams _hdOprevVisits _hdOruledefs _hdOruleuses _hdOsynmap _hdOterminaldefs
@@ -8433,82 +8435,82 @@ sem_Visits_Nil =
                         _lhsOvisitKinds :: (Map VisitIdentifier VisitKind)
                         _lhsOvisitdefs :: (Map VisitIdentifier (Set Identifier))
                         _lhsOvisituses :: (Map VisitIdentifier (Set Identifier))
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 427, column 29)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 429, column 29)
                         _lhsOallvisits =
-                            ({-# LINE 427 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 429 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              []
-                             {-# LINE 8441 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8443 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1147, column 37)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1149, column 37)
                         _lhsOchildvisit =
-                            ({-# LINE 1147 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1149 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8447 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8449 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1478, column 132)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1480, column 132)
                         _lhsOerrors =
-                            ({-# LINE 1478 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1480 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Seq.empty
-                             {-# LINE 8453 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8455 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1393, column 22)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1395, column 22)
                         _lhsOfromToStates =
-                            ({-# LINE 1393 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1395 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              mempty
-                             {-# LINE 8459 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8461 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1255, column 34)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1257, column 34)
                         _lhsOintramap =
-                            ({-# LINE 1255 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1257 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8465 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8467 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1329, column 57)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1331, column 57)
                         _lhsOlazyIntras =
-                            ({-# LINE 1329 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1331 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Set.empty
-                             {-# LINE 8471 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8473 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1229, column 56)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1231, column 56)
                         _lhsOruleKinds =
-                            ({-# LINE 1229 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1231 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8477 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8479 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1217, column 56)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1219, column 56)
                         _lhsOruleUsage =
-                            ({-# LINE 1217 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1219 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8483 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8485 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 791, column 29)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 793, column 29)
                         _lhsOsem_visit =
-                            ({-# LINE 791 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 793 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              []
-                             {-# LINE 8489 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8491 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 527, column 59)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 529, column 59)
                         _lhsOt_visits =
-                            ({-# LINE 527 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 529 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              empty
-                             {-# LINE 8495 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8497 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1440, column 68)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1442, column 68)
                         _lhsOvisitKinds =
-                            ({-# LINE 1440 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1442 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              mempty
-                             {-# LINE 8501 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8503 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1296, column 36)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1298, column 36)
                         _lhsOvisitdefs =
-                            ({-# LINE 1296 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1298 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8507 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8509 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
-                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1297, column 36)
+                        -- use rule "./src-ag/ExecutionPlan2Caml.ag"(line 1299, column 36)
                         _lhsOvisituses =
-                            ({-# LINE 1297 "./src-ag/ExecutionPlan2Caml.ag" #-}
+                            ({-# LINE 1299 "./src-ag/ExecutionPlan2Caml.ag" #-}
                              Map.empty
-                             {-# LINE 8513 "dist/build/ExecutionPlan2Caml.hs" #-}
+                             {-# LINE 8515 "dist/build/ExecutionPlan2Caml.hs" #-}
                              )
                     in  ( _lhsOallvisits,_lhsOchildvisit,_lhsOerrors,_lhsOfromToStates,_lhsOintramap,_lhsOlazyIntras,_lhsOruleKinds,_lhsOruleUsage,_lhsOsem_visit,_lhsOt_visits,_lhsOvisitKinds,_lhsOvisitdefs,_lhsOvisituses))))

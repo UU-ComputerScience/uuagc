@@ -1,45 +1,42 @@
 {-# OPTIONS_GHC -XBangPatterns #-}
 
--- UUAGC 0.9.42.1 (src-ag/PrintCode.ag)
+-- UUAGC 0.9.42.2 (src-ag/PrintCode.ag)
 module PrintCode where
 {-# LINE 10 "./src-ag/PrintCode.ag" #-}
 
 import Data.Char (isAlphaNum)
 import Pretty
 import Code
-import Patterns
 import Options
-import CommonTypes (attrname, _LOC, getName, nullIdent)
+import CommonTypes (attrname, _LOC, nullIdent)
 import Data.List(intersperse)
 import System.IO
 import System.Directory
 import System.FilePath
-import CommonTypes(BlockInfo, BlockKind(..), identifier)
-{-# LINE 19 "dist/build/PrintCode.hs" #-}
+import CommonTypes(BlockInfo, BlockKind(..))
+{-# LINE 18 "dist/build/PrintCode.hs" #-}
 
 {-# LINE 2 "./src-ag/Code.ag" #-}
 
-import Pretty
 import Patterns
-import Data.List(partition)
 import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 30 "dist/build/PrintCode.hs" #-}
+{-# LINE 27 "dist/build/PrintCode.hs" #-}
 
 {-# LINE 2 "./src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 37 "dist/build/PrintCode.hs" #-}
-{-# LINE 24 "./src-ag/PrintCode.ag" #-}
+{-# LINE 34 "dist/build/PrintCode.hs" #-}
+{-# LINE 23 "./src-ag/PrintCode.ag" #-}
 
 type PP_Docs = [PP_Doc]
-{-# LINE 41 "dist/build/PrintCode.hs" #-}
+{-# LINE 38 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 28 "./src-ag/PrintCode.ag" #-}
+{-# LINE 27 "./src-ag/PrintCode.ag" #-}
 
 ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeqH = ppMultiSeq' (>#<)
@@ -50,33 +47,36 @@ ppMultiSeqV = ppMultiSeq' (>-<)
 ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq' next strictArgs expr
   = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
-{-# LINE 54 "dist/build/PrintCode.hs" #-}
+{-# LINE 51 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 300 "./src-ag/PrintCode.ag" #-}
+{-# LINE 299 "./src-ag/PrintCode.ag" #-}
 
 
 reallySimple :: String -> Bool
 reallySimple = and . map (\x -> isAlphaNum x || x=='_')
 
+ppTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
 ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
-{-# LINE 67 "dist/build/PrintCode.hs" #-}
+{-# LINE 66 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 399 "./src-ag/PrintCode.ag" #-}
+{-# LINE 400 "./src-ag/PrintCode.ag" #-}
 
+locname' :: Identifier -> [Char]
 locname' n = "_loc_" ++ getName n
 {-# LINE 72 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 473 "./src-ag/PrintCode.ag" #-}
+{-# LINE 475 "./src-ag/PrintCode.ag" #-}
 
 renderDocs :: [PP_Doc] -> String
 renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
 {-# LINE 78 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 521 "./src-ag/PrintCode.ag" #-}
+{-# LINE 523 "./src-ag/PrintCode.ag" #-}
 
 writeModule :: FilePath -> [PP_Doc] -> IO ()
 writeModule path docs
@@ -93,7 +93,7 @@ writeModule path docs
     dumpIt = writeFile path output
 {-# LINE 95 "dist/build/PrintCode.hs" #-}
 
-{-# LINE 146 "./src-ag/Code.ag" #-}
+{-# LINE 144 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -102,14 +102,14 @@ writeModule path docs
 --          because in that case the semantic function (a top-level identifier) would have an unboxed type.
 -- Of course we can't have an unboxed 1-tuple
 mkTupleExpr :: Bool -> Bool -> Exprs -> Expr
-mkTupleExpr unbox noInh exprs | not unbox || noInh || length exprs == 1 = TupleExpr exprs
-                              | otherwise                               = UnboxedTupleExpr exprs
+mkTupleExpr unbox' noInh exprs | not unbox' || noInh || length exprs == 1 = TupleExpr exprs
+                               | otherwise                                = UnboxedTupleExpr exprs
 mkTupleType :: Bool -> Bool -> Types -> Type
-mkTupleType unbox noInh tps | not unbox || noInh || length tps == 1 = TupleType tps
-                            | otherwise                             = UnboxedTupleType tps
+mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleType tps
+                             | otherwise                              = UnboxedTupleType tps
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
-mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleLhs comps
-                              | otherwise                               = UnboxedTupleLhs comps
+mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
+                               | otherwise                                = UnboxedTupleLhs comps
 {-# LINE 114 "dist/build/PrintCode.hs" #-}
 -- CaseAlt -----------------------------------------------------
 {-
@@ -150,37 +150,37 @@ sem_CaseAlt_CaseAlt !(T_Lhs left_) !(T_Expr expr_) =
     (T_CaseAlt (\ (!_lhsInested)
                   (!_lhsIoptions)
                   (!_lhsIoutputfile) ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 156 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_exprOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 161 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_exprOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 166 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_exprOnested ->
-                       (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                _lhsIoutputfile
                                {-# LINE 171 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_leftOoutputfile ->
-                        (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                 _lhsIoptions
                                 {-# LINE 176 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_leftOoptions ->
-                         (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                  _lhsInested
                                  {-# LINE 181 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_leftOnested ->
-                          (case (({-# LINE 422 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 424 "./src-ag/PrintCode.ag" #-}
                                   False
                                   {-# LINE 186 "dist/build/PrintCode.hs" #-}
                                   )) of
@@ -189,7 +189,7 @@ sem_CaseAlt_CaseAlt !(T_Lhs left_) !(T_Expr expr_) =
                             { ( !_exprIpp) ->
                                 (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                                  { ( !_leftIpp) ->
-                                     (case (({-# LINE 219 "./src-ag/PrintCode.ag" #-}
+                                     (case (({-# LINE 218 "./src-ag/PrintCode.ag" #-}
                                              ["{" >#< _leftIpp >#< "->", _exprIpp >#< "}"]
                                              {-# LINE 195 "dist/build/PrintCode.hs" #-}
                                              )) of
@@ -235,32 +235,32 @@ sem_CaseAlts_Cons !(T_CaseAlt hd_) !(T_CaseAlts tl_) =
     (T_CaseAlts (\ (!_lhsInested)
                    (!_lhsIoptions)
                    (!_lhsIoutputfile) ->
-                     (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                              _lhsIoutputfile
                              {-# LINE 241 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_tlOoutputfile ->
-                      (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                               _lhsIoptions
                               {-# LINE 246 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_tlOoptions ->
-                       (case (({-# LINE 56 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 55 "./src-ag/PrintCode.ag" #-}
                                _lhsInested
                                {-# LINE 251 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_tlOnested ->
-                        (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                 _lhsIoutputfile
                                 {-# LINE 256 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_hdOoutputfile ->
-                         (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                  _lhsIoptions
                                  {-# LINE 261 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_hdOoptions ->
-                          (case (({-# LINE 56 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 55 "./src-ag/PrintCode.ag" #-}
                                   _lhsInested
                                   {-# LINE 266 "dist/build/PrintCode.hs" #-}
                                   )) of
@@ -269,7 +269,7 @@ sem_CaseAlts_Cons !(T_CaseAlt hd_) !(T_CaseAlts tl_) =
                             { ( !_tlIpps) ->
                                 (case (hd_ _hdOnested _hdOoptions _hdOoutputfile) of
                                  { ( !_hdIpps) ->
-                                     (case (({-# LINE 69 "./src-ag/PrintCode.ag" #-}
+                                     (case (({-# LINE 68 "./src-ag/PrintCode.ag" #-}
                                              _hdIpps ++ _tlIpps
                                              {-# LINE 275 "dist/build/PrintCode.hs" #-}
                                              )) of
@@ -280,7 +280,7 @@ sem_CaseAlts_Nil =
     (T_CaseAlts (\ (!_lhsInested)
                    (!_lhsIoptions)
                    (!_lhsIoutputfile) ->
-                     (case (({-# LINE 70 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 69 "./src-ag/PrintCode.ag" #-}
                              []
                              {-# LINE 286 "dist/build/PrintCode.hs" #-}
                              )) of
@@ -370,89 +370,89 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                 (!_lhsIpragmaBlocks)
                 (!_lhsItextBlockMap)
                 (!_lhsItextBlocks) ->
-                  (case (({-# LINE 44 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 43 "./src-ag/PrintCode.ag" #-}
                           if sepSemMods _lhsIoptions
                           then replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_" ++ name_)
                           else _lhsImainFile
                           {-# LINE 378 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_outputfile ->
-                   (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                            _outputfile
                            {-# LINE 383 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_semWrapperOoutputfile ->
-                    (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                             _lhsIoptions
                             {-# LINE 388 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_semWrapperOoptions ->
-                     (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                              _lhsInested
                              {-# LINE 393 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_semWrapperOnested ->
-                      (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                               _lhsIisDeclOfLet
                               {-# LINE 398 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_semWrapperOisDeclOfLet ->
-                       (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                _outputfile
                                {-# LINE 403 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_semDomOoutputfile ->
-                        (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                 _lhsIoptions
                                 {-# LINE 408 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_semDomOoptions ->
-                         (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                  _lhsInested
                                  {-# LINE 413 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_semDomOnested ->
-                          (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                   _lhsIisDeclOfLet
                                   {-# LINE 418 "dist/build/PrintCode.hs" #-}
                                   )) of
                            { !_semDomOisDeclOfLet ->
-                           (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                           (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                    _outputfile
                                    {-# LINE 423 "dist/build/PrintCode.hs" #-}
                                    )) of
                             { !_dataDefOoutputfile ->
-                            (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                            (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                     _lhsIoptions
                                     {-# LINE 428 "dist/build/PrintCode.hs" #-}
                                     )) of
                              { !_dataDefOoptions ->
-                             (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                      _lhsInested
                                      {-# LINE 433 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_dataDefOnested ->
-                              (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                       _lhsIisDeclOfLet
                                       {-# LINE 438 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_dataDefOisDeclOfLet ->
-                               (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                        _outputfile
                                        {-# LINE 443 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_commentOoutputfile ->
-                                (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                         _lhsIoptions
                                         {-# LINE 448 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_commentOoptions ->
-                                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                          _lhsInested
                                          {-# LINE 453 "dist/build/PrintCode.hs" #-}
                                          )) of
                                   { !_commentOnested ->
-                                  (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                           _lhsIisDeclOfLet
                                           {-# LINE 458 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -465,7 +465,7 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                                               { ( !_dataDefIpps) ->
                                                   (case (comment_ _commentOisDeclOfLet _commentOnested _commentOoptions _commentOoutputfile) of
                                                    { ( !_commentIpp) ->
-                                                       (case (({-# LINE 487 "./src-ag/PrintCode.ag" #-}
+                                                       (case (({-# LINE 489 "./src-ag/PrintCode.ag" #-}
                                                                [ [_commentIpp]
                                                                , _dataDefIpps
                                                                , _semDomIpps
@@ -474,29 +474,29 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                                                                {-# LINE 475 "dist/build/PrintCode.hs" #-}
                                                                )) of
                                                         { !_lhsOappendCommon ->
-                                                        (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                                                        (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                                                 _outputfile
                                                                 {-# LINE 480 "dist/build/PrintCode.hs" #-}
                                                                 )) of
                                                          { !_cataFunOoutputfile ->
-                                                         (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                                                         (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                                                  _lhsIoptions
                                                                  {-# LINE 485 "dist/build/PrintCode.hs" #-}
                                                                  )) of
                                                           { !_cataFunOoptions ->
-                                                          (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                                                          (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                                                   _lhsInested
                                                                   {-# LINE 490 "dist/build/PrintCode.hs" #-}
                                                                   )) of
                                                            { !_cataFunOnested ->
-                                                           (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                                                           (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                                                    _lhsIisDeclOfLet
                                                                    {-# LINE 495 "dist/build/PrintCode.hs" #-}
                                                                    )) of
                                                             { !_cataFunOisDeclOfLet ->
                                                             (case (cataFun_ _cataFunOisDeclOfLet _cataFunOnested _cataFunOoptions _cataFunOoutputfile) of
                                                              { ( !_cataFunIpps) ->
-                                                                 (case (({-# LINE 493 "./src-ag/PrintCode.ag" #-}
+                                                                 (case (({-# LINE 495 "./src-ag/PrintCode.ag" #-}
                                                                          [ [_commentIpp]
                                                                          , _cataFunIpps
                                                                          , if reference _lhsIoptions then [] else _semWrapperIpps
@@ -504,47 +504,47 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                                                                          {-# LINE 505 "dist/build/PrintCode.hs" #-}
                                                                          )) of
                                                                   { !_lhsOappendMain ->
-                                                                  (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                                                                  (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                                                           _outputfile
                                                                           {-# LINE 510 "dist/build/PrintCode.hs" #-}
                                                                           )) of
                                                                    { !_semFunctionsOoutputfile ->
-                                                                   (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                                                                   (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                                                            _lhsIoptions
                                                                            {-# LINE 515 "dist/build/PrintCode.hs" #-}
                                                                            )) of
                                                                     { !_semFunctionsOoptions ->
-                                                                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                                                                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                                                             _lhsInested
                                                                             {-# LINE 520 "dist/build/PrintCode.hs" #-}
                                                                             )) of
                                                                      { !_semFunctionsOnested ->
-                                                                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                                                                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                                                              _lhsIisDeclOfLet
                                                                              {-# LINE 525 "dist/build/PrintCode.hs" #-}
                                                                              )) of
                                                                       { !_semFunctionsOisDeclOfLet ->
-                                                                      (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                                                                      (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                                                               _outputfile
                                                                               {-# LINE 530 "dist/build/PrintCode.hs" #-}
                                                                               )) of
                                                                        { !_infoOoutputfile ->
-                                                                       (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                                                                       (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                                                                _lhsIoptions
                                                                                {-# LINE 535 "dist/build/PrintCode.hs" #-}
                                                                                )) of
                                                                         { !_infoOoptions ->
-                                                                        (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                                                                        (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                                                                 _lhsInested
                                                                                 {-# LINE 540 "dist/build/PrintCode.hs" #-}
                                                                                 )) of
                                                                          { !_infoOnested ->
-                                                                         (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                                                                         (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                                                                  _lhsIisDeclOfLet
                                                                                  {-# LINE 545 "dist/build/PrintCode.hs" #-}
                                                                                  )) of
                                                                           { !_infoOisDeclOfLet ->
-                                                                          (case (({-# LINE 519 "./src-ag/PrintCode.ag" #-}
+                                                                          (case (({-# LINE 521 "./src-ag/PrintCode.ag" #-}
                                                                                   concat $ intersperse "," semNames_
                                                                                   {-# LINE 550 "dist/build/PrintCode.hs" #-}
                                                                                   )) of
@@ -553,7 +553,7 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                                                                             { ( !_semFunctionsIpps) ->
                                                                                 (case (info_ _infoOisDeclOfLet _infoOnested _infoOoptions _infoOoutputfile) of
                                                                                  { ( !_infoIpps) ->
-                                                                                     (case (({-# LINE 503 "./src-ag/PrintCode.ag" #-}
+                                                                                     (case (({-# LINE 505 "./src-ag/PrintCode.ag" #-}
                                                                                              writeModule _outputfile
                                                                                                [ pp $ _lhsIpragmaBlocks
                                                                                                , pp $ Map.findWithDefault empty (BlockPragma, Just $ identifier name_) _lhsItextBlockMap
@@ -569,12 +569,12 @@ sem_Chunk_Chunk !name_ !(T_Decl comment_) !(T_Decls info_) !(T_Decls dataDef_) !
                                                                                              {-# LINE 570 "dist/build/PrintCode.hs" #-}
                                                                                              )) of
                                                                                       { !_lhsOgenSems ->
-                                                                                      (case (({-# LINE 481 "./src-ag/PrintCode.ag" #-}
+                                                                                      (case (({-# LINE 483 "./src-ag/PrintCode.ag" #-}
                                                                                               ["import " ++ _lhsImainName ++ "_" ++ name_ ++ "\n"]
                                                                                               {-# LINE 575 "dist/build/PrintCode.hs" #-}
                                                                                               )) of
                                                                                        { !_lhsOimports ->
-                                                                                       (case (({-# LINE 97 "./src-ag/PrintCode.ag" #-}
+                                                                                       (case (({-# LINE 96 "./src-ag/PrintCode.ag" #-}
                                                                                                _commentIpp
                                                                                                :  _infoIpps
                                                                                                ++ _dataDefIpps
@@ -655,141 +655,141 @@ sem_Chunks_Cons !(T_Chunk hd_) !(T_Chunks tl_) =
                  (!_lhsIpragmaBlocks)
                  (!_lhsItextBlockMap)
                  (!_lhsItextBlocks) ->
-                   (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                            _lhsIoptions
                            {-# LINE 661 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_tlOoptions ->
-                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 666 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_tlOnested ->
-                     (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
                              _lhsImainFile
                              {-# LINE 671 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_tlOmainFile ->
-                      (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                               _lhsIisDeclOfLet
                               {-# LINE 676 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_tlOisDeclOfLet ->
-                       (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                _lhsIoptions
                                {-# LINE 681 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_hdOoptions ->
-                        (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                 _lhsInested
                                 {-# LINE 686 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_hdOnested ->
-                         (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
                                  _lhsImainFile
                                  {-# LINE 691 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_hdOmainFile ->
-                          (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                   _lhsIisDeclOfLet
                                   {-# LINE 696 "dist/build/PrintCode.hs" #-}
                                   )) of
                            { !_hdOisDeclOfLet ->
-                           (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
+                           (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
                                    _lhsItextBlocks
                                    {-# LINE 701 "dist/build/PrintCode.hs" #-}
                                    )) of
                             { !_tlOtextBlocks ->
-                            (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
+                            (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
                                     _lhsItextBlockMap
                                     {-# LINE 706 "dist/build/PrintCode.hs" #-}
                                     )) of
                              { !_tlOtextBlockMap ->
-                             (case (({-# LINE 433 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
                                      _lhsIpragmaBlocks
                                      {-# LINE 711 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_tlOpragmaBlocks ->
-                              (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
                                       _lhsIoptionsLine
                                       {-# LINE 716 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_tlOoptionsLine ->
-                               (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 441 "./src-ag/PrintCode.ag" #-}
                                        _lhsImoduleHeader
                                        {-# LINE 721 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_tlOmoduleHeader ->
-                                (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 440 "./src-ag/PrintCode.ag" #-}
                                         _lhsImainName
                                         {-# LINE 726 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_tlOmainName ->
-                                 (case (({-# LINE 432 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
                                          _lhsIimportBlocks
                                          {-# LINE 731 "dist/build/PrintCode.hs" #-}
                                          )) of
                                   { !_tlOimportBlocks ->
                                   (case (tl_ _tlOimportBlocks _tlOisDeclOfLet _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOnested _tlOoptions _tlOoptionsLine _tlOpragmaBlocks _tlOtextBlockMap _tlOtextBlocks) of
                                    { ( !_tlIappendCommon,!_tlIappendMain,!_tlIgenSems,!_tlIimports,!_tlIpps) ->
-                                       (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
+                                       (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
                                                _lhsItextBlocks
                                                {-# LINE 738 "dist/build/PrintCode.hs" #-}
                                                )) of
                                         { !_hdOtextBlocks ->
-                                        (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
+                                        (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
                                                 _lhsItextBlockMap
                                                 {-# LINE 743 "dist/build/PrintCode.hs" #-}
                                                 )) of
                                          { !_hdOtextBlockMap ->
-                                         (case (({-# LINE 433 "./src-ag/PrintCode.ag" #-}
+                                         (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
                                                  _lhsIpragmaBlocks
                                                  {-# LINE 748 "dist/build/PrintCode.hs" #-}
                                                  )) of
                                           { !_hdOpragmaBlocks ->
-                                          (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
+                                          (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
                                                   _lhsIoptionsLine
                                                   {-# LINE 753 "dist/build/PrintCode.hs" #-}
                                                   )) of
                                            { !_hdOoptionsLine ->
-                                           (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
+                                           (case (({-# LINE 441 "./src-ag/PrintCode.ag" #-}
                                                    _lhsImoduleHeader
                                                    {-# LINE 758 "dist/build/PrintCode.hs" #-}
                                                    )) of
                                             { !_hdOmoduleHeader ->
-                                            (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
+                                            (case (({-# LINE 440 "./src-ag/PrintCode.ag" #-}
                                                     _lhsImainName
                                                     {-# LINE 763 "dist/build/PrintCode.hs" #-}
                                                     )) of
                                              { !_hdOmainName ->
-                                             (case (({-# LINE 432 "./src-ag/PrintCode.ag" #-}
+                                             (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
                                                      _lhsIimportBlocks
                                                      {-# LINE 768 "dist/build/PrintCode.hs" #-}
                                                      )) of
                                               { !_hdOimportBlocks ->
                                               (case (hd_ _hdOimportBlocks _hdOisDeclOfLet _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOnested _hdOoptions _hdOoptionsLine _hdOpragmaBlocks _hdOtextBlockMap _hdOtextBlocks) of
                                                { ( !_hdIappendCommon,!_hdIappendMain,!_hdIgenSems,!_hdIimports,!_hdIpps) ->
-                                                   (case (({-# LINE 483 "./src-ag/PrintCode.ag" #-}
+                                                   (case (({-# LINE 485 "./src-ag/PrintCode.ag" #-}
                                                            _hdIappendCommon ++ _tlIappendCommon
                                                            {-# LINE 775 "dist/build/PrintCode.hs" #-}
                                                            )) of
                                                     { !_lhsOappendCommon ->
-                                                    (case (({-# LINE 483 "./src-ag/PrintCode.ag" #-}
+                                                    (case (({-# LINE 485 "./src-ag/PrintCode.ag" #-}
                                                             _hdIappendMain ++ _tlIappendMain
                                                             {-# LINE 780 "dist/build/PrintCode.hs" #-}
                                                             )) of
                                                      { !_lhsOappendMain ->
-                                                     (case (({-# LINE 499 "./src-ag/PrintCode.ag" #-}
+                                                     (case (({-# LINE 501 "./src-ag/PrintCode.ag" #-}
                                                              _hdIgenSems >> _tlIgenSems
                                                              {-# LINE 785 "dist/build/PrintCode.hs" #-}
                                                              )) of
                                                       { !_lhsOgenSems ->
-                                                      (case (({-# LINE 478 "./src-ag/PrintCode.ag" #-}
+                                                      (case (({-# LINE 480 "./src-ag/PrintCode.ag" #-}
                                                               _hdIimports ++ _tlIimports
                                                               {-# LINE 790 "dist/build/PrintCode.hs" #-}
                                                               )) of
                                                        { !_lhsOimports ->
-                                                       (case (({-# LINE 89 "./src-ag/PrintCode.ag" #-}
+                                                       (case (({-# LINE 88 "./src-ag/PrintCode.ag" #-}
                                                                _hdIpps ++ _tlIpps
                                                                {-# LINE 795 "dist/build/PrintCode.hs" #-}
                                                                )) of
@@ -808,27 +808,27 @@ sem_Chunks_Nil =
                  (!_lhsIpragmaBlocks)
                  (!_lhsItextBlockMap)
                  (!_lhsItextBlocks) ->
-                   (case (({-# LINE 483 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 485 "./src-ag/PrintCode.ag" #-}
                            []
                            {-# LINE 814 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_lhsOappendCommon ->
-                    (case (({-# LINE 483 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 485 "./src-ag/PrintCode.ag" #-}
                             []
                             {-# LINE 819 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_lhsOappendMain ->
-                     (case (({-# LINE 499 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 501 "./src-ag/PrintCode.ag" #-}
                              return ()
                              {-# LINE 824 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_lhsOgenSems ->
-                      (case (({-# LINE 478 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 480 "./src-ag/PrintCode.ag" #-}
                               []
                               {-# LINE 829 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_lhsOimports ->
-                       (case (({-# LINE 90 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 89 "./src-ag/PrintCode.ag" #-}
                                []
                                {-# LINE 834 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -875,14 +875,14 @@ sem_DataAlt_DataAlt :: String ->
 sem_DataAlt_DataAlt !name_ !(T_Types args_) =
     (T_DataAlt (\ (!_lhsInested)
                   (!_lhsIstrictPre) ->
-                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 881 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_argsOnested ->
                      (case (args_ _argsOnested) of
                       { ( !_argsIpps) ->
-                          (case (({-# LINE 222 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 221 "./src-ag/PrintCode.ag" #-}
                                   name_ >#< hv_sp (map ((_lhsIstrictPre >|<) . pp_parens) _argsIpps)
                                   {-# LINE 888 "dist/build/PrintCode.hs" #-}
                                   )) of
@@ -894,14 +894,14 @@ sem_DataAlt_Record :: String ->
 sem_DataAlt_Record !name_ !(T_NamedTypes args_) =
     (T_DataAlt (\ (!_lhsInested)
                   (!_lhsIstrictPre) ->
-                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 900 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_argsOnested ->
                      (case (args_ _argsOnested) of
                       { ( !_argsIpps) ->
-                          (case (({-# LINE 223 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 222 "./src-ag/PrintCode.ag" #-}
                                   name_ >#< pp_block "{" "}" "," _argsIpps
                                   {-# LINE 907 "dist/build/PrintCode.hs" #-}
                                   )) of
@@ -944,22 +944,22 @@ sem_DataAlts_Cons :: T_DataAlt ->
 sem_DataAlts_Cons !(T_DataAlt hd_) !(T_DataAlts tl_) =
     (T_DataAlts (\ (!_lhsInested)
                    (!_lhsIstrictPre) ->
-                     (case (({-# LINE 317 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 318 "./src-ag/PrintCode.ag" #-}
                              _lhsIstrictPre
                              {-# LINE 950 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_tlOstrictPre ->
-                      (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 955 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_tlOnested ->
-                       (case (({-# LINE 317 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 318 "./src-ag/PrintCode.ag" #-}
                                _lhsIstrictPre
                                {-# LINE 960 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_hdOstrictPre ->
-                        (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                 _lhsInested
                                 {-# LINE 965 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -968,7 +968,7 @@ sem_DataAlts_Cons !(T_DataAlt hd_) !(T_DataAlts tl_) =
                           { ( !_tlIpps) ->
                               (case (hd_ _hdOnested _hdOstrictPre) of
                                { ( !_hdIpp) ->
-                                   (case (({-# LINE 73 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 72 "./src-ag/PrintCode.ag" #-}
                                            _hdIpp : _tlIpps
                                            {-# LINE 974 "dist/build/PrintCode.hs" #-}
                                            )) of
@@ -978,7 +978,7 @@ sem_DataAlts_Nil :: T_DataAlts
 sem_DataAlts_Nil =
     (T_DataAlts (\ (!_lhsInested)
                    (!_lhsIstrictPre) ->
-                     (case (({-# LINE 74 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 73 "./src-ag/PrintCode.ag" #-}
                              []
                              {-# LINE 984 "dist/build/PrintCode.hs" #-}
                              )) of
@@ -1089,37 +1089,37 @@ sem_Decl_Decl !(T_Lhs left_) !(T_Expr rhs_) !binds_ !uses_ =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1095 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1100 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1105 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1110 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1115 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1120 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                _lhsIisDeclOfLet
                                {-# LINE 1125 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1128,7 +1128,7 @@ sem_Decl_Decl !(T_Lhs left_) !(T_Expr rhs_) !binds_ !uses_ =
                          { ( !_rhsIpp) ->
                              (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                               { ( !_leftIpp) ->
-                                  (case (({-# LINE 107 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 106 "./src-ag/PrintCode.ag" #-}
                                           _leftIpp >#< "="
                                           >-< indent 4 _rhsIpp
                                           {-# LINE 1135 "dist/build/PrintCode.hs" #-}
@@ -1143,37 +1143,37 @@ sem_Decl_Bind !(T_Lhs left_) !(T_Expr rhs_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1149 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1154 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1159 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1164 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1169 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1174 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                _lhsIisDeclOfLet
                                {-# LINE 1179 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1182,7 +1182,7 @@ sem_Decl_Bind !(T_Lhs left_) !(T_Expr rhs_) =
                          { ( !_rhsIpp) ->
                              (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                               { ( !_leftIpp) ->
-                                  (case (({-# LINE 109 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 108 "./src-ag/PrintCode.ag" #-}
                                           _leftIpp >#< "<-" >#< _rhsIpp
                                           {-# LINE 1188 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -1196,37 +1196,37 @@ sem_Decl_BindLet !(T_Lhs left_) !(T_Expr rhs_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1202 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1207 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1212 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1217 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1222 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1227 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                _lhsIisDeclOfLet
                                {-# LINE 1232 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1235,7 +1235,7 @@ sem_Decl_BindLet !(T_Lhs left_) !(T_Expr rhs_) =
                          { ( !_rhsIpp) ->
                              (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                               { ( !_leftIpp) ->
-                                  (case (({-# LINE 110 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 109 "./src-ag/PrintCode.ag" #-}
                                           "let" >#< _leftIpp >#< "=" >#< _rhsIpp
                                           {-# LINE 1241 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -1252,19 +1252,19 @@ sem_Decl_Data !name_ !params_ !(T_DataAlts alts_) !strict_ !derivings_ =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 1258 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_altsOnested ->
-                  (case (({-# LINE 320 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 321 "./src-ag/PrintCode.ag" #-}
                           if strict_ then pp "!" else empty
                           {-# LINE 1263 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_altsOstrictPre ->
                    (case (alts_ _altsOnested _altsOstrictPre) of
                     { ( !_altsIpps) ->
-                        (case (({-# LINE 111 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 110 "./src-ag/PrintCode.ag" #-}
                                 "data" >#< hv_sp (name_ : params_)
                                 >#<  ( case _altsIpps of
                                              [] -> empty
@@ -1288,14 +1288,14 @@ sem_Decl_NewType !name_ !params_ !con_ !(T_Type tp_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 1294 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
                   (case (tp_ _tpOnested) of
                    { ( !_tpIpp,!_tpIprec) ->
-                       (case (({-# LINE 120 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 119 "./src-ag/PrintCode.ag" #-}
                                "newtype" >#< hv_sp (name_ : params_) >#< "=" >#< con_ >#< pp_parens _tpIpp
                                {-# LINE 1301 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1310,14 +1310,14 @@ sem_Decl_Type !name_ !params_ !(T_Type tp_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 1316 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
                   (case (tp_ _tpOnested) of
                    { ( !_tpIpp,!_tpIprec) ->
-                       (case (({-# LINE 121 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 120 "./src-ag/PrintCode.ag" #-}
                                "type" >#< hv_sp (name_ : params_) >#< "=" >#<  _tpIpp
                                {-# LINE 1323 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1331,14 +1331,14 @@ sem_Decl_TSig !name_ !(T_Type tp_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 1337 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
                   (case (tp_ _tpOnested) of
                    { ( !_tpIpp,!_tpIprec) ->
-                       (case (({-# LINE 122 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 121 "./src-ag/PrintCode.ag" #-}
                                name_ >#< "::" >#< _tpIpp
                                {-# LINE 1344 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1351,7 +1351,7 @@ sem_Decl_Comment !txt_ =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 123 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 122 "./src-ag/PrintCode.ag" #-}
                          if '\n' `elem` txt_
                            then "{-" >-< vlist (lines txt_) >-< "-}"
                            else "--" >#< txt_
@@ -1366,7 +1366,7 @@ sem_Decl_PragmaDecl !txt_ =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 126 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 125 "./src-ag/PrintCode.ag" #-}
                          "{-#" >#< text txt_ >#< "#-}"
                          {-# LINE 1372 "dist/build/PrintCode.hs" #-}
                          )) of
@@ -1382,37 +1382,37 @@ sem_Decl_Resume !monadic_ !nt_ !(T_Lhs left_) !(T_Expr rhs_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1388 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1393 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1398 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1403 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1408 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1413 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                _lhsIisDeclOfLet
                                {-# LINE 1418 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1421,7 +1421,7 @@ sem_Decl_Resume !monadic_ !nt_ !(T_Lhs left_) !(T_Expr rhs_) =
                          { ( !_rhsIpp) ->
                              (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                               { ( !_leftIpp) ->
-                                  (case (({-# LINE 127 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 126 "./src-ag/PrintCode.ag" #-}
                                           if monadic_
                                           then _leftIpp >#< "<-" >#< _rhsIpp
                                           else _leftIpp >#< "=" >-< indent 4 _rhsIpp
@@ -1438,42 +1438,42 @@ sem_Decl_EvalDecl !nt_ !(T_Lhs left_) !(T_Expr rhs_) =
                (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1444 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1449 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1454 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1459 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1464 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1469 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                _lhsIisDeclOfLet
                                {-# LINE 1474 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_leftOisDeclOfLet ->
-                        (case (({-# LINE 130 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 129 "./src-ag/PrintCode.ag" #-}
                                 if breadthFirstStrict _lhsIoptions
                                 then "stepwiseEval"
                                 else "lazyEval"
@@ -1484,7 +1484,7 @@ sem_Decl_EvalDecl !nt_ !(T_Lhs left_) !(T_Expr rhs_) =
                           { ( !_rhsIpp) ->
                               (case (left_ _leftOisDeclOfLet _leftOnested _leftOoptions _leftOoutputfile) of
                                { ( !_leftIpp) ->
-                                   (case (({-# LINE 133 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 132 "./src-ag/PrintCode.ag" #-}
                                            if breadthFirst _lhsIoptions
                                            then _leftIpp >#< "=" >#< "case" >#< _strat     >#< pp_parens _rhsIpp >#< "of"
                                                 >-< indent 4 (
@@ -1538,42 +1538,42 @@ sem_Decls_Cons !(T_Decl hd_) !(T_Decls tl_) =
                 (!_lhsInested)
                 (!_lhsIoptions)
                 (!_lhsIoutputfile) ->
-                  (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                           _lhsIoutputfile
                           {-# LINE 1544 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_tlOoutputfile ->
-                   (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                            _lhsIoptions
                            {-# LINE 1549 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_tlOoptions ->
-                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 1554 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_tlOnested ->
-                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                              _lhsIisDeclOfLet
                              {-# LINE 1559 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_tlOisDeclOfLet ->
-                      (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                               _lhsIoutputfile
                               {-# LINE 1564 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_hdOoutputfile ->
-                       (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                _lhsIoptions
                                {-# LINE 1569 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_hdOoptions ->
-                        (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                 _lhsInested
                                 {-# LINE 1574 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_hdOnested ->
-                         (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                  _lhsIisDeclOfLet
                                  {-# LINE 1579 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -1582,7 +1582,7 @@ sem_Decls_Cons !(T_Decl hd_) !(T_Decls tl_) =
                            { ( !_tlIpps) ->
                                (case (hd_ _hdOisDeclOfLet _hdOnested _hdOoptions _hdOoutputfile) of
                                 { ( !_hdIpp) ->
-                                    (case (({-# LINE 85 "./src-ag/PrintCode.ag" #-}
+                                    (case (({-# LINE 84 "./src-ag/PrintCode.ag" #-}
                                             _hdIpp : _tlIpps
                                             {-# LINE 1588 "dist/build/PrintCode.hs" #-}
                                             )) of
@@ -1594,7 +1594,7 @@ sem_Decls_Nil =
                 (!_lhsInested)
                 (!_lhsIoptions)
                 (!_lhsIoutputfile) ->
-                  (case (({-# LINE 86 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 85 "./src-ag/PrintCode.ag" #-}
                           []
                           {-# LINE 1600 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -1726,37 +1726,37 @@ sem_Expr_Let !(T_Decls decls_) !(T_Expr body_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1732 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_bodyOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1737 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_bodyOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1742 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_bodyOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1747 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_declsOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1752 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_declsOoptions ->
-                      (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1757 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_declsOnested ->
-                       (case (({-# LINE 414 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 416 "./src-ag/PrintCode.ag" #-}
                                True
                                {-# LINE 1762 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1765,7 +1765,7 @@ sem_Expr_Let !(T_Decls decls_) !(T_Expr body_) =
                          { ( !_bodyIpp) ->
                              (case (decls_ _declsOisDeclOfLet _declsOnested _declsOoptions _declsOoutputfile) of
                               { ( !_declsIpps) ->
-                                  (case (({-# LINE 141 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 140 "./src-ag/PrintCode.ag" #-}
                                           pp_parens (    "let" >#< (vlist _declsIpps)
                                                     >-< "in " >#< _bodyIpp
                                                     )
@@ -1780,32 +1780,32 @@ sem_Expr_Case !(T_Expr expr_) !(T_CaseAlts alts_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1786 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_altsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1791 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_altsOoptions ->
-                   (case (({-# LINE 56 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 55 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1796 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_altsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1801 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_exprOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1806 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_exprOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1811 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -1814,7 +1814,7 @@ sem_Expr_Case !(T_Expr expr_) !(T_CaseAlts alts_) =
                         { ( !_altsIpps) ->
                             (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                              { ( !_exprIpp) ->
-                                 (case (({-# LINE 144 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 143 "./src-ag/PrintCode.ag" #-}
                                          pp_parens (    "case" >#< pp_parens _exprIpp >#< "of"
                                                    >-< (vlist _altsIpps)
                                                    )
@@ -1829,37 +1829,37 @@ sem_Expr_Do !(T_Decls stmts_) !(T_Expr body_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1835 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_bodyOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1840 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_bodyOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1845 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_bodyOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1850 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_stmtsOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1855 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_stmtsOoptions ->
-                      (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1860 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_stmtsOnested ->
-                       (case (({-# LINE 416 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 418 "./src-ag/PrintCode.ag" #-}
                                False
                                {-# LINE 1865 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -1868,7 +1868,7 @@ sem_Expr_Do !(T_Decls stmts_) !(T_Expr body_) =
                          { ( !_bodyIpp) ->
                              (case (stmts_ _stmtsOisDeclOfLet _stmtsOnested _stmtsOoptions _stmtsOoutputfile) of
                               { ( !_stmtsIpps) ->
-                                  (case (({-# LINE 147 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 146 "./src-ag/PrintCode.ag" #-}
                                           pp_parens ( "do" >#< (   vlist _stmtsIpps
                                                                >-< ("return" >#< _bodyIpp))
                                                     )
@@ -1883,37 +1883,37 @@ sem_Expr_Lambda !(T_Exprs args_) !(T_Expr body_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1889 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_bodyOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1894 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_bodyOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1899 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_bodyOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 1904 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_argsOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 1909 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_argsOoptions ->
-                      (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 1914 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_argsOnested ->
-                       (case (({-# LINE 153 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 152 "./src-ag/PrintCode.ag" #-}
                                if bangpats _lhsIoptions
                                then \p -> pp_parens ("!" >|< p)
                                else id
@@ -1922,7 +1922,7 @@ sem_Expr_Lambda !(T_Exprs args_) !(T_Expr body_) =
                         { !_addBang ->
                         (case (args_ _argsOnested _argsOoptions _argsOoutputfile) of
                          { ( !_argsIpps) ->
-                             (case (({-# LINE 150 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 149 "./src-ag/PrintCode.ag" #-}
                                      if strictSems _lhsIoptions
                                      then _argsIpps
                                      else []
@@ -1931,7 +1931,7 @@ sem_Expr_Lambda !(T_Exprs args_) !(T_Expr body_) =
                               { !_strictParams ->
                               (case (body_ _bodyOnested _bodyOoptions _bodyOoutputfile) of
                                { ( !_bodyIpp) ->
-                                   (case (({-# LINE 156 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 155 "./src-ag/PrintCode.ag" #-}
                                            pp_parens (    "\\" >#< (vlist (map _addBang     _argsIpps)) >#< "->"
                                                      >-< indent 4 (_strictParams     `ppMultiSeqV` _bodyIpp)
                                                      )
@@ -1945,24 +1945,24 @@ sem_Expr_TupleExpr !(T_Exprs exprs_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1951 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1956 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprsOoptions ->
-                   (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1961 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprsOnested ->
                     (case (exprs_ _exprsOnested _exprsOoptions _exprsOoutputfile) of
                      { ( !_exprsIpps) ->
-                         (case (({-# LINE 159 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 158 "./src-ag/PrintCode.ag" #-}
                                  ppTuple _lhsInested _exprsIpps
                                  {-# LINE 1968 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -1974,24 +1974,24 @@ sem_Expr_UnboxedTupleExpr !(T_Exprs exprs_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 1980 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 1985 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprsOoptions ->
-                   (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 1990 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprsOnested ->
                     (case (exprs_ _exprsOnested _exprsOoptions _exprsOoutputfile) of
                      { ( !_exprsIpps) ->
-                         (case (({-# LINE 160 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 159 "./src-ag/PrintCode.ag" #-}
                                  ppUnboxedTuple _lhsInested _exprsIpps
                                  {-# LINE 1997 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -2004,24 +2004,24 @@ sem_Expr_App !name_ !(T_Exprs args_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2010 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_argsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2015 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_argsOoptions ->
-                   (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2020 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_argsOnested ->
                     (case (args_ _argsOnested _argsOoptions _argsOoutputfile) of
                      { ( !_argsIpps) ->
-                         (case (({-# LINE 161 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 160 "./src-ag/PrintCode.ag" #-}
                                  pp_parens $ name_ >#< hv_sp _argsIpps
                                  {-# LINE 2027 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -2033,7 +2033,7 @@ sem_Expr_SimpleExpr !txt_ =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 162 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 161 "./src-ag/PrintCode.ag" #-}
                          text txt_
                          {-# LINE 2039 "dist/build/PrintCode.hs" #-}
                          )) of
@@ -2045,7 +2045,7 @@ sem_Expr_TextExpr !lns_ =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 163 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 162 "./src-ag/PrintCode.ag" #-}
                          vlist (map text lns_)
                          {-# LINE 2051 "dist/build/PrintCode.hs" #-}
                          )) of
@@ -2058,24 +2058,24 @@ sem_Expr_Trace !txt_ !(T_Expr expr_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2064 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2069 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2074 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprOnested ->
                     (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                      { ( !_exprIpp) ->
-                         (case (({-# LINE 164 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 163 "./src-ag/PrintCode.ag" #-}
                                  "trace" >#< (   pp_parens ("\"" >|< text txt_ >|< "\"")
                                              >-< pp_parens _exprIpp
                                              )
@@ -2092,24 +2092,24 @@ sem_Expr_PragmaExpr !onLeftSide_ !onNewLine_ !txt_ !(T_Expr expr_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2098 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2103 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2108 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprOnested ->
                     (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                      { ( !_exprIpp) ->
-                         (case (({-# LINE 167 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 166 "./src-ag/PrintCode.ag" #-}
                                  let pragmaDoc = "{-#" >#< txt_ >#< "#-}"
                                      op = if onNewLine_
                                           then (>-<)
@@ -2131,24 +2131,24 @@ sem_Expr_LineExpr !(T_Expr expr_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2137 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2142 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2147 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprOnested ->
                     (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                      { ( !_exprIpp) ->
-                         (case (({-# LINE 178 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 177 "./src-ag/PrintCode.ag" #-}
                                  _exprIpp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show _lhsIoutputfile >#< "#-}"
                                           >-< ""
                                  {-# LINE 2155 "dist/build/PrintCode.hs" #-}
@@ -2162,22 +2162,22 @@ sem_Expr_TypedExpr !(T_Expr expr_) !(T_Type tp_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 2168 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
-                  (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                           _lhsIoutputfile
                           {-# LINE 2173 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprOoutputfile ->
-                   (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                            _lhsIoptions
                            {-# LINE 2178 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprOoptions ->
-                    (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 2183 "dist/build/PrintCode.hs" #-}
                             )) of
@@ -2186,7 +2186,7 @@ sem_Expr_TypedExpr !(T_Expr expr_) !(T_Type tp_) =
                       { ( !_tpIpp,!_tpIprec) ->
                           (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                            { ( !_exprIpp) ->
-                               (case (({-# LINE 180 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 179 "./src-ag/PrintCode.ag" #-}
                                        pp_parens (_exprIpp >#< "::" >#< _tpIpp)
                                        {-# LINE 2192 "dist/build/PrintCode.hs" #-}
                                        )) of
@@ -2199,24 +2199,24 @@ sem_Expr_ResultExpr !nt_ !(T_Expr expr_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2205 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_exprOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2210 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_exprOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2215 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_exprOnested ->
                     (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                      { ( !_exprIpp) ->
-                         (case (({-# LINE 181 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 180 "./src-ag/PrintCode.ag" #-}
                                  if breadthFirst _lhsIoptions
                                  then "final" >#<
                                       pp_parens (nt_ >|< "_Syn" >#< pp_parens _exprIpp)
@@ -2233,32 +2233,32 @@ sem_Expr_InvokeExpr !nt_ !(T_Expr expr_) !(T_Exprs args_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2239 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_argsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2244 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_argsOoptions ->
-                   (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2249 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_argsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 2254 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_exprOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 2259 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_exprOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 2264 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -2267,7 +2267,7 @@ sem_Expr_InvokeExpr !nt_ !(T_Expr expr_) !(T_Exprs args_) =
                         { ( !_argsIpps) ->
                             (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                              { ( !_exprIpp) ->
-                                 (case (({-# LINE 185 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 184 "./src-ag/PrintCode.ag" #-}
                                          if breadthFirst _lhsIoptions
                                          then "invoke" >#< pp_parens _exprIpp >#< pp_parens (
                                                nt_ >|< "_Inh" >#< pp_parens (ppTuple False _argsIpps))
@@ -2285,52 +2285,52 @@ sem_Expr_ResumeExpr !nt_ !(T_Expr expr_) !(T_Lhs left_) !(T_Expr rhs_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2291 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rhsOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2296 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_rhsOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2301 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_rhsOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 2306 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_leftOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 2311 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_leftOoptions ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 2316 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_leftOnested ->
-                       (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                                _lhsIoutputfile
                                {-# LINE 2321 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_exprOoutputfile ->
-                        (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                 _lhsIoptions
                                 {-# LINE 2326 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_exprOoptions ->
-                         (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                  _lhsInested
                                  {-# LINE 2331 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_exprOnested ->
-                          (case (({-# LINE 418 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 420 "./src-ag/PrintCode.ag" #-}
                                   False
                                   {-# LINE 2336 "dist/build/PrintCode.hs" #-}
                                   )) of
@@ -2341,7 +2341,7 @@ sem_Expr_ResumeExpr !nt_ !(T_Expr expr_) !(T_Lhs left_) !(T_Expr rhs_) =
                                  { ( !_leftIpp) ->
                                      (case (expr_ _exprOnested _exprOoptions _exprOoutputfile) of
                                       { ( !_exprIpp) ->
-                                          (case (({-# LINE 189 "./src-ag/PrintCode.ag" #-}
+                                          (case (({-# LINE 188 "./src-ag/PrintCode.ag" #-}
                                                   if breadthFirst _lhsIoptions
                                                   then pp_parens ("resume" >#< pp_parens _exprIpp
                                                                  >-< indent 2 (pp_parens ( "\\" >|<
@@ -2366,37 +2366,37 @@ sem_Expr_SemFun !nt_ !(T_Exprs args_) !(T_Expr body_) =
     (T_Expr (\ (!_lhsInested)
                (!_lhsIoptions)
                (!_lhsIoutputfile) ->
-                 (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                          _lhsIoutputfile
                          {-# LINE 2372 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_bodyOoutputfile ->
-                  (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                           _lhsIoptions
                           {-# LINE 2377 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_bodyOoptions ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 2382 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_bodyOnested ->
-                    (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                             _lhsIoutputfile
                             {-# LINE 2387 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_argsOoutputfile ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 2392 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_argsOoptions ->
-                      (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 2397 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_argsOnested ->
-                       (case (({-# LINE 204 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 203 "./src-ag/PrintCode.ag" #-}
                                if bangpats _lhsIoptions
                                then \p -> pp_parens ("!" >|< p)
                                else id
@@ -2405,7 +2405,7 @@ sem_Expr_SemFun !nt_ !(T_Exprs args_) !(T_Expr body_) =
                         { !_addBang ->
                         (case (args_ _argsOnested _argsOoptions _argsOoutputfile) of
                          { ( !_argsIpps) ->
-                             (case (({-# LINE 201 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 200 "./src-ag/PrintCode.ag" #-}
                                      if strictSems _lhsIoptions
                                      then _argsIpps
                                      else []
@@ -2414,7 +2414,7 @@ sem_Expr_SemFun !nt_ !(T_Exprs args_) !(T_Expr body_) =
                               { !_strictParams ->
                               (case (body_ _bodyOnested _bodyOoptions _bodyOoutputfile) of
                                { ( !_bodyIpp) ->
-                                   (case (({-# LINE 207 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 206 "./src-ag/PrintCode.ag" #-}
                                            if breadthFirst _lhsIoptions
                                            then "Child" >#< pp_parens ( "\\" >|<
                                                     pp_parens (nt_ >|< "_Inh" >#<
@@ -2469,32 +2469,32 @@ sem_Exprs_Cons !(T_Expr hd_) !(T_Exprs tl_) =
     (T_Exprs (\ (!_lhsInested)
                 (!_lhsIoptions)
                 (!_lhsIoutputfile) ->
-                  (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                           _lhsIoutputfile
                           {-# LINE 2475 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_tlOoutputfile ->
-                   (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                            _lhsIoptions
                            {-# LINE 2480 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_tlOoptions ->
-                    (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                             _lhsInested
                             {-# LINE 2485 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_tlOnested ->
-                     (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                              _lhsIoutputfile
                              {-# LINE 2490 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_hdOoutputfile ->
-                      (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                               _lhsIoptions
                               {-# LINE 2495 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_hdOoptions ->
-                       (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                _lhsInested
                                {-# LINE 2500 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -2503,7 +2503,7 @@ sem_Exprs_Cons !(T_Expr hd_) !(T_Exprs tl_) =
                          { ( !_tlIpps) ->
                              (case (hd_ _hdOnested _hdOoptions _hdOoutputfile) of
                               { ( !_hdIpp) ->
-                                  (case (({-# LINE 65 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 64 "./src-ag/PrintCode.ag" #-}
                                           _hdIpp : _tlIpps
                                           {-# LINE 2509 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -2514,7 +2514,7 @@ sem_Exprs_Nil =
     (T_Exprs (\ (!_lhsInested)
                 (!_lhsIoptions)
                 (!_lhsIoutputfile) ->
-                  (case (({-# LINE 66 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 65 "./src-ag/PrintCode.ag" #-}
                           []
                           {-# LINE 2520 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -2601,39 +2601,39 @@ sem_Lhs_Pattern3 !(T_Pattern pat3_) =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                         _lhsIoptions
                         {-# LINE 2607 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_pat3Ooptions ->
-                 (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                          _lhsIisDeclOfLet
                          {-# LINE 2612 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_pat3OisDeclOfLet ->
-                  (case (({-# LINE 380 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 381 "./src-ag/PrintCode.ag" #-}
                           False
                           {-# LINE 2617 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_pat3ObelowIrrefutable ->
                    (case (pat3_ _pat3ObelowIrrefutable _pat3OisDeclOfLet _pat3Ooptions) of
                     { ( !_pat3Icopy,!_pat3IisUnderscore,!_pat3Ipp,!_pat3Ipp',!_pat3IstrictVars) ->
-                        (case (({-# LINE 235 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 234 "./src-ag/PrintCode.ag" #-}
                                 not (null _pat3IstrictVars)
                                 {-# LINE 2624 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_hasStrictVars ->
-                         (case (({-# LINE 234 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 233 "./src-ag/PrintCode.ag" #-}
                                  _pat3IstrictVars `ppMultiSeqH` (pp "True")
                                  {-# LINE 2629 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_strictGuard ->
-                          (case (({-# LINE 232 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 231 "./src-ag/PrintCode.ag" #-}
                                   if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
                                   {-# LINE 2634 "dist/build/PrintCode.hs" #-}
                                   )) of
                            { !_addStrictGuard ->
-                           (case (({-# LINE 252 "./src-ag/PrintCode.ag" #-}
+                           (case (({-# LINE 251 "./src-ag/PrintCode.ag" #-}
                                    _addStrictGuard     _pat3Ipp
                                    {-# LINE 2639 "dist/build/PrintCode.hs" #-}
                                    )) of
@@ -2646,24 +2646,24 @@ sem_Lhs_Pattern3SM !(T_Pattern pat3_) =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                         _lhsIoptions
                         {-# LINE 2652 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_pat3Ooptions ->
-                 (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                          _lhsIisDeclOfLet
                          {-# LINE 2657 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_pat3OisDeclOfLet ->
-                  (case (({-# LINE 380 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 381 "./src-ag/PrintCode.ag" #-}
                           False
                           {-# LINE 2662 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_pat3ObelowIrrefutable ->
                    (case (pat3_ _pat3ObelowIrrefutable _pat3OisDeclOfLet _pat3Ooptions) of
                     { ( !_pat3Icopy,!_pat3IisUnderscore,!_pat3Ipp,!_pat3Ipp',!_pat3IstrictVars) ->
-                        (case (({-# LINE 253 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 252 "./src-ag/PrintCode.ag" #-}
                                 _pat3Ipp'
                                 {-# LINE 2669 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -2676,31 +2676,31 @@ sem_Lhs_TupleLhs !comps_ =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 248 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 247 "./src-ag/PrintCode.ag" #-}
                         if bangpats _lhsIoptions
                                  then \p -> "!" >|< p
                                  else id
                         {-# LINE 2684 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_addBang ->
-                 (case (({-# LINE 240 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 239 "./src-ag/PrintCode.ag" #-}
                          not (null comps_)
                          {-# LINE 2689 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_hasStrictVars ->
-                  (case (({-# LINE 237 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 236 "./src-ag/PrintCode.ag" #-}
                           if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
                           then map text comps_ `ppMultiSeqH` (pp "True")
                           else pp "True"
                           {-# LINE 2696 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_strictGuard ->
-                   (case (({-# LINE 232 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 231 "./src-ag/PrintCode.ag" #-}
                            if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
                            {-# LINE 2701 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_addStrictGuard ->
-                    (case (({-# LINE 254 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 253 "./src-ag/PrintCode.ag" #-}
                             _addStrictGuard     $ ppTuple _lhsInested (map (_addBang     . text) comps_)
                             {-# LINE 2706 "dist/build/PrintCode.hs" #-}
                             )) of
@@ -2713,31 +2713,31 @@ sem_Lhs_UnboxedTupleLhs !comps_ =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 248 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 247 "./src-ag/PrintCode.ag" #-}
                         if bangpats _lhsIoptions
                                  then \p -> "!" >|< p
                                  else id
                         {-# LINE 2721 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_addBang ->
-                 (case (({-# LINE 240 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 239 "./src-ag/PrintCode.ag" #-}
                          not (null comps_)
                          {-# LINE 2726 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_hasStrictVars ->
-                  (case (({-# LINE 237 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 236 "./src-ag/PrintCode.ag" #-}
                           if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
                           then map text comps_ `ppMultiSeqH` (pp "True")
                           else pp "True"
                           {-# LINE 2733 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_strictGuard ->
-                   (case (({-# LINE 232 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 231 "./src-ag/PrintCode.ag" #-}
                            if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
                            {-# LINE 2738 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_addStrictGuard ->
-                    (case (({-# LINE 255 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 254 "./src-ag/PrintCode.ag" #-}
                             _addStrictGuard     $ ppUnboxedTuple _lhsInested (map (_addBang     . text) comps_)
                             {-# LINE 2743 "dist/build/PrintCode.hs" #-}
                             )) of
@@ -2751,22 +2751,22 @@ sem_Lhs_Fun !name_ !(T_Exprs args_) =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                         _lhsIoutputfile
                         {-# LINE 2757 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_argsOoutputfile ->
-                 (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                          _lhsIoptions
                          {-# LINE 2762 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_argsOoptions ->
-                  (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 2767 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_argsOnested ->
-                   (case (({-# LINE 248 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 247 "./src-ag/PrintCode.ag" #-}
                            if bangpats _lhsIoptions
                                     then \p -> "!" >|< p
                                     else id
@@ -2775,22 +2775,22 @@ sem_Lhs_Fun !name_ !(T_Exprs args_) =
                     { !_addBang ->
                     (case (args_ _argsOnested _argsOoptions _argsOoutputfile) of
                      { ( !_argsIpps) ->
-                         (case (({-# LINE 245 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 244 "./src-ag/PrintCode.ag" #-}
                                  _argsIpps `ppMultiSeqH` (pp "True")
                                  {-# LINE 2781 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_strictGuard ->
-                          (case (({-# LINE 244 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 243 "./src-ag/PrintCode.ag" #-}
                                   not (null _argsIpps)
                                   {-# LINE 2786 "dist/build/PrintCode.hs" #-}
                                   )) of
                            { !_hasStrictVars ->
-                           (case (({-# LINE 243 "./src-ag/PrintCode.ag" #-}
+                           (case (({-# LINE 242 "./src-ag/PrintCode.ag" #-}
                                    if strictSems _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
                                    {-# LINE 2791 "dist/build/PrintCode.hs" #-}
                                    )) of
                             { !_addStrictGuard ->
-                            (case (({-# LINE 256 "./src-ag/PrintCode.ag" #-}
+                            (case (({-# LINE 255 "./src-ag/PrintCode.ag" #-}
                                     _addStrictGuard     (name_ >#< hv_sp (map _addBang     _argsIpps))
                                     {-# LINE 2796 "dist/build/PrintCode.hs" #-}
                                     )) of
@@ -2804,29 +2804,29 @@ sem_Lhs_Unwrap !name_ !(T_Lhs sub_) =
               (!_lhsInested)
               (!_lhsIoptions)
               (!_lhsIoutputfile) ->
-                (case (({-# LINE 40 "./src-ag/PrintCode.ag" #-}
+                (case (({-# LINE 39 "./src-ag/PrintCode.ag" #-}
                         _lhsIoutputfile
                         {-# LINE 2810 "dist/build/PrintCode.hs" #-}
                         )) of
                  { !_subOoutputfile ->
-                 (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                          _lhsIoptions
                          {-# LINE 2815 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_subOoptions ->
-                  (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 2820 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_subOnested ->
-                   (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                            _lhsIisDeclOfLet
                            {-# LINE 2825 "dist/build/PrintCode.hs" #-}
                            )) of
                     { !_subOisDeclOfLet ->
                     (case (sub_ _subOisDeclOfLet _subOnested _subOoptions _subOoutputfile) of
                      { ( !_subIpp) ->
-                         (case (({-# LINE 257 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 256 "./src-ag/PrintCode.ag" #-}
                                  pp_parens (name_ >#< _subIpp)
                                  {-# LINE 2832 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -2867,14 +2867,14 @@ sem_NamedType_Named :: Bool ->
                        T_NamedType
 sem_NamedType_Named !strict_ !name_ !(T_Type tp_) =
     (T_NamedType (\ (!_lhsInested) ->
-                      (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                               _lhsInested
                               {-# LINE 2873 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_tpOnested ->
                        (case (tp_ _tpOnested) of
                         { ( !_tpIpp,!_tpIprec) ->
-                            (case (({-# LINE 226 "./src-ag/PrintCode.ag" #-}
+                            (case (({-# LINE 225 "./src-ag/PrintCode.ag" #-}
                                     if strict_
                                     then name_ >#< "::" >#< "!" >|< pp_parens _tpIpp
                                     else name_ >#< "::" >#< _tpIpp
@@ -2916,12 +2916,12 @@ sem_NamedTypes_Cons :: T_NamedType ->
                        T_NamedTypes
 sem_NamedTypes_Cons !(T_NamedType hd_) !(T_NamedTypes tl_) =
     (T_NamedTypes (\ (!_lhsInested) ->
-                       (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                                _lhsInested
                                {-# LINE 2922 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_tlOnested ->
-                        (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                                 _lhsInested
                                 {-# LINE 2927 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -2930,7 +2930,7 @@ sem_NamedTypes_Cons !(T_NamedType hd_) !(T_NamedTypes tl_) =
                           { ( !_tlIpps) ->
                               (case (hd_ _hdOnested) of
                                { ( !_hdIpp) ->
-                                   (case (({-# LINE 81 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 80 "./src-ag/PrintCode.ag" #-}
                                            _hdIpp : _tlIpps
                                            {-# LINE 2936 "dist/build/PrintCode.hs" #-}
                                            )) of
@@ -2939,7 +2939,7 @@ sem_NamedTypes_Cons !(T_NamedType hd_) !(T_NamedTypes tl_) =
 sem_NamedTypes_Nil :: T_NamedTypes
 sem_NamedTypes_Nil =
     (T_NamedTypes (\ (!_lhsInested) ->
-                       (case (({-# LINE 82 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 81 "./src-ag/PrintCode.ag" #-}
                                []
                                {-# LINE 2945 "dist/build/PrintCode.hs" #-}
                                )) of
@@ -3024,17 +3024,17 @@ sem_Pattern_Constr !name_ !(T_Patterns pats_) =
     (T_Pattern (\ (!_lhsIbelowIrrefutable)
                   (!_lhsIisDeclOfLet)
                   (!_lhsIoptions) ->
-                    (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                             _lhsIoptions
                             {-# LINE 3030 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_patsOoptions ->
-                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                              _lhsIisDeclOfLet
                              {-# LINE 3035 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_patsOisDeclOfLet ->
-                      (case (({-# LINE 373 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 374 "./src-ag/PrintCode.ag" #-}
                               _lhsIbelowIrrefutable
                               {-# LINE 3040 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -3051,29 +3051,29 @@ sem_Pattern_Constr !name_ !(T_Patterns pats_) =
                                      {-# LINE 3052 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOcopy ->
-                              (case (({-# LINE 368 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 369 "./src-ag/PrintCode.ag" #-}
                                       False
                                       {-# LINE 3057 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_lhsOisUnderscore ->
-                               (case (({-# LINE 352 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 353 "./src-ag/PrintCode.ag" #-}
                                        if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                                        then \p -> "!" >|< p
                                        else id
                                        {-# LINE 3064 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_addBang ->
-                                (case (({-# LINE 357 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 358 "./src-ag/PrintCode.ag" #-}
                                         _addBang     $ pp_parens $ name_ >#< hv_sp _patsIpps
                                         {-# LINE 3069 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_lhsOpp ->
-                                 (case (({-# LINE 391 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 392 "./src-ag/PrintCode.ag" #-}
                                          pp_parens $ name_ >#< hv_sp (map pp_parens _patsIpps')
                                          {-# LINE 3074 "dist/build/PrintCode.hs" #-}
                                          )) of
                                   { !_lhsOpp' ->
-                                  (case (({-# LINE 326 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 327 "./src-ag/PrintCode.ag" #-}
                                           _patsIstrictVars
                                           {-# LINE 3079 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -3086,17 +3086,17 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_) =
     (T_Pattern (\ (!_lhsIbelowIrrefutable)
                   (!_lhsIisDeclOfLet)
                   (!_lhsIoptions) ->
-                    (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                             _lhsIoptions
                             {-# LINE 3092 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_patsOoptions ->
-                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                              _lhsIisDeclOfLet
                              {-# LINE 3097 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_patsOisDeclOfLet ->
-                      (case (({-# LINE 373 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 374 "./src-ag/PrintCode.ag" #-}
                               _lhsIbelowIrrefutable
                               {-# LINE 3102 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -3113,29 +3113,29 @@ sem_Pattern_Product !pos_ !(T_Patterns pats_) =
                                      {-# LINE 3114 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOcopy ->
-                              (case (({-# LINE 369 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 370 "./src-ag/PrintCode.ag" #-}
                                       False
                                       {-# LINE 3119 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_lhsOisUnderscore ->
-                               (case (({-# LINE 352 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 353 "./src-ag/PrintCode.ag" #-}
                                        if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                                        then \p -> "!" >|< p
                                        else id
                                        {-# LINE 3126 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_addBang ->
-                                (case (({-# LINE 358 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 359 "./src-ag/PrintCode.ag" #-}
                                         _addBang     $ pp_block "(" ")" "," _patsIpps
                                         {-# LINE 3131 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_lhsOpp ->
-                                 (case (({-# LINE 392 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 393 "./src-ag/PrintCode.ag" #-}
                                          pp_block "(" ")" "," _patsIpps'
                                          {-# LINE 3136 "dist/build/PrintCode.hs" #-}
                                          )) of
                                   { !_lhsOpp' ->
-                                  (case (({-# LINE 326 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 327 "./src-ag/PrintCode.ag" #-}
                                           _patsIstrictVars
                                           {-# LINE 3141 "dist/build/PrintCode.hs" #-}
                                           )) of
@@ -3149,17 +3149,17 @@ sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_) =
     (T_Pattern (\ (!_lhsIbelowIrrefutable)
                   (!_lhsIisDeclOfLet)
                   (!_lhsIoptions) ->
-                    (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                             _lhsIoptions
                             {-# LINE 3155 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_patOoptions ->
-                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                              _lhsIisDeclOfLet
                              {-# LINE 3160 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_patOisDeclOfLet ->
-                      (case (({-# LINE 373 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 374 "./src-ag/PrintCode.ag" #-}
                               _lhsIbelowIrrefutable
                               {-# LINE 3165 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -3176,57 +3176,57 @@ sem_Pattern_Alias !field_ !attr_ !(T_Pattern pat_) =
                                      {-# LINE 3177 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOcopy ->
-                              (case (({-# LINE 370 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 371 "./src-ag/PrintCode.ag" #-}
                                       False
                                       {-# LINE 3182 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_lhsOisUnderscore ->
-                               (case (({-# LINE 359 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 360 "./src-ag/PrintCode.ag" #-}
                                        pp (attrname False field_ attr_)
                                        {-# LINE 3187 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_ppVar ->
-                                (case (({-# LINE 352 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 353 "./src-ag/PrintCode.ag" #-}
                                         if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                                         then \p -> "!" >|< p
                                         else id
                                         {-# LINE 3194 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_addBang ->
-                                 (case (({-# LINE 360 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 361 "./src-ag/PrintCode.ag" #-}
                                          _addBang     $ _ppVar
                                          {-# LINE 3199 "dist/build/PrintCode.hs" #-}
                                          )) of
                                   { !_ppVarBang ->
-                                  (case (({-# LINE 361 "./src-ag/PrintCode.ag" #-}
+                                  (case (({-# LINE 362 "./src-ag/PrintCode.ag" #-}
                                           if _patIisUnderscore
                                            then _ppVarBang
                                            else _ppVarBang     >|< "@" >|< _patIpp
                                           {-# LINE 3206 "dist/build/PrintCode.hs" #-}
                                           )) of
                                    { !_lhsOpp ->
-                                   (case (({-# LINE 393 "./src-ag/PrintCode.ag" #-}
+                                   (case (({-# LINE 394 "./src-ag/PrintCode.ag" #-}
                                            let attribute | field_ == _LOC || field_ == nullIdent = locname' attr_
                                                          | otherwise                             = attrname False field_ attr_
                                            in attribute >|< "@" >|< _patIpp'
                                            {-# LINE 3213 "dist/build/PrintCode.hs" #-}
                                            )) of
                                     { !_lhsOpp' ->
-                                    (case (({-# LINE 333 "./src-ag/PrintCode.ag" #-}
+                                    (case (({-# LINE 334 "./src-ag/PrintCode.ag" #-}
                                             if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
                                             then _patIstrictVars
                                             else []
                                             {-# LINE 3220 "dist/build/PrintCode.hs" #-}
                                             )) of
                                      { !_strictPatVars ->
-                                     (case (({-# LINE 329 "./src-ag/PrintCode.ag" #-}
+                                     (case (({-# LINE 330 "./src-ag/PrintCode.ag" #-}
                                              if strictCases _lhsIoptions && not _lhsIisDeclOfLet
                                              then [_ppVar    ]
                                              else []
                                              {-# LINE 3227 "dist/build/PrintCode.hs" #-}
                                              )) of
                                       { !_strictVar ->
-                                      (case (({-# LINE 337 "./src-ag/PrintCode.ag" #-}
+                                      (case (({-# LINE 338 "./src-ag/PrintCode.ag" #-}
                                               _strictVar     ++ _strictPatVars
                                               {-# LINE 3232 "dist/build/PrintCode.hs" #-}
                                               )) of
@@ -3238,17 +3238,17 @@ sem_Pattern_Irrefutable !(T_Pattern pat_) =
     (T_Pattern (\ (!_lhsIbelowIrrefutable)
                   (!_lhsIisDeclOfLet)
                   (!_lhsIoptions) ->
-                    (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                             _lhsIoptions
                             {-# LINE 3244 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_patOoptions ->
-                     (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                              _lhsIisDeclOfLet
                              {-# LINE 3249 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_patOisDeclOfLet ->
-                      (case (({-# LINE 376 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 377 "./src-ag/PrintCode.ag" #-}
                               True
                               {-# LINE 3254 "dist/build/PrintCode.hs" #-}
                               )) of
@@ -3265,22 +3265,22 @@ sem_Pattern_Irrefutable !(T_Pattern pat_) =
                                      {-# LINE 3266 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOcopy ->
-                              (case (({-# LINE 367 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 368 "./src-ag/PrintCode.ag" #-}
                                       _patIisUnderscore
                                       {-# LINE 3271 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_lhsOisUnderscore ->
-                               (case (({-# LINE 364 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 365 "./src-ag/PrintCode.ag" #-}
                                        text "~" >|< pp_parens _patIpp
                                        {-# LINE 3276 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_lhsOpp ->
-                                (case (({-# LINE 396 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 397 "./src-ag/PrintCode.ag" #-}
                                         text "~" >|< pp_parens _patIpp
                                         {-# LINE 3281 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_lhsOpp' ->
-                                 (case (({-# LINE 340 "./src-ag/PrintCode.ag" #-}
+                                 (case (({-# LINE 341 "./src-ag/PrintCode.ag" #-}
                                          []
                                          {-# LINE 3286 "dist/build/PrintCode.hs" #-}
                                          )) of
@@ -3302,22 +3302,22 @@ sem_Pattern_Underscore !pos_ =
                              {-# LINE 3303 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_lhsOcopy ->
-                      (case (({-# LINE 371 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 372 "./src-ag/PrintCode.ag" #-}
                               True
                               {-# LINE 3308 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_lhsOisUnderscore ->
-                       (case (({-# LINE 365 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 366 "./src-ag/PrintCode.ag" #-}
                                text "_"
                                {-# LINE 3313 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 397 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 398 "./src-ag/PrintCode.ag" #-}
                                 text "_"
                                 {-# LINE 3318 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_lhsOpp' ->
-                         (case (({-# LINE 326 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 327 "./src-ag/PrintCode.ag" #-}
                                  []
                                  {-# LINE 3323 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -3370,34 +3370,34 @@ sem_Patterns_Cons !(T_Pattern hd_) !(T_Patterns tl_) =
     (T_Patterns (\ (!_lhsIbelowIrrefutable)
                    (!_lhsIisDeclOfLet)
                    (!_lhsIoptions) ->
-                     (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                              _lhsIoptions
                              {-# LINE 3376 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_tlOoptions ->
-                      (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                               _lhsIisDeclOfLet
                               {-# LINE 3381 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_tlOisDeclOfLet ->
-                       (case (({-# LINE 373 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 374 "./src-ag/PrintCode.ag" #-}
                                _lhsIbelowIrrefutable
                                {-# LINE 3386 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_tlObelowIrrefutable ->
                         (case (tl_ _tlObelowIrrefutable _tlOisDeclOfLet _tlOoptions) of
                          { ( !_tlIcopy,!_tlIpps,!_tlIpps',!_tlIstrictVars) ->
-                             (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                      _lhsIoptions
                                      {-# LINE 3393 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_hdOoptions ->
-                              (case (({-# LINE 407 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 409 "./src-ag/PrintCode.ag" #-}
                                       _lhsIisDeclOfLet
                                       {-# LINE 3398 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_hdOisDeclOfLet ->
-                               (case (({-# LINE 373 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 374 "./src-ag/PrintCode.ag" #-}
                                        _lhsIbelowIrrefutable
                                        {-# LINE 3403 "dist/build/PrintCode.hs" #-}
                                        )) of
@@ -3414,17 +3414,17 @@ sem_Patterns_Cons !(T_Pattern hd_) !(T_Patterns tl_) =
                                               {-# LINE 3415 "dist/build/PrintCode.hs" #-}
                                               )) of
                                        { !_lhsOcopy ->
-                                       (case (({-# LINE 347 "./src-ag/PrintCode.ag" #-}
+                                       (case (({-# LINE 348 "./src-ag/PrintCode.ag" #-}
                                                _hdIpp : _tlIpps
                                                {-# LINE 3420 "dist/build/PrintCode.hs" #-}
                                                )) of
                                         { !_lhsOpps ->
-                                        (case (({-# LINE 387 "./src-ag/PrintCode.ag" #-}
+                                        (case (({-# LINE 388 "./src-ag/PrintCode.ag" #-}
                                                 _hdIpp' : _tlIpps'
                                                 {-# LINE 3425 "dist/build/PrintCode.hs" #-}
                                                 )) of
                                          { !_lhsOpps' ->
-                                         (case (({-# LINE 326 "./src-ag/PrintCode.ag" #-}
+                                         (case (({-# LINE 327 "./src-ag/PrintCode.ag" #-}
                                                  _hdIstrictVars ++ _tlIstrictVars
                                                  {-# LINE 3430 "dist/build/PrintCode.hs" #-}
                                                  )) of
@@ -3445,17 +3445,17 @@ sem_Patterns_Nil =
                               {-# LINE 3446 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_lhsOcopy ->
-                       (case (({-# LINE 348 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 349 "./src-ag/PrintCode.ag" #-}
                                []
                                {-# LINE 3451 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpps ->
-                        (case (({-# LINE 388 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 389 "./src-ag/PrintCode.ag" #-}
                                 []
                                 {-# LINE 3456 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_lhsOpps' ->
-                         (case (({-# LINE 326 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 327 "./src-ag/PrintCode.ag" #-}
                                  []
                                  {-# LINE 3461 "dist/build/PrintCode.hs" #-}
                                  )) of
@@ -3528,74 +3528,74 @@ sem_Program_Program !(T_Chunks chunks_) !ordered_ =
                   (!_lhsIpragmaBlocks)
                   (!_lhsItextBlockMap)
                   (!_lhsItextBlocks) ->
-                    (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
+                    (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
                             _lhsItextBlockMap
                             {-# LINE 3534 "dist/build/PrintCode.hs" #-}
                             )) of
                      { !_chunksOtextBlockMap ->
-                     (case (({-# LINE 433 "./src-ag/PrintCode.ag" #-}
+                     (case (({-# LINE 435 "./src-ag/PrintCode.ag" #-}
                              _lhsIpragmaBlocks
                              {-# LINE 3539 "dist/build/PrintCode.hs" #-}
                              )) of
                       { !_chunksOpragmaBlocks ->
-                      (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
+                      (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
                               _lhsIoptionsLine
                               {-# LINE 3544 "dist/build/PrintCode.hs" #-}
                               )) of
                        { !_chunksOoptionsLine ->
-                       (case (({-# LINE 59 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 58 "./src-ag/PrintCode.ag" #-}
                                _lhsIoptions { breadthFirst = breadthFirst _lhsIoptions && visit _lhsIoptions && cases _lhsIoptions && ordered_ }
                                {-# LINE 3549 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_options ->
-                        (case (({-# LINE 50 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 49 "./src-ag/PrintCode.ag" #-}
                                 _options
                                 {-# LINE 3554 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_chunksOoptions ->
-                         (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
+                         (case (({-# LINE 441 "./src-ag/PrintCode.ag" #-}
                                  _lhsImoduleHeader
                                  {-# LINE 3559 "dist/build/PrintCode.hs" #-}
                                  )) of
                           { !_chunksOmoduleHeader ->
-                          (case (({-# LINE 438 "./src-ag/PrintCode.ag" #-}
+                          (case (({-# LINE 440 "./src-ag/PrintCode.ag" #-}
                                   _lhsImainName
                                   {-# LINE 3564 "dist/build/PrintCode.hs" #-}
                                   )) of
                            { !_chunksOmainName ->
-                           (case (({-# LINE 437 "./src-ag/PrintCode.ag" #-}
+                           (case (({-# LINE 439 "./src-ag/PrintCode.ag" #-}
                                    _lhsImainFile
                                    {-# LINE 3569 "dist/build/PrintCode.hs" #-}
                                    )) of
                             { !_chunksOmainFile ->
-                            (case (({-# LINE 457 "./src-ag/PrintCode.ag" #-}
+                            (case (({-# LINE 459 "./src-ag/PrintCode.ag" #-}
                                     replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_common")
                                     {-# LINE 3574 "dist/build/PrintCode.hs" #-}
                                     )) of
                              { !_commonFile ->
-                             (case (({-# LINE 410 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 412 "./src-ag/PrintCode.ag" #-}
                                      False
                                      {-# LINE 3579 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_chunksOisDeclOfLet ->
-                              (case (({-# LINE 62 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 61 "./src-ag/PrintCode.ag" #-}
                                       nest _lhsIoptions
                                       {-# LINE 3584 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_chunksOnested ->
-                               (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 436 "./src-ag/PrintCode.ag" #-}
                                        _lhsItextBlocks
                                        {-# LINE 3589 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_chunksOtextBlocks ->
-                                (case (({-# LINE 432 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 434 "./src-ag/PrintCode.ag" #-}
                                         _lhsIimportBlocks
                                         {-# LINE 3594 "dist/build/PrintCode.hs" #-}
                                         )) of
                                  { !_chunksOimportBlocks ->
                                  (case (chunks_ _chunksOimportBlocks _chunksOisDeclOfLet _chunksOmainFile _chunksOmainName _chunksOmoduleHeader _chunksOnested _chunksOoptions _chunksOoptionsLine _chunksOpragmaBlocks _chunksOtextBlockMap _chunksOtextBlocks) of
                                   { ( !_chunksIappendCommon,!_chunksIappendMain,!_chunksIgenSems,!_chunksIimports,!_chunksIpps) ->
-                                      (case (({-# LINE 458 "./src-ag/PrintCode.ag" #-}
+                                      (case (({-# LINE 460 "./src-ag/PrintCode.ag" #-}
                                               writeModule _commonFile
                                                   ( [ pp $ _lhsIpragmaBlocks
                                                     , pp $ _lhsIoptionsLine
@@ -3608,12 +3608,12 @@ sem_Program_Program !(T_Chunks chunks_) !ordered_ =
                                               {-# LINE 3609 "dist/build/PrintCode.hs" #-}
                                               )) of
                                        { !_genCommonModule ->
-                                       (case (({-# LINE 444 "./src-ag/PrintCode.ag" #-}
+                                       (case (({-# LINE 446 "./src-ag/PrintCode.ag" #-}
                                                _lhsImainFile
                                                {-# LINE 3614 "dist/build/PrintCode.hs" #-}
                                                )) of
                                         { !_mainModuleFile ->
-                                        (case (({-# LINE 445 "./src-ag/PrintCode.ag" #-}
+                                        (case (({-# LINE 447 "./src-ag/PrintCode.ag" #-}
                                                 writeModule _mainModuleFile
                                                   ( [ pp $ _lhsIpragmaBlocks
                                                     , pp $ _lhsIoptionsLine
@@ -3627,14 +3627,14 @@ sem_Program_Program !(T_Chunks chunks_) !ordered_ =
                                                 {-# LINE 3628 "dist/build/PrintCode.hs" #-}
                                                 )) of
                                          { !_genMainModule ->
-                                         (case (({-# LINE 469 "./src-ag/PrintCode.ag" #-}
+                                         (case (({-# LINE 471 "./src-ag/PrintCode.ag" #-}
                                                  do _genMainModule
                                                     _genCommonModule
                                                     _chunksIgenSems
                                                  {-# LINE 3635 "dist/build/PrintCode.hs" #-}
                                                  )) of
                                           { !_lhsOgenIO ->
-                                          (case (({-# LINE 94 "./src-ag/PrintCode.ag" #-}
+                                          (case (({-# LINE 93 "./src-ag/PrintCode.ag" #-}
                                                   _chunksIpps
                                                   {-# LINE 3640 "dist/build/PrintCode.hs" #-}
                                                   )) of
@@ -3734,36 +3734,36 @@ sem_Type_Arr :: T_Type ->
                 T_Type
 sem_Type_Arr !(T_Type left_) !(T_Type right_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3740 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rightOnested ->
-                  (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 3745 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_leftOnested ->
                    (case (right_ _rightOnested) of
                     { ( !_rightIpp,!_rightIprec) ->
-                        (case (({-# LINE 263 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 262 "./src-ag/PrintCode.ag" #-}
                                 if _rightIprec <  2 then pp_parens _rightIpp else _rightIpp
                                 {-# LINE 3752 "dist/build/PrintCode.hs" #-}
                                 )) of
                          { !_r ->
                          (case (left_ _leftOnested) of
                           { ( !_leftIpp,!_leftIprec) ->
-                              (case (({-# LINE 262 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 261 "./src-ag/PrintCode.ag" #-}
                                       if _leftIprec  <= 2 then pp_parens _leftIpp  else _leftIpp
                                       {-# LINE 3759 "dist/build/PrintCode.hs" #-}
                                       )) of
                                { !_l ->
-                               (case (({-# LINE 261 "./src-ag/PrintCode.ag" #-}
+                               (case (({-# LINE 260 "./src-ag/PrintCode.ag" #-}
                                        _l     >#< "->" >-< _r
                                        {-# LINE 3764 "dist/build/PrintCode.hs" #-}
                                        )) of
                                 { !_lhsOpp ->
-                                (case (({-# LINE 260 "./src-ag/PrintCode.ag" #-}
+                                (case (({-# LINE 259 "./src-ag/PrintCode.ag" #-}
                                         2
                                         {-# LINE 3769 "dist/build/PrintCode.hs" #-}
                                         )) of
@@ -3774,19 +3774,19 @@ sem_Type_CtxApp :: ([(String, [String])]) ->
                    T_Type
 sem_Type_CtxApp !left_ !(T_Type right_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3780 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rightOnested ->
                   (case (right_ _rightOnested) of
                    { ( !_rightIpp,!_rightIprec) ->
-                       (case (({-# LINE 269 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 268 "./src-ag/PrintCode.ag" #-}
                                (pp_block "(" ")" "," $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) left_) >#< "=>" >#< _rightIpp
                                {-# LINE 3787 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 259 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 258 "./src-ag/PrintCode.ag" #-}
                                 _rightIprec
                                 {-# LINE 3792 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3797,19 +3797,19 @@ sem_Type_QuantApp :: String ->
                      T_Type
 sem_Type_QuantApp !left_ !(T_Type right_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3803 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rightOnested ->
                   (case (right_ _rightOnested) of
                    { ( !_rightIpp,!_rightIprec) ->
-                       (case (({-# LINE 271 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 270 "./src-ag/PrintCode.ag" #-}
                                left_ >#< _rightIpp
                                {-# LINE 3810 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 259 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 258 "./src-ag/PrintCode.ag" #-}
                                 _rightIprec
                                 {-# LINE 3815 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3820,12 +3820,12 @@ sem_Type_TypeApp :: T_Type ->
                     T_Type
 sem_Type_TypeApp !(T_Type func_) !(T_Types args_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3826 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_argsOnested ->
-                  (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 3831 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -3834,12 +3834,12 @@ sem_Type_TypeApp !(T_Type func_) !(T_Types args_) =
                     { ( !_argsIpps) ->
                         (case (func_ _funcOnested) of
                          { ( !_funcIpp,!_funcIprec) ->
-                             (case (({-# LINE 266 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 265 "./src-ag/PrintCode.ag" #-}
                                      hv_sp (_funcIpp : _argsIpps)
                                      {-# LINE 3840 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
-                              (case (({-# LINE 259 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 258 "./src-ag/PrintCode.ag" #-}
                                       _funcIprec
                                       {-# LINE 3845 "dist/build/PrintCode.hs" #-}
                                       )) of
@@ -3849,19 +3849,19 @@ sem_Type_TupleType :: T_Types ->
                       T_Type
 sem_Type_TupleType !(T_Types tps_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3855 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpsOnested ->
                   (case (tps_ _tpsOnested) of
                    { ( !_tpsIpps) ->
-                       (case (({-# LINE 274 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 273 "./src-ag/PrintCode.ag" #-}
                                ppTuple _lhsInested _tpsIpps
                                {-# LINE 3862 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 273 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 272 "./src-ag/PrintCode.ag" #-}
                                 5
                                 {-# LINE 3867 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3871,19 +3871,19 @@ sem_Type_UnboxedTupleType :: T_Types ->
                              T_Type
 sem_Type_UnboxedTupleType !(T_Types tps_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3877 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpsOnested ->
                   (case (tps_ _tpsOnested) of
                    { ( !_tpsIpps) ->
-                       (case (({-# LINE 277 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 276 "./src-ag/PrintCode.ag" #-}
                                ppUnboxedTuple _lhsInested _tpsIpps
                                {-# LINE 3884 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 276 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 275 "./src-ag/PrintCode.ag" #-}
                                 5
                                 {-# LINE 3889 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3893,19 +3893,19 @@ sem_Type_List :: T_Type ->
                  T_Type
 sem_Type_List !(T_Type tp_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3899 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
                   (case (tp_ _tpOnested) of
                    { ( !_tpIpp,!_tpIprec) ->
-                       (case (({-# LINE 280 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 279 "./src-ag/PrintCode.ag" #-}
                                "[" >|< _tpIpp >|< "]"
                                {-# LINE 3906 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 279 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 278 "./src-ag/PrintCode.ag" #-}
                                 5
                                 {-# LINE 3911 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3915,12 +3915,12 @@ sem_Type_SimpleType :: String ->
                        T_Type
 sem_Type_SimpleType !txt_ =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 283 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 282 "./src-ag/PrintCode.ag" #-}
                          if reallySimple txt_ then text txt_ else pp_parens (text txt_)
                          {-# LINE 3921 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_lhsOpp ->
-                  (case (({-# LINE 282 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 281 "./src-ag/PrintCode.ag" #-}
                           5
                           {-# LINE 3926 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -3932,19 +3932,19 @@ sem_Type_NontermType :: String ->
                         T_Type
 sem_Type_NontermType !name_ !params_ !deforested_ =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 287 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 286 "./src-ag/PrintCode.ag" #-}
                          if deforested_
                          then text "T_"
                          else empty
                          {-# LINE 3940 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_prefix ->
-                  (case (({-# LINE 286 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 285 "./src-ag/PrintCode.ag" #-}
                           _prefix     >|< text name_ >#< hv_sp params_
                           {-# LINE 3945 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_lhsOpp ->
-                   (case (({-# LINE 285 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 284 "./src-ag/PrintCode.ag" #-}
                            5
                            {-# LINE 3950 "dist/build/PrintCode.hs" #-}
                            )) of
@@ -3954,19 +3954,19 @@ sem_Type_TMaybe :: T_Type ->
                    T_Type
 sem_Type_TMaybe !(T_Type tp_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3960 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_tpOnested ->
                   (case (tp_ _tpOnested) of
                    { ( !_tpIpp,!_tpIprec) ->
-                       (case (({-# LINE 291 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 290 "./src-ag/PrintCode.ag" #-}
                                text "Maybe" >#< _tpIpp
                                {-# LINE 3967 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 290 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 289 "./src-ag/PrintCode.ag" #-}
                                 5
                                 {-# LINE 3972 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -3977,12 +3977,12 @@ sem_Type_TEither :: T_Type ->
                     T_Type
 sem_Type_TEither !(T_Type left_) !(T_Type right_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 3983 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_rightOnested ->
-                  (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 3988 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -3991,12 +3991,12 @@ sem_Type_TEither !(T_Type left_) !(T_Type right_) =
                     { ( !_rightIpp,!_rightIprec) ->
                         (case (left_ _leftOnested) of
                          { ( !_leftIpp,!_leftIprec) ->
-                             (case (({-# LINE 293 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 292 "./src-ag/PrintCode.ag" #-}
                                      text "Either" >#< pp_parens _leftIpp >#< pp_parens _rightIpp
                                      {-# LINE 3997 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
-                              (case (({-# LINE 292 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 291 "./src-ag/PrintCode.ag" #-}
                                       5
                                       {-# LINE 4002 "dist/build/PrintCode.hs" #-}
                                       )) of
@@ -4007,12 +4007,12 @@ sem_Type_TMap :: T_Type ->
                  T_Type
 sem_Type_TMap !(T_Type key_) !(T_Type value_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 4013 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_valueOnested ->
-                  (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 4018 "dist/build/PrintCode.hs" #-}
                           )) of
@@ -4021,12 +4021,12 @@ sem_Type_TMap !(T_Type key_) !(T_Type value_) =
                     { ( !_valueIpp,!_valueIprec) ->
                         (case (key_ _keyOnested) of
                          { ( !_keyIpp,!_keyIprec) ->
-                             (case (({-# LINE 295 "./src-ag/PrintCode.ag" #-}
+                             (case (({-# LINE 294 "./src-ag/PrintCode.ag" #-}
                                      text "Data.Map.Map" >#< pp_parens _keyIpp >#< pp_parens _valueIpp
                                      {-# LINE 4027 "dist/build/PrintCode.hs" #-}
                                      )) of
                               { !_lhsOpp ->
-                              (case (({-# LINE 294 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 293 "./src-ag/PrintCode.ag" #-}
                                       5
                                       {-# LINE 4032 "dist/build/PrintCode.hs" #-}
                                       )) of
@@ -4036,19 +4036,19 @@ sem_Type_TIntMap :: T_Type ->
                     T_Type
 sem_Type_TIntMap !(T_Type value_) =
     (T_Type (\ (!_lhsInested) ->
-                 (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                 (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                          _lhsInested
                          {-# LINE 4042 "dist/build/PrintCode.hs" #-}
                          )) of
                   { !_valueOnested ->
                   (case (value_ _valueOnested) of
                    { ( !_valueIpp,!_valueIprec) ->
-                       (case (({-# LINE 297 "./src-ag/PrintCode.ag" #-}
+                       (case (({-# LINE 296 "./src-ag/PrintCode.ag" #-}
                                text "Data.IntMap.IntMap" >#< pp_parens _valueIpp
                                {-# LINE 4049 "dist/build/PrintCode.hs" #-}
                                )) of
                         { !_lhsOpp ->
-                        (case (({-# LINE 296 "./src-ag/PrintCode.ag" #-}
+                        (case (({-# LINE 295 "./src-ag/PrintCode.ag" #-}
                                 5
                                 {-# LINE 4054 "dist/build/PrintCode.hs" #-}
                                 )) of
@@ -4088,12 +4088,12 @@ sem_Types_Cons :: T_Type ->
                   T_Types
 sem_Types_Cons !(T_Type hd_) !(T_Types tl_) =
     (T_Types (\ (!_lhsInested) ->
-                  (case (({-# LINE 54 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 53 "./src-ag/PrintCode.ag" #-}
                           _lhsInested
                           {-# LINE 4094 "dist/build/PrintCode.hs" #-}
                           )) of
                    { !_tlOnested ->
-                   (case (({-# LINE 52 "./src-ag/PrintCode.ag" #-}
+                   (case (({-# LINE 51 "./src-ag/PrintCode.ag" #-}
                            _lhsInested
                            {-# LINE 4099 "dist/build/PrintCode.hs" #-}
                            )) of
@@ -4102,7 +4102,7 @@ sem_Types_Cons !(T_Type hd_) !(T_Types tl_) =
                      { ( !_tlIpps) ->
                          (case (hd_ _hdOnested) of
                           { ( !_hdIpp,!_hdIprec) ->
-                              (case (({-# LINE 77 "./src-ag/PrintCode.ag" #-}
+                              (case (({-# LINE 76 "./src-ag/PrintCode.ag" #-}
                                       _hdIpp : _tlIpps
                                       {-# LINE 4108 "dist/build/PrintCode.hs" #-}
                                       )) of
@@ -4111,7 +4111,7 @@ sem_Types_Cons !(T_Type hd_) !(T_Types tl_) =
 sem_Types_Nil :: T_Types
 sem_Types_Nil =
     (T_Types (\ (!_lhsInested) ->
-                  (case (({-# LINE 78 "./src-ag/PrintCode.ag" #-}
+                  (case (({-# LINE 77 "./src-ag/PrintCode.ag" #-}
                           []
                           {-# LINE 4117 "dist/build/PrintCode.hs" #-}
                           )) of

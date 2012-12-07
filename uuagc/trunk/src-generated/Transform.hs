@@ -1,32 +1,29 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/Transform.ag)
+-- UUAGC 0.9.42.2 (src-ag/Transform.ag)
 module Transform where
 {-# LINE 8 "./src-ag/Transform.ag" #-}
 
 import Control.Monad(mplus,mzero)
-import Data.List (partition, elem, nub,intersperse, union)
+import Data.List (partition, nub,intersperse, union)
 import Data.Maybe
 import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.Set as Set (Set, member, union, toList, fromList, empty, singleton, member, unions, size, fold, intersection, difference, insert, elems)
 import qualified Data.Sequence as Seq
-import Data.Sequence(Seq, empty, (><),fromList)
-import Data.Foldable(toList)
+import Data.Sequence(Seq, (><))
 import UU.Scanner.Position(noPos)
 
 import ConcreteSyntax
 import AbstractSyntax
 import ErrorMessages
-import Patterns (Patterns(..),Pattern(..))
+import Patterns (Patterns,Pattern(..))
 import Expression (Expression(..))
 import HsToken
 
-import Options
-import CommonTypes
 import RhsCheck
 import Debug.Trace
-{-# LINE 30 "dist/build/Transform.hs" #-}
+{-# LINE 27 "dist/build/Transform.hs" #-}
 
 {-# LINE 2 "./src-ag/ConcreteSyntax.ag" #-}
 
@@ -35,55 +32,55 @@ import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
 import Macro --marcos
-{-# LINE 39 "dist/build/Transform.hs" #-}
+{-# LINE 36 "dist/build/Transform.hs" #-}
 
 {-# LINE 2 "./src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 46 "dist/build/Transform.hs" #-}
-{-# LINE 107 "./src-ag/Transform.ag" #-}
+{-# LINE 43 "dist/build/Transform.hs" #-}
+{-# LINE 104 "./src-ag/Transform.ag" #-}
 type DefinedSets = Map Identifier (Set NontermIdent) 
-{-# LINE 49 "dist/build/Transform.hs" #-}
+{-# LINE 46 "dist/build/Transform.hs" #-}
 
-{-# LINE 127 "./src-ag/Transform.ag" #-}
+{-# LINE 124 "./src-ag/Transform.ag" #-}
 type FieldMap  = [(Identifier, Type)] 
-{-# LINE 53 "dist/build/Transform.hs" #-}
+{-# LINE 50 "dist/build/Transform.hs" #-}
 
-{-# LINE 128 "./src-ag/Transform.ag" #-}
+{-# LINE 125 "./src-ag/Transform.ag" #-}
 type DataTypes = Map.Map NontermIdent (Map.Map ConstructorIdent FieldMap) 
-{-# LINE 57 "dist/build/Transform.hs" #-}
+{-# LINE 54 "dist/build/Transform.hs" #-}
+
+{-# LINE 148 "./src-ag/Transform.ag" #-}
+type AttrName   = (Identifier,Identifier) 
+{-# LINE 58 "dist/build/Transform.hs" #-}
+
+{-# LINE 149 "./src-ag/Transform.ag" #-}
+type RuleInfo   = (Maybe Identifier, [AttrName]->Pattern, Expression, [AttrName], Bool, String, Bool, Bool) 
+{-# LINE 62 "dist/build/Transform.hs" #-}
+
+{-# LINE 150 "./src-ag/Transform.ag" #-}
+type SigInfo    = (Identifier,Type) 
+{-# LINE 66 "dist/build/Transform.hs" #-}
 
 {-# LINE 151 "./src-ag/Transform.ag" #-}
-type AttrName   = (Identifier,Identifier) 
-{-# LINE 61 "dist/build/Transform.hs" #-}
+type UniqueInfo = (Identifier,Identifier) 
+{-# LINE 70 "dist/build/Transform.hs" #-}
 
 {-# LINE 152 "./src-ag/Transform.ag" #-}
-type RuleInfo   = (Maybe Identifier, [AttrName]->Pattern, Expression, [AttrName], Bool, String, Bool, Bool) 
-{-# LINE 65 "dist/build/Transform.hs" #-}
+type AugmentInfo = (Identifier,Expression)
+{-# LINE 74 "dist/build/Transform.hs" #-}
 
 {-# LINE 153 "./src-ag/Transform.ag" #-}
-type SigInfo    = (Identifier,Type) 
-{-# LINE 69 "dist/build/Transform.hs" #-}
+type AroundInfo  = (Identifier,Expression)
+{-# LINE 78 "dist/build/Transform.hs" #-}
 
 {-# LINE 154 "./src-ag/Transform.ag" #-}
-type UniqueInfo = (Identifier,Identifier) 
-{-# LINE 73 "dist/build/Transform.hs" #-}
-
-{-# LINE 155 "./src-ag/Transform.ag" #-}
-type AugmentInfo = (Identifier,Expression)
-{-# LINE 77 "dist/build/Transform.hs" #-}
-
-{-# LINE 156 "./src-ag/Transform.ag" #-}
-type AroundInfo  = (Identifier,Expression)
-{-# LINE 81 "dist/build/Transform.hs" #-}
-
-{-# LINE 157 "./src-ag/Transform.ag" #-}
 type MergeInfo   = (Identifier, Identifier, [Identifier], Expression)
-{-# LINE 85 "dist/build/Transform.hs" #-}
+{-# LINE 82 "dist/build/Transform.hs" #-}
 
-{-# LINE 206 "./src-ag/Transform.ag" #-}
+{-# LINE 203 "./src-ag/Transform.ag" #-}
 
 
 checkDuplicate :: (Identifier -> Identifier -> Error)
@@ -99,22 +96,23 @@ checkDuplicates :: (Identifier -> Identifier -> Error)
 checkDuplicates dupError new m = foldErrors check m new
  where  check = uncurry (checkDuplicate dupError)
 
-foldErrors f e xs = foldl g (e,Seq.empty) xs
+foldErrors :: (b -> t -> (t, Seq Error)) -> t -> [b] -> (t, Seq Error)
+foldErrors f n xs = foldl g (n,Seq.empty) xs
   where g ~(e,es) x = let (e',es') = f x e
                       in (e', es >< es')
 
 
 checkForDuplicates :: (Identifier -> Identifier -> Error)  ->  [Identifier]  ->  [Error]
-checkForDuplicates err [] = []
+checkForDuplicates _ [] = []
 checkForDuplicates err (x:xs) = let (same,other) = partition (equalId x) xs
                                 in  map (err x) same ++ checkForDuplicates err other
 
 equalId :: Identifier -> Identifier -> Bool
 equalId x y = getName x == getName y
 
-{-# LINE 116 "dist/build/Transform.hs" #-}
+{-# LINE 114 "dist/build/Transform.hs" #-}
 
-{-# LINE 355 "./src-ag/Transform.ag" #-}
+{-# LINE 354 "./src-ag/Transform.ag" #-}
 
 type RulesAndErrors = ([Rule], Seq Error)
 type SigsAndErrors  = ([TypeSig], Seq Error)
@@ -131,7 +129,7 @@ checkRules :: Map NontermIdent (Attributes, Attributes) -> DataTypes ->
               Map NontermIdent (Map ConstructorIdent [Identifier]) -> Map NontermIdent (Map ConstructorIdent [SigInfo]) ->
               Map NontermIdent (Map ConstructorIdent [MergeInfo]) ->
               NontermIdent -> ConstructorIdent -> [RuleInfo] -> RulesAndErrors
-checkRules attributes fields allinsts allsigs allmerges nt con rs
+checkRules attributes fields allinsts allsigs _ nt con rs
   = let fieldmap :: FieldMap
         fieldmap = (_LHS, NT nt [] False) : (_LOC, NT nullIdent [] False) : (_INST, NT nullIdent [] False) : (_FIRST, NT nullIdent [] False) : (_LAST, NT nullIdent [] False)
                  : Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fields)
@@ -143,9 +141,9 @@ checkRules attributes fields allinsts allsigs allmerges nt con rs
         hasAttrib f tp attr  = Map.member attr (f (Map.findWithDefault (Map.empty,Map.empty) tp attributes))
 
         checkRule :: RuleInfo -> AccumRuleCheck -> AccumRuleCheck
-        checkRule (mbNm, pat,exp,as,owrt,str, pur, eager) ((r1,e1),m1)
-          = let (e2,m2,u2,b2) = foldr (checkDefi owrt) (e1,m1,[],[]) as
-            in  ( (Rule mbNm (pat u2) exp owrt str True pur False Nothing eager : r1, e2), m2)
+        checkRule (mbNm, pat,ex,as,owrt,str, pur, eager) ((r1,e1),m1)
+          = let (e2,m2,u2,_) = foldr (checkDefi owrt) (e1,m1,[],[]) as
+            in  ( (Rule mbNm (pat u2) ex owrt str True pur False Nothing eager : r1, e2), m2)
 
         checkDefi :: Bool -> AttrName -> AccumDefiCheck -> AccumDefiCheck
         checkDefi owrt fa@(field,attr) (e,m,u,bs)
@@ -177,7 +175,7 @@ checkRuleNames nt con
 checkSigs :: NontermIdent -> ConstructorIdent -> [SigInfo] -> SigsAndErrors
 checkSigs nt con sis
   = let checkSig (ide,typ) (sigs,errs)
-         = if   ide `elem` map (\(TypeSig n t)-> n) sigs
+         = if   ide `elem` map (\(TypeSig n _)-> n) sigs
            then (sigs, ((Seq.<|)) (DupSig nt con ide) errs)
            -- else if not (ide `elem` locattrdefs)
            -- then (sigs, ((Seq.<|)) (SupSig nt con ide) errs)
@@ -185,7 +183,7 @@ checkSigs nt con sis
     in  foldr checkSig ([],Seq.empty) sis
 
 checkInsts :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [SigInfo]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [Identifier] -> InstsAndErrors
-checkInsts allNts sigMap fieldMap nt con
+checkInsts allNts sigMap _ nt con
   = foldr (\inst (insts, errs) ->
               maybe (insts, Seq.singleton (MissingInstSig nt con inst) >< errs)
                     (\info@(k, NT nm args _) ->
@@ -227,7 +225,7 @@ checkUniques allAttrs nt con uniques
     in foldr checkUnique (Map.empty, Seq.empty) uniques
 
 checkAugments :: Map NontermIdent (Attributes, Attributes) -> NontermIdent -> ConstructorIdent -> [AugmentInfo] -> AugmentsAndErrors
-checkAugments allAttrs nt con augments
+checkAugments allAttrs nt _ augments
   = let checkAugment (ident,expr) (as,errs)
           = if ident `Map.member` as
             then (Map.update (\vs -> Just (vs ++ [expr])) ident as, errs)
@@ -235,7 +233,7 @@ checkAugments allAttrs nt con augments
                  then (Map.insert ident [expr] as, errs)
                  else (as, ((Seq.<|)) (MissingSyn nt ident) errs)
 
-        (inhs,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
+        (_,syns) = Map.findWithDefault (Map.empty,Map.empty) nt allAttrs
     in foldr checkAugment (Map.empty, Seq.empty) augments
 
 checkArounds :: DataTypes -> NontermIdent -> ConstructorIdent -> [AroundInfo] -> AroundsAndErrors
@@ -250,7 +248,7 @@ checkArounds fieldMap nt con arounds
     in foldr checkAround (Map.empty, Seq.empty) arounds
 
 checkMerges :: Set NontermIdent -> Map NontermIdent (Map ConstructorIdent [Identifier]) -> DataTypes -> NontermIdent -> ConstructorIdent -> [MergeInfo] -> MergesAndErrors
-checkMerges allNts allInsts fieldMap nt con merges
+checkMerges allNts allInsts fieldMap _ con merges
   = let checkMerge (target,nt,sources,expr) (m,errs)
           = let fields = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt fieldMap)
                 insts  = Map.findWithDefault [] con (Map.findWithDefault Map.empty nt allInsts)
@@ -267,8 +265,9 @@ checkMerges allNts allInsts fieldMap nt con merges
                              else (m, (Seq.fromList $ map (UndefChild nt con) missing) Seq.>< errs)
     in foldr checkMerge (Map.empty, Seq.empty) merges
 
+unionunionplusplus :: Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a]) -> Map NontermIdent (Map ConstructorIdent [a])
 unionunionplusplus = Map.unionWith (Map.unionWith (++))
-{-# LINE 272 "dist/build/Transform.hs" #-}
+{-# LINE 271 "dist/build/Transform.hs" #-}
 
 {-# LINE 511 "./src-ag/Transform.ag" #-}
 
@@ -299,6 +298,7 @@ mkUniqueRules opts allRules allFields allInsts allAttrDecls nt con usMap
             rul = Rule Nothing pat rhs False "-- generated by the unique rule mechanism." False True False Nothing False
             hasOut = exists outAttr
             exists (Alias fld a _) = (fld,a) `elem` attrDefs
+	    exists _ = False
             existsLoc nm = exists (attr _LOC nm)
         in rul
     attr fld a = Alias fld a (Underscore noPos)
@@ -309,22 +309,22 @@ mkUniqueRules opts allRules allFields allInsts allAttrDecls nt con usMap
     wrap ref inp = h "let __cont = " ++ [AGField _LHS ref noPos Nothing] ++ h " in seq __cont ( " ++ inp ++ h " )"
 {-# LINE 311 "dist/build/Transform.hs" #-}
 
-{-# LINE 746 "./src-ag/Transform.ag" #-}
+{-# LINE 747 "./src-ag/Transform.ag" #-}
 
 flattenDatas :: DataTypes -> Map NontermIdent (Set NontermIdent)
 flattenDatas ds = Map.map flatten ds
   where flatten cs =  Set.fromList [ nt | (_, NT nt _ _) <- concatMap snd (Map.toList cs)]
 
 reachableFrom :: Map NontermIdent (Set NontermIdent) -> Set NontermIdent -> Set NontermIdent
-reachableFrom table nts = reach nts
+reachableFrom table = reach
   where reach nts = let nts' = Set.unions (nts : [ ns  | nt <- Set.toList nts
                                                  , let ns = Map.findWithDefault Set.empty nt table ])
                     in if Set.size nts' > Set.size nts
                           then reach nts'
                           else nts
 invert :: Map NontermIdent (Set NontermIdent) -> Map NontermIdent (Set NontermIdent)
-invert m = foldr inv Map.empty (Map.toList m)
-  where inv (x,ns) m = fold (\n m -> Map.insertWith Set.union n (Set.singleton x) m) m ns
+invert = foldr inv Map.empty . Map.toList
+  where inv (x,ns) m = fold (\n m' -> Map.insertWith Set.union n (Set.singleton x) m') m ns
 
 path :: Map NontermIdent (Set NontermIdent) -> NontermIdent -> NontermIdent -> Set NontermIdent
 path table from to = let children = Map.findWithDefault Set.empty from table
@@ -334,89 +334,95 @@ path table from to = let children = Map.findWithDefault Set.empty from table
                      in  Set.intersection forward backward
 {-# LINE 336 "dist/build/Transform.hs" #-}
 
-{-# LINE 872 "./src-ag/Transform.ag" #-}
+{-# LINE 873 "./src-ag/Transform.ag" #-}
 
+extract :: String -> [String]
 extract s = case dropWhile isSeparator s of
                                 "" -> []
                                 s' -> w : extract s''
                                       where (w, s'') = break isSeparator  s'
+isSeparator :: Char -> Bool
 isSeparator x = x == '_'
-{-# LINE 345 "dist/build/Transform.hs" #-}
+{-# LINE 347 "dist/build/Transform.hs" #-}
 
-{-# LINE 896 "./src-ag/Transform.ag" #-}
+{-# LINE 899 "./src-ag/Transform.ag" #-}
 
 pragmaMapUnion :: PragmaMap -> PragmaMap -> PragmaMap
 pragmaMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 pragmaMapSingle :: NontermIdent -> ConstructorIdent -> Set Identifier -> PragmaMap
 pragmaMapSingle nt con nms = Map.singleton nt (Map.singleton con nms)
-{-# LINE 354 "dist/build/Transform.hs" #-}
+{-# LINE 356 "dist/build/Transform.hs" #-}
 
-{-# LINE 928 "./src-ag/Transform.ag" #-}
+{-# LINE 931 "./src-ag/Transform.ag" #-}
 
 orderMapUnion :: AttrOrderMap -> AttrOrderMap -> AttrOrderMap
 orderMapUnion = Map.unionWith (Map.unionWith Set.union)
 
 orderMapSingle :: NontermIdent -> ConstructorIdent -> Set Dependency -> AttrOrderMap
 orderMapSingle nt con deps = Map.singleton nt (Map.singleton con deps)
-{-# LINE 363 "dist/build/Transform.hs" #-}
+{-# LINE 365 "dist/build/Transform.hs" #-}
 
-{-# LINE 954 "./src-ag/Transform.ag" #-}
+{-# LINE 957 "./src-ag/Transform.ag" #-}
 
 mergeParams :: ParamMap -> ParamMap -> ParamMap
 mergeParams = Map.unionWith (++)
-{-# LINE 369 "dist/build/Transform.hs" #-}
+{-# LINE 371 "dist/build/Transform.hs" #-}
 
-{-# LINE 977 "./src-ag/Transform.ag" #-}
+{-# LINE 980 "./src-ag/Transform.ag" #-}
 
 mergeCtx :: ContextMap -> ContextMap -> ContextMap
 mergeCtx
   = Map.unionWith nubconcat
   where nubconcat a b = nub (a ++ b)
-{-# LINE 377 "dist/build/Transform.hs" #-}
+{-# LINE 379 "dist/build/Transform.hs" #-}
 
-{-# LINE 996 "./src-ag/Transform.ag" #-}
+{-# LINE 999 "./src-ag/Transform.ag" #-}
 
 mergeQuant :: QuantMap -> QuantMap -> QuantMap
 mergeQuant = Map.unionWith (++)
-{-# LINE 383 "dist/build/Transform.hs" #-}
+{-# LINE 385 "dist/build/Transform.hs" #-}
 
-{-# LINE 1007 "./src-ag/Transform.ag" #-}
+{-# LINE 1010 "./src-ag/Transform.ag" #-}
 
+mergeDerivings :: Derivings -> Derivings -> Derivings
 mergeDerivings m1 m2 = foldr (\(n,cs) m -> Map.insertWith Set.union n cs m) m2 (Map.toList m1)
-{-# LINE 388 "dist/build/Transform.hs" #-}
+{-# LINE 391 "dist/build/Transform.hs" #-}
 
-{-# LINE 1018 "./src-ag/Transform.ag" #-}
+{-# LINE 1022 "./src-ag/Transform.ag" #-}
 
+merge ::(Ord k, Ord k1) => Map k (Map k1 a) -> Map k (Map k1 a) -> Map k (Map k1 a)
 merge x y = foldr f y (Map.toList x)
  where f ~(k,v) m = Map.insertWith (Map.union) k v m
-{-# LINE 394 "dist/build/Transform.hs" #-}
+{-# LINE 398 "dist/build/Transform.hs" #-}
 
-{-# LINE 1060 "./src-ag/Transform.ag" #-}
+{-# LINE 1065 "./src-ag/Transform.ag" #-}
 
-checkAttrs allFields nts inherited synthesized decls = foldErrors check decls nts where
+checkAttrs :: DataTypes -> [NontermIdent] -> [(Identifier, a)] -> [(Identifier, b)] -> Map NontermIdent (Map Identifier a, Map Identifier b) -> (Map NontermIdent (Map Identifier a, Map Identifier b), Seq Error)
+checkAttrs allFields nts inherited synthesized decls' = foldErrors check decls' nts where
   check nt decls | not (nt `Map.member` allFields) = (decls,Seq.singleton(UndefNont nt))
                  | otherwise = let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt decls
                                    (inh',einh) = checkDuplicates (DupInhAttr nt) inherited   inh
                                    (syn',esyn) = checkDuplicates (DupSynAttr nt) synthesized syn
                                in (Map.insert nt (inh',syn') decls,einh >< esyn)
-{-# LINE 404 "dist/build/Transform.hs" #-}
+{-# LINE 409 "dist/build/Transform.hs" #-}
 
-{-# LINE 1071 "./src-ag/Transform.ag" #-}
+{-# LINE 1077 "./src-ag/Transform.ag" #-}
 
+addSelf :: Ord k1 => k1 -> Map k1 (Map k a, Attributes) -> Map k1 (Map k a, Attributes)
 addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) name atMap
                      in  Map.insert name (eInh, Map.insert (Ident "self" noPos) Self eSyn)atMap
-{-# LINE 410 "dist/build/Transform.hs" #-}
+{-# LINE 416 "dist/build/Transform.hs" #-}
 
-{-# LINE 1212 "./src-ag/Transform.ag" #-}
+{-# LINE 1219 "./src-ag/Transform.ag" #-}
 
 makeType :: Set NontermIdent -> Type -> Type
 makeType nts tp@(NT x _ _)   | Set.member x nts = tp
                              | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
 makeType _   tp                                 = tp
-{-# LINE 418 "dist/build/Transform.hs" #-}
+{-# LINE 424 "dist/build/Transform.hs" #-}
 
-{-# LINE 1218 "./src-ag/Transform.ag" #-}
+{-# LINE 1225 "./src-ag/Transform.ag" #-}
 
 constructGrammar ::    Set NontermIdent
                     -> ParamMap
@@ -443,7 +449,7 @@ constructGrammar ::    Set NontermIdent
                     -> Map NontermIdent (Map ConstructorIdent MaybeMacro)
                     -> Grammar
 
-constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses derivings wrappers allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
+constructGrammar _ ntParams prodParams gram prodOrder constraints attrs uses derivings wrap allrules tsigs allinsts tsyns pragmaMap orderMap contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap macros =
    let gr = [ (nt,alts) | (nt,alts) <- Map.toList gram]
        nonts = map nont gr
        nont (nt,alts) =  let (inh,syn) = Map.findWithDefault (Map.empty,Map.empty) nt attrs
@@ -459,7 +465,7 @@ constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses d
                              alt con   =
                                    let flds    = Map.findWithDefault [] con alts
                                        rules   = Map.findWithDefault [] con rmap
-                                       tsigs   = Map.findWithDefault [] con tsmap
+                                       tsigs'  = Map.findWithDefault [] con tsmap
                                        insts   = Map.findWithDefault [] con instsmap
                                        merges  = [ (n, NT t [] False) | (n, (t, _, _)) <- Map.assocs $ maybe Map.empty id (Map.lookup con mergemap) ]
                                        cs      = Map.findWithDefault [] con csmap
@@ -483,16 +489,18 @@ constructGrammar nts ntParams prodParams gram prodOrder constraints attrs uses d
                                        existsAsInst nm = maybe False (const True) (lookup nm insts)
                                        existsAsField (nm,_) = maybe False (const True) (lookup nm flds)
                                        existsAsMerge nm = maybe False (const True) (lookup nm merges)
-                                   in Production con ps cs cldrn rules tsigs mbMacro
+                                   in Production con ps cs cldrn rules tsigs' mbMacro
                             in Nonterminal nt params inh syn (map alt prs)
-   in Grammar tsyns uses derivings wrappers nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
-{-# LINE 490 "dist/build/Transform.hs" #-}
-
-{-# LINE 1289 "./src-ag/Transform.ag" #-}
-
-mapUnionWithSetUnion = Map.unionWith Set.union
-mapUnionWithPlusPlus = Map.unionWith (++)
+   in Grammar tsyns uses derivings wrap nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
 {-# LINE 496 "dist/build/Transform.hs" #-}
+
+{-# LINE 1296 "./src-ag/Transform.ag" #-}
+
+mapUnionWithSetUnion :: Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent)
+mapUnionWithSetUnion = Map.unionWith Set.union
+mapUnionWithPlusPlus :: Map BlockInfo [a] -> Map BlockInfo [a] -> Map BlockInfo [a]
+mapUnionWithPlusPlus = Map.unionWith (++)
+{-# LINE 504 "dist/build/Transform.hs" #-}
 -- AG ----------------------------------------------------------
 {-
    visit 0:
@@ -620,9 +628,9 @@ sem_AG_AG (T_Elems elems_) =
                     _elemsItypeSyns :: TypeSyns
                     _elemsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
                     _elemsIwrappers :: (Set NontermIdent)
-                    -- "./src-ag/Transform.ag"(line 53, column 8)
+                    -- "./src-ag/Transform.ag"(line 50, column 8)
                     _lhsOoutput =
-                        ({-# LINE 53 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 50 "./src-ag/Transform.ag" #-}
                          constructGrammar _allNonterminals
                                           _elemsIparamsCollect
                                           _allConParams
@@ -646,396 +654,397 @@ sem_AG_AG (T_Elems elems_) =
                                           _checkedArounds
                                           _checkedMerges
                                           _allMacros
-                         {-# LINE 650 "dist/build/Transform.hs" #-}
+                         {-# LINE 658 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 260, column 10)
+                    -- "./src-ag/Transform.ag"(line 258, column 10)
                     _prodOrder =
-                        ({-# LINE 260 "./src-ag/Transform.ag" #-}
-                         let f (nt,con,fm) = Map.insertWith g nt [con]
+                        ({-# LINE 258 "./src-ag/Transform.ag" #-}
+                         let f (nt,con,_) = Map.insertWith g nt [con]
                              g [con] lst | con `elem` lst = lst
                                          | otherwise      = con : lst
+                             g _ _ = error "This is not possible"
                          in  foldr f Map.empty _elemsIcollectedFields
-                         {-# LINE 659 "dist/build/Transform.hs" #-}
+                         {-# LINE 668 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 264, column 10)
+                    -- "./src-ag/Transform.ag"(line 263, column 10)
                     _allFields =
-                        ({-# LINE 264 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 263 "./src-ag/Transform.ag" #-}
                          let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                          in  foldr f (Map.empty) _elemsIcollectedFields
-                         {-# LINE 666 "dist/build/Transform.hs" #-}
+                         {-# LINE 675 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 267, column 10)
+                    -- "./src-ag/Transform.ag"(line 266, column 10)
                     _allConstraints =
-                        ({-# LINE 267 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 266 "./src-ag/Transform.ag" #-}
                          let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                          in  foldr f (Map.empty) _elemsIcollectedConstraints
-                         {-# LINE 673 "dist/build/Transform.hs" #-}
+                         {-# LINE 682 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 270, column 10)
+                    -- "./src-ag/Transform.ag"(line 269, column 10)
                     _allConParams =
-                        ({-# LINE 270 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 269 "./src-ag/Transform.ag" #-}
                          let f (nt,con,fm) = Map.insertWith (Map.unionWith Set.union) nt (Map.singleton con fm)
                          in  foldr f (Map.empty) _elemsIcollectedConParams
-                         {-# LINE 680 "dist/build/Transform.hs" #-}
+                         {-# LINE 689 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 273, column 10)
+                    -- "./src-ag/Transform.ag"(line 272, column 10)
                     _allConstrs =
-                        ({-# LINE 273 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 272 "./src-ag/Transform.ag" #-}
                          let f (nt,con,_) = Map.insertWith (++) nt [con]
                          in  foldr f (Map.empty) _elemsIcollectedFields
-                         {-# LINE 687 "dist/build/Transform.hs" #-}
+                         {-# LINE 696 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 276, column 10)
+                    -- "./src-ag/Transform.ag"(line 275, column 10)
                     _allRules =
-                        ({-# LINE 276 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 275 "./src-ag/Transform.ag" #-}
                          let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
                          in  foldr f (Map.empty) _elemsIcollectedRules
-                         {-# LINE 694 "dist/build/Transform.hs" #-}
+                         {-# LINE 703 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 279, column 10)
+                    -- "./src-ag/Transform.ag"(line 278, column 10)
                     _allSigs =
-                        ({-# LINE 279 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 278 "./src-ag/Transform.ag" #-}
                          let f (nt,con,t) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [t])
                              typeof nt r = Map.findWithDefault (Haskell "<unknown>") r $ fst $ Map.findWithDefault (Map.empty,Map.empty) nt _allAttrDecls
                          in  foldr f (Map.empty) ( _elemsIcollectedSigs
                                                  ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- _elemsIcollectedUniques, (ident,ref) <- us ]
                                                  )
-                         {-# LINE 704 "dist/build/Transform.hs" #-}
+                         {-# LINE 713 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 285, column 10)
+                    -- "./src-ag/Transform.ag"(line 284, column 10)
                     _allInsts =
-                        ({-# LINE 285 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 284 "./src-ag/Transform.ag" #-}
                          let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
                          in  foldr f (Map.empty) _elemsIcollectedInsts
-                         {-# LINE 711 "dist/build/Transform.hs" #-}
+                         {-# LINE 720 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 288, column 10)
+                    -- "./src-ag/Transform.ag"(line 287, column 10)
                     _allUniques =
-                        ({-# LINE 288 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 287 "./src-ag/Transform.ag" #-}
                          let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
                          in foldr f (Map.empty) _elemsIcollectedUniques
-                         {-# LINE 718 "dist/build/Transform.hs" #-}
+                         {-# LINE 727 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 290, column 10)
+                    -- "./src-ag/Transform.ag"(line 289, column 10)
                     _allAugments =
-                        ({-# LINE 290 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 289 "./src-ag/Transform.ag" #-}
                          let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                          in foldr f Map.empty _elemsIcollectedAugments
-                         {-# LINE 725 "dist/build/Transform.hs" #-}
+                         {-# LINE 734 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 292, column 10)
+                    -- "./src-ag/Transform.ag"(line 291, column 10)
                     _allArounds =
-                        ({-# LINE 292 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 291 "./src-ag/Transform.ag" #-}
                          let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                          in foldr f Map.empty _elemsIcollectedArounds
-                         {-# LINE 732 "dist/build/Transform.hs" #-}
+                         {-# LINE 741 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 294, column 10)
+                    -- "./src-ag/Transform.ag"(line 293, column 10)
                     _allMerges =
-                        ({-# LINE 294 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 293 "./src-ag/Transform.ag" #-}
                          let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                           in foldr f Map.empty _elemsIcollectedMerges
-                         {-# LINE 739 "dist/build/Transform.hs" #-}
+                         {-# LINE 748 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 297, column 10)
+                    -- "./src-ag/Transform.ag"(line 296, column 10)
                     _augmentSigs =
-                        ({-# LINE 297 "./src-ag/Transform.ag" #-}
-                         let gen mp = []
+                        ({-# LINE 296 "./src-ag/Transform.ag" #-}
+                         let gen _ = []
                          in Map.map (Map.map gen) _allAugments
-                         {-# LINE 746 "dist/build/Transform.hs" #-}
+                         {-# LINE 755 "dist/build/Transform.hs" #-}
+                         )
+                    -- "./src-ag/Transform.ag"(line 299, column 10)
+                    _allRulesErrs =
+                        ({-# LINE 299 "./src-ag/Transform.ag" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkRules _allAttrDecls _allFields _allInsts _allSigs     _allMerges    )) _allRules
+                         {-# LINE 761 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 300, column 10)
-                    _allRulesErrs =
+                    _allNamesErrs =
                         ({-# LINE 300 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkRules _allAttrDecls _allFields _allInsts _allSigs     _allMerges    )) _allRules
-                         {-# LINE 752 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . checkRuleNames) _allRules
+                         {-# LINE 767 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 301, column 10)
-                    _allNamesErrs =
+                    _allSigsErrs =
                         ({-# LINE 301 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . checkRuleNames) _allRules
-                         {-# LINE 758 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) _allSigs
+                         {-# LINE 773 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 302, column 10)
-                    _allSigsErrs =
+                    _allInstsErrs =
                         ({-# LINE 302 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) _allSigs
-                         {-# LINE 764 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkInsts _allNonterminals     _allSigs     _allFields   )) _allInsts
+                         {-# LINE 779 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 303, column 10)
-                    _allInstsErrs =
+                    _allUniquesErrs =
                         ({-# LINE 303 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkInsts _allNonterminals     _allSigs     _allFields   )) _allInsts
-                         {-# LINE 770 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkUniques _allAttrDecls                                )) _allUniques
+                         {-# LINE 785 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 304, column 10)
-                    _allUniquesErrs =
+                    _allAugmentErrs =
                         ({-# LINE 304 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkUniques _allAttrDecls                                )) _allUniques
-                         {-# LINE 776 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkAugments _allAttrDecls                               )) _allAugments
+                         {-# LINE 791 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 305, column 10)
-                    _allAugmentErrs =
+                    _allAroundsErrs =
                         ({-# LINE 305 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkAugments _allAttrDecls                               )) _allAugments
-                         {-# LINE 782 "dist/build/Transform.hs" #-}
+                         Map.mapWithKey (Map.mapWithKey . (checkArounds _allFields    )) _allArounds
+                         {-# LINE 797 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 306, column 10)
-                    _allAroundsErrs =
-                        ({-# LINE 306 "./src-ag/Transform.ag" #-}
-                         Map.mapWithKey (Map.mapWithKey . (checkArounds _allFields    )) _allArounds
-                         {-# LINE 788 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 307, column 10)
                     _allMergesErrs =
-                        ({-# LINE 307 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 306 "./src-ag/Transform.ag" #-}
                          Map.mapWithKey (Map.mapWithKey . (checkMerges _allNonterminals     _allInsts     _allFields    )) _allMerges
-                         {-# LINE 794 "dist/build/Transform.hs" #-}
+                         {-# LINE 803 "dist/build/Transform.hs" #-}
+                         )
+                    -- "./src-ag/Transform.ag"(line 308, column 10)
+                    _checkedRulesPre =
+                        ({-# LINE 308 "./src-ag/Transform.ag" #-}
+                         Map.map (Map.map fst) _allRulesErrs
+                         {-# LINE 809 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 309, column 10)
-                    _checkedRulesPre =
+                    _checkedSigs =
                         ({-# LINE 309 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allRulesErrs
-                         {-# LINE 800 "dist/build/Transform.hs" #-}
+                         Map.map (Map.map fst) _allSigsErrs     `unionunionplusplus` _augmentSigs
+                         {-# LINE 815 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 310, column 10)
-                    _checkedSigs =
+                    _checkedInsts =
                         ({-# LINE 310 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allSigsErrs     `unionunionplusplus` _augmentSigs
-                         {-# LINE 806 "dist/build/Transform.hs" #-}
+                         Map.map (Map.map fst) _allInstsErrs
+                         {-# LINE 821 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 311, column 10)
-                    _checkedInsts =
+                    _checkedUniques =
                         ({-# LINE 311 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allInstsErrs
-                         {-# LINE 812 "dist/build/Transform.hs" #-}
+                         Map.map (Map.map fst) _allUniquesErrs
+                         {-# LINE 827 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 312, column 10)
-                    _checkedUniques =
+                    _checkedAugments =
                         ({-# LINE 312 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allUniquesErrs
-                         {-# LINE 818 "dist/build/Transform.hs" #-}
+                         Map.map (Map.map fst) _allAugmentErrs
+                         {-# LINE 833 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 313, column 10)
-                    _checkedAugments =
+                    _checkedArounds =
                         ({-# LINE 313 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allAugmentErrs
-                         {-# LINE 824 "dist/build/Transform.hs" #-}
+                         Map.map (Map.map fst) _allAroundsErrs
+                         {-# LINE 839 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 314, column 10)
-                    _checkedArounds =
+                    _checkedRules =
                         ({-# LINE 314 "./src-ag/Transform.ag" #-}
-                         Map.map (Map.map fst) _allAroundsErrs
-                         {-# LINE 830 "dist/build/Transform.hs" #-}
+                         Map.unionWith (Map.unionWith (++)) _checkedRulesPre     (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules _lhsIoptions _allRules     _allFields     _checkedInsts     _allAttrDecls    )) _checkedUniques    )
+                         {-# LINE 845 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 315, column 10)
-                    _checkedRules =
-                        ({-# LINE 315 "./src-ag/Transform.ag" #-}
-                         Map.unionWith (Map.unionWith (++)) _checkedRulesPre     (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules _lhsIoptions _allRules     _allFields     _checkedInsts     _allAttrDecls    )) _checkedUniques    )
-                         {-# LINE 836 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 316, column 10)
                     _checkedMerges =
-                        ({-# LINE 316 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 315 "./src-ag/Transform.ag" #-}
                          Map.map (Map.map fst) _allMergesErrs
-                         {-# LINE 842 "dist/build/Transform.hs" #-}
+                         {-# LINE 851 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 318, column 10)
+                    -- "./src-ag/Transform.ag"(line 317, column 10)
                     _errs1 =
-                        ({-# LINE 318 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 317 "./src-ag/Transform.ag" #-}
                          let f = checkForDuplicates (DupSynonym)
                          in  Seq.fromList . f . map fst $ _elemsItypeSyns
-                         {-# LINE 849 "dist/build/Transform.hs" #-}
+                         {-# LINE 858 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 321, column 10)
+                    -- "./src-ag/Transform.ag"(line 320, column 10)
                     _errs2 =
-                        ({-# LINE 321 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 320 "./src-ag/Transform.ag" #-}
                          let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
                              f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
                          in  Seq.fromList . concat . map f . Map.toList $ _allFields
-                         {-# LINE 857 "dist/build/Transform.hs" #-}
+                         {-# LINE 866 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 325, column 10)
+                    -- "./src-ag/Transform.ag"(line 324, column 10)
                     _errs3 =
-                        ({-# LINE 325 "./src-ag/Transform.ag" #-}
-                         let f (nt,cons) = checkForDuplicates (DupAlt nt) cons
+                        ({-# LINE 324 "./src-ag/Transform.ag" #-}
+                         let
                          in   Seq.empty
-                         {-# LINE 864 "dist/build/Transform.hs" #-}
+                         {-# LINE 873 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 329, column 10)
+                    -- "./src-ag/Transform.ag"(line 328, column 10)
                     _errs4 =
-                        ({-# LINE 329 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 328 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allRulesErrs
-                         {-# LINE 871 "dist/build/Transform.hs" #-}
+                         {-# LINE 880 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 332, column 10)
+                    -- "./src-ag/Transform.ag"(line 331, column 10)
                     _errs5 =
-                        ({-# LINE 332 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 331 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allSigsErrs
-                         {-# LINE 878 "dist/build/Transform.hs" #-}
+                         {-# LINE 887 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 335, column 10)
+                    -- "./src-ag/Transform.ag"(line 334, column 10)
                     _errs6 =
-                        ({-# LINE 335 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 334 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allInstsErrs
-                         {-# LINE 885 "dist/build/Transform.hs" #-}
+                         {-# LINE 894 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 338, column 10)
+                    -- "./src-ag/Transform.ag"(line 337, column 10)
                     _errs7 =
-                        ({-# LINE 338 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 337 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allUniquesErrs
-                         {-# LINE 892 "dist/build/Transform.hs" #-}
+                         {-# LINE 901 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 341, column 10)
+                    -- "./src-ag/Transform.ag"(line 340, column 10)
                     _errs8 =
-                        ({-# LINE 341 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 340 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allAugmentErrs
-                         {-# LINE 899 "dist/build/Transform.hs" #-}
+                         {-# LINE 908 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 344, column 10)
+                    -- "./src-ag/Transform.ag"(line 343, column 10)
                     _errs9 =
-                        ({-# LINE 344 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 343 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allAroundsErrs
-                         {-# LINE 906 "dist/build/Transform.hs" #-}
+                         {-# LINE 915 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 347, column 10)
+                    -- "./src-ag/Transform.ag"(line 346, column 10)
                     _errs10 =
-                        ({-# LINE 347 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 346 "./src-ag/Transform.ag" #-}
                          let  f m s = Map.fold ((><)) s m
                          in Map.fold f Seq.empty _allNamesErrs
-                         {-# LINE 913 "dist/build/Transform.hs" #-}
+                         {-# LINE 922 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 350, column 10)
+                    -- "./src-ag/Transform.ag"(line 349, column 10)
                     _errs11 =
-                        ({-# LINE 350 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 349 "./src-ag/Transform.ag" #-}
                          let f m s = Map.fold ((><) . snd) s m
                          in Map.fold f Seq.empty _allMergesErrs
-                         {-# LINE 920 "dist/build/Transform.hs" #-}
+                         {-# LINE 929 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 353, column 10)
+                    -- "./src-ag/Transform.ag"(line 352, column 10)
                     _lhsOerrors =
-                        ({-# LINE 353 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 352 "./src-ag/Transform.ag" #-}
                          _elemsIerrors >< _errs1 >< _errs2 >< _errs3 >< _errs4 >< _errs5 >< _errs6 >< _errs7 >< _errs8 >< _errs9 >< _errs10 >< _errs11
-                         {-# LINE 926 "dist/build/Transform.hs" #-}
+                         {-# LINE 935 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 605, column 10)
+                    -- "./src-ag/Transform.ag"(line 606, column 10)
                     _allNonterminals =
-                        ({-# LINE 605 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 606 "./src-ag/Transform.ag" #-}
                          _elemsIcollectedNames `Set.difference` _elemsIcollectedSetNames
-                         {-# LINE 932 "dist/build/Transform.hs" #-}
+                         {-# LINE 941 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 625, column 8)
+                    -- "./src-ag/Transform.ag"(line 626, column 8)
                     _elemsOallConstructors =
-                        ({-# LINE 625 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 626 "./src-ag/Transform.ag" #-}
                          _elemsIcollectedConstructorsMap
-                         {-# LINE 938 "dist/build/Transform.hs" #-}
-                         )
-                    -- "./src-ag/Transform.ag"(line 708, column 8)
-                    _elemsOdefSets =
-                        ({-# LINE 708 "./src-ag/Transform.ag" #-}
-                         Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList _allNonterminals    ))
-                         {-# LINE 944 "dist/build/Transform.hs" #-}
+                         {-# LINE 947 "dist/build/Transform.hs" #-}
                          )
                     -- "./src-ag/Transform.ag"(line 709, column 8)
-                    _elemsOdefinedSets =
+                    _elemsOdefSets =
                         ({-# LINE 709 "./src-ag/Transform.ag" #-}
+                         Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList _allNonterminals    ))
+                         {-# LINE 953 "dist/build/Transform.hs" #-}
+                         )
+                    -- "./src-ag/Transform.ag"(line 710, column 8)
+                    _elemsOdefinedSets =
+                        ({-# LINE 710 "./src-ag/Transform.ag" #-}
                          Map.map fst _elemsIdefSets
-                         {-# LINE 950 "dist/build/Transform.hs" #-}
+                         {-# LINE 959 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1024, column 8)
+                    -- "./src-ag/Transform.ag"(line 1029, column 8)
                     _elemsOattrDecls =
-                        ({-# LINE 1024 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1029 "./src-ag/Transform.ag" #-}
                          Map.empty
-                         {-# LINE 956 "dist/build/Transform.hs" #-}
+                         {-# LINE 965 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1078, column 9)
+                    -- "./src-ag/Transform.ag"(line 1085, column 9)
                     _allAttrDecls =
-                        ({-# LINE 1078 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1085 "./src-ag/Transform.ag" #-}
                          if withSelf _lhsIoptions
                           then foldr addSelf _elemsIattrDecls (Set.toList _allNonterminals    )
                           else               _elemsIattrDecls
-                         {-# LINE 964 "dist/build/Transform.hs" #-}
+                         {-# LINE 973 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1314, column 10)
+                    -- "./src-ag/Transform.ag"(line 1323, column 10)
                     _allMacros =
-                        ({-# LINE 1314 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1323 "./src-ag/Transform.ag" #-}
                          let f (nt,con,m) = Map.insertWith (Map.union) nt (Map.singleton con m)
                          in  foldr f (Map.empty) _elemsIcollectedMacros
-                         {-# LINE 971 "dist/build/Transform.hs" #-}
+                         {-# LINE 980 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1327, column 8)
+                    -- "./src-ag/Transform.ag"(line 1336, column 8)
                     _lhsOagi =
-                        ({-# LINE 1327 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1336 "./src-ag/Transform.ag" #-}
                          (_allNonterminals    ,_allFields    ,_allAttrs    )
-                         {-# LINE 977 "dist/build/Transform.hs" #-}
+                         {-# LINE 986 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1329, column 8)
+                    -- "./src-ag/Transform.ag"(line 1338, column 8)
                     _allAttrs =
-                        ({-# LINE 1329 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1338 "./src-ag/Transform.ag" #-}
                          if withSelf _lhsIoptions
                               then foldr addSelf _elemsIattrs (Set.toList _allNonterminals    )
                               else               _elemsIattrs
-                         {-# LINE 985 "dist/build/Transform.hs" #-}
+                         {-# LINE 994 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1337, column 9)
+                    -- "./src-ag/Transform.ag"(line 1346, column 9)
                     _elemsOattrs =
-                        ({-# LINE 1337 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1346 "./src-ag/Transform.ag" #-}
                          Map.empty
-                         {-# LINE 991 "dist/build/Transform.hs" #-}
+                         {-# LINE 1000 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                    -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                     _lhsOblocks =
-                        ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 43 "./src-ag/Transform.ag" #-}
                          _elemsIblocks
-                         {-# LINE 997 "dist/build/Transform.hs" #-}
+                         {-# LINE 1006 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
+                    -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
                     _lhsOmoduleDecl =
-                        ({-# LINE 1202 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1209 "./src-ag/Transform.ag" #-}
                          _elemsImoduleDecl
-                         {-# LINE 1003 "dist/build/Transform.hs" #-}
+                         {-# LINE 1012 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 801, column 34)
+                    -- use rule "./src-ag/Transform.ag"(line 802, column 34)
                     _lhsOpragmas =
-                        ({-# LINE 801 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 802 "./src-ag/Transform.ag" #-}
                          _elemsIpragmas
-                         {-# LINE 1009 "dist/build/Transform.hs" #-}
+                         {-# LINE 1018 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (from local)
                     _elemsOallAttrDecls =
-                        ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 912 "./src-ag/Transform.ag" #-}
                          _allAttrDecls
-                         {-# LINE 1015 "dist/build/Transform.hs" #-}
+                         {-# LINE 1024 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (from local)
                     _elemsOallAttrs =
-                        ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                          _allAttrs
-                         {-# LINE 1021 "dist/build/Transform.hs" #-}
+                         {-# LINE 1030 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (from local)
                     _elemsOallFields =
-                        ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 134 "./src-ag/Transform.ag" #-}
                          _allFields
-                         {-# LINE 1027 "dist/build/Transform.hs" #-}
+                         {-# LINE 1036 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (from local)
                     _elemsOallNonterminals =
-                        ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 91 "./src-ag/Transform.ag" #-}
                          _allNonterminals
-                         {-# LINE 1033 "dist/build/Transform.hs" #-}
+                         {-# LINE 1042 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (down)
                     _elemsOoptions =
-                        ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 37 "./src-ag/Transform.ag" #-}
                          _lhsIoptions
-                         {-# LINE 1039 "dist/build/Transform.hs" #-}
+                         {-# LINE 1048 "dist/build/Transform.hs" #-}
                          )
                     ( _elemsIattrDecls,_elemsIattrOrderCollect,_elemsIattrs,_elemsIblocks,_elemsIcollectedArounds,_elemsIcollectedAugments,_elemsIcollectedConParams,_elemsIcollectedConstraints,_elemsIcollectedConstructorsMap,_elemsIcollectedFields,_elemsIcollectedInsts,_elemsIcollectedMacros,_elemsIcollectedMerges,_elemsIcollectedNames,_elemsIcollectedRules,_elemsIcollectedSetNames,_elemsIcollectedSigs,_elemsIcollectedUniques,_elemsIctxCollect,_elemsIdefSets,_elemsIderivings,_elemsIerrors,_elemsImoduleDecl,_elemsIparamsCollect,_elemsIpragmas,_elemsIquantCollect,_elemsIsemPragmasCollect,_elemsItypeSyns,_elemsIuseMap,_elemsIwrappers) =
                         elems_ _elemsOallAttrDecls _elemsOallAttrs _elemsOallConstructors _elemsOallFields _elemsOallNonterminals _elemsOattrDecls _elemsOattrs _elemsOdefSets _elemsOdefinedSets _elemsOoptions
@@ -1100,53 +1109,53 @@ sem_Alt_Alt pos_ (T_ConstructorSet names_) tyvars_ (T_Fields fields_) macro_ =
                      _namesIerrors :: (Seq Error)
                      _fieldsIcollectedConstraints :: ([Type])
                      _fieldsIcollectedFields :: ([(Identifier, Type)])
-                     -- "./src-ag/Transform.ag"(line 242, column 10)
+                     -- "./src-ag/Transform.ag"(line 240, column 10)
                      _lhsOcollectedFields =
-                         ({-# LINE 242 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 240 "./src-ag/Transform.ag" #-}
                           [ (nt, con, _fieldsIcollectedFields)
-                          | nt  <- Set.toList _lhsInts
-                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
-                          ]
-                          {-# LINE 1111 "dist/build/Transform.hs" #-}
-                          )
-                     -- "./src-ag/Transform.ag"(line 246, column 10)
-                     _lhsOcollectedConstraints =
-                         ({-# LINE 246 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, _fieldsIcollectedConstraints)
                           | nt  <- Set.toList _lhsInts
                           , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                           ]
                           {-# LINE 1120 "dist/build/Transform.hs" #-}
                           )
-                     -- "./src-ag/Transform.ag"(line 250, column 10)
-                     _lhsOcollectedConParams =
-                         ({-# LINE 250 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, Set.fromList tyvars_)
+                     -- "./src-ag/Transform.ag"(line 244, column 10)
+                     _lhsOcollectedConstraints =
+                         ({-# LINE 244 "./src-ag/Transform.ag" #-}
+                          [ (nt, con, _fieldsIcollectedConstraints)
                           | nt  <- Set.toList _lhsInts
                           , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                           ]
                           {-# LINE 1129 "dist/build/Transform.hs" #-}
                           )
-                     -- "./src-ag/Transform.ag"(line 1305, column 10)
-                     _lhsOcollectedMacros =
-                         ({-# LINE 1305 "./src-ag/Transform.ag" #-}
-                          [ (nt, con, macro_)
+                     -- "./src-ag/Transform.ag"(line 248, column 10)
+                     _lhsOcollectedConParams =
+                         ({-# LINE 248 "./src-ag/Transform.ag" #-}
+                          [ (nt, con, Set.fromList tyvars_)
                           | nt  <- Set.toList _lhsInts
                           , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                           ]
                           {-# LINE 1138 "dist/build/Transform.hs" #-}
                           )
-                     -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                     -- "./src-ag/Transform.ag"(line 1314, column 10)
+                     _lhsOcollectedMacros =
+                         ({-# LINE 1314 "./src-ag/Transform.ag" #-}
+                          [ (nt, con, macro_)
+                          | nt  <- Set.toList _lhsInts
+                          , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
+                          ]
+                          {-# LINE 1147 "dist/build/Transform.hs" #-}
+                          )
+                     -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                      _lhsOcollectedConstructorNames =
-                         ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 96 "./src-ag/Transform.ag" #-}
                           _namesIcollectedConstructorNames
-                          {-# LINE 1144 "dist/build/Transform.hs" #-}
+                          {-# LINE 1153 "dist/build/Transform.hs" #-}
                           )
                      -- copy rule (down)
                      _fieldsOallNonterminals =
-                         ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 91 "./src-ag/Transform.ag" #-}
                           _lhsIallNonterminals
-                          {-# LINE 1150 "dist/build/Transform.hs" #-}
+                          {-# LINE 1159 "dist/build/Transform.hs" #-}
                           )
                      ( _namesIcollectedConstructorNames,_namesIconstructors,_namesIerrors) =
                          names_
@@ -1218,71 +1227,71 @@ sem_Alts_Cons (T_Alt hd_) (T_Alts tl_) =
                       _tlIcollectedConstructorNames :: (Set ConstructorIdent)
                       _tlIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
                       _tlIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
                       _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
                            _hdIcollectedConParams ++ _tlIcollectedConParams
-                           {-# LINE 1226 "dist/build/Transform.hs" #-}
+                           {-# LINE 1235 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
                       _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
                            _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                           {-# LINE 1232 "dist/build/Transform.hs" #-}
+                           {-# LINE 1241 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                      -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                       _lhsOcollectedConstructorNames =
-                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 96 "./src-ag/Transform.ag" #-}
                            _hdIcollectedConstructorNames `Set.union` _tlIcollectedConstructorNames
-                           {-# LINE 1238 "dist/build/Transform.hs" #-}
+                           {-# LINE 1247 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
                       _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
                            _hdIcollectedFields ++ _tlIcollectedFields
-                           {-# LINE 1244 "dist/build/Transform.hs" #-}
+                           {-# LINE 1253 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
                       _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
                            _hdIcollectedMacros ++ _tlIcollectedMacros
-                           {-# LINE 1250 "dist/build/Transform.hs" #-}
+                           {-# LINE 1259 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _hdOallConstructors =
-                          ({-# LINE 102 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
                            _lhsIallConstructors
-                           {-# LINE 1256 "dist/build/Transform.hs" #-}
+                           {-# LINE 1265 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _hdOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 1262 "dist/build/Transform.hs" #-}
+                           {-# LINE 1271 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _hdOnts =
-                          ({-# LINE 176 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 173 "./src-ag/Transform.ag" #-}
                            _lhsInts
-                           {-# LINE 1268 "dist/build/Transform.hs" #-}
+                           {-# LINE 1277 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _tlOallConstructors =
-                          ({-# LINE 102 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
                            _lhsIallConstructors
-                           {-# LINE 1274 "dist/build/Transform.hs" #-}
+                           {-# LINE 1283 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _tlOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 1280 "dist/build/Transform.hs" #-}
+                           {-# LINE 1289 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _tlOnts =
-                          ({-# LINE 176 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 173 "./src-ag/Transform.ag" #-}
                            _lhsInts
-                           {-# LINE 1286 "dist/build/Transform.hs" #-}
+                           {-# LINE 1295 "dist/build/Transform.hs" #-}
                            )
                       ( _hdIcollectedConParams,_hdIcollectedConstraints,_hdIcollectedConstructorNames,_hdIcollectedFields,_hdIcollectedMacros) =
                           hd_ _hdOallConstructors _hdOallNonterminals _hdOnts
@@ -1299,35 +1308,35 @@ sem_Alts_Nil =
                       _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
                       _lhsOcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
                       _lhsOcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
                       _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1307 "dist/build/Transform.hs" #-}
+                           {-# LINE 1316 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
                       _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1313 "dist/build/Transform.hs" #-}
+                           {-# LINE 1322 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                      -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                       _lhsOcollectedConstructorNames =
-                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 96 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 1319 "dist/build/Transform.hs" #-}
+                           {-# LINE 1328 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
                       _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1325 "dist/build/Transform.hs" #-}
+                           {-# LINE 1334 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
                       _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1331 "dist/build/Transform.hs" #-}
+                           {-# LINE 1340 "dist/build/Transform.hs" #-}
                            )
                   in  ( _lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorNames,_lhsOcollectedFields,_lhsOcollectedMacros))))
 -- Attrs -------------------------------------------------------
@@ -1395,69 +1404,69 @@ sem_Attrs_Attrs pos_ inh_ chn_ syn_ =
                        _lhsOerrors :: (Seq Error)
                        _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                        _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
-                       -- "./src-ag/Transform.ag"(line 1033, column 15)
+                       -- "./src-ag/Transform.ag"(line 1038, column 15)
                        (_attrDecls,_errors) =
-                           ({-# LINE 1033 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1038 "./src-ag/Transform.ag" #-}
                             checkAttrs _lhsIallFields (Set.toList _lhsInts) _inherited _synthesized _lhsIattrDecls
-                            {-# LINE 1403 "dist/build/Transform.hs" #-}
+                            {-# LINE 1412 "dist/build/Transform.hs" #-}
                             )
-                       -- "./src-ag/Transform.ag"(line 1035, column 15)
+                       -- "./src-ag/Transform.ag"(line 1040, column 15)
                        (_inherited,_synthesized,_useMap) =
-                           ({-# LINE 1035 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1040 "./src-ag/Transform.ag" #-}
                             let splitAttrs xs = unzip [ ((n,makeType _lhsIallNonterminals t),(n,ud))
                                                       | (n,t,ud) <- xs
                                                       ]
                                 (inh,_)     = splitAttrs inh_
                                 (chn,uses1) = splitAttrs chn_
                                 (syn,uses2) = splitAttrs syn_
-                                isUse (n,(e1,e2,_)) = not (null e1 || null e2)
+                                isUse (_,(e1,e2,_)) = not (null e1 || null e2)
                             in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
-                            {-# LINE 1416 "dist/build/Transform.hs" #-}
+                            {-# LINE 1425 "dist/build/Transform.hs" #-}
                             )
-                       -- "./src-ag/Transform.ag"(line 1043, column 11)
+                       -- "./src-ag/Transform.ag"(line 1048, column 11)
                        _lhsOuseMap =
-                           ({-# LINE 1043 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1048 "./src-ag/Transform.ag" #-}
                             Map.fromList (zip (Set.toList _lhsInts) (repeat _useMap))
-                            {-# LINE 1422 "dist/build/Transform.hs" #-}
+                            {-# LINE 1431 "dist/build/Transform.hs" #-}
                             )
-                       -- "./src-ag/Transform.ag"(line 1045, column 11)
+                       -- "./src-ag/Transform.ag"(line 1050, column 11)
                        _errors1 =
-                           ({-# LINE 1045 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1050 "./src-ag/Transform.ag" #-}
                             if checkParseTy _lhsIoptions
                             then let attrs  = inh_ ++ syn_ ++ chn_
                                      items = map (\(ident,tp,_) -> (getPos ident, tp)) attrs
                                      errs  = map check items
                                      check (pos,Haskell s) =
-                                       let exp = Expression pos tks
+                                       let ex  = Expression pos tks
                                            tks = [tk]
                                            tk  = HsToken s pos
-                                       in Seq.fromList $ checkTy exp
+                                       in Seq.fromList $ checkTy ex
                                      check _ = Seq.empty
                                  in foldr (Seq.><) Seq.empty errs
                             else Seq.empty
-                            {-# LINE 1439 "dist/build/Transform.hs" #-}
+                            {-# LINE 1448 "dist/build/Transform.hs" #-}
                             )
-                       -- "./src-ag/Transform.ag"(line 1057, column 11)
+                       -- "./src-ag/Transform.ag"(line 1062, column 11)
                        _lhsOerrors =
-                           ({-# LINE 1057 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1062 "./src-ag/Transform.ag" #-}
                             _errors     Seq.>< _errors1
-                            {-# LINE 1445 "dist/build/Transform.hs" #-}
+                            {-# LINE 1454 "dist/build/Transform.hs" #-}
                             )
-                       -- "./src-ag/Transform.ag"(line 1341, column 11)
+                       -- "./src-ag/Transform.ag"(line 1350, column 11)
                        _lhsOattrs =
-                           ({-# LINE 1341 "./src-ag/Transform.ag" #-}
-                            let insert decls nt = if Map.member nt decls
-                                                    then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList _inherited
+                           ({-# LINE 1350 "./src-ag/Transform.ag" #-}
+                            let ins decls nt = if Map.member nt decls
+                                               then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList _inherited
                                                                                          , Map.union syn $ Map.fromList _synthesized)) nt decls
-                                                    else  Map.insert nt (Map.fromList _inherited, Map.fromList _synthesized) decls
-                            in  foldl insert _lhsIattrs (Set.toList _lhsInts)
-                            {-# LINE 1455 "dist/build/Transform.hs" #-}
+                                               else  Map.insert nt (Map.fromList _inherited, Map.fromList _synthesized) decls
+                            in  foldl ins _lhsIattrs (Set.toList _lhsInts)
+                            {-# LINE 1464 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (from local)
                        _lhsOattrDecls =
-                           ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
                             _attrDecls
-                            {-# LINE 1461 "dist/build/Transform.hs" #-}
+                            {-# LINE 1470 "dist/build/Transform.hs" #-}
                             )
                    in  ( _lhsOattrDecls,_lhsOattrs,_lhsOerrors,_lhsOuseMap))))
 -- ConstructorSet ----------------------------------------------
@@ -1505,23 +1514,23 @@ sem_ConstructorSet_CName name_ =
     (T_ConstructorSet (let _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
                            _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
                            _lhsOerrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 613, column 11)
+                           -- "./src-ag/Transform.ag"(line 614, column 11)
                            _lhsOcollectedConstructorNames =
-                               ({-# LINE 613 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 614 "./src-ag/Transform.ag" #-}
                                 Set.singleton name_
-                                {-# LINE 1513 "dist/build/Transform.hs" #-}
+                                {-# LINE 1522 "dist/build/Transform.hs" #-}
                                 )
-                           -- "./src-ag/Transform.ag"(line 776, column 17)
+                           -- "./src-ag/Transform.ag"(line 777, column 17)
                            _lhsOconstructors =
-                               ({-# LINE 776 "./src-ag/Transform.ag" #-}
-                                \ds -> Set.singleton name_
-                                {-# LINE 1519 "dist/build/Transform.hs" #-}
+                               ({-# LINE 777 "./src-ag/Transform.ag" #-}
+                                \_  -> Set.singleton name_
+                                {-# LINE 1528 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                            _lhsOerrors =
-                               ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
                                 Seq.empty
-                                {-# LINE 1525 "dist/build/Transform.hs" #-}
+                                {-# LINE 1534 "dist/build/Transform.hs" #-}
                                 )
                        in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
 sem_ConstructorSet_CUnion :: T_ConstructorSet ->
@@ -1537,23 +1546,23 @@ sem_ConstructorSet_CUnion (T_ConstructorSet set1_) (T_ConstructorSet set2_) =
                            _set2IcollectedConstructorNames :: (Set ConstructorIdent)
                            _set2Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
                            _set2Ierrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 777, column 17)
+                           -- "./src-ag/Transform.ag"(line 778, column 17)
                            _lhsOconstructors =
-                               ({-# LINE 777 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 778 "./src-ag/Transform.ag" #-}
                                 \ds -> _set1Iconstructors ds `Set.union`      _set2Iconstructors ds
-                                {-# LINE 1545 "dist/build/Transform.hs" #-}
+                                {-# LINE 1554 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                            _lhsOcollectedConstructorNames =
-                               ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
                                 _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
-                                {-# LINE 1551 "dist/build/Transform.hs" #-}
+                                {-# LINE 1560 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                            _lhsOerrors =
-                               ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
                                 _set1Ierrors Seq.>< _set2Ierrors
-                                {-# LINE 1557 "dist/build/Transform.hs" #-}
+                                {-# LINE 1566 "dist/build/Transform.hs" #-}
                                 )
                            ( _set1IcollectedConstructorNames,_set1Iconstructors,_set1Ierrors) =
                                set1_
@@ -1573,23 +1582,23 @@ sem_ConstructorSet_CDifference (T_ConstructorSet set1_) (T_ConstructorSet set2_)
                            _set2IcollectedConstructorNames :: (Set ConstructorIdent)
                            _set2Iconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
                            _set2Ierrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 778, column 17)
+                           -- "./src-ag/Transform.ag"(line 779, column 17)
                            _lhsOconstructors =
-                               ({-# LINE 778 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 779 "./src-ag/Transform.ag" #-}
                                 \ds -> _set1Iconstructors ds `Set.difference` _set2Iconstructors ds
-                                {-# LINE 1581 "dist/build/Transform.hs" #-}
+                                {-# LINE 1590 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                            _lhsOcollectedConstructorNames =
-                               ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
                                 _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
-                                {-# LINE 1587 "dist/build/Transform.hs" #-}
+                                {-# LINE 1596 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                            _lhsOerrors =
-                               ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
                                 _set1Ierrors Seq.>< _set2Ierrors
-                                {-# LINE 1593 "dist/build/Transform.hs" #-}
+                                {-# LINE 1602 "dist/build/Transform.hs" #-}
                                 )
                            ( _set1IcollectedConstructorNames,_set1Iconstructors,_set1Ierrors) =
                                set1_
@@ -1601,23 +1610,23 @@ sem_ConstructorSet_CAll =
     (T_ConstructorSet (let _lhsOconstructors :: ((Set ConstructorIdent->Set ConstructorIdent))
                            _lhsOcollectedConstructorNames :: (Set ConstructorIdent)
                            _lhsOerrors :: (Seq Error)
-                           -- "./src-ag/Transform.ag"(line 779, column 17)
+                           -- "./src-ag/Transform.ag"(line 780, column 17)
                            _lhsOconstructors =
-                               ({-# LINE 779 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 780 "./src-ag/Transform.ag" #-}
                                 \ds -> ds
-                                {-# LINE 1609 "dist/build/Transform.hs" #-}
+                                {-# LINE 1618 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 99, column 62)
+                           -- use rule "./src-ag/Transform.ag"(line 96, column 62)
                            _lhsOcollectedConstructorNames =
-                               ({-# LINE 99 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 96 "./src-ag/Transform.ag" #-}
                                 Set.empty
-                                {-# LINE 1615 "dist/build/Transform.hs" #-}
+                                {-# LINE 1624 "dist/build/Transform.hs" #-}
                                 )
-                           -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                           -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                            _lhsOerrors =
-                               ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                               ({-# LINE 41 "./src-ag/Transform.ag" #-}
                                 Seq.empty
-                                {-# LINE 1621 "dist/build/Transform.hs" #-}
+                                {-# LINE 1630 "dist/build/Transform.hs" #-}
                                 )
                        in  ( _lhsOcollectedConstructorNames,_lhsOconstructors,_lhsOerrors)))
 -- Elem --------------------------------------------------------
@@ -1847,264 +1856,264 @@ sem_Elem_Data pos_ ctx_ (T_NontSet names_) params_ (T_Attrs attrs_) (T_Alts alts
                       _altsIcollectedConstructorNames :: (Set ConstructorIdent)
                       _altsIcollectedFields :: ([(NontermIdent, ConstructorIdent, FieldMap)])
                       _altsIcollectedMacros :: ([(NontermIdent, ConstructorIdent, MaybeMacro)])
-                      -- "./src-ag/Transform.ag"(line 179, column 10)
+                      -- "./src-ag/Transform.ag"(line 176, column 10)
                       _altsOnts =
-                          ({-# LINE 179 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 176 "./src-ag/Transform.ag" #-}
                            _namesInontSet
-                           {-# LINE 1855 "dist/build/Transform.hs" #-}
+                           {-# LINE 1864 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 619, column 11)
+                      -- "./src-ag/Transform.ag"(line 620, column 11)
                       _lhsOcollectedConstructorsMap =
-                          ({-# LINE 619 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 620 "./src-ag/Transform.ag" #-}
                            Map.fromList
                            [ (n, _altsIcollectedConstructorNames)
                            | n <- Set.toList _namesInontSet
                            ]
-                           {-# LINE 1864 "dist/build/Transform.hs" #-}
+                           {-# LINE 1873 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 944, column 7)
+                      -- "./src-ag/Transform.ag"(line 947, column 7)
                       _lhsOparamsCollect =
-                          ({-# LINE 944 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 947 "./src-ag/Transform.ag" #-}
                            if null params_
                            then Map.empty
                            else Map.fromList [(nt, params_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 1872 "dist/build/Transform.hs" #-}
+                           {-# LINE 1881 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 967, column 7)
+                      -- "./src-ag/Transform.ag"(line 970, column 7)
                       _lhsOctxCollect =
-                          ({-# LINE 967 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
                            if null ctx_
                            then Map.empty
                            else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 1880 "dist/build/Transform.hs" #-}
+                           {-# LINE 1889 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 1027, column 10)
+                      -- "./src-ag/Transform.ag"(line 1032, column 10)
                       _attrsOnts =
-                          ({-# LINE 1027 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1032 "./src-ag/Transform.ag" #-}
                            _namesInontSet
-                           {-# LINE 1886 "dist/build/Transform.hs" #-}
+                           {-# LINE 1895 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 1892 "dist/build/Transform.hs" #-}
+                           {-# LINE 1901 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 1898 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1904 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1910 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedConParams
-                           {-# LINE 1916 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedConstraints
-                           {-# LINE 1922 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedFields
-                           {-# LINE 1928 "dist/build/Transform.hs" #-}
+                           {-# LINE 1907 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1934 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedMacros
-                           {-# LINE 1940 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1946 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 1952 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 1958 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 1964 "dist/build/Transform.hs" #-}
+                           {-# LINE 1913 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1970 "dist/build/Transform.hs" #-}
+                           {-# LINE 1919 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedConParams
+                           {-# LINE 1925 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedConstraints
+                           {-# LINE 1931 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedFields
+                           {-# LINE 1937 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 1943 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedMacros
+                           {-# LINE 1949 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 1976 "dist/build/Transform.hs" #-}
+                           {-# LINE 1955 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 1982 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _namesIcollectedNames
+                           {-# LINE 1961 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors
-                           {-# LINE 1988 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 1994 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2000 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2006 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2012 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2018 "dist/build/Transform.hs" #-}
+                           {-# LINE 1967 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2024 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 2030 "dist/build/Transform.hs" #-}
+                           {-# LINE 1973 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 1979 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 1985 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 1991 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _namesIerrors Seq.>< _attrsIerrors
+                           {-# LINE 1997 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 2003 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 2009 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2015 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2021 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2027 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           _attrsIuseMap
+                           {-# LINE 2033 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 2039 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _attrsIattrDecls
-                           {-# LINE 2036 "dist/build/Transform.hs" #-}
+                           {-# LINE 2045 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _attrsIattrs
-                           {-# LINE 2042 "dist/build/Transform.hs" #-}
+                           {-# LINE 2051 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 2048 "dist/build/Transform.hs" #-}
+                           {-# LINE 2057 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 2054 "dist/build/Transform.hs" #-}
+                           {-# LINE 2063 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2060 "dist/build/Transform.hs" #-}
+                           {-# LINE 2069 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 2066 "dist/build/Transform.hs" #-}
+                           {-# LINE 2075 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 2072 "dist/build/Transform.hs" #-}
+                           {-# LINE 2081 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2078 "dist/build/Transform.hs" #-}
+                           {-# LINE 2087 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 2084 "dist/build/Transform.hs" #-}
+                           {-# LINE 2093 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 2090 "dist/build/Transform.hs" #-}
+                           {-# LINE 2099 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOoptions =
-                          ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
                            _lhsIoptions
-                           {-# LINE 2096 "dist/build/Transform.hs" #-}
+                           {-# LINE 2105 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOallConstructors =
-                          ({-# LINE 102 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 99 "./src-ag/Transform.ag" #-}
                            _lhsIallConstructors
-                           {-# LINE 2102 "dist/build/Transform.hs" #-}
+                           {-# LINE 2111 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2108 "dist/build/Transform.hs" #-}
+                           {-# LINE 2117 "dist/build/Transform.hs" #-}
                            )
                       ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
                           names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
@@ -2160,21 +2169,21 @@ sem_Elem_Type pos_ ctx_ name_ params_ type_ =
                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 256, column 10)
+                      -- "./src-ag/Transform.ag"(line 254, column 10)
                       _lhsOcollectedFields =
-                          ({-# LINE 256 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 254 "./src-ag/Transform.ag" #-}
                            map (\(x,y)->(name_, x, y)) _expanded
-                           {-# LINE 2168 "dist/build/Transform.hs" #-}
+                           {-# LINE 2177 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 599, column 11)
+                      -- "./src-ag/Transform.ag"(line 600, column 11)
                       _lhsOcollectedNames =
-                          ({-# LINE 599 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 600 "./src-ag/Transform.ag" #-}
                            Set.singleton name_
-                           {-# LINE 2174 "dist/build/Transform.hs" #-}
+                           {-# LINE 2183 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 653, column 11)
+                      -- "./src-ag/Transform.ag"(line 654, column 11)
                       _expanded =
-                          ({-# LINE 653 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 654 "./src-ag/Transform.ag" #-}
                            case _argType of
                                    List tp -> [(Ident "Cons" pos_, [(Ident "hd" pos_, tp)
                                                                    ,(Ident "tl" pos_, NT name_ (map getName params_) False)
@@ -2212,11 +2221,11 @@ sem_Elem_Type pos_ ctx_ name_ params_ type_ =
                                                   , (Ident "Nil" pos_, [])
                                                   ]
                                    Tuple xs -> [(Ident "Tuple" pos_, xs)]
-                           {-# LINE 2216 "dist/build/Transform.hs" #-}
+                           {-# LINE 2225 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 690, column 11)
+                      -- "./src-ag/Transform.ag"(line 691, column 11)
                       _argType =
-                          ({-# LINE 690 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 691 "./src-ag/Transform.ag" #-}
                            case type_ of
                             Maybe tp       -> Maybe  (  makeType _lhsIallNonterminals tp)
                             Either tp1 tp2 -> Either (  makeType _lhsIallNonterminals tp1) (makeType _lhsIallNonterminals tp2)
@@ -2226,179 +2235,179 @@ sem_Elem_Type pos_ ctx_ name_ params_ type_ =
                             IntMap tp      -> IntMap (  makeType _lhsIallNonterminals tp)
                             OrdSet tp      -> OrdSet (  makeType _lhsIallNonterminals tp)
                             IntSet         -> IntSet
-                           {-# LINE 2230 "dist/build/Transform.hs" #-}
+                           {-# LINE 2239 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 699, column 11)
+                      -- "./src-ag/Transform.ag"(line 700, column 11)
                       _lhsOtypeSyns =
-                          ({-# LINE 699 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 700 "./src-ag/Transform.ag" #-}
                            [(name_,_argType)]
-                           {-# LINE 2236 "dist/build/Transform.hs" #-}
+                           {-# LINE 2245 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 950, column 7)
+                      -- "./src-ag/Transform.ag"(line 953, column 7)
                       _lhsOparamsCollect =
-                          ({-# LINE 950 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 953 "./src-ag/Transform.ag" #-}
                            if null params_
                            then Map.empty
                            else Map.singleton name_ params_
-                           {-# LINE 2244 "dist/build/Transform.hs" #-}
+                           {-# LINE 2253 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 973, column 7)
+                      -- "./src-ag/Transform.ag"(line 976, column 7)
                       _lhsOctxCollect =
-                          ({-# LINE 973 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 976 "./src-ag/Transform.ag" #-}
                            if null ctx_
                            then Map.empty
                            else Map.singleton name_ ctx_
-                           {-# LINE 2252 "dist/build/Transform.hs" #-}
+                           {-# LINE 2261 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 2258 "dist/build/Transform.hs" #-}
+                           {-# LINE 2267 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 2264 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2270 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2276 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2282 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2288 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2294 "dist/build/Transform.hs" #-}
+                           {-# LINE 2273 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2300 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2306 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2312 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2318 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2324 "dist/build/Transform.hs" #-}
+                           {-# LINE 2279 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2330 "dist/build/Transform.hs" #-}
+                           {-# LINE 2285 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2291 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2297 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2303 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2309 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2315 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2336 "dist/build/Transform.hs" #-}
+                           {-# LINE 2321 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2342 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2327 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 2348 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2354 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2360 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2366 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2372 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2378 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 2384 "dist/build/Transform.hs" #-}
+                           {-# LINE 2333 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2339 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2345 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2351 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           Seq.empty
+                           {-# LINE 2357 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 2363 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 2369 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2375 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2381 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2387 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 2393 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 2390 "dist/build/Transform.hs" #-}
+                           {-# LINE 2399 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 2396 "dist/build/Transform.hs" #-}
+                           {-# LINE 2405 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 2402 "dist/build/Transform.hs" #-}
+                           {-# LINE 2411 "dist/build/Transform.hs" #-}
                            )
                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
 sem_Elem_Attr :: Pos ->
@@ -2464,243 +2473,243 @@ sem_Elem_Attr pos_ ctx_ (T_NontSet names_) quants_ (T_Attrs attrs_) =
                       _attrsIattrs :: (Map NontermIdent (Attributes, Attributes))
                       _attrsIerrors :: (Seq Error)
                       _attrsIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
-                      -- "./src-ag/Transform.ag"(line 967, column 7)
+                      -- "./src-ag/Transform.ag"(line 970, column 7)
                       _lhsOctxCollect =
-                          ({-# LINE 967 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
                            if null ctx_
                            then Map.empty
                            else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2474 "dist/build/Transform.hs" #-}
+                           {-# LINE 2483 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 992, column 7)
+                      -- "./src-ag/Transform.ag"(line 995, column 7)
                       _lhsOquantCollect =
-                          ({-# LINE 992 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 995 "./src-ag/Transform.ag" #-}
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2482 "dist/build/Transform.hs" #-}
+                           {-# LINE 2491 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 1028, column 10)
+                      -- "./src-ag/Transform.ag"(line 1033, column 10)
                       _attrsOnts =
-                          ({-# LINE 1028 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1033 "./src-ag/Transform.ag" #-}
                            _namesInontSet
-                           {-# LINE 2488 "dist/build/Transform.hs" #-}
+                           {-# LINE 2497 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 2494 "dist/build/Transform.hs" #-}
+                           {-# LINE 2503 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 2500 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2506 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2512 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2518 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2524 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2530 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2536 "dist/build/Transform.hs" #-}
+                           {-# LINE 2509 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2542 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2548 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2554 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 2560 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2566 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2572 "dist/build/Transform.hs" #-}
+                           {-# LINE 2515 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2578 "dist/build/Transform.hs" #-}
+                           {-# LINE 2521 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2527 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2533 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2539 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2545 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2551 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2557 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2584 "dist/build/Transform.hs" #-}
+                           {-# LINE 2563 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2590 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _namesIcollectedNames
+                           {-# LINE 2569 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors
-                           {-# LINE 2596 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2602 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2608 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2614 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2620 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 2626 "dist/build/Transform.hs" #-}
+                           {-# LINE 2575 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2632 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 2638 "dist/build/Transform.hs" #-}
+                           {-# LINE 2581 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2587 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2593 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2599 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _namesIerrors Seq.>< _attrsIerrors
+                           {-# LINE 2605 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 2611 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2617 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 2623 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2629 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2635 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           _attrsIuseMap
+                           {-# LINE 2641 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 2647 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _attrsIattrDecls
-                           {-# LINE 2644 "dist/build/Transform.hs" #-}
+                           {-# LINE 2653 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _attrsIattrs
-                           {-# LINE 2650 "dist/build/Transform.hs" #-}
+                           {-# LINE 2659 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 2656 "dist/build/Transform.hs" #-}
+                           {-# LINE 2665 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 2662 "dist/build/Transform.hs" #-}
+                           {-# LINE 2671 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2668 "dist/build/Transform.hs" #-}
+                           {-# LINE 2677 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 2674 "dist/build/Transform.hs" #-}
+                           {-# LINE 2683 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 2680 "dist/build/Transform.hs" #-}
+                           {-# LINE 2689 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2686 "dist/build/Transform.hs" #-}
+                           {-# LINE 2695 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 2692 "dist/build/Transform.hs" #-}
+                           {-# LINE 2701 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 2698 "dist/build/Transform.hs" #-}
+                           {-# LINE 2707 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOoptions =
-                          ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
                            _lhsIoptions
-                           {-# LINE 2704 "dist/build/Transform.hs" #-}
+                           {-# LINE 2713 "dist/build/Transform.hs" #-}
                            )
                       ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
                           names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
@@ -2786,273 +2795,273 @@ sem_Elem_Sem pos_ ctx_ (T_NontSet names_) (T_Attrs attrs_) quants_ (T_SemAlts al
                       _altsIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
                       _altsIerrors :: (Seq Error)
                       _altsIsemPragmasCollect :: PragmaMap
-                      -- "./src-ag/Transform.ag"(line 180, column 10)
+                      -- "./src-ag/Transform.ag"(line 177, column 10)
                       _altsOnts =
-                          ({-# LINE 180 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 177 "./src-ag/Transform.ag" #-}
                            _namesInontSet
-                           {-# LINE 2794 "dist/build/Transform.hs" #-}
+                           {-# LINE 2803 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 967, column 7)
+                      -- "./src-ag/Transform.ag"(line 970, column 7)
                       _lhsOctxCollect =
-                          ({-# LINE 967 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 970 "./src-ag/Transform.ag" #-}
                            if null ctx_
                            then Map.empty
                            else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2802 "dist/build/Transform.hs" #-}
+                           {-# LINE 2811 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 992, column 7)
+                      -- "./src-ag/Transform.ag"(line 995, column 7)
                       _lhsOquantCollect =
-                          ({-# LINE 992 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 995 "./src-ag/Transform.ag" #-}
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2810 "dist/build/Transform.hs" #-}
+                           {-# LINE 2819 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 1029, column 10)
+                      -- "./src-ag/Transform.ag"(line 1034, column 10)
                       _attrsOnts =
-                          ({-# LINE 1029 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1034 "./src-ag/Transform.ag" #-}
                            _namesInontSet
-                           {-# LINE 2816 "dist/build/Transform.hs" #-}
+                           {-# LINE 2825 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            _altsIattrOrderCollect
-                           {-# LINE 2822 "dist/build/Transform.hs" #-}
+                           {-# LINE 2831 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 2828 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedArounds
-                           {-# LINE 2834 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedAugments
-                           {-# LINE 2840 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2846 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2852 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2858 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2864 "dist/build/Transform.hs" #-}
+                           {-# LINE 2837 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedInsts
-                           {-# LINE 2870 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2876 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedMerges
-                           {-# LINE 2882 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _namesIcollectedNames
-                           {-# LINE 2888 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedRules
-                           {-# LINE 2894 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 2900 "dist/build/Transform.hs" #-}
+                           _altsIcollectedArounds
+                           {-# LINE 2843 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedSigs
-                           {-# LINE 2906 "dist/build/Transform.hs" #-}
+                           _altsIcollectedAugments
+                           {-# LINE 2849 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2855 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2861 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2867 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2873 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedInsts
+                           {-# LINE 2879 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2885 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
-                           _altsIcollectedUniques
-                           {-# LINE 2912 "dist/build/Transform.hs" #-}
+                           _altsIcollectedMerges
+                           {-# LINE 2891 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2918 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _namesIcollectedNames
+                           {-# LINE 2897 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _namesIerrors Seq.>< _attrsIerrors Seq.>< _altsIerrors
-                           {-# LINE 2924 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedRules
+                           {-# LINE 2903 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 2930 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 2936 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 2942 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           _altsIsemPragmasCollect
-                           {-# LINE 2948 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 2954 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           _attrsIuseMap
-                           {-# LINE 2960 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 2966 "dist/build/Transform.hs" #-}
+                           {-# LINE 2909 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedSigs
+                           {-# LINE 2915 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           _altsIcollectedUniques
+                           {-# LINE 2921 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2927 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _namesIerrors Seq.>< _attrsIerrors Seq.>< _altsIerrors
+                           {-# LINE 2933 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 2939 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 2945 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 2951 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           _altsIsemPragmasCollect
+                           {-# LINE 2957 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 2963 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           _attrsIuseMap
+                           {-# LINE 2969 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 2975 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _attrsIattrDecls
-                           {-# LINE 2972 "dist/build/Transform.hs" #-}
+                           {-# LINE 2981 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (up)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _attrsIattrs
-                           {-# LINE 2978 "dist/build/Transform.hs" #-}
+                           {-# LINE 2987 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 2984 "dist/build/Transform.hs" #-}
+                           {-# LINE 2993 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 2990 "dist/build/Transform.hs" #-}
+                           {-# LINE 2999 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 2996 "dist/build/Transform.hs" #-}
+                           {-# LINE 3005 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _namesOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 3002 "dist/build/Transform.hs" #-}
+                           {-# LINE 3011 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 3008 "dist/build/Transform.hs" #-}
+                           {-# LINE 3017 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 3014 "dist/build/Transform.hs" #-}
+                           {-# LINE 3023 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 3020 "dist/build/Transform.hs" #-}
+                           {-# LINE 3029 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 3026 "dist/build/Transform.hs" #-}
+                           {-# LINE 3035 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _attrsOoptions =
-                          ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
                            _lhsIoptions
-                           {-# LINE 3032 "dist/build/Transform.hs" #-}
+                           {-# LINE 3041 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOallAttrDecls =
-                          ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 912 "./src-ag/Transform.ag" #-}
                            _lhsIallAttrDecls
-                           {-# LINE 3038 "dist/build/Transform.hs" #-}
+                           {-# LINE 3047 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOallAttrs =
-                          ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                            _lhsIallAttrs
-                           {-# LINE 3044 "dist/build/Transform.hs" #-}
+                           {-# LINE 3053 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 3050 "dist/build/Transform.hs" #-}
+                           {-# LINE 3059 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _altsOoptions =
-                          ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 37 "./src-ag/Transform.ag" #-}
                            _lhsIoptions
-                           {-# LINE 3056 "dist/build/Transform.hs" #-}
+                           {-# LINE 3065 "dist/build/Transform.hs" #-}
                            )
                       ( _namesIcollectedNames,_namesIerrors,_namesInontSet) =
                           names_ _namesOallFields _namesOallNonterminals _namesOdefinedSets
@@ -3107,204 +3116,204 @@ sem_Elem_Txt pos_ kind_ mbNt_ lines_ =
                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 189, column 10)
+                      -- "./src-ag/Transform.ag"(line 186, column 10)
                       _blockInfo =
-                          ({-# LINE 189 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 186 "./src-ag/Transform.ag" #-}
                            ( kind_
                            , mbNt_
                            )
-                           {-# LINE 3117 "dist/build/Transform.hs" #-}
+                           {-# LINE 3126 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 192, column 10)
+                      -- "./src-ag/Transform.ag"(line 189, column 10)
                       _blockValue =
-                          ({-# LINE 192 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 189 "./src-ag/Transform.ag" #-}
                            [(lines_, pos_)]
-                           {-# LINE 3123 "dist/build/Transform.hs" #-}
+                           {-# LINE 3132 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 193, column 10)
+                      -- "./src-ag/Transform.ag"(line 190, column 10)
                       _lhsOblocks =
-                          ({-# LINE 193 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 190 "./src-ag/Transform.ag" #-}
                            Map.singleton _blockInfo     _blockValue
-                           {-# LINE 3129 "dist/build/Transform.hs" #-}
+                           {-# LINE 3138 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 194, column 10)
+                      -- "./src-ag/Transform.ag"(line 191, column 10)
                       _lhsOerrors =
-                          ({-# LINE 194 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 191 "./src-ag/Transform.ag" #-}
                            if checkParseBlock _lhsIoptions
-                           then let exp = Expression pos_ tks
+                           then let ex  = Expression pos_ tks
                                     tks = [tk]
                                     tk  = HsToken (unlines lines_) pos_
-                                in Seq.fromList $ checkBlock $ exp
+                                in Seq.fromList $ checkBlock $ ex
                            else Seq.empty
-                           {-# LINE 3140 "dist/build/Transform.hs" #-}
+                           {-# LINE 3149 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3146 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3152 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3158 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3164 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3170 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3176 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3182 "dist/build/Transform.hs" #-}
+                           {-# LINE 3155 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3188 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3194 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3200 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3206 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3212 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3218 "dist/build/Transform.hs" #-}
+                           {-# LINE 3161 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3224 "dist/build/Transform.hs" #-}
+                           {-# LINE 3167 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3173 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3179 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3185 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3191 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3197 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3203 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3230 "dist/build/Transform.hs" #-}
+                           {-# LINE 3209 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3236 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3242 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3248 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3254 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3260 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3266 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3272 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3278 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3284 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 3290 "dist/build/Transform.hs" #-}
+                           {-# LINE 3215 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3221 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 3227 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3233 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3239 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3245 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3251 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 3257 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3263 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 3269 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3275 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3281 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3287 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3293 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 3299 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 3296 "dist/build/Transform.hs" #-}
+                           {-# LINE 3305 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 3302 "dist/build/Transform.hs" #-}
+                           {-# LINE 3311 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 3308 "dist/build/Transform.hs" #-}
+                           {-# LINE 3317 "dist/build/Transform.hs" #-}
                            )
                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
 sem_Elem_Set :: Pos ->
@@ -3359,15 +3368,15 @@ sem_Elem_Set pos_ name_ merge_ (T_NontSet set_) =
                       _setIcollectedNames :: (Set Identifier)
                       _setIerrors :: (Seq Error)
                       _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 596, column 10)
+                      -- "./src-ag/Transform.ag"(line 597, column 10)
                       _lhsOcollectedSetNames =
-                          ({-# LINE 596 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 597 "./src-ag/Transform.ag" #-}
                            Set.singleton name_
-                           {-# LINE 3367 "dist/build/Transform.hs" #-}
+                           {-# LINE 3376 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 713, column 13)
+                      -- "./src-ag/Transform.ag"(line 714, column 13)
                       (_defSets2,_errs) =
-                          ({-# LINE 713 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 714 "./src-ag/Transform.ag" #-}
                            let allUsedNames = Set.unions [ maybe (Set.singleton n)
                                                                  snd
                                                                  (Map.lookup n _lhsIdefSets)
@@ -3377,204 +3386,204 @@ sem_Elem_Set pos_ name_ merge_ (T_NontSet set_) =
                                                         = (Set.empty, Seq.singleton(CyclicSet name_))
                                             | otherwise = (_setInontSet, Seq.empty)
                                (res, e2) = let toAdd = (nontSet,Set.insert name_ allUsedNames)
-                                               union (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
+                                               un (a,b) (c,d) = (a `Set.union` c, b `Set.union` d)
                                            in if Set.member name_ _lhsIallNonterminals || not merge_
                                               then checkDuplicate DupSet name_ toAdd _lhsIdefSets
-                                              else (Map.insertWith union name_ toAdd _lhsIdefSets, Seq.empty)
+                                              else (Map.insertWith un name_ toAdd _lhsIdefSets, Seq.empty)
                            in (res, e1 Seq.>< e2)
-                           {-# LINE 3386 "dist/build/Transform.hs" #-}
+                           {-# LINE 3395 "dist/build/Transform.hs" #-}
                            )
-                      -- "./src-ag/Transform.ag"(line 727, column 9)
+                      -- "./src-ag/Transform.ag"(line 728, column 9)
                       _lhsOdefSets =
-                          ({-# LINE 727 "./src-ag/Transform.ag" #-}
-                           _defSets2
-                           {-# LINE 3392 "dist/build/Transform.hs" #-}
-                           )
-                      -- "./src-ag/Transform.ag"(line 727, column 9)
-                      _lhsOerrors =
                           ({-# LINE 728 "./src-ag/Transform.ag" #-}
+                           _defSets2
+                           {-# LINE 3401 "dist/build/Transform.hs" #-}
+                           )
+                      -- "./src-ag/Transform.ag"(line 728, column 9)
+                      _lhsOerrors =
+                          ({-# LINE 729 "./src-ag/Transform.ag" #-}
                            _errs >< _setIerrors
-                           {-# LINE 3398 "dist/build/Transform.hs" #-}
+                           {-# LINE 3407 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3404 "dist/build/Transform.hs" #-}
+                           {-# LINE 3413 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3410 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3416 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3422 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3428 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3434 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3440 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3446 "dist/build/Transform.hs" #-}
+                           {-# LINE 3419 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3452 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3458 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3464 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3470 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3476 "dist/build/Transform.hs" #-}
+                           {-# LINE 3425 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3482 "dist/build/Transform.hs" #-}
+                           {-# LINE 3431 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3437 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3443 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3449 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3455 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3461 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3467 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3488 "dist/build/Transform.hs" #-}
+                           {-# LINE 3473 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3494 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _setIcollectedNames
+                           {-# LINE 3479 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3500 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3506 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3512 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3518 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3524 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3530 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3536 "dist/build/Transform.hs" #-}
+                           {-# LINE 3485 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3491 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3497 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3542 "dist/build/Transform.hs" #-}
+                           {-# LINE 3503 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3509 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 3515 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3521 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 3527 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3533 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3539 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3545 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3551 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
                       _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 3548 "dist/build/Transform.hs" #-}
+                           {-# LINE 3557 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 3554 "dist/build/Transform.hs" #-}
+                           {-# LINE 3563 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 3560 "dist/build/Transform.hs" #-}
+                           {-# LINE 3569 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 3566 "dist/build/Transform.hs" #-}
+                           {-# LINE 3575 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 3572 "dist/build/Transform.hs" #-}
+                           {-# LINE 3581 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 3578 "dist/build/Transform.hs" #-}
+                           {-# LINE 3587 "dist/build/Transform.hs" #-}
                            )
                       ( _setIcollectedNames,_setIerrors,_setInontSet) =
                           set_ _setOallFields _setOallNonterminals _setOdefinedSets
@@ -3630,203 +3639,203 @@ sem_Elem_Deriving pos_ (T_NontSet set_) classes_ =
                       _setIcollectedNames :: (Set Identifier)
                       _setIerrors :: (Seq Error)
                       _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 1012, column 14)
+                      -- "./src-ag/Transform.ag"(line 1016, column 14)
                       _lhsOderivings =
-                          ({-# LINE 1012 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1016 "./src-ag/Transform.ag" #-}
                            Map.fromList [(nt,Set.fromList classes_) | nt <- Set.toList _setInontSet]
-                           {-# LINE 3638 "dist/build/Transform.hs" #-}
+                           {-# LINE 3647 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3644 "dist/build/Transform.hs" #-}
+                           {-# LINE 3653 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3650 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3656 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3662 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3668 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3674 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3680 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3686 "dist/build/Transform.hs" #-}
+                           {-# LINE 3659 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3692 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3698 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3704 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3710 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3716 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3722 "dist/build/Transform.hs" #-}
+                           {-# LINE 3665 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3728 "dist/build/Transform.hs" #-}
+                           {-# LINE 3671 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3677 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3683 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3689 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3695 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3701 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3707 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3734 "dist/build/Transform.hs" #-}
+                           {-# LINE 3713 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3740 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _setIcollectedNames
+                           {-# LINE 3719 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 3746 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 3752 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3758 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 3764 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3770 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3776 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3782 "dist/build/Transform.hs" #-}
+                           {-# LINE 3725 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3788 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 3794 "dist/build/Transform.hs" #-}
+                           {-# LINE 3731 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3737 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3743 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3749 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _setIerrors
+                           {-# LINE 3755 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 3761 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3767 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 3773 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3779 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3785 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3791 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3797 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 3803 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 3800 "dist/build/Transform.hs" #-}
+                           {-# LINE 3809 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 3806 "dist/build/Transform.hs" #-}
+                           {-# LINE 3815 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 3812 "dist/build/Transform.hs" #-}
+                           {-# LINE 3821 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 3818 "dist/build/Transform.hs" #-}
+                           {-# LINE 3827 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 3824 "dist/build/Transform.hs" #-}
+                           {-# LINE 3833 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 3830 "dist/build/Transform.hs" #-}
+                           {-# LINE 3839 "dist/build/Transform.hs" #-}
                            )
                       ( _setIcollectedNames,_setIerrors,_setInontSet) =
                           set_ _setOallFields _setOallNonterminals _setOdefinedSets
@@ -3881,203 +3890,203 @@ sem_Elem_Wrapper pos_ (T_NontSet set_) =
                       _setIcollectedNames :: (Set Identifier)
                       _setIerrors :: (Seq Error)
                       _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 788, column 13)
+                      -- "./src-ag/Transform.ag"(line 789, column 13)
                       _lhsOwrappers =
-                          ({-# LINE 788 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 789 "./src-ag/Transform.ag" #-}
                            _setInontSet
-                           {-# LINE 3889 "dist/build/Transform.hs" #-}
+                           {-# LINE 3898 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3895 "dist/build/Transform.hs" #-}
+                           {-# LINE 3904 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 3901 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3907 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3913 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3919 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3925 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3931 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3937 "dist/build/Transform.hs" #-}
+                           {-# LINE 3910 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3943 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3949 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3955 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 3961 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 3967 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 3973 "dist/build/Transform.hs" #-}
+                           {-# LINE 3916 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3979 "dist/build/Transform.hs" #-}
+                           {-# LINE 3922 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3928 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3934 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 3940 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3946 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3952 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3958 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 3985 "dist/build/Transform.hs" #-}
+                           {-# LINE 3964 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3991 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _setIcollectedNames
+                           {-# LINE 3970 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 3997 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 4003 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4009 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4015 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 4021 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4027 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4033 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4039 "dist/build/Transform.hs" #-}
+                           {-# LINE 3976 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 3982 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3988 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 3994 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4045 "dist/build/Transform.hs" #-}
+                           {-# LINE 4000 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4006 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _setIerrors
+                           {-# LINE 4012 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 4018 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4024 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 4030 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4036 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4042 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4048 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4054 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 4051 "dist/build/Transform.hs" #-}
+                           {-# LINE 4060 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 4057 "dist/build/Transform.hs" #-}
+                           {-# LINE 4066 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 4063 "dist/build/Transform.hs" #-}
+                           {-# LINE 4072 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 4069 "dist/build/Transform.hs" #-}
+                           {-# LINE 4078 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 4075 "dist/build/Transform.hs" #-}
+                           {-# LINE 4084 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 4081 "dist/build/Transform.hs" #-}
+                           {-# LINE 4090 "dist/build/Transform.hs" #-}
                            )
                       ( _setIcollectedNames,_setIerrors,_setInontSet) =
                           set_ _setOallFields _setOallNonterminals _setOdefinedSets
@@ -4132,203 +4141,203 @@ sem_Elem_Nocatas pos_ (T_NontSet set_) =
                       _setIcollectedNames :: (Set Identifier)
                       _setIerrors :: (Seq Error)
                       _setInontSet :: (Set NontermIdent)
-                      -- "./src-ag/Transform.ag"(line 795, column 14)
+                      -- "./src-ag/Transform.ag"(line 796, column 14)
                       _lhsOpragmas =
-                          ({-# LINE 795 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 796 "./src-ag/Transform.ag" #-}
                            \o -> o { nocatas = _setInontSet `Set.union` nocatas o }
-                           {-# LINE 4140 "dist/build/Transform.hs" #-}
+                           {-# LINE 4149 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4146 "dist/build/Transform.hs" #-}
+                           {-# LINE 4155 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4152 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4158 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4164 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4170 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4176 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4182 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4188 "dist/build/Transform.hs" #-}
+                           {-# LINE 4161 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4194 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4200 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4206 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           _setIcollectedNames
-                           {-# LINE 4212 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4218 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4224 "dist/build/Transform.hs" #-}
+                           {-# LINE 4167 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4230 "dist/build/Transform.hs" #-}
+                           {-# LINE 4173 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4179 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4185 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4191 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4197 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4203 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4209 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4236 "dist/build/Transform.hs" #-}
+                           {-# LINE 4215 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4242 "dist/build/Transform.hs" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                           _setIcollectedNames
+                           {-# LINE 4221 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4248 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           _setIerrors
-                           {-# LINE 4254 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4260 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4266 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4272 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4278 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4284 "dist/build/Transform.hs" #-}
+                           {-# LINE 4227 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4290 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 4296 "dist/build/Transform.hs" #-}
+                           {-# LINE 4233 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4239 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4245 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4251 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4257 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           _setIerrors
+                           {-# LINE 4263 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 4269 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4275 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4281 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4287 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4293 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4299 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 4305 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 4302 "dist/build/Transform.hs" #-}
+                           {-# LINE 4311 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 4308 "dist/build/Transform.hs" #-}
+                           {-# LINE 4317 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 4314 "dist/build/Transform.hs" #-}
+                           {-# LINE 4323 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallFields =
-                          ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 134 "./src-ag/Transform.ag" #-}
                            _lhsIallFields
-                           {-# LINE 4320 "dist/build/Transform.hs" #-}
+                           {-# LINE 4329 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOallNonterminals =
-                          ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
                            _lhsIallNonterminals
-                           {-# LINE 4326 "dist/build/Transform.hs" #-}
+                           {-# LINE 4335 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (down)
                       _setOdefinedSets =
-                          ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
                            _lhsIdefinedSets
-                           {-# LINE 4332 "dist/build/Transform.hs" #-}
+                           {-# LINE 4341 "dist/build/Transform.hs" #-}
                            )
                       ( _setIcollectedNames,_setIerrors,_setInontSet) =
                           set_ _setOallFields _setOallNonterminals _setOdefinedSets
@@ -4377,9 +4386,9 @@ sem_Elem_Pragma pos_ names_ =
                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 804, column 13)
+                      -- "./src-ag/Transform.ag"(line 805, column 13)
                       _lhsOpragmas =
-                          ({-# LINE 804 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 805 "./src-ag/Transform.ag" #-}
                            let mk n o = case getName n of
                                           "gencatas"     -> o { folds       = True  }
                                           "nogencatas"   -> o { folds       = False }
@@ -4445,181 +4454,181 @@ sem_Elem_Pragma pos_ names_ =
                                           "ocaml"                   -> ocamlOpt o
                                           s              -> trace ("uuagc: ignoring unknown pragma: " ++ s) o
                            in \o -> foldr mk o names_
-                           {-# LINE 4449 "dist/build/Transform.hs" #-}
+                           {-# LINE 4458 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4455 "dist/build/Transform.hs" #-}
+                           {-# LINE 4464 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4461 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4467 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4473 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4479 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4485 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4491 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4497 "dist/build/Transform.hs" #-}
+                           {-# LINE 4470 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4503 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4509 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4515 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4521 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4527 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4533 "dist/build/Transform.hs" #-}
+                           {-# LINE 4476 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4539 "dist/build/Transform.hs" #-}
+                           {-# LINE 4482 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4488 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4494 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4500 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4506 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4512 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4518 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4545 "dist/build/Transform.hs" #-}
+                           {-# LINE 4524 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4551 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4557 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 4563 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                      _lhsOmoduleDecl =
-                          ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                           mzero
-                           {-# LINE 4569 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4575 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4581 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4587 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4593 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4599 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 4605 "dist/build/Transform.hs" #-}
+                           {-# LINE 4530 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4536 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 4542 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4548 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4554 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4560 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4566 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           Seq.empty
+                           {-# LINE 4572 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                      _lhsOmoduleDecl =
+                          ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                           mzero
+                           {-# LINE 4578 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4584 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4590 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4596 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4602 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4608 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 4614 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 4611 "dist/build/Transform.hs" #-}
+                           {-# LINE 4620 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 4617 "dist/build/Transform.hs" #-}
+                           {-# LINE 4626 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 4623 "dist/build/Transform.hs" #-}
+                           {-# LINE 4632 "dist/build/Transform.hs" #-}
                            )
                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
 sem_Elem_Module :: Pos ->
@@ -4668,185 +4677,185 @@ sem_Elem_Module pos_ name_ exports_ imports_ =
                       _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                       _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                      -- "./src-ag/Transform.ag"(line 1206, column 7)
+                      -- "./src-ag/Transform.ag"(line 1213, column 7)
                       _lhsOmoduleDecl =
-                          ({-# LINE 1206 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1213 "./src-ag/Transform.ag" #-}
                            Just (name_, exports_, imports_)
-                           {-# LINE 4676 "dist/build/Transform.hs" #-}
+                           {-# LINE 4685 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                      -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                       _lhsOattrOrderCollect =
-                          ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 911 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4682 "dist/build/Transform.hs" #-}
+                           {-# LINE 4691 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                      -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                       _lhsOblocks =
-                          ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 43 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 4688 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                      _lhsOcollectedArounds =
-                          ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4694 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                      _lhsOcollectedAugments =
-                          ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4700 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                      _lhsOcollectedConParams =
-                          ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4706 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                      _lhsOcollectedConstraints =
-                          ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4712 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                      _lhsOcollectedConstructorsMap =
-                          ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4718 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                      _lhsOcollectedFields =
-                          ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4724 "dist/build/Transform.hs" #-}
+                           {-# LINE 4697 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                      _lhsOcollectedInsts =
+                      _lhsOcollectedArounds =
                           ({-# LINE 162 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4730 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                      _lhsOcollectedMacros =
-                          ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4736 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                      _lhsOcollectedMerges =
-                          ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4742 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                      _lhsOcollectedNames =
-                          ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4748 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                      _lhsOcollectedRules =
-                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4754 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                      _lhsOcollectedSetNames =
-                          ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                           Set.empty
-                           {-# LINE 4760 "dist/build/Transform.hs" #-}
+                           {-# LINE 4703 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                      _lhsOcollectedSigs =
+                      _lhsOcollectedAugments =
                           ({-# LINE 161 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4766 "dist/build/Transform.hs" #-}
+                           {-# LINE 4709 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                      _lhsOcollectedConParams =
+                          ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4715 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                      _lhsOcollectedConstraints =
+                          ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4721 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                      _lhsOcollectedConstructorsMap =
+                          ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4727 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                      _lhsOcollectedFields =
+                          ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4733 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                      _lhsOcollectedInsts =
+                          ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4739 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                      _lhsOcollectedMacros =
+                          ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4745 "dist/build/Transform.hs" #-}
                            )
                       -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                      _lhsOcollectedUniques =
+                      _lhsOcollectedMerges =
                           ({-# LINE 163 "./src-ag/Transform.ag" #-}
                            []
-                           {-# LINE 4772 "dist/build/Transform.hs" #-}
+                           {-# LINE 4751 "dist/build/Transform.hs" #-}
                            )
-                      -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                      _lhsOctxCollect =
-                          ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4778 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                      _lhsOderivings =
-                          ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4784 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                      _lhsOerrors =
-                          ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                           Seq.empty
-                           {-# LINE 4790 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                      _lhsOparamsCollect =
-                          ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4796 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                      _lhsOpragmas =
-                          ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                           id
-                           {-# LINE 4802 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                      _lhsOquantCollect =
-                          ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4808 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                      _lhsOsemPragmasCollect =
-                          ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4814 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                      _lhsOtypeSyns =
-                          ({-# LINE 640 "./src-ag/Transform.ag" #-}
-                           []
-                           {-# LINE 4820 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                      _lhsOuseMap =
-                          ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                           Map.empty
-                           {-# LINE 4826 "dist/build/Transform.hs" #-}
-                           )
-                      -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                      _lhsOwrappers =
-                          ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                      -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                      _lhsOcollectedNames =
+                          ({-# LINE 89 "./src-ag/Transform.ag" #-}
                            Set.empty
-                           {-# LINE 4832 "dist/build/Transform.hs" #-}
+                           {-# LINE 4757 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                      _lhsOcollectedRules =
+                          ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4763 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                      _lhsOcollectedSetNames =
+                          ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 4769 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                      _lhsOcollectedSigs =
+                          ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4775 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                      _lhsOcollectedUniques =
+                          ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4781 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                      _lhsOctxCollect =
+                          ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4787 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                      _lhsOderivings =
+                          ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4793 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                      _lhsOerrors =
+                          ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                           Seq.empty
+                           {-# LINE 4799 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                      _lhsOparamsCollect =
+                          ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4805 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                      _lhsOpragmas =
+                          ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                           id
+                           {-# LINE 4811 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                      _lhsOquantCollect =
+                          ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4817 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                      _lhsOsemPragmasCollect =
+                          ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4823 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                      _lhsOtypeSyns =
+                          ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                           []
+                           {-# LINE 4829 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                      _lhsOuseMap =
+                          ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                           Map.empty
+                           {-# LINE 4835 "dist/build/Transform.hs" #-}
+                           )
+                      -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                      _lhsOwrappers =
+                          ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                           Set.empty
+                           {-# LINE 4841 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrDecls =
-                          ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 142 "./src-ag/Transform.ag" #-}
                            _lhsIattrDecls
-                           {-# LINE 4838 "dist/build/Transform.hs" #-}
+                           {-# LINE 4847 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOattrs =
-                          ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                            _lhsIattrs
-                           {-# LINE 4844 "dist/build/Transform.hs" #-}
+                           {-# LINE 4853 "dist/build/Transform.hs" #-}
                            )
                       -- copy rule (chain)
                       _lhsOdefSets =
-                          ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                          ({-# LINE 107 "./src-ag/Transform.ag" #-}
                            _lhsIdefSets
-                           {-# LINE 4850 "dist/build/Transform.hs" #-}
+                           {-# LINE 4859 "dist/build/Transform.hs" #-}
                            )
                   in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
 -- Elems -------------------------------------------------------
@@ -5047,305 +5056,305 @@ sem_Elems_Cons (T_Elem hd_) (T_Elems tl_) =
                        _tlItypeSyns :: TypeSyns
                        _tlIuseMap :: (Map NontermIdent (Map Identifier (String,String,String)))
                        _tlIwrappers :: (Set NontermIdent)
-                       -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                       -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                        _lhsOattrOrderCollect =
-                           ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 911 "./src-ag/Transform.ag" #-}
                             _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
-                            {-# LINE 5055 "dist/build/Transform.hs" #-}
+                            {-# LINE 5064 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                       -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                        _lhsOblocks =
-                           ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 43 "./src-ag/Transform.ag" #-}
                             _hdIblocks `mapUnionWithPlusPlus` _tlIblocks
-                            {-# LINE 5061 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                       _lhsOcollectedArounds =
-                           ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedArounds ++ _tlIcollectedArounds
-                            {-# LINE 5067 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                       _lhsOcollectedAugments =
-                           ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedAugments ++ _tlIcollectedAugments
-                            {-# LINE 5073 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                       _lhsOcollectedConParams =
-                           ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConParams ++ _tlIcollectedConParams
-                            {-# LINE 5079 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                            {-# LINE 5085 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                       _lhsOcollectedConstructorsMap =
-                           ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedConstructorsMap `mapUnionWithSetUnion` _tlIcollectedConstructorsMap
-                            {-# LINE 5091 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                       _lhsOcollectedFields =
-                           ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedFields ++ _tlIcollectedFields
-                            {-# LINE 5097 "dist/build/Transform.hs" #-}
+                            {-# LINE 5070 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                       _lhsOcollectedInsts =
+                       _lhsOcollectedArounds =
                            ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedInsts ++ _tlIcollectedInsts
-                            {-# LINE 5103 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                       _lhsOcollectedMacros =
-                           ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedMacros ++ _tlIcollectedMacros
-                            {-# LINE 5109 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                       _lhsOcollectedMerges =
-                           ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedMerges ++ _tlIcollectedMerges
-                            {-# LINE 5115 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                       _lhsOcollectedNames =
-                           ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedNames `Set.union` _tlIcollectedNames
-                            {-# LINE 5121 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                       _lhsOcollectedRules =
-                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedRules ++ _tlIcollectedRules
-                            {-# LINE 5127 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                       _lhsOcollectedSetNames =
-                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedSetNames `Set.union` _tlIcollectedSetNames
-                            {-# LINE 5133 "dist/build/Transform.hs" #-}
+                            _hdIcollectedArounds ++ _tlIcollectedArounds
+                            {-# LINE 5076 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                       _lhsOcollectedSigs =
+                       _lhsOcollectedAugments =
                            ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                            _hdIcollectedSigs ++ _tlIcollectedSigs
-                            {-# LINE 5139 "dist/build/Transform.hs" #-}
+                            _hdIcollectedAugments ++ _tlIcollectedAugments
+                            {-# LINE 5082 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                       _lhsOcollectedConParams =
+                           ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedConParams ++ _tlIcollectedConParams
+                            {-# LINE 5088 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                       _lhsOcollectedConstraints =
+                           ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedConstraints ++ _tlIcollectedConstraints
+                            {-# LINE 5094 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                       _lhsOcollectedConstructorsMap =
+                           ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedConstructorsMap `mapUnionWithSetUnion` _tlIcollectedConstructorsMap
+                            {-# LINE 5100 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                       _lhsOcollectedFields =
+                           ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedFields ++ _tlIcollectedFields
+                            {-# LINE 5106 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                       _lhsOcollectedInsts =
+                           ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedInsts ++ _tlIcollectedInsts
+                            {-# LINE 5112 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                       _lhsOcollectedMacros =
+                           ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedMacros ++ _tlIcollectedMacros
+                            {-# LINE 5118 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                       _lhsOcollectedUniques =
+                       _lhsOcollectedMerges =
                            ({-# LINE 163 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedMerges ++ _tlIcollectedMerges
+                            {-# LINE 5124 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                       _lhsOcollectedNames =
+                           ({-# LINE 89 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedNames `Set.union` _tlIcollectedNames
+                            {-# LINE 5130 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                       _lhsOcollectedRules =
+                           ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedRules ++ _tlIcollectedRules
+                            {-# LINE 5136 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                       _lhsOcollectedSetNames =
+                           ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedSetNames `Set.union` _tlIcollectedSetNames
+                            {-# LINE 5142 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                       _lhsOcollectedSigs =
+                           ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                            _hdIcollectedSigs ++ _tlIcollectedSigs
+                            {-# LINE 5148 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                       _lhsOcollectedUniques =
+                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
                             _hdIcollectedUniques ++ _tlIcollectedUniques
-                            {-# LINE 5145 "dist/build/Transform.hs" #-}
+                            {-# LINE 5154 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 963, column 34)
+                       -- use rule "./src-ag/Transform.ag"(line 966, column 34)
                        _lhsOctxCollect =
-                           ({-# LINE 963 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 966 "./src-ag/Transform.ag" #-}
                             _hdIctxCollect `mergeCtx` _tlIctxCollect
-                            {-# LINE 5151 "dist/build/Transform.hs" #-}
+                            {-# LINE 5160 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
+                       -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
                        _lhsOderivings =
-                           ({-# LINE 1005 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1008 "./src-ag/Transform.ag" #-}
                             _hdIderivings `mergeDerivings` _tlIderivings
-                            {-# LINE 5157 "dist/build/Transform.hs" #-}
+                            {-# LINE 5166 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                       -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                        _lhsOerrors =
-                           ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 41 "./src-ag/Transform.ag" #-}
                             _hdIerrors Seq.>< _tlIerrors
-                            {-# LINE 5163 "dist/build/Transform.hs" #-}
+                            {-# LINE 5172 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
+                       -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
                        _lhsOmoduleDecl =
-                           ({-# LINE 1202 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1209 "./src-ag/Transform.ag" #-}
                             _hdImoduleDecl `mplus` _tlImoduleDecl
-                            {-# LINE 5169 "dist/build/Transform.hs" #-}
+                            {-# LINE 5178 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 940, column 37)
+                       -- use rule "./src-ag/Transform.ag"(line 943, column 37)
                        _lhsOparamsCollect =
-                           ({-# LINE 940 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 943 "./src-ag/Transform.ag" #-}
                             _hdIparamsCollect `mergeParams` _tlIparamsCollect
-                            {-# LINE 5175 "dist/build/Transform.hs" #-}
+                            {-# LINE 5184 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 801, column 34)
+                       -- use rule "./src-ag/Transform.ag"(line 802, column 34)
                        _lhsOpragmas =
-                           ({-# LINE 801 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 802 "./src-ag/Transform.ag" #-}
                             _hdIpragmas . _tlIpragmas
-                            {-# LINE 5181 "dist/build/Transform.hs" #-}
+                            {-# LINE 5190 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 988, column 36)
+                       -- use rule "./src-ag/Transform.ag"(line 991, column 36)
                        _lhsOquantCollect =
-                           ({-# LINE 988 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 991 "./src-ag/Transform.ag" #-}
                             _hdIquantCollect `mergeQuant` _tlIquantCollect
-                            {-# LINE 5187 "dist/build/Transform.hs" #-}
+                            {-# LINE 5196 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 880, column 56)
+                       -- use rule "./src-ag/Transform.ag"(line 883, column 56)
                        _lhsOsemPragmasCollect =
-                           ({-# LINE 880 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 883 "./src-ag/Transform.ag" #-}
                             _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
-                            {-# LINE 5193 "dist/build/Transform.hs" #-}
+                            {-# LINE 5202 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 640, column 32)
+                       -- use rule "./src-ag/Transform.ag"(line 641, column 32)
                        _lhsOtypeSyns =
-                           ({-# LINE 640 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 641 "./src-ag/Transform.ag" #-}
                             _hdItypeSyns ++ _tlItypeSyns
-                            {-# LINE 5199 "dist/build/Transform.hs" #-}
+                            {-# LINE 5208 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 146, column 15)
+                       -- use rule "./src-ag/Transform.ag"(line 143, column 15)
                        _lhsOuseMap =
-                           ({-# LINE 146 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 143 "./src-ag/Transform.ag" #-}
                             _hdIuseMap `merge` _tlIuseMap
-                            {-# LINE 5205 "dist/build/Transform.hs" #-}
+                            {-# LINE 5214 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 785, column 32)
+                       -- use rule "./src-ag/Transform.ag"(line 786, column 32)
                        _lhsOwrappers =
-                           ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 786 "./src-ag/Transform.ag" #-}
                             _hdIwrappers `Set.union` _tlIwrappers
-                            {-# LINE 5211 "dist/build/Transform.hs" #-}
+                            {-# LINE 5220 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (up)
                        _lhsOattrDecls =
-                           ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
                             _tlIattrDecls
-                            {-# LINE 5217 "dist/build/Transform.hs" #-}
+                            {-# LINE 5226 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (up)
                        _lhsOattrs =
-                           ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                             _tlIattrs
-                            {-# LINE 5223 "dist/build/Transform.hs" #-}
+                            {-# LINE 5232 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (up)
                        _lhsOdefSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
                             _tlIdefSets
-                            {-# LINE 5229 "dist/build/Transform.hs" #-}
+                            {-# LINE 5238 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOallAttrDecls =
-                           ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 912 "./src-ag/Transform.ag" #-}
                             _lhsIallAttrDecls
-                            {-# LINE 5235 "dist/build/Transform.hs" #-}
+                            {-# LINE 5244 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOallAttrs =
-                           ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                             _lhsIallAttrs
-                            {-# LINE 5241 "dist/build/Transform.hs" #-}
+                            {-# LINE 5250 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOallConstructors =
-                           ({-# LINE 102 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 99 "./src-ag/Transform.ag" #-}
                             _lhsIallConstructors
-                            {-# LINE 5247 "dist/build/Transform.hs" #-}
+                            {-# LINE 5256 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOallFields =
-                           ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 134 "./src-ag/Transform.ag" #-}
                             _lhsIallFields
-                            {-# LINE 5253 "dist/build/Transform.hs" #-}
+                            {-# LINE 5262 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOallNonterminals =
-                           ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
                             _lhsIallNonterminals
-                            {-# LINE 5259 "dist/build/Transform.hs" #-}
+                            {-# LINE 5268 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOattrDecls =
-                           ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
                             _lhsIattrDecls
-                            {-# LINE 5265 "dist/build/Transform.hs" #-}
+                            {-# LINE 5274 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOattrs =
-                           ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                             _lhsIattrs
-                            {-# LINE 5271 "dist/build/Transform.hs" #-}
+                            {-# LINE 5280 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOdefSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
                             _lhsIdefSets
-                            {-# LINE 5277 "dist/build/Transform.hs" #-}
+                            {-# LINE 5286 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOdefinedSets =
-                           ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
                             _lhsIdefinedSets
-                            {-# LINE 5283 "dist/build/Transform.hs" #-}
+                            {-# LINE 5292 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _hdOoptions =
-                           ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 37 "./src-ag/Transform.ag" #-}
                             _lhsIoptions
-                            {-# LINE 5289 "dist/build/Transform.hs" #-}
+                            {-# LINE 5298 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOallAttrDecls =
-                           ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 912 "./src-ag/Transform.ag" #-}
                             _lhsIallAttrDecls
-                            {-# LINE 5295 "dist/build/Transform.hs" #-}
+                            {-# LINE 5304 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOallAttrs =
-                           ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                             _lhsIallAttrs
-                            {-# LINE 5301 "dist/build/Transform.hs" #-}
+                            {-# LINE 5310 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOallConstructors =
-                           ({-# LINE 102 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 99 "./src-ag/Transform.ag" #-}
                             _lhsIallConstructors
-                            {-# LINE 5307 "dist/build/Transform.hs" #-}
+                            {-# LINE 5316 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOallFields =
-                           ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 134 "./src-ag/Transform.ag" #-}
                             _lhsIallFields
-                            {-# LINE 5313 "dist/build/Transform.hs" #-}
+                            {-# LINE 5322 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOallNonterminals =
-                           ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
                             _lhsIallNonterminals
-                            {-# LINE 5319 "dist/build/Transform.hs" #-}
+                            {-# LINE 5328 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _tlOattrDecls =
-                           ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
                             _hdIattrDecls
-                            {-# LINE 5325 "dist/build/Transform.hs" #-}
+                            {-# LINE 5334 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _tlOattrs =
-                           ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                             _hdIattrs
-                            {-# LINE 5331 "dist/build/Transform.hs" #-}
+                            {-# LINE 5340 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _tlOdefSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
                             _hdIdefSets
-                            {-# LINE 5337 "dist/build/Transform.hs" #-}
+                            {-# LINE 5346 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOdefinedSets =
-                           ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
                             _lhsIdefinedSets
-                            {-# LINE 5343 "dist/build/Transform.hs" #-}
+                            {-# LINE 5352 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (down)
                        _tlOoptions =
-                           ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 37 "./src-ag/Transform.ag" #-}
                             _lhsIoptions
-                            {-# LINE 5349 "dist/build/Transform.hs" #-}
+                            {-# LINE 5358 "dist/build/Transform.hs" #-}
                             )
                        ( _hdIattrDecls,_hdIattrOrderCollect,_hdIattrs,_hdIblocks,_hdIcollectedArounds,_hdIcollectedAugments,_hdIcollectedConParams,_hdIcollectedConstraints,_hdIcollectedConstructorsMap,_hdIcollectedFields,_hdIcollectedInsts,_hdIcollectedMacros,_hdIcollectedMerges,_hdIcollectedNames,_hdIcollectedRules,_hdIcollectedSetNames,_hdIcollectedSigs,_hdIcollectedUniques,_hdIctxCollect,_hdIdefSets,_hdIderivings,_hdIerrors,_hdImoduleDecl,_hdIparamsCollect,_hdIpragmas,_hdIquantCollect,_hdIsemPragmasCollect,_hdItypeSyns,_hdIuseMap,_hdIwrappers) =
                            hd_ _hdOallAttrDecls _hdOallAttrs _hdOallConstructors _hdOallFields _hdOallNonterminals _hdOattrDecls _hdOattrs _hdOdefSets _hdOdefinedSets _hdOoptions
@@ -5394,185 +5403,185 @@ sem_Elems_Nil =
                        _lhsOattrDecls :: (Map NontermIdent (Attributes, Attributes))
                        _lhsOattrs :: (Map NontermIdent (Attributes, Attributes))
                        _lhsOdefSets :: (Map Identifier (Set NontermIdent,Set Identifier))
-                       -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                       -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                        _lhsOattrOrderCollect =
-                           ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 911 "./src-ag/Transform.ag" #-}
                             Map.empty
-                            {-# LINE 5402 "dist/build/Transform.hs" #-}
+                            {-# LINE 5411 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 46, column 19)
+                       -- use rule "./src-ag/Transform.ag"(line 43, column 19)
                        _lhsOblocks =
-                           ({-# LINE 46 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 43 "./src-ag/Transform.ag" #-}
                             Map.empty
-                            {-# LINE 5408 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                       _lhsOcollectedArounds =
-                           ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5414 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                       _lhsOcollectedAugments =
-                           ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5420 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 133, column 31)
-                       _lhsOcollectedConParams =
-                           ({-# LINE 133 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5426 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 132, column 33)
-                       _lhsOcollectedConstraints =
-                           ({-# LINE 132 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5432 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 100, column 48)
-                       _lhsOcollectedConstructorsMap =
-                           ({-# LINE 100 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5438 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 131, column 28)
-                       _lhsOcollectedFields =
-                           ({-# LINE 131 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5444 "dist/build/Transform.hs" #-}
+                            {-# LINE 5417 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                       _lhsOcollectedInsts =
+                       _lhsOcollectedArounds =
                            ({-# LINE 162 "./src-ag/Transform.ag" #-}
                             []
-                            {-# LINE 5450 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1301, column 28)
-                       _lhsOcollectedMacros =
-                           ({-# LINE 1301 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5456 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                       _lhsOcollectedMerges =
-                           ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5462 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 92, column 50)
-                       _lhsOcollectedNames =
-                           ({-# LINE 92 "./src-ag/Transform.ag" #-}
-                            Set.empty
-                            {-# LINE 5468 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                       _lhsOcollectedRules =
-                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5474 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 91, column 50)
-                       _lhsOcollectedSetNames =
-                           ({-# LINE 91 "./src-ag/Transform.ag" #-}
-                            Set.empty
-                            {-# LINE 5480 "dist/build/Transform.hs" #-}
+                            {-# LINE 5423 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                       _lhsOcollectedSigs =
+                       _lhsOcollectedAugments =
                            ({-# LINE 161 "./src-ag/Transform.ag" #-}
                             []
-                            {-# LINE 5486 "dist/build/Transform.hs" #-}
+                            {-# LINE 5429 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 130, column 31)
+                       _lhsOcollectedConParams =
+                           ({-# LINE 130 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5435 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 129, column 33)
+                       _lhsOcollectedConstraints =
+                           ({-# LINE 129 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5441 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 97, column 48)
+                       _lhsOcollectedConstructorsMap =
+                           ({-# LINE 97 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5447 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 128, column 28)
+                       _lhsOcollectedFields =
+                           ({-# LINE 128 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5453 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                       _lhsOcollectedInsts =
+                           ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5459 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 1310, column 28)
+                       _lhsOcollectedMacros =
+                           ({-# LINE 1310 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5465 "dist/build/Transform.hs" #-}
                             )
                        -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                       _lhsOcollectedUniques =
+                       _lhsOcollectedMerges =
                            ({-# LINE 163 "./src-ag/Transform.ag" #-}
                             []
-                            {-# LINE 5492 "dist/build/Transform.hs" #-}
+                            {-# LINE 5471 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 963, column 34)
-                       _lhsOctxCollect =
-                           ({-# LINE 963 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5498 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1005, column 33)
-                       _lhsOderivings =
-                           ({-# LINE 1005 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5504 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 44, column 19)
-                       _lhsOerrors =
-                           ({-# LINE 44 "./src-ag/Transform.ag" #-}
-                            Seq.empty
-                            {-# LINE 5510 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 1202, column 37)
-                       _lhsOmoduleDecl =
-                           ({-# LINE 1202 "./src-ag/Transform.ag" #-}
-                            mzero
-                            {-# LINE 5516 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 940, column 37)
-                       _lhsOparamsCollect =
-                           ({-# LINE 940 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5522 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 801, column 34)
-                       _lhsOpragmas =
-                           ({-# LINE 801 "./src-ag/Transform.ag" #-}
-                            id
-                            {-# LINE 5528 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 988, column 36)
-                       _lhsOquantCollect =
-                           ({-# LINE 988 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5534 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 880, column 56)
-                       _lhsOsemPragmasCollect =
-                           ({-# LINE 880 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5540 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 640, column 32)
-                       _lhsOtypeSyns =
-                           ({-# LINE 640 "./src-ag/Transform.ag" #-}
-                            []
-                            {-# LINE 5546 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 146, column 15)
-                       _lhsOuseMap =
-                           ({-# LINE 146 "./src-ag/Transform.ag" #-}
-                            Map.empty
-                            {-# LINE 5552 "dist/build/Transform.hs" #-}
-                            )
-                       -- use rule "./src-ag/Transform.ag"(line 785, column 32)
-                       _lhsOwrappers =
-                           ({-# LINE 785 "./src-ag/Transform.ag" #-}
+                       -- use rule "./src-ag/Transform.ag"(line 89, column 50)
+                       _lhsOcollectedNames =
+                           ({-# LINE 89 "./src-ag/Transform.ag" #-}
                             Set.empty
-                            {-# LINE 5558 "dist/build/Transform.hs" #-}
+                            {-# LINE 5477 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                       _lhsOcollectedRules =
+                           ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5483 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 88, column 50)
+                       _lhsOcollectedSetNames =
+                           ({-# LINE 88 "./src-ag/Transform.ag" #-}
+                            Set.empty
+                            {-# LINE 5489 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                       _lhsOcollectedSigs =
+                           ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5495 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                       _lhsOcollectedUniques =
+                           ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5501 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 966, column 34)
+                       _lhsOctxCollect =
+                           ({-# LINE 966 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5507 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 1008, column 33)
+                       _lhsOderivings =
+                           ({-# LINE 1008 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5513 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 41, column 19)
+                       _lhsOerrors =
+                           ({-# LINE 41 "./src-ag/Transform.ag" #-}
+                            Seq.empty
+                            {-# LINE 5519 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 1209, column 37)
+                       _lhsOmoduleDecl =
+                           ({-# LINE 1209 "./src-ag/Transform.ag" #-}
+                            mzero
+                            {-# LINE 5525 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 943, column 37)
+                       _lhsOparamsCollect =
+                           ({-# LINE 943 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5531 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 802, column 34)
+                       _lhsOpragmas =
+                           ({-# LINE 802 "./src-ag/Transform.ag" #-}
+                            id
+                            {-# LINE 5537 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 991, column 36)
+                       _lhsOquantCollect =
+                           ({-# LINE 991 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5543 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 883, column 56)
+                       _lhsOsemPragmasCollect =
+                           ({-# LINE 883 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5549 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 641, column 32)
+                       _lhsOtypeSyns =
+                           ({-# LINE 641 "./src-ag/Transform.ag" #-}
+                            []
+                            {-# LINE 5555 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 143, column 15)
+                       _lhsOuseMap =
+                           ({-# LINE 143 "./src-ag/Transform.ag" #-}
+                            Map.empty
+                            {-# LINE 5561 "dist/build/Transform.hs" #-}
+                            )
+                       -- use rule "./src-ag/Transform.ag"(line 786, column 32)
+                       _lhsOwrappers =
+                           ({-# LINE 786 "./src-ag/Transform.ag" #-}
+                            Set.empty
+                            {-# LINE 5567 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _lhsOattrDecls =
-                           ({-# LINE 145 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 142 "./src-ag/Transform.ag" #-}
                             _lhsIattrDecls
-                            {-# LINE 5564 "dist/build/Transform.hs" #-}
+                            {-# LINE 5573 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _lhsOattrs =
-                           ({-# LINE 1334 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 1343 "./src-ag/Transform.ag" #-}
                             _lhsIattrs
-                            {-# LINE 5570 "dist/build/Transform.hs" #-}
+                            {-# LINE 5579 "dist/build/Transform.hs" #-}
                             )
                        -- copy rule (chain)
                        _lhsOdefSets =
-                           ({-# LINE 110 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 107 "./src-ag/Transform.ag" #-}
                             _lhsIdefSets
-                            {-# LINE 5576 "dist/build/Transform.hs" #-}
+                            {-# LINE 5585 "dist/build/Transform.hs" #-}
                             )
                    in  ( _lhsOattrDecls,_lhsOattrOrderCollect,_lhsOattrs,_lhsOblocks,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedConParams,_lhsOcollectedConstraints,_lhsOcollectedConstructorsMap,_lhsOcollectedFields,_lhsOcollectedInsts,_lhsOcollectedMacros,_lhsOcollectedMerges,_lhsOcollectedNames,_lhsOcollectedRules,_lhsOcollectedSetNames,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOctxCollect,_lhsOdefSets,_lhsOderivings,_lhsOerrors,_lhsOmoduleDecl,_lhsOparamsCollect,_lhsOpragmas,_lhsOquantCollect,_lhsOsemPragmasCollect,_lhsOtypeSyns,_lhsOuseMap,_lhsOwrappers))))
 -- Field -------------------------------------------------------
@@ -5615,17 +5624,17 @@ sem_Field_FChild name_ tp_ =
     (T_Field (\ _lhsIallNonterminals ->
                   (let _lhsOcollectedFields :: ([(Identifier, Type)])
                        _lhsOcollectedConstraints :: ([Type])
-                       -- "./src-ag/Transform.ag"(line 578, column 3)
+                       -- "./src-ag/Transform.ag"(line 579, column 3)
                        _lhsOcollectedFields =
-                           ({-# LINE 578 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 579 "./src-ag/Transform.ag" #-}
                             [(name_, makeType _lhsIallNonterminals tp_)]
-                            {-# LINE 5623 "dist/build/Transform.hs" #-}
+                            {-# LINE 5632 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 584, column 46)
+                       -- use rule "./src-ag/Transform.ag"(line 585, column 46)
                        _lhsOcollectedConstraints =
-                           ({-# LINE 584 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 585 "./src-ag/Transform.ag" #-}
                             []
-                            {-# LINE 5629 "dist/build/Transform.hs" #-}
+                            {-# LINE 5638 "dist/build/Transform.hs" #-}
                             )
                    in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
 sem_Field_FCtx :: ([Type]) ->
@@ -5634,17 +5643,17 @@ sem_Field_FCtx tps_ =
     (T_Field (\ _lhsIallNonterminals ->
                   (let _lhsOcollectedConstraints :: ([Type])
                        _lhsOcollectedFields :: ([(Identifier, Type)])
-                       -- "./src-ag/Transform.ag"(line 587, column 3)
+                       -- "./src-ag/Transform.ag"(line 588, column 3)
                        _lhsOcollectedConstraints =
-                           ({-# LINE 587 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 588 "./src-ag/Transform.ag" #-}
                             tps_
-                            {-# LINE 5642 "dist/build/Transform.hs" #-}
+                            {-# LINE 5651 "dist/build/Transform.hs" #-}
                             )
-                       -- use rule "./src-ag/Transform.ag"(line 575, column 41)
+                       -- use rule "./src-ag/Transform.ag"(line 576, column 41)
                        _lhsOcollectedFields =
-                           ({-# LINE 575 "./src-ag/Transform.ag" #-}
+                           ({-# LINE 576 "./src-ag/Transform.ag" #-}
                             []
-                            {-# LINE 5648 "dist/build/Transform.hs" #-}
+                            {-# LINE 5657 "dist/build/Transform.hs" #-}
                             )
                    in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
 -- Fields ------------------------------------------------------
@@ -5690,29 +5699,29 @@ sem_Fields_Cons (T_Field hd_) (T_Fields tl_) =
                         _hdIcollectedFields :: ([(Identifier, Type)])
                         _tlIcollectedConstraints :: ([Type])
                         _tlIcollectedFields :: ([(Identifier, Type)])
-                        -- use rule "./src-ag/Transform.ag"(line 584, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 585, column 46)
                         _lhsOcollectedConstraints =
-                            ({-# LINE 584 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 585 "./src-ag/Transform.ag" #-}
                              _hdIcollectedConstraints ++ _tlIcollectedConstraints
-                             {-# LINE 5698 "dist/build/Transform.hs" #-}
+                             {-# LINE 5707 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 575, column 41)
+                        -- use rule "./src-ag/Transform.ag"(line 576, column 41)
                         _lhsOcollectedFields =
-                            ({-# LINE 575 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 576 "./src-ag/Transform.ag" #-}
                              _hdIcollectedFields ++ _tlIcollectedFields
-                             {-# LINE 5704 "dist/build/Transform.hs" #-}
+                             {-# LINE 5713 "dist/build/Transform.hs" #-}
                              )
                         -- copy rule (down)
                         _hdOallNonterminals =
-                            ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 91 "./src-ag/Transform.ag" #-}
                              _lhsIallNonterminals
-                             {-# LINE 5710 "dist/build/Transform.hs" #-}
+                             {-# LINE 5719 "dist/build/Transform.hs" #-}
                              )
                         -- copy rule (down)
                         _tlOallNonterminals =
-                            ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 91 "./src-ag/Transform.ag" #-}
                              _lhsIallNonterminals
-                             {-# LINE 5716 "dist/build/Transform.hs" #-}
+                             {-# LINE 5725 "dist/build/Transform.hs" #-}
                              )
                         ( _hdIcollectedConstraints,_hdIcollectedFields) =
                             hd_ _hdOallNonterminals
@@ -5724,17 +5733,17 @@ sem_Fields_Nil =
     (T_Fields (\ _lhsIallNonterminals ->
                    (let _lhsOcollectedConstraints :: ([Type])
                         _lhsOcollectedFields :: ([(Identifier, Type)])
-                        -- use rule "./src-ag/Transform.ag"(line 584, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 585, column 46)
                         _lhsOcollectedConstraints =
-                            ({-# LINE 584 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 585 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 5732 "dist/build/Transform.hs" #-}
+                             {-# LINE 5741 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 575, column 41)
+                        -- use rule "./src-ag/Transform.ag"(line 576, column 41)
                         _lhsOcollectedFields =
-                            ({-# LINE 575 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 576 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 5738 "dist/build/Transform.hs" #-}
+                             {-# LINE 5747 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOcollectedConstraints,_lhsOcollectedFields))))
 -- NontSet -----------------------------------------------------
@@ -5805,31 +5814,31 @@ sem_NontSet_NamedSet name_ =
                     (let _lhsOcollectedNames :: (Set Identifier)
                          _lhsOerrors :: (Seq Error)
                          _lhsOnontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 602, column 14)
+                         -- "./src-ag/Transform.ag"(line 603, column 14)
                          _lhsOcollectedNames =
-                             ({-# LINE 602 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 603 "./src-ag/Transform.ag" #-}
                               Set.singleton name_
-                              {-# LINE 5813 "dist/build/Transform.hs" #-}
+                              {-# LINE 5822 "dist/build/Transform.hs" #-}
                               )
-                         -- "./src-ag/Transform.ag"(line 732, column 20)
+                         -- "./src-ag/Transform.ag"(line 733, column 20)
                          (_nontSet,_errors) =
-                             ({-# LINE 732 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 733 "./src-ag/Transform.ag" #-}
                               case Map.lookup name_ _lhsIdefinedSets of
                                            Nothing  -> (Set.empty, Seq.singleton (UndefNont name_))
                                            Just set -> (set, Seq.empty)
-                              {-# LINE 5821 "dist/build/Transform.hs" #-}
+                              {-# LINE 5830 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _errors
-                              {-# LINE 5827 "dist/build/Transform.hs" #-}
+                              {-# LINE 5836 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (from local)
                          _lhsOnontSet =
-                             ({-# LINE 118 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 115 "./src-ag/Transform.ag" #-}
                               _nontSet
-                              {-# LINE 5833 "dist/build/Transform.hs" #-}
+                              {-# LINE 5842 "dist/build/Transform.hs" #-}
                               )
                      in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
 sem_NontSet_All :: T_NontSet
@@ -5840,23 +5849,23 @@ sem_NontSet_All =
                     (let _lhsOnontSet :: (Set NontermIdent)
                          _lhsOcollectedNames :: (Set Identifier)
                          _lhsOerrors :: (Seq Error)
-                         -- "./src-ag/Transform.ag"(line 731, column 16)
+                         -- "./src-ag/Transform.ag"(line 732, column 16)
                          _lhsOnontSet =
-                             ({-# LINE 731 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 732 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 5848 "dist/build/Transform.hs" #-}
+                              {-# LINE 5857 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 92, column 50)
+                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
                          _lhsOcollectedNames =
-                             ({-# LINE 92 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
                               Set.empty
-                              {-# LINE 5854 "dist/build/Transform.hs" #-}
+                              {-# LINE 5863 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               Seq.empty
-                              {-# LINE 5860 "dist/build/Transform.hs" #-}
+                              {-# LINE 5869 "dist/build/Transform.hs" #-}
                               )
                      in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
 sem_NontSet_Union :: T_NontSet ->
@@ -5881,59 +5890,59 @@ sem_NontSet_Union (T_NontSet set1_) (T_NontSet set2_) =
                          _set2IcollectedNames :: (Set Identifier)
                          _set2Ierrors :: (Seq Error)
                          _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 735, column 16)
+                         -- "./src-ag/Transform.ag"(line 736, column 16)
                          _lhsOnontSet =
-                             ({-# LINE 735 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 736 "./src-ag/Transform.ag" #-}
                               Set.union         _set1InontSet _set2InontSet
-                              {-# LINE 5889 "dist/build/Transform.hs" #-}
+                              {-# LINE 5898 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 92, column 50)
+                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
                          _lhsOcollectedNames =
-                             ({-# LINE 92 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
                               _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 5895 "dist/build/Transform.hs" #-}
+                              {-# LINE 5904 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 5901 "dist/build/Transform.hs" #-}
+                              {-# LINE 5910 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 5907 "dist/build/Transform.hs" #-}
+                              {-# LINE 5916 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 5913 "dist/build/Transform.hs" #-}
+                              {-# LINE 5922 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 5919 "dist/build/Transform.hs" #-}
+                              {-# LINE 5928 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 5925 "dist/build/Transform.hs" #-}
+                              {-# LINE 5934 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 5931 "dist/build/Transform.hs" #-}
+                              {-# LINE 5940 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 5937 "dist/build/Transform.hs" #-}
+                              {-# LINE 5946 "dist/build/Transform.hs" #-}
                               )
                          ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
                              set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
@@ -5962,59 +5971,59 @@ sem_NontSet_Intersect (T_NontSet set1_) (T_NontSet set2_) =
                          _set2IcollectedNames :: (Set Identifier)
                          _set2Ierrors :: (Seq Error)
                          _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 736, column 16)
+                         -- "./src-ag/Transform.ag"(line 737, column 16)
                          _lhsOnontSet =
-                             ({-# LINE 736 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 737 "./src-ag/Transform.ag" #-}
                               Set.intersection  _set1InontSet _set2InontSet
-                              {-# LINE 5970 "dist/build/Transform.hs" #-}
+                              {-# LINE 5979 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 92, column 50)
+                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
                          _lhsOcollectedNames =
-                             ({-# LINE 92 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
                               _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 5976 "dist/build/Transform.hs" #-}
+                              {-# LINE 5985 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 5982 "dist/build/Transform.hs" #-}
+                              {-# LINE 5991 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 5988 "dist/build/Transform.hs" #-}
+                              {-# LINE 5997 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 5994 "dist/build/Transform.hs" #-}
+                              {-# LINE 6003 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 6000 "dist/build/Transform.hs" #-}
+                              {-# LINE 6009 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 6006 "dist/build/Transform.hs" #-}
+                              {-# LINE 6015 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 6012 "dist/build/Transform.hs" #-}
+                              {-# LINE 6021 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 6018 "dist/build/Transform.hs" #-}
+                              {-# LINE 6027 "dist/build/Transform.hs" #-}
                               )
                          ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
                              set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
@@ -6043,59 +6052,59 @@ sem_NontSet_Difference (T_NontSet set1_) (T_NontSet set2_) =
                          _set2IcollectedNames :: (Set Identifier)
                          _set2Ierrors :: (Seq Error)
                          _set2InontSet :: (Set NontermIdent)
-                         -- "./src-ag/Transform.ag"(line 737, column 16)
+                         -- "./src-ag/Transform.ag"(line 738, column 16)
                          _lhsOnontSet =
-                             ({-# LINE 737 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 738 "./src-ag/Transform.ag" #-}
                               Set.difference    _set1InontSet _set2InontSet
-                              {-# LINE 6051 "dist/build/Transform.hs" #-}
+                              {-# LINE 6060 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 92, column 50)
+                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
                          _lhsOcollectedNames =
-                             ({-# LINE 92 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
                               _set1IcollectedNames `Set.union` _set2IcollectedNames
-                              {-# LINE 6057 "dist/build/Transform.hs" #-}
+                              {-# LINE 6066 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _set1Ierrors Seq.>< _set2Ierrors
-                              {-# LINE 6063 "dist/build/Transform.hs" #-}
+                              {-# LINE 6072 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 6069 "dist/build/Transform.hs" #-}
+                              {-# LINE 6078 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 6075 "dist/build/Transform.hs" #-}
+                              {-# LINE 6084 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set1OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 6081 "dist/build/Transform.hs" #-}
+                              {-# LINE 6090 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 6087 "dist/build/Transform.hs" #-}
+                              {-# LINE 6096 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OallNonterminals =
-                             ({-# LINE 94 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 91 "./src-ag/Transform.ag" #-}
                               _lhsIallNonterminals
-                              {-# LINE 6093 "dist/build/Transform.hs" #-}
+                              {-# LINE 6102 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _set2OdefinedSets =
-                             ({-# LINE 113 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 110 "./src-ag/Transform.ag" #-}
                               _lhsIdefinedSets
-                              {-# LINE 6099 "dist/build/Transform.hs" #-}
+                              {-# LINE 6108 "dist/build/Transform.hs" #-}
                               )
                          ( _set1IcollectedNames,_set1Ierrors,_set1InontSet) =
                              set1_ _set1OallFields _set1OallNonterminals _set1OdefinedSets
@@ -6112,27 +6121,27 @@ sem_NontSet_Path from_ to_ =
                     (let _lhsOnontSet :: (Set NontermIdent)
                          _lhsOerrors :: (Seq Error)
                          _lhsOcollectedNames :: (Set Identifier)
-                         -- "./src-ag/Transform.ag"(line 738, column 16)
+                         -- "./src-ag/Transform.ag"(line 739, column 16)
                          _lhsOnontSet =
-                             ({-# LINE 738 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 739 "./src-ag/Transform.ag" #-}
                               let table = flattenDatas _lhsIallFields
                               in path table from_ to_
-                              {-# LINE 6121 "dist/build/Transform.hs" #-}
+                              {-# LINE 6130 "dist/build/Transform.hs" #-}
                               )
-                         -- "./src-ag/Transform.ag"(line 740, column 16)
+                         -- "./src-ag/Transform.ag"(line 741, column 16)
                          _lhsOerrors =
-                             ({-# LINE 740 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 741 "./src-ag/Transform.ag" #-}
                               let check name | Set.member name _lhsIallNonterminals
                                                          = Seq.empty
                                              | otherwise = Seq.singleton (UndefNont name)
                               in check from_ >< check to_
-                              {-# LINE 6130 "dist/build/Transform.hs" #-}
+                              {-# LINE 6139 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 92, column 50)
+                         -- use rule "./src-ag/Transform.ag"(line 89, column 50)
                          _lhsOcollectedNames =
-                             ({-# LINE 92 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 89 "./src-ag/Transform.ag" #-}
                               Set.empty
-                              {-# LINE 6136 "dist/build/Transform.hs" #-}
+                              {-# LINE 6145 "dist/build/Transform.hs" #-}
                               )
                      in  ( _lhsOcollectedNames,_lhsOerrors,_lhsOnontSet))))
 -- Pattern -----------------------------------------------------
@@ -6206,41 +6215,41 @@ sem_Pattern_Constr name_ (T_Patterns pats_) =
                     _patsIdefinedAttrs :: ([AttrName])
                     _patsIdefinedInsts :: ([Identifier])
                     _patsIpatunder :: ([AttrName]->Patterns)
-                    -- "./src-ag/Transform.ag"(line 1182, column 12)
+                    -- "./src-ag/Transform.ag"(line 1189, column 12)
                     _lhsOpatunder =
-                        ({-# LINE 1182 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1189 "./src-ag/Transform.ag" #-}
                          \us -> Constr name_ (_patsIpatunder us)
-                         {-# LINE 6214 "dist/build/Transform.hs" #-}
+                         {-# LINE 6223 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1193, column 16)
+                    -- "./src-ag/Transform.ag"(line 1200, column 16)
                     _lhsOstpos =
-                        ({-# LINE 1193 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1200 "./src-ag/Transform.ag" #-}
                          getPos name_
-                         {-# LINE 6220 "dist/build/Transform.hs" #-}
+                         {-# LINE 6229 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                     _lhsOdefinedAttrs =
-                        ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                          _patsIdefinedAttrs
-                         {-# LINE 6226 "dist/build/Transform.hs" #-}
+                         {-# LINE 6235 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                     _lhsOdefinedInsts =
-                        ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                          _patsIdefinedInsts
-                         {-# LINE 6232 "dist/build/Transform.hs" #-}
+                         {-# LINE 6241 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          Constr name_ _patsIcopy
-                         {-# LINE 6238 "dist/build/Transform.hs" #-}
+                         {-# LINE 6247 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6244 "dist/build/Transform.hs" #-}
+                         {-# LINE 6253 "dist/build/Transform.hs" #-}
                          )
                     ( _patsIcopy,_patsIdefinedAttrs,_patsIdefinedInsts,_patsIpatunder) =
                         pats_
@@ -6258,41 +6267,41 @@ sem_Pattern_Product pos_ (T_Patterns pats_) =
                     _patsIdefinedAttrs :: ([AttrName])
                     _patsIdefinedInsts :: ([Identifier])
                     _patsIpatunder :: ([AttrName]->Patterns)
-                    -- "./src-ag/Transform.ag"(line 1183, column 13)
+                    -- "./src-ag/Transform.ag"(line 1190, column 13)
                     _lhsOpatunder =
-                        ({-# LINE 1183 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1190 "./src-ag/Transform.ag" #-}
                          \us -> Product pos_ (_patsIpatunder us)
-                         {-# LINE 6266 "dist/build/Transform.hs" #-}
+                         {-# LINE 6275 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1194, column 16)
+                    -- "./src-ag/Transform.ag"(line 1201, column 16)
                     _lhsOstpos =
-                        ({-# LINE 1194 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1201 "./src-ag/Transform.ag" #-}
                          pos_
-                         {-# LINE 6272 "dist/build/Transform.hs" #-}
+                         {-# LINE 6281 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                     _lhsOdefinedAttrs =
-                        ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                          _patsIdefinedAttrs
-                         {-# LINE 6278 "dist/build/Transform.hs" #-}
+                         {-# LINE 6287 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                     _lhsOdefinedInsts =
-                        ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                          _patsIdefinedInsts
-                         {-# LINE 6284 "dist/build/Transform.hs" #-}
+                         {-# LINE 6293 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          Product pos_ _patsIcopy
-                         {-# LINE 6290 "dist/build/Transform.hs" #-}
+                         {-# LINE 6299 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6296 "dist/build/Transform.hs" #-}
+                         {-# LINE 6305 "dist/build/Transform.hs" #-}
                          )
                     ( _patsIcopy,_patsIdefinedAttrs,_patsIdefinedInsts,_patsIpatunder) =
                         pats_
@@ -6312,41 +6321,41 @@ sem_Pattern_Alias field_ attr_ (T_Pattern pat_) =
                     _patIdefinedInsts :: ([Identifier])
                     _patIpatunder :: ([AttrName]->Pattern)
                     _patIstpos :: Pos
-                    -- "./src-ag/Transform.ag"(line 1178, column 11)
+                    -- "./src-ag/Transform.ag"(line 1185, column 11)
                     _lhsOdefinedAttrs =
-                        ({-# LINE 1178 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1185 "./src-ag/Transform.ag" #-}
                          (field_, attr_) : _patIdefinedAttrs
-                         {-# LINE 6320 "dist/build/Transform.hs" #-}
+                         {-# LINE 6329 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1179, column 11)
+                    -- "./src-ag/Transform.ag"(line 1186, column 11)
                     _lhsOpatunder =
-                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1186 "./src-ag/Transform.ag" #-}
                          \us -> if ((field_,attr_) `elem` us) then Underscore noPos else _copy
-                         {-# LINE 6326 "dist/build/Transform.hs" #-}
+                         {-# LINE 6335 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1180, column 11)
+                    -- "./src-ag/Transform.ag"(line 1187, column 11)
                     _lhsOdefinedInsts =
-                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1187 "./src-ag/Transform.ag" #-}
                          (if field_ == _INST then [attr_] else []) ++ _patIdefinedInsts
-                         {-# LINE 6332 "dist/build/Transform.hs" #-}
+                         {-# LINE 6341 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1195, column 16)
+                    -- "./src-ag/Transform.ag"(line 1202, column 16)
                     _lhsOstpos =
-                        ({-# LINE 1195 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1202 "./src-ag/Transform.ag" #-}
                          getPos field_
-                         {-# LINE 6338 "dist/build/Transform.hs" #-}
+                         {-# LINE 6347 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          Alias field_ attr_ _patIcopy
-                         {-# LINE 6344 "dist/build/Transform.hs" #-}
+                         {-# LINE 6353 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6350 "dist/build/Transform.hs" #-}
+                         {-# LINE 6359 "dist/build/Transform.hs" #-}
                          )
                     ( _patIcopy,_patIdefinedAttrs,_patIdefinedInsts,_patIpatunder,_patIstpos) =
                         pat_
@@ -6364,41 +6373,41 @@ sem_Pattern_Irrefutable (T_Pattern pat_) =
                     _patIdefinedInsts :: ([Identifier])
                     _patIpatunder :: ([AttrName]->Pattern)
                     _patIstpos :: Pos
-                    -- "./src-ag/Transform.ag"(line 1184, column 17)
+                    -- "./src-ag/Transform.ag"(line 1191, column 17)
                     _lhsOpatunder =
-                        ({-# LINE 1184 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1191 "./src-ag/Transform.ag" #-}
                          \us -> Irrefutable (_patIpatunder us)
-                         {-# LINE 6372 "dist/build/Transform.hs" #-}
+                         {-# LINE 6381 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                     _lhsOdefinedAttrs =
-                        ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                          _patIdefinedAttrs
-                         {-# LINE 6378 "dist/build/Transform.hs" #-}
+                         {-# LINE 6387 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                     _lhsOdefinedInsts =
-                        ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                          _patIdefinedInsts
-                         {-# LINE 6384 "dist/build/Transform.hs" #-}
+                         {-# LINE 6393 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          Irrefutable _patIcopy
-                         {-# LINE 6390 "dist/build/Transform.hs" #-}
+                         {-# LINE 6399 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6396 "dist/build/Transform.hs" #-}
+                         {-# LINE 6405 "dist/build/Transform.hs" #-}
                          )
                     -- copy rule (up)
                     _lhsOstpos =
-                        ({-# LINE 1190 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1197 "./src-ag/Transform.ag" #-}
                          _patIstpos
-                         {-# LINE 6402 "dist/build/Transform.hs" #-}
+                         {-# LINE 6411 "dist/build/Transform.hs" #-}
                          )
                     ( _patIcopy,_patIdefinedAttrs,_patIdefinedInsts,_patIpatunder,_patIstpos) =
                         pat_
@@ -6411,41 +6420,41 @@ sem_Pattern_Underscore pos_ =
                     _lhsOdefinedAttrs :: ([AttrName])
                     _lhsOdefinedInsts :: ([Identifier])
                     _lhsOcopy :: Pattern
-                    -- "./src-ag/Transform.ag"(line 1181, column 16)
+                    -- "./src-ag/Transform.ag"(line 1188, column 16)
                     _lhsOpatunder =
-                        ({-# LINE 1181 "./src-ag/Transform.ag" #-}
-                         \us -> _copy
-                         {-# LINE 6419 "dist/build/Transform.hs" #-}
+                        ({-# LINE 1188 "./src-ag/Transform.ag" #-}
+                         \_ -> _copy
+                         {-# LINE 6428 "dist/build/Transform.hs" #-}
                          )
-                    -- "./src-ag/Transform.ag"(line 1196, column 16)
+                    -- "./src-ag/Transform.ag"(line 1203, column 16)
                     _lhsOstpos =
-                        ({-# LINE 1196 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1203 "./src-ag/Transform.ag" #-}
                          pos_
-                         {-# LINE 6425 "dist/build/Transform.hs" #-}
+                         {-# LINE 6434 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                    -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                     _lhsOdefinedAttrs =
-                        ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                          []
-                         {-# LINE 6431 "dist/build/Transform.hs" #-}
+                         {-# LINE 6440 "dist/build/Transform.hs" #-}
                          )
-                    -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                    -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                     _lhsOdefinedInsts =
-                        ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                        ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                          []
-                         {-# LINE 6437 "dist/build/Transform.hs" #-}
+                         {-# LINE 6446 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _copy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          Underscore pos_
-                         {-# LINE 6443 "dist/build/Transform.hs" #-}
+                         {-# LINE 6452 "dist/build/Transform.hs" #-}
                          )
                     -- self rule
                     _lhsOcopy =
                         ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                          _copy
-                         {-# LINE 6449 "dist/build/Transform.hs" #-}
+                         {-# LINE 6458 "dist/build/Transform.hs" #-}
                          )
                 in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder,_lhsOstpos)))
 -- Patterns ----------------------------------------------------
@@ -6498,35 +6507,35 @@ sem_Patterns_Cons (T_Pattern hd_) (T_Patterns tl_) =
                      _tlIdefinedAttrs :: ([AttrName])
                      _tlIdefinedInsts :: ([Identifier])
                      _tlIpatunder :: ([AttrName]->Patterns)
-                     -- "./src-ag/Transform.ag"(line 1188, column 10)
+                     -- "./src-ag/Transform.ag"(line 1195, column 10)
                      _lhsOpatunder =
-                         ({-# LINE 1188 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 1195 "./src-ag/Transform.ag" #-}
                           \us -> (_hdIpatunder us) : (_tlIpatunder us)
-                          {-# LINE 6506 "dist/build/Transform.hs" #-}
+                          {-# LINE 6515 "dist/build/Transform.hs" #-}
                           )
-                     -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                     -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                      _lhsOdefinedAttrs =
-                         ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                           _hdIdefinedAttrs ++ _tlIdefinedAttrs
-                          {-# LINE 6512 "dist/build/Transform.hs" #-}
+                          {-# LINE 6521 "dist/build/Transform.hs" #-}
                           )
-                     -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                     -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                      _lhsOdefinedInsts =
-                         ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                           _hdIdefinedInsts ++ _tlIdefinedInsts
-                          {-# LINE 6518 "dist/build/Transform.hs" #-}
+                          {-# LINE 6527 "dist/build/Transform.hs" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                           (:) _hdIcopy _tlIcopy
-                          {-# LINE 6524 "dist/build/Transform.hs" #-}
+                          {-# LINE 6533 "dist/build/Transform.hs" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 6530 "dist/build/Transform.hs" #-}
+                          {-# LINE 6539 "dist/build/Transform.hs" #-}
                           )
                      ( _hdIcopy,_hdIdefinedAttrs,_hdIdefinedInsts,_hdIpatunder,_hdIstpos) =
                          hd_
@@ -6539,35 +6548,35 @@ sem_Patterns_Nil =
                      _lhsOdefinedAttrs :: ([AttrName])
                      _lhsOdefinedInsts :: ([Identifier])
                      _lhsOcopy :: Patterns
-                     -- "./src-ag/Transform.ag"(line 1187, column 9)
+                     -- "./src-ag/Transform.ag"(line 1194, column 9)
                      _lhsOpatunder =
-                         ({-# LINE 1187 "./src-ag/Transform.ag" #-}
-                          \us ->  []
-                          {-# LINE 6547 "dist/build/Transform.hs" #-}
+                         ({-# LINE 1194 "./src-ag/Transform.ag" #-}
+                          \_ ->  []
+                          {-# LINE 6556 "dist/build/Transform.hs" #-}
                           )
-                     -- use rule "./src-ag/Transform.ag"(line 1173, column 42)
+                     -- use rule "./src-ag/Transform.ag"(line 1180, column 42)
                      _lhsOdefinedAttrs =
-                         ({-# LINE 1173 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 1180 "./src-ag/Transform.ag" #-}
                           []
-                          {-# LINE 6553 "dist/build/Transform.hs" #-}
+                          {-# LINE 6562 "dist/build/Transform.hs" #-}
                           )
-                     -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                     -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                      _lhsOdefinedInsts =
-                         ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                         ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                           []
-                          {-# LINE 6559 "dist/build/Transform.hs" #-}
+                          {-# LINE 6568 "dist/build/Transform.hs" #-}
                           )
                      -- self rule
                      _copy =
                          ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                           []
-                          {-# LINE 6565 "dist/build/Transform.hs" #-}
+                          {-# LINE 6574 "dist/build/Transform.hs" #-}
                           )
                      -- self rule
                      _lhsOcopy =
                          ({-# LINE 22 "./src-ag/Patterns.ag" #-}
                           _copy
-                          {-# LINE 6571 "dist/build/Transform.hs" #-}
+                          {-# LINE 6580 "dist/build/Transform.hs" #-}
                           )
                  in  ( _lhsOcopy,_lhsOdefinedAttrs,_lhsOdefinedInsts,_lhsOpatunder)))
 -- SemAlt ------------------------------------------------------
@@ -6654,128 +6663,128 @@ sem_SemAlt_SemAlt pos_ (T_ConstructorSet constructorSet_) (T_SemDefs rules_) =
                         _rulesIruleInfos :: ([RuleInfo])
                         _rulesIsigInfos :: ([SigInfo])
                         _rulesIuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 884, column 7)
+                        -- "./src-ag/Transform.ag"(line 887, column 7)
                         _pragmaNames =
-                            ({-# LINE 884 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 887 "./src-ag/Transform.ag" #-}
                              Set.fromList _rulesIpragmaNamesCollect
-                             {-# LINE 6662 "dist/build/Transform.hs" #-}
+                             {-# LINE 6671 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 885, column 7)
+                        -- "./src-ag/Transform.ag"(line 888, column 7)
                         _lhsOsemPragmasCollect =
-                            ({-# LINE 885 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 888 "./src-ag/Transform.ag" #-}
                              foldr pragmaMapUnion Map.empty [ pragmaMapSingle nt con _pragmaNames
                                                             | (nt, conset, _) <- _coninfo
                                                             , con <- Set.toList conset
                                                             ]
-                             {-# LINE 6671 "dist/build/Transform.hs" #-}
+                             {-# LINE 6680 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 913, column 7)
+                        -- "./src-ag/Transform.ag"(line 916, column 7)
                         _attrOrders =
-                            ({-# LINE 913 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 916 "./src-ag/Transform.ag" #-}
                              [ orderMapSingle nt con _rulesIorderDepsCollect
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              ]
-                             {-# LINE 6680 "dist/build/Transform.hs" #-}
+                             {-# LINE 6689 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 919, column 7)
+                        -- "./src-ag/Transform.ag"(line 922, column 7)
                         _lhsOattrOrderCollect =
-                            ({-# LINE 919 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 922 "./src-ag/Transform.ag" #-}
                              foldr orderMapUnion Map.empty _attrOrders
-                             {-# LINE 6686 "dist/build/Transform.hs" #-}
+                             {-# LINE 6695 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1097, column 12)
+                        -- "./src-ag/Transform.ag"(line 1104, column 12)
                         _coninfo =
-                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1104 "./src-ag/Transform.ag" #-}
                              [ (nt, conset, conkeys)
                              | nt  <- Set.toList _lhsInts
                              , let conmap = Map.findWithDefault Map.empty nt _lhsIallFields
                              , let conkeys = Set.fromList (Map.keys conmap)
                              , let conset  = _constructorSetIconstructors conkeys
                              ]
-                             {-# LINE 6697 "dist/build/Transform.hs" #-}
+                             {-# LINE 6706 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1104, column 12)
+                        -- "./src-ag/Transform.ag"(line 1111, column 12)
                         _lhsOerrors =
-                            ({-# LINE 1104 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1111 "./src-ag/Transform.ag" #-}
                              Seq.fromList
                                 [ UndefAlt nt con
                                 | (nt, conset, conkeys) <- _coninfo
                                 , con <- Set.toList (Set.difference conset conkeys)
                                 ]
                              Seq.>< _rulesIerrors
-                             {-# LINE 6708 "dist/build/Transform.hs" #-}
+                             {-# LINE 6717 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1110, column 12)
+                        -- "./src-ag/Transform.ag"(line 1117, column 12)
                         _lhsOcollectedRules =
-                            ({-# LINE 1110 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1117 "./src-ag/Transform.ag" #-}
                              [ (nt,con,r)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              , r <- _rulesIruleInfos
                              ]
-                             {-# LINE 6718 "dist/build/Transform.hs" #-}
+                             {-# LINE 6727 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1116, column 12)
+                        -- "./src-ag/Transform.ag"(line 1123, column 12)
                         _lhsOcollectedSigs =
-                            ({-# LINE 1116 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1123 "./src-ag/Transform.ag" #-}
                              [ (nt,con,ts)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              , ts <- _rulesIsigInfos
                              ]
-                             {-# LINE 6728 "dist/build/Transform.hs" #-}
-                             )
-                        -- "./src-ag/Transform.ag"(line 1123, column 12)
-                        _lhsOcollectedInsts =
-                            ({-# LINE 1123 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,_rulesIdefinedInsts)
-                             | (nt, conset, _) <- _coninfo
-                             , con <- Set.toList conset
-                             ]
                              {-# LINE 6737 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1129, column 12)
-                        _lhsOcollectedUniques =
-                            ({-# LINE 1129 "./src-ag/Transform.ag" #-}
-                             [ (nt,con,_rulesIuniqueInfos)
+                        -- "./src-ag/Transform.ag"(line 1130, column 12)
+                        _lhsOcollectedInsts =
+                            ({-# LINE 1130 "./src-ag/Transform.ag" #-}
+                             [ (nt,con,_rulesIdefinedInsts)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              ]
                              {-# LINE 6746 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1135, column 12)
-                        _lhsOcollectedAugments =
-                            ({-# LINE 1135 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesIaugmentInfos)
+                        -- "./src-ag/Transform.ag"(line 1136, column 12)
+                        _lhsOcollectedUniques =
+                            ({-# LINE 1136 "./src-ag/Transform.ag" #-}
+                             [ (nt,con,_rulesIuniqueInfos)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              ]
                              {-# LINE 6755 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1141, column 12)
-                        _lhsOcollectedArounds =
-                            ({-# LINE 1141 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesIaroundInfos)
+                        -- "./src-ag/Transform.ag"(line 1142, column 12)
+                        _lhsOcollectedAugments =
+                            ({-# LINE 1142 "./src-ag/Transform.ag" #-}
+                             [ (nt, con, _rulesIaugmentInfos)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              ]
                              {-# LINE 6764 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1147, column 12)
-                        _lhsOcollectedMerges =
-                            ({-# LINE 1147 "./src-ag/Transform.ag" #-}
-                             [ (nt, con, _rulesImergeInfos)
+                        -- "./src-ag/Transform.ag"(line 1148, column 12)
+                        _lhsOcollectedArounds =
+                            ({-# LINE 1148 "./src-ag/Transform.ag" #-}
+                             [ (nt, con, _rulesIaroundInfos)
                              | (nt, conset, _) <- _coninfo
                              , con <- Set.toList conset
                              ]
                              {-# LINE 6773 "dist/build/Transform.hs" #-}
                              )
+                        -- "./src-ag/Transform.ag"(line 1154, column 12)
+                        _lhsOcollectedMerges =
+                            ({-# LINE 1154 "./src-ag/Transform.ag" #-}
+                             [ (nt, con, _rulesImergeInfos)
+                             | (nt, conset, _) <- _coninfo
+                             , con <- Set.toList conset
+                             ]
+                             {-# LINE 6782 "dist/build/Transform.hs" #-}
+                             )
                         -- copy rule (down)
                         _rulesOoptions =
-                            ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 37 "./src-ag/Transform.ag" #-}
                              _lhsIoptions
-                             {-# LINE 6779 "dist/build/Transform.hs" #-}
+                             {-# LINE 6788 "dist/build/Transform.hs" #-}
                              )
                         ( _constructorSetIcollectedConstructorNames,_constructorSetIconstructors,_constructorSetIerrors) =
                             constructorSet_
@@ -6877,125 +6886,125 @@ sem_SemAlts_Cons (T_SemAlt hd_) (T_SemAlts tl_) =
                          _tlIcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
                          _tlIerrors :: (Seq Error)
                          _tlIsemPragmasCollect :: PragmaMap
-                         -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                         -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                          _lhsOattrOrderCollect =
-                             ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 911 "./src-ag/Transform.ag" #-}
                               _hdIattrOrderCollect `orderMapUnion` _tlIattrOrderCollect
-                              {-# LINE 6885 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                         _lhsOcollectedArounds =
-                             ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedArounds ++ _tlIcollectedArounds
-                              {-# LINE 6891 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                         _lhsOcollectedAugments =
-                             ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedAugments ++ _tlIcollectedAugments
-                              {-# LINE 6897 "dist/build/Transform.hs" #-}
+                              {-# LINE 6894 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                         _lhsOcollectedInsts =
+                         _lhsOcollectedArounds =
                              ({-# LINE 162 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedInsts ++ _tlIcollectedInsts
-                              {-# LINE 6903 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                         _lhsOcollectedMerges =
-                             ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedMerges ++ _tlIcollectedMerges
-                              {-# LINE 6909 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                         _lhsOcollectedRules =
-                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedRules ++ _tlIcollectedRules
-                              {-# LINE 6915 "dist/build/Transform.hs" #-}
+                              _hdIcollectedArounds ++ _tlIcollectedArounds
+                              {-# LINE 6900 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                         _lhsOcollectedSigs =
+                         _lhsOcollectedAugments =
                              ({-# LINE 161 "./src-ag/Transform.ag" #-}
-                              _hdIcollectedSigs ++ _tlIcollectedSigs
-                              {-# LINE 6921 "dist/build/Transform.hs" #-}
+                              _hdIcollectedAugments ++ _tlIcollectedAugments
+                              {-# LINE 6906 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                         _lhsOcollectedInsts =
+                             ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                              _hdIcollectedInsts ++ _tlIcollectedInsts
+                              {-# LINE 6912 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                         _lhsOcollectedUniques =
+                         _lhsOcollectedMerges =
                              ({-# LINE 163 "./src-ag/Transform.ag" #-}
+                              _hdIcollectedMerges ++ _tlIcollectedMerges
+                              {-# LINE 6918 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                         _lhsOcollectedRules =
+                             ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                              _hdIcollectedRules ++ _tlIcollectedRules
+                              {-# LINE 6924 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                         _lhsOcollectedSigs =
+                             ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                              _hdIcollectedSigs ++ _tlIcollectedSigs
+                              {-# LINE 6930 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                         _lhsOcollectedUniques =
+                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
                               _hdIcollectedUniques ++ _tlIcollectedUniques
-                              {-# LINE 6927 "dist/build/Transform.hs" #-}
+                              {-# LINE 6936 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _hdIerrors Seq.>< _tlIerrors
-                              {-# LINE 6933 "dist/build/Transform.hs" #-}
+                              {-# LINE 6942 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 880, column 56)
+                         -- use rule "./src-ag/Transform.ag"(line 883, column 56)
                          _lhsOsemPragmasCollect =
-                             ({-# LINE 880 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 883 "./src-ag/Transform.ag" #-}
                               _hdIsemPragmasCollect `pragmaMapUnion` _tlIsemPragmasCollect
-                              {-# LINE 6939 "dist/build/Transform.hs" #-}
+                              {-# LINE 6948 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOallAttrDecls =
-                             ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 912 "./src-ag/Transform.ag" #-}
                               _lhsIallAttrDecls
-                              {-# LINE 6945 "dist/build/Transform.hs" #-}
+                              {-# LINE 6954 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOallAttrs =
-                             ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                               _lhsIallAttrs
-                              {-# LINE 6951 "dist/build/Transform.hs" #-}
+                              {-# LINE 6960 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 6957 "dist/build/Transform.hs" #-}
+                              {-# LINE 6966 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOnts =
-                             ({-# LINE 176 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 173 "./src-ag/Transform.ag" #-}
                               _lhsInts
-                              {-# LINE 6963 "dist/build/Transform.hs" #-}
+                              {-# LINE 6972 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOoptions =
-                             ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6969 "dist/build/Transform.hs" #-}
+                              {-# LINE 6978 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOallAttrDecls =
-                             ({-# LINE 909 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 912 "./src-ag/Transform.ag" #-}
                               _lhsIallAttrDecls
-                              {-# LINE 6975 "dist/build/Transform.hs" #-}
+                              {-# LINE 6984 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOallAttrs =
-                             ({-# LINE 1324 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1333 "./src-ag/Transform.ag" #-}
                               _lhsIallAttrs
-                              {-# LINE 6981 "dist/build/Transform.hs" #-}
+                              {-# LINE 6990 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOallFields =
-                             ({-# LINE 137 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 134 "./src-ag/Transform.ag" #-}
                               _lhsIallFields
-                              {-# LINE 6987 "dist/build/Transform.hs" #-}
+                              {-# LINE 6996 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOnts =
-                             ({-# LINE 176 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 173 "./src-ag/Transform.ag" #-}
                               _lhsInts
-                              {-# LINE 6993 "dist/build/Transform.hs" #-}
+                              {-# LINE 7002 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOoptions =
-                             ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
                               _lhsIoptions
-                              {-# LINE 6999 "dist/build/Transform.hs" #-}
+                              {-# LINE 7008 "dist/build/Transform.hs" #-}
                               )
                          ( _hdIattrOrderCollect,_hdIcollectedArounds,_hdIcollectedAugments,_hdIcollectedInsts,_hdIcollectedMerges,_hdIcollectedRules,_hdIcollectedSigs,_hdIcollectedUniques,_hdIerrors,_hdIsemPragmasCollect) =
                              hd_ _hdOallAttrDecls _hdOallAttrs _hdOallFields _hdOnts _hdOoptions
@@ -7019,65 +7028,65 @@ sem_SemAlts_Nil =
                          _lhsOcollectedUniques :: ([ (NontermIdent, ConstructorIdent, [UniqueInfo]) ])
                          _lhsOerrors :: (Seq Error)
                          _lhsOsemPragmasCollect :: PragmaMap
-                         -- use rule "./src-ag/Transform.ag"(line 908, column 55)
+                         -- use rule "./src-ag/Transform.ag"(line 911, column 55)
                          _lhsOattrOrderCollect =
-                             ({-# LINE 908 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 911 "./src-ag/Transform.ag" #-}
                               Map.empty
-                              {-# LINE 7027 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 165, column 32)
-                         _lhsOcollectedArounds =
-                             ({-# LINE 165 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7033 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 164, column 32)
-                         _lhsOcollectedAugments =
-                             ({-# LINE 164 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7039 "dist/build/Transform.hs" #-}
+                              {-# LINE 7036 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 162, column 32)
-                         _lhsOcollectedInsts =
+                         _lhsOcollectedArounds =
                              ({-# LINE 162 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7045 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 166, column 32)
-                         _lhsOcollectedMerges =
-                             ({-# LINE 166 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7051 "dist/build/Transform.hs" #-}
-                              )
-                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
-                         _lhsOcollectedRules =
-                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
-                              []
-                              {-# LINE 7057 "dist/build/Transform.hs" #-}
+                              {-# LINE 7042 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 161, column 32)
-                         _lhsOcollectedSigs =
+                         _lhsOcollectedAugments =
                              ({-# LINE 161 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7063 "dist/build/Transform.hs" #-}
+                              {-# LINE 7048 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 159, column 32)
+                         _lhsOcollectedInsts =
+                             ({-# LINE 159 "./src-ag/Transform.ag" #-}
+                              []
+                              {-# LINE 7054 "dist/build/Transform.hs" #-}
                               )
                          -- use rule "./src-ag/Transform.ag"(line 163, column 32)
-                         _lhsOcollectedUniques =
+                         _lhsOcollectedMerges =
                              ({-# LINE 163 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7069 "dist/build/Transform.hs" #-}
+                              {-# LINE 7060 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 157, column 32)
+                         _lhsOcollectedRules =
+                             ({-# LINE 157 "./src-ag/Transform.ag" #-}
+                              []
+                              {-# LINE 7066 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 158, column 32)
+                         _lhsOcollectedSigs =
+                             ({-# LINE 158 "./src-ag/Transform.ag" #-}
+                              []
+                              {-# LINE 7072 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 160, column 32)
+                         _lhsOcollectedUniques =
+                             ({-# LINE 160 "./src-ag/Transform.ag" #-}
+                              []
+                              {-# LINE 7078 "dist/build/Transform.hs" #-}
+                              )
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               Seq.empty
-                              {-# LINE 7075 "dist/build/Transform.hs" #-}
+                              {-# LINE 7084 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 880, column 56)
+                         -- use rule "./src-ag/Transform.ag"(line 883, column 56)
                          _lhsOsemPragmasCollect =
-                             ({-# LINE 880 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 883 "./src-ag/Transform.ag" #-}
                               Map.empty
-                              {-# LINE 7081 "dist/build/Transform.hs" #-}
+                              {-# LINE 7090 "dist/build/Transform.hs" #-}
                               )
                      in  ( _lhsOattrOrderCollect,_lhsOcollectedArounds,_lhsOcollectedAugments,_lhsOcollectedInsts,_lhsOcollectedMerges,_lhsOcollectedRules,_lhsOcollectedSigs,_lhsOcollectedUniques,_lhsOerrors,_lhsOsemPragmasCollect))))
 -- SemDef ------------------------------------------------------
@@ -7186,67 +7195,67 @@ sem_SemDef_Def pos_ mbName_ (T_Pattern pattern_) rhs_ owrt_ pure_ eager_ =
                         _patternIdefinedInsts :: ([Identifier])
                         _patternIpatunder :: ([AttrName]->Pattern)
                         _patternIstpos :: Pos
-                        -- "./src-ag/Transform.ag"(line 555, column 3)
+                        -- "./src-ag/Transform.ag"(line 556, column 3)
                         _lhsOerrors =
-                            ({-# LINE 555 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 556 "./src-ag/Transform.ag" #-}
                              if checkParseRhs _lhsIoptions
                              then Seq.fromList $ checkRhs rhs_
                              else Seq.empty
-                             {-# LINE 7196 "dist/build/Transform.hs" #-}
+                             {-# LINE 7205 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1154, column 10)
+                        -- "./src-ag/Transform.ag"(line 1161, column 10)
                         _lhsOruleInfos =
-                            ({-# LINE 1154 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1161 "./src-ag/Transform.ag" #-}
                              [ (mbName_, _patternIpatunder, rhs_, _patternIdefinedAttrs, owrt_, show _patternIstpos, pure_, eager_) ]
-                             {-# LINE 7202 "dist/build/Transform.hs" #-}
+                             {-# LINE 7211 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7208 "dist/build/Transform.hs" #-}
+                             {-# LINE 7217 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7214 "dist/build/Transform.hs" #-}
+                             {-# LINE 7223 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              _patternIdefinedInsts
-                             {-# LINE 7220 "dist/build/Transform.hs" #-}
+                             {-# LINE 7229 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7226 "dist/build/Transform.hs" #-}
+                             {-# LINE 7235 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7232 "dist/build/Transform.hs" #-}
+                             {-# LINE 7241 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7238 "dist/build/Transform.hs" #-}
+                             {-# LINE 7247 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7244 "dist/build/Transform.hs" #-}
+                             {-# LINE 7253 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7250 "dist/build/Transform.hs" #-}
+                             {-# LINE 7259 "dist/build/Transform.hs" #-}
                              )
                         ( _patternIcopy,_patternIdefinedAttrs,_patternIdefinedInsts,_patternIpatunder,_patternIstpos) =
                             pattern_
@@ -7267,72 +7276,72 @@ sem_SemDef_TypeDef pos_ ident_ tp_ =
                         _lhsOpragmaNamesCollect :: ([Identifier])
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 562, column 3)
+                        -- "./src-ag/Transform.ag"(line 563, column 3)
                         _lhsOerrors =
-                            ({-# LINE 562 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 563 "./src-ag/Transform.ag" #-}
                              if checkParseTy _lhsIoptions
                              then case tp_ of
-                                    Haskell s -> let exp = Expression pos_ tks
+                                    Haskell s -> let ex  = Expression pos_ tks
                                                      tks = [tk]
                                                      tk  = HsToken s pos_
-                                                 in Seq.fromList $ checkTy exp
+                                                 in Seq.fromList $ checkTy ex
                                     _ -> Seq.empty
                              else Seq.empty
-                             {-# LINE 7282 "dist/build/Transform.hs" #-}
+                             {-# LINE 7291 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1157, column 14)
+                        -- "./src-ag/Transform.ag"(line 1164, column 14)
                         _lhsOsigInfos =
-                            ({-# LINE 1157 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1164 "./src-ag/Transform.ag" #-}
                              [ (ident_, tp_) ]
-                             {-# LINE 7288 "dist/build/Transform.hs" #-}
+                             {-# LINE 7297 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7294 "dist/build/Transform.hs" #-}
+                             {-# LINE 7303 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7300 "dist/build/Transform.hs" #-}
+                             {-# LINE 7309 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7306 "dist/build/Transform.hs" #-}
+                             {-# LINE 7315 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7312 "dist/build/Transform.hs" #-}
+                             {-# LINE 7321 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7318 "dist/build/Transform.hs" #-}
+                             {-# LINE 7327 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7324 "dist/build/Transform.hs" #-}
+                             {-# LINE 7333 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7330 "dist/build/Transform.hs" #-}
+                             {-# LINE 7339 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7336 "dist/build/Transform.hs" #-}
+                             {-# LINE 7345 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_UniqueDef :: Identifier ->
@@ -7350,65 +7359,65 @@ sem_SemDef_UniqueDef ident_ ref_ =
                         _lhsOpragmaNamesCollect :: ([Identifier])
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
-                        -- "./src-ag/Transform.ag"(line 1160, column 16)
+                        -- "./src-ag/Transform.ag"(line 1167, column 16)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1160 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1167 "./src-ag/Transform.ag" #-}
                              [ (ident_, ref_) ]
-                             {-# LINE 7358 "dist/build/Transform.hs" #-}
+                             {-# LINE 7367 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7364 "dist/build/Transform.hs" #-}
+                             {-# LINE 7373 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7370 "dist/build/Transform.hs" #-}
+                             {-# LINE 7379 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7376 "dist/build/Transform.hs" #-}
+                             {-# LINE 7385 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                         _lhsOerrors =
-                            ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
                              Seq.empty
-                             {-# LINE 7382 "dist/build/Transform.hs" #-}
+                             {-# LINE 7391 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7388 "dist/build/Transform.hs" #-}
+                             {-# LINE 7397 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7394 "dist/build/Transform.hs" #-}
+                             {-# LINE 7403 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7400 "dist/build/Transform.hs" #-}
+                             {-# LINE 7409 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7406 "dist/build/Transform.hs" #-}
+                             {-# LINE 7415 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7412 "dist/build/Transform.hs" #-}
+                             {-# LINE 7421 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_AugmentDef :: Identifier ->
@@ -7426,65 +7435,65 @@ sem_SemDef_AugmentDef ident_ rhs_ =
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 1163, column 17)
+                        -- "./src-ag/Transform.ag"(line 1170, column 17)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1163 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1170 "./src-ag/Transform.ag" #-}
                              [ (ident_, rhs_) ]
-                             {-# LINE 7434 "dist/build/Transform.hs" #-}
+                             {-# LINE 7443 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7440 "dist/build/Transform.hs" #-}
+                             {-# LINE 7449 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7446 "dist/build/Transform.hs" #-}
+                             {-# LINE 7455 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                         _lhsOerrors =
-                            ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
                              Seq.empty
-                             {-# LINE 7452 "dist/build/Transform.hs" #-}
+                             {-# LINE 7461 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7458 "dist/build/Transform.hs" #-}
+                             {-# LINE 7467 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7464 "dist/build/Transform.hs" #-}
+                             {-# LINE 7473 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7470 "dist/build/Transform.hs" #-}
+                             {-# LINE 7479 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7476 "dist/build/Transform.hs" #-}
+                             {-# LINE 7485 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7482 "dist/build/Transform.hs" #-}
+                             {-# LINE 7491 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7488 "dist/build/Transform.hs" #-}
+                             {-# LINE 7497 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_AroundDef :: Identifier ->
@@ -7502,65 +7511,65 @@ sem_SemDef_AroundDef ident_ rhs_ =
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 1166, column 17)
+                        -- "./src-ag/Transform.ag"(line 1173, column 17)
                         _lhsOaroundInfos =
-                            ({-# LINE 1166 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1173 "./src-ag/Transform.ag" #-}
                              [ (ident_, rhs_) ]
-                             {-# LINE 7510 "dist/build/Transform.hs" #-}
+                             {-# LINE 7519 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7516 "dist/build/Transform.hs" #-}
+                             {-# LINE 7525 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7522 "dist/build/Transform.hs" #-}
+                             {-# LINE 7531 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                         _lhsOerrors =
-                            ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
                              Seq.empty
-                             {-# LINE 7528 "dist/build/Transform.hs" #-}
+                             {-# LINE 7537 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7534 "dist/build/Transform.hs" #-}
+                             {-# LINE 7543 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7540 "dist/build/Transform.hs" #-}
+                             {-# LINE 7549 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7546 "dist/build/Transform.hs" #-}
+                             {-# LINE 7555 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7552 "dist/build/Transform.hs" #-}
+                             {-# LINE 7561 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7558 "dist/build/Transform.hs" #-}
+                             {-# LINE 7567 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7564 "dist/build/Transform.hs" #-}
+                             {-# LINE 7573 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_MergeDef :: Identifier ->
@@ -7580,67 +7589,67 @@ sem_SemDef_MergeDef target_ nt_ sources_ rhs_ =
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 555, column 3)
+                        -- "./src-ag/Transform.ag"(line 556, column 3)
                         _lhsOerrors =
-                            ({-# LINE 555 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 556 "./src-ag/Transform.ag" #-}
                              if checkParseRhs _lhsIoptions
                              then Seq.fromList $ checkRhs rhs_
                              else Seq.empty
-                             {-# LINE 7590 "dist/build/Transform.hs" #-}
+                             {-# LINE 7599 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 1169, column 17)
+                        -- "./src-ag/Transform.ag"(line 1176, column 17)
                         _lhsOmergeInfos =
-                            ({-# LINE 1169 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1176 "./src-ag/Transform.ag" #-}
                              [ (target_, nt_, sources_, rhs_) ]
-                             {-# LINE 7596 "dist/build/Transform.hs" #-}
+                             {-# LINE 7605 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7602 "dist/build/Transform.hs" #-}
+                             {-# LINE 7611 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7608 "dist/build/Transform.hs" #-}
+                             {-# LINE 7617 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7614 "dist/build/Transform.hs" #-}
+                             {-# LINE 7623 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7620 "dist/build/Transform.hs" #-}
+                             {-# LINE 7629 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7626 "dist/build/Transform.hs" #-}
+                             {-# LINE 7635 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7632 "dist/build/Transform.hs" #-}
+                             {-# LINE 7641 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7638 "dist/build/Transform.hs" #-}
+                             {-# LINE 7647 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7644 "dist/build/Transform.hs" #-}
+                             {-# LINE 7653 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_SemPragma :: ([NontermIdent]) ->
@@ -7657,65 +7666,65 @@ sem_SemDef_SemPragma names_ =
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 894, column 7)
+                        -- "./src-ag/Transform.ag"(line 897, column 7)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 894 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 897 "./src-ag/Transform.ag" #-}
                              names_
-                             {-# LINE 7665 "dist/build/Transform.hs" #-}
+                             {-# LINE 7674 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7671 "dist/build/Transform.hs" #-}
+                             {-# LINE 7680 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7677 "dist/build/Transform.hs" #-}
+                             {-# LINE 7686 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7683 "dist/build/Transform.hs" #-}
+                             {-# LINE 7692 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                         _lhsOerrors =
-                            ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
                              Seq.empty
-                             {-# LINE 7689 "dist/build/Transform.hs" #-}
+                             {-# LINE 7698 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7695 "dist/build/Transform.hs" #-}
+                             {-# LINE 7704 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                        -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 924 "./src-ag/Transform.ag" #-}
                              Set.empty
-                             {-# LINE 7701 "dist/build/Transform.hs" #-}
+                             {-# LINE 7710 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7707 "dist/build/Transform.hs" #-}
+                             {-# LINE 7716 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7713 "dist/build/Transform.hs" #-}
+                             {-# LINE 7722 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7719 "dist/build/Transform.hs" #-}
+                             {-# LINE 7728 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 sem_SemDef_AttrOrderBefore :: ([Occurrence]) ->
@@ -7733,71 +7742,71 @@ sem_SemDef_AttrOrderBefore before_ after_ =
                         _lhsOruleInfos :: ([RuleInfo])
                         _lhsOsigInfos :: ([SigInfo])
                         _lhsOuniqueInfos :: ([UniqueInfo])
-                        -- "./src-ag/Transform.ag"(line 925, column 7)
+                        -- "./src-ag/Transform.ag"(line 928, column 7)
                         _dependency =
-                            ({-# LINE 925 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 928 "./src-ag/Transform.ag" #-}
                              [ Dependency b a | b <- before_, a <- after_ ]
-                             {-# LINE 7741 "dist/build/Transform.hs" #-}
+                             {-# LINE 7750 "dist/build/Transform.hs" #-}
                              )
-                        -- "./src-ag/Transform.ag"(line 926, column 7)
+                        -- "./src-ag/Transform.ag"(line 929, column 7)
                         _lhsOorderDepsCollect =
-                            ({-# LINE 926 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 929 "./src-ag/Transform.ag" #-}
                              Set.fromList _dependency
-                             {-# LINE 7747 "dist/build/Transform.hs" #-}
+                             {-# LINE 7756 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                         _lhsOaroundInfos =
-                            ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7753 "dist/build/Transform.hs" #-}
+                             {-# LINE 7762 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                         _lhsOaugmentInfos =
-                            ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7759 "dist/build/Transform.hs" #-}
+                             {-# LINE 7768 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                        -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                         _lhsOdefinedInsts =
-                            ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7765 "dist/build/Transform.hs" #-}
+                             {-# LINE 7774 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                        -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                         _lhsOerrors =
-                            ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 41 "./src-ag/Transform.ag" #-}
                              Seq.empty
-                             {-# LINE 7771 "dist/build/Transform.hs" #-}
+                             {-# LINE 7780 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                         _lhsOmergeInfos =
-                            ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7777 "dist/build/Transform.hs" #-}
+                             {-# LINE 7786 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                        -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                         _lhsOpragmaNamesCollect =
-                            ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 893 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7783 "dist/build/Transform.hs" #-}
+                             {-# LINE 7792 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                         _lhsOruleInfos =
-                            ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7789 "dist/build/Transform.hs" #-}
+                             {-# LINE 7798 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                         _lhsOsigInfos =
-                            ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7795 "dist/build/Transform.hs" #-}
+                             {-# LINE 7804 "dist/build/Transform.hs" #-}
                              )
-                        -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                        -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                         _lhsOuniqueInfos =
-                            ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                            ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                              []
-                             {-# LINE 7801 "dist/build/Transform.hs" #-}
+                             {-# LINE 7810 "dist/build/Transform.hs" #-}
                              )
                     in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
 -- SemDefs -----------------------------------------------------
@@ -7875,77 +7884,77 @@ sem_SemDefs_Cons (T_SemDef hd_) (T_SemDefs tl_) =
                          _tlIruleInfos :: ([RuleInfo])
                          _tlIsigInfos :: ([SigInfo])
                          _tlIuniqueInfos :: ([UniqueInfo])
-                         -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                          _lhsOaroundInfos =
-                             ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                               _hdIaroundInfos ++ _tlIaroundInfos
-                              {-# LINE 7883 "dist/build/Transform.hs" #-}
+                              {-# LINE 7892 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                          _lhsOaugmentInfos =
-                             ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                               _hdIaugmentInfos ++ _tlIaugmentInfos
-                              {-# LINE 7889 "dist/build/Transform.hs" #-}
+                              {-# LINE 7898 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                         -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                          _lhsOdefinedInsts =
-                             ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                               _hdIdefinedInsts ++ _tlIdefinedInsts
-                              {-# LINE 7895 "dist/build/Transform.hs" #-}
+                              {-# LINE 7904 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               _hdIerrors Seq.>< _tlIerrors
-                              {-# LINE 7901 "dist/build/Transform.hs" #-}
+                              {-# LINE 7910 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                          _lhsOmergeInfos =
-                             ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                               _hdImergeInfos ++ _tlImergeInfos
-                              {-# LINE 7907 "dist/build/Transform.hs" #-}
+                              {-# LINE 7916 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                         -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                          _lhsOorderDepsCollect =
-                             ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 924 "./src-ag/Transform.ag" #-}
                               _hdIorderDepsCollect `Set.union` _tlIorderDepsCollect
-                              {-# LINE 7913 "dist/build/Transform.hs" #-}
+                              {-# LINE 7922 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                         -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                          _lhsOpragmaNamesCollect =
-                             ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 893 "./src-ag/Transform.ag" #-}
                               _hdIpragmaNamesCollect ++ _tlIpragmaNamesCollect
-                              {-# LINE 7919 "dist/build/Transform.hs" #-}
+                              {-# LINE 7928 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                          _lhsOruleInfos =
-                             ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                               _hdIruleInfos ++ _tlIruleInfos
-                              {-# LINE 7925 "dist/build/Transform.hs" #-}
+                              {-# LINE 7934 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                          _lhsOsigInfos =
-                             ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                               _hdIsigInfos ++ _tlIsigInfos
-                              {-# LINE 7931 "dist/build/Transform.hs" #-}
+                              {-# LINE 7940 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                          _lhsOuniqueInfos =
-                             ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                               _hdIuniqueInfos ++ _tlIuniqueInfos
-                              {-# LINE 7937 "dist/build/Transform.hs" #-}
+                              {-# LINE 7946 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _hdOoptions =
-                             ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
                               _lhsIoptions
-                              {-# LINE 7943 "dist/build/Transform.hs" #-}
+                              {-# LINE 7952 "dist/build/Transform.hs" #-}
                               )
                          -- copy rule (down)
                          _tlOoptions =
-                             ({-# LINE 40 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 37 "./src-ag/Transform.ag" #-}
                               _lhsIoptions
-                              {-# LINE 7949 "dist/build/Transform.hs" #-}
+                              {-# LINE 7958 "dist/build/Transform.hs" #-}
                               )
                          ( _hdIaroundInfos,_hdIaugmentInfos,_hdIdefinedInsts,_hdIerrors,_hdImergeInfos,_hdIorderDepsCollect,_hdIpragmaNamesCollect,_hdIruleInfos,_hdIsigInfos,_hdIuniqueInfos) =
                              hd_ _hdOoptions
@@ -7965,64 +7974,64 @@ sem_SemDefs_Nil =
                          _lhsOruleInfos :: ([RuleInfo])
                          _lhsOsigInfos :: ([SigInfo])
                          _lhsOuniqueInfos :: ([UniqueInfo])
-                         -- use rule "./src-ag/Transform.ag"(line 1091, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1098, column 40)
                          _lhsOaroundInfos =
-                             ({-# LINE 1091 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1098 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7973 "dist/build/Transform.hs" #-}
+                              {-# LINE 7982 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1090, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1097, column 40)
                          _lhsOaugmentInfos =
-                             ({-# LINE 1090 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1097 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7979 "dist/build/Transform.hs" #-}
+                              {-# LINE 7988 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1172, column 55)
+                         -- use rule "./src-ag/Transform.ag"(line 1179, column 55)
                          _lhsOdefinedInsts =
-                             ({-# LINE 1172 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1179 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7985 "dist/build/Transform.hs" #-}
+                              {-# LINE 7994 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 44, column 19)
+                         -- use rule "./src-ag/Transform.ag"(line 41, column 19)
                          _lhsOerrors =
-                             ({-# LINE 44 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 41 "./src-ag/Transform.ag" #-}
                               Seq.empty
-                              {-# LINE 7991 "dist/build/Transform.hs" #-}
+                              {-# LINE 8000 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1092, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1099, column 40)
                          _lhsOmergeInfos =
-                             ({-# LINE 1092 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1099 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 7997 "dist/build/Transform.hs" #-}
+                              {-# LINE 8006 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 921, column 44)
+                         -- use rule "./src-ag/Transform.ag"(line 924, column 44)
                          _lhsOorderDepsCollect =
-                             ({-# LINE 921 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 924 "./src-ag/Transform.ag" #-}
                               Set.empty
-                              {-# LINE 8003 "dist/build/Transform.hs" #-}
+                              {-# LINE 8012 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 890, column 46)
+                         -- use rule "./src-ag/Transform.ag"(line 893, column 46)
                          _lhsOpragmaNamesCollect =
-                             ({-# LINE 890 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 893 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 8009 "dist/build/Transform.hs" #-}
+                              {-# LINE 8018 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1087, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1094, column 40)
                          _lhsOruleInfos =
-                             ({-# LINE 1087 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1094 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 8015 "dist/build/Transform.hs" #-}
+                              {-# LINE 8024 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1088, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1095, column 40)
                          _lhsOsigInfos =
-                             ({-# LINE 1088 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1095 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 8021 "dist/build/Transform.hs" #-}
+                              {-# LINE 8030 "dist/build/Transform.hs" #-}
                               )
-                         -- use rule "./src-ag/Transform.ag"(line 1089, column 40)
+                         -- use rule "./src-ag/Transform.ag"(line 1096, column 40)
                          _lhsOuniqueInfos =
-                             ({-# LINE 1089 "./src-ag/Transform.ag" #-}
+                             ({-# LINE 1096 "./src-ag/Transform.ag" #-}
                               []
-                              {-# LINE 8027 "dist/build/Transform.hs" #-}
+                              {-# LINE 8036 "dist/build/Transform.hs" #-}
                               )
                      in  ( _lhsOaroundInfos,_lhsOaugmentInfos,_lhsOdefinedInsts,_lhsOerrors,_lhsOmergeInfos,_lhsOorderDepsCollect,_lhsOpragmaNamesCollect,_lhsOruleInfos,_lhsOsigInfos,_lhsOuniqueInfos))))
