@@ -1,7 +1,7 @@
 cabal-version: >= 1.8
 build-type: Custom
 name: uuagc
-version: 0.9.42.2
+version: 0.9.42.3
 license: BSD3
 license-file: LICENSE
 maintainer: Jeroen Bransen <J.Bransen@uu.nl>
@@ -29,7 +29,7 @@ executable uuagc
    build-depends: uuagc-cabal >= 1.0.2.0
    build-depends: base >= 4, base < 5
    -- Self dependency, depend on library below
-   build-depends: uuagc == 0.9.42.2
+   build-depends: uuagc == 0.9.42.3
    main-is: Main.hs
    hs-source-dirs: src-main
 
