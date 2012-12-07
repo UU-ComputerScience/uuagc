@@ -751,7 +751,7 @@ SEM Visit
                                    VisitMonadic    -> "let" >#< decls
                                                       >-< "return" >#< resultValName
           loc.vname     = "v" >|< @ident
-          loc.inhpats   = ppSpaced $ map (\arg -> @loc.addbang $ pp $ attrname True _LHS arg) $ Set.toList @inh
+          loc.inhpats   = ppSpaced $ map (\arg -> {-@loc.addbang $-} pp $ attrname True _LHS arg) $ Set.toList @inh
           loc.inhargs   = \chn -> ppSpaced $ map (attrname False chn) $ Set.toList @inh
           loc.synargs   = ppSpaced $ map (\arg -> attrname False _LHS arg) $ Set.toList @syn
           loc.nextargsMp = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
@@ -1542,7 +1542,7 @@ SEM VisitStep | ChildVisit          loc.addbang = \x -> if bangpats @lhs.options
 SEM Pattern | Alias Constr Product  loc.addbang  = \x -> if bangpats @lhs.options then "!" >|< x else x
 
 SEM Visit | Visit                   loc.addbang1 = if isLazyKind @kind then id else @loc.addbang
-SEM ENonterminal | ENonterminal     loc.addbangWrap = if strictWrap @lhs.options then @loc.addbang else id
+SEM ENonterminal | ENonterminal     loc.addbangWrap = id --if strictWrap @lhs.options then @loc.addbang else id
 SEM ERule | ERule                   loc.addbang1 = if @loc.anyLazyKind then id else @loc.addbang
 SEM Pattern | Alias Constr Product  loc.addbang1 = if @lhs.anyLazyKind then id else @loc.addbang
 
