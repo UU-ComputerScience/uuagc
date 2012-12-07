@@ -37,6 +37,7 @@ import System.FilePath(pathSeparators,
                        dropFileName,
                        addExtension,
                        dropExtension,
+                       replaceExtension,
                        splitDirectories)
 
 import System.Exit (ExitCode(..))
@@ -53,7 +54,9 @@ import Control.Monad (liftM, when, guard, forM_, forM)
 import Control.Arrow ((&&&), second)
 import Data.Maybe (maybeToList)
 import Data.Either (partitionEithers)
-import Data.List (nub)
+import Data.List (nub,intersperse)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 {-# DEPRECATED uuagcUserHook, uuagcUserHook', uuagc "Use uuagcLibUserHook instead" #-}
 
@@ -124,71 +127,29 @@ processContent = liftM words . hGetContents
 putErrorInfo :: Handle -> IO ()
 putErrorInfo h = hGetContents h >>= hPutStr stderr
 
-addSearch :: String -> [String] -> [String]
-addSearch sp fl = let sf = [head pathSeparators]
-                      path = if sp == ""
-                             then '.' : sf
-                             else sp ++ sf
-                  in [normalise (joinPath [sp,f]) | f  <- fl]
-
-throwFailure :: IO ()
-throwFailure = throwIO $ ExitFailure 1
-
--- The tmp build directory really depends on the type of project.
--- In the case executables it uses the name of the generated file for
--- the output directory.
-withBuildTmpDir
-  :: PackageDescription
-     -> LocalBuildInfo
-     -> (FilePath -> IO ())
-     -> IO ()
-withBuildTmpDir pkgDescr lbi f = do
-#if MIN_VERSION_Cabal(1,8,0)
-            withLib pkgDescr $ \ _ -> f $ buildDir lbi
-#else
-            withLib pkgDescr () $ \ _ -> f $ buildDir lbi
-#endif
-            withExe pkgDescr $ \ theExe ->
-                    f $ buildDir lbi </> exeName theExe </> exeName theExe ++ "-tmp"
-
 -- | 'updateAGFile' search into the uuagc options file for a list of all
 -- AG Files and theirs file dependencies in order to see if the latters
 -- are more updated that the formers, and if this is the case to
 -- update the AG File
 updateAGFile :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
-             -> FilePath
-             -> PackageDescription
-             -> LocalBuildInfo
-             -> (FilePath, String)
+             -> Map FilePath (Options, Maybe (FilePath, [String]))
+             -> (FilePath, (Options, Maybe (FilePath, [String])))
              -> IO ()
-updateAGFile uuagc classesPath pkgDescr lbi (f, sp) = do
-  fileOpts <- readFileOptions classesPath
-  let opts = case lookup f fileOpts of
-               Nothing -> noOptions
-               Just x -> x
-  (ec, fls) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp : (searchPath opts) }) f
+updateAGFile _ _ (_,(_,Nothing)) = return ()
+updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
+  (ec, fls) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
   case ec of
     ExitSuccess ->
-      do let flsF = addSearch sp fls
-         hasOptions <- doesFileExist defUUAGCOptions
-         let flsC = if hasOptions then defUUAGCOptions : flsF else flsF
-         when ((not.null) flsC) $ do
-            flsmt <- mapM getModificationTime flsC
+      do files <- mapM (resolveFile opts sp) fls
+         when ((not.null) files) $ do
+            flsmt <- mapM getModificationTime files
             let maxModified = maximum flsmt
-                removeTmpFile f buildTmp =
-                  do
-                    -- For src/a/b/c.ag and build, this creates ["build/src/a/b/c.hs","build/a/b/c.hs","build/b/c.hs","build/c.hs"]
-                    -- Problem is we don't know what prefix of the filename is src directory and what part is in the classname
-                    -- There must be a better solution for this...
-                    let files = map (buildTmp </>) . scanr1 (</>) . splitDirectories . (`addExtension` "hs") . dropExtension $ f
-                    forM_ files $ \f -> do
-                      exists <- doesFileExist f
-                      when exists $ do fmt <- getModificationTime f
-                                       when (maxModified > fmt) $ removeFile f
-            withBuildTmpDir pkgDescr lbi $ removeTmpFile f
-    (ExitFailure exc) ->
-      do hPutStrLn stderr (show exc)
-         throwFailure
+            fmt <- getModificationTime gen
+            let newOpts :: Options 
+                newOpts = maybe noOptions fst $ Map.lookup file newOptions
+            -- When some dependency is newer or options have changed, we should regenerate
+            when (maxModified > fmt || optionsToString newOpts /= optionsToString opts) $ removeFile gen
+    ex@(ExitFailure _) -> throwIO ex
 
 getAGFileOptions :: [(String, String)] -> IO AGFileOptions
 getAGFileOptions extra = do
@@ -204,20 +165,23 @@ getAGFileOptions extra = do
 getAGClasses :: [(String, String)] -> IO [AGOptionsClass]
 getAGClasses = mapM (parseClassAG . snd) . filter ((== agClass) . fst)
 
-writeFileOptions :: FilePath -> [(String, Options)] -> IO ()
+writeFileOptions :: FilePath -> Map FilePath (Options, Maybe (FilePath,[String])) -> IO ()
 writeFileOptions classesPath opts  = do
   hClasses <- openFile classesPath WriteMode
-  hPutStr hClasses $ show [(s,optionsToString opt) | (s,opt) <- opts]
+  hPutStr hClasses $ show $ Map.map (\(opt,gen) -> (optionsToString opt, gen)) opts
   hFlush  hClasses
   hClose  hClasses
 
-readFileOptions :: FilePath -> IO [(String, Options)]
+readFileOptions :: FilePath -> IO (Map FilePath (Options, Maybe (FilePath,[String])))
 readFileOptions classesPath = do
-  hClasses <- openFile classesPath ReadMode
-  sClasses <- hGetContents hClasses
-  classes <- readIO sClasses :: IO [(String, [String])]
-  hClose hClasses
-  return $ [(s,opt) | (s,str) <- classes, let (opt,_,_) = getOptions str]
+  isFile <- doesFileExist classesPath
+  if isFile
+    then do hClasses <- openFile classesPath ReadMode
+            sClasses <- hGetContents hClasses
+            classes <- readIO sClasses :: IO (Map FilePath ([String], Maybe (FilePath,[String])))
+            hClose hClasses
+            return $ Map.map (\(opt,gen) -> let (opt',_,_) = getOptions opt in (opt', gen)) classes
+    else    return Map.empty
 
 getOptionsFromClass :: [(String, Options)] -> AGFileOption -> ([String], Options)
 getOptionsFromClass classes fOpt =
@@ -266,20 +230,29 @@ commonHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
      -> IO ()
 commonHook uuagc classesPath pd lbi fl = do
   let verbosity = fromFlagOrDefault normal fl
-  when (verbosity >= verbose) $ putStrLn ("commonHook: Assuming AG classesPath: " ++ classesPath)
+  info verbosity $ "commonHook: Assuming AG classesPath: " ++ classesPath
   createDirectoryIfMissingVerbose verbosity True (buildDir lbi)
+  -- Read already existing options
+  -- Map FilePath (Options, Maybe (FilePath,[String]))
+  oldOptions <- readFileOptions classesPath
+  -- Read options from cabal and settings file
   let lib    = library pd
       exes   = executables pd
       bis    = map libBuildInfo (maybeToList lib) ++ map buildInfo exes
   classes <- map (className &&& opts') `fmap` (getAGClasses . customFieldsPD $ pd)
-  options <- getAGFileOptions (bis >>= customFieldsBI)
-  fileOptions <- forM options (\ opt ->
+  configOptions <- getAGFileOptions (bis >>= customFieldsBI)
+  -- Construct new options map
+  newOptionsL <- forM configOptions (\ opt ->
       let (notFound, opts) = getOptionsFromClass classes $ opt
-      in do when (verbosity >= verbose) $ putStrLn ("options for " ++ filename opt ++ ": " ++ unwords (optionsToString opts))
-            forM_ notFound (hPutStrLn stderr) >> return (normalise . filename $ opt, opts))
-  writeFileOptions classesPath fileOptions
-  let agflSP = map (id &&& dropFileName) $ nub $ getAGFileList options
-  mapM_ (updateAGFile uuagc classesPath pd lbi) agflSP
+          file = normalise $ filename opt
+          gen = maybe Nothing snd $ Map.lookup file oldOptions
+      in do info verbosity $ "options for " ++ file ++ ": " ++ unwords (optionsToString opts)
+            forM_ notFound (hPutStrLn stderr)
+            return (file, (opts, gen)))
+  let newOptions = Map.fromList newOptionsL
+  writeFileOptions classesPath newOptions
+  -- Check if files should be regenerated
+  mapM_ (updateAGFile uuagc newOptions) $ Map.toList oldOptions
 
 getAGFileList :: AGFileOptions -> [FilePath]
 getAGFileList = map (normalise . filename)
@@ -295,22 +268,20 @@ uuagc' uuagc build lbi  =
    PreProcessor {
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
-                       do info verbosity $ concat [inFile, " has been preprocessed into ", outFile]
-                          print $ "processing: " ++ inFile ++ " generating: " ++ outFile
---                          opts <- getAGFileOptions $ customFieldsBI build
+                       do putStrLn $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
                           let classesPath = buildDir lbi </> agClassesFile
-                          when (verbosity >= verbose) $ putStrLn ("uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath)
+                          info verbosity $ "uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath
                           fileOpts <- readFileOptions classesPath
-                          let opts = case lookup inFile fileOpts of
-                                       Nothing -> noOptions
-                                       Just x -> x
+                          let opts = case Map.lookup inFile fileOpts of
+                                       Nothing        -> noOptions
+                                       Just (opt,gen) -> opt
                               search  = dropFileName inFile
-                              options = opts { searchPath = search : (searchPath opts) 
+                              options = opts { searchPath = search : hsSourceDirs build ++ searchPath opts
                                              , outputFiles = outFile : (outputFiles opts) }
                           (eCode,_) <- uuagc (optionsToString options) inFile
                           case eCode of
-                            ExitSuccess   -> return ()
-                            ExitFailure _ -> throwFailure
+                            ExitSuccess   -> writeFileOptions classesPath (Map.insert inFile (opts, Just (outFile, searchPath options)) fileOpts)
+                            ex@(ExitFailure _) -> throwIO ex
                 }
 
 nouuagc :: BuildInfo -> LocalBuildInfo -> PreProcessor
@@ -320,3 +291,20 @@ nouuagc build lbi =
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do
       info verbosity ("skipping: " ++ outFile)
   }
+
+-- From UUAGC/src/Parser.hs, should be shared between UUAGC and cabal-plugin
+resolveFile :: Options -> [FilePath] -> FilePath -> IO FilePath
+resolveFile opts path fname = search (path ++ ["."])
+ where search (p:ps) = do let filename = joinPath [p, fname]
+                          fExists <- doesFileExist filename
+                          if fExists
+                            then return filename
+                            else do let filename' = joinPath [p, replaceExtension fname "ag"]
+                                    fExists' <- doesFileExist filename'
+                                    if fExists'
+                                      then return filename'
+                                      else search ps
+       search []     = do
+         outputStr opts ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) ++ "\n")
+         failWithCode opts 1
+         return (error "resolveFile: file not found")
