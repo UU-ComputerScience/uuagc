@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/ResolveLocals.ag)
+-- UUAGC 0.9.42.2 (src-ag/ResolveLocals.ag)
 module ResolveLocals where
 {-# LINE 15 "./src-ag/ResolveLocals.ag" #-}
 

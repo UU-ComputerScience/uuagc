@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/HsToken.ag)
+-- UUAGC 0.9.42.2 (src-ag/HsToken.ag)
 module HsToken where
 {-# LINE 2 "./src-ag/HsToken.ag" #-}
 

@@ -1,18 +1,16 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/Code.ag)
+-- UUAGC 0.9.42.2 (src-ag/Code.ag)
 module Code where
 {-# LINE 2 "./src-ag/Code.ag" #-}
 
-import Pretty
 import Patterns
-import Data.List(partition)
 import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 15 "dist/build/Code.hs" #-}
-{-# LINE 146 "./src-ag/Code.ag" #-}
+{-# LINE 13 "dist/build/Code.hs" #-}
+{-# LINE 144 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -21,15 +19,15 @@ import qualified Data.Map as Map
 --          because in that case the semantic function (a top-level identifier) would have an unboxed type.
 -- Of course we can't have an unboxed 1-tuple
 mkTupleExpr :: Bool -> Bool -> Exprs -> Expr
-mkTupleExpr unbox noInh exprs | not unbox || noInh || length exprs == 1 = TupleExpr exprs
-                              | otherwise                               = UnboxedTupleExpr exprs
+mkTupleExpr unbox' noInh exprs | not unbox' || noInh || length exprs == 1 = TupleExpr exprs
+                               | otherwise                                = UnboxedTupleExpr exprs
 mkTupleType :: Bool -> Bool -> Types -> Type
-mkTupleType unbox noInh tps | not unbox || noInh || length tps == 1 = TupleType tps
-                            | otherwise                             = UnboxedTupleType tps
+mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleType tps
+                             | otherwise                              = UnboxedTupleType tps
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
-mkTupleLhs  unbox noInh comps | not unbox || noInh || length comps == 1 = TupleLhs comps
-                              | otherwise                               = UnboxedTupleLhs comps
-{-# LINE 33 "dist/build/Code.hs" #-}
+mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
+                               | otherwise                                = UnboxedTupleLhs comps
+{-# LINE 31 "dist/build/Code.hs" #-}
 -- CaseAlt -----------------------------------------------------
 {-
    alternatives:

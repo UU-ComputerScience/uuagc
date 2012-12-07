@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.1 (src-ag/CodeSyntaxDump.ag)
+-- UUAGC 0.9.42.2 (src-ag/CodeSyntaxDump.ag)
 module CodeSyntaxDump where
 {-# LINE 5 "./src-ag/CodeSyntaxDump.ag" #-}
 
@@ -30,7 +30,7 @@ import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 15 "./src-ag/CodeSyntaxDump.ag" #-}
 
 ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
-ppChild (nm,tp,b)
+ppChild (nm,tp,_)
   = pp nm >#< "::" >#< pp (show tp)
 
 ppVertexMap :: Map Int (Identifier,Identifier,Maybe Type) -> PP_Doc
