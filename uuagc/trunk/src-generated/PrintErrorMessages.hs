@@ -1,6 +1,6 @@
+{-# LANGUAGE Rank2Types, GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-
--- UUAGC 0.9.42.2 (src-ag/PrintErrorMessages.ag)
 module PrintErrorMessages where
 {-# LINE 4 "./src-ag/PrintErrorMessages.ag" #-}
 
@@ -18,12 +18,14 @@ import Pretty
 import CodeSyntax
 import CommonTypes
 {-# LINE 21 "dist/build/PrintErrorMessages.hs" #-}
+import Control.Monad.Identity (Identity)
+import qualified Control.Monad.Identity
 {-# LINE 13 "./src-ag/PrintErrorMessages.ag" #-}
 
 instance Err.Error Error where
   noMsg  = Err.strMsg "error"
   strMsg = CustomError False noPos . pp
-{-# LINE 27 "dist/build/PrintErrorMessages.hs" #-}
+{-# LINE 29 "dist/build/PrintErrorMessages.hs" #-}
 
 {-# LINE 20 "./src-ag/PrintErrorMessages.ag" #-}
 
@@ -67,7 +69,7 @@ isError _ (IncompatibleAttachKind _ _)    = True
 cycleIsDangerous :: Options -> Bool
 cycleIsDangerous opts
   = any ($ opts) [ wignore, bangpats, cases, strictCases, stricterCases, strictSems, withCycle ]
-{-# LINE 71 "dist/build/PrintErrorMessages.hs" #-}
+{-# LINE 73 "dist/build/PrintErrorMessages.hs" #-}
 
 {-# LINE 548 "./src-ag/PrintErrorMessages.ag" #-}
 
@@ -113,7 +115,7 @@ ppAttr :: Identifier -> Identifier -> PP_Doc
 ppAttr f a = text (getName f++"."++getName a)
 ppAttrUse :: Identifier -> Identifier -> PP_Doc
 ppAttrUse f a = "@" >|< ppAttr f a
-{-# LINE 117 "dist/build/PrintErrorMessages.hs" #-}
+{-# LINE 119 "dist/build/PrintErrorMessages.hs" #-}
 
 {-# LINE 594 "./src-ag/PrintErrorMessages.ag" #-}
 
@@ -177,1768 +179,1487 @@ showPos = show . getPos
 ppInterface :: Show a => a -> PP_Doc
 ppInterface inter = wfill ["interface:", show inter]
 
-{-# LINE 181 "dist/build/PrintErrorMessages.hs" #-}
+{-# LINE 183 "dist/build/PrintErrorMessages.hs" #-}
 -- Error -------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         options              : Options
-         verbose              : Bool
-      synthesized attributes:
-         me                   : Error 
-         pp                   : PP_Doc
-   alternatives:
-      alternative ParserError:
-         child pos            : {Pos}
-         child problem        : {String}
-         child action         : {String}
-         visit 0:
-            local me          : _
-      alternative HsParseError:
-         child pos            : {Pos}
-         child msg            : {String}
-         visit 0:
-            local me          : _
-      alternative DupAlt:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child occ1           : {ConstructorIdent}
-         visit 0:
-            local me          : _
-      alternative DupSynonym:
-         child nt             : {NontermIdent}
-         child occ1           : {NontermIdent}
-         visit 0:
-            local me          : _
-      alternative DupSet:
-         child name           : {NontermIdent}
-         child occ1           : {NontermIdent}
-         visit 0:
-            local me          : _
-      alternative DupInhAttr:
-         child nt             : {NontermIdent}
-         child attr           : {Identifier}
-         child occ1           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupSynAttr:
-         child nt             : {NontermIdent}
-         child attr           : {Identifier}
-         child occ1           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupChild:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child name           : {Identifier}
-         child occ1           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupRule:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child occ1           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupRuleName:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child nm             : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupSig:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative UndefNont:
-         child nt             : {NontermIdent}
-         visit 0:
-            local me          : _
-      alternative UndefAlt:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         visit 0:
-            local me          : _
-      alternative UndefChild:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child name           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative MissingRule:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative MissingNamedRule:
-         child nt             : {NontermIdent}
-         child con            : {Identifier}
-         child name           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative SuperfluousRule:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative UndefLocal:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child var            : {Identifier}
-         visit 0:
-            local me          : _
-      alternative ChildAsLocal:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child var            : {Identifier}
-         visit 0:
-            local me          : _
-      alternative UndefAttr:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child field          : {Identifier}
-         child attr           : {Identifier}
-         child isOut          : {Bool}
-         visit 0:
-            local me          : _
-      alternative Cyclic:
-         child nt             : {NontermIdent}
-         child mbCon          : {Maybe ConstructorIdent}
-         child verts          : {[String]}
-         visit 0:
-            local me          : _
-      alternative CyclicSet:
-         child name           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative CustomError:
-         child isWarning      : {Bool}
-         child pos            : {Pos}
-         child mesg           : {PP_Doc}
-         visit 0:
-            local me          : _
-      alternative LocalCirc:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         child o_visit        : {Bool}
-         child path           : {[String]}
-         visit 0:
-            local me          : _
-      alternative InstCirc:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         child o_visit        : {Bool}
-         child path           : {[String]}
-         visit 0:
-            local me          : _
-      alternative DirectCirc:
-         child nt             : {NontermIdent}
-         child o_visit        : {Bool}
-         child cyclic         : {[((Identifier,Identifier),[String],[String])]}
-         visit 0:
-            local me          : _
-      alternative InducedCirc:
-         child nt             : {NontermIdent}
-         child cinter         : {CInterface}
-         child cyclic         : {[((Identifier,Identifier),[String],[String])]}
-         visit 0:
-            local me          : _
-      alternative MissingTypeSig:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative MissingInstSig:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative DupUnique:
-         child nt             : {NontermIdent}
-         child con            : {ConstructorIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative MissingUnique:
-         child nt             : {NontermIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative MissingSyn:
-         child nt             : {NontermIdent}
-         child attr           : {Identifier}
-         visit 0:
-            local me          : _
-      alternative IncompatibleVisitKind:
-         child child          : {Identifier}
-         child vis            : {VisitIdentifier}
-         child from           : {VisitKind}
-         child to             : {VisitKind}
-         visit 0:
-            local me          : _
-      alternative IncompatibleRuleKind:
-         child rule           : {Identifier}
-         child kind           : {VisitKind}
-         visit 0:
-            local me          : _
-      alternative IncompatibleAttachKind:
-         child child          : {Identifier}
-         child kind           : {VisitKind}
-         visit 0:
-            local me          : _
--}
+-- wrapper
+data Inh_Error  = Inh_Error { options_Inh_Error :: (Options), verbose_Inh_Error :: (Bool) }
+data Syn_Error  = Syn_Error { me_Syn_Error :: (Error), pp_Syn_Error :: (PP_Doc) }
+{-# INLINABLE wrap_Error #-}
+wrap_Error :: T_Error  -> Inh_Error  -> (Syn_Error )
+wrap_Error (T_Error act) (Inh_Error _lhsIoptions _lhsIverbose) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Error_vIn1 _lhsIoptions _lhsIverbose
+        (T_Error_vOut1 _lhsOme _lhsOpp) <- return (inv_Error_s2 sem arg)
+        return (Syn_Error _lhsOme _lhsOpp)
+   )
+
 -- cata
-sem_Error :: Error ->
-             T_Error
-sem_Error (ParserError _pos _problem _action) =
-    (sem_Error_ParserError _pos _problem _action)
-sem_Error (HsParseError _pos _msg) =
-    (sem_Error_HsParseError _pos _msg)
-sem_Error (DupAlt _nt _con _occ1) =
-    (sem_Error_DupAlt _nt _con _occ1)
-sem_Error (DupSynonym _nt _occ1) =
-    (sem_Error_DupSynonym _nt _occ1)
-sem_Error (DupSet _name _occ1) =
-    (sem_Error_DupSet _name _occ1)
-sem_Error (DupInhAttr _nt _attr _occ1) =
-    (sem_Error_DupInhAttr _nt _attr _occ1)
-sem_Error (DupSynAttr _nt _attr _occ1) =
-    (sem_Error_DupSynAttr _nt _attr _occ1)
-sem_Error (DupChild _nt _con _name _occ1) =
-    (sem_Error_DupChild _nt _con _name _occ1)
-sem_Error (DupRule _nt _con _field _attr _occ1) =
-    (sem_Error_DupRule _nt _con _field _attr _occ1)
-sem_Error (DupRuleName _nt _con _nm) =
-    (sem_Error_DupRuleName _nt _con _nm)
-sem_Error (DupSig _nt _con _attr) =
-    (sem_Error_DupSig _nt _con _attr)
-sem_Error (UndefNont _nt) =
-    (sem_Error_UndefNont _nt)
-sem_Error (UndefAlt _nt _con) =
-    (sem_Error_UndefAlt _nt _con)
-sem_Error (UndefChild _nt _con _name) =
-    (sem_Error_UndefChild _nt _con _name)
-sem_Error (MissingRule _nt _con _field _attr) =
-    (sem_Error_MissingRule _nt _con _field _attr)
-sem_Error (MissingNamedRule _nt _con _name) =
-    (sem_Error_MissingNamedRule _nt _con _name)
-sem_Error (SuperfluousRule _nt _con _field _attr) =
-    (sem_Error_SuperfluousRule _nt _con _field _attr)
-sem_Error (UndefLocal _nt _con _var) =
-    (sem_Error_UndefLocal _nt _con _var)
-sem_Error (ChildAsLocal _nt _con _var) =
-    (sem_Error_ChildAsLocal _nt _con _var)
-sem_Error (UndefAttr _nt _con _field _attr _isOut) =
-    (sem_Error_UndefAttr _nt _con _field _attr _isOut)
-sem_Error (Cyclic _nt _mbCon _verts) =
-    (sem_Error_Cyclic _nt _mbCon _verts)
-sem_Error (CyclicSet _name) =
-    (sem_Error_CyclicSet _name)
-sem_Error (CustomError _isWarning _pos _mesg) =
-    (sem_Error_CustomError _isWarning _pos _mesg)
-sem_Error (LocalCirc _nt _con _attr _o_visit _path) =
-    (sem_Error_LocalCirc _nt _con _attr _o_visit _path)
-sem_Error (InstCirc _nt _con _attr _o_visit _path) =
-    (sem_Error_InstCirc _nt _con _attr _o_visit _path)
-sem_Error (DirectCirc _nt _o_visit _cyclic) =
-    (sem_Error_DirectCirc _nt _o_visit _cyclic)
-sem_Error (InducedCirc _nt _cinter _cyclic) =
-    (sem_Error_InducedCirc _nt _cinter _cyclic)
-sem_Error (MissingTypeSig _nt _con _attr) =
-    (sem_Error_MissingTypeSig _nt _con _attr)
-sem_Error (MissingInstSig _nt _con _attr) =
-    (sem_Error_MissingInstSig _nt _con _attr)
-sem_Error (DupUnique _nt _con _attr) =
-    (sem_Error_DupUnique _nt _con _attr)
-sem_Error (MissingUnique _nt _attr) =
-    (sem_Error_MissingUnique _nt _attr)
-sem_Error (MissingSyn _nt _attr) =
-    (sem_Error_MissingSyn _nt _attr)
-sem_Error (IncompatibleVisitKind _child _vis _from _to) =
-    (sem_Error_IncompatibleVisitKind _child _vis _from _to)
-sem_Error (IncompatibleRuleKind _rule _kind) =
-    (sem_Error_IncompatibleRuleKind _rule _kind)
-sem_Error (IncompatibleAttachKind _child _kind) =
-    (sem_Error_IncompatibleAttachKind _child _kind)
+{-# NOINLINE sem_Error #-}
+sem_Error :: Error  -> T_Error 
+sem_Error ( ParserError pos_ problem_ action_ ) = sem_Error_ParserError pos_ problem_ action_
+sem_Error ( HsParseError pos_ msg_ ) = sem_Error_HsParseError pos_ msg_
+sem_Error ( DupAlt nt_ con_ occ1_ ) = sem_Error_DupAlt nt_ con_ occ1_
+sem_Error ( DupSynonym nt_ occ1_ ) = sem_Error_DupSynonym nt_ occ1_
+sem_Error ( DupSet name_ occ1_ ) = sem_Error_DupSet name_ occ1_
+sem_Error ( DupInhAttr nt_ attr_ occ1_ ) = sem_Error_DupInhAttr nt_ attr_ occ1_
+sem_Error ( DupSynAttr nt_ attr_ occ1_ ) = sem_Error_DupSynAttr nt_ attr_ occ1_
+sem_Error ( DupChild nt_ con_ name_ occ1_ ) = sem_Error_DupChild nt_ con_ name_ occ1_
+sem_Error ( DupRule nt_ con_ field_ attr_ occ1_ ) = sem_Error_DupRule nt_ con_ field_ attr_ occ1_
+sem_Error ( DupRuleName nt_ con_ nm_ ) = sem_Error_DupRuleName nt_ con_ nm_
+sem_Error ( DupSig nt_ con_ attr_ ) = sem_Error_DupSig nt_ con_ attr_
+sem_Error ( UndefNont nt_ ) = sem_Error_UndefNont nt_
+sem_Error ( UndefAlt nt_ con_ ) = sem_Error_UndefAlt nt_ con_
+sem_Error ( UndefChild nt_ con_ name_ ) = sem_Error_UndefChild nt_ con_ name_
+sem_Error ( MissingRule nt_ con_ field_ attr_ ) = sem_Error_MissingRule nt_ con_ field_ attr_
+sem_Error ( MissingNamedRule nt_ con_ name_ ) = sem_Error_MissingNamedRule nt_ con_ name_
+sem_Error ( SuperfluousRule nt_ con_ field_ attr_ ) = sem_Error_SuperfluousRule nt_ con_ field_ attr_
+sem_Error ( UndefLocal nt_ con_ var_ ) = sem_Error_UndefLocal nt_ con_ var_
+sem_Error ( ChildAsLocal nt_ con_ var_ ) = sem_Error_ChildAsLocal nt_ con_ var_
+sem_Error ( UndefAttr nt_ con_ field_ attr_ isOut_ ) = sem_Error_UndefAttr nt_ con_ field_ attr_ isOut_
+sem_Error ( Cyclic nt_ mbCon_ verts_ ) = sem_Error_Cyclic nt_ mbCon_ verts_
+sem_Error ( CyclicSet name_ ) = sem_Error_CyclicSet name_
+sem_Error ( CustomError isWarning_ pos_ mesg_ ) = sem_Error_CustomError isWarning_ pos_ mesg_
+sem_Error ( LocalCirc nt_ con_ attr_ o_visit_ path_ ) = sem_Error_LocalCirc nt_ con_ attr_ o_visit_ path_
+sem_Error ( InstCirc nt_ con_ attr_ o_visit_ path_ ) = sem_Error_InstCirc nt_ con_ attr_ o_visit_ path_
+sem_Error ( DirectCirc nt_ o_visit_ cyclic_ ) = sem_Error_DirectCirc nt_ o_visit_ cyclic_
+sem_Error ( InducedCirc nt_ cinter_ cyclic_ ) = sem_Error_InducedCirc nt_ cinter_ cyclic_
+sem_Error ( MissingTypeSig nt_ con_ attr_ ) = sem_Error_MissingTypeSig nt_ con_ attr_
+sem_Error ( MissingInstSig nt_ con_ attr_ ) = sem_Error_MissingInstSig nt_ con_ attr_
+sem_Error ( DupUnique nt_ con_ attr_ ) = sem_Error_DupUnique nt_ con_ attr_
+sem_Error ( MissingUnique nt_ attr_ ) = sem_Error_MissingUnique nt_ attr_
+sem_Error ( MissingSyn nt_ attr_ ) = sem_Error_MissingSyn nt_ attr_
+sem_Error ( IncompatibleVisitKind child_ vis_ from_ to_ ) = sem_Error_IncompatibleVisitKind child_ vis_ from_ to_
+sem_Error ( IncompatibleRuleKind rule_ kind_ ) = sem_Error_IncompatibleRuleKind rule_ kind_
+sem_Error ( IncompatibleAttachKind child_ kind_ ) = sem_Error_IncompatibleAttachKind child_ kind_
+
 -- semantic domain
-newtype T_Error = T_Error (Options ->
-                           Bool ->
-                           ( Error,PP_Doc))
-data Inh_Error = Inh_Error {options_Inh_Error :: Options,verbose_Inh_Error :: Bool}
-data Syn_Error = Syn_Error {me_Syn_Error :: Error,pp_Syn_Error :: PP_Doc}
-wrap_Error :: T_Error ->
-              Inh_Error ->
-              Syn_Error
-wrap_Error (T_Error sem) (Inh_Error _lhsIoptions _lhsIverbose) =
-    (let ( _lhsOme,_lhsOpp) = sem _lhsIoptions _lhsIverbose
-     in  (Syn_Error _lhsOme _lhsOpp))
-sem_Error_ParserError :: Pos ->
-                         String ->
-                         String ->
-                         T_Error
-sem_Error_ParserError pos_ problem_ action_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 87, column 21)
-                       _lhsOpp =
-                           ({-# LINE 87 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg = text ("parser expecting " ++ problem_)
-                                pat  = text ""
-                                help = text ""
-                                act  = text action_
-                             in ppError (isError _lhsIoptions _me) pos_ mesg pat help act _lhsIverbose
-                            {-# LINE 505 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            ParserError pos_ problem_ action_
-                            {-# LINE 511 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 517 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_HsParseError :: Pos ->
-                          String ->
-                          T_Error
-sem_Error_HsParseError pos_ msg_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 93, column 21)
-                       _lhsOpp =
-                           ({-# LINE 93 "./src-ag/PrintErrorMessages.ag" #-}
-                            ppError True pos_ (text msg_) (text "") (text "") (text "Correct the syntax of the Haskell code.") _lhsIverbose
-                            {-# LINE 532 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            HsParseError pos_ msg_
-                            {-# LINE 538 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 544 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupAlt :: NontermIdent ->
-                    ConstructorIdent ->
-                    ConstructorIdent ->
-                    T_Error
-sem_Error_DupAlt nt_ con_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 95, column 21)
-                       _lhsOpp =
-                           ({-# LINE 95 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Repeated definition for alternative", getName con_
-                                              ,"of nonterminal", getName nt_, "."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Other definition:", (showPos con_),"."]
-                                pat =     "DATA" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< "...")
-                                      >-< indent 2 ("|" >#< getName con_ >#< "...")
-                                help =  wfill ["The nonterminal",getName nt_,"has more than one alternative that"
-                                              ,"is labelled with the constructor name",getName con_,"."
-                                              ,"You should either rename or remove enough of them to make all"
-                                              ,"constructors of",getName nt_,"uniquely named."
-                                              ]
-                                act  = wfill [ "The first alternative of name",getName con_
-                                             ,"you have given for nonterminal",getName nt_
-                                             ,"is considered valid. All other alternatives have been discarded."
-                                             ]
-                            in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                            {-# LINE 577 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupAlt nt_ con_ occ1_
-                            {-# LINE 583 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 589 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupSynonym :: NontermIdent ->
-                        NontermIdent ->
-                        T_Error
-sem_Error_DupSynonym nt_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 117, column 21)
-                       _lhsOpp =
-                           ({-# LINE 117 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Definition of type synonym", getName nt_, "clashes with another"
-                                              ,"type synonym."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Type synonym :"   , (showPos nt_),"."]
-                                pat =     "DATA" >#< getName nt_
-                                      >-< indent 2 ("|" >#< "...")
-                                      >-< "TYPE" >#< getName nt_ >#< "=" >#<  "..."
-                                help =  wfill ["A type synonym with name", getName  nt_
-                                              ,"has been given while there already is TYPE"
-                                              ,"definition with the same name."
-                                              ,"You should either rename or remove the type synonym."
-                                              ]
-                                act  = wfill [ "The clashing type synonym will be ignored."
-                                             ]
-                            in ppError (isError _lhsIoptions _me)  (getPos nt_) mesg pat help act _lhsIverbose
-                            {-# LINE 619 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupSynonym nt_ occ1_
-                            {-# LINE 625 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 631 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupSet :: NontermIdent ->
-                    NontermIdent ->
-                    T_Error
-sem_Error_DupSet name_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 134, column 21)
-                       _lhsOpp =
-                           ({-# LINE 134 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Definition of nonterminal set", getName name_, "clashes with another"
-                                              ,"set, a type synonym or a data definition."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Set definition:"   , (showPos name_),"."]
-                                pat =     "SET" >#< getName name_ >#< "=" >#<  "..."
-                                      >-< "SET" >#< getName name_ >#< "=" >#<  "..."
-                                help =  wfill ["A nonterminal set with name", getName  name_
-                                              ,"has been given while there already is a SET, DATA, or TYPE"
-                                              ,"definition with the same name."
-                                              ,"You should either rename or remove the nonterminal set."
-                                              ]
-                                act  = wfill [ "The clashing nonterminal set will be ignored."
-                                             ]
-                            in ppError (isError _lhsIoptions _me)  (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 660 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupSet name_ occ1_
-                            {-# LINE 666 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 672 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupInhAttr :: NontermIdent ->
-                        Identifier ->
-                        Identifier ->
-                        T_Error
-sem_Error_DupInhAttr nt_ attr_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 150, column 21)
-                       _lhsOpp =
-                           ({-# LINE 150 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Repeated declaration of inherited attribute", getName attr_
-                                              , "of nonterminal", getName nt_, "."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Other definition:", (showPos attr_),"."]
-                                pat  = "ATTR" >#< getName nt_ >#< "[" >#< getName attr_ >|< ":...,"
-                                                              >#< getName attr_ >|< ":... | | ]"
-                                help =  wfill ["The identifier" , getName attr_ ,"has been declared"
-                                              ,"as an inherited (or chained) attribute for nonterminal"
-                                              ,getName nt_ , "more than once, with possibly different types."
-                                              ,"Delete all but one or rename them to make them unique."
-                                              ]
-                                act  = wfill ["One declaration with its corresponding type is considered valid."
-                                             ,"All others have been discarded. The generated program will probably not run."
-                                             ]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 703 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupInhAttr nt_ attr_ occ1_
-                            {-# LINE 709 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 715 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupSynAttr :: NontermIdent ->
-                        Identifier ->
-                        Identifier ->
-                        T_Error
-sem_Error_DupSynAttr nt_ attr_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 169, column 21)
-                       _lhsOpp =
-                           ({-# LINE 169 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Repeated declaration of synthesized attribute", getName attr_
-                                              , "of nonterminal", getName nt_, "."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Other definition:", (showPos attr_),"."]
-                                pat  = "ATTR" >#< getName nt_ >#< "[ | |" >#< getName attr_ >|< ":...,"
-                                                                  >#< getName attr_ >|< ":... ]"
-                                help =  wfill ["The identifier" , getName attr_ ,"has been declared"
-                                              ,"as a synthesized (or chained) attribute for nonterminal"
-                                              ,getName nt_ , "more than once, with possibly different types."
-                                              ,"Delete all but one or rename them to make them unique."
-                                              ]
-                                act  = wfill ["One declaration with its corresponding type is considered valid."
-                                             ,"All others have been discarded. The generated program will probably not run."
-                                             ]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 746 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupSynAttr nt_ attr_ occ1_
-                            {-# LINE 752 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 758 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupChild :: NontermIdent ->
-                      ConstructorIdent ->
-                      Identifier ->
-                      Identifier ->
-                      T_Error
-sem_Error_DupChild nt_ con_ name_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 188, column 21)
-                       _lhsOpp =
-                           ({-# LINE 188 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Repeated declaration for field", getName name_, "of alternative"
-                                              ,getName con_, "of nonterminal", getName nt_, "."
-                                              ] >-<
-                                        wfill ["First definition:", (showPos occ1_),"."] >-<
-                                        wfill ["Other definition:", (showPos name_),"."]
-                                pat   =   "DATA" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< (getName name_ >|< ":..." >-< getName name_ >|< ":..."))
-                                help =  wfill ["The alternative" ,getName con_ , "of nonterminal" ,getName nt_
-                                              ,"has more than one field that is named"
-                                              , getName name_ ++ ". Possibly they have different types."
-                                              ,"You should either rename or remove enough of them to make all fields of"
-                                              ,getName con_ , "for nonterminal " , getName nt_ , "uniquely named."
-                                              ]
-                                act  = wfill ["The last declaration with its corresponding type is considered valid."
-                                             ,"All others have been discarded."
-                                             ]
-                            in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 791 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupChild nt_ con_ name_ occ1_
-                            {-# LINE 797 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 803 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupRule :: NontermIdent ->
-                     ConstructorIdent ->
-                     Identifier ->
-                     Identifier ->
-                     Identifier ->
-                     T_Error
-sem_Error_DupRule nt_ con_ field_ attr_ occ1_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 208, column 21)
-                       _lhsOpp =
-                           ({-# LINE 208 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rules for"
-                                              ,showAttrDef field_ attr_,"."
-                                              ]  >-<
-                                        wfill ["First rule:", (showPos occ1_),"."] >-<
-                                        wfill ["Other rule:", (showPos attr_),"."]
-                                pat   =   "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
-                                help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
-                                                      ,", there is more than one rule for the" , showAttrDef field_ attr_
-                                                      ,". You should either rename or remove enough of them to make all rules for alternative"
-                                                      ,getName con_ , "of nonterminal " ,getName  nt_ , "uniquely named."
-                                                      ]
-                                act  = wfill ["The last rule given is considered valid. All others have been discarded."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 835 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupRule nt_ con_ field_ attr_ occ1_
-                            {-# LINE 841 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 847 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupRuleName :: NontermIdent ->
-                         ConstructorIdent ->
-                         Identifier ->
-                         T_Error
-sem_Error_DupRuleName nt_ con_ nm_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 226, column 21)
-                       _lhsOpp =
-                           ({-# LINE 226 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rule names for"
-                                              ,show nm_,"."
-                                              ]
-                                pat   =   "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< show nm_ >#< ": ... = ...")
-                                      >-< indent 2 ("|" >#< getName con_ >#< show nm_ >#< ": ... = ...")
-                                help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
-                                                      ,", there is more than one rule name " , show nm_
-                                                      ,". You should either rename or remove enough of them."
-                                                      ]
-                                act  = wfill ["Compilation cannot continue."]
-                            in ppError (isError _lhsIoptions _me) (getPos nm_) mesg pat help act _lhsIverbose
-                            {-# LINE 874 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupRuleName nt_ con_ nm_
-                            {-# LINE 880 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 886 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupSig :: NontermIdent ->
-                    ConstructorIdent ->
-                    Identifier ->
-                    T_Error
-sem_Error_DupSig nt_ con_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 241, column 21)
-                       _lhsOpp =
-                           ({-# LINE 241 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more typesignatures for"
-                                              ,showAttrDef _LOC attr_,"."
-                                              ]  >-<
-                                        wfill ["First signature:", (showPos attr_),"."]
-                                pat   =   "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< "= ...")
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< "= ...")
-                                help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
-                                                      ,", there is more than one rule for the" , showAttrDef _LOC attr_
-                                                      ,". You should remove enough of them to make all typesignatures for alternative"
-                                                      ,getName con_ , "of nonterminal " ,getName  nt_ , "unique."
-                                                      ]
-                                act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 915 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupSig nt_ con_ attr_
-                            {-# LINE 921 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 927 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_UndefNont :: NontermIdent ->
-                       T_Error
-sem_Error_UndefNont nt_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 258, column 21)
-                       _lhsOpp =
-                           ({-# LINE 258 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Nonterminal", getName nt_, "is not defined."
-                                              ]
-                                pat   = "DATA" >#< getName nt_ >#< "..."
-                                help =  wfill ["There are attributes and/or rules for nonterminal" , getName nt_  ,", but there is no definition"
-                                                      , "for" ,getName  nt_, ". Maybe you misspelled it? Otherwise insert a definition."
-                                                      ]
-                                act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
-                            in ppError (isError _lhsIoptions _me) (getPos nt_) mesg pat help act _lhsIverbose
-                            {-# LINE 948 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            UndefNont nt_
-                            {-# LINE 954 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 960 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_UndefAlt :: NontermIdent ->
-                      ConstructorIdent ->
-                      T_Error
-sem_Error_UndefAlt nt_ con_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 268, column 21)
-                       _lhsOpp =
-                           ({-# LINE 268 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_, "is  not defined."
-                                              ]
-                                pat   =   "DATA" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< "...")
-                                help =  wfill ["There are rules for alternative", getName con_ , "of nonterminal" ,getName nt_
-                                                      ,", but there is no definition for this alternative in the definitions of the"
-                                                      ,"nonterminal" , getName nt_, ". Maybe you misspelled it? Otherwise insert a definition."
-                                                      ]
-                                act  = wfill ["All rules for the unknown alternative have been ignored."]
-                            in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                            {-# LINE 984 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            UndefAlt nt_ con_
-                            {-# LINE 990 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 996 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_UndefChild :: NontermIdent ->
-                        ConstructorIdent ->
-                        Identifier ->
-                        T_Error
-sem_Error_UndefChild nt_ con_ name_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 280, column 21)
-                       _lhsOpp =
-                           ({-# LINE 280 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_
-                                              , "does not have a nontrivial field named", getName name_ , "."
-                                              ]
-                                pat   =   "SEM" >#< nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr name_ (identifier "<attr>") >#< "= ...")
-                                help =  wfill ["There are rules that define or use attributes of field" , getName name_
-                                                      ,"in alternative" , getName con_ , "of nonterminal" , getName nt_
-                                                      ,", but there is no field with AG-type in the definition of the alternative."
-                                                      ,"Maybe you misspelled it? Otherwise insert the field into the definition,"
-                                                      ,"or change its type from an HS-type to an AG-type."
-                                                      ]
-                                act  = wfill ["All rules for the unknown field have been ignored."]
-                            in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 1024 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            UndefChild nt_ con_ name_
-                            {-# LINE 1030 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1036 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingRule :: NontermIdent ->
-                         ConstructorIdent ->
-                         Identifier ->
-                         Identifier ->
-                         T_Error
-sem_Error_MissingRule nt_ con_ field_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 295, column 21)
-                       _lhsOpp =
-                           ({-# LINE 295 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Missing rule for", showAttrDef field_ attr_ , "in alternative"
-                                              , getName con_ , "of nonterminal",getName nt_ ,"."
-                                              ]
-                                pat   =   "SEM" >#< nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
-                                help  = wfill ["The", showAttrDef field_ attr_, "in alternative", getName con_
-                                              , "of nonterminal", getName nt_, "is missing and cannot be inferred"
-                                              ,"by a copy rule, so you should add an appropriate rule."
-                                              ]
-                                act  = wfill ["The value of the attribute has been set to undefined."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1063 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingRule nt_ con_ field_ attr_
-                            {-# LINE 1069 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1075 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingNamedRule :: NontermIdent ->
-                              Identifier ->
-                              Identifier ->
-                              T_Error
-sem_Error_MissingNamedRule nt_ con_ name_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 308, column 23)
-                       _lhsOpp =
-                           ({-# LINE 308 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Missing rule name ", show name_ , "in alternative"
-                                              , getName con_ , "of nonterminal",getName nt_ ,"."
-                                              ]
-                                pat   =   "SEM" >#< nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< show name_ >#< ": ... = ...")
-                                help  = wfill ["There is a dependency on a rule with name ", show name_ , "in alternative"
-                                              , getName con_ , "of nonterminal",getName nt_ ,", but no rule has been defined with this name. Maybe you misspelled it?"
-                                              ]
-                                act  = wfill ["Compilation cannot continue."]
-                            in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 1100 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingNamedRule nt_ con_ name_
-                            {-# LINE 1106 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1112 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_SuperfluousRule :: NontermIdent ->
-                             ConstructorIdent ->
-                             Identifier ->
-                             Identifier ->
-                             T_Error
-sem_Error_SuperfluousRule nt_ con_ field_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 320, column 21)
-                       _lhsOpp =
-                           ({-# LINE 320 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Rule for non-existing", showAttrDef field_ attr_ , "at alternative"
-                                              , getName con_ , "of nonterminal",getName nt_, "."
-                                              ]
-                                pat   =   "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
-                                help =  wfill ["There is a rule for" , showAttrDef field_ attr_ , "in the definitions for alternative" , getName con_
-                                              ,"of nonterminal" , getName nt_,  ", but this attribute does not exist. Maybe you misspelled it?"
-                                              ,"Otherwise either remove the rule or add an appropriate attribute definition."
-                                              ]
-                                act  = wfill ["The rule has been ignored."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1139 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            SuperfluousRule nt_ con_ field_ attr_
-                            {-# LINE 1145 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1151 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_UndefLocal :: NontermIdent ->
-                        ConstructorIdent ->
-                        Identifier ->
-                        T_Error
-sem_Error_UndefLocal nt_ con_ var_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 334, column 21)
-                       _lhsOpp =
-                           ({-# LINE 334 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Undefined local variable or field",getName var_, "at constructor"
-                                              , getName con_ , "of nonterminal",getName nt_, "."
-                                              ]
-                                pat   = "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< "<field>.<attr> = "
-                                                        >#< "..." >#< "@" >|< getName var_ >#< "..." )
-                                help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
-                                              , getName nt_ , "contains a local variable or field name that is not defined. "
-                                              ,"Maybe you misspelled it?"
-                                              ,"Otherwise either remove the rule or add an appropriate definition."
-                                              ]
-                                act  = wfill ["The generated program will not run."]
-                            in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
-                            {-# LINE 1179 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            UndefLocal nt_ con_ var_
-                            {-# LINE 1185 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1191 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_ChildAsLocal :: NontermIdent ->
-                          ConstructorIdent ->
-                          Identifier ->
-                          T_Error
-sem_Error_ChildAsLocal nt_ con_ var_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 349, column 21)
-                       _lhsOpp =
-                           ({-# LINE 349 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Nontrivial field ",getName var_, "is used as local at constructor"
-                                              , getName con_ , "of nonterminal",getName nt_, "."
-                                              ]
-                                pat   = "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< "... = "
-                                                        >#< "..." >#< "@" >|< getName var_ >#< "..." )
-                                help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
-                                              , getName nt_ , "contains a nontrivial field name", getName var_, "."
-                                              ,"You should use @", getName var_, ".self instead, where self is a SELF-attribute."
-                                              ]
-                                act  = wfill ["The generated program probably contains a type error or has undefined variables."]
-                            in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
-                            {-# LINE 1218 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            ChildAsLocal nt_ con_ var_
-                            {-# LINE 1224 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1230 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_UndefAttr :: NontermIdent ->
-                       ConstructorIdent ->
-                       Identifier ->
-                       Identifier ->
-                       Bool ->
-                       T_Error
-sem_Error_UndefAttr nt_ con_ field_ attr_ isOut_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 363, column 21)
-                       _lhsOpp =
-                           ({-# LINE 363 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Undefined"
-                                              , if isOut_
-                                                then showAttrDef field_ attr_
-                                                else showAttrUse field_ attr_
-                                              , "at constructor"
-                                              , getName con_ , "of nonterminal",getName nt_, "."
-                                              ]
-                                pat   = "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< "<field>.<attr> = "
-                                                        >#< "..." >#< ppAttrUse field_ attr_ >#< "...")
-                                help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
-                                              ,getName  nt_ , "contains an attribute that is not defined"
-                                              ,"Maybe you misspelled it?"
-                                              ,"Otherwise either remove the rule or add an appropriate attribute definition."
-                                              ]
-                                act  = wfill ["The generated program will not run."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1264 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            UndefAttr nt_ con_ field_ attr_ isOut_
-                            {-# LINE 1270 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1276 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_Cyclic :: NontermIdent ->
-                    (Maybe ConstructorIdent) ->
-                    ([String]) ->
-                    T_Error
-sem_Error_Cyclic nt_ mbCon_ verts_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 391, column 21)
-                       _lhsOpp =
-                           ({-# LINE 391 "./src-ag/PrintErrorMessages.ag" #-}
-                            let pos  = getPos nt_
-                                mesg = text "Circular dependency for nonterminal" >#< getName nt_
-                                       >#< ( case mbCon_ of
-                                               Nothing  -> empty
-                                               Just con -> text "and constructor" >#< con
-                                           )
-                                       >#< ( case verts_ of
-                                                 v : _ -> text "including vertex" >#< text v
-                                                 _     -> empty
-                                           )
-                                pat  = text "cyclic rule definition"
-                                help = hlist (text "The following attributes are all cyclic: " : map text verts_)
-                                act  = wfill ["code cannot be generated until the cycle is removed."]
-                            in ppError (isError _lhsIoptions _me) pos mesg pat help act False
-                            {-# LINE 1305 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            Cyclic nt_ mbCon_ verts_
-                            {-# LINE 1311 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1317 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_CyclicSet :: Identifier ->
-                       T_Error
-sem_Error_CyclicSet name_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 382, column 21)
-                       _lhsOpp =
-                           ({-# LINE 382 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Cyclic definition for nonterminal set", getName name_]
-                                pat   = "SET" >#< getName name_ >#< "=" >#< "..." >#< getName name_ >#< "..."
-                                help =  wfill ["The defintion for a nonterminal set named" , getName name_
-                                              ,"directly or indirectly refers to itself."
-                                              ,"Adapt the definition of the nonterminal set, to remove the cyclic dependency."
-                                              ]
-                                act  = wfill ["The nonterminal set", getName name_, "is considered to be empty."]
-                            in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                            {-# LINE 1338 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            CyclicSet name_
-                            {-# LINE 1344 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1350 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_CustomError :: Bool ->
-                         Pos ->
-                         PP_Doc ->
-                         T_Error
-sem_Error_CustomError isWarning_ pos_ mesg_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 406, column 21)
-                       _lhsOpp =
-                           ({-# LINE 406 "./src-ag/PrintErrorMessages.ag" #-}
-                            let pat   =  text "unknown"
-                                help = wfill ["not available."]
-                                act  = wfill ["unknown"]
-                            in ppError (isError _lhsIoptions _me) pos_ mesg_ pat help act False
-                            {-# LINE 1369 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            CustomError isWarning_ pos_ mesg_
-                            {-# LINE 1375 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1381 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_LocalCirc :: NontermIdent ->
-                       ConstructorIdent ->
-                       Identifier ->
-                       Bool ->
-                       ([String]) ->
-                       T_Error
-sem_Error_LocalCirc nt_ con_ attr_ o_visit_ path_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 411, column 21)
-                       _lhsOpp =
-                           ({-# LINE 411 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Circular dependency for local attribute", getName attr_
-                                              , "of alternative", getName con_, "of nonterminal", getName nt_]
-                                pat   = "SEM" >#< getName nt_
-                                        >-< indent 2 ("|" >#< getName con_ >#< "loc." >|< getName attr_ >#< "="
-                                                          >#< "..." >#< "@loc." >|< getName attr_ >#< "...")
-                                help  = if null path_
-                                        then text "the definition is directly circular"
-                                        else hlist ("The following attributes are involved in the cycle:": path_)
-                                act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
-                                      | otherwise = text "The generated program might hang when run."
-                            in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                            {-# LINE 1409 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            LocalCirc nt_ con_ attr_ o_visit_ path_
-                            {-# LINE 1415 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1421 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_InstCirc :: NontermIdent ->
-                      ConstructorIdent ->
-                      Identifier ->
-                      Bool ->
-                      ([String]) ->
-                      T_Error
-sem_Error_InstCirc nt_ con_ attr_ o_visit_ path_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 423, column 21)
-                       _lhsOpp =
-                           ({-# LINE 423 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Circular dependency for inst attribute", getName attr_
-                                              , "of alternative", getName con_, "of nonterminal", getName nt_]
-                                pat   = "SEM" >#< getName nt_
-                                        >-< indent 2 ("|" >#< getName con_ >#< "inst." >|< getName attr_ >#< "="
-                                                          >#< "..." >#< "@s.<some attribte>" >#< "...")
-                                help  = if null path_
-                                        then text "the definition is directly circular"
-                                        else hlist ("The following attributes are involved in the cycle:": path_)
-                                act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
-                                      | otherwise = text "The generated program might hang when run."
-                            in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                            {-# LINE 1449 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            InstCirc nt_ con_ attr_ o_visit_ path_
-                            {-# LINE 1455 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1461 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DirectCirc :: NontermIdent ->
-                        Bool ->
-                        ([((Identifier,Identifier),[String],[String])]) ->
-                        T_Error
-sem_Error_DirectCirc nt_ o_visit_ cyclic_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 435, column 21)
-                       _lhsOpp =
-                           ({-# LINE 435 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["In nonterminal", getName nt_, "synthesized and inherited attributes are mutually dependent" ]
-                                        >-< vlist (map showEdge cyclic_)
-                                pat   = text ""
-                                help  = vlist (map showEdgeLong cyclic_)
-                                act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
-                                      | otherwise = text "The generated program might hang when run."
-                            in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                            {-# LINE 1483 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DirectCirc nt_ o_visit_ cyclic_
-                            {-# LINE 1489 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1495 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_InducedCirc :: NontermIdent ->
-                         CInterface ->
-                         ([((Identifier,Identifier),[String],[String])]) ->
-                         T_Error
-sem_Error_InducedCirc nt_ cinter_ cyclic_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 443, column 21)
-                       _lhsOpp =
-                           ({-# LINE 443 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["After scheduling, in nonterminal", getName nt_, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
-                                        >-< vlist (map showEdge cyclic_)
-                                pat   = text ""
-                                showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (succ i :: Integer,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
-                                help  = vlist (("Interface for nonterminal " ++ getName nt_ ++ ":") : map ind (showInter cinter_))
-                                        >-< vlist (map showEdgeLong cyclic_)
-                                act   = text "An unoptimized version was generated. It might hang when run."
-                            in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                            {-# LINE 1518 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            InducedCirc nt_ cinter_ cyclic_
-                            {-# LINE 1524 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1530 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingTypeSig :: NontermIdent ->
-                            ConstructorIdent ->
-                            Identifier ->
-                            T_Error
-sem_Error_MissingTypeSig nt_ con_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 452, column 21)
-                       _lhsOpp =
-                           ({-# LINE 452 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC attr_ , "in alternative"
-                                              , getName con_ , "of nonterminal",getName nt_ ,"."
-                                              ]>-<
-                                        wfill ["Location:", (showPos attr_),"."]
-                                pat   =   "SEM" >#< nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< ": ...")
-                                help  = wfill ["The", showAttrDef _LOC attr_, "in alternative", getName con_
-                                              ,"of nonterminal", getName nt_, "is needed in two separate visits to", getName nt_
-                                              ,"so its type is needed to generate type signatures."
-                                              ,"Please supply its type."
-                                              ]
-                                act  = wfill ["The type signatures of semantic functions are not generated."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1558 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingTypeSig nt_ con_ attr_
-                            {-# LINE 1564 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1570 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingInstSig :: NontermIdent ->
-                            ConstructorIdent ->
-                            Identifier ->
-                            T_Error
-sem_Error_MissingInstSig nt_ con_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 466, column 21)
-                       _lhsOpp =
-                           ({-# LINE 466 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg = wfill ["Type signature needed, but not found for", showAttrDef _INST attr_ , "in alternative"
-                                              , getName con_ , "of nonterminal",getName nt_ ,"."
-                                              ]>-<
-                                        wfill ["Location:", (showPos attr_),"."]
-                                pat   = "SEM" >#< nt_
-                                          >-< indent 2 ("|" >#< getName con_ >#< ppAttr _INST attr_ >#< ": ...")
-                                help  = wfill ["The", showAttrDef _INST attr_, "in alternative", getName con_
-                                              ,"of nonterminal", getName nt_, "is a non-terminal attribute, so "
-                                              ,"its type is needed to attribute its value."
-                                              ,"Please supply its type."
-                                              ]
-                                act  = wfill ["It is not possible to proceed without this signature."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1598 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingInstSig nt_ con_ attr_
-                            {-# LINE 1604 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1610 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_DupUnique :: NontermIdent ->
-                       ConstructorIdent ->
-                       Identifier ->
-                       T_Error
-sem_Error_DupUnique nt_ con_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 496, column 21)
-                       _lhsOpp =
-                           ({-# LINE 496 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more unique-attribute signatures for"
-                                              ,showAttrDef _LOC attr_,"."
-                                              ]  >-<
-                                        wfill ["First signature:", (showPos attr_),"."]
-                                pat   =   "SEM" >#< getName nt_
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< " : UNIQUEREF ...")
-                                      >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< " : UNIQUEREF ...")
-                                help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
-                                                      ,", there is more than one unique-attribute signature for the" , showAttrDef _LOC attr_
-                                                      ,". You should remove enough of them to make all unique-signatures for alternative"
-                                                      ,getName con_ , "of nonterminal " ,getName  nt_ , "unique."
-                                                      ]
-                                act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1639 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            DupUnique nt_ con_ attr_
-                            {-# LINE 1645 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1651 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingUnique :: NontermIdent ->
-                           Identifier ->
-                           T_Error
-sem_Error_MissingUnique nt_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 480, column 21)
-                       _lhsOpp =
-                           ({-# LINE 480 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Missing unique counter (chained attribute)"
-                                              , getName attr_
-                                              , "at nonterminal"
-                                              , getName nt_, "."
-                                              ]
-                                pat   = "ATTR" >#< getName nt_ >#< "[ |" >#< getName attr_ >#< " : ... | ]"
-                                help =  wfill ["A unique attribute signature in a constructor for nonterminal" , getName nt_
-                                              , "refers to an unique counter (chained attribute) named "
-                                              , getName attr_
-                                              ,"Maybe you misspelled it?"
-                                              ,"Otherwise either remove the signature or add an appropriate attribute definition."
-                                              ]
-                                act  = wfill ["It is not possible to proceed without this declaration."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1679 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingUnique nt_ attr_
-                            {-# LINE 1685 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1691 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_MissingSyn :: NontermIdent ->
-                        Identifier ->
-                        T_Error
-sem_Error_MissingSyn nt_ attr_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 513, column 20)
-                       _lhsOpp =
-                           ({-# LINE 513 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = wfill ["Missing synthesized attribute"
-                                              , getName attr_
-                                              , "at nonterminal"
-                                              , getName nt_, "."
-                                              ]
-                                pat   = "ATTR" >#< getName nt_ >#< "[ | | " >#< getName attr_ >#< " : ... ]"
-                                help =  wfill ["An augment rule for a constructor for nonterminal" , getName nt_
-                                              , "refers to a synthesized attribute named "
-                                              , getName attr_
-                                              ,"Maybe you misspelled it?"
-                                              ,"Otherwise add an appropriate attribute definition."
-                                              ]
-                                act  = wfill ["It is not possible to proceed without this declaration."]
-                            in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                            {-# LINE 1719 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            MissingSyn nt_ attr_
-                            {-# LINE 1725 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1731 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_IncompatibleVisitKind :: Identifier ->
-                                   VisitIdentifier ->
-                                   VisitKind ->
-                                   VisitKind ->
-                                   T_Error
-sem_Error_IncompatibleVisitKind child_ vis_ from_ to_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 529, column 20)
-                       _lhsOpp =
-                           ({-# LINE 529 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = "visit" >#< vis_ >#< "of child" >#< child_ >#< " with kind" >#< show to_ >#< " cannot be called from a visit with kind " >#< show from_
-                                pat   = empty
-                                help  = empty
-                                act   = text "It is not possible to proceed without fixing this kind error."
-                            in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                            {-# LINE 1752 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            IncompatibleVisitKind child_ vis_ from_ to_
-                            {-# LINE 1758 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1764 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_IncompatibleRuleKind :: Identifier ->
-                                  VisitKind ->
-                                  T_Error
-sem_Error_IncompatibleRuleKind rule_ kind_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 535, column 20)
-                       _lhsOpp =
-                           ({-# LINE 535 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = "rule" >#< rule_ >#< "cannot be called from a visit with kind " >#< show kind_
-                                pat   = empty
-                                help  = empty
-                                act   = text "It is not possible to proceed without fixing this kind error."
-                            in ppError (isError _lhsIoptions _me) (getPos rule_) mesg pat help act _lhsIverbose
-                            {-# LINE 1783 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            IncompatibleRuleKind rule_ kind_
-                            {-# LINE 1789 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1795 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
-sem_Error_IncompatibleAttachKind :: Identifier ->
-                                    VisitKind ->
-                                    T_Error
-sem_Error_IncompatibleAttachKind child_ kind_ =
-    (T_Error (\ _lhsIoptions
-                _lhsIverbose ->
-                  (let _lhsOpp :: PP_Doc
-                       _lhsOme :: Error
-                       -- "./src-ag/PrintErrorMessages.ag"(line 542, column 20)
-                       _lhsOpp =
-                           ({-# LINE 542 "./src-ag/PrintErrorMessages.ag" #-}
-                            let mesg  = "child" >#< child_ >#< "cannot be called from a visit with kind " >#< show kind_
-                                pat   = empty
-                                help  = empty
-                                act   = text "It is not possible to proceed without fixing this kind error."
-                            in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                            {-# LINE 1814 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _me =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            IncompatibleAttachKind child_ kind_
-                            {-# LINE 1820 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                       -- self rule
-                       _lhsOme =
-                           ({-# LINE 69 "./src-ag/PrintErrorMessages.ag" #-}
-                            _me
-                            {-# LINE 1826 "dist/build/PrintErrorMessages.hs" #-}
-                            )
-                   in  ( _lhsOme,_lhsOpp))))
+newtype T_Error  = T_Error {
+                           attach_T_Error :: Identity (T_Error_s2 )
+                           }
+newtype T_Error_s2  = C_Error_s2 {
+                                 inv_Error_s2 :: (T_Error_v1 )
+                                 }
+data T_Error_s3  = C_Error_s3
+type T_Error_v1  = (T_Error_vIn1 ) -> (T_Error_vOut1 )
+data T_Error_vIn1  = T_Error_vIn1 (Options) (Bool)
+data T_Error_vOut1  = T_Error_vOut1 (Error) (PP_Doc)
+{-# NOINLINE sem_Error_ParserError #-}
+sem_Error_ParserError :: (Pos) -> (String) -> (String) -> T_Error 
+sem_Error_ParserError arg_pos_ arg_problem_ arg_action_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule0 _lhsIoptions _lhsIverbose _me arg_action_ arg_pos_ arg_problem_
+         _me = rule1 arg_action_ arg_pos_ arg_problem_
+         _lhsOme :: Error
+         _lhsOme = rule2 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule0 #-}
+   {-# LINE 87 "./src-ag/PrintErrorMessages.ag" #-}
+   rule0 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me action_ pos_ problem_ ->
+                               {-# LINE 87 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg = text ("parser expecting " ++ problem_)
+                                   pat  = text ""
+                                   help = text ""
+                                   act  = text action_
+                                in ppError (isError _lhsIoptions _me) pos_ mesg pat help act _lhsIverbose
+                               {-# LINE 272 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule1 #-}
+   rule1 = \ action_ pos_ problem_ ->
+     ParserError pos_ problem_ action_
+   {-# INLINE rule2 #-}
+   rule2 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_HsParseError #-}
+sem_Error_HsParseError :: (Pos) -> (String) -> T_Error 
+sem_Error_HsParseError arg_pos_ arg_msg_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule3 _lhsIverbose arg_msg_ arg_pos_
+         _me = rule4 arg_msg_ arg_pos_
+         _lhsOme :: Error
+         _lhsOme = rule5 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule3 #-}
+   {-# LINE 93 "./src-ag/PrintErrorMessages.ag" #-}
+   rule3 = \ ((_lhsIverbose) :: Bool) msg_ pos_ ->
+                               {-# LINE 93 "./src-ag/PrintErrorMessages.ag" #-}
+                               ppError True pos_ (text msg_) (text "") (text "") (text "Correct the syntax of the Haskell code.") _lhsIverbose
+                               {-# LINE 299 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule4 #-}
+   rule4 = \ msg_ pos_ ->
+     HsParseError pos_ msg_
+   {-# INLINE rule5 #-}
+   rule5 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupAlt #-}
+sem_Error_DupAlt :: (NontermIdent) -> (ConstructorIdent) -> (ConstructorIdent) -> T_Error 
+sem_Error_DupAlt arg_nt_ arg_con_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule6 _lhsIoptions _lhsIverbose _me arg_con_ arg_nt_ arg_occ1_
+         _me = rule7 arg_con_ arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule8 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule6 #-}
+   {-# LINE 95 "./src-ag/PrintErrorMessages.ag" #-}
+   rule6 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ occ1_ ->
+                               {-# LINE 95 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Repeated definition for alternative", getName con_
+                                                 ,"of nonterminal", getName nt_, "."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Other definition:", (showPos con_),"."]
+                                   pat =     "DATA" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< "...")
+                                         >-< indent 2 ("|" >#< getName con_ >#< "...")
+                                   help =  wfill ["The nonterminal",getName nt_,"has more than one alternative that"
+                                                 ,"is labelled with the constructor name",getName con_,"."
+                                                 ,"You should either rename or remove enough of them to make all"
+                                                 ,"constructors of",getName nt_,"uniquely named."
+                                                 ]
+                                   act  = wfill [ "The first alternative of name",getName con_
+                                                ,"you have given for nonterminal",getName nt_
+                                                ,"is considered valid. All other alternatives have been discarded."
+                                                ]
+                               in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
+                               {-# LINE 343 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule7 #-}
+   rule7 = \ con_ nt_ occ1_ ->
+     DupAlt nt_ con_ occ1_
+   {-# INLINE rule8 #-}
+   rule8 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupSynonym #-}
+sem_Error_DupSynonym :: (NontermIdent) -> (NontermIdent) -> T_Error 
+sem_Error_DupSynonym arg_nt_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule9 _lhsIoptions _lhsIverbose _me arg_nt_ arg_occ1_
+         _me = rule10 arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule11 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule9 #-}
+   {-# LINE 117 "./src-ag/PrintErrorMessages.ag" #-}
+   rule9 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me nt_ occ1_ ->
+                               {-# LINE 117 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Definition of type synonym", getName nt_, "clashes with another"
+                                                 ,"type synonym."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Type synonym :"   , (showPos nt_),"."]
+                                   pat =     "DATA" >#< getName nt_
+                                         >-< indent 2 ("|" >#< "...")
+                                         >-< "TYPE" >#< getName nt_ >#< "=" >#<  "..."
+                                   help =  wfill ["A type synonym with name", getName  nt_
+                                                 ,"has been given while there already is TYPE"
+                                                 ,"definition with the same name."
+                                                 ,"You should either rename or remove the type synonym."
+                                                 ]
+                                   act  = wfill [ "The clashing type synonym will be ignored."
+                                                ]
+                               in ppError (isError _lhsIoptions _me)  (getPos nt_) mesg pat help act _lhsIverbose
+                               {-# LINE 385 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule10 #-}
+   rule10 = \ nt_ occ1_ ->
+     DupSynonym nt_ occ1_
+   {-# INLINE rule11 #-}
+   rule11 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupSet #-}
+sem_Error_DupSet :: (NontermIdent) -> (NontermIdent) -> T_Error 
+sem_Error_DupSet arg_name_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule12 _lhsIoptions _lhsIverbose _me arg_name_ arg_occ1_
+         _me = rule13 arg_name_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule14 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule12 #-}
+   {-# LINE 134 "./src-ag/PrintErrorMessages.ag" #-}
+   rule12 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me name_ occ1_ ->
+                               {-# LINE 134 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Definition of nonterminal set", getName name_, "clashes with another"
+                                                 ,"set, a type synonym or a data definition."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Set definition:"   , (showPos name_),"."]
+                                   pat =     "SET" >#< getName name_ >#< "=" >#<  "..."
+                                         >-< "SET" >#< getName name_ >#< "=" >#<  "..."
+                                   help =  wfill ["A nonterminal set with name", getName  name_
+                                                 ,"has been given while there already is a SET, DATA, or TYPE"
+                                                 ,"definition with the same name."
+                                                 ,"You should either rename or remove the nonterminal set."
+                                                 ]
+                                   act  = wfill [ "The clashing nonterminal set will be ignored."
+                                                ]
+                               in ppError (isError _lhsIoptions _me)  (getPos name_) mesg pat help act _lhsIverbose
+                               {-# LINE 426 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule13 #-}
+   rule13 = \ name_ occ1_ ->
+     DupSet name_ occ1_
+   {-# INLINE rule14 #-}
+   rule14 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupInhAttr #-}
+sem_Error_DupInhAttr :: (NontermIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_DupInhAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule15 _lhsIoptions _lhsIverbose _me arg_attr_ arg_nt_ arg_occ1_
+         _me = rule16 arg_attr_ arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule17 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule15 #-}
+   {-# LINE 150 "./src-ag/PrintErrorMessages.ag" #-}
+   rule15 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ occ1_ ->
+                               {-# LINE 150 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Repeated declaration of inherited attribute", getName attr_
+                                                 , "of nonterminal", getName nt_, "."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Other definition:", (showPos attr_),"."]
+                                   pat  = "ATTR" >#< getName nt_ >#< "[" >#< getName attr_ >|< ":...,"
+                                                                 >#< getName attr_ >|< ":... | | ]"
+                                   help =  wfill ["The identifier" , getName attr_ ,"has been declared"
+                                                 ,"as an inherited (or chained) attribute for nonterminal"
+                                                 ,getName nt_ , "more than once, with possibly different types."
+                                                 ,"Delete all but one or rename them to make them unique."
+                                                 ]
+                                   act  = wfill ["One declaration with its corresponding type is considered valid."
+                                                ,"All others have been discarded. The generated program will probably not run."
+                                                ]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 468 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule16 #-}
+   rule16 = \ attr_ nt_ occ1_ ->
+     DupInhAttr nt_ attr_ occ1_
+   {-# INLINE rule17 #-}
+   rule17 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupSynAttr #-}
+sem_Error_DupSynAttr :: (NontermIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_DupSynAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule18 _lhsIoptions _lhsIverbose _me arg_attr_ arg_nt_ arg_occ1_
+         _me = rule19 arg_attr_ arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule20 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule18 #-}
+   {-# LINE 169 "./src-ag/PrintErrorMessages.ag" #-}
+   rule18 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ occ1_ ->
+                               {-# LINE 169 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Repeated declaration of synthesized attribute", getName attr_
+                                                 , "of nonterminal", getName nt_, "."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Other definition:", (showPos attr_),"."]
+                                   pat  = "ATTR" >#< getName nt_ >#< "[ | |" >#< getName attr_ >|< ":...,"
+                                                                     >#< getName attr_ >|< ":... ]"
+                                   help =  wfill ["The identifier" , getName attr_ ,"has been declared"
+                                                 ,"as a synthesized (or chained) attribute for nonterminal"
+                                                 ,getName nt_ , "more than once, with possibly different types."
+                                                 ,"Delete all but one or rename them to make them unique."
+                                                 ]
+                                   act  = wfill ["One declaration with its corresponding type is considered valid."
+                                                ,"All others have been discarded. The generated program will probably not run."
+                                                ]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 510 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule19 #-}
+   rule19 = \ attr_ nt_ occ1_ ->
+     DupSynAttr nt_ attr_ occ1_
+   {-# INLINE rule20 #-}
+   rule20 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupChild #-}
+sem_Error_DupChild :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_DupChild arg_nt_ arg_con_ arg_name_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule21 _lhsIoptions _lhsIverbose _me arg_con_ arg_name_ arg_nt_ arg_occ1_
+         _me = rule22 arg_con_ arg_name_ arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule23 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule21 #-}
+   {-# LINE 188 "./src-ag/PrintErrorMessages.ag" #-}
+   rule21 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ occ1_ ->
+                               {-# LINE 188 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Repeated declaration for field", getName name_, "of alternative"
+                                                 ,getName con_, "of nonterminal", getName nt_, "."
+                                                 ] >-<
+                                           wfill ["First definition:", (showPos occ1_),"."] >-<
+                                           wfill ["Other definition:", (showPos name_),"."]
+                                   pat   =   "DATA" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< (getName name_ >|< ":..." >-< getName name_ >|< ":..."))
+                                   help =  wfill ["The alternative" ,getName con_ , "of nonterminal" ,getName nt_
+                                                 ,"has more than one field that is named"
+                                                 , getName name_ ++ ". Possibly they have different types."
+                                                 ,"You should either rename or remove enough of them to make all fields of"
+                                                 ,getName con_ , "for nonterminal " , getName nt_ , "uniquely named."
+                                                 ]
+                                   act  = wfill ["The last declaration with its corresponding type is considered valid."
+                                                ,"All others have been discarded."
+                                                ]
+                               in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
+                               {-# LINE 553 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule22 #-}
+   rule22 = \ con_ name_ nt_ occ1_ ->
+     DupChild nt_ con_ name_ occ1_
+   {-# INLINE rule23 #-}
+   rule23 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupRule #-}
+sem_Error_DupRule :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_DupRule arg_nt_ arg_con_ arg_field_ arg_attr_ arg_occ1_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule24 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_field_ arg_nt_ arg_occ1_
+         _me = rule25 arg_attr_ arg_con_ arg_field_ arg_nt_ arg_occ1_
+         _lhsOme :: Error
+         _lhsOme = rule26 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule24 #-}
+   {-# LINE 208 "./src-ag/PrintErrorMessages.ag" #-}
+   rule24 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ occ1_ ->
+                               {-# LINE 208 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rules for"
+                                                 ,showAttrDef field_ attr_,"."
+                                                 ]  >-<
+                                           wfill ["First rule:", (showPos occ1_),"."] >-<
+                                           wfill ["Other rule:", (showPos attr_),"."]
+                                   pat   =   "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
+                                   help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
+                                                         ,", there is more than one rule for the" , showAttrDef field_ attr_
+                                                         ,". You should either rename or remove enough of them to make all rules for alternative"
+                                                         ,getName con_ , "of nonterminal " ,getName  nt_ , "uniquely named."
+                                                         ]
+                                   act  = wfill ["The last rule given is considered valid. All others have been discarded."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 594 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule25 #-}
+   rule25 = \ attr_ con_ field_ nt_ occ1_ ->
+     DupRule nt_ con_ field_ attr_ occ1_
+   {-# INLINE rule26 #-}
+   rule26 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupRuleName #-}
+sem_Error_DupRuleName :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_DupRuleName arg_nt_ arg_con_ arg_nm_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule27 _lhsIoptions _lhsIverbose _me arg_con_ arg_nm_ arg_nt_
+         _me = rule28 arg_con_ arg_nm_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule29 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule27 #-}
+   {-# LINE 226 "./src-ag/PrintErrorMessages.ag" #-}
+   rule27 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nm_ nt_ ->
+                               {-# LINE 226 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rule names for"
+                                                 ,show nm_,"."
+                                                 ]
+                                   pat   =   "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< show nm_ >#< ": ... = ...")
+                                         >-< indent 2 ("|" >#< getName con_ >#< show nm_ >#< ": ... = ...")
+                                   help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
+                                                         ,", there is more than one rule name " , show nm_
+                                                         ,". You should either rename or remove enough of them."
+                                                         ]
+                                   act  = wfill ["Compilation cannot continue."]
+                               in ppError (isError _lhsIoptions _me) (getPos nm_) mesg pat help act _lhsIverbose
+                               {-# LINE 632 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule28 #-}
+   rule28 = \ con_ nm_ nt_ ->
+     DupRuleName nt_ con_ nm_
+   {-# INLINE rule29 #-}
+   rule29 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupSig #-}
+sem_Error_DupSig :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_DupSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule30 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_
+         _me = rule31 arg_attr_ arg_con_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule32 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule30 #-}
+   {-# LINE 241 "./src-ag/PrintErrorMessages.ag" #-}
+   rule30 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
+                               {-# LINE 241 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more typesignatures for"
+                                                 ,showAttrDef _LOC attr_,"."
+                                                 ]  >-<
+                                           wfill ["First signature:", (showPos attr_),"."]
+                                   pat   =   "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< "= ...")
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< "= ...")
+                                   help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
+                                                         ,", there is more than one rule for the" , showAttrDef _LOC attr_
+                                                         ,". You should remove enough of them to make all typesignatures for alternative"
+                                                         ,getName con_ , "of nonterminal " ,getName  nt_ , "unique."
+                                                         ]
+                                   act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 672 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule31 #-}
+   rule31 = \ attr_ con_ nt_ ->
+     DupSig nt_ con_ attr_
+   {-# INLINE rule32 #-}
+   rule32 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_UndefNont #-}
+sem_Error_UndefNont :: (NontermIdent) -> T_Error 
+sem_Error_UndefNont arg_nt_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule33 _lhsIoptions _lhsIverbose _me arg_nt_
+         _me = rule34 arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule35 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule33 #-}
+   {-# LINE 258 "./src-ag/PrintErrorMessages.ag" #-}
+   rule33 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me nt_ ->
+                               {-# LINE 258 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Nonterminal", getName nt_, "is not defined."
+                                                 ]
+                                   pat   = "DATA" >#< getName nt_ >#< "..."
+                                   help =  wfill ["There are attributes and/or rules for nonterminal" , getName nt_  ,", but there is no definition"
+                                                         , "for" ,getName  nt_, ". Maybe you misspelled it? Otherwise insert a definition."
+                                                         ]
+                                   act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
+                               in ppError (isError _lhsIoptions _me) (getPos nt_) mesg pat help act _lhsIverbose
+                               {-# LINE 706 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule34 #-}
+   rule34 = \ nt_ ->
+     UndefNont nt_
+   {-# INLINE rule35 #-}
+   rule35 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_UndefAlt #-}
+sem_Error_UndefAlt :: (NontermIdent) -> (ConstructorIdent) -> T_Error 
+sem_Error_UndefAlt arg_nt_ arg_con_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule36 _lhsIoptions _lhsIverbose _me arg_con_ arg_nt_
+         _me = rule37 arg_con_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule38 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule36 #-}
+   {-# LINE 268 "./src-ag/PrintErrorMessages.ag" #-}
+   rule36 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ ->
+                               {-# LINE 268 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_, "is  not defined."
+                                                 ]
+                                   pat   =   "DATA" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< "...")
+                                   help =  wfill ["There are rules for alternative", getName con_ , "of nonterminal" ,getName nt_
+                                                         ,", but there is no definition for this alternative in the definitions of the"
+                                                         ,"nonterminal" , getName nt_, ". Maybe you misspelled it? Otherwise insert a definition."
+                                                         ]
+                                   act  = wfill ["All rules for the unknown alternative have been ignored."]
+                               in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
+                               {-# LINE 742 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule37 #-}
+   rule37 = \ con_ nt_ ->
+     UndefAlt nt_ con_
+   {-# INLINE rule38 #-}
+   rule38 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_UndefChild #-}
+sem_Error_UndefChild :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_UndefChild arg_nt_ arg_con_ arg_name_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule39 _lhsIoptions _lhsIverbose _me arg_con_ arg_name_ arg_nt_
+         _me = rule40 arg_con_ arg_name_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule41 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule39 #-}
+   {-# LINE 280 "./src-ag/PrintErrorMessages.ag" #-}
+   rule39 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ ->
+                               {-# LINE 280 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_
+                                                 , "does not have a nontrivial field named", getName name_ , "."
+                                                 ]
+                                   pat   =   "SEM" >#< nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr name_ (identifier "<attr>") >#< "= ...")
+                                   help =  wfill ["There are rules that define or use attributes of field" , getName name_
+                                                         ,"in alternative" , getName con_ , "of nonterminal" , getName nt_
+                                                         ,", but there is no field with AG-type in the definition of the alternative."
+                                                         ,"Maybe you misspelled it? Otherwise insert the field into the definition,"
+                                                         ,"or change its type from an HS-type to an AG-type."
+                                                         ]
+                                   act  = wfill ["All rules for the unknown field have been ignored."]
+                               in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
+                               {-# LINE 781 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule40 #-}
+   rule40 = \ con_ name_ nt_ ->
+     UndefChild nt_ con_ name_
+   {-# INLINE rule41 #-}
+   rule41 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingRule #-}
+sem_Error_MissingRule :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_MissingRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule42 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_field_ arg_nt_
+         _me = rule43 arg_attr_ arg_con_ arg_field_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule44 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule42 #-}
+   {-# LINE 295 "./src-ag/PrintErrorMessages.ag" #-}
+   rule42 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ ->
+                               {-# LINE 295 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Missing rule for", showAttrDef field_ attr_ , "in alternative"
+                                                 , getName con_ , "of nonterminal",getName nt_ ,"."
+                                                 ]
+                                   pat   =   "SEM" >#< nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
+                                   help  = wfill ["The", showAttrDef field_ attr_, "in alternative", getName con_
+                                                 , "of nonterminal", getName nt_, "is missing and cannot be inferred"
+                                                 ,"by a copy rule, so you should add an appropriate rule."
+                                                 ]
+                                   act  = wfill ["The value of the attribute has been set to undefined."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 818 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule43 #-}
+   rule43 = \ attr_ con_ field_ nt_ ->
+     MissingRule nt_ con_ field_ attr_
+   {-# INLINE rule44 #-}
+   rule44 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingNamedRule #-}
+sem_Error_MissingNamedRule :: (NontermIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_MissingNamedRule arg_nt_ arg_con_ arg_name_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule45 _lhsIoptions _lhsIverbose _me arg_con_ arg_name_ arg_nt_
+         _me = rule46 arg_con_ arg_name_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule47 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule45 #-}
+   {-# LINE 308 "./src-ag/PrintErrorMessages.ag" #-}
+   rule45 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ ->
+                                  {-# LINE 308 "./src-ag/PrintErrorMessages.ag" #-}
+                                  let mesg  = wfill ["Missing rule name ", show name_ , "in alternative"
+                                                    , getName con_ , "of nonterminal",getName nt_ ,"."
+                                                    ]
+                                      pat   =   "SEM" >#< nt_
+                                            >-< indent 2 ("|" >#< getName con_ >#< show name_ >#< ": ... = ...")
+                                      help  = wfill ["There is a dependency on a rule with name ", show name_ , "in alternative"
+                                                    , getName con_ , "of nonterminal",getName nt_ ,", but no rule has been defined with this name. Maybe you misspelled it?"
+                                                    ]
+                                      act  = wfill ["Compilation cannot continue."]
+                                  in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
+                                  {-# LINE 854 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule46 #-}
+   rule46 = \ con_ name_ nt_ ->
+     MissingNamedRule nt_ con_ name_
+   {-# INLINE rule47 #-}
+   rule47 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_SuperfluousRule #-}
+sem_Error_SuperfluousRule :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Identifier) -> T_Error 
+sem_Error_SuperfluousRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule48 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_field_ arg_nt_
+         _me = rule49 arg_attr_ arg_con_ arg_field_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule50 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule48 #-}
+   {-# LINE 320 "./src-ag/PrintErrorMessages.ag" #-}
+   rule48 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ ->
+                               {-# LINE 320 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Rule for non-existing", showAttrDef field_ attr_ , "at alternative"
+                                                 , getName con_ , "of nonterminal",getName nt_, "."
+                                                 ]
+                                   pat   =   "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr field_ attr_ >#< "= ...")
+                                   help =  wfill ["There is a rule for" , showAttrDef field_ attr_ , "in the definitions for alternative" , getName con_
+                                                 ,"of nonterminal" , getName nt_,  ", but this attribute does not exist. Maybe you misspelled it?"
+                                                 ,"Otherwise either remove the rule or add an appropriate attribute definition."
+                                                 ]
+                                   act  = wfill ["The rule has been ignored."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 891 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule49 #-}
+   rule49 = \ attr_ con_ field_ nt_ ->
+     SuperfluousRule nt_ con_ field_ attr_
+   {-# INLINE rule50 #-}
+   rule50 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_UndefLocal #-}
+sem_Error_UndefLocal :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_UndefLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule51 _lhsIoptions _lhsIverbose _me arg_con_ arg_nt_ arg_var_
+         _me = rule52 arg_con_ arg_nt_ arg_var_
+         _lhsOme :: Error
+         _lhsOme = rule53 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule51 #-}
+   {-# LINE 334 "./src-ag/PrintErrorMessages.ag" #-}
+   rule51 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ var_ ->
+                               {-# LINE 334 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Undefined local variable or field",getName var_, "at constructor"
+                                                 , getName con_ , "of nonterminal",getName nt_, "."
+                                                 ]
+                                   pat   = "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< "<field>.<attr> = "
+                                                           >#< "..." >#< "@" >|< getName var_ >#< "..." )
+                                   help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
+                                                 , getName nt_ , "contains a local variable or field name that is not defined. "
+                                                 ,"Maybe you misspelled it?"
+                                                 ,"Otherwise either remove the rule or add an appropriate definition."
+                                                 ]
+                                   act  = wfill ["The generated program will not run."]
+                               in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
+                               {-# LINE 930 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule52 #-}
+   rule52 = \ con_ nt_ var_ ->
+     UndefLocal nt_ con_ var_
+   {-# INLINE rule53 #-}
+   rule53 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_ChildAsLocal #-}
+sem_Error_ChildAsLocal :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_ChildAsLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule54 _lhsIoptions _lhsIverbose _me arg_con_ arg_nt_ arg_var_
+         _me = rule55 arg_con_ arg_nt_ arg_var_
+         _lhsOme :: Error
+         _lhsOme = rule56 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule54 #-}
+   {-# LINE 349 "./src-ag/PrintErrorMessages.ag" #-}
+   rule54 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ var_ ->
+                               {-# LINE 349 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Nontrivial field ",getName var_, "is used as local at constructor"
+                                                 , getName con_ , "of nonterminal",getName nt_, "."
+                                                 ]
+                                   pat   = "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< "... = "
+                                                           >#< "..." >#< "@" >|< getName var_ >#< "..." )
+                                   help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
+                                                 , getName nt_ , "contains a nontrivial field name", getName var_, "."
+                                                 ,"You should use @", getName var_, ".self instead, where self is a SELF-attribute."
+                                                 ]
+                                   act  = wfill ["The generated program probably contains a type error or has undefined variables."]
+                               in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
+                               {-# LINE 968 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule55 #-}
+   rule55 = \ con_ nt_ var_ ->
+     ChildAsLocal nt_ con_ var_
+   {-# INLINE rule56 #-}
+   rule56 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_UndefAttr #-}
+sem_Error_UndefAttr :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Identifier) -> (Bool) -> T_Error 
+sem_Error_UndefAttr arg_nt_ arg_con_ arg_field_ arg_attr_ arg_isOut_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule57 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_field_ arg_isOut_ arg_nt_
+         _me = rule58 arg_attr_ arg_con_ arg_field_ arg_isOut_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule59 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule57 #-}
+   {-# LINE 363 "./src-ag/PrintErrorMessages.ag" #-}
+   rule57 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ isOut_ nt_ ->
+                               {-# LINE 363 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Undefined"
+                                                 , if isOut_
+                                                   then showAttrDef field_ attr_
+                                                   else showAttrUse field_ attr_
+                                                 , "at constructor"
+                                                 , getName con_ , "of nonterminal",getName nt_, "."
+                                                 ]
+                                   pat   = "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< "<field>.<attr> = "
+                                                           >#< "..." >#< ppAttrUse field_ attr_ >#< "...")
+                                   help =  wfill ["A rule in the definitions for alternative" , getName con_ ,"of nonterminal"
+                                                 ,getName  nt_ , "contains an attribute that is not defined"
+                                                 ,"Maybe you misspelled it?"
+                                                 ,"Otherwise either remove the rule or add an appropriate attribute definition."
+                                                 ]
+                                   act  = wfill ["The generated program will not run."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 1011 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule58 #-}
+   rule58 = \ attr_ con_ field_ isOut_ nt_ ->
+     UndefAttr nt_ con_ field_ attr_ isOut_
+   {-# INLINE rule59 #-}
+   rule59 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_Cyclic #-}
+sem_Error_Cyclic :: (NontermIdent) -> (Maybe ConstructorIdent) -> ([String]) -> T_Error 
+sem_Error_Cyclic arg_nt_ arg_mbCon_ arg_verts_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule60 _lhsIoptions _me arg_mbCon_ arg_nt_ arg_verts_
+         _me = rule61 arg_mbCon_ arg_nt_ arg_verts_
+         _lhsOme :: Error
+         _lhsOme = rule62 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule60 #-}
+   {-# LINE 391 "./src-ag/PrintErrorMessages.ag" #-}
+   rule60 = \ ((_lhsIoptions) :: Options) _me mbCon_ nt_ verts_ ->
+                               {-# LINE 391 "./src-ag/PrintErrorMessages.ag" #-}
+                               let pos  = getPos nt_
+                                   mesg = text "Circular dependency for nonterminal" >#< getName nt_
+                                          >#< ( case mbCon_ of
+                                                  Nothing  -> empty
+                                                  Just con -> text "and constructor" >#< con
+                                              )
+                                          >#< ( case verts_ of
+                                                    v : _ -> text "including vertex" >#< text v
+                                                    _     -> empty
+                                              )
+                                   pat  = text "cyclic rule definition"
+                                   help = hlist (text "The following attributes are all cyclic: " : map text verts_)
+                                   act  = wfill ["code cannot be generated until the cycle is removed."]
+                               in ppError (isError _lhsIoptions _me) pos mesg pat help act False
+                               {-# LINE 1051 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule61 #-}
+   rule61 = \ mbCon_ nt_ verts_ ->
+     Cyclic nt_ mbCon_ verts_
+   {-# INLINE rule62 #-}
+   rule62 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_CyclicSet #-}
+sem_Error_CyclicSet :: (Identifier) -> T_Error 
+sem_Error_CyclicSet arg_name_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule63 _lhsIoptions _lhsIverbose _me arg_name_
+         _me = rule64 arg_name_
+         _lhsOme :: Error
+         _lhsOme = rule65 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule63 #-}
+   {-# LINE 382 "./src-ag/PrintErrorMessages.ag" #-}
+   rule63 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me name_ ->
+                               {-# LINE 382 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Cyclic definition for nonterminal set", getName name_]
+                                   pat   = "SET" >#< getName name_ >#< "=" >#< "..." >#< getName name_ >#< "..."
+                                   help =  wfill ["The defintion for a nonterminal set named" , getName name_
+                                                 ,"directly or indirectly refers to itself."
+                                                 ,"Adapt the definition of the nonterminal set, to remove the cyclic dependency."
+                                                 ]
+                                   act  = wfill ["The nonterminal set", getName name_, "is considered to be empty."]
+                               in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
+                               {-# LINE 1085 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule64 #-}
+   rule64 = \ name_ ->
+     CyclicSet name_
+   {-# INLINE rule65 #-}
+   rule65 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_CustomError #-}
+sem_Error_CustomError :: (Bool) -> (Pos) -> (PP_Doc) -> T_Error 
+sem_Error_CustomError arg_isWarning_ arg_pos_ arg_mesg_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule66 _lhsIoptions _me arg_mesg_ arg_pos_
+         _me = rule67 arg_isWarning_ arg_mesg_ arg_pos_
+         _lhsOme :: Error
+         _lhsOme = rule68 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule66 #-}
+   {-# LINE 406 "./src-ag/PrintErrorMessages.ag" #-}
+   rule66 = \ ((_lhsIoptions) :: Options) _me mesg_ pos_ ->
+                               {-# LINE 406 "./src-ag/PrintErrorMessages.ag" #-}
+                               let pat   =  text "unknown"
+                                   help = wfill ["not available."]
+                                   act  = wfill ["unknown"]
+                               in ppError (isError _lhsIoptions _me) pos_ mesg_ pat help act False
+                               {-# LINE 1115 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule67 #-}
+   rule67 = \ isWarning_ mesg_ pos_ ->
+     CustomError isWarning_ pos_ mesg_
+   {-# INLINE rule68 #-}
+   rule68 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_LocalCirc #-}
+sem_Error_LocalCirc :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Bool) -> ([String]) -> T_Error 
+sem_Error_LocalCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule69 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_ arg_o_visit_ arg_path_
+         _me = rule70 arg_attr_ arg_con_ arg_nt_ arg_o_visit_ arg_path_
+         _lhsOme :: Error
+         _lhsOme = rule71 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule69 #-}
+   {-# LINE 411 "./src-ag/PrintErrorMessages.ag" #-}
+   rule69 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ o_visit_ path_ ->
+                               {-# LINE 411 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Circular dependency for local attribute", getName attr_
+                                                 , "of alternative", getName con_, "of nonterminal", getName nt_]
+                                   pat   = "SEM" >#< getName nt_
+                                           >-< indent 2 ("|" >#< getName con_ >#< "loc." >|< getName attr_ >#< "="
+                                                             >#< "..." >#< "@loc." >|< getName attr_ >#< "...")
+                                   help  = if null path_
+                                           then text "the definition is directly circular"
+                                           else hlist ("The following attributes are involved in the cycle:": path_)
+                                   act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
+                                         | otherwise = text "The generated program might hang when run."
+                               in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
+                               {-# LINE 1152 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule70 #-}
+   rule70 = \ attr_ con_ nt_ o_visit_ path_ ->
+     LocalCirc nt_ con_ attr_ o_visit_ path_
+   {-# INLINE rule71 #-}
+   rule71 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_InstCirc #-}
+sem_Error_InstCirc :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> (Bool) -> ([String]) -> T_Error 
+sem_Error_InstCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule72 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_ arg_o_visit_ arg_path_
+         _me = rule73 arg_attr_ arg_con_ arg_nt_ arg_o_visit_ arg_path_
+         _lhsOme :: Error
+         _lhsOme = rule74 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule72 #-}
+   {-# LINE 423 "./src-ag/PrintErrorMessages.ag" #-}
+   rule72 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ o_visit_ path_ ->
+                               {-# LINE 423 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Circular dependency for inst attribute", getName attr_
+                                                 , "of alternative", getName con_, "of nonterminal", getName nt_]
+                                   pat   = "SEM" >#< getName nt_
+                                           >-< indent 2 ("|" >#< getName con_ >#< "inst." >|< getName attr_ >#< "="
+                                                             >#< "..." >#< "@s.<some attribte>" >#< "...")
+                                   help  = if null path_
+                                           then text "the definition is directly circular"
+                                           else hlist ("The following attributes are involved in the cycle:": path_)
+                                   act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
+                                         | otherwise = text "The generated program might hang when run."
+                               in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
+                               {-# LINE 1189 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule73 #-}
+   rule73 = \ attr_ con_ nt_ o_visit_ path_ ->
+     InstCirc nt_ con_ attr_ o_visit_ path_
+   {-# INLINE rule74 #-}
+   rule74 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DirectCirc #-}
+sem_Error_DirectCirc :: (NontermIdent) -> (Bool) -> ([((Identifier,Identifier),[String],[String])]) -> T_Error 
+sem_Error_DirectCirc arg_nt_ arg_o_visit_ arg_cyclic_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule75 _lhsIoptions _lhsIverbose _me arg_cyclic_ arg_nt_ arg_o_visit_
+         _me = rule76 arg_cyclic_ arg_nt_ arg_o_visit_
+         _lhsOme :: Error
+         _lhsOme = rule77 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule75 #-}
+   {-# LINE 435 "./src-ag/PrintErrorMessages.ag" #-}
+   rule75 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me cyclic_ nt_ o_visit_ ->
+                               {-# LINE 435 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["In nonterminal", getName nt_, "synthesized and inherited attributes are mutually dependent" ]
+                                           >-< vlist (map showEdge cyclic_)
+                                   pat   = text ""
+                                   help  = vlist (map showEdgeLong cyclic_)
+                                   act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
+                                         | otherwise = text "The generated program might hang when run."
+                               in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
+                               {-# LINE 1222 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule76 #-}
+   rule76 = \ cyclic_ nt_ o_visit_ ->
+     DirectCirc nt_ o_visit_ cyclic_
+   {-# INLINE rule77 #-}
+   rule77 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_InducedCirc #-}
+sem_Error_InducedCirc :: (NontermIdent) -> (CInterface) -> ([((Identifier,Identifier),[String],[String])]) -> T_Error 
+sem_Error_InducedCirc arg_nt_ arg_cinter_ arg_cyclic_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule78 _lhsIoptions _lhsIverbose _me arg_cinter_ arg_cyclic_ arg_nt_
+         _me = rule79 arg_cinter_ arg_cyclic_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule80 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule78 #-}
+   {-# LINE 443 "./src-ag/PrintErrorMessages.ag" #-}
+   rule78 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me cinter_ cyclic_ nt_ ->
+                               {-# LINE 443 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["After scheduling, in nonterminal", getName nt_, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
+                                           >-< vlist (map showEdge cyclic_)
+                                   pat   = text ""
+                                   showInter (CInterface segs) = concat (snd (mapAccumL (\i c -> (succ i :: Integer,("visit " ++ show i) : map ind (showsSegment c))) 0 segs))
+                                   help  = vlist (("Interface for nonterminal " ++ getName nt_ ++ ":") : map ind (showInter cinter_))
+                                           >-< vlist (map showEdgeLong cyclic_)
+                                   act   = text "An unoptimized version was generated. It might hang when run."
+                               in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
+                               {-# LINE 1256 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule79 #-}
+   rule79 = \ cinter_ cyclic_ nt_ ->
+     InducedCirc nt_ cinter_ cyclic_
+   {-# INLINE rule80 #-}
+   rule80 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingTypeSig #-}
+sem_Error_MissingTypeSig :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_MissingTypeSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule81 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_
+         _me = rule82 arg_attr_ arg_con_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule83 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule81 #-}
+   {-# LINE 452 "./src-ag/PrintErrorMessages.ag" #-}
+   rule81 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
+                               {-# LINE 452 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC attr_ , "in alternative"
+                                                 , getName con_ , "of nonterminal",getName nt_ ,"."
+                                                 ]>-<
+                                           wfill ["Location:", (showPos attr_),"."]
+                                   pat   =   "SEM" >#< nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< ": ...")
+                                   help  = wfill ["The", showAttrDef _LOC attr_, "in alternative", getName con_
+                                                 ,"of nonterminal", getName nt_, "is needed in two separate visits to", getName nt_
+                                                 ,"so its type is needed to generate type signatures."
+                                                 ,"Please supply its type."
+                                                 ]
+                                   act  = wfill ["The type signatures of semantic functions are not generated."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 1295 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule82 #-}
+   rule82 = \ attr_ con_ nt_ ->
+     MissingTypeSig nt_ con_ attr_
+   {-# INLINE rule83 #-}
+   rule83 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingInstSig #-}
+sem_Error_MissingInstSig :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_MissingInstSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule84 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_
+         _me = rule85 arg_attr_ arg_con_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule86 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule84 #-}
+   {-# LINE 466 "./src-ag/PrintErrorMessages.ag" #-}
+   rule84 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
+                               {-# LINE 466 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg = wfill ["Type signature needed, but not found for", showAttrDef _INST attr_ , "in alternative"
+                                                 , getName con_ , "of nonterminal",getName nt_ ,"."
+                                                 ]>-<
+                                           wfill ["Location:", (showPos attr_),"."]
+                                   pat   = "SEM" >#< nt_
+                                             >-< indent 2 ("|" >#< getName con_ >#< ppAttr _INST attr_ >#< ": ...")
+                                   help  = wfill ["The", showAttrDef _INST attr_, "in alternative", getName con_
+                                                 ,"of nonterminal", getName nt_, "is a non-terminal attribute, so "
+                                                 ,"its type is needed to attribute its value."
+                                                 ,"Please supply its type."
+                                                 ]
+                                   act  = wfill ["It is not possible to proceed without this signature."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 1334 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule85 #-}
+   rule85 = \ attr_ con_ nt_ ->
+     MissingInstSig nt_ con_ attr_
+   {-# INLINE rule86 #-}
+   rule86 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_DupUnique #-}
+sem_Error_DupUnique :: (NontermIdent) -> (ConstructorIdent) -> (Identifier) -> T_Error 
+sem_Error_DupUnique arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule87 _lhsIoptions _lhsIverbose _me arg_attr_ arg_con_ arg_nt_
+         _me = rule88 arg_attr_ arg_con_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule89 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule87 #-}
+   {-# LINE 496 "./src-ag/PrintErrorMessages.ag" #-}
+   rule87 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
+                               {-# LINE 496 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more unique-attribute signatures for"
+                                                 ,showAttrDef _LOC attr_,"."
+                                                 ]  >-<
+                                           wfill ["First signature:", (showPos attr_),"."]
+                                   pat   =   "SEM" >#< getName nt_
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< " : UNIQUEREF ...")
+                                         >-< indent 2 ("|" >#< getName con_ >#< ppAttr _LOC attr_ >#< " : UNIQUEREF ...")
+                                   help =  wfill ["In the rules for alternative" , getName con_ , "of nonterminal" , getName nt_
+                                                         ,", there is more than one unique-attribute signature for the" , showAttrDef _LOC attr_
+                                                         ,". You should remove enough of them to make all unique-signatures for alternative"
+                                                         ,getName con_ , "of nonterminal " ,getName  nt_ , "unique."
+                                                         ]
+                                   act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 1374 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule88 #-}
+   rule88 = \ attr_ con_ nt_ ->
+     DupUnique nt_ con_ attr_
+   {-# INLINE rule89 #-}
+   rule89 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingUnique #-}
+sem_Error_MissingUnique :: (NontermIdent) -> (Identifier) -> T_Error 
+sem_Error_MissingUnique arg_nt_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule90 _lhsIoptions _lhsIverbose _me arg_attr_ arg_nt_
+         _me = rule91 arg_attr_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule92 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule90 #-}
+   {-# LINE 480 "./src-ag/PrintErrorMessages.ag" #-}
+   rule90 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ ->
+                               {-# LINE 480 "./src-ag/PrintErrorMessages.ag" #-}
+                               let mesg  = wfill ["Missing unique counter (chained attribute)"
+                                                 , getName attr_
+                                                 , "at nonterminal"
+                                                 , getName nt_, "."
+                                                 ]
+                                   pat   = "ATTR" >#< getName nt_ >#< "[ |" >#< getName attr_ >#< " : ... | ]"
+                                   help =  wfill ["A unique attribute signature in a constructor for nonterminal" , getName nt_
+                                                 , "refers to an unique counter (chained attribute) named "
+                                                 , getName attr_
+                                                 ,"Maybe you misspelled it?"
+                                                 ,"Otherwise either remove the signature or add an appropriate attribute definition."
+                                                 ]
+                                   act  = wfill ["It is not possible to proceed without this declaration."]
+                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                               {-# LINE 1414 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule91 #-}
+   rule91 = \ attr_ nt_ ->
+     MissingUnique nt_ attr_
+   {-# INLINE rule92 #-}
+   rule92 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_MissingSyn #-}
+sem_Error_MissingSyn :: (NontermIdent) -> (Identifier) -> T_Error 
+sem_Error_MissingSyn arg_nt_ arg_attr_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule93 _lhsIoptions _lhsIverbose _me arg_attr_ arg_nt_
+         _me = rule94 arg_attr_ arg_nt_
+         _lhsOme :: Error
+         _lhsOme = rule95 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule93 #-}
+   {-# LINE 513 "./src-ag/PrintErrorMessages.ag" #-}
+   rule93 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ ->
+                              {-# LINE 513 "./src-ag/PrintErrorMessages.ag" #-}
+                              let mesg  = wfill ["Missing synthesized attribute"
+                                                , getName attr_
+                                                , "at nonterminal"
+                                                , getName nt_, "."
+                                                ]
+                                  pat   = "ATTR" >#< getName nt_ >#< "[ | | " >#< getName attr_ >#< " : ... ]"
+                                  help =  wfill ["An augment rule for a constructor for nonterminal" , getName nt_
+                                                , "refers to a synthesized attribute named "
+                                                , getName attr_
+                                                ,"Maybe you misspelled it?"
+                                                ,"Otherwise add an appropriate attribute definition."
+                                                ]
+                                  act  = wfill ["It is not possible to proceed without this declaration."]
+                              in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
+                              {-# LINE 1454 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule94 #-}
+   rule94 = \ attr_ nt_ ->
+     MissingSyn nt_ attr_
+   {-# INLINE rule95 #-}
+   rule95 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_IncompatibleVisitKind #-}
+sem_Error_IncompatibleVisitKind :: (Identifier) -> (VisitIdentifier) -> (VisitKind) -> (VisitKind) -> T_Error 
+sem_Error_IncompatibleVisitKind arg_child_ arg_vis_ arg_from_ arg_to_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule96 _lhsIoptions _lhsIverbose _me arg_child_ arg_from_ arg_to_ arg_vis_
+         _me = rule97 arg_child_ arg_from_ arg_to_ arg_vis_
+         _lhsOme :: Error
+         _lhsOme = rule98 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule96 #-}
+   {-# LINE 529 "./src-ag/PrintErrorMessages.ag" #-}
+   rule96 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me child_ from_ to_ vis_ ->
+                              {-# LINE 529 "./src-ag/PrintErrorMessages.ag" #-}
+                              let mesg  = "visit" >#< vis_ >#< "of child" >#< child_ >#< " with kind" >#< show to_ >#< " cannot be called from a visit with kind " >#< show from_
+                                  pat   = empty
+                                  help  = empty
+                                  act   = text "It is not possible to proceed without fixing this kind error."
+                              in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
+                              {-# LINE 1485 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule97 #-}
+   rule97 = \ child_ from_ to_ vis_ ->
+     IncompatibleVisitKind child_ vis_ from_ to_
+   {-# INLINE rule98 #-}
+   rule98 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_IncompatibleRuleKind #-}
+sem_Error_IncompatibleRuleKind :: (Identifier) -> (VisitKind) -> T_Error 
+sem_Error_IncompatibleRuleKind arg_rule_ arg_kind_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule99 _lhsIoptions _lhsIverbose _me arg_kind_ arg_rule_
+         _me = rule100 arg_kind_ arg_rule_
+         _lhsOme :: Error
+         _lhsOme = rule101 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule99 #-}
+   {-# LINE 535 "./src-ag/PrintErrorMessages.ag" #-}
+   rule99 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me kind_ rule_ ->
+                              {-# LINE 535 "./src-ag/PrintErrorMessages.ag" #-}
+                              let mesg  = "rule" >#< rule_ >#< "cannot be called from a visit with kind " >#< show kind_
+                                  pat   = empty
+                                  help  = empty
+                                  act   = text "It is not possible to proceed without fixing this kind error."
+                              in ppError (isError _lhsIoptions _me) (getPos rule_) mesg pat help act _lhsIverbose
+                              {-# LINE 1516 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule100 #-}
+   rule100 = \ kind_ rule_ ->
+     IncompatibleRuleKind rule_ kind_
+   {-# INLINE rule101 #-}
+   rule101 = \ _me ->
+     _me
+{-# NOINLINE sem_Error_IncompatibleAttachKind #-}
+sem_Error_IncompatibleAttachKind :: (Identifier) -> (VisitKind) -> T_Error 
+sem_Error_IncompatibleAttachKind arg_child_ arg_kind_ = T_Error (return st2) where
+   {-# NOINLINE st2 #-}
+   st2 = let
+      v1 :: T_Error_v1 
+      v1 = \ (T_Error_vIn1 _lhsIoptions _lhsIverbose) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule102 _lhsIoptions _lhsIverbose _me arg_child_ arg_kind_
+         _me = rule103 arg_child_ arg_kind_
+         _lhsOme :: Error
+         _lhsOme = rule104 _me
+         __result_ = T_Error_vOut1 _lhsOme _lhsOpp
+         in __result_ )
+     in C_Error_s2 v1
+   {-# INLINE rule102 #-}
+   {-# LINE 542 "./src-ag/PrintErrorMessages.ag" #-}
+   rule102 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me child_ kind_ ->
+                              {-# LINE 542 "./src-ag/PrintErrorMessages.ag" #-}
+                              let mesg  = "child" >#< child_ >#< "cannot be called from a visit with kind " >#< show kind_
+                                  pat   = empty
+                                  help  = empty
+                                  act   = text "It is not possible to proceed without fixing this kind error."
+                              in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
+                              {-# LINE 1547 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule103 #-}
+   rule103 = \ child_ kind_ ->
+     IncompatibleAttachKind child_ kind_
+   {-# INLINE rule104 #-}
+   rule104 = \ _me ->
+     _me
+
 -- Errors ------------------------------------------------------
-{-
-   visit 0:
-      inherited attributes:
-         dups                 : [String]
-         options              : Options
-      synthesized attribute:
-         pp                   : PP_Doc
-   alternatives:
-      alternative Cons:
-         child hd             : Error 
-         child tl             : Errors 
-         visit 0:
-            local verbose     : _
-            local str         : _
-      alternative Nil:
-         visit 0:
-            local verbose     : _
--}
+-- wrapper
+data Inh_Errors  = Inh_Errors { dups_Inh_Errors :: ([String]), options_Inh_Errors :: (Options) }
+data Syn_Errors  = Syn_Errors { pp_Syn_Errors :: (PP_Doc) }
+{-# INLINABLE wrap_Errors #-}
+wrap_Errors :: T_Errors  -> Inh_Errors  -> (Syn_Errors )
+wrap_Errors (T_Errors act) (Inh_Errors _lhsIdups _lhsIoptions) =
+   Control.Monad.Identity.runIdentity (
+     do sem <- act
+        let arg = T_Errors_vIn4 _lhsIdups _lhsIoptions
+        (T_Errors_vOut4 _lhsOpp) <- return (inv_Errors_s5 sem arg)
+        return (Syn_Errors _lhsOpp)
+   )
+
 -- cata
-sem_Errors :: Errors ->
-              T_Errors
-sem_Errors list =
-    (Prelude.foldr sem_Errors_Cons sem_Errors_Nil (Prelude.map sem_Error list))
+{-# NOINLINE sem_Errors #-}
+sem_Errors :: Errors  -> T_Errors 
+sem_Errors list = Prelude.foldr sem_Errors_Cons sem_Errors_Nil (Prelude.map sem_Error list)
+
 -- semantic domain
-newtype T_Errors = T_Errors (([String]) ->
-                             Options ->
-                             ( PP_Doc))
-data Inh_Errors = Inh_Errors {dups_Inh_Errors :: ([String]),options_Inh_Errors :: Options}
-data Syn_Errors = Syn_Errors {pp_Syn_Errors :: PP_Doc}
-wrap_Errors :: T_Errors ->
-               Inh_Errors ->
-               Syn_Errors
-wrap_Errors (T_Errors sem) (Inh_Errors _lhsIdups _lhsIoptions) =
-    (let ( _lhsOpp) = sem _lhsIdups _lhsIoptions
-     in  (Syn_Errors _lhsOpp))
-sem_Errors_Cons :: T_Error ->
-                   T_Errors ->
-                   T_Errors
-sem_Errors_Cons (T_Error hd_) (T_Errors tl_) =
-    (T_Errors (\ _lhsIdups
-                 _lhsIoptions ->
-                   (let _lhsOpp :: PP_Doc
-                        _tlOdups :: ([String])
-                        _hdOoptions :: Options
-                        _hdOverbose :: Bool
-                        _tlOoptions :: Options
-                        _hdIme :: Error
-                        _hdIpp :: PP_Doc
-                        _tlIpp :: PP_Doc
-                        -- "./src-ag/PrintErrorMessages.ag"(line 76, column 8)
-                        _verbose =
-                            ({-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
-                             verbose _lhsIoptions
-                             {-# LINE 1883 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- "./src-ag/PrintErrorMessages.ag"(line 77, column 11)
-                        _str =
-                            ({-# LINE 77 "./src-ag/PrintErrorMessages.ag" #-}
-                             disp _hdIpp 5000 ""
-                             {-# LINE 1889 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- "./src-ag/PrintErrorMessages.ag"(line 79, column 11)
-                        _lhsOpp =
-                            ({-# LINE 79 "./src-ag/PrintErrorMessages.ag" #-}
-                             if _str     `elem` _lhsIdups
-                             then _tlIpp
-                             else _hdIpp >-< _tlIpp
-                             {-# LINE 1897 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- "./src-ag/PrintErrorMessages.ag"(line 82, column 11)
-                        _tlOdups =
-                            ({-# LINE 82 "./src-ag/PrintErrorMessages.ag" #-}
-                             _str     : _lhsIdups
-                             {-# LINE 1903 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- copy rule (down)
-                        _hdOoptions =
-                            ({-# LINE 68 "./src-ag/PrintErrorMessages.ag" #-}
-                             _lhsIoptions
-                             {-# LINE 1909 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- copy rule (from local)
-                        _hdOverbose =
-                            ({-# LINE 68 "./src-ag/PrintErrorMessages.ag" #-}
-                             _verbose
-                             {-# LINE 1915 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- copy rule (down)
-                        _tlOoptions =
-                            ({-# LINE 72 "./src-ag/PrintErrorMessages.ag" #-}
-                             _lhsIoptions
-                             {-# LINE 1921 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        ( _hdIme,_hdIpp) =
-                            hd_ _hdOoptions _hdOverbose
-                        ( _tlIpp) =
-                            tl_ _tlOdups _tlOoptions
-                    in  ( _lhsOpp))))
-sem_Errors_Nil :: T_Errors
-sem_Errors_Nil =
-    (T_Errors (\ _lhsIdups
-                 _lhsIoptions ->
-                   (let _lhsOpp :: PP_Doc
-                        -- "./src-ag/PrintErrorMessages.ag"(line 76, column 8)
-                        _verbose =
-                            ({-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
-                             verbose _lhsIoptions
-                             {-# LINE 1937 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                        -- "./src-ag/PrintErrorMessages.ag"(line 83, column 11)
-                        _lhsOpp =
-                            ({-# LINE 83 "./src-ag/PrintErrorMessages.ag" #-}
-                             text ""
-                             {-# LINE 1943 "dist/build/PrintErrorMessages.hs" #-}
-                             )
-                    in  ( _lhsOpp))))
+newtype T_Errors  = T_Errors {
+                             attach_T_Errors :: Identity (T_Errors_s5 )
+                             }
+newtype T_Errors_s5  = C_Errors_s5 {
+                                   inv_Errors_s5 :: (T_Errors_v4 )
+                                   }
+data T_Errors_s6  = C_Errors_s6
+type T_Errors_v4  = (T_Errors_vIn4 ) -> (T_Errors_vOut4 )
+data T_Errors_vIn4  = T_Errors_vIn4 ([String]) (Options)
+data T_Errors_vOut4  = T_Errors_vOut4 (PP_Doc)
+{-# NOINLINE sem_Errors_Cons #-}
+sem_Errors_Cons :: T_Error  -> T_Errors  -> T_Errors 
+sem_Errors_Cons arg_hd_ arg_tl_ = T_Errors (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Errors_v4 
+      v4 = \ (T_Errors_vIn4 _lhsIdups _lhsIoptions) -> ( let
+         _hdX2 = Control.Monad.Identity.runIdentity (attach_T_Error (arg_hd_))
+         _tlX5 = Control.Monad.Identity.runIdentity (attach_T_Errors (arg_tl_))
+         (T_Error_vOut1 _hdIme _hdIpp) = inv_Error_s2 _hdX2 (T_Error_vIn1 _hdOoptions _hdOverbose)
+         (T_Errors_vOut4 _tlIpp) = inv_Errors_s5 _tlX5 (T_Errors_vIn4 _tlOdups _tlOoptions)
+         _verbose = rule105 _lhsIoptions
+         _str = rule106 _hdIpp
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule107 _hdIpp _lhsIdups _str _tlIpp
+         _tlOdups = rule108 _lhsIdups _str
+         _hdOoptions = rule109 _lhsIoptions
+         _hdOverbose = rule110 _verbose
+         _tlOoptions = rule111 _lhsIoptions
+         __result_ = T_Errors_vOut4 _lhsOpp
+         in __result_ )
+     in C_Errors_s5 v4
+   {-# INLINE rule105 #-}
+   {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+   rule105 = \ ((_lhsIoptions) :: Options) ->
+                       {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+                       verbose _lhsIoptions
+                       {-# LINE 1612 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule106 #-}
+   {-# LINE 77 "./src-ag/PrintErrorMessages.ag" #-}
+   rule106 = \ ((_hdIpp) :: PP_Doc) ->
+                      {-# LINE 77 "./src-ag/PrintErrorMessages.ag" #-}
+                      disp _hdIpp 5000 ""
+                      {-# LINE 1618 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule107 #-}
+   {-# LINE 79 "./src-ag/PrintErrorMessages.ag" #-}
+   rule107 = \ ((_hdIpp) :: PP_Doc) ((_lhsIdups) :: [String]) _str ((_tlIpp) :: PP_Doc) ->
+                     {-# LINE 79 "./src-ag/PrintErrorMessages.ag" #-}
+                     if _str     `elem` _lhsIdups
+                     then _tlIpp
+                     else _hdIpp >-< _tlIpp
+                     {-# LINE 1626 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule108 #-}
+   {-# LINE 82 "./src-ag/PrintErrorMessages.ag" #-}
+   rule108 = \ ((_lhsIdups) :: [String]) _str ->
+                      {-# LINE 82 "./src-ag/PrintErrorMessages.ag" #-}
+                      _str     : _lhsIdups
+                      {-# LINE 1632 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule109 #-}
+   rule109 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule110 #-}
+   rule110 = \ _verbose ->
+     _verbose
+   {-# INLINE rule111 #-}
+   rule111 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+{-# NOINLINE sem_Errors_Nil #-}
+sem_Errors_Nil ::  T_Errors 
+sem_Errors_Nil  = T_Errors (return st5) where
+   {-# NOINLINE st5 #-}
+   st5 = let
+      v4 :: T_Errors_v4 
+      v4 = \ (T_Errors_vIn4 _lhsIdups _lhsIoptions) -> ( let
+         _verbose = rule112 _lhsIoptions
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule113  ()
+         __result_ = T_Errors_vOut4 _lhsOpp
+         in __result_ )
+     in C_Errors_s5 v4
+   {-# INLINE rule112 #-}
+   {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+   rule112 = \ ((_lhsIoptions) :: Options) ->
+                       {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+                       verbose _lhsIoptions
+                       {-# LINE 1660 "dist/build/PrintErrorMessages.hs"#-}
+   {-# INLINE rule113 #-}
+   {-# LINE 83 "./src-ag/PrintErrorMessages.ag" #-}
+   rule113 = \  (_ :: ()) ->
+                     {-# LINE 83 "./src-ag/PrintErrorMessages.ag" #-}
+                     text ""
+                     {-# LINE 1666 "dist/build/PrintErrorMessages.hs"#-}
