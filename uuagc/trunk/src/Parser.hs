@@ -63,7 +63,7 @@ parseAGI opts searchPath file
 depsAG :: Options -> [FilePath] -> String -> IO ([String], [Message Token Pos])
 depsAG opts searchPath file
   = do (_,_,fs,_,mesgs) <- parseFile False opts searchPath file
-       return (fs, mesgs)
+       return (tail fs, mesgs) -- first file is always the file itself
 
 -- marcos: added the parameter 'agi' and the 'ext' part
 parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
@@ -81,10 +81,9 @@ parseFile agi opts searchPath filename
           cont (es,fs,allfs,ext,msg)
             = do res <- mapM (parseFile agi opts searchPath') fs
                  let (ess,fss,allfss,_, msgs) = unzip5 res
-                 return (es ++ concat ess, concat fss, concat allfss ++ allfs, ext, msg ++ concat msgs)
+                 return (es ++ concat ess, concat fss, allfs ++ concat allfss, ext, msg ++ concat msgs)
       let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
-      let allfs = files ++ fls
-      loopp stop cont (es,allfs,allfs, ext,mesg)
+      loopp stop cont (es,files ++ fls,[file], ext,mesg)
  where
 
     --
