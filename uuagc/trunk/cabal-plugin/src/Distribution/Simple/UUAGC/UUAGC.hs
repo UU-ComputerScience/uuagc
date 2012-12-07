@@ -137,11 +137,10 @@ updateAGFile :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
              -> IO ()
 updateAGFile _ _ (_,(_,Nothing)) = return ()
 updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
-  (ec, fls) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
+  (ec, files) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
   case ec of
     ExitSuccess ->
-      do files <- mapM (resolveFile opts sp) fls
-         when ((not.null) files) $ do
+      do when ((not.null) files) $ do
             flsmt <- mapM getModificationTime files
             let maxModified = maximum flsmt
             fmt <- getModificationTime gen
@@ -291,20 +290,3 @@ nouuagc build lbi =
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do
       info verbosity ("skipping: " ++ outFile)
   }
-
--- From UUAGC/src/Parser.hs, should be shared between UUAGC and cabal-plugin
-resolveFile :: Options -> [FilePath] -> FilePath -> IO FilePath
-resolveFile opts path fname = search (path ++ ["."])
- where search (p:ps) = do let filename = joinPath [p, fname]
-                          fExists <- doesFileExist filename
-                          if fExists
-                            then return filename
-                            else do let filename' = joinPath [p, replaceExtension fname "ag"]
-                                    fExists' <- doesFileExist filename'
-                                    if fExists'
-                                      then return filename'
-                                      else search ps
-       search []     = do
-         outputStr opts ("File: " ++ show fname ++ " not found in search path: " ++ show (concat (intersperse ";" (path ++ ["."]))) ++ "\n")
-         failWithCode opts 1
-         return (error "resolveFile: file not found")
