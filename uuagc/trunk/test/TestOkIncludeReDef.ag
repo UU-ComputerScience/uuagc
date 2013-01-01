@@ -1,0 +1,4 @@
+INCLUDE "TestOkIncludeDef.ag"
+
+SEM MyData | MyData lhs.att := "redefined"
+

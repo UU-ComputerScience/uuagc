@@ -81,7 +81,7 @@ parseFile agi opts searchPath filename
           cont (es,fs,allfs,ext,msg)
             = do res <- mapM (parseFile agi opts searchPath') fs
                  let (ess,fss,allfss,_, msgs) = unzip5 res
-                 return (es ++ concat ess, concat fss, allfs ++ concat allfss, ext, msg ++ concat msgs)
+                 return (concat ess ++ es, concat fss, allfs ++ concat allfss, ext, msg ++ concat msgs)
       let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
       loopp stop cont (es,files ++ fls,[file], ext,mesg)
  where
