@@ -152,14 +152,14 @@ updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
 
 getAGFileOptions :: [(String, String)] -> IO AGFileOptions
 getAGFileOptions extra = do
+  cabalOpts <- mapM (parseOptionAG . snd) $ filter ((== agModule) . fst) extra
   usesOptionsFile <- doesFileExist defUUAGCOptions
   if usesOptionsFile
        then do r <- parserAG' defUUAGCOptions
                case r of
-                 Left e -> print e >> exitFailure
-                 Right a -> return a
-       else mapM (parseOptionAG . snd)
-            $ filter ((== agModule) . fst) extra
+                 Left e -> die (show e)
+                 Right a -> return $ cabalOpts ++ a
+       else return cabalOpts
 
 getAGClasses :: [(String, String)] -> IO [AGOptionsClass]
 getAGClasses = mapM (parseClassAG . snd) . filter ((== agClass) . fst)
