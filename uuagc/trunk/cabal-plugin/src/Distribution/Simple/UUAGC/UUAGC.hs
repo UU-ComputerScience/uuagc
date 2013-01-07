@@ -278,10 +278,11 @@ uuagc' uuagc build lbi  =
                           let classesPath = buildDir lbi </> agClassesFile
                           info verbosity $ "uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath
                           fileOpts <- readFileOptions classesPath
-                          let opts = case Map.lookup inFile fileOpts of
-                                       Nothing        -> noOptions
-                                       Just (opt,gen) -> opt
-                              search  = dropFileName inFile
+                          opts <- case Map.lookup inFile fileOpts of
+                                       Nothing        -> do warn verbosity $ "No options found for " ++ inFile
+                                                            return noOptions
+                                       Just (opt,gen) -> return opt
+                          let search  = dropFileName inFile
                               options = opts { searchPath = search : hsSourceDirs build ++ searchPath opts
                                              , outputFiles = outFile : (outputFiles opts) }
                           (eCode,_) <- uuagc (optionsToString options) inFile
