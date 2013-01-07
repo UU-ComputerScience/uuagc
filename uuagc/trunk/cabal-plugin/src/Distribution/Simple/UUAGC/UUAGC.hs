@@ -267,7 +267,7 @@ uuagc' uuagc build lbi  =
    PreProcessor {
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
-                       do putStrLn $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
+                       do notice verbosity $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
                           let classesPath = buildDir lbi </> agClassesFile
                           info verbosity $ "uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath
                           fileOpts <- readFileOptions classesPath
