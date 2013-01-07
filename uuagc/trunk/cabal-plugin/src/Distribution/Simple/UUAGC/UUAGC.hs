@@ -137,18 +137,25 @@ updateAGFile :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
              -> IO ()
 updateAGFile _ _ (_,(_,Nothing)) = return ()
 updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
-  (ec, files) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
-  case ec of
-    ExitSuccess ->
-      do when ((not.null) files) $ do
+  hasGen <- doesFileExist gen
+  when hasGen $ do
+    (ec, files) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
+    case ec of
+      ExitSuccess -> do
+        let newOpts :: Options 
+            newOpts = maybe noOptions fst $ Map.lookup file newOptions
+            optRebuild = optionsToString newOpts /= optionsToString opts
+        modRebuild <-
+          if null files
+          then return False
+          else do
             flsmt <- mapM getModificationTime files
             let maxModified = maximum flsmt
             fmt <- getModificationTime gen
-            let newOpts :: Options 
-                newOpts = maybe noOptions fst $ Map.lookup file newOptions
-            -- When some dependency is newer or options have changed, we should regenerate
-            when (maxModified > fmt || optionsToString newOpts /= optionsToString opts) $ removeFile gen
-    ex@(ExitFailure _) -> throwIO ex
+            return $ maxModified > fmt
+        -- When some dependency is newer or options have changed, we should regenerate
+        when (optRebuild || modRebuild) $ removeFile gen
+      ex@(ExitFailure _) -> throwIO ex
 
 getAGFileOptions :: [(String, String)] -> IO AGFileOptions
 getAGFileOptions extra = do
