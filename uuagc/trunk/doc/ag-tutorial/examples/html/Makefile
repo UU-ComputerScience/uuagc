@@ -3,8 +3,8 @@ PROJ_B = HtmlHS
 PROJ_C = Html
 
 # choose the default build
-#PROJ = $(PROJ_A)
-PROJ = $(PROJ_B)
+PROJ = $(PROJ_A)
+#PROJ = $(PROJ_B)
 #PROJ = $(PROJ_C)
 
 PROJ_ALL = $(PROJ_A) $(PROJ_B) $(PROJ_C)
