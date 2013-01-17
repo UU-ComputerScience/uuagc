@@ -113,7 +113,8 @@ sdtype nt = "T_"++getName nt
 
 mkNtType :: Identifier -> [String] -> Type
 mkNtType nt args
-  | take 2 (getName nt) == "T_" = NT nt args True
+  | take 2 (getName nt) == "T_" = let nt' = Ident (drop 2 (getName nt)) (getPos nt)
+                                  in  NT nt' args True
   | otherwise                   = NT nt args False
 
 cataname ::  String -> Identifier -> String
