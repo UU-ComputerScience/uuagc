@@ -4,7 +4,7 @@ PROJ_A 	:= Html0HS
 PROJ_B 	:= Html1HS
 # with TOC
 PROJ_C 	:= Html2HS
-# non haskell syntax variant
+# with lift/right links (and non implemented index etc)
 PROJ_D 	:= Html3HS
 # non haskell syntax variant
 PROJ_E 	:= Html3
