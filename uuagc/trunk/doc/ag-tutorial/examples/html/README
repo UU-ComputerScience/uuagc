@@ -10,4 +10,7 @@ as in the accompanying slides:
 - Html1HS.ag, AG with Haskell syntax
 - Html2HS.ag, AG with Haskell syntax
 
-Choose one of the above in the Makefile
+Choose one of the above in the Makefile, say nr Html0HS, then
+	make
+	make test0
+will produce the executable ./html, and the testcase will generate test0.html
