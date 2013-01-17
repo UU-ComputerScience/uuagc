@@ -391,7 +391,7 @@ SEM  CRule
                                          else idEvalType tp
                                     else evalType replace tp
 
-  |  CChildVisit  loc.mkTp = @loc.evalTp . typeToCodeType (Just @nt) @loc.orgParams . removeDeforested
+  |  CChildVisit  loc.mkTp = @loc.evalTp . typeToCodeType (Just @nt) @loc.orgParams
                   loc.definedTps = [ TSig (attrname True @name a) (@mkTp tp) |  (a,tp) <- Map.toList @syn ]
                   loc.nextTp = typeName @nt (@nr+1)
                   lhs.tSigs = (if @isLast then id else (TSig (funname @name (@nr+1)) (TypeApp (SimpleType @nextTp) (map SimpleType @loc.instParams)) :)) @definedTps
@@ -821,7 +821,7 @@ SEM CNonterminal
                                       appParams nm = TypeApp (SimpleType nm) (map SimpleType params')
                                       typeSig = TSig wrapNT (evalTp $ appParams (sdtype @nt) `Arr` (appParams inhNT `Arr` appParams synNT))
                                       mkstrict = Named @lhs.o_strictwrap
-                                      mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just @nt) params' $ removeDeforested t | (f,t) <- attrs]] False []
+                                      mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just @nt) params' t | (f,t) <- attrs]] False []
                                       datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                   in datas ++ [ typeSig
                                               , Decl (Fun wrapNT [varPat, App inhNT inhVars])
