@@ -1206,12 +1206,16 @@ SEM Pattern
 --         Collect module declaration
 -------------------------------------------------------------------------------
 
-ATTR AG Elems Elem [ | | moduleDecl USE {`mplus`} {mzero} : {Maybe (String,String,String)} ]
+ATTR AG Elems Elem [ | | moduleDecl USE {`flipmplus`} {mzero} : {Maybe (String,String,String)} ]
 
 SEM Elem
   | Module
       lhs.moduleDecl = Just (@name, @exports, @imports)
 
+{
+-- We want the last Just in the list
+flipmplus = flip mplus
+}
 
 -------------------------------------------------------------------------------
 --         Constructing transformed syntax tree
