@@ -2,6 +2,39 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ExecutionPlan2Hs where
+{-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
+
+-- VisitSyntax.ag imports
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import CommonTypes
+import ErrorMessages
+
+import qualified Data.Set as Set
+import Data.Set(Set)
+import qualified Data.Map as Map
+import Data.Map(Map)
+{-# LINE 18 "dist/build/ExecutionPlan2Hs.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 25 "dist/build/ExecutionPlan2Hs.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 31 "dist/build/ExecutionPlan2Hs.hs" #-}
+
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 37 "dist/build/ExecutionPlan2Hs.hs" #-}
+
 {-# LINE 7 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 import ExecutionPlan
@@ -27,39 +60,6 @@ import qualified Data.Map as Map
 import Data.Sequence(Seq)
 import qualified Data.Sequence as Seq
 import Data.Foldable(toList)
-{-# LINE 31 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
-
--- VisitSyntax.ag imports
-import Patterns    (Pattern(..),Patterns)
-import Expression  (Expression(..))
-import CommonTypes
-import ErrorMessages
-
-import qualified Data.Set as Set
-import Data.Set(Set)
-import qualified Data.Map as Map
-import Data.Map(Map)
-{-# LINE 45 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 52 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 58 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 64 "dist/build/ExecutionPlan2Hs.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

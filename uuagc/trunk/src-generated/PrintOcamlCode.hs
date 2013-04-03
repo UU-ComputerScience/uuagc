@@ -3,6 +3,22 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintOcamlCode where
+{-# LINE 2 "./src-ag/Code.ag" #-}
+
+import Patterns
+import Data.Set(Set)
+import qualified Data.Set as Set
+import Data.Map(Map)
+import qualified Data.Map as Map
+{-# LINE 14 "dist/build/PrintOcamlCode.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 21 "dist/build/PrintOcamlCode.hs" #-}
+
 {-# LINE 10 "./src-ag/PrintOcamlCode.ag" #-}
 
 import Pretty
@@ -12,51 +28,9 @@ import Options
 import CommonTypes hiding (List,Type,Map,Maybe,IntMap,Either)
 import Data.List(intersperse,intercalate)
 import Data.Char(toLower)
-{-# LINE 16 "dist/build/PrintOcamlCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Code.ag" #-}
-
-import Patterns
-import Data.Set(Set)
-import qualified Data.Set as Set
-import Data.Map(Map)
-import qualified Data.Map as Map
-{-# LINE 25 "dist/build/PrintOcamlCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 32 "dist/build/PrintOcamlCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 21 "./src-ag/PrintOcamlCode.ag" #-}
-
-type PP_Docs = [PP_Doc]
-
-ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeqH = ppMultiSeq' (>#<)
-
-ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeqV = ppMultiSeq' (>-<)
-
-ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeq' next strictArgs expr
-  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
-
-ppTuple :: Bool -> [PP_Doc] -> PP_Doc
-ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
-ppTuple False pps = "(" >|< pp_block " " ")" "," pps
-{-# LINE 52 "dist/build/PrintOcamlCode.hs" #-}
-
-{-# LINE 175 "./src-ag/PrintOcamlCode.ag" #-}
-
-toOcamlTC :: String -> String
-toOcamlTC (c:cs) = toLower c : cs
-toOcamlTC xs = xs
-{-# LINE 59 "dist/build/PrintOcamlCode.hs" #-}
-
 {-# LINE 144 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
@@ -74,6 +48,32 @@ mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleTyp
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
 mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
                                | otherwise                                = UnboxedTupleLhs comps
+{-# LINE 52 "dist/build/PrintOcamlCode.hs" #-}
+
+{-# LINE 21 "./src-ag/PrintOcamlCode.ag" #-}
+
+type PP_Docs = [PP_Doc]
+
+ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqH = ppMultiSeq' (>#<)
+
+ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqV = ppMultiSeq' (>-<)
+
+ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq' next strictArgs expr
+  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
+
+ppTuple :: Bool -> [PP_Doc] -> PP_Doc
+ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
+ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+{-# LINE 71 "dist/build/PrintOcamlCode.hs" #-}
+
+{-# LINE 175 "./src-ag/PrintOcamlCode.ag" #-}
+
+toOcamlTC :: String -> String
+toOcamlTC (c:cs) = toLower c : cs
+toOcamlTC xs = xs
 {-# LINE 78 "dist/build/PrintOcamlCode.hs" #-}
 -- CaseAlt -----------------------------------------------------
 -- wrapper

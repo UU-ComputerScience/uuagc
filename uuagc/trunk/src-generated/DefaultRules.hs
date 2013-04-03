@@ -3,6 +3,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module DefaultRules where
+{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+
+-- AbstractSyntax.ag imports
+import Data.Set(Set)
+import Data.Map(Map)
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import Macro --marcos
+import CommonTypes
+import ErrorMessages
+{-# LINE 17 "dist/build/DefaultRules.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 24 "dist/build/DefaultRules.hs" #-}
+
 {-# LINE 15 "./src-ag/DefaultRules.ag" #-}
 
 import qualified Data.List
@@ -23,25 +42,6 @@ import AbstractSyntax
 import ErrorMessages
 
 import Options
-{-# LINE 27 "dist/build/DefaultRules.hs" #-}
-
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
-
--- AbstractSyntax.ag imports
-import Data.Set(Set)
-import Data.Map(Map)
-import Patterns    (Pattern(..),Patterns)
-import Expression  (Expression(..))
-import Macro --marcos
-import CommonTypes
-import ErrorMessages
-{-# LINE 39 "dist/build/DefaultRules.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 46 "dist/build/DefaultRules.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -442,8 +442,8 @@ wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child !(T_Child act) !(Inh_Child _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Child_vIn1 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap
-        !(T_Child_vOut1 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized) <- return (inv_Child_s2 sem arg)
+        let arg = T_Child_vIn0 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap
+        !(T_Child_vOut0 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized) <- return (inv_Child_s0 sem K_Child_v0 arg)
         return (Syn_Child _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized)
    )
 
@@ -454,124 +454,193 @@ sem_Child ( Child !name_ !tp_ !kind_ ) = sem_Child_Child name_ tp_ kind_
 
 -- semantic domain
 newtype T_Child  = T_Child {
-                           attach_T_Child :: Identity (T_Child_s2 )
+                           attach_T_Child :: Identity (T_Child_s0 )
                            }
-newtype T_Child_s2  = C_Child_s2 {
-                                 inv_Child_s2 :: (T_Child_v1 )
-                                 }
-data T_Child_s3  = C_Child_s3
-type T_Child_v1  = (T_Child_vIn1 ) -> (T_Child_vOut1 )
-data T_Child_vIn1  = T_Child_vIn1 (ConstructorIdent) (Bool) (Map Identifier Attributes) (Set Identifier) (NontermIdent) ([Identifier]) (Map Identifier Attributes)
-data T_Child_vOut1  = T_Child_vOut1 (Seq Error) ( (Identifier,Type,ChildKind) ) (Attributes) (Identifier) (Child) (Attributes)
+data T_Child_s0  where C_Child_s0 :: {
+                                     inv_Child_s0 :: !(forall t. K_Child_s0  t -> t)
+                                     } -> T_Child_s0 
+data T_Child_s1  = C_Child_s1
+data T_Child_s26  = C_Child_s26
+newtype T_Child_s56  = C_Child_s56 {
+                                   inv_Child_s56 :: (T_Child_v53 )
+                                   }
+data K_Child_s0 k  where
+   K_Child_v0 :: K_Child_s0  (T_Child_v0 )
+   K_Child_v13 :: K_Child_s0  (T_Child_v13 )
+   K_Child_v52 :: K_Child_s0  (T_Child_v52 )
+type T_Child_v0  = (T_Child_vIn0 ) -> (T_Child_vOut0 )
+data T_Child_vIn0  = T_Child_vIn0 !(ConstructorIdent) !(Bool) !(Map Identifier Attributes) !(Set Identifier) !(NontermIdent) !([Identifier]) !(Map Identifier Attributes)
+data T_Child_vOut0  = T_Child_vOut0 !(Seq Error) !( (Identifier,Type,ChildKind) ) !(Attributes) !(Identifier) !(Child) !(Attributes)
+type T_Child_v13  = (T_Child_vIn13 ) -> (T_Child_vOut13 )
+data T_Child_vIn13  = T_Child_vIn13 !(Map Identifier Attributes) !(Set Identifier) !(Map Identifier Attributes)
+data T_Child_vOut13  = T_Child_vOut13 !(Seq Error) !( (Identifier,Type,ChildKind) ) !(Attributes) !(Identifier) !(Child) !(Attributes)
+type T_Child_v52  = (T_Child_vIn52 ) -> (T_Child_vOut52 )
+data T_Child_vIn52  = T_Child_vIn52 !(Map Identifier Attributes) !(Set Identifier) !(Map Identifier Attributes)
+data T_Child_vOut52  = T_Child_vOut52 !(Seq Error) !( (Identifier,Type,ChildKind) ) !(Attributes) !(Identifier) !(Attributes) !(T_Child_s56 )
+type T_Child_v53  = (T_Child_vIn53 ) -> (T_Child_vOut53 )
+data T_Child_vIn53  = T_Child_vIn53 
+data T_Child_vOut53  = T_Child_vOut53 !(Child)
 {-# NOINLINE sem_Child_Child #-}
 sem_Child_Child :: (Identifier) -> (Type) -> (ChildKind) -> T_Child 
-sem_Child_Child !arg_name_ !arg_tp_ !arg_kind_ = T_Child (return st2) where
-   {-# NOINLINE st2 #-}
-   !st2 = let
-      v1 :: T_Child_v1 
-      v1 = \ !(T_Child_vIn1 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> ( let
-         _lhsOname :: Identifier
-         _lhsOname = rule0 arg_name_
-         _lhsOinherited :: Attributes
-         _lhsOinherited = rule1 _inh1
-         _lhsOsynthesized :: Attributes
-         _lhsOsynthesized = rule2 _lhsImerged _syn1 arg_name_
-         _lhsOfield ::  (Identifier,Type,ChildKind) 
-         _lhsOfield = rule3 arg_kind_ arg_name_ arg_tp_
-         (_nt,_params) = rule4 arg_name_ arg_tp_
-         _inh1 = rule5 _inh _nt _params
-         _syn1 = rule6 _nt _params _syn
-         _lhsOoutput :: Child
-         _lhsOoutput = rule7 arg_kind_ arg_name_ arg_tp_
-         _chnt = rule8 arg_name_ arg_tp_
-         _inh = rule9 _chnt _lhsIinhMap
-         _syn = rule10 _chnt _lhsIsynMap
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule11  ()
-         _output = rule12 arg_kind_ arg_name_ arg_tp_
-         !__result_ = T_Child_vOut1 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized
-         in __result_ )
-     in C_Child_s2 v1
-   {-# INLINE rule0 #-}
-   {-# LINE 200 "./src-ag/DefaultRules.ag" #-}
-   rule0 = \ name_ ->
-                         {-# LINE 200 "./src-ag/DefaultRules.ag" #-}
-                         name_
-                         {-# LINE 501 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule1 #-}
-   {-# LINE 209 "./src-ag/DefaultRules.ag" #-}
-   rule1 = \ _inh1 ->
-                            {-# LINE 209 "./src-ag/DefaultRules.ag" #-}
-                            _inh1
-                            {-# LINE 507 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule2 #-}
-   {-# LINE 210 "./src-ag/DefaultRules.ag" #-}
-   rule2 = \ ((_lhsImerged) :: Set Identifier) _syn1 name_ ->
-                              {-# LINE 210 "./src-ag/DefaultRules.ag" #-}
-                              if name_ `Set.member` _lhsImerged
-                              then Map.empty
-                              else _syn1
-                              {-# LINE 515 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule3 #-}
-   {-# LINE 546 "./src-ag/DefaultRules.ag" #-}
-   rule3 = \ kind_ name_ tp_ ->
-                        {-# LINE 546 "./src-ag/DefaultRules.ag" #-}
-                        (name_,tp_,kind_)
-                        {-# LINE 521 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule4 #-}
-   {-# LINE 568 "./src-ag/DefaultRules.ag" #-}
-   rule4 = \ name_ tp_ ->
-                           {-# LINE 568 "./src-ag/DefaultRules.ag" #-}
-                           case tp_ of
-                             NT nt params _ -> (nt, params)
-                             Self           -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
-                             Haskell t      -> (identifier t, [])
-                           {-# LINE 530 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule5 #-}
-   {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
-   rule5 = \ _inh _nt _params ->
-               {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
-               Map.map (elimSelfStr _nt     _params    ) _inh
-               {-# LINE 536 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule6 #-}
-   {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
-   rule6 = \ _nt _params _syn ->
-               {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
-               Map.map (elimSelfStr _nt     _params    ) _syn
-               {-# LINE 542 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule7 #-}
-   {-# LINE 614 "./src-ag/DefaultRules.ag" #-}
-   rule7 = \ kind_ name_ tp_ ->
-                 {-# LINE 614 "./src-ag/DefaultRules.ag" #-}
-                 Child name_ tp_ kind_
-                 {-# LINE 548 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule8 #-}
+sem_Child_Child !arg_name_ !arg_tp_ !arg_kind_ = T_Child (return st0) where
+   {-# NOINLINE st0 #-}
+   !st0 = let
+      k0 :: K_Child_s0  t -> t
+      k0 K_Child_v0 = v0
+      k0 K_Child_v13 = v13
+      k0 K_Child_v52 = v52
+      v0 :: T_Child_v0 
+      v0 = \ !(T_Child_vIn0 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule11  () in
+         let _lhsOfield ::  (Identifier,Type,ChildKind) 
+             !_lhsOfield = rule6 arg_kind_ arg_name_ arg_tp_ in
+         let !_chnt = rule0 arg_name_ arg_tp_ in
+         let !_inh = rule1 _chnt _lhsIinhMap in
+         let !(!_nt,!_params) = rule7 arg_name_ arg_tp_ in
+         let !_inh1 = rule8 _inh _nt _params in
+         let _lhsOinherited :: Attributes
+             !_lhsOinherited = rule4 _inh1 in
+         let _lhsOname :: Identifier
+             !_lhsOname = rule3 arg_name_ in
+         let _lhsOoutput :: Child
+             !_lhsOoutput = rule10 arg_kind_ arg_name_ arg_tp_ in
+         let !_syn = rule2 _chnt _lhsIsynMap in
+         let !_syn1 = rule9 _nt _params _syn in
+         let _lhsOsynthesized :: Attributes
+             !_lhsOsynthesized = rule5 _lhsImerged _syn1 arg_name_ in
+         let !__result_ = T_Child_vOut0 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized
+          in __result_ )
+      v13 :: T_Child_v13 
+      v13 = \ !(T_Child_vIn13 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule11  () in
+         let _lhsOfield ::  (Identifier,Type,ChildKind) 
+             !_lhsOfield = rule6 arg_kind_ arg_name_ arg_tp_ in
+         let !_chnt = rule0 arg_name_ arg_tp_ in
+         let !_inh = rule1 _chnt _lhsIinhMap in
+         let !(!_nt,!_params) = rule7 arg_name_ arg_tp_ in
+         let !_inh1 = rule8 _inh _nt _params in
+         let _lhsOinherited :: Attributes
+             !_lhsOinherited = rule4 _inh1 in
+         let _lhsOname :: Identifier
+             !_lhsOname = rule3 arg_name_ in
+         let _lhsOoutput :: Child
+             !_lhsOoutput = rule10 arg_kind_ arg_name_ arg_tp_ in
+         let !_syn = rule2 _chnt _lhsIsynMap in
+         let !_syn1 = rule9 _nt _params _syn in
+         let _lhsOsynthesized :: Attributes
+             !_lhsOsynthesized = rule5 _lhsImerged _syn1 arg_name_ in
+         let !__result_ = T_Child_vOut13 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOoutput _lhsOsynthesized
+          in __result_ )
+      v52 :: T_Child_v52 
+      v52 = \ !(T_Child_vIn52 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule11  () in
+         let _lhsOfield ::  (Identifier,Type,ChildKind) 
+             !_lhsOfield = rule6 arg_kind_ arg_name_ arg_tp_ in
+         let !_chnt = rule0 arg_name_ arg_tp_ in
+         let !_inh = rule1 _chnt _lhsIinhMap in
+         let !(!_nt,!_params) = rule7 arg_name_ arg_tp_ in
+         let !_inh1 = rule8 _inh _nt _params in
+         let _lhsOinherited :: Attributes
+             !_lhsOinherited = rule4 _inh1 in
+         let _lhsOname :: Identifier
+             !_lhsOname = rule3 arg_name_ in
+         let !_syn = rule2 _chnt _lhsIsynMap in
+         let !_syn1 = rule9 _nt _params _syn in
+         let _lhsOsynthesized :: Attributes
+             !_lhsOsynthesized = rule5 _lhsImerged _syn1 arg_name_ in
+         let !__st_ = st56  ()
+             !__result_ = T_Child_vOut52 _lhsOerrors _lhsOfield _lhsOinherited _lhsOname _lhsOsynthesized __st_
+          in __result_ )
+     in C_Child_s0 k0
+   {-# NOINLINE st56 #-}
+   st56 = \  (_ :: ()) -> let
+      v53 :: T_Child_v53 
+      v53 = \ !(T_Child_vIn53 ) -> (
+         let _lhsOoutput :: Child
+             !_lhsOoutput = rule10 arg_kind_ arg_name_ arg_tp_ in
+         let !__result_ = T_Child_vOut53 _lhsOoutput
+          in __result_ )
+     in C_Child_s56 v53
+   {-# NOINLINE[1] rule0 #-}
    {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-   rule8 = \ name_ tp_ ->
+   rule0 = \ !name_ !tp_ ->
                        {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 557 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule9 #-}
+                       {-# LINE 576 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule1 #-}
    {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-   rule9 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   rule1 = \ !_chnt ((!_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 563 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule10 #-}
+                      {-# LINE 582 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule2 #-}
    {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-   rule10 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   rule2 = \ !_chnt ((!_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 569 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule11 #-}
+                      {-# LINE 588 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule3 #-}
+   {-# LINE 200 "./src-ag/DefaultRules.ag" #-}
+   rule3 = \ !name_ ->
+                         {-# LINE 200 "./src-ag/DefaultRules.ag" #-}
+                         name_
+                         {-# LINE 594 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule4 #-}
+   {-# LINE 209 "./src-ag/DefaultRules.ag" #-}
+   rule4 = \ !_inh1 ->
+                            {-# LINE 209 "./src-ag/DefaultRules.ag" #-}
+                            _inh1
+                            {-# LINE 600 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule5 #-}
+   {-# LINE 210 "./src-ag/DefaultRules.ag" #-}
+   rule5 = \ ((!_lhsImerged) :: Set Identifier) !_syn1 !name_ ->
+                              {-# LINE 210 "./src-ag/DefaultRules.ag" #-}
+                              if name_ `Set.member` _lhsImerged
+                              then Map.empty
+                              else _syn1
+                              {-# LINE 608 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule6 #-}
+   {-# LINE 546 "./src-ag/DefaultRules.ag" #-}
+   rule6 = \ !kind_ !name_ !tp_ ->
+                        {-# LINE 546 "./src-ag/DefaultRules.ag" #-}
+                        (name_,tp_,kind_)
+                        {-# LINE 614 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule7 #-}
+   {-# LINE 568 "./src-ag/DefaultRules.ag" #-}
+   rule7 = \ !name_ !tp_ ->
+                           {-# LINE 568 "./src-ag/DefaultRules.ag" #-}
+                           case tp_ of
+                             NT nt params _ -> (nt, params)
+                             Self           -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
+                             Haskell t      -> (identifier t, [])
+                           {-# LINE 623 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule8 #-}
+   {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
+   rule8 = \ !_inh !_nt !_params ->
+               {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
+               Map.map (elimSelfStr _nt     _params    ) _inh
+               {-# LINE 629 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule9 #-}
+   {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
+   rule9 = \ !_nt !_params !_syn ->
+               {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
+               Map.map (elimSelfStr _nt     _params    ) _syn
+               {-# LINE 635 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule10 #-}
+   {-# LINE 614 "./src-ag/DefaultRules.ag" #-}
+   rule10 = \ !kind_ !name_ !tp_ ->
+                 {-# LINE 614 "./src-ag/DefaultRules.ag" #-}
+                 Child name_ tp_ kind_
+                 {-# LINE 641 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule11 #-}
    rule11 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule12 #-}
-   rule12 = \ kind_ name_ tp_ ->
-     Child name_ tp_ kind_
 
 -- Children ----------------------------------------------------
 -- wrapper
@@ -582,8 +651,8 @@ wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children !(T_Children act) !(Inh_Children _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Children_vIn4 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap
-        !(T_Children_vOut4 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs) <- return (inv_Children_s5 sem arg)
+        let arg = T_Children_vIn1 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap
+        !(T_Children_vOut1 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs) <- return (inv_Children_s2 sem K_Children_v1 arg)
         return (Syn_Children _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs)
    )
 
@@ -594,170 +663,261 @@ sem_Children list = Prelude.foldr sem_Children_Cons sem_Children_Nil (Prelude.ma
 
 -- semantic domain
 newtype T_Children  = T_Children {
-                                 attach_T_Children :: Identity (T_Children_s5 )
+                                 attach_T_Children :: Identity (T_Children_s2 )
                                  }
-newtype T_Children_s5  = C_Children_s5 {
-                                       inv_Children_s5 :: (T_Children_v4 )
-                                       }
-data T_Children_s6  = C_Children_s6
-type T_Children_v4  = (T_Children_vIn4 ) -> (T_Children_vOut4 )
-data T_Children_vIn4  = T_Children_vIn4 (ConstructorIdent) (Bool) (Map Identifier Attributes) (Set Identifier) (NontermIdent) ([Identifier]) (Map Identifier Attributes)
-data T_Children_vOut4  = T_Children_vOut4 (Seq Error) ([(Identifier,Type,ChildKind)]) ([(Identifier, Attributes)]) (Children) ([(Identifier, Attributes)])
+data T_Children_s2  where C_Children_s2 :: {
+                                           inv_Children_s2 :: !(forall t. K_Children_s2  t -> t)
+                                           } -> T_Children_s2 
+data T_Children_s3  = C_Children_s3
+data T_Children_s27  = C_Children_s27
+newtype T_Children_s53  = C_Children_s53 {
+                                         inv_Children_s53 :: (T_Children_v48 )
+                                         }
+data K_Children_s2 k  where
+   K_Children_v1 :: K_Children_s2  (T_Children_v1 )
+   K_Children_v14 :: K_Children_s2  (T_Children_v14 )
+   K_Children_v47 :: K_Children_s2  (T_Children_v47 )
+type T_Children_v1  = (T_Children_vIn1 ) -> (T_Children_vOut1 )
+data T_Children_vIn1  = T_Children_vIn1 !(ConstructorIdent) !(Bool) !(Map Identifier Attributes) !(Set Identifier) !(NontermIdent) !([Identifier]) !(Map Identifier Attributes)
+data T_Children_vOut1  = T_Children_vOut1 !(Seq Error) !([(Identifier,Type,ChildKind)]) !([(Identifier, Attributes)]) !(Children) !([(Identifier, Attributes)])
+type T_Children_v14  = (T_Children_vIn14 ) -> (T_Children_vOut14 )
+data T_Children_vIn14  = T_Children_vIn14 !(Map Identifier Attributes) !(Set Identifier) !(Map Identifier Attributes)
+data T_Children_vOut14  = T_Children_vOut14 !(Seq Error) !([(Identifier,Type,ChildKind)]) !([(Identifier, Attributes)]) !(Children) !([(Identifier, Attributes)])
+type T_Children_v47  = (T_Children_vIn47 ) -> (T_Children_vOut47 )
+data T_Children_vIn47  = T_Children_vIn47 !(Map Identifier Attributes) !(Set Identifier) !(Map Identifier Attributes)
+data T_Children_vOut47  = T_Children_vOut47 !(Seq Error) !([(Identifier,Type,ChildKind)]) !([(Identifier, Attributes)]) !([(Identifier, Attributes)]) !(T_Children_s53 )
+type T_Children_v48  = (T_Children_vIn48 ) -> (T_Children_vOut48 )
+data T_Children_vIn48  = T_Children_vIn48 
+data T_Children_vOut48  = T_Children_vOut48 !(Children)
 {-# NOINLINE sem_Children_Cons #-}
 sem_Children_Cons :: T_Child  -> T_Children  -> T_Children 
-sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
-   {-# NOINLINE st5 #-}
-   !st5 = let
-      v4 :: T_Children_v4 
-      v4 = \ !(T_Children_vIn4 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> ( let
-         _hdX2 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_))
-         _tlX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_))
-         (T_Child_vOut1 _hdIerrors _hdIfield _hdIinherited _hdIname _hdIoutput _hdIsynthesized) = inv_Child_s2 _hdX2 (T_Child_vIn1 _hdOcon _hdOcr _hdOinhMap _hdOmerged _hdOnt _hdOparams _hdOsynMap)
-         (T_Children_vOut4 _tlIerrors _tlIfields _tlIinputs _tlIoutput _tlIoutputs) = inv_Children_s5 _tlX5 (T_Children_vIn4 _tlOcon _tlOcr _tlOinhMap _tlOmerged _tlOnt _tlOparams _tlOsynMap)
-         _lhsOinputs :: [(Identifier, Attributes)]
-         _lhsOinputs = rule13 _hdIinherited _hdIname _tlIinputs
-         _lhsOoutputs :: [(Identifier, Attributes)]
-         _lhsOoutputs = rule14 _hdIname _hdIsynthesized _tlIoutputs
-         _lhsOfields :: [(Identifier,Type,ChildKind)]
-         _lhsOfields = rule15 _hdIfield _tlIfields
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule16 _hdIerrors _tlIerrors
-         _output = rule17 _hdIoutput _tlIoutput
-         _lhsOoutput :: Children
-         _lhsOoutput = rule18 _output
-         _hdOcon = rule19 _lhsIcon
-         _hdOcr = rule20 _lhsIcr
-         _hdOinhMap = rule21 _lhsIinhMap
-         _hdOmerged = rule22 _lhsImerged
-         _hdOnt = rule23 _lhsInt
-         _hdOparams = rule24 _lhsIparams
-         _hdOsynMap = rule25 _lhsIsynMap
-         _tlOcon = rule26 _lhsIcon
-         _tlOcr = rule27 _lhsIcr
-         _tlOinhMap = rule28 _lhsIinhMap
-         _tlOmerged = rule29 _lhsImerged
-         _tlOnt = rule30 _lhsInt
-         _tlOparams = rule31 _lhsIparams
-         _tlOsynMap = rule32 _lhsIsynMap
-         !__result_ = T_Children_vOut4 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
-         in __result_ )
-     in C_Children_s5 v4
-   {-# INLINE rule13 #-}
+sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st2) where
+   {-# NOINLINE st2 #-}
+   !st2 = let
+      k2 :: K_Children_s2  t -> t
+      k2 K_Children_v1 = v1
+      k2 K_Children_v14 = v14
+      k2 K_Children_v47 = v47
+      v1 :: T_Children_v1 
+      v1 = \ !(T_Children_vIn1 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> (
+         let !_hdX0 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_)) in
+         let !_tlX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_)) in
+         let !_hdOinhMap = rule21 _lhsIinhMap in
+         let !_tlOinhMap = rule28 _lhsIinhMap in
+         let !_hdOmerged = rule22 _lhsImerged in
+         let !_hdOsynMap = rule25 _lhsIsynMap in
+         let !_tlOmerged = rule29 _lhsImerged in
+         let !_tlOsynMap = rule32 _lhsIsynMap in
+         let !(T_Child_vOut13 _hdIerrors _hdIfield _hdIinherited _hdIname _hdIoutput _hdIsynthesized) = inv_Child_s0 _hdX0 K_Child_v13 (T_Child_vIn13 _hdOinhMap _hdOmerged _hdOsynMap) in
+         let !(T_Children_vOut14 _tlIerrors _tlIfields _tlIinputs _tlIoutput _tlIoutputs) = inv_Children_s2 _tlX2 K_Children_v14 (T_Children_vIn14 _tlOinhMap _tlOmerged _tlOsynMap) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule16 _hdIerrors _tlIerrors in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule15 _hdIfield _tlIfields in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule13 _hdIinherited _hdIname _tlIinputs in
+         let !_output = rule17 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule18 _output in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule14 _hdIname _hdIsynthesized _tlIoutputs in
+         let !__result_ = T_Children_vOut1 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
+          in __result_ )
+      v14 :: T_Children_v14 
+      v14 = \ !(T_Children_vIn14 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let !_hdX0 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_)) in
+         let !_tlX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_)) in
+         let !_hdOinhMap = rule21 _lhsIinhMap in
+         let !_tlOinhMap = rule28 _lhsIinhMap in
+         let !_hdOmerged = rule22 _lhsImerged in
+         let !_hdOsynMap = rule25 _lhsIsynMap in
+         let !_tlOmerged = rule29 _lhsImerged in
+         let !_tlOsynMap = rule32 _lhsIsynMap in
+         let !(T_Child_vOut13 _hdIerrors _hdIfield _hdIinherited _hdIname _hdIoutput _hdIsynthesized) = inv_Child_s0 _hdX0 K_Child_v13 (T_Child_vIn13 _hdOinhMap _hdOmerged _hdOsynMap) in
+         let !(T_Children_vOut14 _tlIerrors _tlIfields _tlIinputs _tlIoutput _tlIoutputs) = inv_Children_s2 _tlX2 K_Children_v14 (T_Children_vIn14 _tlOinhMap _tlOmerged _tlOsynMap) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule16 _hdIerrors _tlIerrors in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule15 _hdIfield _tlIfields in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule13 _hdIinherited _hdIname _tlIinputs in
+         let !_output = rule17 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule18 _output in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule14 _hdIname _hdIsynthesized _tlIoutputs in
+         let !__result_ = T_Children_vOut14 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
+          in __result_ )
+      v47 :: T_Children_v47 
+      v47 = \ !(T_Children_vIn47 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let !_hdX0 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_)) in
+         let !_tlX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_)) in
+         let !_hdOinhMap = rule21 _lhsIinhMap in
+         let !_tlOinhMap = rule28 _lhsIinhMap in
+         let !_hdOmerged = rule22 _lhsImerged in
+         let !_hdOsynMap = rule25 _lhsIsynMap in
+         let !_tlOmerged = rule29 _lhsImerged in
+         let !_tlOsynMap = rule32 _lhsIsynMap in
+         let !(T_Child_vOut52 _hdIerrors _hdIfield _hdIinherited _hdIname _hdIsynthesized _hdX56) = inv_Child_s0 _hdX0 K_Child_v52 (T_Child_vIn52 _hdOinhMap _hdOmerged _hdOsynMap) in
+         let !(T_Children_vOut47 _tlIerrors _tlIfields _tlIinputs _tlIoutputs _tlX53) = inv_Children_s2 _tlX2 K_Children_v47 (T_Children_vIn47 _tlOinhMap _tlOmerged _tlOsynMap) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule16 _hdIerrors _tlIerrors in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule15 _hdIfield _tlIfields in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule13 _hdIinherited _hdIname _tlIinputs in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule14 _hdIname _hdIsynthesized _tlIoutputs in
+         let !__st_ = st53 _hdX56 _tlX53
+             !__result_ = T_Children_vOut47 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutputs __st_
+          in __result_ )
+     in C_Children_s2 k2
+   {-# NOINLINE st53 #-}
+   st53 = \ !_hdX56 !_tlX53 -> let
+      v48 :: T_Children_v48 
+      v48 = \ !(T_Children_vIn48 ) -> (
+         let !(T_Child_vOut53 _hdIoutput) = inv_Child_s56 _hdX56 (T_Child_vIn53 ) in
+         let !(T_Children_vOut48 _tlIoutput) = inv_Children_s53 _tlX53 (T_Children_vIn48 ) in
+         let !_output = rule17 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule18 _output in
+         let !__result_ = T_Children_vOut48 _lhsOoutput
+          in __result_ )
+     in C_Children_s53 v48
+   {-# NOINLINE[1] rule13 #-}
    {-# LINE 215 "./src-ag/DefaultRules.ag" #-}
-   rule13 = \ ((_hdIinherited) :: Attributes) ((_hdIname) :: Identifier) ((_tlIinputs) :: [(Identifier, Attributes)]) ->
+   rule13 = \ ((!_hdIinherited) :: Attributes) ((!_hdIname) :: Identifier) ((!_tlIinputs) :: [(Identifier, Attributes)]) ->
                          {-# LINE 215 "./src-ag/DefaultRules.ag" #-}
                          (_hdIname, _hdIinherited) : _tlIinputs
-                         {-# LINE 651 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule14 #-}
+                         {-# LINE 793 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule14 #-}
    {-# LINE 216 "./src-ag/DefaultRules.ag" #-}
-   rule14 = \ ((_hdIname) :: Identifier) ((_hdIsynthesized) :: Attributes) ((_tlIoutputs) :: [(Identifier, Attributes)]) ->
+   rule14 = \ ((!_hdIname) :: Identifier) ((!_hdIsynthesized) :: Attributes) ((!_tlIoutputs) :: [(Identifier, Attributes)]) ->
                          {-# LINE 216 "./src-ag/DefaultRules.ag" #-}
                          (_hdIname, _hdIsynthesized) : _tlIoutputs
-                         {-# LINE 657 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule15 #-}
+                         {-# LINE 799 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule15 #-}
    {-# LINE 542 "./src-ag/DefaultRules.ag" #-}
-   rule15 = \ ((_hdIfield) ::  (Identifier,Type,ChildKind) ) ((_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
+   rule15 = \ ((!_hdIfield) ::  (Identifier,Type,ChildKind) ) ((!_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
                         {-# LINE 542 "./src-ag/DefaultRules.ag" #-}
                         _hdIfield : _tlIfields
-                        {-# LINE 663 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule16 #-}
-   rule16 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+                        {-# LINE 805 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule16 #-}
+   rule16 = \ ((!_hdIerrors) :: Seq Error) ((!_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule17 #-}
-   rule17 = \ ((_hdIoutput) :: Child) ((_tlIoutput) :: Children) ->
+   {-# NOINLINE[1] rule17 #-}
+   rule17 = \ ((!_hdIoutput) :: Child) ((!_tlIoutput) :: Children) ->
      (:) _hdIoutput _tlIoutput
-   {-# INLINE rule18 #-}
-   rule18 = \ _output ->
+   {-# NOINLINE[1] rule18 #-}
+   rule18 = \ !_output ->
      _output
-   {-# INLINE rule19 #-}
-   rule19 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule20 #-}
-   rule20 = \ ((_lhsIcr) :: Bool) ->
-     _lhsIcr
-   {-# INLINE rule21 #-}
-   rule21 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule21 #-}
+   rule21 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule22 #-}
-   rule22 = \ ((_lhsImerged) :: Set Identifier) ->
+   {-# NOINLINE[1] rule22 #-}
+   rule22 = \ ((!_lhsImerged) :: Set Identifier) ->
      _lhsImerged
-   {-# INLINE rule23 #-}
-   rule23 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule24 #-}
-   rule24 = \ ((_lhsIparams) :: [Identifier]) ->
-     _lhsIparams
-   {-# INLINE rule25 #-}
-   rule25 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule25 #-}
+   rule25 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule26 #-}
-   rule26 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule27 #-}
-   rule27 = \ ((_lhsIcr) :: Bool) ->
-     _lhsIcr
-   {-# INLINE rule28 #-}
-   rule28 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule28 #-}
+   rule28 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule29 #-}
-   rule29 = \ ((_lhsImerged) :: Set Identifier) ->
+   {-# NOINLINE[1] rule29 #-}
+   rule29 = \ ((!_lhsImerged) :: Set Identifier) ->
      _lhsImerged
-   {-# INLINE rule30 #-}
-   rule30 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule31 #-}
-   rule31 = \ ((_lhsIparams) :: [Identifier]) ->
-     _lhsIparams
-   {-# INLINE rule32 #-}
-   rule32 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule32 #-}
+   rule32 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
 {-# NOINLINE sem_Children_Nil #-}
 sem_Children_Nil ::  T_Children 
-sem_Children_Nil  = T_Children (return st5) where
-   {-# NOINLINE st5 #-}
-   !st5 = let
-      v4 :: T_Children_v4 
-      v4 = \ !(T_Children_vIn4 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> ( let
-         _lhsOinputs :: [(Identifier, Attributes)]
-         _lhsOinputs = rule33  ()
-         _lhsOoutputs :: [(Identifier, Attributes)]
-         _lhsOoutputs = rule34  ()
-         _lhsOfields :: [(Identifier,Type,ChildKind)]
-         _lhsOfields = rule35  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule36  ()
-         _output = rule37  ()
-         _lhsOoutput :: Children
-         _lhsOoutput = rule38 _output
-         !__result_ = T_Children_vOut4 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
-         in __result_ )
-     in C_Children_s5 v4
-   {-# INLINE rule33 #-}
+sem_Children_Nil  = T_Children (return st2) where
+   {-# NOINLINE st2 #-}
+   !st2 = let
+      k2 :: K_Children_s2  t -> t
+      k2 K_Children_v1 = v1
+      k2 K_Children_v14 = v14
+      k2 K_Children_v47 = v47
+      v1 :: T_Children_v1 
+      v1 = \ !(T_Children_vIn1 _lhsIcon _lhsIcr _lhsIinhMap _lhsImerged _lhsInt _lhsIparams _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule36  () in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule35  () in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule33  () in
+         let !_output = rule37  () in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule34  () in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule38 _output in
+         let !__result_ = T_Children_vOut1 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
+          in __result_ )
+      v14 :: T_Children_v14 
+      v14 = \ !(T_Children_vIn14 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule36  () in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule35  () in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule33  () in
+         let !_output = rule37  () in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule34  () in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule38 _output in
+         let !__result_ = T_Children_vOut14 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutput _lhsOoutputs
+          in __result_ )
+      v47 :: T_Children_v47 
+      v47 = \ !(T_Children_vIn47 _lhsIinhMap _lhsImerged _lhsIsynMap) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule36  () in
+         let _lhsOfields :: [(Identifier,Type,ChildKind)]
+             !_lhsOfields = rule35  () in
+         let _lhsOinputs :: [(Identifier, Attributes)]
+             !_lhsOinputs = rule33  () in
+         let _lhsOoutputs :: [(Identifier, Attributes)]
+             !_lhsOoutputs = rule34  () in
+         let !__st_ = st53  ()
+             !__result_ = T_Children_vOut47 _lhsOerrors _lhsOfields _lhsOinputs _lhsOoutputs __st_
+          in __result_ )
+     in C_Children_s2 k2
+   {-# NOINLINE st53 #-}
+   st53 = \  (_ :: ()) -> let
+      v48 :: T_Children_v48 
+      v48 = \ !(T_Children_vIn48 ) -> (
+         let !_output = rule37  () in
+         let _lhsOoutput :: Children
+             !_lhsOoutput = rule38 _output in
+         let !__result_ = T_Children_vOut48 _lhsOoutput
+          in __result_ )
+     in C_Children_s53 v48
+   {-# NOINLINE[1] rule33 #-}
    {-# LINE 217 "./src-ag/DefaultRules.ag" #-}
    rule33 = \  (_ :: ()) ->
                          {-# LINE 217 "./src-ag/DefaultRules.ag" #-}
                          []
-                         {-# LINE 741 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule34 #-}
+                         {-# LINE 901 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule34 #-}
    {-# LINE 218 "./src-ag/DefaultRules.ag" #-}
    rule34 = \  (_ :: ()) ->
                          {-# LINE 218 "./src-ag/DefaultRules.ag" #-}
                          []
-                         {-# LINE 747 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule35 #-}
+                         {-# LINE 907 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule35 #-}
    {-# LINE 543 "./src-ag/DefaultRules.ag" #-}
    rule35 = \  (_ :: ()) ->
                         {-# LINE 543 "./src-ag/DefaultRules.ag" #-}
                         []
-                        {-# LINE 753 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule36 #-}
+                        {-# LINE 913 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule36 #-}
    rule36 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule37 #-}
+   {-# NOINLINE[1] rule37 #-}
    rule37 = \  (_ :: ()) ->
      []
-   {-# INLINE rule38 #-}
-   rule38 = \ _output ->
+   {-# NOINLINE[1] rule38 #-}
+   rule38 = \ !_output ->
      _output
 
 -- Grammar -----------------------------------------------------
@@ -769,8 +929,8 @@ wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar !(T_Grammar act) !(Inh_Grammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Grammar_vIn7 _lhsIoptions
-        !(T_Grammar_vOut7 _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s8 sem arg)
+        let arg = T_Grammar_vIn2 _lhsIoptions
+        !(T_Grammar_vOut2 _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s4 sem arg)
         return (Syn_Grammar _lhsOerrors _lhsOoutput)
    )
 
@@ -781,135 +941,129 @@ sem_Grammar ( Grammar !typeSyns_ !useMap_ !derivings_ !wrappers_ nonts_ !pragmas
 
 -- semantic domain
 newtype T_Grammar  = T_Grammar {
-                               attach_T_Grammar :: Identity (T_Grammar_s8 )
+                               attach_T_Grammar :: Identity (T_Grammar_s4 )
                                }
-newtype T_Grammar_s8  = C_Grammar_s8 {
-                                     inv_Grammar_s8 :: (T_Grammar_v7 )
+newtype T_Grammar_s4  = C_Grammar_s4 {
+                                     inv_Grammar_s4 :: (T_Grammar_v2 )
                                      }
-data T_Grammar_s9  = C_Grammar_s9
-type T_Grammar_v7  = (T_Grammar_vIn7 ) -> (T_Grammar_vOut7 )
-data T_Grammar_vIn7  = T_Grammar_vIn7 (Options)
-data T_Grammar_vOut7  = T_Grammar_vOut7 (Seq Error) (Grammar)
+data T_Grammar_s5  = C_Grammar_s5
+type T_Grammar_v2  = (T_Grammar_vIn2 ) -> (T_Grammar_vOut2 )
+data T_Grammar_vIn2  = T_Grammar_vIn2 !(Options)
+data T_Grammar_vOut2  = T_Grammar_vOut2 !(Seq Error) !(Grammar)
 {-# NOINLINE sem_Grammar_Grammar #-}
 sem_Grammar_Grammar :: (TypeSyns) -> (UseMap) -> (Derivings) -> (Set NontermIdent) -> T_Nonterminals  -> (PragmaMap) -> (AttrOrderMap) -> (ParamMap) -> (ContextMap) -> (QuantMap) -> (UniqueMap) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) -> T_Grammar 
-sem_Grammar_Grammar !arg_typeSyns_ !arg_useMap_ !arg_derivings_ !arg_wrappers_ arg_nonts_ !arg_pragmas_ !arg_manualAttrOrderMap_ !arg_paramMap_ !arg_contextMap_ !arg_quantMap_ !arg_uniqueMap_ !arg_augmentsMap_ !arg_aroundsMap_ !arg_mergeMap_ = T_Grammar (return st8) where
-   {-# NOINLINE st8 #-}
-   !st8 = let
-      v7 :: T_Grammar_v7 
-      v7 = \ !(T_Grammar_vIn7 _lhsIoptions) -> ( let
-         _nontsX14 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
-         (T_Nonterminals_vOut13 _nontsIcollect_nts _nontsIerrors _nontsIinhMap' _nontsIoutput _nontsIsynMap' _nontsIuniq) = inv_Nonterminals_s14 _nontsX14 (T_Nonterminals_vIn13 _nontsOaroundsIn _nontsOaugmentsIn _nontsOcr _nontsOinhMap _nontsOmanualAttrOrderMap _nontsOmergesIn _nontsOnonterminals _nontsOo_rename _nontsOoptions _nontsOsynMap _nontsOtypeSyns _nontsOuniq _nontsOuseMap _nontsOwrappers)
-         _nontsOo_rename = rule39 _lhsIoptions
-         _nontsOcr = rule40 _lhsIoptions
-         _nontsOwrappers = rule41 arg_wrappers_
-         _nontsOnonterminals = rule42 _nontsIcollect_nts
-         _nontsOuseMap = rule43 arg_useMap_
-         _nontsOtypeSyns = rule44 arg_typeSyns_
-         _nontsOuniq = rule45  ()
-         _nontsOmanualAttrOrderMap = rule46 arg_manualAttrOrderMap_
-         _nontsOaugmentsIn = rule47 arg_augmentsMap_
-         _nontsOaroundsIn = rule48 arg_aroundsMap_
-         _nontsOmergesIn = rule49 arg_mergeMap_
-         _nontsOinhMap = rule50 _nontsIinhMap'
-         _nontsOsynMap = rule51 _nontsIsynMap'
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule52 _nontsIerrors
-         _output = rule53 _nontsIoutput arg_aroundsMap_ arg_augmentsMap_ arg_contextMap_ arg_derivings_ arg_manualAttrOrderMap_ arg_mergeMap_ arg_paramMap_ arg_pragmas_ arg_quantMap_ arg_typeSyns_ arg_uniqueMap_ arg_useMap_ arg_wrappers_
-         _lhsOoutput :: Grammar
-         _lhsOoutput = rule54 _output
-         _nontsOoptions = rule55 _lhsIoptions
-         !__result_ = T_Grammar_vOut7 _lhsOerrors _lhsOoutput
-         in __result_ )
-     in C_Grammar_s8 v7
+sem_Grammar_Grammar !arg_typeSyns_ !arg_useMap_ !arg_derivings_ !arg_wrappers_ arg_nonts_ !arg_pragmas_ !arg_manualAttrOrderMap_ !arg_paramMap_ !arg_contextMap_ !arg_quantMap_ !arg_uniqueMap_ !arg_augmentsMap_ !arg_aroundsMap_ !arg_mergeMap_ = T_Grammar (return st4) where
+   {-# NOINLINE st4 #-}
+   !st4 = let
+      v2 :: T_Grammar_v2 
+      v2 = \ !(T_Grammar_vIn2 _lhsIoptions) -> (
+         let !_nontsX8 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_)) in
+         let !_nontsOuniq = rule47  () in
+         let !_nontsOcr = rule42 _lhsIoptions in
+         let !_nontsOmanualAttrOrderMap = rule48 arg_manualAttrOrderMap_ in
+         let !_nontsOmergesIn = rule51 arg_mergeMap_ in
+         let !_nontsOo_rename = rule41 _lhsIoptions in
+         let !_nontsOoptions = rule55 _lhsIoptions in
+         let !_nontsOtypeSyns = rule46 arg_typeSyns_ in
+         let !_nontsOuseMap = rule45 arg_useMap_ in
+         let !_nontsOwrappers = rule43 arg_wrappers_ in
+         let !_nontsOaroundsIn = rule50 arg_aroundsMap_ in
+         let !_nontsOaugmentsIn = rule49 arg_augmentsMap_ in
+         let !(T_Nonterminals_vOut15 _nontsIinhMap' _nontsIsynMap' _nontsX28) = inv_Nonterminals_s8 _nontsX8 K_Nonterminals_v15 (T_Nonterminals_vIn15 ) in
+         let !_nontsOinhMap = rule39 _nontsIinhMap' in
+         let !_nontsOsynMap = rule40 _nontsIsynMap' in
+         let !(T_Nonterminals_vOut16 _nontsIerrors _nontsIoutput _nontsIuniq) = inv_Nonterminals_s28 _nontsX28 K_Nonterminals_v16 (T_Nonterminals_vIn16 _nontsOaroundsIn _nontsOaugmentsIn _nontsOcr _nontsOinhMap _nontsOmanualAttrOrderMap _nontsOmergesIn _nontsOo_rename _nontsOoptions _nontsOsynMap _nontsOtypeSyns _nontsOuniq _nontsOuseMap _nontsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule52 _nontsIerrors in
+         let !_output = rule53 _nontsIoutput arg_aroundsMap_ arg_augmentsMap_ arg_contextMap_ arg_derivings_ arg_manualAttrOrderMap_ arg_mergeMap_ arg_paramMap_ arg_pragmas_ arg_quantMap_ arg_typeSyns_ arg_uniqueMap_ arg_useMap_ arg_wrappers_ in
+         let _lhsOoutput :: Grammar
+             !_lhsOoutput = rule54 _output in
+         let !__result_ = T_Grammar_vOut2 _lhsOerrors _lhsOoutput
+          in __result_ )
+     in C_Grammar_s4 v2
    {-# INLINE rule39 #-}
-   {-# LINE 58 "./src-ag/DefaultRules.ag" #-}
-   rule39 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 58 "./src-ag/DefaultRules.ag" #-}
-                                    rename    _lhsIoptions
-                                    {-# LINE 830 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule40 #-}
-   {-# LINE 59 "./src-ag/DefaultRules.ag" #-}
-   rule40 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 59 "./src-ag/DefaultRules.ag" #-}
-                                    modcopy   _lhsIoptions
-                                    {-# LINE 836 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule41 #-}
-   {-# LINE 67 "./src-ag/DefaultRules.ag" #-}
-   rule41 = \ wrappers_ ->
-                     {-# LINE 67 "./src-ag/DefaultRules.ag" #-}
-                     wrappers_
-                     {-# LINE 842 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule42 #-}
-   {-# LINE 180 "./src-ag/DefaultRules.ag" #-}
-   rule42 = \ ((_nontsIcollect_nts) :: Set NontermIdent) ->
-                                   {-# LINE 180 "./src-ag/DefaultRules.ag" #-}
-                                   _nontsIcollect_nts
-                                   {-# LINE 848 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule43 #-}
-   {-# LINE 202 "./src-ag/DefaultRules.ag" #-}
-   rule43 = \ useMap_ ->
-                               {-# LINE 202 "./src-ag/DefaultRules.ag" #-}
-                               useMap_
-                               {-# LINE 854 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule44 #-}
-   {-# LINE 204 "./src-ag/DefaultRules.ag" #-}
-   rule44 = \ typeSyns_ ->
-                                 {-# LINE 204 "./src-ag/DefaultRules.ag" #-}
-                                 typeSyns_
-                                 {-# LINE 860 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule45 #-}
-   {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
-   rule45 = \  (_ :: ()) ->
-                           {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
-                           1
-                           {-# LINE 866 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule46 #-}
-   {-# LINE 709 "./src-ag/DefaultRules.ag" #-}
-   rule46 = \ manualAttrOrderMap_ ->
-                                   {-# LINE 709 "./src-ag/DefaultRules.ag" #-}
-                                   manualAttrOrderMap_
-                                   {-# LINE 872 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule47 #-}
-   {-# LINE 775 "./src-ag/DefaultRules.ag" #-}
-   rule47 = \ augmentsMap_ ->
-                                                    {-# LINE 775 "./src-ag/DefaultRules.ag" #-}
-                                                    augmentsMap_
-                                                    {-# LINE 878 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule48 #-}
-   {-# LINE 782 "./src-ag/DefaultRules.ag" #-}
-   rule48 = \ aroundsMap_ ->
-                                                   {-# LINE 782 "./src-ag/DefaultRules.ag" #-}
-                                                   aroundsMap_
-                                                   {-# LINE 884 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule49 #-}
-   {-# LINE 790 "./src-ag/DefaultRules.ag" #-}
-   rule49 = \ mergeMap_ ->
-                                                  {-# LINE 790 "./src-ag/DefaultRules.ag" #-}
-                                                  mergeMap_
-                                                  {-# LINE 890 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule50 #-}
    {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-   rule50 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+   rule39 = \ ((!_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 896 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule51 #-}
+                             {-# LINE 990 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule40 #-}
    {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-   rule51 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+   rule40 = \ ((!_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 902 "dist/build/DefaultRules.hs"#-}
+                             {-# LINE 996 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule41 #-}
+   {-# LINE 58 "./src-ag/DefaultRules.ag" #-}
+   rule41 = \ ((!_lhsIoptions) :: Options) ->
+                                    {-# LINE 58 "./src-ag/DefaultRules.ag" #-}
+                                    rename    _lhsIoptions
+                                    {-# LINE 1002 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule42 #-}
+   {-# LINE 59 "./src-ag/DefaultRules.ag" #-}
+   rule42 = \ ((!_lhsIoptions) :: Options) ->
+                                    {-# LINE 59 "./src-ag/DefaultRules.ag" #-}
+                                    modcopy   _lhsIoptions
+                                    {-# LINE 1008 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule43 #-}
+   {-# LINE 67 "./src-ag/DefaultRules.ag" #-}
+   rule43 = \ !wrappers_ ->
+                     {-# LINE 67 "./src-ag/DefaultRules.ag" #-}
+                     wrappers_
+                     {-# LINE 1014 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule45 #-}
+   {-# LINE 202 "./src-ag/DefaultRules.ag" #-}
+   rule45 = \ !useMap_ ->
+                               {-# LINE 202 "./src-ag/DefaultRules.ag" #-}
+                               useMap_
+                               {-# LINE 1020 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule46 #-}
+   {-# LINE 204 "./src-ag/DefaultRules.ag" #-}
+   rule46 = \ !typeSyns_ ->
+                                 {-# LINE 204 "./src-ag/DefaultRules.ag" #-}
+                                 typeSyns_
+                                 {-# LINE 1026 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule47 #-}
+   {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
+   rule47 = \  (_ :: ()) ->
+                           {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
+                           1
+                           {-# LINE 1032 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule48 #-}
+   {-# LINE 709 "./src-ag/DefaultRules.ag" #-}
+   rule48 = \ !manualAttrOrderMap_ ->
+                                   {-# LINE 709 "./src-ag/DefaultRules.ag" #-}
+                                   manualAttrOrderMap_
+                                   {-# LINE 1038 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule49 #-}
+   {-# LINE 775 "./src-ag/DefaultRules.ag" #-}
+   rule49 = \ !augmentsMap_ ->
+                                                    {-# LINE 775 "./src-ag/DefaultRules.ag" #-}
+                                                    augmentsMap_
+                                                    {-# LINE 1044 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule50 #-}
+   {-# LINE 782 "./src-ag/DefaultRules.ag" #-}
+   rule50 = \ !aroundsMap_ ->
+                                                   {-# LINE 782 "./src-ag/DefaultRules.ag" #-}
+                                                   aroundsMap_
+                                                   {-# LINE 1050 "dist/build/DefaultRules.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 790 "./src-ag/DefaultRules.ag" #-}
+   rule51 = \ !mergeMap_ ->
+                                                  {-# LINE 790 "./src-ag/DefaultRules.ag" #-}
+                                                  mergeMap_
+                                                  {-# LINE 1056 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule52 #-}
-   rule52 = \ ((_nontsIerrors) :: Seq Error) ->
+   rule52 = \ ((!_nontsIerrors) :: Seq Error) ->
      _nontsIerrors
    {-# INLINE rule53 #-}
-   rule53 = \ ((_nontsIoutput) :: Nonterminals) aroundsMap_ augmentsMap_ contextMap_ derivings_ manualAttrOrderMap_ mergeMap_ paramMap_ pragmas_ quantMap_ typeSyns_ uniqueMap_ useMap_ wrappers_ ->
+   rule53 = \ ((!_nontsIoutput) :: Nonterminals) !aroundsMap_ !augmentsMap_ !contextMap_ !derivings_ !manualAttrOrderMap_ !mergeMap_ !paramMap_ !pragmas_ !quantMap_ !typeSyns_ !uniqueMap_ !useMap_ !wrappers_ ->
      Grammar typeSyns_ useMap_ derivings_ wrappers_ _nontsIoutput pragmas_ manualAttrOrderMap_ paramMap_ contextMap_ quantMap_ uniqueMap_ augmentsMap_ aroundsMap_ mergeMap_
    {-# INLINE rule54 #-}
-   rule54 = \ _output ->
+   rule54 = \ !_output ->
      _output
    {-# INLINE rule55 #-}
-   rule55 = \ ((_lhsIoptions) :: Options) ->
+   rule55 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
 
 -- Nonterminal -------------------------------------------------
@@ -921,8 +1075,8 @@ wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal !(T_Nonterminal act) !(Inh_Nonterminal _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Nonterminal_vIn10 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
-        !(T_Nonterminal_vOut10 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq) <- return (inv_Nonterminal_s11 sem arg)
+        let arg = T_Nonterminal_vIn3 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
+        !(T_Nonterminal_vOut3 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq) <- return (inv_Nonterminal_s6 sem K_Nonterminal_v3 arg)
         return (Syn_Nonterminal _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq)
    )
 
@@ -933,208 +1087,423 @@ sem_Nonterminal ( Nonterminal !nt_ !params_ !inh_ !syn_ prods_ ) = sem_Nontermin
 
 -- semantic domain
 newtype T_Nonterminal  = T_Nonterminal {
-                                       attach_T_Nonterminal :: Identity (T_Nonterminal_s11 )
+                                       attach_T_Nonterminal :: Identity (T_Nonterminal_s6 )
                                        }
-newtype T_Nonterminal_s11  = C_Nonterminal_s11 {
-                                               inv_Nonterminal_s11 :: (T_Nonterminal_v10 )
+data T_Nonterminal_s6  where C_Nonterminal_s6 :: {
+                                                 inv_Nonterminal_s6 :: !(forall t. K_Nonterminal_s6  t -> t)
+                                                 } -> T_Nonterminal_s6 
+data T_Nonterminal_s7  = C_Nonterminal_s7
+data T_Nonterminal_s31  = C_Nonterminal_s31
+data T_Nonterminal_s43  where C_Nonterminal_s43 :: {
+                                                   inv_Nonterminal_s43 :: !(forall t. K_Nonterminal_s43  t -> t)
+                                                   } -> T_Nonterminal_s43 
+data T_Nonterminal_s44  = C_Nonterminal_s44
+newtype T_Nonterminal_s46  = C_Nonterminal_s46 {
+                                               inv_Nonterminal_s46 :: (T_Nonterminal_v37 )
                                                }
-data T_Nonterminal_s12  = C_Nonterminal_s12
-type T_Nonterminal_v10  = (T_Nonterminal_vIn10 ) -> (T_Nonterminal_vOut10 )
-data T_Nonterminal_vIn10  = T_Nonterminal_vIn10 (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (Bool) (Map Identifier Attributes) (AttrOrderMap) (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) (Set NontermIdent) (Bool) (Options) (Map Identifier Attributes) (TypeSyns) (Int) (UseMap) (Set NontermIdent)
-data T_Nonterminal_vOut10  = T_Nonterminal_vOut10 (Set NontermIdent) (Seq Error) (Map Identifier Attributes) (Nonterminal) (Map Identifier Attributes) (Int)
+newtype T_Nonterminal_s52  = C_Nonterminal_s52 {
+                                               inv_Nonterminal_s52 :: (T_Nonterminal_v46 )
+                                               }
+data K_Nonterminal_s6 k  where
+   K_Nonterminal_v3 :: K_Nonterminal_s6  (T_Nonterminal_v3 )
+   K_Nonterminal_v18 :: K_Nonterminal_s6  (T_Nonterminal_v18 )
+   K_Nonterminal_v32 :: K_Nonterminal_s6  (T_Nonterminal_v32 )
+   K_Nonterminal_v36 :: K_Nonterminal_s6  (T_Nonterminal_v36 )
+data K_Nonterminal_s43 k  where
+   K_Nonterminal_v33 :: K_Nonterminal_s43  (T_Nonterminal_v33 )
+   K_Nonterminal_v45 :: K_Nonterminal_s43  (T_Nonterminal_v45 )
+type T_Nonterminal_v3  = (T_Nonterminal_vIn3 ) -> (T_Nonterminal_vOut3 )
+data T_Nonterminal_vIn3  = T_Nonterminal_vIn3 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Set NontermIdent) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(Int) !(UseMap) !(Set NontermIdent)
+data T_Nonterminal_vOut3  = T_Nonterminal_vOut3 !(Set NontermIdent) !(Seq Error) !(Map Identifier Attributes) !(Nonterminal) !(Map Identifier Attributes) !(Int)
+type T_Nonterminal_v18  = (T_Nonterminal_vIn18 ) -> (T_Nonterminal_vOut18 )
+data T_Nonterminal_vIn18  = T_Nonterminal_vIn18 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(Int) !(UseMap) !(Set NontermIdent)
+data T_Nonterminal_vOut18  = T_Nonterminal_vOut18 !(Set NontermIdent) !(Seq Error) !(Map Identifier Attributes) !(Nonterminal) !(Map Identifier Attributes) !(Int)
+type T_Nonterminal_v32  = (T_Nonterminal_vIn32 ) -> (T_Nonterminal_vOut32 )
+data T_Nonterminal_vIn32  = T_Nonterminal_vIn32 
+data T_Nonterminal_vOut32  = T_Nonterminal_vOut32 !(Map Identifier Attributes) !(Map Identifier Attributes) !(T_Nonterminal_s43 )
+type T_Nonterminal_v33  = (T_Nonterminal_vIn33 ) -> (T_Nonterminal_vOut33 )
+data T_Nonterminal_vIn33  = T_Nonterminal_vIn33 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(Int) !(UseMap) !(Set NontermIdent)
+data T_Nonterminal_vOut33  = T_Nonterminal_vOut33 !(Seq Error) !(Nonterminal) !(Int)
+type T_Nonterminal_v36  = (T_Nonterminal_vIn36 ) -> (T_Nonterminal_vOut36 )
+data T_Nonterminal_vIn36  = T_Nonterminal_vIn36 !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(UseMap) !(Set NontermIdent)
+data T_Nonterminal_vOut36  = T_Nonterminal_vOut36 !(Set NontermIdent) !(Seq Error) !(Map Identifier Attributes) !(Map Identifier Attributes) !(T_Nonterminal_s46 )
+type T_Nonterminal_v37  = (T_Nonterminal_vIn37 ) -> (T_Nonterminal_vOut37 )
+data T_Nonterminal_vIn37  = T_Nonterminal_vIn37 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Int)
+data T_Nonterminal_vOut37  = T_Nonterminal_vOut37 !(Nonterminal) !(Int)
+type T_Nonterminal_v45  = (T_Nonterminal_vIn45 ) -> (T_Nonterminal_vOut45 )
+data T_Nonterminal_vIn45  = T_Nonterminal_vIn45 !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(UseMap) !(Set NontermIdent)
+data T_Nonterminal_vOut45  = T_Nonterminal_vOut45 !(Seq Error) !(T_Nonterminal_s52 )
+type T_Nonterminal_v46  = (T_Nonterminal_vIn46 ) -> (T_Nonterminal_vOut46 )
+data T_Nonterminal_vIn46  = T_Nonterminal_vIn46 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Int)
+data T_Nonterminal_vOut46  = T_Nonterminal_vOut46 !(Nonterminal) !(Int)
 {-# NOINLINE sem_Nonterminal_Nonterminal #-}
 sem_Nonterminal_Nonterminal :: (NontermIdent) -> ([Identifier]) -> (Attributes) -> (Attributes) -> T_Productions  -> T_Nonterminal 
-sem_Nonterminal_Nonterminal !arg_nt_ !arg_params_ !arg_inh_ !arg_syn_ arg_prods_ = T_Nonterminal (return st11) where
-   {-# NOINLINE st11 #-}
-   !st11 = let
-      v10 :: T_Nonterminal_v10 
-      v10 = \ !(T_Nonterminal_vIn10 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _prodsX26 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
-         (T_Productions_vOut25 _prodsIerrors _prodsIoutput _prodsIuniq) = inv_Productions_s26 _prodsX26 (T_Productions_vIn25 _prodsOaroundsIn _prodsOaugmentsIn _prodsOcr _prodsOinh _prodsOinhMap _prodsOinhOrig _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnonterminals _prodsOnt _prodsOo_rename _prodsOoptions _prodsOparams _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuniq _prodsOuseMap _prodsOwrappers)
-         _prodsOparams = rule56 arg_params_
-         _lhsOcollect_nts :: Set NontermIdent
-         _lhsOcollect_nts = rule57 arg_nt_
-         _prodsOinh = rule58 _inh1
-         _prodsOsyn = rule59 _syn1
-         _prodsOinhOrig = rule60 arg_inh_
-         _prodsOsynOrig = rule61 arg_syn_
-         _prodsOuseMap = rule62 _lhsIuseMap arg_nt_
-         _prodsOnt = rule63 arg_nt_
-         _inh1 = rule64 arg_inh_ arg_nt_ arg_params_
-         _syn1 = rule65 arg_nt_ arg_params_ arg_syn_
-         _lhsOoutput :: Nonterminal
-         _lhsOoutput = rule66 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_
-         _augmentsIn = rule67 _lhsIaugmentsIn arg_nt_
-         _aroundsIn = rule68 _lhsIaroundsIn arg_nt_
-         _mergesIn = rule69 _lhsImergesIn arg_nt_
-         _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule70 arg_inh_ arg_nt_
-         _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule71 arg_nt_ arg_syn_
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule72 _prodsIerrors
-         _output = rule73 _prodsIoutput arg_inh_ arg_nt_ arg_params_ arg_syn_
-         _lhsOuniq :: Int
-         _lhsOuniq = rule74 _prodsIuniq
-         _prodsOaroundsIn = rule75 _aroundsIn
-         _prodsOaugmentsIn = rule76 _augmentsIn
-         _prodsOcr = rule77 _lhsIcr
-         _prodsOinhMap = rule78 _lhsIinhMap
-         _prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap
-         _prodsOmergesIn = rule80 _mergesIn
-         _prodsOnonterminals = rule81 _lhsInonterminals
-         _prodsOo_rename = rule82 _lhsIo_rename
-         _prodsOoptions = rule83 _lhsIoptions
-         _prodsOsynMap = rule84 _lhsIsynMap
-         _prodsOtypeSyns = rule85 _lhsItypeSyns
-         _prodsOuniq = rule86 _lhsIuniq
-         _prodsOwrappers = rule87 _lhsIwrappers
-         !__result_ = T_Nonterminal_vOut10 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
-         in __result_ )
-     in C_Nonterminal_s11 v10
-   {-# INLINE rule56 #-}
-   {-# LINE 44 "./src-ag/DefaultRules.ag" #-}
-   rule56 = \ params_ ->
-                   {-# LINE 44 "./src-ag/DefaultRules.ag" #-}
-                   params_
-                   {-# LINE 1001 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule57 #-}
-   {-# LINE 176 "./src-ag/DefaultRules.ag" #-}
-   rule57 = \ nt_ ->
-                                    {-# LINE 176 "./src-ag/DefaultRules.ag" #-}
-                                    Set.singleton nt_
-                                    {-# LINE 1007 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule58 #-}
-   {-# LINE 190 "./src-ag/DefaultRules.ag" #-}
-   rule58 = \ _inh1 ->
-                                   {-# LINE 190 "./src-ag/DefaultRules.ag" #-}
-                                   _inh1
-                                   {-# LINE 1013 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule59 #-}
-   {-# LINE 191 "./src-ag/DefaultRules.ag" #-}
-   rule59 = \ _syn1 ->
-                                   {-# LINE 191 "./src-ag/DefaultRules.ag" #-}
-                                   _syn1
-                                   {-# LINE 1019 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule60 #-}
-   {-# LINE 192 "./src-ag/DefaultRules.ag" #-}
-   rule60 = \ inh_ ->
-                                   {-# LINE 192 "./src-ag/DefaultRules.ag" #-}
-                                   inh_
-                                   {-# LINE 1025 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule61 #-}
-   {-# LINE 193 "./src-ag/DefaultRules.ag" #-}
-   rule61 = \ syn_ ->
-                                   {-# LINE 193 "./src-ag/DefaultRules.ag" #-}
-                                   syn_
-                                   {-# LINE 1031 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule62 #-}
-   {-# LINE 194 "./src-ag/DefaultRules.ag" #-}
-   rule62 = \ ((_lhsIuseMap) :: UseMap) nt_ ->
-                                   {-# LINE 194 "./src-ag/DefaultRules.ag" #-}
-                                   Map.findWithDefault Map.empty nt_ _lhsIuseMap
-                                   {-# LINE 1037 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule63 #-}
-   {-# LINE 206 "./src-ag/DefaultRules.ag" #-}
-   rule63 = \ nt_ ->
-                               {-# LINE 206 "./src-ag/DefaultRules.ag" #-}
-                               nt_
-                               {-# LINE 1043 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule64 #-}
-   {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
-   rule64 = \ inh_ nt_ params_ ->
-               {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
-               Map.map (elimSelfId nt_ params_) inh_
-               {-# LINE 1049 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule65 #-}
-   {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
-   rule65 = \ nt_ params_ syn_ ->
-               {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
-               Map.map (elimSelfId nt_ params_) syn_
-               {-# LINE 1055 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule66 #-}
-   {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
-   rule66 = \ _inh1 ((_prodsIoutput) :: Productions) _syn1 nt_ params_ ->
-                 {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
-                 Nonterminal nt_ params_ _inh1     _syn1     _prodsIoutput
-                 {-# LINE 1061 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule67 #-}
-   {-# LINE 776 "./src-ag/DefaultRules.ag" #-}
-   rule67 = \ ((_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
-                                                  {-# LINE 776 "./src-ag/DefaultRules.ag" #-}
-                                                  Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
-                                                  {-# LINE 1067 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule68 #-}
-   {-# LINE 783 "./src-ag/DefaultRules.ag" #-}
-   rule68 = \ ((_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
-                                                   {-# LINE 783 "./src-ag/DefaultRules.ag" #-}
-                                                   Map.findWithDefault Map.empty nt_ _lhsIaroundsIn
-                                                   {-# LINE 1073 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule69 #-}
-   {-# LINE 791 "./src-ag/DefaultRules.ag" #-}
-   rule69 = \ ((_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) nt_ ->
-                                                  {-# LINE 791 "./src-ag/DefaultRules.ag" #-}
-                                                  Map.findWithDefault Map.empty nt_ _lhsImergesIn
-                                                  {-# LINE 1079 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule70 #-}
+sem_Nonterminal_Nonterminal !arg_nt_ !arg_params_ !arg_inh_ !arg_syn_ arg_prods_ = T_Nonterminal (return st6) where
+   {-# NOINLINE st6 #-}
+   !st6 = let
+      k6 :: K_Nonterminal_s6  t -> t
+      k6 K_Nonterminal_v3 = v3
+      k6 K_Nonterminal_v18 = v18
+      k6 K_Nonterminal_v32 = v32
+      k6 K_Nonterminal_v36 = v36
+      v3 :: T_Nonterminal_v3 
+      v3 = \ !(T_Nonterminal_vIn3 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_prodsX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_)) in
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule59 arg_nt_ in
+         let !_prodsOcr = rule77 _lhsIcr in
+         let !_inh1 = rule66 arg_inh_ arg_nt_ arg_params_ in
+         let !_prodsOinh = rule60 _inh1 in
+         let !_prodsOinhMap = rule78 _lhsIinhMap in
+         let !_prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap in
+         let !_mergesIn = rule71 _lhsImergesIn arg_nt_ in
+         let !_prodsOmergesIn = rule80 _mergesIn in
+         let !_prodsOnt = rule65 arg_nt_ in
+         let !_prodsOo_rename = rule82 _lhsIo_rename in
+         let !_prodsOoptions = rule83 _lhsIoptions in
+         let !_syn1 = rule67 arg_nt_ arg_params_ arg_syn_ in
+         let !_prodsOsyn = rule61 _syn1 in
+         let !_prodsOsynMap = rule84 _lhsIsynMap in
+         let !_prodsOsynOrig = rule63 arg_syn_ in
+         let !_prodsOtypeSyns = rule85 _lhsItypeSyns in
+         let !_prodsOuseMap = rule64 _lhsIuseMap arg_nt_ in
+         let !_prodsOwrappers = rule87 _lhsIwrappers in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule56 arg_inh_ arg_nt_ in
+         let !_aroundsIn = rule70 _lhsIaroundsIn arg_nt_ in
+         let !_prodsOaroundsIn = rule75 _aroundsIn in
+         let !_augmentsIn = rule69 _lhsIaugmentsIn arg_nt_ in
+         let !_prodsOaugmentsIn = rule76 _augmentsIn in
+         let !_prodsOparams = rule58 arg_params_ in
+         let !_prodsOuniq = rule86 _lhsIuniq in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule57 arg_nt_ arg_syn_ in
+         let !(T_Productions_vOut17 _prodsIerrors _prodsIoutput _prodsIuniq) = inv_Productions_s16 _prodsX16 K_Productions_v17 (T_Productions_vIn17 _prodsOaroundsIn _prodsOaugmentsIn _prodsOcr _prodsOinh _prodsOinhMap _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnt _prodsOo_rename _prodsOoptions _prodsOparams _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuniq _prodsOuseMap _prodsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule72 _prodsIerrors in
+         let _lhsOoutput :: Nonterminal
+             !_lhsOoutput = rule68 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule74 _prodsIuniq in
+         let !__result_ = T_Nonterminal_vOut3 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
+          in __result_ )
+      v18 :: T_Nonterminal_v18 
+      v18 = \ !(T_Nonterminal_vIn18 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_prodsX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_)) in
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule59 arg_nt_ in
+         let !_prodsOcr = rule77 _lhsIcr in
+         let !_inh1 = rule66 arg_inh_ arg_nt_ arg_params_ in
+         let !_prodsOinh = rule60 _inh1 in
+         let !_prodsOinhMap = rule78 _lhsIinhMap in
+         let !_prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap in
+         let !_mergesIn = rule71 _lhsImergesIn arg_nt_ in
+         let !_prodsOmergesIn = rule80 _mergesIn in
+         let !_prodsOnt = rule65 arg_nt_ in
+         let !_prodsOo_rename = rule82 _lhsIo_rename in
+         let !_prodsOoptions = rule83 _lhsIoptions in
+         let !_syn1 = rule67 arg_nt_ arg_params_ arg_syn_ in
+         let !_prodsOsyn = rule61 _syn1 in
+         let !_prodsOsynMap = rule84 _lhsIsynMap in
+         let !_prodsOsynOrig = rule63 arg_syn_ in
+         let !_prodsOtypeSyns = rule85 _lhsItypeSyns in
+         let !_prodsOuseMap = rule64 _lhsIuseMap arg_nt_ in
+         let !_prodsOwrappers = rule87 _lhsIwrappers in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule56 arg_inh_ arg_nt_ in
+         let !_aroundsIn = rule70 _lhsIaroundsIn arg_nt_ in
+         let !_prodsOaroundsIn = rule75 _aroundsIn in
+         let !_augmentsIn = rule69 _lhsIaugmentsIn arg_nt_ in
+         let !_prodsOaugmentsIn = rule76 _augmentsIn in
+         let !_prodsOparams = rule58 arg_params_ in
+         let !_prodsOuniq = rule86 _lhsIuniq in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule57 arg_nt_ arg_syn_ in
+         let !(T_Productions_vOut17 _prodsIerrors _prodsIoutput _prodsIuniq) = inv_Productions_s16 _prodsX16 K_Productions_v17 (T_Productions_vIn17 _prodsOaroundsIn _prodsOaugmentsIn _prodsOcr _prodsOinh _prodsOinhMap _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnt _prodsOo_rename _prodsOoptions _prodsOparams _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuniq _prodsOuseMap _prodsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule72 _prodsIerrors in
+         let _lhsOoutput :: Nonterminal
+             !_lhsOoutput = rule68 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule74 _prodsIuniq in
+         let !__result_ = T_Nonterminal_vOut18 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
+          in __result_ )
+      v32 :: T_Nonterminal_v32 
+      v32 = \ !(T_Nonterminal_vIn32 ) -> (
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule56 arg_inh_ arg_nt_ in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule57 arg_nt_ arg_syn_ in
+         let !__st_ = st43  ()
+             !__result_ = T_Nonterminal_vOut32 _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+      v36 :: T_Nonterminal_v36 
+      v36 = \ !(T_Nonterminal_vIn36 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_prodsX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_)) in
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule59 arg_nt_ in
+         let !_prodsOcr = rule77 _lhsIcr in
+         let !_inh1 = rule66 arg_inh_ arg_nt_ arg_params_ in
+         let !_prodsOinh = rule60 _inh1 in
+         let !_prodsOinhMap = rule78 _lhsIinhMap in
+         let !_prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap in
+         let !_mergesIn = rule71 _lhsImergesIn arg_nt_ in
+         let !_prodsOmergesIn = rule80 _mergesIn in
+         let !_prodsOnt = rule65 arg_nt_ in
+         let !_prodsOo_rename = rule82 _lhsIo_rename in
+         let !_prodsOoptions = rule83 _lhsIoptions in
+         let !_syn1 = rule67 arg_nt_ arg_params_ arg_syn_ in
+         let !_prodsOsyn = rule61 _syn1 in
+         let !_prodsOsynMap = rule84 _lhsIsynMap in
+         let !_prodsOsynOrig = rule63 arg_syn_ in
+         let !_prodsOtypeSyns = rule85 _lhsItypeSyns in
+         let !_prodsOuseMap = rule64 _lhsIuseMap arg_nt_ in
+         let !_prodsOwrappers = rule87 _lhsIwrappers in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule56 arg_inh_ arg_nt_ in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule57 arg_nt_ arg_syn_ in
+         let !(T_Productions_vOut26 _prodsIerrors _prodsX39) = inv_Productions_s16 _prodsX16 K_Productions_v26 (T_Productions_vIn26 _prodsOcr _prodsOinh _prodsOinhMap _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnt _prodsOo_rename _prodsOoptions _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuseMap _prodsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule72 _prodsIerrors in
+         let !__st_ = st46 _inh1 _prodsX39 _syn1
+             !__result_ = T_Nonterminal_vOut36 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+     in C_Nonterminal_s6 k6
+   {-# NOINLINE st43 #-}
+   st43 = \  (_ :: ()) -> let
+      k43 :: K_Nonterminal_s43  t -> t
+      k43 K_Nonterminal_v33 = v33
+      k43 K_Nonterminal_v45 = v45
+      v33 :: T_Nonterminal_v33 
+      v33 = \ !(T_Nonterminal_vIn33 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_prodsOnt = rule65 arg_nt_ in
+         let !_prodsOsynOrig = rule63 arg_syn_ in
+         let !_prodsX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_)) in
+         let !_prodsOcr = rule77 _lhsIcr in
+         let !_inh1 = rule66 arg_inh_ arg_nt_ arg_params_ in
+         let !_prodsOinh = rule60 _inh1 in
+         let !_prodsOinhMap = rule78 _lhsIinhMap in
+         let !_prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap in
+         let !_mergesIn = rule71 _lhsImergesIn arg_nt_ in
+         let !_prodsOmergesIn = rule80 _mergesIn in
+         let !_prodsOo_rename = rule82 _lhsIo_rename in
+         let !_prodsOoptions = rule83 _lhsIoptions in
+         let !_syn1 = rule67 arg_nt_ arg_params_ arg_syn_ in
+         let !_prodsOsyn = rule61 _syn1 in
+         let !_prodsOsynMap = rule84 _lhsIsynMap in
+         let !_prodsOtypeSyns = rule85 _lhsItypeSyns in
+         let !_prodsOuseMap = rule64 _lhsIuseMap arg_nt_ in
+         let !_prodsOwrappers = rule87 _lhsIwrappers in
+         let !_aroundsIn = rule70 _lhsIaroundsIn arg_nt_ in
+         let !_prodsOaroundsIn = rule75 _aroundsIn in
+         let !_augmentsIn = rule69 _lhsIaugmentsIn arg_nt_ in
+         let !_prodsOaugmentsIn = rule76 _augmentsIn in
+         let !_prodsOparams = rule58 arg_params_ in
+         let !_prodsOuniq = rule86 _lhsIuniq in
+         let !(T_Productions_vOut17 _prodsIerrors _prodsIoutput _prodsIuniq) = inv_Productions_s16 _prodsX16 K_Productions_v17 (T_Productions_vIn17 _prodsOaroundsIn _prodsOaugmentsIn _prodsOcr _prodsOinh _prodsOinhMap _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnt _prodsOo_rename _prodsOoptions _prodsOparams _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuniq _prodsOuseMap _prodsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule72 _prodsIerrors in
+         let _lhsOoutput :: Nonterminal
+             !_lhsOoutput = rule68 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule74 _prodsIuniq in
+         let !__result_ = T_Nonterminal_vOut33 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v45 :: T_Nonterminal_v45 
+      v45 = \ !(T_Nonterminal_vIn45 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_prodsOnt = rule65 arg_nt_ in
+         let !_prodsOsynOrig = rule63 arg_syn_ in
+         let !_prodsX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_)) in
+         let !_prodsOcr = rule77 _lhsIcr in
+         let !_inh1 = rule66 arg_inh_ arg_nt_ arg_params_ in
+         let !_prodsOinh = rule60 _inh1 in
+         let !_prodsOinhMap = rule78 _lhsIinhMap in
+         let !_prodsOmanualAttrOrderMap = rule79 _lhsImanualAttrOrderMap in
+         let !_mergesIn = rule71 _lhsImergesIn arg_nt_ in
+         let !_prodsOmergesIn = rule80 _mergesIn in
+         let !_prodsOo_rename = rule82 _lhsIo_rename in
+         let !_prodsOoptions = rule83 _lhsIoptions in
+         let !_syn1 = rule67 arg_nt_ arg_params_ arg_syn_ in
+         let !_prodsOsyn = rule61 _syn1 in
+         let !_prodsOsynMap = rule84 _lhsIsynMap in
+         let !_prodsOtypeSyns = rule85 _lhsItypeSyns in
+         let !_prodsOuseMap = rule64 _lhsIuseMap arg_nt_ in
+         let !_prodsOwrappers = rule87 _lhsIwrappers in
+         let !(T_Productions_vOut26 _prodsIerrors _prodsX39) = inv_Productions_s16 _prodsX16 K_Productions_v26 (T_Productions_vIn26 _prodsOcr _prodsOinh _prodsOinhMap _prodsOmanualAttrOrderMap _prodsOmergesIn _prodsOnt _prodsOo_rename _prodsOoptions _prodsOsyn _prodsOsynMap _prodsOsynOrig _prodsOtypeSyns _prodsOuseMap _prodsOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule72 _prodsIerrors in
+         let !__st_ = st52 _inh1 _prodsX39 _syn1
+             !__result_ = T_Nonterminal_vOut45 _lhsOerrors __st_
+          in __result_ )
+     in C_Nonterminal_s43 k43
+   {-# NOINLINE st46 #-}
+   st46 = \ !_inh1 !_prodsX39 !_syn1 -> let
+      v37 :: T_Nonterminal_v37 
+      v37 = \ !(T_Nonterminal_vIn37 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_prodsOparams = rule58 arg_params_ in
+         let !_aroundsIn = rule70 _lhsIaroundsIn arg_nt_ in
+         let !_prodsOaroundsIn = rule75 _aroundsIn in
+         let !_augmentsIn = rule69 _lhsIaugmentsIn arg_nt_ in
+         let !_prodsOaugmentsIn = rule76 _augmentsIn in
+         let !_prodsOuniq = rule86 _lhsIuniq in
+         let !(T_Productions_vOut27 _prodsIoutput _prodsIuniq) = inv_Productions_s39 _prodsX39 (T_Productions_vIn27 _prodsOaroundsIn _prodsOaugmentsIn _prodsOparams _prodsOuniq) in
+         let _lhsOoutput :: Nonterminal
+             !_lhsOoutput = rule68 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule74 _prodsIuniq in
+         let !__result_ = T_Nonterminal_vOut37 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminal_s46 v37
+   {-# NOINLINE st52 #-}
+   st52 = \ !_inh1 !_prodsX39 !_syn1 -> let
+      v46 :: T_Nonterminal_v46 
+      v46 = \ !(T_Nonterminal_vIn46 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_prodsOparams = rule58 arg_params_ in
+         let !_aroundsIn = rule70 _lhsIaroundsIn arg_nt_ in
+         let !_prodsOaroundsIn = rule75 _aroundsIn in
+         let !_augmentsIn = rule69 _lhsIaugmentsIn arg_nt_ in
+         let !_prodsOaugmentsIn = rule76 _augmentsIn in
+         let !_prodsOuniq = rule86 _lhsIuniq in
+         let !(T_Productions_vOut27 _prodsIoutput _prodsIuniq) = inv_Productions_s39 _prodsX39 (T_Productions_vIn27 _prodsOaroundsIn _prodsOaugmentsIn _prodsOparams _prodsOuniq) in
+         let _lhsOoutput :: Nonterminal
+             !_lhsOoutput = rule68 _inh1 _prodsIoutput _syn1 arg_nt_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule74 _prodsIuniq in
+         let !__result_ = T_Nonterminal_vOut46 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminal_s52 v46
+   {-# NOINLINE rule56 #-}
    {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-   rule70 = \ inh_ nt_ ->
+   rule56 = \ !inh_ !nt_ ->
                                  {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 1085 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule71 #-}
+                                 {-# LINE 1382 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule57 #-}
    {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-   rule71 = \ nt_ syn_ ->
+   rule57 = \ !nt_ !syn_ ->
                                  {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 1091 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule72 #-}
-   rule72 = \ ((_prodsIerrors) :: Seq Error) ->
+                                 {-# LINE 1388 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule58 #-}
+   {-# LINE 44 "./src-ag/DefaultRules.ag" #-}
+   rule58 = \ !params_ ->
+                   {-# LINE 44 "./src-ag/DefaultRules.ag" #-}
+                   params_
+                   {-# LINE 1394 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule59 #-}
+   {-# LINE 176 "./src-ag/DefaultRules.ag" #-}
+   rule59 = \ !nt_ ->
+                                    {-# LINE 176 "./src-ag/DefaultRules.ag" #-}
+                                    Set.singleton nt_
+                                    {-# LINE 1400 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule60 #-}
+   {-# LINE 190 "./src-ag/DefaultRules.ag" #-}
+   rule60 = \ !_inh1 ->
+                                   {-# LINE 190 "./src-ag/DefaultRules.ag" #-}
+                                   _inh1
+                                   {-# LINE 1406 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule61 #-}
+   {-# LINE 191 "./src-ag/DefaultRules.ag" #-}
+   rule61 = \ !_syn1 ->
+                                   {-# LINE 191 "./src-ag/DefaultRules.ag" #-}
+                                   _syn1
+                                   {-# LINE 1412 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule63 #-}
+   {-# LINE 193 "./src-ag/DefaultRules.ag" #-}
+   rule63 = \ !syn_ ->
+                                   {-# LINE 193 "./src-ag/DefaultRules.ag" #-}
+                                   syn_
+                                   {-# LINE 1418 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule64 #-}
+   {-# LINE 194 "./src-ag/DefaultRules.ag" #-}
+   rule64 = \ ((!_lhsIuseMap) :: UseMap) !nt_ ->
+                                   {-# LINE 194 "./src-ag/DefaultRules.ag" #-}
+                                   Map.findWithDefault Map.empty nt_ _lhsIuseMap
+                                   {-# LINE 1424 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule65 #-}
+   {-# LINE 206 "./src-ag/DefaultRules.ag" #-}
+   rule65 = \ !nt_ ->
+                               {-# LINE 206 "./src-ag/DefaultRules.ag" #-}
+                               nt_
+                               {-# LINE 1430 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule66 #-}
+   {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
+   rule66 = \ !inh_ !nt_ !params_ ->
+               {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
+               Map.map (elimSelfId nt_ params_) inh_
+               {-# LINE 1436 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule67 #-}
+   {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
+   rule67 = \ !nt_ !params_ !syn_ ->
+               {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
+               Map.map (elimSelfId nt_ params_) syn_
+               {-# LINE 1442 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule68 #-}
+   {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
+   rule68 = \ !_inh1 ((!_prodsIoutput) :: Productions) !_syn1 !nt_ !params_ ->
+                 {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
+                 Nonterminal nt_ params_ _inh1     _syn1     _prodsIoutput
+                 {-# LINE 1448 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule69 #-}
+   {-# LINE 776 "./src-ag/DefaultRules.ag" #-}
+   rule69 = \ ((!_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !nt_ ->
+                                                  {-# LINE 776 "./src-ag/DefaultRules.ag" #-}
+                                                  Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
+                                                  {-# LINE 1454 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule70 #-}
+   {-# LINE 783 "./src-ag/DefaultRules.ag" #-}
+   rule70 = \ ((!_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !nt_ ->
+                                                   {-# LINE 783 "./src-ag/DefaultRules.ag" #-}
+                                                   Map.findWithDefault Map.empty nt_ _lhsIaroundsIn
+                                                   {-# LINE 1460 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule71 #-}
+   {-# LINE 791 "./src-ag/DefaultRules.ag" #-}
+   rule71 = \ ((!_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !nt_ ->
+                                                  {-# LINE 791 "./src-ag/DefaultRules.ag" #-}
+                                                  Map.findWithDefault Map.empty nt_ _lhsImergesIn
+                                                  {-# LINE 1466 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule72 #-}
+   rule72 = \ ((!_prodsIerrors) :: Seq Error) ->
      _prodsIerrors
-   {-# INLINE rule73 #-}
-   rule73 = \ ((_prodsIoutput) :: Productions) inh_ nt_ params_ syn_ ->
-     Nonterminal nt_ params_ inh_ syn_ _prodsIoutput
-   {-# INLINE rule74 #-}
-   rule74 = \ ((_prodsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule74 #-}
+   rule74 = \ ((!_prodsIuniq) :: Int) ->
      _prodsIuniq
-   {-# INLINE rule75 #-}
-   rule75 = \ _aroundsIn ->
+   {-# NOINLINE[1] rule75 #-}
+   rule75 = \ !_aroundsIn ->
      _aroundsIn
-   {-# INLINE rule76 #-}
-   rule76 = \ _augmentsIn ->
+   {-# NOINLINE[1] rule76 #-}
+   rule76 = \ !_augmentsIn ->
      _augmentsIn
-   {-# INLINE rule77 #-}
-   rule77 = \ ((_lhsIcr) :: Bool) ->
+   {-# NOINLINE[1] rule77 #-}
+   rule77 = \ ((!_lhsIcr) :: Bool) ->
      _lhsIcr
-   {-# INLINE rule78 #-}
-   rule78 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule78 #-}
+   rule78 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule79 #-}
-   rule79 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
+   {-# NOINLINE[1] rule79 #-}
+   rule79 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
      _lhsImanualAttrOrderMap
-   {-# INLINE rule80 #-}
-   rule80 = \ _mergesIn ->
+   {-# NOINLINE[1] rule80 #-}
+   rule80 = \ !_mergesIn ->
      _mergesIn
-   {-# INLINE rule81 #-}
-   rule81 = \ ((_lhsInonterminals) :: Set NontermIdent) ->
-     _lhsInonterminals
-   {-# INLINE rule82 #-}
-   rule82 = \ ((_lhsIo_rename) :: Bool) ->
+   {-# NOINLINE[1] rule82 #-}
+   rule82 = \ ((!_lhsIo_rename) :: Bool) ->
      _lhsIo_rename
-   {-# INLINE rule83 #-}
-   rule83 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule83 #-}
+   rule83 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule84 #-}
-   rule84 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule84 #-}
+   rule84 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule85 #-}
-   rule85 = \ ((_lhsItypeSyns) :: TypeSyns) ->
+   {-# NOINLINE[1] rule85 #-}
+   rule85 = \ ((!_lhsItypeSyns) :: TypeSyns) ->
      _lhsItypeSyns
-   {-# INLINE rule86 #-}
-   rule86 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule86 #-}
+   rule86 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
-   {-# INLINE rule87 #-}
-   rule87 = \ ((_lhsIwrappers) :: Set NontermIdent) ->
+   {-# NOINLINE[1] rule87 #-}
+   rule87 = \ ((!_lhsIwrappers) :: Set NontermIdent) ->
      _lhsIwrappers
 
 -- Nonterminals ------------------------------------------------
@@ -1146,8 +1515,8 @@ wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals !(T_Nonterminals act) !(Inh_Nonterminals _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Nonterminals_vIn13 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
-        !(T_Nonterminals_vOut13 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq) <- return (inv_Nonterminals_s14 sem arg)
+        let arg = T_Nonterminals_vIn4 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
+        !(T_Nonterminals_vOut4 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq) <- return (inv_Nonterminals_s8 sem K_Nonterminals_v4 arg)
         return (Syn_Nonterminals _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq)
    )
 
@@ -1158,218 +1527,490 @@ sem_Nonterminals list = Prelude.foldr sem_Nonterminals_Cons sem_Nonterminals_Nil
 
 -- semantic domain
 newtype T_Nonterminals  = T_Nonterminals {
-                                         attach_T_Nonterminals :: Identity (T_Nonterminals_s14 )
+                                         attach_T_Nonterminals :: Identity (T_Nonterminals_s8 )
                                          }
-newtype T_Nonterminals_s14  = C_Nonterminals_s14 {
-                                                 inv_Nonterminals_s14 :: (T_Nonterminals_v13 )
+data T_Nonterminals_s8  where C_Nonterminals_s8 :: {
+                                                   inv_Nonterminals_s8 :: !(forall t. K_Nonterminals_s8  t -> t)
+                                                   } -> T_Nonterminals_s8 
+data T_Nonterminals_s9  = C_Nonterminals_s9
+data T_Nonterminals_s28  where C_Nonterminals_s28 :: {
+                                                     inv_Nonterminals_s28 :: !(forall t. K_Nonterminals_s28  t -> t)
+                                                     } -> T_Nonterminals_s28 
+data T_Nonterminals_s29  = C_Nonterminals_s29
+newtype T_Nonterminals_s32  = C_Nonterminals_s32 {
+                                                 inv_Nonterminals_s32 :: (T_Nonterminals_v20 )
                                                  }
-data T_Nonterminals_s15  = C_Nonterminals_s15
-type T_Nonterminals_v13  = (T_Nonterminals_vIn13 ) -> (T_Nonterminals_vOut13 )
-data T_Nonterminals_vIn13  = T_Nonterminals_vIn13 (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (Bool) (Map Identifier Attributes) (AttrOrderMap) (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) (Set NontermIdent) (Bool) (Options) (Map Identifier Attributes) (TypeSyns) (Int) (UseMap) (Set NontermIdent)
-data T_Nonterminals_vOut13  = T_Nonterminals_vOut13 (Set NontermIdent) (Seq Error) (Map Identifier Attributes) (Nonterminals) (Map Identifier Attributes) (Int)
+data T_Nonterminals_s33  = C_Nonterminals_s33
+newtype T_Nonterminals_s45  = C_Nonterminals_s45 {
+                                                 inv_Nonterminals_s45 :: (T_Nonterminals_v35 )
+                                                 }
+data K_Nonterminals_s8 k  where
+   K_Nonterminals_v4 :: K_Nonterminals_s8  (T_Nonterminals_v4 )
+   K_Nonterminals_v15 :: K_Nonterminals_s8  (T_Nonterminals_v15 )
+   K_Nonterminals_v19 :: K_Nonterminals_s8  (T_Nonterminals_v19 )
+data K_Nonterminals_s28 k  where
+   K_Nonterminals_v16 :: K_Nonterminals_s28  (T_Nonterminals_v16 )
+   K_Nonterminals_v34 :: K_Nonterminals_s28  (T_Nonterminals_v34 )
+type T_Nonterminals_v4  = (T_Nonterminals_vIn4 ) -> (T_Nonterminals_vOut4 )
+data T_Nonterminals_vIn4  = T_Nonterminals_vIn4 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Set NontermIdent) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(Int) !(UseMap) !(Set NontermIdent)
+data T_Nonterminals_vOut4  = T_Nonterminals_vOut4 !(Set NontermIdent) !(Seq Error) !(Map Identifier Attributes) !(Nonterminals) !(Map Identifier Attributes) !(Int)
+type T_Nonterminals_v15  = (T_Nonterminals_vIn15 ) -> (T_Nonterminals_vOut15 )
+data T_Nonterminals_vIn15  = T_Nonterminals_vIn15 
+data T_Nonterminals_vOut15  = T_Nonterminals_vOut15 !(Map Identifier Attributes) !(Map Identifier Attributes) !(T_Nonterminals_s28 )
+type T_Nonterminals_v16  = (T_Nonterminals_vIn16 ) -> (T_Nonterminals_vOut16 )
+data T_Nonterminals_vIn16  = T_Nonterminals_vIn16 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(Int) !(UseMap) !(Set NontermIdent)
+data T_Nonterminals_vOut16  = T_Nonterminals_vOut16 !(Seq Error) !(Nonterminals) !(Int)
+type T_Nonterminals_v19  = (T_Nonterminals_vIn19 ) -> (T_Nonterminals_vOut19 )
+data T_Nonterminals_vIn19  = T_Nonterminals_vIn19 !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(UseMap) !(Set NontermIdent)
+data T_Nonterminals_vOut19  = T_Nonterminals_vOut19 !(Set NontermIdent) !(Seq Error) !(Map Identifier Attributes) !(Map Identifier Attributes) !(T_Nonterminals_s32 )
+type T_Nonterminals_v20  = (T_Nonterminals_vIn20 ) -> (T_Nonterminals_vOut20 )
+data T_Nonterminals_vIn20  = T_Nonterminals_vIn20 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Int)
+data T_Nonterminals_vOut20  = T_Nonterminals_vOut20 !(Nonterminals) !(Int)
+type T_Nonterminals_v34  = (T_Nonterminals_vIn34 ) -> (T_Nonterminals_vOut34 )
+data T_Nonterminals_vIn34  = T_Nonterminals_vIn34 !(Bool) !(Map Identifier Attributes) !(AttrOrderMap) !(Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !(Bool) !(Options) !(Map Identifier Attributes) !(TypeSyns) !(UseMap) !(Set NontermIdent)
+data T_Nonterminals_vOut34  = T_Nonterminals_vOut34 !(Seq Error) !(T_Nonterminals_s45 )
+type T_Nonterminals_v35  = (T_Nonterminals_vIn35 ) -> (T_Nonterminals_vOut35 )
+data T_Nonterminals_vIn35  = T_Nonterminals_vIn35 !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !(Int)
+data T_Nonterminals_vOut35  = T_Nonterminals_vOut35 !(Nonterminals) !(Int)
 {-# NOINLINE sem_Nonterminals_Cons #-}
 sem_Nonterminals_Cons :: T_Nonterminal  -> T_Nonterminals  -> T_Nonterminals 
-sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st14) where
-   {-# NOINLINE st14 #-}
-   !st14 = let
-      v13 :: T_Nonterminals_v13 
-      v13 = \ !(T_Nonterminals_vIn13 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _hdX11 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_))
-         _tlX14 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_))
-         (T_Nonterminal_vOut10 _hdIcollect_nts _hdIerrors _hdIinhMap' _hdIoutput _hdIsynMap' _hdIuniq) = inv_Nonterminal_s11 _hdX11 (T_Nonterminal_vIn10 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOnonterminals _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers)
-         (T_Nonterminals_vOut13 _tlIcollect_nts _tlIerrors _tlIinhMap' _tlIoutput _tlIsynMap' _tlIuniq) = inv_Nonterminals_s14 _tlX14 (T_Nonterminals_vIn13 _tlOaroundsIn _tlOaugmentsIn _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOnonterminals _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuniq _tlOuseMap _tlOwrappers)
-         _lhsOcollect_nts :: Set NontermIdent
-         _lhsOcollect_nts = rule88 _hdIcollect_nts _tlIcollect_nts
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule89 _hdIerrors _tlIerrors
-         _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule90 _hdIinhMap' _tlIinhMap'
-         _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule91 _hdIsynMap' _tlIsynMap'
-         _output = rule92 _hdIoutput _tlIoutput
-         _lhsOoutput :: Nonterminals
-         _lhsOoutput = rule93 _output
-         _lhsOuniq :: Int
-         _lhsOuniq = rule94 _tlIuniq
-         _hdOaroundsIn = rule95 _lhsIaroundsIn
-         _hdOaugmentsIn = rule96 _lhsIaugmentsIn
-         _hdOcr = rule97 _lhsIcr
-         _hdOinhMap = rule98 _lhsIinhMap
-         _hdOmanualAttrOrderMap = rule99 _lhsImanualAttrOrderMap
-         _hdOmergesIn = rule100 _lhsImergesIn
-         _hdOnonterminals = rule101 _lhsInonterminals
-         _hdOo_rename = rule102 _lhsIo_rename
-         _hdOoptions = rule103 _lhsIoptions
-         _hdOsynMap = rule104 _lhsIsynMap
-         _hdOtypeSyns = rule105 _lhsItypeSyns
-         _hdOuniq = rule106 _lhsIuniq
-         _hdOuseMap = rule107 _lhsIuseMap
-         _hdOwrappers = rule108 _lhsIwrappers
-         _tlOaroundsIn = rule109 _lhsIaroundsIn
-         _tlOaugmentsIn = rule110 _lhsIaugmentsIn
-         _tlOcr = rule111 _lhsIcr
-         _tlOinhMap = rule112 _lhsIinhMap
-         _tlOmanualAttrOrderMap = rule113 _lhsImanualAttrOrderMap
-         _tlOmergesIn = rule114 _lhsImergesIn
-         _tlOnonterminals = rule115 _lhsInonterminals
-         _tlOo_rename = rule116 _lhsIo_rename
-         _tlOoptions = rule117 _lhsIoptions
-         _tlOsynMap = rule118 _lhsIsynMap
-         _tlOtypeSyns = rule119 _lhsItypeSyns
-         _tlOuniq = rule120 _hdIuniq
-         _tlOuseMap = rule121 _lhsIuseMap
-         _tlOwrappers = rule122 _lhsIwrappers
-         !__result_ = T_Nonterminals_vOut13 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
-         in __result_ )
-     in C_Nonterminals_s14 v13
-   {-# INLINE rule88 #-}
-   rule88 = \ ((_hdIcollect_nts) :: Set NontermIdent) ((_tlIcollect_nts) :: Set NontermIdent) ->
+sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st8) where
+   {-# NOINLINE st8 #-}
+   !st8 = let
+      k8 :: K_Nonterminals_s8  t -> t
+      k8 K_Nonterminals_v4 = v4
+      k8 K_Nonterminals_v15 = v15
+      k8 K_Nonterminals_v19 = v19
+      v4 :: T_Nonterminals_v4 
+      v4 = \ !(T_Nonterminals_vIn4 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdX6 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_)) in
+         let !_tlX8 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_)) in
+         let !_hdOcr = rule97 _lhsIcr in
+         let !_hdOinhMap = rule98 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule99 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule100 _lhsImergesIn in
+         let !_hdOo_rename = rule102 _lhsIo_rename in
+         let !_hdOoptions = rule103 _lhsIoptions in
+         let !_hdOsynMap = rule104 _lhsIsynMap in
+         let !_hdOtypeSyns = rule105 _lhsItypeSyns in
+         let !_hdOuseMap = rule107 _lhsIuseMap in
+         let !_hdOwrappers = rule108 _lhsIwrappers in
+         let !_tlOcr = rule111 _lhsIcr in
+         let !_tlOinhMap = rule112 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule113 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule114 _lhsImergesIn in
+         let !_tlOo_rename = rule116 _lhsIo_rename in
+         let !_tlOoptions = rule117 _lhsIoptions in
+         let !_tlOsynMap = rule118 _lhsIsynMap in
+         let !_tlOtypeSyns = rule119 _lhsItypeSyns in
+         let !_tlOuseMap = rule121 _lhsIuseMap in
+         let !_tlOwrappers = rule122 _lhsIwrappers in
+         let !_hdOaroundsIn = rule95 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule96 _lhsIaugmentsIn in
+         let !_hdOuniq = rule106 _lhsIuniq in
+         let !_tlOaroundsIn = rule109 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule110 _lhsIaugmentsIn in
+         let !(T_Nonterminal_vOut18 _hdIcollect_nts _hdIerrors _hdIinhMap' _hdIoutput _hdIsynMap' _hdIuniq) = inv_Nonterminal_s6 _hdX6 K_Nonterminal_v18 (T_Nonterminal_vIn18 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) in
+         let !(T_Nonterminals_vOut19 _tlIcollect_nts _tlIerrors _tlIinhMap' _tlIsynMap' _tlX32) = inv_Nonterminals_s8 _tlX8 K_Nonterminals_v19 (T_Nonterminals_vIn19 _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule88 _hdIcollect_nts _tlIcollect_nts in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule89 _hdIerrors _tlIerrors in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule90 _hdIinhMap' _tlIinhMap' in
+         let !_tlOuniq = rule120 _hdIuniq in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule91 _hdIsynMap' _tlIsynMap' in
+         let !(T_Nonterminals_vOut20 _tlIoutput _tlIuniq) = inv_Nonterminals_s32 _tlX32 (T_Nonterminals_vIn20 _tlOaroundsIn _tlOaugmentsIn _tlOuniq) in
+         let !_output = rule92 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule93 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule94 _tlIuniq in
+         let !__result_ = T_Nonterminals_vOut4 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
+          in __result_ )
+      v15 :: T_Nonterminals_v15 
+      v15 = \ !(T_Nonterminals_vIn15 ) -> (
+         let !_hdX6 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_)) in
+         let !_tlX8 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_)) in
+         let !(T_Nonterminal_vOut32 _hdIinhMap' _hdIsynMap' _hdX43) = inv_Nonterminal_s6 _hdX6 K_Nonterminal_v32 (T_Nonterminal_vIn32 ) in
+         let !(T_Nonterminals_vOut15 _tlIinhMap' _tlIsynMap' _tlX28) = inv_Nonterminals_s8 _tlX8 K_Nonterminals_v15 (T_Nonterminals_vIn15 ) in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule90 _hdIinhMap' _tlIinhMap' in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule91 _hdIsynMap' _tlIsynMap' in
+         let !__st_ = st28 _hdX43 _tlX28
+             !__result_ = T_Nonterminals_vOut15 _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+      v19 :: T_Nonterminals_v19 
+      v19 = \ !(T_Nonterminals_vIn19 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdX6 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_)) in
+         let !_tlX8 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_)) in
+         let !_hdOcr = rule97 _lhsIcr in
+         let !_hdOinhMap = rule98 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule99 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule100 _lhsImergesIn in
+         let !_hdOo_rename = rule102 _lhsIo_rename in
+         let !_hdOoptions = rule103 _lhsIoptions in
+         let !_hdOsynMap = rule104 _lhsIsynMap in
+         let !_hdOtypeSyns = rule105 _lhsItypeSyns in
+         let !_hdOuseMap = rule107 _lhsIuseMap in
+         let !_hdOwrappers = rule108 _lhsIwrappers in
+         let !_tlOcr = rule111 _lhsIcr in
+         let !_tlOinhMap = rule112 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule113 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule114 _lhsImergesIn in
+         let !_tlOo_rename = rule116 _lhsIo_rename in
+         let !_tlOoptions = rule117 _lhsIoptions in
+         let !_tlOsynMap = rule118 _lhsIsynMap in
+         let !_tlOtypeSyns = rule119 _lhsItypeSyns in
+         let !_tlOuseMap = rule121 _lhsIuseMap in
+         let !_tlOwrappers = rule122 _lhsIwrappers in
+         let !(T_Nonterminal_vOut36 _hdIcollect_nts _hdIerrors _hdIinhMap' _hdIsynMap' _hdX46) = inv_Nonterminal_s6 _hdX6 K_Nonterminal_v36 (T_Nonterminal_vIn36 _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuseMap _hdOwrappers) in
+         let !(T_Nonterminals_vOut19 _tlIcollect_nts _tlIerrors _tlIinhMap' _tlIsynMap' _tlX32) = inv_Nonterminals_s8 _tlX8 K_Nonterminals_v19 (T_Nonterminals_vIn19 _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule88 _hdIcollect_nts _tlIcollect_nts in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule89 _hdIerrors _tlIerrors in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule90 _hdIinhMap' _tlIinhMap' in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule91 _hdIsynMap' _tlIsynMap' in
+         let !__st_ = st32 _hdX46 _tlX32
+             !__result_ = T_Nonterminals_vOut19 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+     in C_Nonterminals_s8 k8
+   {-# NOINLINE st28 #-}
+   st28 = \ !_hdX43 !_tlX28 -> let
+      k28 :: K_Nonterminals_s28  t -> t
+      k28 K_Nonterminals_v16 = v16
+      k28 K_Nonterminals_v34 = v34
+      v16 :: T_Nonterminals_v16 
+      v16 = \ !(T_Nonterminals_vIn16 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdOcr = rule97 _lhsIcr in
+         let !_hdOinhMap = rule98 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule99 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule100 _lhsImergesIn in
+         let !_hdOo_rename = rule102 _lhsIo_rename in
+         let !_hdOoptions = rule103 _lhsIoptions in
+         let !_hdOsynMap = rule104 _lhsIsynMap in
+         let !_hdOtypeSyns = rule105 _lhsItypeSyns in
+         let !_hdOuseMap = rule107 _lhsIuseMap in
+         let !_hdOwrappers = rule108 _lhsIwrappers in
+         let !_tlOcr = rule111 _lhsIcr in
+         let !_tlOinhMap = rule112 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule113 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule114 _lhsImergesIn in
+         let !_tlOo_rename = rule116 _lhsIo_rename in
+         let !_tlOoptions = rule117 _lhsIoptions in
+         let !_tlOsynMap = rule118 _lhsIsynMap in
+         let !_tlOtypeSyns = rule119 _lhsItypeSyns in
+         let !_tlOuseMap = rule121 _lhsIuseMap in
+         let !_tlOwrappers = rule122 _lhsIwrappers in
+         let !_hdOaroundsIn = rule95 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule96 _lhsIaugmentsIn in
+         let !_hdOuniq = rule106 _lhsIuniq in
+         let !_tlOaroundsIn = rule109 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule110 _lhsIaugmentsIn in
+         let !(T_Nonterminal_vOut33 _hdIerrors _hdIoutput _hdIuniq) = inv_Nonterminal_s43 _hdX43 K_Nonterminal_v33 (T_Nonterminal_vIn33 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) in
+         let !(T_Nonterminals_vOut34 _tlIerrors _tlX45) = inv_Nonterminals_s28 _tlX28 K_Nonterminals_v34 (T_Nonterminals_vIn34 _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule89 _hdIerrors _tlIerrors in
+         let !_tlOuniq = rule120 _hdIuniq in
+         let !(T_Nonterminals_vOut35 _tlIoutput _tlIuniq) = inv_Nonterminals_s45 _tlX45 (T_Nonterminals_vIn35 _tlOaroundsIn _tlOaugmentsIn _tlOuniq) in
+         let !_output = rule92 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule93 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule94 _tlIuniq in
+         let !__result_ = T_Nonterminals_vOut16 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v34 :: T_Nonterminals_v34 
+      v34 = \ !(T_Nonterminals_vIn34 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdOcr = rule97 _lhsIcr in
+         let !_hdOinhMap = rule98 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule99 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule100 _lhsImergesIn in
+         let !_hdOo_rename = rule102 _lhsIo_rename in
+         let !_hdOoptions = rule103 _lhsIoptions in
+         let !_hdOsynMap = rule104 _lhsIsynMap in
+         let !_hdOtypeSyns = rule105 _lhsItypeSyns in
+         let !_hdOuseMap = rule107 _lhsIuseMap in
+         let !_hdOwrappers = rule108 _lhsIwrappers in
+         let !_tlOcr = rule111 _lhsIcr in
+         let !_tlOinhMap = rule112 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule113 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule114 _lhsImergesIn in
+         let !_tlOo_rename = rule116 _lhsIo_rename in
+         let !_tlOoptions = rule117 _lhsIoptions in
+         let !_tlOsynMap = rule118 _lhsIsynMap in
+         let !_tlOtypeSyns = rule119 _lhsItypeSyns in
+         let !_tlOuseMap = rule121 _lhsIuseMap in
+         let !_tlOwrappers = rule122 _lhsIwrappers in
+         let !(T_Nonterminal_vOut45 _hdIerrors _hdX52) = inv_Nonterminal_s43 _hdX43 K_Nonterminal_v45 (T_Nonterminal_vIn45 _hdOcr _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOo_rename _hdOoptions _hdOsynMap _hdOtypeSyns _hdOuseMap _hdOwrappers) in
+         let !(T_Nonterminals_vOut34 _tlIerrors _tlX45) = inv_Nonterminals_s28 _tlX28 K_Nonterminals_v34 (T_Nonterminals_vIn34 _tlOcr _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOo_rename _tlOoptions _tlOsynMap _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule89 _hdIerrors _tlIerrors in
+         let !__st_ = st45 _hdX52 _tlX45
+             !__result_ = T_Nonterminals_vOut34 _lhsOerrors __st_
+          in __result_ )
+     in C_Nonterminals_s28 k28
+   {-# NOINLINE st32 #-}
+   st32 = \ !_hdX46 !_tlX32 -> let
+      v20 :: T_Nonterminals_v20 
+      v20 = \ !(T_Nonterminals_vIn20 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_hdOaroundsIn = rule95 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule96 _lhsIaugmentsIn in
+         let !_hdOuniq = rule106 _lhsIuniq in
+         let !_tlOaroundsIn = rule109 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule110 _lhsIaugmentsIn in
+         let !(T_Nonterminal_vOut37 _hdIoutput _hdIuniq) = inv_Nonterminal_s46 _hdX46 (T_Nonterminal_vIn37 _hdOaroundsIn _hdOaugmentsIn _hdOuniq) in
+         let !_tlOuniq = rule120 _hdIuniq in
+         let !(T_Nonterminals_vOut20 _tlIoutput _tlIuniq) = inv_Nonterminals_s32 _tlX32 (T_Nonterminals_vIn20 _tlOaroundsIn _tlOaugmentsIn _tlOuniq) in
+         let !_output = rule92 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule93 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule94 _tlIuniq in
+         let !__result_ = T_Nonterminals_vOut20 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminals_s32 v20
+   {-# NOINLINE st45 #-}
+   st45 = \ !_hdX52 !_tlX45 -> let
+      v35 :: T_Nonterminals_v35 
+      v35 = \ !(T_Nonterminals_vIn35 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_hdOaroundsIn = rule95 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule96 _lhsIaugmentsIn in
+         let !_hdOuniq = rule106 _lhsIuniq in
+         let !_tlOaroundsIn = rule109 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule110 _lhsIaugmentsIn in
+         let !(T_Nonterminal_vOut46 _hdIoutput _hdIuniq) = inv_Nonterminal_s52 _hdX52 (T_Nonterminal_vIn46 _hdOaroundsIn _hdOaugmentsIn _hdOuniq) in
+         let !_tlOuniq = rule120 _hdIuniq in
+         let !(T_Nonterminals_vOut35 _tlIoutput _tlIuniq) = inv_Nonterminals_s45 _tlX45 (T_Nonterminals_vIn35 _tlOaroundsIn _tlOaugmentsIn _tlOuniq) in
+         let !_output = rule92 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule93 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule94 _tlIuniq in
+         let !__result_ = T_Nonterminals_vOut35 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminals_s45 v35
+   {-# NOINLINE[1] rule88 #-}
+   rule88 = \ ((!_hdIcollect_nts) :: Set NontermIdent) ((!_tlIcollect_nts) :: Set NontermIdent) ->
      _hdIcollect_nts `Set.union` _tlIcollect_nts
-   {-# INLINE rule89 #-}
-   rule89 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule89 #-}
+   rule89 = \ ((!_hdIerrors) :: Seq Error) ((!_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule90 #-}
-   rule90 = \ ((_hdIinhMap') :: Map Identifier Attributes) ((_tlIinhMap') :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule90 #-}
+   rule90 = \ ((!_hdIinhMap') :: Map Identifier Attributes) ((!_tlIinhMap') :: Map Identifier Attributes) ->
      _hdIinhMap' `Map.union` _tlIinhMap'
-   {-# INLINE rule91 #-}
-   rule91 = \ ((_hdIsynMap') :: Map Identifier Attributes) ((_tlIsynMap') :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule91 #-}
+   rule91 = \ ((!_hdIsynMap') :: Map Identifier Attributes) ((!_tlIsynMap') :: Map Identifier Attributes) ->
      _hdIsynMap' `Map.union` _tlIsynMap'
-   {-# INLINE rule92 #-}
-   rule92 = \ ((_hdIoutput) :: Nonterminal) ((_tlIoutput) :: Nonterminals) ->
+   {-# NOINLINE[1] rule92 #-}
+   rule92 = \ ((!_hdIoutput) :: Nonterminal) ((!_tlIoutput) :: Nonterminals) ->
      (:) _hdIoutput _tlIoutput
-   {-# INLINE rule93 #-}
-   rule93 = \ _output ->
+   {-# NOINLINE[1] rule93 #-}
+   rule93 = \ !_output ->
      _output
-   {-# INLINE rule94 #-}
-   rule94 = \ ((_tlIuniq) :: Int) ->
+   {-# NOINLINE[1] rule94 #-}
+   rule94 = \ ((!_tlIuniq) :: Int) ->
      _tlIuniq
-   {-# INLINE rule95 #-}
-   rule95 = \ ((_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+   {-# NOINLINE[1] rule95 #-}
+   rule95 = \ ((!_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
      _lhsIaroundsIn
-   {-# INLINE rule96 #-}
-   rule96 = \ ((_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+   {-# NOINLINE[1] rule96 #-}
+   rule96 = \ ((!_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
      _lhsIaugmentsIn
-   {-# INLINE rule97 #-}
-   rule97 = \ ((_lhsIcr) :: Bool) ->
+   {-# NOINLINE[1] rule97 #-}
+   rule97 = \ ((!_lhsIcr) :: Bool) ->
      _lhsIcr
-   {-# INLINE rule98 #-}
-   rule98 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule98 #-}
+   rule98 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule99 #-}
-   rule99 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
+   {-# NOINLINE[1] rule99 #-}
+   rule99 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
      _lhsImanualAttrOrderMap
-   {-# INLINE rule100 #-}
-   rule100 = \ ((_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) ->
+   {-# NOINLINE[1] rule100 #-}
+   rule100 = \ ((!_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) ->
      _lhsImergesIn
-   {-# INLINE rule101 #-}
-   rule101 = \ ((_lhsInonterminals) :: Set NontermIdent) ->
-     _lhsInonterminals
-   {-# INLINE rule102 #-}
-   rule102 = \ ((_lhsIo_rename) :: Bool) ->
+   {-# NOINLINE[1] rule102 #-}
+   rule102 = \ ((!_lhsIo_rename) :: Bool) ->
      _lhsIo_rename
-   {-# INLINE rule103 #-}
-   rule103 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule103 #-}
+   rule103 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule104 #-}
-   rule104 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule104 #-}
+   rule104 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule105 #-}
-   rule105 = \ ((_lhsItypeSyns) :: TypeSyns) ->
+   {-# NOINLINE[1] rule105 #-}
+   rule105 = \ ((!_lhsItypeSyns) :: TypeSyns) ->
      _lhsItypeSyns
-   {-# INLINE rule106 #-}
-   rule106 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule106 #-}
+   rule106 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
-   {-# INLINE rule107 #-}
-   rule107 = \ ((_lhsIuseMap) :: UseMap) ->
+   {-# NOINLINE[1] rule107 #-}
+   rule107 = \ ((!_lhsIuseMap) :: UseMap) ->
      _lhsIuseMap
-   {-# INLINE rule108 #-}
-   rule108 = \ ((_lhsIwrappers) :: Set NontermIdent) ->
+   {-# NOINLINE[1] rule108 #-}
+   rule108 = \ ((!_lhsIwrappers) :: Set NontermIdent) ->
      _lhsIwrappers
-   {-# INLINE rule109 #-}
-   rule109 = \ ((_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+   {-# NOINLINE[1] rule109 #-}
+   rule109 = \ ((!_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
      _lhsIaroundsIn
-   {-# INLINE rule110 #-}
-   rule110 = \ ((_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
+   {-# NOINLINE[1] rule110 #-}
+   rule110 = \ ((!_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ->
      _lhsIaugmentsIn
-   {-# INLINE rule111 #-}
-   rule111 = \ ((_lhsIcr) :: Bool) ->
+   {-# NOINLINE[1] rule111 #-}
+   rule111 = \ ((!_lhsIcr) :: Bool) ->
      _lhsIcr
-   {-# INLINE rule112 #-}
-   rule112 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule112 #-}
+   rule112 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule113 #-}
-   rule113 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
+   {-# NOINLINE[1] rule113 #-}
+   rule113 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
      _lhsImanualAttrOrderMap
-   {-# INLINE rule114 #-}
-   rule114 = \ ((_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) ->
+   {-# NOINLINE[1] rule114 #-}
+   rule114 = \ ((!_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) ->
      _lhsImergesIn
-   {-# INLINE rule115 #-}
-   rule115 = \ ((_lhsInonterminals) :: Set NontermIdent) ->
-     _lhsInonterminals
-   {-# INLINE rule116 #-}
-   rule116 = \ ((_lhsIo_rename) :: Bool) ->
+   {-# NOINLINE[1] rule116 #-}
+   rule116 = \ ((!_lhsIo_rename) :: Bool) ->
      _lhsIo_rename
-   {-# INLINE rule117 #-}
-   rule117 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule117 #-}
+   rule117 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule118 #-}
-   rule118 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule118 #-}
+   rule118 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule119 #-}
-   rule119 = \ ((_lhsItypeSyns) :: TypeSyns) ->
+   {-# NOINLINE[1] rule119 #-}
+   rule119 = \ ((!_lhsItypeSyns) :: TypeSyns) ->
      _lhsItypeSyns
-   {-# INLINE rule120 #-}
-   rule120 = \ ((_hdIuniq) :: Int) ->
+   {-# NOINLINE[1] rule120 #-}
+   rule120 = \ ((!_hdIuniq) :: Int) ->
      _hdIuniq
-   {-# INLINE rule121 #-}
-   rule121 = \ ((_lhsIuseMap) :: UseMap) ->
+   {-# NOINLINE[1] rule121 #-}
+   rule121 = \ ((!_lhsIuseMap) :: UseMap) ->
      _lhsIuseMap
-   {-# INLINE rule122 #-}
-   rule122 = \ ((_lhsIwrappers) :: Set NontermIdent) ->
+   {-# NOINLINE[1] rule122 #-}
+   rule122 = \ ((!_lhsIwrappers) :: Set NontermIdent) ->
      _lhsIwrappers
 {-# NOINLINE sem_Nonterminals_Nil #-}
 sem_Nonterminals_Nil ::  T_Nonterminals 
-sem_Nonterminals_Nil  = T_Nonterminals (return st14) where
-   {-# NOINLINE st14 #-}
-   !st14 = let
-      v13 :: T_Nonterminals_v13 
-      v13 = \ !(T_Nonterminals_vIn13 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _lhsOcollect_nts :: Set NontermIdent
-         _lhsOcollect_nts = rule123  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule124  ()
-         _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule125  ()
-         _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule126  ()
-         _output = rule127  ()
-         _lhsOoutput :: Nonterminals
-         _lhsOoutput = rule128 _output
-         _lhsOuniq :: Int
-         _lhsOuniq = rule129 _lhsIuniq
-         !__result_ = T_Nonterminals_vOut13 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
-         in __result_ )
-     in C_Nonterminals_s14 v13
-   {-# INLINE rule123 #-}
+sem_Nonterminals_Nil  = T_Nonterminals (return st8) where
+   {-# NOINLINE st8 #-}
+   !st8 = let
+      k8 :: K_Nonterminals_s8  t -> t
+      k8 K_Nonterminals_v4 = v4
+      k8 K_Nonterminals_v15 = v15
+      k8 K_Nonterminals_v19 = v19
+      v4 :: T_Nonterminals_v4 
+      v4 = \ !(T_Nonterminals_vIn4 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule123  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule124  () in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule125  () in
+         let !_output = rule127  () in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule126  () in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule128 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule129 _lhsIuniq in
+         let !__result_ = T_Nonterminals_vOut4 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap' _lhsOuniq
+          in __result_ )
+      v15 :: T_Nonterminals_v15 
+      v15 = \ !(T_Nonterminals_vIn15 ) -> (
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule125  () in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule126  () in
+         let !__st_ = st28  ()
+             !__result_ = T_Nonterminals_vOut15 _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+      v19 :: T_Nonterminals_v19 
+      v19 = \ !(T_Nonterminals_vIn19 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOcollect_nts :: Set NontermIdent
+             !_lhsOcollect_nts = rule123  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule124  () in
+         let _lhsOinhMap' :: Map Identifier Attributes
+             !_lhsOinhMap' = rule125  () in
+         let _lhsOsynMap' :: Map Identifier Attributes
+             !_lhsOsynMap' = rule126  () in
+         let !__st_ = st32  ()
+             !__result_ = T_Nonterminals_vOut19 _lhsOcollect_nts _lhsOerrors _lhsOinhMap' _lhsOsynMap' __st_
+          in __result_ )
+     in C_Nonterminals_s8 k8
+   {-# NOINLINE st28 #-}
+   st28 = \  (_ :: ()) -> let
+      k28 :: K_Nonterminals_s28  t -> t
+      k28 K_Nonterminals_v16 = v16
+      k28 K_Nonterminals_v34 = v34
+      v16 :: T_Nonterminals_v16 
+      v16 = \ !(T_Nonterminals_vIn16 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule124  () in
+         let !_output = rule127  () in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule128 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule129 _lhsIuniq in
+         let !__result_ = T_Nonterminals_vOut16 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v34 :: T_Nonterminals_v34 
+      v34 = \ !(T_Nonterminals_vIn34 _lhsIcr _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsIo_rename _lhsIoptions _lhsIsynMap _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule124  () in
+         let !__st_ = st45  ()
+             !__result_ = T_Nonterminals_vOut34 _lhsOerrors __st_
+          in __result_ )
+     in C_Nonterminals_s28 k28
+   {-# NOINLINE st32 #-}
+   st32 = \  (_ :: ()) -> let
+      v20 :: T_Nonterminals_v20 
+      v20 = \ !(T_Nonterminals_vIn20 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_output = rule127  () in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule128 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule129 _lhsIuniq in
+         let !__result_ = T_Nonterminals_vOut20 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminals_s32 v20
+   {-# NOINLINE st45 #-}
+   st45 = \  (_ :: ()) -> let
+      v35 :: T_Nonterminals_v35 
+      v35 = \ !(T_Nonterminals_vIn35 _lhsIaroundsIn _lhsIaugmentsIn _lhsIuniq) -> (
+         let !_output = rule127  () in
+         let _lhsOoutput :: Nonterminals
+             !_lhsOoutput = rule128 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule129 _lhsIuniq in
+         let !__result_ = T_Nonterminals_vOut35 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Nonterminals_s45 v35
+   {-# NOINLINE[1] rule123 #-}
    rule123 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule124 #-}
+   {-# NOINLINE[1] rule124 #-}
    rule124 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule125 #-}
+   {-# NOINLINE[1] rule125 #-}
    rule125 = \  (_ :: ()) ->
      Map.empty
-   {-# INLINE rule126 #-}
+   {-# NOINLINE[1] rule126 #-}
    rule126 = \  (_ :: ()) ->
      Map.empty
-   {-# INLINE rule127 #-}
+   {-# NOINLINE[1] rule127 #-}
    rule127 = \  (_ :: ()) ->
      []
-   {-# INLINE rule128 #-}
-   rule128 = \ _output ->
+   {-# NOINLINE[1] rule128 #-}
+   rule128 = \ !_output ->
      _output
-   {-# INLINE rule129 #-}
-   rule129 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule129 #-}
+   rule129 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
 
 -- Pattern -----------------------------------------------------
@@ -1381,8 +2022,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern !(T_Pattern act) !(Inh_Pattern _lhsIcon _lhsInt) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Pattern_vIn16 _lhsIcon _lhsInt
-        !(T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput) <- return (inv_Pattern_s17 sem arg)
+        let arg = T_Pattern_vIn5 _lhsIcon _lhsInt
+        !(T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput) <- return (inv_Pattern_s10 sem K_Pattern_v5 arg)
         return (Syn_Pattern _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)
    )
 
@@ -1397,305 +2038,869 @@ sem_Pattern ( Underscore !pos_ ) = sem_Pattern_Underscore pos_
 
 -- semantic domain
 newtype T_Pattern  = T_Pattern {
-                               attach_T_Pattern :: Identity (T_Pattern_s17 )
+                               attach_T_Pattern :: Identity (T_Pattern_s10 )
                                }
-newtype T_Pattern_s17  = C_Pattern_s17 {
-                                       inv_Pattern_s17 :: (T_Pattern_v16 )
-                                       }
-data T_Pattern_s18  = C_Pattern_s18
-type T_Pattern_v16  = (T_Pattern_vIn16 ) -> (T_Pattern_vOut16 )
-data T_Pattern_vIn16  = T_Pattern_vIn16 (ConstructorIdent) (NontermIdent)
-data T_Pattern_vOut16  = T_Pattern_vOut16 (Bool) (Pattern) (Set (Identifier,Identifier)) (Seq Error) (Set Identifier) (Pattern)
+data T_Pattern_s10  where C_Pattern_s10 :: {
+                                           inv_Pattern_s10 :: !(forall t. K_Pattern_s10  t -> t)
+                                           } -> T_Pattern_s10 
+data T_Pattern_s11  = C_Pattern_s11
+data T_Pattern_s35  = C_Pattern_s35
+data T_Pattern_s36  = C_Pattern_s36
+data T_Pattern_s40  = C_Pattern_s40
+data T_Pattern_s50  = C_Pattern_s50
+data T_Pattern_s55  where C_Pattern_s55 :: {
+                                           inv_Pattern_s55 :: !(forall t. K_Pattern_s55  t -> t)
+                                           } -> T_Pattern_s55 
+data K_Pattern_s10 k  where
+   K_Pattern_v5 :: K_Pattern_s10  (T_Pattern_v5 )
+   K_Pattern_v22 :: K_Pattern_s10  (T_Pattern_v22 )
+   K_Pattern_v23 :: K_Pattern_s10  (T_Pattern_v23 )
+   K_Pattern_v28 :: K_Pattern_s10  (T_Pattern_v28 )
+   K_Pattern_v42 :: K_Pattern_s10  (T_Pattern_v42 )
+   K_Pattern_v50 :: K_Pattern_s10  (T_Pattern_v50 )
+data K_Pattern_s55 k  where
+   K_Pattern_v51 :: K_Pattern_s55  (T_Pattern_v51 )
+   K_Pattern_v56 :: K_Pattern_s55  (T_Pattern_v56 )
+type T_Pattern_v5  = (T_Pattern_vIn5 ) -> (T_Pattern_vOut5 )
+data T_Pattern_vIn5  = T_Pattern_vIn5 !(ConstructorIdent) !(NontermIdent)
+data T_Pattern_vOut5  = T_Pattern_vOut5 !(Bool) !(Pattern) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Pattern)
+type T_Pattern_v22  = (T_Pattern_vIn22 ) -> (T_Pattern_vOut22 )
+data T_Pattern_vIn22  = T_Pattern_vIn22 
+data T_Pattern_vOut22  = T_Pattern_vOut22 !(Pattern) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Pattern)
+type T_Pattern_v23  = (T_Pattern_vIn23 ) -> (T_Pattern_vOut23 )
+data T_Pattern_vIn23  = T_Pattern_vIn23 
+data T_Pattern_vOut23  = T_Pattern_vOut23 !(Bool) !(Pattern) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Pattern)
+type T_Pattern_v28  = (T_Pattern_vIn28 ) -> (T_Pattern_vOut28 )
+data T_Pattern_vIn28  = T_Pattern_vIn28 
+data T_Pattern_vOut28  = T_Pattern_vOut28 !(Bool) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Pattern)
+type T_Pattern_v42  = (T_Pattern_vIn42 ) -> (T_Pattern_vOut42 )
+data T_Pattern_vIn42  = T_Pattern_vIn42 
+data T_Pattern_vOut42  = T_Pattern_vOut42 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Pattern)
+type T_Pattern_v50  = (T_Pattern_vIn50 ) -> (T_Pattern_vOut50 )
+data T_Pattern_vIn50  = T_Pattern_vIn50 
+data T_Pattern_vOut50  = T_Pattern_vOut50 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(T_Pattern_s55 )
+type T_Pattern_v51  = (T_Pattern_vIn51 ) -> (T_Pattern_vOut51 )
+data T_Pattern_vIn51  = T_Pattern_vIn51 
+data T_Pattern_vOut51  = T_Pattern_vOut51 !(Bool) !(Pattern)
+type T_Pattern_v56  = (T_Pattern_vIn56 ) -> (T_Pattern_vOut56 )
+data T_Pattern_vIn56  = T_Pattern_vIn56 
+data T_Pattern_vOut56  = T_Pattern_vOut56 !(Pattern)
 {-# NOINLINE sem_Pattern_Constr #-}
 sem_Pattern_Constr :: (ConstructorIdent) -> T_Patterns  -> T_Pattern 
-sem_Pattern_Constr !arg_name_ arg_pats_ = T_Pattern (return st17) where
-   {-# NOINLINE st17 #-}
-   !st17 = let
-      v16 :: T_Pattern_v16 
-      v16 = \ !(T_Pattern_vIn16 _lhsIcon _lhsInt) -> ( let
-         _patsX20 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
-         (T_Patterns_vOut19 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s20 _patsX20 (T_Patterns_vIn19 _patsOcon _patsOnt)
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule130 _patsIcontainsVars
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule131 _patsIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule132 _patsIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule133 _patsIlocals
-         _copy = rule134 _patsIcopy arg_name_
-         _output = rule135 _patsIoutput arg_name_
-         _lhsOcopy :: Pattern
-         _lhsOcopy = rule136 _copy
-         _lhsOoutput :: Pattern
-         _lhsOoutput = rule137 _output
-         _patsOcon = rule138 _lhsIcon
-         _patsOnt = rule139 _lhsInt
-         !__result_ = T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Pattern_s17 v16
-   {-# INLINE rule130 #-}
-   rule130 = \ ((_patsIcontainsVars) :: Bool) ->
+sem_Pattern_Constr !arg_name_ arg_pats_ = T_Pattern (return st10) where
+   {-# NOINLINE st10 #-}
+   !st10 = let
+      k10 :: K_Pattern_s10  t -> t
+      k10 K_Pattern_v5 = v5
+      k10 K_Pattern_v22 = v22
+      k10 K_Pattern_v23 = v23
+      k10 K_Pattern_v28 = v28
+      k10 K_Pattern_v42 = v42
+      k10 K_Pattern_v50 = v50
+      v5 :: T_Pattern_v5 
+      v5 = \ !(T_Pattern_vIn5 _lhsIcon _lhsInt) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut21 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule130 _patsIcontainsVars in
+         let !_copy = rule134 _patsIcopy arg_name_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule136 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v22 :: T_Pattern_v22 
+      v22 = \ !(T_Pattern_vIn22 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut38 _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v38 (T_Patterns_vIn38 ) in
+         let !_copy = rule134 _patsIcopy arg_name_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule136 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut22 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v23 :: T_Pattern_v23 
+      v23 = \ !(T_Pattern_vIn23 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut21 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule130 _patsIcontainsVars in
+         let !_copy = rule134 _patsIcopy arg_name_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule136 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut23 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v28 :: T_Pattern_v28 
+      v28 = \ !(T_Pattern_vIn28 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut41 _patsIcontainsVars _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v41 (T_Patterns_vIn41 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule130 _patsIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v42 :: T_Pattern_v42 
+      v42 = \ !(T_Pattern_vIn42 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut49 _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v49 (T_Patterns_vIn49 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut42 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v50 :: T_Pattern_v50 
+      v50 = \ !(T_Pattern_vIn50 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut54 _patsIdefinedAttrs _patsIerrors _patsIlocals _patsX57) = inv_Patterns_s12 _patsX12 K_Patterns_v54 (T_Patterns_vIn54 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule131 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule132 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule133 _patsIlocals in
+         let !__st_ = st55 _patsX57
+             !__result_ = T_Pattern_vOut50 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Pattern_s10 k10
+   {-# NOINLINE st55 #-}
+   st55 = \ !_patsX57 -> let
+      k55 :: K_Pattern_s55  t -> t
+      k55 K_Pattern_v51 = v51
+      k55 K_Pattern_v56 = v56
+      v51 :: T_Pattern_v51 
+      v51 = \ !(T_Pattern_vIn51 ) -> (
+         let !(T_Patterns_vOut55 _patsIcontainsVars _patsIoutput) = inv_Patterns_s57 _patsX57 K_Patterns_v55 (T_Patterns_vIn55 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule130 _patsIcontainsVars in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut51 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v56 :: T_Pattern_v56 
+      v56 = \ !(T_Pattern_vIn56 ) -> (
+         let !(T_Patterns_vOut57 _patsIoutput) = inv_Patterns_s57 _patsX57 K_Patterns_v57 (T_Patterns_vIn57 ) in
+         let !_output = rule135 _patsIoutput arg_name_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule137 _output in
+         let !__result_ = T_Pattern_vOut56 _lhsOoutput
+          in __result_ )
+     in C_Pattern_s55 k55
+   {-# NOINLINE[1] rule130 #-}
+   rule130 = \ ((!_patsIcontainsVars) :: Bool) ->
      _patsIcontainsVars
-   {-# INLINE rule131 #-}
-   rule131 = \ ((_patsIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+   {-# NOINLINE[1] rule131 #-}
+   rule131 = \ ((!_patsIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _patsIdefinedAttrs
-   {-# INLINE rule132 #-}
-   rule132 = \ ((_patsIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule132 #-}
+   rule132 = \ ((!_patsIerrors) :: Seq Error) ->
      _patsIerrors
-   {-# INLINE rule133 #-}
-   rule133 = \ ((_patsIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule133 #-}
+   rule133 = \ ((!_patsIlocals) :: Set Identifier) ->
      _patsIlocals
-   {-# INLINE rule134 #-}
-   rule134 = \ ((_patsIcopy) :: Patterns) name_ ->
+   {-# NOINLINE[1] rule134 #-}
+   rule134 = \ ((!_patsIcopy) :: Patterns) !name_ ->
      Constr name_ _patsIcopy
-   {-# INLINE rule135 #-}
-   rule135 = \ ((_patsIoutput) :: Patterns) name_ ->
+   {-# NOINLINE[1] rule135 #-}
+   rule135 = \ ((!_patsIoutput) :: Patterns) !name_ ->
      Constr name_ _patsIoutput
-   {-# INLINE rule136 #-}
-   rule136 = \ _copy ->
+   {-# NOINLINE[1] rule136 #-}
+   rule136 = \ !_copy ->
      _copy
-   {-# INLINE rule137 #-}
-   rule137 = \ _output ->
+   {-# NOINLINE[1] rule137 #-}
+   rule137 = \ !_output ->
      _output
-   {-# INLINE rule138 #-}
-   rule138 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule139 #-}
-   rule139 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 {-# NOINLINE sem_Pattern_Product #-}
 sem_Pattern_Product :: (Pos) -> T_Patterns  -> T_Pattern 
-sem_Pattern_Product !arg_pos_ arg_pats_ = T_Pattern (return st17) where
-   {-# NOINLINE st17 #-}
-   !st17 = let
-      v16 :: T_Pattern_v16 
-      v16 = \ !(T_Pattern_vIn16 _lhsIcon _lhsInt) -> ( let
-         _patsX20 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
-         (T_Patterns_vOut19 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s20 _patsX20 (T_Patterns_vIn19 _patsOcon _patsOnt)
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule140 _patsIcontainsVars
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule141 _patsIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule142 _patsIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule143 _patsIlocals
-         _copy = rule144 _patsIcopy arg_pos_
-         _output = rule145 _patsIoutput arg_pos_
-         _lhsOcopy :: Pattern
-         _lhsOcopy = rule146 _copy
-         _lhsOoutput :: Pattern
-         _lhsOoutput = rule147 _output
-         _patsOcon = rule148 _lhsIcon
-         _patsOnt = rule149 _lhsInt
-         !__result_ = T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Pattern_s17 v16
-   {-# INLINE rule140 #-}
-   rule140 = \ ((_patsIcontainsVars) :: Bool) ->
+sem_Pattern_Product !arg_pos_ arg_pats_ = T_Pattern (return st10) where
+   {-# NOINLINE st10 #-}
+   !st10 = let
+      k10 :: K_Pattern_s10  t -> t
+      k10 K_Pattern_v5 = v5
+      k10 K_Pattern_v22 = v22
+      k10 K_Pattern_v23 = v23
+      k10 K_Pattern_v28 = v28
+      k10 K_Pattern_v42 = v42
+      k10 K_Pattern_v50 = v50
+      v5 :: T_Pattern_v5 
+      v5 = \ !(T_Pattern_vIn5 _lhsIcon _lhsInt) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut21 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule140 _patsIcontainsVars in
+         let !_copy = rule144 _patsIcopy arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule146 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v22 :: T_Pattern_v22 
+      v22 = \ !(T_Pattern_vIn22 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut38 _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v38 (T_Patterns_vIn38 ) in
+         let !_copy = rule144 _patsIcopy arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule146 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut22 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v23 :: T_Pattern_v23 
+      v23 = \ !(T_Pattern_vIn23 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut21 _patsIcontainsVars _patsIcopy _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule140 _patsIcontainsVars in
+         let !_copy = rule144 _patsIcopy arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule146 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut23 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v28 :: T_Pattern_v28 
+      v28 = \ !(T_Pattern_vIn28 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut41 _patsIcontainsVars _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v41 (T_Patterns_vIn41 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule140 _patsIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v42 :: T_Pattern_v42 
+      v42 = \ !(T_Pattern_vIn42 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut49 _patsIdefinedAttrs _patsIerrors _patsIlocals _patsIoutput) = inv_Patterns_s12 _patsX12 K_Patterns_v49 (T_Patterns_vIn49 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut42 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v50 :: T_Pattern_v50 
+      v50 = \ !(T_Pattern_vIn50 ) -> (
+         let !_patsX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_)) in
+         let !(T_Patterns_vOut54 _patsIdefinedAttrs _patsIerrors _patsIlocals _patsX57) = inv_Patterns_s12 _patsX12 K_Patterns_v54 (T_Patterns_vIn54 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule141 _patsIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule142 _patsIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule143 _patsIlocals in
+         let !__st_ = st55 _patsX57
+             !__result_ = T_Pattern_vOut50 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Pattern_s10 k10
+   {-# NOINLINE st55 #-}
+   st55 = \ !_patsX57 -> let
+      k55 :: K_Pattern_s55  t -> t
+      k55 K_Pattern_v51 = v51
+      k55 K_Pattern_v56 = v56
+      v51 :: T_Pattern_v51 
+      v51 = \ !(T_Pattern_vIn51 ) -> (
+         let !(T_Patterns_vOut55 _patsIcontainsVars _patsIoutput) = inv_Patterns_s57 _patsX57 K_Patterns_v55 (T_Patterns_vIn55 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule140 _patsIcontainsVars in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut51 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v56 :: T_Pattern_v56 
+      v56 = \ !(T_Pattern_vIn56 ) -> (
+         let !(T_Patterns_vOut57 _patsIoutput) = inv_Patterns_s57 _patsX57 K_Patterns_v57 (T_Patterns_vIn57 ) in
+         let !_output = rule145 _patsIoutput arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule147 _output in
+         let !__result_ = T_Pattern_vOut56 _lhsOoutput
+          in __result_ )
+     in C_Pattern_s55 k55
+   {-# NOINLINE[1] rule140 #-}
+   rule140 = \ ((!_patsIcontainsVars) :: Bool) ->
      _patsIcontainsVars
-   {-# INLINE rule141 #-}
-   rule141 = \ ((_patsIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+   {-# NOINLINE[1] rule141 #-}
+   rule141 = \ ((!_patsIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _patsIdefinedAttrs
-   {-# INLINE rule142 #-}
-   rule142 = \ ((_patsIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule142 #-}
+   rule142 = \ ((!_patsIerrors) :: Seq Error) ->
      _patsIerrors
-   {-# INLINE rule143 #-}
-   rule143 = \ ((_patsIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule143 #-}
+   rule143 = \ ((!_patsIlocals) :: Set Identifier) ->
      _patsIlocals
-   {-# INLINE rule144 #-}
-   rule144 = \ ((_patsIcopy) :: Patterns) pos_ ->
+   {-# NOINLINE[1] rule144 #-}
+   rule144 = \ ((!_patsIcopy) :: Patterns) !pos_ ->
      Product pos_ _patsIcopy
-   {-# INLINE rule145 #-}
-   rule145 = \ ((_patsIoutput) :: Patterns) pos_ ->
+   {-# NOINLINE[1] rule145 #-}
+   rule145 = \ ((!_patsIoutput) :: Patterns) !pos_ ->
      Product pos_ _patsIoutput
-   {-# INLINE rule146 #-}
-   rule146 = \ _copy ->
+   {-# NOINLINE[1] rule146 #-}
+   rule146 = \ !_copy ->
      _copy
-   {-# INLINE rule147 #-}
-   rule147 = \ _output ->
+   {-# NOINLINE[1] rule147 #-}
+   rule147 = \ !_output ->
      _output
-   {-# INLINE rule148 #-}
-   rule148 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule149 #-}
-   rule149 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 {-# NOINLINE sem_Pattern_Alias #-}
 sem_Pattern_Alias :: (Identifier) -> (Identifier) -> T_Pattern  -> T_Pattern 
-sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st17) where
-   {-# NOINLINE st17 #-}
-   !st17 = let
-      v16 :: T_Pattern_v16 
-      v16 = \ !(T_Pattern_vIn16 _lhsIcon _lhsInt) -> ( let
-         _patX17 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
-         (T_Pattern_vOut16 _patIcontainsVars _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s17 _patX17 (T_Pattern_vIn16 _patOcon _patOnt)
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule152  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule153 _patIerrors
-         _copy = rule154 _patIcopy arg_attr_ arg_field_
-         _output = rule155 _patIoutput arg_attr_ arg_field_
-         _lhsOcopy :: Pattern
-         _lhsOcopy = rule156 _copy
-         _lhsOoutput :: Pattern
-         _lhsOoutput = rule157 _output
-         _patOcon = rule158 _lhsIcon
-         _patOnt = rule159 _lhsInt
-         !__result_ = T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Pattern_s17 v16
-   {-# INLINE rule150 #-}
+sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st10) where
+   {-# NOINLINE st10 #-}
+   !st10 = let
+      k10 :: K_Pattern_s10  t -> t
+      k10 K_Pattern_v5 = v5
+      k10 K_Pattern_v22 = v22
+      k10 K_Pattern_v23 = v23
+      k10 K_Pattern_v28 = v28
+      k10 K_Pattern_v42 = v42
+      k10 K_Pattern_v50 = v50
+      v5 :: T_Pattern_v5 
+      v5 = \ !(T_Pattern_vIn5 _lhsIcon _lhsInt) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule152  () in
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut22 _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v22 (T_Pattern_vIn22 ) in
+         let !_copy = rule154 _patIcopy arg_attr_ arg_field_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule156 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v22 :: T_Pattern_v22 
+      v22 = \ !(T_Pattern_vIn22 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut22 _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v22 (T_Pattern_vIn22 ) in
+         let !_copy = rule154 _patIcopy arg_attr_ arg_field_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule156 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut22 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v23 :: T_Pattern_v23 
+      v23 = \ !(T_Pattern_vIn23 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule152  () in
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut22 _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v22 (T_Pattern_vIn22 ) in
+         let !_copy = rule154 _patIcopy arg_attr_ arg_field_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule156 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut23 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v28 :: T_Pattern_v28 
+      v28 = \ !(T_Pattern_vIn28 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule152  () in
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut42 _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v42 (T_Pattern_vIn42 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v42 :: T_Pattern_v42 
+      v42 = \ !(T_Pattern_vIn42 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut42 _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v42 (T_Pattern_vIn42 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut42 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v50 :: T_Pattern_v50 
+      v50 = \ !(T_Pattern_vIn50 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut50 _patIdefinedAttrs _patIerrors _patIlocals _patX55) = inv_Pattern_s10 _patX10 K_Pattern_v50 (T_Pattern_vIn50 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule150 _patIdefinedAttrs arg_attr_ arg_field_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule153 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule151 _patIlocals arg_attr_ arg_field_ in
+         let !__st_ = st55 _patX55
+             !__result_ = T_Pattern_vOut50 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Pattern_s10 k10
+   {-# NOINLINE st55 #-}
+   st55 = \ !_patX55 -> let
+      k55 :: K_Pattern_s55  t -> t
+      k55 K_Pattern_v51 = v51
+      k55 K_Pattern_v56 = v56
+      v51 :: T_Pattern_v51 
+      v51 = \ !(T_Pattern_vIn51 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule152  () in
+         let !(T_Pattern_vOut56 _patIoutput) = inv_Pattern_s55 _patX55 K_Pattern_v56 (T_Pattern_vIn56 ) in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut51 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v56 :: T_Pattern_v56 
+      v56 = \ !(T_Pattern_vIn56 ) -> (
+         let !(T_Pattern_vOut56 _patIoutput) = inv_Pattern_s55 _patX55 K_Pattern_v56 (T_Pattern_vIn56 ) in
+         let !_output = rule155 _patIoutput arg_attr_ arg_field_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule157 _output in
+         let !__result_ = T_Pattern_vOut56 _lhsOoutput
+          in __result_ )
+     in C_Pattern_s55 k55
+   {-# NOINLINE rule150 #-}
    {-# LINE 536 "./src-ag/DefaultRules.ag" #-}
-   rule150 = \ ((_patIdefinedAttrs) :: Set (Identifier,Identifier)) attr_ field_ ->
+   rule150 = \ ((!_patIdefinedAttrs) :: Set (Identifier,Identifier)) !attr_ !field_ ->
                                {-# LINE 536 "./src-ag/DefaultRules.ag" #-}
                                Set.insert (field_,attr_) _patIdefinedAttrs
-                               {-# LINE 1559 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule151 #-}
+                               {-# LINE 2562 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule151 #-}
    {-# LINE 537 "./src-ag/DefaultRules.ag" #-}
-   rule151 = \ ((_patIlocals) :: Set Identifier) attr_ field_ ->
+   rule151 = \ ((!_patIlocals) :: Set Identifier) !attr_ !field_ ->
                                {-# LINE 537 "./src-ag/DefaultRules.ag" #-}
                                if field_ == _LOC
                                   then Set.insert attr_ _patIlocals
                                   else _patIlocals
-                               {-# LINE 1567 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule152 #-}
+                               {-# LINE 2570 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE rule152 #-}
    {-# LINE 554 "./src-ag/DefaultRules.ag" #-}
    rule152 = \  (_ :: ()) ->
                                     {-# LINE 554 "./src-ag/DefaultRules.ag" #-}
                                     True
-                                    {-# LINE 1573 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule153 #-}
-   rule153 = \ ((_patIerrors) :: Seq Error) ->
+                                    {-# LINE 2576 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule153 #-}
+   rule153 = \ ((!_patIerrors) :: Seq Error) ->
      _patIerrors
-   {-# INLINE rule154 #-}
-   rule154 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
+   {-# NOINLINE[1] rule154 #-}
+   rule154 = \ ((!_patIcopy) :: Pattern) !attr_ !field_ ->
      Alias field_ attr_ _patIcopy
-   {-# INLINE rule155 #-}
-   rule155 = \ ((_patIoutput) :: Pattern) attr_ field_ ->
+   {-# NOINLINE[1] rule155 #-}
+   rule155 = \ ((!_patIoutput) :: Pattern) !attr_ !field_ ->
      Alias field_ attr_ _patIoutput
-   {-# INLINE rule156 #-}
-   rule156 = \ _copy ->
+   {-# NOINLINE[1] rule156 #-}
+   rule156 = \ !_copy ->
      _copy
-   {-# INLINE rule157 #-}
-   rule157 = \ _output ->
+   {-# NOINLINE[1] rule157 #-}
+   rule157 = \ !_output ->
      _output
-   {-# INLINE rule158 #-}
-   rule158 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule159 #-}
-   rule159 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 {-# NOINLINE sem_Pattern_Irrefutable #-}
 sem_Pattern_Irrefutable :: T_Pattern  -> T_Pattern 
-sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st17) where
-   {-# NOINLINE st17 #-}
-   !st17 = let
-      v16 :: T_Pattern_v16 
-      v16 = \ !(T_Pattern_vIn16 _lhsIcon _lhsInt) -> ( let
-         _patX17 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
-         (T_Pattern_vOut16 _patIcontainsVars _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s17 _patX17 (T_Pattern_vIn16 _patOcon _patOnt)
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule160 _patIcontainsVars
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule161 _patIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule162 _patIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule163 _patIlocals
-         _copy = rule164 _patIcopy
-         _output = rule165 _patIoutput
-         _lhsOcopy :: Pattern
-         _lhsOcopy = rule166 _copy
-         _lhsOoutput :: Pattern
-         _lhsOoutput = rule167 _output
-         _patOcon = rule168 _lhsIcon
-         _patOnt = rule169 _lhsInt
-         !__result_ = T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Pattern_s17 v16
-   {-# INLINE rule160 #-}
-   rule160 = \ ((_patIcontainsVars) :: Bool) ->
+sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st10) where
+   {-# NOINLINE st10 #-}
+   !st10 = let
+      k10 :: K_Pattern_s10  t -> t
+      k10 K_Pattern_v5 = v5
+      k10 K_Pattern_v22 = v22
+      k10 K_Pattern_v23 = v23
+      k10 K_Pattern_v28 = v28
+      k10 K_Pattern_v42 = v42
+      k10 K_Pattern_v50 = v50
+      v5 :: T_Pattern_v5 
+      v5 = \ !(T_Pattern_vIn5 _lhsIcon _lhsInt) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut23 _patIcontainsVars _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v23 (T_Pattern_vIn23 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule160 _patIcontainsVars in
+         let !_copy = rule164 _patIcopy in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule166 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v22 :: T_Pattern_v22 
+      v22 = \ !(T_Pattern_vIn22 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut22 _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v22 (T_Pattern_vIn22 ) in
+         let !_copy = rule164 _patIcopy in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule166 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut22 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v23 :: T_Pattern_v23 
+      v23 = \ !(T_Pattern_vIn23 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut23 _patIcontainsVars _patIcopy _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v23 (T_Pattern_vIn23 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule160 _patIcontainsVars in
+         let !_copy = rule164 _patIcopy in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule166 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut23 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v28 :: T_Pattern_v28 
+      v28 = \ !(T_Pattern_vIn28 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut28 _patIcontainsVars _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v28 (T_Pattern_vIn28 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule160 _patIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v42 :: T_Pattern_v42 
+      v42 = \ !(T_Pattern_vIn42 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut42 _patIdefinedAttrs _patIerrors _patIlocals _patIoutput) = inv_Pattern_s10 _patX10 K_Pattern_v42 (T_Pattern_vIn42 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut42 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v50 :: T_Pattern_v50 
+      v50 = \ !(T_Pattern_vIn50 ) -> (
+         let !_patX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_)) in
+         let !(T_Pattern_vOut50 _patIdefinedAttrs _patIerrors _patIlocals _patX55) = inv_Pattern_s10 _patX10 K_Pattern_v50 (T_Pattern_vIn50 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule161 _patIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule162 _patIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule163 _patIlocals in
+         let !__st_ = st55 _patX55
+             !__result_ = T_Pattern_vOut50 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Pattern_s10 k10
+   {-# NOINLINE st55 #-}
+   st55 = \ !_patX55 -> let
+      k55 :: K_Pattern_s55  t -> t
+      k55 K_Pattern_v51 = v51
+      k55 K_Pattern_v56 = v56
+      v51 :: T_Pattern_v51 
+      v51 = \ !(T_Pattern_vIn51 ) -> (
+         let !(T_Pattern_vOut51 _patIcontainsVars _patIoutput) = inv_Pattern_s55 _patX55 K_Pattern_v51 (T_Pattern_vIn51 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule160 _patIcontainsVars in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut51 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v56 :: T_Pattern_v56 
+      v56 = \ !(T_Pattern_vIn56 ) -> (
+         let !(T_Pattern_vOut56 _patIoutput) = inv_Pattern_s55 _patX55 K_Pattern_v56 (T_Pattern_vIn56 ) in
+         let !_output = rule165 _patIoutput in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule167 _output in
+         let !__result_ = T_Pattern_vOut56 _lhsOoutput
+          in __result_ )
+     in C_Pattern_s55 k55
+   {-# NOINLINE[1] rule160 #-}
+   rule160 = \ ((!_patIcontainsVars) :: Bool) ->
      _patIcontainsVars
-   {-# INLINE rule161 #-}
-   rule161 = \ ((_patIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+   {-# NOINLINE[1] rule161 #-}
+   rule161 = \ ((!_patIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _patIdefinedAttrs
-   {-# INLINE rule162 #-}
-   rule162 = \ ((_patIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule162 #-}
+   rule162 = \ ((!_patIerrors) :: Seq Error) ->
      _patIerrors
-   {-# INLINE rule163 #-}
-   rule163 = \ ((_patIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule163 #-}
+   rule163 = \ ((!_patIlocals) :: Set Identifier) ->
      _patIlocals
-   {-# INLINE rule164 #-}
-   rule164 = \ ((_patIcopy) :: Pattern) ->
+   {-# NOINLINE[1] rule164 #-}
+   rule164 = \ ((!_patIcopy) :: Pattern) ->
      Irrefutable _patIcopy
-   {-# INLINE rule165 #-}
-   rule165 = \ ((_patIoutput) :: Pattern) ->
+   {-# NOINLINE[1] rule165 #-}
+   rule165 = \ ((!_patIoutput) :: Pattern) ->
      Irrefutable _patIoutput
-   {-# INLINE rule166 #-}
-   rule166 = \ _copy ->
+   {-# NOINLINE[1] rule166 #-}
+   rule166 = \ !_copy ->
      _copy
-   {-# INLINE rule167 #-}
-   rule167 = \ _output ->
+   {-# NOINLINE[1] rule167 #-}
+   rule167 = \ !_output ->
      _output
-   {-# INLINE rule168 #-}
-   rule168 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule169 #-}
-   rule169 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 {-# NOINLINE sem_Pattern_Underscore #-}
 sem_Pattern_Underscore :: (Pos) -> T_Pattern 
-sem_Pattern_Underscore !arg_pos_ = T_Pattern (return st17) where
-   {-# NOINLINE st17 #-}
-   !st17 = let
-      v16 :: T_Pattern_v16 
-      v16 = \ !(T_Pattern_vIn16 _lhsIcon _lhsInt) -> ( let
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule170  ()
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule171  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule172  ()
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule173  ()
-         _copy = rule174 arg_pos_
-         _output = rule175 arg_pos_
-         _lhsOcopy :: Pattern
-         _lhsOcopy = rule176 _copy
-         _lhsOoutput :: Pattern
-         _lhsOoutput = rule177 _output
-         !__result_ = T_Pattern_vOut16 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Pattern_s17 v16
-   {-# INLINE rule170 #-}
+sem_Pattern_Underscore !arg_pos_ = T_Pattern (return st10) where
+   {-# NOINLINE st10 #-}
+   !st10 = let
+      k10 :: K_Pattern_s10  t -> t
+      k10 K_Pattern_v5 = v5
+      k10 K_Pattern_v22 = v22
+      k10 K_Pattern_v23 = v23
+      k10 K_Pattern_v28 = v28
+      k10 K_Pattern_v42 = v42
+      k10 K_Pattern_v50 = v50
+      v5 :: T_Pattern_v5 
+      v5 = \ !(T_Pattern_vIn5 _lhsIcon _lhsInt) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule170  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !_copy = rule174 arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule176 _copy in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut5 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v22 :: T_Pattern_v22 
+      v22 = \ !(T_Pattern_vIn22 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !_copy = rule174 arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule176 _copy in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut22 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v23 :: T_Pattern_v23 
+      v23 = \ !(T_Pattern_vIn23 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule170  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !_copy = rule174 arg_pos_ in
+         let _lhsOcopy :: Pattern
+             !_lhsOcopy = rule176 _copy in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut23 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v28 :: T_Pattern_v28 
+      v28 = \ !(T_Pattern_vIn28 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule170  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v42 :: T_Pattern_v42 
+      v42 = \ !(T_Pattern_vIn42 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut42 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v50 :: T_Pattern_v50 
+      v50 = \ !(T_Pattern_vIn50 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule171  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule172  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule173  () in
+         let !__st_ = st55  ()
+             !__result_ = T_Pattern_vOut50 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Pattern_s10 k10
+   {-# NOINLINE st55 #-}
+   st55 = \  (_ :: ()) -> let
+      k55 :: K_Pattern_s55  t -> t
+      k55 K_Pattern_v51 = v51
+      k55 K_Pattern_v56 = v56
+      v51 :: T_Pattern_v51 
+      v51 = \ !(T_Pattern_vIn51 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule170  () in
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut51 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v56 :: T_Pattern_v56 
+      v56 = \ !(T_Pattern_vIn56 ) -> (
+         let !_output = rule175 arg_pos_ in
+         let _lhsOoutput :: Pattern
+             !_lhsOoutput = rule177 _output in
+         let !__result_ = T_Pattern_vOut56 _lhsOoutput
+          in __result_ )
+     in C_Pattern_s55 k55
+   {-# NOINLINE[1] rule170 #-}
    rule170 = \  (_ :: ()) ->
      False
-   {-# INLINE rule171 #-}
+   {-# NOINLINE[1] rule171 #-}
    rule171 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule172 #-}
+   {-# NOINLINE[1] rule172 #-}
    rule172 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule173 #-}
+   {-# NOINLINE[1] rule173 #-}
    rule173 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule174 #-}
-   rule174 = \ pos_ ->
+   {-# NOINLINE[1] rule174 #-}
+   rule174 = \ !pos_ ->
      Underscore pos_
-   {-# INLINE rule175 #-}
-   rule175 = \ pos_ ->
+   {-# NOINLINE[1] rule175 #-}
+   rule175 = \ !pos_ ->
      Underscore pos_
-   {-# INLINE rule176 #-}
-   rule176 = \ _copy ->
+   {-# NOINLINE[1] rule176 #-}
+   rule176 = \ !_copy ->
      _copy
-   {-# INLINE rule177 #-}
-   rule177 = \ _output ->
+   {-# NOINLINE[1] rule177 #-}
+   rule177 = \ !_output ->
      _output
 
 -- Patterns ----------------------------------------------------
@@ -1707,8 +2912,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns !(T_Patterns act) !(Inh_Patterns _lhsIcon _lhsInt) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Patterns_vIn19 _lhsIcon _lhsInt
-        !(T_Patterns_vOut19 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput) <- return (inv_Patterns_s20 sem arg)
+        let arg = T_Patterns_vIn6 _lhsIcon _lhsInt
+        !(T_Patterns_vOut6 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput) <- return (inv_Patterns_s12 sem K_Patterns_v6 arg)
         return (Syn_Patterns _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput)
    )
 
@@ -1719,130 +2924,380 @@ sem_Patterns list = Prelude.foldr sem_Patterns_Cons sem_Patterns_Nil (Prelude.ma
 
 -- semantic domain
 newtype T_Patterns  = T_Patterns {
-                                 attach_T_Patterns :: Identity (T_Patterns_s20 )
+                                 attach_T_Patterns :: Identity (T_Patterns_s12 )
                                  }
-newtype T_Patterns_s20  = C_Patterns_s20 {
-                                         inv_Patterns_s20 :: (T_Patterns_v19 )
-                                         }
-data T_Patterns_s21  = C_Patterns_s21
-type T_Patterns_v19  = (T_Patterns_vIn19 ) -> (T_Patterns_vOut19 )
-data T_Patterns_vIn19  = T_Patterns_vIn19 (ConstructorIdent) (NontermIdent)
-data T_Patterns_vOut19  = T_Patterns_vOut19 (Bool) (Patterns) (Set (Identifier,Identifier)) (Seq Error) (Set Identifier) (Patterns)
+data T_Patterns_s12  where C_Patterns_s12 :: {
+                                             inv_Patterns_s12 :: !(forall t. K_Patterns_s12  t -> t)
+                                             } -> T_Patterns_s12 
+data T_Patterns_s13  = C_Patterns_s13
+data T_Patterns_s34  = C_Patterns_s34
+data T_Patterns_s47  = C_Patterns_s47
+data T_Patterns_s49  = C_Patterns_s49
+data T_Patterns_s54  = C_Patterns_s54
+data T_Patterns_s57  where C_Patterns_s57 :: {
+                                             inv_Patterns_s57 :: !(forall t. K_Patterns_s57  t -> t)
+                                             } -> T_Patterns_s57 
+data K_Patterns_s12 k  where
+   K_Patterns_v6 :: K_Patterns_s12  (T_Patterns_v6 )
+   K_Patterns_v21 :: K_Patterns_s12  (T_Patterns_v21 )
+   K_Patterns_v38 :: K_Patterns_s12  (T_Patterns_v38 )
+   K_Patterns_v41 :: K_Patterns_s12  (T_Patterns_v41 )
+   K_Patterns_v49 :: K_Patterns_s12  (T_Patterns_v49 )
+   K_Patterns_v54 :: K_Patterns_s12  (T_Patterns_v54 )
+data K_Patterns_s57 k  where
+   K_Patterns_v55 :: K_Patterns_s57  (T_Patterns_v55 )
+   K_Patterns_v57 :: K_Patterns_s57  (T_Patterns_v57 )
+type T_Patterns_v6  = (T_Patterns_vIn6 ) -> (T_Patterns_vOut6 )
+data T_Patterns_vIn6  = T_Patterns_vIn6 !(ConstructorIdent) !(NontermIdent)
+data T_Patterns_vOut6  = T_Patterns_vOut6 !(Bool) !(Patterns) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Patterns)
+type T_Patterns_v21  = (T_Patterns_vIn21 ) -> (T_Patterns_vOut21 )
+data T_Patterns_vIn21  = T_Patterns_vIn21 
+data T_Patterns_vOut21  = T_Patterns_vOut21 !(Bool) !(Patterns) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Patterns)
+type T_Patterns_v38  = (T_Patterns_vIn38 ) -> (T_Patterns_vOut38 )
+data T_Patterns_vIn38  = T_Patterns_vIn38 
+data T_Patterns_vOut38  = T_Patterns_vOut38 !(Patterns) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Patterns)
+type T_Patterns_v41  = (T_Patterns_vIn41 ) -> (T_Patterns_vOut41 )
+data T_Patterns_vIn41  = T_Patterns_vIn41 
+data T_Patterns_vOut41  = T_Patterns_vOut41 !(Bool) !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Patterns)
+type T_Patterns_v49  = (T_Patterns_vIn49 ) -> (T_Patterns_vOut49 )
+data T_Patterns_vIn49  = T_Patterns_vIn49 
+data T_Patterns_vOut49  = T_Patterns_vOut49 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Patterns)
+type T_Patterns_v54  = (T_Patterns_vIn54 ) -> (T_Patterns_vOut54 )
+data T_Patterns_vIn54  = T_Patterns_vIn54 
+data T_Patterns_vOut54  = T_Patterns_vOut54 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(T_Patterns_s57 )
+type T_Patterns_v55  = (T_Patterns_vIn55 ) -> (T_Patterns_vOut55 )
+data T_Patterns_vIn55  = T_Patterns_vIn55 
+data T_Patterns_vOut55  = T_Patterns_vOut55 !(Bool) !(Patterns)
+type T_Patterns_v57  = (T_Patterns_vIn57 ) -> (T_Patterns_vOut57 )
+data T_Patterns_vIn57  = T_Patterns_vIn57 
+data T_Patterns_vOut57  = T_Patterns_vOut57 !(Patterns)
 {-# NOINLINE sem_Patterns_Cons #-}
 sem_Patterns_Cons :: T_Pattern  -> T_Patterns  -> T_Patterns 
-sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st20) where
-   {-# NOINLINE st20 #-}
-   !st20 = let
-      v19 :: T_Patterns_v19 
-      v19 = \ !(T_Patterns_vIn19 _lhsIcon _lhsInt) -> ( let
-         _hdX17 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_))
-         _tlX20 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_))
-         (T_Pattern_vOut16 _hdIcontainsVars _hdIcopy _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s17 _hdX17 (T_Pattern_vIn16 _hdOcon _hdOnt)
-         (T_Patterns_vOut19 _tlIcontainsVars _tlIcopy _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s20 _tlX20 (T_Patterns_vIn19 _tlOcon _tlOnt)
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule178 _hdIcontainsVars _tlIcontainsVars
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule180 _hdIerrors _tlIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule181 _hdIlocals _tlIlocals
-         _copy = rule182 _hdIcopy _tlIcopy
-         _output = rule183 _hdIoutput _tlIoutput
-         _lhsOcopy :: Patterns
-         _lhsOcopy = rule184 _copy
-         _lhsOoutput :: Patterns
-         _lhsOoutput = rule185 _output
-         _hdOcon = rule186 _lhsIcon
-         _hdOnt = rule187 _lhsInt
-         _tlOcon = rule188 _lhsIcon
-         _tlOnt = rule189 _lhsInt
-         !__result_ = T_Patterns_vOut19 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Patterns_s20 v19
-   {-# INLINE rule178 #-}
-   rule178 = \ ((_hdIcontainsVars) :: Bool) ((_tlIcontainsVars) :: Bool) ->
+sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st12) where
+   {-# NOINLINE st12 #-}
+   !st12 = let
+      k12 :: K_Patterns_s12  t -> t
+      k12 K_Patterns_v6 = v6
+      k12 K_Patterns_v21 = v21
+      k12 K_Patterns_v38 = v38
+      k12 K_Patterns_v41 = v41
+      k12 K_Patterns_v49 = v49
+      k12 K_Patterns_v54 = v54
+      v6 :: T_Patterns_v6 
+      v6 = \ !(T_Patterns_vIn6 _lhsIcon _lhsInt) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut23 _hdIcontainsVars _hdIcopy _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s10 _hdX10 K_Pattern_v23 (T_Pattern_vIn23 ) in
+         let !(T_Patterns_vOut21 _tlIcontainsVars _tlIcopy _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s12 _tlX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule178 _hdIcontainsVars _tlIcontainsVars in
+         let !_copy = rule182 _hdIcopy _tlIcopy in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule184 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut6 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v21 :: T_Patterns_v21 
+      v21 = \ !(T_Patterns_vIn21 ) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut23 _hdIcontainsVars _hdIcopy _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s10 _hdX10 K_Pattern_v23 (T_Pattern_vIn23 ) in
+         let !(T_Patterns_vOut21 _tlIcontainsVars _tlIcopy _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s12 _tlX12 K_Patterns_v21 (T_Patterns_vIn21 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule178 _hdIcontainsVars _tlIcontainsVars in
+         let !_copy = rule182 _hdIcopy _tlIcopy in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule184 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut21 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v38 :: T_Patterns_v38 
+      v38 = \ !(T_Patterns_vIn38 ) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut22 _hdIcopy _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s10 _hdX10 K_Pattern_v22 (T_Pattern_vIn22 ) in
+         let !(T_Patterns_vOut38 _tlIcopy _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s12 _tlX12 K_Patterns_v38 (T_Patterns_vIn38 ) in
+         let !_copy = rule182 _hdIcopy _tlIcopy in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule184 _copy in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut38 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v41 :: T_Patterns_v41 
+      v41 = \ !(T_Patterns_vIn41 ) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut28 _hdIcontainsVars _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s10 _hdX10 K_Pattern_v28 (T_Pattern_vIn28 ) in
+         let !(T_Patterns_vOut41 _tlIcontainsVars _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s12 _tlX12 K_Patterns_v41 (T_Patterns_vIn41 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule178 _hdIcontainsVars _tlIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut41 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v49 :: T_Patterns_v49 
+      v49 = \ !(T_Patterns_vIn49 ) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut42 _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIoutput) = inv_Pattern_s10 _hdX10 K_Pattern_v42 (T_Pattern_vIn42 ) in
+         let !(T_Patterns_vOut49 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput) = inv_Patterns_s12 _tlX12 K_Patterns_v49 (T_Patterns_vIn49 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut49 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v54 :: T_Patterns_v54 
+      v54 = \ !(T_Patterns_vIn54 ) -> (
+         let !_hdX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_hd_)) in
+         let !_tlX12 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_tl_)) in
+         let !(T_Pattern_vOut50 _hdIdefinedAttrs _hdIerrors _hdIlocals _hdX55) = inv_Pattern_s10 _hdX10 K_Pattern_v50 (T_Pattern_vIn50 ) in
+         let !(T_Patterns_vOut54 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlX57) = inv_Patterns_s12 _tlX12 K_Patterns_v54 (T_Patterns_vIn54 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule179 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule180 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule181 _hdIlocals _tlIlocals in
+         let !__st_ = st57 _hdX55 _tlX57
+             !__result_ = T_Patterns_vOut54 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Patterns_s12 k12
+   {-# NOINLINE st57 #-}
+   st57 = \ !_hdX55 !_tlX57 -> let
+      k57 :: K_Patterns_s57  t -> t
+      k57 K_Patterns_v55 = v55
+      k57 K_Patterns_v57 = v57
+      v55 :: T_Patterns_v55 
+      v55 = \ !(T_Patterns_vIn55 ) -> (
+         let !(T_Pattern_vOut51 _hdIcontainsVars _hdIoutput) = inv_Pattern_s55 _hdX55 K_Pattern_v51 (T_Pattern_vIn51 ) in
+         let !(T_Patterns_vOut55 _tlIcontainsVars _tlIoutput) = inv_Patterns_s57 _tlX57 K_Patterns_v55 (T_Patterns_vIn55 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule178 _hdIcontainsVars _tlIcontainsVars in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut55 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v57 :: T_Patterns_v57 
+      v57 = \ !(T_Patterns_vIn57 ) -> (
+         let !(T_Pattern_vOut56 _hdIoutput) = inv_Pattern_s55 _hdX55 K_Pattern_v56 (T_Pattern_vIn56 ) in
+         let !(T_Patterns_vOut57 _tlIoutput) = inv_Patterns_s57 _tlX57 K_Patterns_v57 (T_Patterns_vIn57 ) in
+         let !_output = rule183 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule185 _output in
+         let !__result_ = T_Patterns_vOut57 _lhsOoutput
+          in __result_ )
+     in C_Patterns_s57 k57
+   {-# NOINLINE[1] rule178 #-}
+   rule178 = \ ((!_hdIcontainsVars) :: Bool) ((!_tlIcontainsVars) :: Bool) ->
      _hdIcontainsVars || _tlIcontainsVars
-   {-# INLINE rule179 #-}
-   rule179 = \ ((_hdIdefinedAttrs) :: Set (Identifier,Identifier)) ((_tlIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+   {-# NOINLINE[1] rule179 #-}
+   rule179 = \ ((!_hdIdefinedAttrs) :: Set (Identifier,Identifier)) ((!_tlIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _hdIdefinedAttrs `Set.union` _tlIdefinedAttrs
-   {-# INLINE rule180 #-}
-   rule180 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule180 #-}
+   rule180 = \ ((!_hdIerrors) :: Seq Error) ((!_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule181 #-}
-   rule181 = \ ((_hdIlocals) :: Set Identifier) ((_tlIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule181 #-}
+   rule181 = \ ((!_hdIlocals) :: Set Identifier) ((!_tlIlocals) :: Set Identifier) ->
      _hdIlocals `Set.union` _tlIlocals
-   {-# INLINE rule182 #-}
-   rule182 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
+   {-# NOINLINE[1] rule182 #-}
+   rule182 = \ ((!_hdIcopy) :: Pattern) ((!_tlIcopy) :: Patterns) ->
      (:) _hdIcopy _tlIcopy
-   {-# INLINE rule183 #-}
-   rule183 = \ ((_hdIoutput) :: Pattern) ((_tlIoutput) :: Patterns) ->
+   {-# NOINLINE[1] rule183 #-}
+   rule183 = \ ((!_hdIoutput) :: Pattern) ((!_tlIoutput) :: Patterns) ->
      (:) _hdIoutput _tlIoutput
-   {-# INLINE rule184 #-}
-   rule184 = \ _copy ->
+   {-# NOINLINE[1] rule184 #-}
+   rule184 = \ !_copy ->
      _copy
-   {-# INLINE rule185 #-}
-   rule185 = \ _output ->
+   {-# NOINLINE[1] rule185 #-}
+   rule185 = \ !_output ->
      _output
-   {-# INLINE rule186 #-}
-   rule186 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule187 #-}
-   rule187 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule188 #-}
-   rule188 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule189 #-}
-   rule189 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 {-# NOINLINE sem_Patterns_Nil #-}
 sem_Patterns_Nil ::  T_Patterns 
-sem_Patterns_Nil  = T_Patterns (return st20) where
-   {-# NOINLINE st20 #-}
-   !st20 = let
-      v19 :: T_Patterns_v19 
-      v19 = \ !(T_Patterns_vIn19 _lhsIcon _lhsInt) -> ( let
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule190  ()
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule191  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule192  ()
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule193  ()
-         _copy = rule194  ()
-         _output = rule195  ()
-         _lhsOcopy :: Patterns
-         _lhsOcopy = rule196 _copy
-         _lhsOoutput :: Patterns
-         _lhsOoutput = rule197 _output
-         !__result_ = T_Patterns_vOut19 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
-         in __result_ )
-     in C_Patterns_s20 v19
-   {-# INLINE rule190 #-}
+sem_Patterns_Nil  = T_Patterns (return st12) where
+   {-# NOINLINE st12 #-}
+   !st12 = let
+      k12 :: K_Patterns_s12  t -> t
+      k12 K_Patterns_v6 = v6
+      k12 K_Patterns_v21 = v21
+      k12 K_Patterns_v38 = v38
+      k12 K_Patterns_v41 = v41
+      k12 K_Patterns_v49 = v49
+      k12 K_Patterns_v54 = v54
+      v6 :: T_Patterns_v6 
+      v6 = \ !(T_Patterns_vIn6 _lhsIcon _lhsInt) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule190  () in
+         let !_copy = rule194  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !_output = rule195  () in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule196 _copy in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut6 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v21 :: T_Patterns_v21 
+      v21 = \ !(T_Patterns_vIn21 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule190  () in
+         let !_copy = rule194  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !_output = rule195  () in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule196 _copy in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut21 _lhsOcontainsVars _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v38 :: T_Patterns_v38 
+      v38 = \ !(T_Patterns_vIn38 ) -> (
+         let !_copy = rule194  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !_output = rule195  () in
+         let _lhsOcopy :: Patterns
+             !_lhsOcopy = rule196 _copy in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut38 _lhsOcopy _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v41 :: T_Patterns_v41 
+      v41 = \ !(T_Patterns_vIn41 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule190  () in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !_output = rule195  () in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut41 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v49 :: T_Patterns_v49 
+      v49 = \ !(T_Patterns_vIn49 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !_output = rule195  () in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut49 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput
+          in __result_ )
+      v54 :: T_Patterns_v54 
+      v54 = \ !(T_Patterns_vIn54 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule191  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule192  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule193  () in
+         let !__st_ = st57  ()
+             !__result_ = T_Patterns_vOut54 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals __st_
+          in __result_ )
+     in C_Patterns_s12 k12
+   {-# NOINLINE st57 #-}
+   st57 = \  (_ :: ()) -> let
+      k57 :: K_Patterns_s57  t -> t
+      k57 K_Patterns_v55 = v55
+      k57 K_Patterns_v57 = v57
+      v55 :: T_Patterns_v55 
+      v55 = \ !(T_Patterns_vIn55 ) -> (
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule190  () in
+         let !_output = rule195  () in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut55 _lhsOcontainsVars _lhsOoutput
+          in __result_ )
+      v57 :: T_Patterns_v57 
+      v57 = \ !(T_Patterns_vIn57 ) -> (
+         let !_output = rule195  () in
+         let _lhsOoutput :: Patterns
+             !_lhsOoutput = rule197 _output in
+         let !__result_ = T_Patterns_vOut57 _lhsOoutput
+          in __result_ )
+     in C_Patterns_s57 k57
+   {-# NOINLINE[1] rule190 #-}
    rule190 = \  (_ :: ()) ->
      False
-   {-# INLINE rule191 #-}
+   {-# NOINLINE[1] rule191 #-}
    rule191 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule192 #-}
+   {-# NOINLINE[1] rule192 #-}
    rule192 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule193 #-}
+   {-# NOINLINE[1] rule193 #-}
    rule193 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule194 #-}
+   {-# NOINLINE[1] rule194 #-}
    rule194 = \  (_ :: ()) ->
      []
-   {-# INLINE rule195 #-}
+   {-# NOINLINE[1] rule195 #-}
    rule195 = \  (_ :: ()) ->
      []
-   {-# INLINE rule196 #-}
-   rule196 = \ _copy ->
+   {-# NOINLINE[1] rule196 #-}
+   rule196 = \ !_copy ->
      _copy
-   {-# INLINE rule197 #-}
-   rule197 = \ _output ->
+   {-# NOINLINE[1] rule197 #-}
+   rule197 = \ !_output ->
      _output
 
 -- Production --------------------------------------------------
@@ -1854,8 +3309,8 @@ wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production !(T_Production act) !(Inh_Production _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Production_vIn22 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
-        !(T_Production_vOut22 _lhsOerrors _lhsOoutput _lhsOuniq) <- return (inv_Production_s23 sem arg)
+        let arg = T_Production_vIn7 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
+        !(T_Production_vOut7 _lhsOerrors _lhsOoutput _lhsOuniq) <- return (inv_Production_s14 sem K_Production_v7 arg)
         return (Syn_Production _lhsOerrors _lhsOoutput _lhsOuniq)
    )
 
@@ -1866,82 +3321,160 @@ sem_Production ( Production !con_ !params_ !constraints_ children_ rules_ typeSi
 
 -- semantic domain
 newtype T_Production  = T_Production {
-                                     attach_T_Production :: Identity (T_Production_s23 )
+                                     attach_T_Production :: Identity (T_Production_s14 )
                                      }
-newtype T_Production_s23  = C_Production_s23 {
-                                             inv_Production_s23 :: (T_Production_v22 )
+data T_Production_s14  where C_Production_s14 :: {
+                                                 inv_Production_s14 :: !(forall t. K_Production_s14  t -> t)
+                                                 } -> T_Production_s14 
+data T_Production_s15  = C_Production_s15
+data T_Production_s38  = C_Production_s38
+newtype T_Production_s48  = C_Production_s48 {
+                                             inv_Production_s48 :: (T_Production_v40 )
                                              }
-data T_Production_s24  = C_Production_s24
-type T_Production_v22  = (T_Production_vIn22 ) -> (T_Production_vOut22 )
-data T_Production_vIn22  = T_Production_vIn22 (Map ConstructorIdent (Map Identifier [Expression])) (Map ConstructorIdent (Map Identifier [Expression])) (Bool) (Attributes) (Map Identifier Attributes) (Attributes) (AttrOrderMap) (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) (Set NontermIdent) (NontermIdent) (Bool) (Options) ([Identifier]) (Attributes) (Map Identifier Attributes) (Attributes) (TypeSyns) (Int) (Map Identifier (String,String,String)) (Set NontermIdent)
-data T_Production_vOut22  = T_Production_vOut22 (Seq Error) (Production) (Int)
+data K_Production_s14 k  where
+   K_Production_v7 :: K_Production_s14  (T_Production_v7 )
+   K_Production_v25 :: K_Production_s14  (T_Production_v25 )
+   K_Production_v39 :: K_Production_s14  (T_Production_v39 )
+type T_Production_v7  = (T_Production_vIn7 ) -> (T_Production_vOut7 )
+data T_Production_vIn7  = T_Production_vIn7 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !(Bool) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(Set NontermIdent) !(NontermIdent) !(Bool) !(Options) !([Identifier]) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Int) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Production_vOut7  = T_Production_vOut7 !(Seq Error) !(Production) !(Int)
+type T_Production_v25  = (T_Production_vIn25 ) -> (T_Production_vOut25 )
+data T_Production_vIn25  = T_Production_vIn25 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !(Bool) !(Attributes) !(Map Identifier Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(NontermIdent) !(Bool) !(Options) !([Identifier]) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Int) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Production_vOut25  = T_Production_vOut25 !(Seq Error) !(Production) !(Int)
+type T_Production_v39  = (T_Production_vIn39 ) -> (T_Production_vOut39 )
+data T_Production_vIn39  = T_Production_vIn39 !(Bool) !(Attributes) !(Map Identifier Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(NontermIdent) !(Bool) !(Options) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Production_vOut39  = T_Production_vOut39 !(Seq Error) !(T_Production_s48 )
+type T_Production_v40  = (T_Production_vIn40 ) -> (T_Production_vOut40 )
+data T_Production_vIn40  = T_Production_vIn40 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !([Identifier]) !(Int)
+data T_Production_vOut40  = T_Production_vOut40 !(Production) !(Int)
 {-# NOINLINE sem_Production_Production #-}
 sem_Production_Production :: (ConstructorIdent) -> ([Identifier]) -> ([Type]) -> T_Children  -> T_Rules  -> T_TypeSigs  -> (MaybeMacro) -> T_Production 
-sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_ arg_rules_ arg_typeSigs_ !arg_macro_ = T_Production (return st23) where
-   {-# NOINLINE st23 #-}
-   !st23 = let
-      v22 :: T_Production_v22 
-      v22 = \ !(T_Production_vIn22 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _childrenX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_))
-         _rulesX32 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_))
-         _typeSigsX38 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_))
-         (T_Children_vOut4 _childrenIerrors _childrenIfields _childrenIinputs _childrenIoutput _childrenIoutputs) = inv_Children_s5 _childrenX5 (T_Children_vIn4 _childrenOcon _childrenOcr _childrenOinhMap _childrenOmerged _childrenOnt _childrenOparams _childrenOsynMap)
-         (T_Rules_vOut31 _rulesIdefinedAttrs _rulesIerrors _rulesIlocals _rulesIoutput _rulesIruleNames _rulesIuniq) = inv_Rules_s32 _rulesX32 (T_Rules_vIn31 _rulesOcon _rulesOnt _rulesOoptions _rulesOuniq)
-         (T_TypeSigs_vOut37 _typeSigsIoutput) = inv_TypeSigs_s38 _typeSigsX38 (T_TypeSigs_vIn37 _typeSigsOnt _typeSigsOparams)
-         _rulesOcon = rule198 arg_con_
-         _childrenOcon = rule199 arg_con_
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule200 _childrenIerrors _errs _orderErrs _rulesIerrors
-         (_newRls,_errs) = rule201 _childrenIfields _childrenIinputs _childrenIoutputs _lhsIcr _lhsIinh _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers _rulesIdefinedAttrs _rulesIlocals arg_con_
-         _extra1 = rule202 _augmentsIn _newRls _rulesIoutput
-         _extra2 = rule203 _aroundsIn _extra1
-         _extra3 = rule204 _extra2 _mergesIn
-         _lhsOoutput :: Production
-         _lhsOoutput = rule205 _childrenIoutput _extra3 _typeSigsIoutput arg_con_ arg_constraints_ arg_macro_ arg_params_
-         _orderDeps = rule206 _lhsImanualAttrOrderMap _lhsInt arg_con_
-         _orderErrs = rule207 _childrenIinputs _childrenIoutputs _lhsIinh _lhsInt _lhsIsyn _orderDeps _rulesIlocals _rulesIruleNames arg_con_
-         _augmentsIn = rule208 _lhsIaugmentsIn arg_con_
-         _aroundsIn = rule209 _lhsIaroundsIn arg_con_
-         _mergesIn = rule210 _lhsImergesIn arg_con_
-         _merged = rule211 _mergesIn
-         _output = rule212 _childrenIoutput _rulesIoutput _typeSigsIoutput arg_con_ arg_constraints_ arg_macro_ arg_params_
-         _lhsOuniq :: Int
-         _lhsOuniq = rule213 _rulesIuniq
-         _childrenOcr = rule214 _lhsIcr
-         _childrenOinhMap = rule215 _lhsIinhMap
-         _childrenOmerged = rule216 _merged
-         _childrenOnt = rule217 _lhsInt
-         _childrenOparams = rule218 _lhsIparams
-         _childrenOsynMap = rule219 _lhsIsynMap
-         _rulesOnt = rule220 _lhsInt
-         _rulesOoptions = rule221 _lhsIoptions
-         _rulesOuniq = rule222 _lhsIuniq
-         _typeSigsOnt = rule223 _lhsInt
-         _typeSigsOparams = rule224 _lhsIparams
-         !__result_ = T_Production_vOut22 _lhsOerrors _lhsOoutput _lhsOuniq
-         in __result_ )
-     in C_Production_s23 v22
-   {-# INLINE rule198 #-}
-   {-# LINE 197 "./src-ag/DefaultRules.ag" #-}
-   rule198 = \ con_ ->
-                                 {-# LINE 197 "./src-ag/DefaultRules.ag" #-}
-                                 con_
-                                 {-# LINE 1930 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule199 #-}
-   {-# LINE 198 "./src-ag/DefaultRules.ag" #-}
-   rule199 = \ con_ ->
-                                 {-# LINE 198 "./src-ag/DefaultRules.ag" #-}
-                                 con_
-                                 {-# LINE 1936 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule200 #-}
+sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_ arg_rules_ arg_typeSigs_ !arg_macro_ = T_Production (return st14) where
+   {-# NOINLINE st14 #-}
+   !st14 = let
+      k14 :: K_Production_s14  t -> t
+      k14 K_Production_v7 = v7
+      k14 K_Production_v25 = v25
+      k14 K_Production_v39 = v39
+      v7 :: T_Production_v7 
+      v7 = \ !(T_Production_vIn7 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_childrenX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_)) in
+         let !_rulesX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_)) in
+         let !_typeSigsX24 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_)) in
+         let !_childrenOinhMap = rule215 _lhsIinhMap in
+         let !_mergesIn = rule210 _lhsImergesIn arg_con_ in
+         let !_merged = rule211 _mergesIn in
+         let !_childrenOmerged = rule216 _merged in
+         let !_childrenOsynMap = rule219 _lhsIsynMap in
+         let !_orderDeps = rule206 _lhsImanualAttrOrderMap _lhsInt arg_con_ in
+         let !_typeSigsOnt = rule223 _lhsInt in
+         let !_typeSigsOparams = rule224 _lhsIparams in
+         let !_aroundsIn = rule209 _lhsIaroundsIn arg_con_ in
+         let !_rulesOoptions = rule221 _lhsIoptions in
+         let !_rulesOuniq = rule222 _lhsIuniq in
+         let !_augmentsIn = rule208 _lhsIaugmentsIn arg_con_ in
+         let !(T_Children_vOut14 _childrenIerrors _childrenIfields _childrenIinputs _childrenIoutput _childrenIoutputs) = inv_Children_s2 _childrenX2 K_Children_v14 (T_Children_vIn14 _childrenOinhMap _childrenOmerged _childrenOsynMap) in
+         let !(T_Rules_vOut24 _rulesIdefinedAttrs _rulesIerrors _rulesIlocals _rulesIoutput _rulesIruleNames _rulesIuniq) = inv_Rules_s20 _rulesX20 K_Rules_v24 (T_Rules_vIn24 _rulesOoptions _rulesOuniq) in
+         let !(T_TypeSigs_vOut12 _typeSigsIoutput) = inv_TypeSigs_s24 _typeSigsX24 (T_TypeSigs_vIn12 _typeSigsOnt _typeSigsOparams) in
+         let !(!_newRls,!_errs) = rule201 _childrenIfields _childrenIinputs _childrenIoutputs _lhsIcr _lhsIinh _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers _rulesIdefinedAttrs _rulesIlocals arg_con_ in
+         let !_orderErrs = rule207 _childrenIinputs _childrenIoutputs _lhsIinh _lhsInt _lhsIsyn _orderDeps _rulesIlocals _rulesIruleNames arg_con_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule200 _childrenIerrors _errs _orderErrs _rulesIerrors in
+         let !_extra1 = rule202 _augmentsIn _newRls _rulesIoutput in
+         let !_extra2 = rule203 _aroundsIn _extra1 in
+         let !_extra3 = rule204 _extra2 _mergesIn in
+         let _lhsOoutput :: Production
+             !_lhsOoutput = rule205 _childrenIoutput _extra3 _typeSigsIoutput arg_con_ arg_constraints_ arg_macro_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule213 _rulesIuniq in
+         let !__result_ = T_Production_vOut7 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v25 :: T_Production_v25 
+      v25 = \ !(T_Production_vIn25 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_childrenX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_)) in
+         let !_rulesX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_)) in
+         let !_typeSigsX24 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_)) in
+         let !_childrenOinhMap = rule215 _lhsIinhMap in
+         let !_mergesIn = rule210 _lhsImergesIn arg_con_ in
+         let !_merged = rule211 _mergesIn in
+         let !_childrenOmerged = rule216 _merged in
+         let !_childrenOsynMap = rule219 _lhsIsynMap in
+         let !_orderDeps = rule206 _lhsImanualAttrOrderMap _lhsInt arg_con_ in
+         let !_typeSigsOnt = rule223 _lhsInt in
+         let !_typeSigsOparams = rule224 _lhsIparams in
+         let !_aroundsIn = rule209 _lhsIaroundsIn arg_con_ in
+         let !_rulesOoptions = rule221 _lhsIoptions in
+         let !_rulesOuniq = rule222 _lhsIuniq in
+         let !_augmentsIn = rule208 _lhsIaugmentsIn arg_con_ in
+         let !(T_Children_vOut14 _childrenIerrors _childrenIfields _childrenIinputs _childrenIoutput _childrenIoutputs) = inv_Children_s2 _childrenX2 K_Children_v14 (T_Children_vIn14 _childrenOinhMap _childrenOmerged _childrenOsynMap) in
+         let !(T_Rules_vOut24 _rulesIdefinedAttrs _rulesIerrors _rulesIlocals _rulesIoutput _rulesIruleNames _rulesIuniq) = inv_Rules_s20 _rulesX20 K_Rules_v24 (T_Rules_vIn24 _rulesOoptions _rulesOuniq) in
+         let !(T_TypeSigs_vOut12 _typeSigsIoutput) = inv_TypeSigs_s24 _typeSigsX24 (T_TypeSigs_vIn12 _typeSigsOnt _typeSigsOparams) in
+         let !(!_newRls,!_errs) = rule201 _childrenIfields _childrenIinputs _childrenIoutputs _lhsIcr _lhsIinh _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers _rulesIdefinedAttrs _rulesIlocals arg_con_ in
+         let !_orderErrs = rule207 _childrenIinputs _childrenIoutputs _lhsIinh _lhsInt _lhsIsyn _orderDeps _rulesIlocals _rulesIruleNames arg_con_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule200 _childrenIerrors _errs _orderErrs _rulesIerrors in
+         let !_extra1 = rule202 _augmentsIn _newRls _rulesIoutput in
+         let !_extra2 = rule203 _aroundsIn _extra1 in
+         let !_extra3 = rule204 _extra2 _mergesIn in
+         let _lhsOoutput :: Production
+             !_lhsOoutput = rule205 _childrenIoutput _extra3 _typeSigsIoutput arg_con_ arg_constraints_ arg_macro_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule213 _rulesIuniq in
+         let !__result_ = T_Production_vOut25 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v39 :: T_Production_v39 
+      v39 = \ !(T_Production_vIn39 _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_childrenX2 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_)) in
+         let !_rulesX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_)) in
+         let !_childrenOinhMap = rule215 _lhsIinhMap in
+         let !_mergesIn = rule210 _lhsImergesIn arg_con_ in
+         let !_merged = rule211 _mergesIn in
+         let !_childrenOmerged = rule216 _merged in
+         let !_childrenOsynMap = rule219 _lhsIsynMap in
+         let !_orderDeps = rule206 _lhsImanualAttrOrderMap _lhsInt arg_con_ in
+         let !(T_Children_vOut47 _childrenIerrors _childrenIfields _childrenIinputs _childrenIoutputs _childrenX53) = inv_Children_s2 _childrenX2 K_Children_v47 (T_Children_vIn47 _childrenOinhMap _childrenOmerged _childrenOsynMap) in
+         let !(T_Rules_vOut30 _rulesIdefinedAttrs _rulesIerrors _rulesIlocals _rulesIruleNames _rulesX42) = inv_Rules_s20 _rulesX20 K_Rules_v30 (T_Rules_vIn30 ) in
+         let !(!_newRls,!_errs) = rule201 _childrenIfields _childrenIinputs _childrenIoutputs _lhsIcr _lhsIinh _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers _rulesIdefinedAttrs _rulesIlocals arg_con_ in
+         let !_orderErrs = rule207 _childrenIinputs _childrenIoutputs _lhsIinh _lhsInt _lhsIsyn _orderDeps _rulesIlocals _rulesIruleNames arg_con_ in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule200 _childrenIerrors _errs _orderErrs _rulesIerrors in
+         let !__st_ = st48 _childrenX53 _lhsInt _lhsIoptions _mergesIn _newRls _rulesX42
+             !__result_ = T_Production_vOut39 _lhsOerrors __st_
+          in __result_ )
+     in C_Production_s14 k14
+   {-# NOINLINE st48 #-}
+   st48 = \ !_childrenX53 ((!_lhsInt) :: NontermIdent) ((!_lhsIoptions) :: Options) !_mergesIn !_newRls !_rulesX42 -> let
+      v40 :: T_Production_v40 
+      v40 = \ !(T_Production_vIn40 _lhsIaroundsIn _lhsIaugmentsIn _lhsIparams _lhsIuniq) -> (
+         let !_typeSigsOnt = rule223 _lhsInt in
+         let !_typeSigsX24 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_)) in
+         let !_rulesOoptions = rule221 _lhsIoptions in
+         let !_typeSigsOparams = rule224 _lhsIparams in
+         let !_aroundsIn = rule209 _lhsIaroundsIn arg_con_ in
+         let !_rulesOuniq = rule222 _lhsIuniq in
+         let !_augmentsIn = rule208 _lhsIaugmentsIn arg_con_ in
+         let !(T_Children_vOut48 _childrenIoutput) = inv_Children_s53 _childrenX53 (T_Children_vIn48 ) in
+         let !(T_Rules_vOut31 _rulesIoutput _rulesIuniq) = inv_Rules_s42 _rulesX42 (T_Rules_vIn31 _rulesOoptions _rulesOuniq) in
+         let !(T_TypeSigs_vOut12 _typeSigsIoutput) = inv_TypeSigs_s24 _typeSigsX24 (T_TypeSigs_vIn12 _typeSigsOnt _typeSigsOparams) in
+         let !_extra1 = rule202 _augmentsIn _newRls _rulesIoutput in
+         let !_extra2 = rule203 _aroundsIn _extra1 in
+         let !_extra3 = rule204 _extra2 _mergesIn in
+         let _lhsOoutput :: Production
+             !_lhsOoutput = rule205 _childrenIoutput _extra3 _typeSigsIoutput arg_con_ arg_constraints_ arg_macro_ arg_params_ in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule213 _rulesIuniq in
+         let !__result_ = T_Production_vOut40 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Production_s48 v40
+   {-# NOINLINE[1] rule200 #-}
    {-# LINE 384 "./src-ag/DefaultRules.ag" #-}
-   rule200 = \ ((_childrenIerrors) :: Seq Error) _errs _orderErrs ((_rulesIerrors) :: Seq Error) ->
+   rule200 = \ ((!_childrenIerrors) :: Seq Error) !_errs !_orderErrs ((!_rulesIerrors) :: Seq Error) ->
                   {-# LINE 384 "./src-ag/DefaultRules.ag" #-}
                   _childrenIerrors >< _errs >< _rulesIerrors >< _orderErrs
-                  {-# LINE 1942 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule201 #-}
+                  {-# LINE 3475 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule201 #-}
    {-# LINE 388 "./src-ag/DefaultRules.ag" #-}
-   rule201 = \ ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ((_childrenIinputs) :: [(Identifier, Attributes)]) ((_childrenIoutputs) :: [(Identifier, Attributes)]) ((_lhsIcr) :: Bool) ((_lhsIinh) :: Attributes) ((_lhsInt) :: NontermIdent) ((_lhsIo_rename) :: Bool) ((_lhsIoptions) :: Options) ((_lhsIsyn) :: Attributes) ((_lhsIsynOrig) :: Attributes) ((_lhsItypeSyns) :: TypeSyns) ((_lhsIuseMap) :: Map Identifier (String,String,String)) ((_lhsIwrappers) :: Set NontermIdent) ((_rulesIdefinedAttrs) :: Set (Identifier,Identifier)) ((_rulesIlocals) :: Set Identifier) con_ ->
+   rule201 = \ ((!_childrenIfields) :: [(Identifier,Type,ChildKind)]) ((!_childrenIinputs) :: [(Identifier, Attributes)]) ((!_childrenIoutputs) :: [(Identifier, Attributes)]) ((!_lhsIcr) :: Bool) ((!_lhsIinh) :: Attributes) ((!_lhsInt) :: NontermIdent) ((!_lhsIo_rename) :: Bool) ((!_lhsIoptions) :: Options) ((!_lhsIsyn) :: Attributes) ((!_lhsIsynOrig) :: Attributes) ((!_lhsItypeSyns) :: TypeSyns) ((!_lhsIuseMap) :: Map Identifier (String,String,String)) ((!_lhsIwrappers) :: Set NontermIdent) ((!_rulesIdefinedAttrs) :: Set (Identifier,Identifier)) ((!_rulesIlocals) :: Set Identifier) !con_ ->
       {-# LINE 388 "./src-ag/DefaultRules.ag" #-}
       let locals       = _rulesIlocals
           initenv      = Map.fromList (  [ (a,_ACHILD)
@@ -1999,40 +3532,40 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
                        locals
                        (lhs_env, (_LHS, others))
       in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
-      {-# LINE 2003 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule202 #-}
+      {-# LINE 3536 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule202 #-}
    {-# LINE 608 "./src-ag/DefaultRules.ag" #-}
-   rule202 = \ _augmentsIn _newRls ((_rulesIoutput) :: Rules) ->
+   rule202 = \ !_augmentsIn !_newRls ((!_rulesIoutput) :: Rules) ->
                      {-# LINE 608 "./src-ag/DefaultRules.ag" #-}
                      foldr addAugments (_rulesIoutput ++ _newRls) (Map.assocs _augmentsIn    )
-                     {-# LINE 2009 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule203 #-}
+                     {-# LINE 3542 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule203 #-}
    {-# LINE 609 "./src-ag/DefaultRules.ag" #-}
-   rule203 = \ _aroundsIn _extra1 ->
+   rule203 = \ !_aroundsIn !_extra1 ->
                      {-# LINE 609 "./src-ag/DefaultRules.ag" #-}
                      foldr addArounds _extra1     (Map.assocs _aroundsIn    )
-                     {-# LINE 2015 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule204 #-}
+                     {-# LINE 3548 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule204 #-}
    {-# LINE 610 "./src-ag/DefaultRules.ag" #-}
-   rule204 = \ _extra2 _mergesIn ->
+   rule204 = \ !_extra2 !_mergesIn ->
                      {-# LINE 610 "./src-ag/DefaultRules.ag" #-}
                      foldr addMerges _extra2     (Map.assocs _mergesIn    )
-                     {-# LINE 2021 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule205 #-}
+                     {-# LINE 3554 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule205 #-}
    {-# LINE 611 "./src-ag/DefaultRules.ag" #-}
-   rule205 = \ ((_childrenIoutput) :: Children) _extra3 ((_typeSigsIoutput) :: TypeSigs) con_ constraints_ macro_ params_ ->
+   rule205 = \ ((!_childrenIoutput) :: Children) !_extra3 ((!_typeSigsIoutput) :: TypeSigs) !con_ !constraints_ !macro_ !params_ ->
                      {-# LINE 611 "./src-ag/DefaultRules.ag" #-}
                      Production con_ params_ constraints_ _childrenIoutput _extra3     _typeSigsIoutput macro_
-                     {-# LINE 2027 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule206 #-}
+                     {-# LINE 3560 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule206 #-}
    {-# LINE 719 "./src-ag/DefaultRules.ag" #-}
-   rule206 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ((_lhsInt) :: NontermIdent) con_ ->
+   rule206 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ((!_lhsInt) :: NontermIdent) !con_ ->
                         {-# LINE 719 "./src-ag/DefaultRules.ag" #-}
                         Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrOrderMap
-                        {-# LINE 2033 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule207 #-}
+                        {-# LINE 3566 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule207 #-}
    {-# LINE 722 "./src-ag/DefaultRules.ag" #-}
-   rule207 = \ ((_childrenIinputs) :: [(Identifier, Attributes)]) ((_childrenIoutputs) :: [(Identifier, Attributes)]) ((_lhsIinh) :: Attributes) ((_lhsInt) :: NontermIdent) ((_lhsIsyn) :: Attributes) _orderDeps ((_rulesIlocals) :: Set Identifier) ((_rulesIruleNames) :: Set Identifier) con_ ->
+   rule207 = \ ((!_childrenIinputs) :: [(Identifier, Attributes)]) ((!_childrenIoutputs) :: [(Identifier, Attributes)]) ((!_lhsIinh) :: Attributes) ((!_lhsInt) :: NontermIdent) ((!_lhsIsyn) :: Attributes) !_orderDeps ((!_rulesIlocals) :: Set Identifier) ((!_rulesIruleNames) :: Set Identifier) !con_ ->
             {-# LINE 722 "./src-ag/DefaultRules.ag" #-}
             let chldOutMap = Map.fromList [ (k, Map.keysSet s) | (k,s) <- _childrenIoutputs ]
                 chldInMap  = Map.fromList [ (k, Map.keysSet s) | (k,s) <- _childrenIinputs ]
@@ -2069,69 +3602,54 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
                [ checkIn occA ++ checkOut occB
                | (Dependency occA occB) <- _orderDeps
                ]
-            {-# LINE 2073 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule208 #-}
+            {-# LINE 3606 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule208 #-}
    {-# LINE 777 "./src-ag/DefaultRules.ag" #-}
-   rule208 = \ ((_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
+   rule208 = \ ((!_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) !con_ ->
                                                   {-# LINE 777 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
-                                                  {-# LINE 2079 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule209 #-}
+                                                  {-# LINE 3612 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule209 #-}
    {-# LINE 784 "./src-ag/DefaultRules.ag" #-}
-   rule209 = \ ((_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
+   rule209 = \ ((!_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) !con_ ->
                                                    {-# LINE 784 "./src-ag/DefaultRules.ag" #-}
                                                    Map.findWithDefault Map.empty con_ _lhsIaroundsIn
-                                                   {-# LINE 2085 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule210 #-}
+                                                   {-# LINE 3618 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule210 #-}
    {-# LINE 792 "./src-ag/DefaultRules.ag" #-}
-   rule210 = \ ((_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) con_ ->
+   rule210 = \ ((!_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !con_ ->
                                                   {-# LINE 792 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty con_ _lhsImergesIn
-                                                  {-# LINE 2091 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule211 #-}
+                                                  {-# LINE 3624 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule211 #-}
    {-# LINE 793 "./src-ag/DefaultRules.ag" #-}
-   rule211 = \ _mergesIn ->
+   rule211 = \ !_mergesIn ->
                                                   {-# LINE 793 "./src-ag/DefaultRules.ag" #-}
                                                   Set.fromList [ c | (_,cs,_) <- Map.elems _mergesIn    , c <- cs ]
-                                                  {-# LINE 2097 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule212 #-}
-   rule212 = \ ((_childrenIoutput) :: Children) ((_rulesIoutput) :: Rules) ((_typeSigsIoutput) :: TypeSigs) con_ constraints_ macro_ params_ ->
-     Production con_ params_ constraints_ _childrenIoutput _rulesIoutput _typeSigsIoutput macro_
-   {-# INLINE rule213 #-}
-   rule213 = \ ((_rulesIuniq) :: Int) ->
+                                                  {-# LINE 3630 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule213 #-}
+   rule213 = \ ((!_rulesIuniq) :: Int) ->
      _rulesIuniq
-   {-# INLINE rule214 #-}
-   rule214 = \ ((_lhsIcr) :: Bool) ->
-     _lhsIcr
-   {-# INLINE rule215 #-}
-   rule215 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule215 #-}
+   rule215 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule216 #-}
-   rule216 = \ _merged ->
+   {-# NOINLINE[1] rule216 #-}
+   rule216 = \ !_merged ->
      _merged
-   {-# INLINE rule217 #-}
-   rule217 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule218 #-}
-   rule218 = \ ((_lhsIparams) :: [Identifier]) ->
-     _lhsIparams
-   {-# INLINE rule219 #-}
-   rule219 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule219 #-}
+   rule219 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule220 #-}
-   rule220 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule221 #-}
-   rule221 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule221 #-}
+   rule221 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule222 #-}
-   rule222 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule222 #-}
+   rule222 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
-   {-# INLINE rule223 #-}
-   rule223 = \ ((_lhsInt) :: NontermIdent) ->
+   {-# NOINLINE[1] rule223 #-}
+   rule223 = \ ((!_lhsInt) :: NontermIdent) ->
      _lhsInt
-   {-# INLINE rule224 #-}
-   rule224 = \ ((_lhsIparams) :: [Identifier]) ->
+   {-# NOINLINE[1] rule224 #-}
+   rule224 = \ ((!_lhsIparams) :: [Identifier]) ->
      _lhsIparams
 
 -- Productions -------------------------------------------------
@@ -2143,8 +3661,8 @@ wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions !(T_Productions act) !(Inh_Productions _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Productions_vIn25 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
-        !(T_Productions_vOut25 _lhsOerrors _lhsOoutput _lhsOuniq) <- return (inv_Productions_s26 sem arg)
+        let arg = T_Productions_vIn8 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers
+        !(T_Productions_vOut8 _lhsOerrors _lhsOoutput _lhsOuniq) <- return (inv_Productions_s16 sem K_Productions_v8 arg)
         return (Syn_Productions _lhsOerrors _lhsOoutput _lhsOuniq)
    )
 
@@ -2155,236 +3673,389 @@ sem_Productions list = Prelude.foldr sem_Productions_Cons sem_Productions_Nil (P
 
 -- semantic domain
 newtype T_Productions  = T_Productions {
-                                       attach_T_Productions :: Identity (T_Productions_s26 )
+                                       attach_T_Productions :: Identity (T_Productions_s16 )
                                        }
-newtype T_Productions_s26  = C_Productions_s26 {
-                                               inv_Productions_s26 :: (T_Productions_v25 )
+data T_Productions_s16  where C_Productions_s16 :: {
+                                                   inv_Productions_s16 :: !(forall t. K_Productions_s16  t -> t)
+                                                   } -> T_Productions_s16 
+data T_Productions_s17  = C_Productions_s17
+data T_Productions_s30  = C_Productions_s30
+newtype T_Productions_s39  = C_Productions_s39 {
+                                               inv_Productions_s39 :: (T_Productions_v27 )
                                                }
-data T_Productions_s27  = C_Productions_s27
-type T_Productions_v25  = (T_Productions_vIn25 ) -> (T_Productions_vOut25 )
-data T_Productions_vIn25  = T_Productions_vIn25 (Map ConstructorIdent (Map Identifier [Expression])) (Map ConstructorIdent (Map Identifier [Expression])) (Bool) (Attributes) (Map Identifier Attributes) (Attributes) (AttrOrderMap) (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) (Set NontermIdent) (NontermIdent) (Bool) (Options) ([Identifier]) (Attributes) (Map Identifier Attributes) (Attributes) (TypeSyns) (Int) (Map Identifier (String,String,String)) (Set NontermIdent)
-data T_Productions_vOut25  = T_Productions_vOut25 (Seq Error) (Productions) (Int)
+data K_Productions_s16 k  where
+   K_Productions_v8 :: K_Productions_s16  (T_Productions_v8 )
+   K_Productions_v17 :: K_Productions_s16  (T_Productions_v17 )
+   K_Productions_v26 :: K_Productions_s16  (T_Productions_v26 )
+type T_Productions_v8  = (T_Productions_vIn8 ) -> (T_Productions_vOut8 )
+data T_Productions_vIn8  = T_Productions_vIn8 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !(Bool) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(Set NontermIdent) !(NontermIdent) !(Bool) !(Options) !([Identifier]) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Int) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Productions_vOut8  = T_Productions_vOut8 !(Seq Error) !(Productions) !(Int)
+type T_Productions_v17  = (T_Productions_vIn17 ) -> (T_Productions_vOut17 )
+data T_Productions_vIn17  = T_Productions_vIn17 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !(Bool) !(Attributes) !(Map Identifier Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(NontermIdent) !(Bool) !(Options) !([Identifier]) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Int) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Productions_vOut17  = T_Productions_vOut17 !(Seq Error) !(Productions) !(Int)
+type T_Productions_v26  = (T_Productions_vIn26 ) -> (T_Productions_vOut26 )
+data T_Productions_vIn26  = T_Productions_vIn26 !(Bool) !(Attributes) !(Map Identifier Attributes) !(AttrOrderMap) !(Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !(NontermIdent) !(Bool) !(Options) !(Attributes) !(Map Identifier Attributes) !(Attributes) !(TypeSyns) !(Map Identifier (String,String,String)) !(Set NontermIdent)
+data T_Productions_vOut26  = T_Productions_vOut26 !(Seq Error) !(T_Productions_s39 )
+type T_Productions_v27  = (T_Productions_vIn27 ) -> (T_Productions_vOut27 )
+data T_Productions_vIn27  = T_Productions_vIn27 !(Map ConstructorIdent (Map Identifier [Expression])) !(Map ConstructorIdent (Map Identifier [Expression])) !([Identifier]) !(Int)
+data T_Productions_vOut27  = T_Productions_vOut27 !(Productions) !(Int)
 {-# NOINLINE sem_Productions_Cons #-}
 sem_Productions_Cons :: T_Production  -> T_Productions  -> T_Productions 
-sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st26) where
-   {-# NOINLINE st26 #-}
-   !st26 = let
-      v25 :: T_Productions_v25 
-      v25 = \ !(T_Productions_vIn25 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _hdX23 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_))
-         _tlX26 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_))
-         (T_Production_vOut22 _hdIerrors _hdIoutput _hdIuniq) = inv_Production_s23 _hdX23 (T_Production_vIn22 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinh _hdOinhMap _hdOinhOrig _hdOmanualAttrOrderMap _hdOmergesIn _hdOnonterminals _hdOnt _hdOo_rename _hdOoptions _hdOparams _hdOsyn _hdOsynMap _hdOsynOrig _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers)
-         (T_Productions_vOut25 _tlIerrors _tlIoutput _tlIuniq) = inv_Productions_s26 _tlX26 (T_Productions_vIn25 _tlOaroundsIn _tlOaugmentsIn _tlOcr _tlOinh _tlOinhMap _tlOinhOrig _tlOmanualAttrOrderMap _tlOmergesIn _tlOnonterminals _tlOnt _tlOo_rename _tlOoptions _tlOparams _tlOsyn _tlOsynMap _tlOsynOrig _tlOtypeSyns _tlOuniq _tlOuseMap _tlOwrappers)
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule225 _hdIerrors _tlIerrors
-         _output = rule226 _hdIoutput _tlIoutput
-         _lhsOoutput :: Productions
-         _lhsOoutput = rule227 _output
-         _lhsOuniq :: Int
-         _lhsOuniq = rule228 _tlIuniq
-         _hdOaroundsIn = rule229 _lhsIaroundsIn
-         _hdOaugmentsIn = rule230 _lhsIaugmentsIn
-         _hdOcr = rule231 _lhsIcr
-         _hdOinh = rule232 _lhsIinh
-         _hdOinhMap = rule233 _lhsIinhMap
-         _hdOinhOrig = rule234 _lhsIinhOrig
-         _hdOmanualAttrOrderMap = rule235 _lhsImanualAttrOrderMap
-         _hdOmergesIn = rule236 _lhsImergesIn
-         _hdOnonterminals = rule237 _lhsInonterminals
-         _hdOnt = rule238 _lhsInt
-         _hdOo_rename = rule239 _lhsIo_rename
-         _hdOoptions = rule240 _lhsIoptions
-         _hdOparams = rule241 _lhsIparams
-         _hdOsyn = rule242 _lhsIsyn
-         _hdOsynMap = rule243 _lhsIsynMap
-         _hdOsynOrig = rule244 _lhsIsynOrig
-         _hdOtypeSyns = rule245 _lhsItypeSyns
-         _hdOuniq = rule246 _lhsIuniq
-         _hdOuseMap = rule247 _lhsIuseMap
-         _hdOwrappers = rule248 _lhsIwrappers
-         _tlOaroundsIn = rule249 _lhsIaroundsIn
-         _tlOaugmentsIn = rule250 _lhsIaugmentsIn
-         _tlOcr = rule251 _lhsIcr
-         _tlOinh = rule252 _lhsIinh
-         _tlOinhMap = rule253 _lhsIinhMap
-         _tlOinhOrig = rule254 _lhsIinhOrig
-         _tlOmanualAttrOrderMap = rule255 _lhsImanualAttrOrderMap
-         _tlOmergesIn = rule256 _lhsImergesIn
-         _tlOnonterminals = rule257 _lhsInonterminals
-         _tlOnt = rule258 _lhsInt
-         _tlOo_rename = rule259 _lhsIo_rename
-         _tlOoptions = rule260 _lhsIoptions
-         _tlOparams = rule261 _lhsIparams
-         _tlOsyn = rule262 _lhsIsyn
-         _tlOsynMap = rule263 _lhsIsynMap
-         _tlOsynOrig = rule264 _lhsIsynOrig
-         _tlOtypeSyns = rule265 _lhsItypeSyns
-         _tlOuniq = rule266 _hdIuniq
-         _tlOuseMap = rule267 _lhsIuseMap
-         _tlOwrappers = rule268 _lhsIwrappers
-         !__result_ = T_Productions_vOut25 _lhsOerrors _lhsOoutput _lhsOuniq
-         in __result_ )
-     in C_Productions_s26 v25
-   {-# INLINE rule225 #-}
-   rule225 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st16) where
+   {-# NOINLINE st16 #-}
+   !st16 = let
+      k16 :: K_Productions_s16  t -> t
+      k16 K_Productions_v8 = v8
+      k16 K_Productions_v17 = v17
+      k16 K_Productions_v26 = v26
+      v8 :: T_Productions_v8 
+      v8 = \ !(T_Productions_vIn8 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdX14 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_)) in
+         let !_tlX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_)) in
+         let !_hdOcr = rule231 _lhsIcr in
+         let !_hdOinh = rule232 _lhsIinh in
+         let !_hdOinhMap = rule233 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule235 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule236 _lhsImergesIn in
+         let !_hdOnt = rule238 _lhsInt in
+         let !_hdOo_rename = rule239 _lhsIo_rename in
+         let !_hdOoptions = rule240 _lhsIoptions in
+         let !_hdOsyn = rule242 _lhsIsyn in
+         let !_hdOsynMap = rule243 _lhsIsynMap in
+         let !_hdOsynOrig = rule244 _lhsIsynOrig in
+         let !_hdOtypeSyns = rule245 _lhsItypeSyns in
+         let !_hdOuseMap = rule247 _lhsIuseMap in
+         let !_hdOwrappers = rule248 _lhsIwrappers in
+         let !_tlOcr = rule251 _lhsIcr in
+         let !_tlOinh = rule252 _lhsIinh in
+         let !_tlOinhMap = rule253 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule255 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule256 _lhsImergesIn in
+         let !_tlOnt = rule258 _lhsInt in
+         let !_tlOo_rename = rule259 _lhsIo_rename in
+         let !_tlOoptions = rule260 _lhsIoptions in
+         let !_tlOsyn = rule262 _lhsIsyn in
+         let !_tlOsynMap = rule263 _lhsIsynMap in
+         let !_tlOsynOrig = rule264 _lhsIsynOrig in
+         let !_tlOtypeSyns = rule265 _lhsItypeSyns in
+         let !_tlOuseMap = rule267 _lhsIuseMap in
+         let !_tlOwrappers = rule268 _lhsIwrappers in
+         let !_hdOaroundsIn = rule229 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule230 _lhsIaugmentsIn in
+         let !_hdOparams = rule241 _lhsIparams in
+         let !_hdOuniq = rule246 _lhsIuniq in
+         let !_tlOaroundsIn = rule249 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule250 _lhsIaugmentsIn in
+         let !_tlOparams = rule261 _lhsIparams in
+         let !(T_Production_vOut25 _hdIerrors _hdIoutput _hdIuniq) = inv_Production_s14 _hdX14 K_Production_v25 (T_Production_vIn25 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinh _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOnt _hdOo_rename _hdOoptions _hdOparams _hdOsyn _hdOsynMap _hdOsynOrig _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) in
+         let !(T_Productions_vOut26 _tlIerrors _tlX39) = inv_Productions_s16 _tlX16 K_Productions_v26 (T_Productions_vIn26 _tlOcr _tlOinh _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOnt _tlOo_rename _tlOoptions _tlOsyn _tlOsynMap _tlOsynOrig _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule225 _hdIerrors _tlIerrors in
+         let !_tlOuniq = rule266 _hdIuniq in
+         let !(T_Productions_vOut27 _tlIoutput _tlIuniq) = inv_Productions_s39 _tlX39 (T_Productions_vIn27 _tlOaroundsIn _tlOaugmentsIn _tlOparams _tlOuniq) in
+         let !_output = rule226 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule227 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule228 _tlIuniq in
+         let !__result_ = T_Productions_vOut8 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v17 :: T_Productions_v17 
+      v17 = \ !(T_Productions_vIn17 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdX14 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_)) in
+         let !_tlX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_)) in
+         let !_hdOcr = rule231 _lhsIcr in
+         let !_hdOinh = rule232 _lhsIinh in
+         let !_hdOinhMap = rule233 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule235 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule236 _lhsImergesIn in
+         let !_hdOnt = rule238 _lhsInt in
+         let !_hdOo_rename = rule239 _lhsIo_rename in
+         let !_hdOoptions = rule240 _lhsIoptions in
+         let !_hdOsyn = rule242 _lhsIsyn in
+         let !_hdOsynMap = rule243 _lhsIsynMap in
+         let !_hdOsynOrig = rule244 _lhsIsynOrig in
+         let !_hdOtypeSyns = rule245 _lhsItypeSyns in
+         let !_hdOuseMap = rule247 _lhsIuseMap in
+         let !_hdOwrappers = rule248 _lhsIwrappers in
+         let !_tlOcr = rule251 _lhsIcr in
+         let !_tlOinh = rule252 _lhsIinh in
+         let !_tlOinhMap = rule253 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule255 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule256 _lhsImergesIn in
+         let !_tlOnt = rule258 _lhsInt in
+         let !_tlOo_rename = rule259 _lhsIo_rename in
+         let !_tlOoptions = rule260 _lhsIoptions in
+         let !_tlOsyn = rule262 _lhsIsyn in
+         let !_tlOsynMap = rule263 _lhsIsynMap in
+         let !_tlOsynOrig = rule264 _lhsIsynOrig in
+         let !_tlOtypeSyns = rule265 _lhsItypeSyns in
+         let !_tlOuseMap = rule267 _lhsIuseMap in
+         let !_tlOwrappers = rule268 _lhsIwrappers in
+         let !_hdOaroundsIn = rule229 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule230 _lhsIaugmentsIn in
+         let !_hdOparams = rule241 _lhsIparams in
+         let !_hdOuniq = rule246 _lhsIuniq in
+         let !_tlOaroundsIn = rule249 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule250 _lhsIaugmentsIn in
+         let !_tlOparams = rule261 _lhsIparams in
+         let !(T_Production_vOut25 _hdIerrors _hdIoutput _hdIuniq) = inv_Production_s14 _hdX14 K_Production_v25 (T_Production_vIn25 _hdOaroundsIn _hdOaugmentsIn _hdOcr _hdOinh _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOnt _hdOo_rename _hdOoptions _hdOparams _hdOsyn _hdOsynMap _hdOsynOrig _hdOtypeSyns _hdOuniq _hdOuseMap _hdOwrappers) in
+         let !(T_Productions_vOut26 _tlIerrors _tlX39) = inv_Productions_s16 _tlX16 K_Productions_v26 (T_Productions_vIn26 _tlOcr _tlOinh _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOnt _tlOo_rename _tlOoptions _tlOsyn _tlOsynMap _tlOsynOrig _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule225 _hdIerrors _tlIerrors in
+         let !_tlOuniq = rule266 _hdIuniq in
+         let !(T_Productions_vOut27 _tlIoutput _tlIuniq) = inv_Productions_s39 _tlX39 (T_Productions_vIn27 _tlOaroundsIn _tlOaugmentsIn _tlOparams _tlOuniq) in
+         let !_output = rule226 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule227 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule228 _tlIuniq in
+         let !__result_ = T_Productions_vOut17 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v26 :: T_Productions_v26 
+      v26 = \ !(T_Productions_vIn26 _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let !_hdX14 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_)) in
+         let !_tlX16 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_)) in
+         let !_hdOcr = rule231 _lhsIcr in
+         let !_hdOinh = rule232 _lhsIinh in
+         let !_hdOinhMap = rule233 _lhsIinhMap in
+         let !_hdOmanualAttrOrderMap = rule235 _lhsImanualAttrOrderMap in
+         let !_hdOmergesIn = rule236 _lhsImergesIn in
+         let !_hdOnt = rule238 _lhsInt in
+         let !_hdOo_rename = rule239 _lhsIo_rename in
+         let !_hdOoptions = rule240 _lhsIoptions in
+         let !_hdOsyn = rule242 _lhsIsyn in
+         let !_hdOsynMap = rule243 _lhsIsynMap in
+         let !_hdOsynOrig = rule244 _lhsIsynOrig in
+         let !_hdOtypeSyns = rule245 _lhsItypeSyns in
+         let !_hdOuseMap = rule247 _lhsIuseMap in
+         let !_hdOwrappers = rule248 _lhsIwrappers in
+         let !_tlOcr = rule251 _lhsIcr in
+         let !_tlOinh = rule252 _lhsIinh in
+         let !_tlOinhMap = rule253 _lhsIinhMap in
+         let !_tlOmanualAttrOrderMap = rule255 _lhsImanualAttrOrderMap in
+         let !_tlOmergesIn = rule256 _lhsImergesIn in
+         let !_tlOnt = rule258 _lhsInt in
+         let !_tlOo_rename = rule259 _lhsIo_rename in
+         let !_tlOoptions = rule260 _lhsIoptions in
+         let !_tlOsyn = rule262 _lhsIsyn in
+         let !_tlOsynMap = rule263 _lhsIsynMap in
+         let !_tlOsynOrig = rule264 _lhsIsynOrig in
+         let !_tlOtypeSyns = rule265 _lhsItypeSyns in
+         let !_tlOuseMap = rule267 _lhsIuseMap in
+         let !_tlOwrappers = rule268 _lhsIwrappers in
+         let !(T_Production_vOut39 _hdIerrors _hdX48) = inv_Production_s14 _hdX14 K_Production_v39 (T_Production_vIn39 _hdOcr _hdOinh _hdOinhMap _hdOmanualAttrOrderMap _hdOmergesIn _hdOnt _hdOo_rename _hdOoptions _hdOsyn _hdOsynMap _hdOsynOrig _hdOtypeSyns _hdOuseMap _hdOwrappers) in
+         let !(T_Productions_vOut26 _tlIerrors _tlX39) = inv_Productions_s16 _tlX16 K_Productions_v26 (T_Productions_vIn26 _tlOcr _tlOinh _tlOinhMap _tlOmanualAttrOrderMap _tlOmergesIn _tlOnt _tlOo_rename _tlOoptions _tlOsyn _tlOsynMap _tlOsynOrig _tlOtypeSyns _tlOuseMap _tlOwrappers) in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule225 _hdIerrors _tlIerrors in
+         let !__st_ = st39 _hdX48 _tlX39
+             !__result_ = T_Productions_vOut26 _lhsOerrors __st_
+          in __result_ )
+     in C_Productions_s16 k16
+   {-# NOINLINE st39 #-}
+   st39 = \ !_hdX48 !_tlX39 -> let
+      v27 :: T_Productions_v27 
+      v27 = \ !(T_Productions_vIn27 _lhsIaroundsIn _lhsIaugmentsIn _lhsIparams _lhsIuniq) -> (
+         let !_hdOaroundsIn = rule229 _lhsIaroundsIn in
+         let !_hdOaugmentsIn = rule230 _lhsIaugmentsIn in
+         let !_hdOparams = rule241 _lhsIparams in
+         let !_hdOuniq = rule246 _lhsIuniq in
+         let !_tlOaroundsIn = rule249 _lhsIaroundsIn in
+         let !_tlOaugmentsIn = rule250 _lhsIaugmentsIn in
+         let !_tlOparams = rule261 _lhsIparams in
+         let !(T_Production_vOut40 _hdIoutput _hdIuniq) = inv_Production_s48 _hdX48 (T_Production_vIn40 _hdOaroundsIn _hdOaugmentsIn _hdOparams _hdOuniq) in
+         let !_tlOuniq = rule266 _hdIuniq in
+         let !(T_Productions_vOut27 _tlIoutput _tlIuniq) = inv_Productions_s39 _tlX39 (T_Productions_vIn27 _tlOaroundsIn _tlOaugmentsIn _tlOparams _tlOuniq) in
+         let !_output = rule226 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule227 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule228 _tlIuniq in
+         let !__result_ = T_Productions_vOut27 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Productions_s39 v27
+   {-# NOINLINE[1] rule225 #-}
+   rule225 = \ ((!_hdIerrors) :: Seq Error) ((!_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule226 #-}
-   rule226 = \ ((_hdIoutput) :: Production) ((_tlIoutput) :: Productions) ->
+   {-# NOINLINE[1] rule226 #-}
+   rule226 = \ ((!_hdIoutput) :: Production) ((!_tlIoutput) :: Productions) ->
      (:) _hdIoutput _tlIoutput
-   {-# INLINE rule227 #-}
-   rule227 = \ _output ->
+   {-# NOINLINE[1] rule227 #-}
+   rule227 = \ !_output ->
      _output
-   {-# INLINE rule228 #-}
-   rule228 = \ ((_tlIuniq) :: Int) ->
+   {-# NOINLINE[1] rule228 #-}
+   rule228 = \ ((!_tlIuniq) :: Int) ->
      _tlIuniq
-   {-# INLINE rule229 #-}
-   rule229 = \ ((_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
+   {-# NOINLINE[1] rule229 #-}
+   rule229 = \ ((!_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
      _lhsIaroundsIn
-   {-# INLINE rule230 #-}
-   rule230 = \ ((_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
+   {-# NOINLINE[1] rule230 #-}
+   rule230 = \ ((!_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
      _lhsIaugmentsIn
-   {-# INLINE rule231 #-}
-   rule231 = \ ((_lhsIcr) :: Bool) ->
+   {-# NOINLINE[1] rule231 #-}
+   rule231 = \ ((!_lhsIcr) :: Bool) ->
      _lhsIcr
-   {-# INLINE rule232 #-}
-   rule232 = \ ((_lhsIinh) :: Attributes) ->
+   {-# NOINLINE[1] rule232 #-}
+   rule232 = \ ((!_lhsIinh) :: Attributes) ->
      _lhsIinh
-   {-# INLINE rule233 #-}
-   rule233 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule233 #-}
+   rule233 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule234 #-}
-   rule234 = \ ((_lhsIinhOrig) :: Attributes) ->
-     _lhsIinhOrig
-   {-# INLINE rule235 #-}
-   rule235 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
+   {-# NOINLINE[1] rule235 #-}
+   rule235 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
      _lhsImanualAttrOrderMap
-   {-# INLINE rule236 #-}
-   rule236 = \ ((_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) ->
+   {-# NOINLINE[1] rule236 #-}
+   rule236 = \ ((!_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) ->
      _lhsImergesIn
-   {-# INLINE rule237 #-}
-   rule237 = \ ((_lhsInonterminals) :: Set NontermIdent) ->
-     _lhsInonterminals
-   {-# INLINE rule238 #-}
-   rule238 = \ ((_lhsInt) :: NontermIdent) ->
+   {-# NOINLINE[1] rule238 #-}
+   rule238 = \ ((!_lhsInt) :: NontermIdent) ->
      _lhsInt
-   {-# INLINE rule239 #-}
-   rule239 = \ ((_lhsIo_rename) :: Bool) ->
+   {-# NOINLINE[1] rule239 #-}
+   rule239 = \ ((!_lhsIo_rename) :: Bool) ->
      _lhsIo_rename
-   {-# INLINE rule240 #-}
-   rule240 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule240 #-}
+   rule240 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule241 #-}
-   rule241 = \ ((_lhsIparams) :: [Identifier]) ->
+   {-# NOINLINE[1] rule241 #-}
+   rule241 = \ ((!_lhsIparams) :: [Identifier]) ->
      _lhsIparams
-   {-# INLINE rule242 #-}
-   rule242 = \ ((_lhsIsyn) :: Attributes) ->
+   {-# NOINLINE[1] rule242 #-}
+   rule242 = \ ((!_lhsIsyn) :: Attributes) ->
      _lhsIsyn
-   {-# INLINE rule243 #-}
-   rule243 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule243 #-}
+   rule243 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule244 #-}
-   rule244 = \ ((_lhsIsynOrig) :: Attributes) ->
+   {-# NOINLINE[1] rule244 #-}
+   rule244 = \ ((!_lhsIsynOrig) :: Attributes) ->
      _lhsIsynOrig
-   {-# INLINE rule245 #-}
-   rule245 = \ ((_lhsItypeSyns) :: TypeSyns) ->
+   {-# NOINLINE[1] rule245 #-}
+   rule245 = \ ((!_lhsItypeSyns) :: TypeSyns) ->
      _lhsItypeSyns
-   {-# INLINE rule246 #-}
-   rule246 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule246 #-}
+   rule246 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
-   {-# INLINE rule247 #-}
-   rule247 = \ ((_lhsIuseMap) :: Map Identifier (String,String,String)) ->
+   {-# NOINLINE[1] rule247 #-}
+   rule247 = \ ((!_lhsIuseMap) :: Map Identifier (String,String,String)) ->
      _lhsIuseMap
-   {-# INLINE rule248 #-}
-   rule248 = \ ((_lhsIwrappers) :: Set NontermIdent) ->
+   {-# NOINLINE[1] rule248 #-}
+   rule248 = \ ((!_lhsIwrappers) :: Set NontermIdent) ->
      _lhsIwrappers
-   {-# INLINE rule249 #-}
-   rule249 = \ ((_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
+   {-# NOINLINE[1] rule249 #-}
+   rule249 = \ ((!_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
      _lhsIaroundsIn
-   {-# INLINE rule250 #-}
-   rule250 = \ ((_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
+   {-# NOINLINE[1] rule250 #-}
+   rule250 = \ ((!_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) ->
      _lhsIaugmentsIn
-   {-# INLINE rule251 #-}
-   rule251 = \ ((_lhsIcr) :: Bool) ->
+   {-# NOINLINE[1] rule251 #-}
+   rule251 = \ ((!_lhsIcr) :: Bool) ->
      _lhsIcr
-   {-# INLINE rule252 #-}
-   rule252 = \ ((_lhsIinh) :: Attributes) ->
+   {-# NOINLINE[1] rule252 #-}
+   rule252 = \ ((!_lhsIinh) :: Attributes) ->
      _lhsIinh
-   {-# INLINE rule253 #-}
-   rule253 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule253 #-}
+   rule253 = \ ((!_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
-   {-# INLINE rule254 #-}
-   rule254 = \ ((_lhsIinhOrig) :: Attributes) ->
-     _lhsIinhOrig
-   {-# INLINE rule255 #-}
-   rule255 = \ ((_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
+   {-# NOINLINE[1] rule255 #-}
+   rule255 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ->
      _lhsImanualAttrOrderMap
-   {-# INLINE rule256 #-}
-   rule256 = \ ((_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) ->
+   {-# NOINLINE[1] rule256 #-}
+   rule256 = \ ((!_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) ->
      _lhsImergesIn
-   {-# INLINE rule257 #-}
-   rule257 = \ ((_lhsInonterminals) :: Set NontermIdent) ->
-     _lhsInonterminals
-   {-# INLINE rule258 #-}
-   rule258 = \ ((_lhsInt) :: NontermIdent) ->
+   {-# NOINLINE[1] rule258 #-}
+   rule258 = \ ((!_lhsInt) :: NontermIdent) ->
      _lhsInt
-   {-# INLINE rule259 #-}
-   rule259 = \ ((_lhsIo_rename) :: Bool) ->
+   {-# NOINLINE[1] rule259 #-}
+   rule259 = \ ((!_lhsIo_rename) :: Bool) ->
      _lhsIo_rename
-   {-# INLINE rule260 #-}
-   rule260 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule260 #-}
+   rule260 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule261 #-}
-   rule261 = \ ((_lhsIparams) :: [Identifier]) ->
+   {-# NOINLINE[1] rule261 #-}
+   rule261 = \ ((!_lhsIparams) :: [Identifier]) ->
      _lhsIparams
-   {-# INLINE rule262 #-}
-   rule262 = \ ((_lhsIsyn) :: Attributes) ->
+   {-# NOINLINE[1] rule262 #-}
+   rule262 = \ ((!_lhsIsyn) :: Attributes) ->
      _lhsIsyn
-   {-# INLINE rule263 #-}
-   rule263 = \ ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   {-# NOINLINE[1] rule263 #-}
+   rule263 = \ ((!_lhsIsynMap) :: Map Identifier Attributes) ->
      _lhsIsynMap
-   {-# INLINE rule264 #-}
-   rule264 = \ ((_lhsIsynOrig) :: Attributes) ->
+   {-# NOINLINE[1] rule264 #-}
+   rule264 = \ ((!_lhsIsynOrig) :: Attributes) ->
      _lhsIsynOrig
-   {-# INLINE rule265 #-}
-   rule265 = \ ((_lhsItypeSyns) :: TypeSyns) ->
+   {-# NOINLINE[1] rule265 #-}
+   rule265 = \ ((!_lhsItypeSyns) :: TypeSyns) ->
      _lhsItypeSyns
-   {-# INLINE rule266 #-}
-   rule266 = \ ((_hdIuniq) :: Int) ->
+   {-# NOINLINE[1] rule266 #-}
+   rule266 = \ ((!_hdIuniq) :: Int) ->
      _hdIuniq
-   {-# INLINE rule267 #-}
-   rule267 = \ ((_lhsIuseMap) :: Map Identifier (String,String,String)) ->
+   {-# NOINLINE[1] rule267 #-}
+   rule267 = \ ((!_lhsIuseMap) :: Map Identifier (String,String,String)) ->
      _lhsIuseMap
-   {-# INLINE rule268 #-}
-   rule268 = \ ((_lhsIwrappers) :: Set NontermIdent) ->
+   {-# NOINLINE[1] rule268 #-}
+   rule268 = \ ((!_lhsIwrappers) :: Set NontermIdent) ->
      _lhsIwrappers
 {-# NOINLINE sem_Productions_Nil #-}
 sem_Productions_Nil ::  T_Productions 
-sem_Productions_Nil  = T_Productions (return st26) where
-   {-# NOINLINE st26 #-}
-   !st26 = let
-      v25 :: T_Productions_v25 
-      v25 = \ !(T_Productions_vIn25 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> ( let
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule269  ()
-         _output = rule270  ()
-         _lhsOoutput :: Productions
-         _lhsOoutput = rule271 _output
-         _lhsOuniq :: Int
-         _lhsOuniq = rule272 _lhsIuniq
-         !__result_ = T_Productions_vOut25 _lhsOerrors _lhsOoutput _lhsOuniq
-         in __result_ )
-     in C_Productions_s26 v25
-   {-# INLINE rule269 #-}
+sem_Productions_Nil  = T_Productions (return st16) where
+   {-# NOINLINE st16 #-}
+   !st16 = let
+      k16 :: K_Productions_s16  t -> t
+      k16 K_Productions_v8 = v8
+      k16 K_Productions_v17 = v17
+      k16 K_Productions_v26 = v26
+      v8 :: T_Productions_v8 
+      v8 = \ !(T_Productions_vIn8 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsIinhOrig _lhsImanualAttrOrderMap _lhsImergesIn _lhsInonterminals _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule269  () in
+         let !_output = rule270  () in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule271 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule272 _lhsIuniq in
+         let !__result_ = T_Productions_vOut8 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v17 :: T_Productions_v17 
+      v17 = \ !(T_Productions_vIn17 _lhsIaroundsIn _lhsIaugmentsIn _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIparams _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuniq _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule269  () in
+         let !_output = rule270  () in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule271 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule272 _lhsIuniq in
+         let !__result_ = T_Productions_vOut17 _lhsOerrors _lhsOoutput _lhsOuniq
+          in __result_ )
+      v26 :: T_Productions_v26 
+      v26 = \ !(T_Productions_vIn26 _lhsIcr _lhsIinh _lhsIinhMap _lhsImanualAttrOrderMap _lhsImergesIn _lhsInt _lhsIo_rename _lhsIoptions _lhsIsyn _lhsIsynMap _lhsIsynOrig _lhsItypeSyns _lhsIuseMap _lhsIwrappers) -> (
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule269  () in
+         let !__st_ = st39  ()
+             !__result_ = T_Productions_vOut26 _lhsOerrors __st_
+          in __result_ )
+     in C_Productions_s16 k16
+   {-# NOINLINE st39 #-}
+   st39 = \  (_ :: ()) -> let
+      v27 :: T_Productions_v27 
+      v27 = \ !(T_Productions_vIn27 _lhsIaroundsIn _lhsIaugmentsIn _lhsIparams _lhsIuniq) -> (
+         let !_output = rule270  () in
+         let _lhsOoutput :: Productions
+             !_lhsOoutput = rule271 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule272 _lhsIuniq in
+         let !__result_ = T_Productions_vOut27 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Productions_s39 v27
+   {-# NOINLINE[1] rule269 #-}
    rule269 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule270 #-}
+   {-# NOINLINE[1] rule270 #-}
    rule270 = \  (_ :: ()) ->
      []
-   {-# INLINE rule271 #-}
-   rule271 = \ _output ->
+   {-# NOINLINE[1] rule271 #-}
+   rule271 = \ !_output ->
      _output
-   {-# INLINE rule272 #-}
-   rule272 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule272 #-}
+   rule272 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
 
 -- Rule --------------------------------------------------------
@@ -2396,8 +4067,8 @@ wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule !(T_Rule act) !(Inh_Rule _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Rule_vIn28 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq
-        !(T_Rule_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq) <- return (inv_Rule_s29 sem arg)
+        let arg = T_Rule_vIn9 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq
+        !(T_Rule_vOut9 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq) <- return (inv_Rule_s18 sem K_Rule_v9 arg)
         return (Syn_Rule _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq)
    )
 
@@ -2408,107 +4079,177 @@ sem_Rule ( Rule !mbName_ pattern_ !rhs_ !owrt_ !origin_ !explicit_ !pure_ !ident
 
 -- semantic domain
 newtype T_Rule  = T_Rule {
-                         attach_T_Rule :: Identity (T_Rule_s29 )
+                         attach_T_Rule :: Identity (T_Rule_s18 )
                          }
-newtype T_Rule_s29  = C_Rule_s29 {
-                                 inv_Rule_s29 :: (T_Rule_v28 )
+data T_Rule_s18  where C_Rule_s18 :: {
+                                     inv_Rule_s18 :: !(forall t. K_Rule_s18  t -> t)
+                                     } -> T_Rule_s18 
+data T_Rule_s19  = C_Rule_s19
+data T_Rule_s41  = C_Rule_s41
+newtype T_Rule_s51  = C_Rule_s51 {
+                                 inv_Rule_s51 :: (T_Rule_v44 )
                                  }
-data T_Rule_s30  = C_Rule_s30
-type T_Rule_v28  = (T_Rule_vIn28 ) -> (T_Rule_vOut28 )
-data T_Rule_vIn28  = T_Rule_vIn28 (ConstructorIdent) (NontermIdent) (Options) (Int)
-data T_Rule_vOut28  = T_Rule_vOut28 (Bool) (Set (Identifier,Identifier)) (Seq Error) (Bool) (Set Identifier) (Rule) (Rules) (Set Identifier) (Int)
+data K_Rule_s18 k  where
+   K_Rule_v9 :: K_Rule_s18  (T_Rule_v9 )
+   K_Rule_v29 :: K_Rule_s18  (T_Rule_v29 )
+   K_Rule_v43 :: K_Rule_s18  (T_Rule_v43 )
+type T_Rule_v9  = (T_Rule_vIn9 ) -> (T_Rule_vOut9 )
+data T_Rule_vIn9  = T_Rule_vIn9 !(ConstructorIdent) !(NontermIdent) !(Options) !(Int)
+data T_Rule_vOut9  = T_Rule_vOut9 !(Bool) !(Set (Identifier,Identifier)) !(Seq Error) !(Bool) !(Set Identifier) !(Rule) !(Rules) !(Set Identifier) !(Int)
+type T_Rule_v29  = (T_Rule_vIn29 ) -> (T_Rule_vOut29 )
+data T_Rule_vIn29  = T_Rule_vIn29 !(Options) !(Int)
+data T_Rule_vOut29  = T_Rule_vOut29 !(Bool) !(Set (Identifier,Identifier)) !(Seq Error) !(Bool) !(Set Identifier) !(Rules) !(Set Identifier) !(Int)
+type T_Rule_v43  = (T_Rule_vIn43 ) -> (T_Rule_vOut43 )
+data T_Rule_vIn43  = T_Rule_vIn43 
+data T_Rule_vOut43  = T_Rule_vOut43 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Set Identifier) !(T_Rule_s51 )
+type T_Rule_v44  = (T_Rule_vIn44 ) -> (T_Rule_vOut44 )
+data T_Rule_vIn44  = T_Rule_vIn44 !(Options) !(Int)
+data T_Rule_vOut44  = T_Rule_vOut44 !(Bool) !(Bool) !(Rules) !(Int)
 {-# NOINLINE sem_Rule_Rule #-}
 sem_Rule_Rule :: (Maybe Identifier) -> T_Pattern  -> (Expression) -> (Bool) -> (String) -> (Bool) -> (Bool) -> (Bool) -> (Maybe Error) -> (Bool) -> T_Rule 
-sem_Rule_Rule !arg_mbName_ arg_pattern_ !arg_rhs_ !arg_owrt_ !arg_origin_ !arg_explicit_ !arg_pure_ !arg_identity_ !arg_mbError_ !arg_eager_ = T_Rule (return st29) where
-   {-# NOINLINE st29 #-}
-   !st29 = let
-      v28 :: T_Rule_v28 
-      v28 = \ !(T_Rule_vIn28 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> ( let
-         _patternX17 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_))
-         (T_Pattern_vOut16 _patternIcontainsVars _patternIcopy _patternIdefinedAttrs _patternIerrors _patternIlocals _patternIoutput) = inv_Pattern_s17 _patternX17 (T_Pattern_vIn16 _patternOcon _patternOnt)
-         _lhsOisPure :: Bool
-         _lhsOisPure = rule273 arg_pure_
-         (_output1,_mbAlias) = rule274 _output
-         _lhsOuniq :: Int
-         (_outputs,_lhsOuniq) = rule275 _lhsIoptions _lhsIuniq _output1
-         _lhsOoutputs :: Rules
-         _lhsOoutputs = rule276 _mbAlias _outputs
-         _lhsOruleNames :: Set Identifier
-         _lhsOruleNames = rule277 arg_mbName_
-         _lhsOcontainsVars :: Bool
-         _lhsOcontainsVars = rule278 _patternIcontainsVars
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule279 _patternIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule280 _patternIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule281 _patternIlocals
-         _output = rule282 _patternIoutput arg_eager_ arg_explicit_ arg_identity_ arg_mbError_ arg_mbName_ arg_origin_ arg_owrt_ arg_pure_ arg_rhs_
-         _lhsOoutput :: Rule
-         _lhsOoutput = rule283 _output
-         _patternOcon = rule284 _lhsIcon
-         _patternOnt = rule285 _lhsInt
-         !__result_ = T_Rule_vOut28 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq
-         in __result_ )
-     in C_Rule_s29 v28
-   {-# INLINE rule273 #-}
+sem_Rule_Rule !arg_mbName_ arg_pattern_ !arg_rhs_ !arg_owrt_ !arg_origin_ !arg_explicit_ !arg_pure_ !arg_identity_ !arg_mbError_ !arg_eager_ = T_Rule (return st18) where
+   {-# NOINLINE st18 #-}
+   !st18 = let
+      k18 :: K_Rule_s18  t -> t
+      k18 K_Rule_v9 = v9
+      k18 K_Rule_v29 = v29
+      k18 K_Rule_v43 = v43
+      v9 :: T_Rule_v9 
+      v9 = \ !(T_Rule_vIn9 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> (
+         let !_patternX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_)) in
+         let _lhsOisPure :: Bool
+             !_lhsOisPure = rule273 arg_pure_ in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule277 arg_mbName_ in
+         let !(T_Pattern_vOut28 _patternIcontainsVars _patternIdefinedAttrs _patternIerrors _patternIlocals _patternIoutput) = inv_Pattern_s10 _patternX10 K_Pattern_v28 (T_Pattern_vIn28 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule278 _patternIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule279 _patternIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule280 _patternIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule281 _patternIlocals in
+         let !_output = rule282 _patternIoutput arg_eager_ arg_explicit_ arg_identity_ arg_mbError_ arg_mbName_ arg_origin_ arg_owrt_ arg_pure_ arg_rhs_ in
+         let _lhsOoutput :: Rule
+             !_lhsOoutput = rule283 _output in
+         let !(!_output1,!_mbAlias) = rule274 _output in
+         let _lhsOuniq :: Int
+             !(!_outputs,!_lhsOuniq) = rule275 _lhsIoptions _lhsIuniq _output1 in
+         let _lhsOoutputs :: Rules
+             !_lhsOoutputs = rule276 _mbAlias _outputs in
+         let !__result_ = T_Rule_vOut9 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutput _lhsOoutputs _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v29 :: T_Rule_v29 
+      v29 = \ !(T_Rule_vIn29 _lhsIoptions _lhsIuniq) -> (
+         let !_patternX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_)) in
+         let _lhsOisPure :: Bool
+             !_lhsOisPure = rule273 arg_pure_ in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule277 arg_mbName_ in
+         let !(T_Pattern_vOut28 _patternIcontainsVars _patternIdefinedAttrs _patternIerrors _patternIlocals _patternIoutput) = inv_Pattern_s10 _patternX10 K_Pattern_v28 (T_Pattern_vIn28 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule278 _patternIcontainsVars in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule279 _patternIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule280 _patternIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule281 _patternIlocals in
+         let !_output = rule282 _patternIoutput arg_eager_ arg_explicit_ arg_identity_ arg_mbError_ arg_mbName_ arg_origin_ arg_owrt_ arg_pure_ arg_rhs_ in
+         let !(!_output1,!_mbAlias) = rule274 _output in
+         let _lhsOuniq :: Int
+             !(!_outputs,!_lhsOuniq) = rule275 _lhsIoptions _lhsIuniq _output1 in
+         let _lhsOoutputs :: Rules
+             !_lhsOoutputs = rule276 _mbAlias _outputs in
+         let !__result_ = T_Rule_vOut29 _lhsOcontainsVars _lhsOdefinedAttrs _lhsOerrors _lhsOisPure _lhsOlocals _lhsOoutputs _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v43 :: T_Rule_v43 
+      v43 = \ !(T_Rule_vIn43 ) -> (
+         let !_patternX10 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_)) in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule277 arg_mbName_ in
+         let !(T_Pattern_vOut50 _patternIdefinedAttrs _patternIerrors _patternIlocals _patternX55) = inv_Pattern_s10 _patternX10 K_Pattern_v50 (T_Pattern_vIn50 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule279 _patternIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule280 _patternIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule281 _patternIlocals in
+         let !__st_ = st51 _patternX55
+             !__result_ = T_Rule_vOut43 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOruleNames __st_
+          in __result_ )
+     in C_Rule_s18 k18
+   {-# NOINLINE st51 #-}
+   st51 = \ !_patternX55 -> let
+      v44 :: T_Rule_v44 
+      v44 = \ !(T_Rule_vIn44 _lhsIoptions _lhsIuniq) -> (
+         let _lhsOisPure :: Bool
+             !_lhsOisPure = rule273 arg_pure_ in
+         let !(T_Pattern_vOut51 _patternIcontainsVars _patternIoutput) = inv_Pattern_s55 _patternX55 K_Pattern_v51 (T_Pattern_vIn51 ) in
+         let _lhsOcontainsVars :: Bool
+             !_lhsOcontainsVars = rule278 _patternIcontainsVars in
+         let !_output = rule282 _patternIoutput arg_eager_ arg_explicit_ arg_identity_ arg_mbError_ arg_mbName_ arg_origin_ arg_owrt_ arg_pure_ arg_rhs_ in
+         let !(!_output1,!_mbAlias) = rule274 _output in
+         let _lhsOuniq :: Int
+             !(!_outputs,!_lhsOuniq) = rule275 _lhsIoptions _lhsIuniq _output1 in
+         let _lhsOoutputs :: Rules
+             !_lhsOoutputs = rule276 _mbAlias _outputs in
+         let !__result_ = T_Rule_vOut44 _lhsOcontainsVars _lhsOisPure _lhsOoutputs _lhsOuniq
+          in __result_ )
+     in C_Rule_s51 v44
+   {-# NOINLINE[1] rule273 #-}
    {-# LINE 557 "./src-ag/DefaultRules.ag" #-}
-   rule273 = \ pure_ ->
+   rule273 = \ !pure_ ->
                                 {-# LINE 557 "./src-ag/DefaultRules.ag" #-}
                                 pure_
-                                {-# LINE 2460 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule274 #-}
+                                {-# LINE 4207 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule274 #-}
    {-# LINE 624 "./src-ag/DefaultRules.ag" #-}
-   rule274 = \ _output ->
+   rule274 = \ !_output ->
                                          {-# LINE 624 "./src-ag/DefaultRules.ag" #-}
                                          mkRuleAlias _output
-                                         {-# LINE 2466 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule275 #-}
+                                         {-# LINE 4213 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule275 #-}
    {-# LINE 625 "./src-ag/DefaultRules.ag" #-}
-   rule275 = \ ((_lhsIoptions) :: Options) ((_lhsIuniq) :: Int) _output1 ->
+   rule275 = \ ((!_lhsIoptions) :: Options) ((!_lhsIuniq) :: Int) !_output1 ->
                                       {-# LINE 625 "./src-ag/DefaultRules.ag" #-}
                                       if needsMultiRules _lhsIoptions
                                       then multiRule _output1     _lhsIuniq
                                       else ([_output1    ], _lhsIuniq)
-                                      {-# LINE 2474 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule276 #-}
+                                      {-# LINE 4221 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule276 #-}
    {-# LINE 628 "./src-ag/DefaultRules.ag" #-}
-   rule276 = \ _mbAlias _outputs ->
+   rule276 = \ !_mbAlias !_outputs ->
                           {-# LINE 628 "./src-ag/DefaultRules.ag" #-}
                           maybe [] return _mbAlias     ++ _outputs
-                          {-# LINE 2480 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule277 #-}
+                          {-# LINE 4227 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule277 #-}
    {-# LINE 713 "./src-ag/DefaultRules.ag" #-}
-   rule277 = \ mbName_ ->
+   rule277 = \ !mbName_ ->
                                    {-# LINE 713 "./src-ag/DefaultRules.ag" #-}
                                    case mbName_ of
                                      Nothing -> Set.empty
                                      Just nm -> Set.singleton nm
-                                   {-# LINE 2488 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule278 #-}
-   rule278 = \ ((_patternIcontainsVars) :: Bool) ->
+                                   {-# LINE 4235 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule278 #-}
+   rule278 = \ ((!_patternIcontainsVars) :: Bool) ->
      _patternIcontainsVars
-   {-# INLINE rule279 #-}
-   rule279 = \ ((_patternIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+   {-# NOINLINE[1] rule279 #-}
+   rule279 = \ ((!_patternIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _patternIdefinedAttrs
-   {-# INLINE rule280 #-}
-   rule280 = \ ((_patternIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule280 #-}
+   rule280 = \ ((!_patternIerrors) :: Seq Error) ->
      _patternIerrors
-   {-# INLINE rule281 #-}
-   rule281 = \ ((_patternIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule281 #-}
+   rule281 = \ ((!_patternIlocals) :: Set Identifier) ->
      _patternIlocals
-   {-# INLINE rule282 #-}
-   rule282 = \ ((_patternIoutput) :: Pattern) eager_ explicit_ identity_ mbError_ mbName_ origin_ owrt_ pure_ rhs_ ->
+   {-# NOINLINE[1] rule282 #-}
+   rule282 = \ ((!_patternIoutput) :: Pattern) !eager_ !explicit_ !identity_ !mbError_ !mbName_ !origin_ !owrt_ !pure_ !rhs_ ->
      Rule mbName_ _patternIoutput rhs_ owrt_ origin_ explicit_ pure_ identity_ mbError_ eager_
    {-# INLINE rule283 #-}
-   rule283 = \ _output ->
+   rule283 = \ !_output ->
      _output
-   {-# INLINE rule284 #-}
-   rule284 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule285 #-}
-   rule285 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
 
 -- Rules -------------------------------------------------------
 -- wrapper
@@ -2519,8 +4260,8 @@ wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules !(T_Rules act) !(Inh_Rules _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Rules_vIn31 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq
-        !(T_Rules_vOut31 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq) <- return (inv_Rules_s32 sem arg)
+        let arg = T_Rules_vIn10 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq
+        !(T_Rules_vOut10 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq) <- return (inv_Rules_s20 sem K_Rules_v10 arg)
         return (Syn_Rules _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq)
    )
 
@@ -2531,141 +4272,248 @@ sem_Rules list = Prelude.foldr sem_Rules_Cons sem_Rules_Nil (Prelude.map sem_Rul
 
 -- semantic domain
 newtype T_Rules  = T_Rules {
-                           attach_T_Rules :: Identity (T_Rules_s32 )
+                           attach_T_Rules :: Identity (T_Rules_s20 )
                            }
-newtype T_Rules_s32  = C_Rules_s32 {
-                                   inv_Rules_s32 :: (T_Rules_v31 )
+data T_Rules_s20  where C_Rules_s20 :: {
+                                       inv_Rules_s20 :: !(forall t. K_Rules_s20  t -> t)
+                                       } -> T_Rules_s20 
+data T_Rules_s21  = C_Rules_s21
+data T_Rules_s37  = C_Rules_s37
+newtype T_Rules_s42  = C_Rules_s42 {
+                                   inv_Rules_s42 :: (T_Rules_v31 )
                                    }
-data T_Rules_s33  = C_Rules_s33
+data K_Rules_s20 k  where
+   K_Rules_v10 :: K_Rules_s20  (T_Rules_v10 )
+   K_Rules_v24 :: K_Rules_s20  (T_Rules_v24 )
+   K_Rules_v30 :: K_Rules_s20  (T_Rules_v30 )
+type T_Rules_v10  = (T_Rules_vIn10 ) -> (T_Rules_vOut10 )
+data T_Rules_vIn10  = T_Rules_vIn10 !(ConstructorIdent) !(NontermIdent) !(Options) !(Int)
+data T_Rules_vOut10  = T_Rules_vOut10 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Rules) !(Set Identifier) !(Int)
+type T_Rules_v24  = (T_Rules_vIn24 ) -> (T_Rules_vOut24 )
+data T_Rules_vIn24  = T_Rules_vIn24 !(Options) !(Int)
+data T_Rules_vOut24  = T_Rules_vOut24 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Rules) !(Set Identifier) !(Int)
+type T_Rules_v30  = (T_Rules_vIn30 ) -> (T_Rules_vOut30 )
+data T_Rules_vIn30  = T_Rules_vIn30 
+data T_Rules_vOut30  = T_Rules_vOut30 !(Set (Identifier,Identifier)) !(Seq Error) !(Set Identifier) !(Set Identifier) !(T_Rules_s42 )
 type T_Rules_v31  = (T_Rules_vIn31 ) -> (T_Rules_vOut31 )
-data T_Rules_vIn31  = T_Rules_vIn31 (ConstructorIdent) (NontermIdent) (Options) (Int)
-data T_Rules_vOut31  = T_Rules_vOut31 (Set (Identifier,Identifier)) (Seq Error) (Set Identifier) (Rules) (Set Identifier) (Int)
+data T_Rules_vIn31  = T_Rules_vIn31 !(Options) !(Int)
+data T_Rules_vOut31  = T_Rules_vOut31 !(Rules) !(Int)
 {-# NOINLINE sem_Rules_Cons #-}
 sem_Rules_Cons :: T_Rule  -> T_Rules  -> T_Rules 
-sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st32) where
-   {-# NOINLINE st32 #-}
-   !st32 = let
+sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st20) where
+   {-# NOINLINE st20 #-}
+   !st20 = let
+      k20 :: K_Rules_s20  t -> t
+      k20 K_Rules_v10 = v10
+      k20 K_Rules_v24 = v24
+      k20 K_Rules_v30 = v30
+      v10 :: T_Rules_v10 
+      v10 = \ !(T_Rules_vIn10 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> (
+         let !_hdX18 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_)) in
+         let !_tlX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_)) in
+         let !_hdOoptions = rule295 _lhsIoptions in
+         let !_hdOuniq = rule296 _lhsIuniq in
+         let !_tlOoptions = rule299 _lhsIoptions in
+         let !(T_Rule_vOut29 _hdIcontainsVars _hdIdefinedAttrs _hdIerrors _hdIisPure _hdIlocals _hdIoutputs _hdIruleNames _hdIuniq) = inv_Rule_s18 _hdX18 K_Rule_v29 (T_Rule_vIn29 _hdOoptions _hdOuniq) in
+         let !(T_Rules_vOut30 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIruleNames _tlX42) = inv_Rules_s20 _tlX20 K_Rules_v30 (T_Rules_vIn30 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule287 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule288 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule289 _hdIlocals _tlIlocals in
+         let !_tlOuniq = rule300 _hdIuniq in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule290 _hdIruleNames _tlIruleNames in
+         let !(T_Rules_vOut31 _tlIoutput _tlIuniq) = inv_Rules_s42 _tlX42 (T_Rules_vIn31 _tlOoptions _tlOuniq) in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule286 _hdIcontainsVars _hdIisPure _hdIoutputs _tlIoutput in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule292 _tlIuniq in
+         let !__result_ = T_Rules_vOut10 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v24 :: T_Rules_v24 
+      v24 = \ !(T_Rules_vIn24 _lhsIoptions _lhsIuniq) -> (
+         let !_hdX18 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_)) in
+         let !_tlX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_)) in
+         let !_hdOoptions = rule295 _lhsIoptions in
+         let !_hdOuniq = rule296 _lhsIuniq in
+         let !_tlOoptions = rule299 _lhsIoptions in
+         let !(T_Rule_vOut29 _hdIcontainsVars _hdIdefinedAttrs _hdIerrors _hdIisPure _hdIlocals _hdIoutputs _hdIruleNames _hdIuniq) = inv_Rule_s18 _hdX18 K_Rule_v29 (T_Rule_vIn29 _hdOoptions _hdOuniq) in
+         let !(T_Rules_vOut30 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIruleNames _tlX42) = inv_Rules_s20 _tlX20 K_Rules_v30 (T_Rules_vIn30 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule287 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule288 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule289 _hdIlocals _tlIlocals in
+         let !_tlOuniq = rule300 _hdIuniq in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule290 _hdIruleNames _tlIruleNames in
+         let !(T_Rules_vOut31 _tlIoutput _tlIuniq) = inv_Rules_s42 _tlX42 (T_Rules_vIn31 _tlOoptions _tlOuniq) in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule286 _hdIcontainsVars _hdIisPure _hdIoutputs _tlIoutput in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule292 _tlIuniq in
+         let !__result_ = T_Rules_vOut24 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v30 :: T_Rules_v30 
+      v30 = \ !(T_Rules_vIn30 ) -> (
+         let !_hdX18 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_)) in
+         let !_tlX20 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_)) in
+         let !(T_Rule_vOut43 _hdIdefinedAttrs _hdIerrors _hdIlocals _hdIruleNames _hdX51) = inv_Rule_s18 _hdX18 K_Rule_v43 (T_Rule_vIn43 ) in
+         let !(T_Rules_vOut30 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIruleNames _tlX42) = inv_Rules_s20 _tlX20 K_Rules_v30 (T_Rules_vIn30 ) in
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule287 _hdIdefinedAttrs _tlIdefinedAttrs in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule288 _hdIerrors _tlIerrors in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule289 _hdIlocals _tlIlocals in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule290 _hdIruleNames _tlIruleNames in
+         let !__st_ = st42 _hdX51 _tlX42
+             !__result_ = T_Rules_vOut30 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOruleNames __st_
+          in __result_ )
+     in C_Rules_s20 k20
+   {-# NOINLINE st42 #-}
+   st42 = \ !_hdX51 !_tlX42 -> let
       v31 :: T_Rules_v31 
-      v31 = \ !(T_Rules_vIn31 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> ( let
-         _hdX29 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_))
-         _tlX32 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_))
-         (T_Rule_vOut28 _hdIcontainsVars _hdIdefinedAttrs _hdIerrors _hdIisPure _hdIlocals _hdIoutput _hdIoutputs _hdIruleNames _hdIuniq) = inv_Rule_s29 _hdX29 (T_Rule_vIn28 _hdOcon _hdOnt _hdOoptions _hdOuniq)
-         (T_Rules_vOut31 _tlIdefinedAttrs _tlIerrors _tlIlocals _tlIoutput _tlIruleNames _tlIuniq) = inv_Rules_s32 _tlX32 (T_Rules_vIn31 _tlOcon _tlOnt _tlOoptions _tlOuniq)
-         _lhsOoutput :: Rules
-         _lhsOoutput = rule286 _hdIcontainsVars _hdIisPure _hdIoutputs _tlIoutput
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule287 _hdIdefinedAttrs _tlIdefinedAttrs
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule288 _hdIerrors _tlIerrors
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule289 _hdIlocals _tlIlocals
-         _lhsOruleNames :: Set Identifier
-         _lhsOruleNames = rule290 _hdIruleNames _tlIruleNames
-         _output = rule291 _hdIoutput _tlIoutput
-         _lhsOuniq :: Int
-         _lhsOuniq = rule292 _tlIuniq
-         _hdOcon = rule293 _lhsIcon
-         _hdOnt = rule294 _lhsInt
-         _hdOoptions = rule295 _lhsIoptions
-         _hdOuniq = rule296 _lhsIuniq
-         _tlOcon = rule297 _lhsIcon
-         _tlOnt = rule298 _lhsInt
-         _tlOoptions = rule299 _lhsIoptions
-         _tlOuniq = rule300 _hdIuniq
-         !__result_ = T_Rules_vOut31 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
-         in __result_ )
-     in C_Rules_s32 v31
-   {-# INLINE rule286 #-}
+      v31 = \ !(T_Rules_vIn31 _lhsIoptions _lhsIuniq) -> (
+         let !_hdOoptions = rule295 _lhsIoptions in
+         let !_hdOuniq = rule296 _lhsIuniq in
+         let !_tlOoptions = rule299 _lhsIoptions in
+         let !(T_Rule_vOut44 _hdIcontainsVars _hdIisPure _hdIoutputs _hdIuniq) = inv_Rule_s51 _hdX51 (T_Rule_vIn44 _hdOoptions _hdOuniq) in
+         let !_tlOuniq = rule300 _hdIuniq in
+         let !(T_Rules_vOut31 _tlIoutput _tlIuniq) = inv_Rules_s42 _tlX42 (T_Rules_vIn31 _tlOoptions _tlOuniq) in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule286 _hdIcontainsVars _hdIisPure _hdIoutputs _tlIoutput in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule292 _tlIuniq in
+         let !__result_ = T_Rules_vOut31 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Rules_s42 v31
+   {-# NOINLINE[1] rule286 #-}
    {-# LINE 620 "./src-ag/DefaultRules.ag" #-}
-   rule286 = \ ((_hdIcontainsVars) :: Bool) ((_hdIisPure) :: Bool) ((_hdIoutputs) :: Rules) ((_tlIoutput) :: Rules) ->
+   rule286 = \ ((!_hdIcontainsVars) :: Bool) ((!_hdIisPure) :: Bool) ((!_hdIoutputs) :: Rules) ((!_tlIoutput) :: Rules) ->
                         {-# LINE 620 "./src-ag/DefaultRules.ag" #-}
                         if _hdIcontainsVars && _hdIisPure then _hdIoutputs ++ _tlIoutput else _tlIoutput
-                        {-# LINE 2584 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule287 #-}
-   rule287 = \ ((_hdIdefinedAttrs) :: Set (Identifier,Identifier)) ((_tlIdefinedAttrs) :: Set (Identifier,Identifier)) ->
+                        {-# LINE 4401 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule287 #-}
+   rule287 = \ ((!_hdIdefinedAttrs) :: Set (Identifier,Identifier)) ((!_tlIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _hdIdefinedAttrs `Set.union` _tlIdefinedAttrs
-   {-# INLINE rule288 #-}
-   rule288 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+   {-# NOINLINE[1] rule288 #-}
+   rule288 = \ ((!_hdIerrors) :: Seq Error) ((!_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule289 #-}
-   rule289 = \ ((_hdIlocals) :: Set Identifier) ((_tlIlocals) :: Set Identifier) ->
+   {-# NOINLINE[1] rule289 #-}
+   rule289 = \ ((!_hdIlocals) :: Set Identifier) ((!_tlIlocals) :: Set Identifier) ->
      _hdIlocals `Set.union` _tlIlocals
-   {-# INLINE rule290 #-}
-   rule290 = \ ((_hdIruleNames) :: Set Identifier) ((_tlIruleNames) :: Set Identifier) ->
+   {-# NOINLINE[1] rule290 #-}
+   rule290 = \ ((!_hdIruleNames) :: Set Identifier) ((!_tlIruleNames) :: Set Identifier) ->
      _hdIruleNames `Set.union` _tlIruleNames
-   {-# INLINE rule291 #-}
-   rule291 = \ ((_hdIoutput) :: Rule) ((_tlIoutput) :: Rules) ->
-     (:) _hdIoutput _tlIoutput
-   {-# INLINE rule292 #-}
-   rule292 = \ ((_tlIuniq) :: Int) ->
+   {-# NOINLINE[1] rule292 #-}
+   rule292 = \ ((!_tlIuniq) :: Int) ->
      _tlIuniq
-   {-# INLINE rule293 #-}
-   rule293 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule294 #-}
-   rule294 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule295 #-}
-   rule295 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule295 #-}
+   rule295 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule296 #-}
-   rule296 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule296 #-}
+   rule296 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
-   {-# INLINE rule297 #-}
-   rule297 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule298 #-}
-   rule298 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule299 #-}
-   rule299 = \ ((_lhsIoptions) :: Options) ->
+   {-# NOINLINE[1] rule299 #-}
+   rule299 = \ ((!_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule300 #-}
-   rule300 = \ ((_hdIuniq) :: Int) ->
+   {-# NOINLINE[1] rule300 #-}
+   rule300 = \ ((!_hdIuniq) :: Int) ->
      _hdIuniq
 {-# NOINLINE sem_Rules_Nil #-}
 sem_Rules_Nil ::  T_Rules 
-sem_Rules_Nil  = T_Rules (return st32) where
-   {-# NOINLINE st32 #-}
-   !st32 = let
+sem_Rules_Nil  = T_Rules (return st20) where
+   {-# NOINLINE st20 #-}
+   !st20 = let
+      k20 :: K_Rules_s20  t -> t
+      k20 K_Rules_v10 = v10
+      k20 K_Rules_v24 = v24
+      k20 K_Rules_v30 = v30
+      v10 :: T_Rules_v10 
+      v10 = \ !(T_Rules_vIn10 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule301  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule302  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule303  () in
+         let !_output = rule305  () in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule304  () in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule306 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule307 _lhsIuniq in
+         let !__result_ = T_Rules_vOut10 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v24 :: T_Rules_v24 
+      v24 = \ !(T_Rules_vIn24 _lhsIoptions _lhsIuniq) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule301  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule302  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule303  () in
+         let !_output = rule305  () in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule304  () in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule306 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule307 _lhsIuniq in
+         let !__result_ = T_Rules_vOut24 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
+          in __result_ )
+      v30 :: T_Rules_v30 
+      v30 = \ !(T_Rules_vIn30 ) -> (
+         let _lhsOdefinedAttrs :: Set (Identifier,Identifier)
+             !_lhsOdefinedAttrs = rule301  () in
+         let _lhsOerrors :: Seq Error
+             !_lhsOerrors = rule302  () in
+         let _lhsOlocals :: Set Identifier
+             !_lhsOlocals = rule303  () in
+         let _lhsOruleNames :: Set Identifier
+             !_lhsOruleNames = rule304  () in
+         let !__st_ = st42  ()
+             !__result_ = T_Rules_vOut30 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOruleNames __st_
+          in __result_ )
+     in C_Rules_s20 k20
+   {-# NOINLINE st42 #-}
+   st42 = \  (_ :: ()) -> let
       v31 :: T_Rules_v31 
-      v31 = \ !(T_Rules_vIn31 _lhsIcon _lhsInt _lhsIoptions _lhsIuniq) -> ( let
-         _lhsOdefinedAttrs :: Set (Identifier,Identifier)
-         _lhsOdefinedAttrs = rule301  ()
-         _lhsOerrors :: Seq Error
-         _lhsOerrors = rule302  ()
-         _lhsOlocals :: Set Identifier
-         _lhsOlocals = rule303  ()
-         _lhsOruleNames :: Set Identifier
-         _lhsOruleNames = rule304  ()
-         _output = rule305  ()
-         _lhsOoutput :: Rules
-         _lhsOoutput = rule306 _output
-         _lhsOuniq :: Int
-         _lhsOuniq = rule307 _lhsIuniq
-         !__result_ = T_Rules_vOut31 _lhsOdefinedAttrs _lhsOerrors _lhsOlocals _lhsOoutput _lhsOruleNames _lhsOuniq
-         in __result_ )
-     in C_Rules_s32 v31
-   {-# INLINE rule301 #-}
+      v31 = \ !(T_Rules_vIn31 _lhsIoptions _lhsIuniq) -> (
+         let !_output = rule305  () in
+         let _lhsOoutput :: Rules
+             !_lhsOoutput = rule306 _output in
+         let _lhsOuniq :: Int
+             !_lhsOuniq = rule307 _lhsIuniq in
+         let !__result_ = T_Rules_vOut31 _lhsOoutput _lhsOuniq
+          in __result_ )
+     in C_Rules_s42 v31
+   {-# NOINLINE[1] rule301 #-}
    rule301 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule302 #-}
+   {-# NOINLINE[1] rule302 #-}
    rule302 = \  (_ :: ()) ->
      Seq.empty
-   {-# INLINE rule303 #-}
+   {-# NOINLINE[1] rule303 #-}
    rule303 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule304 #-}
+   {-# NOINLINE[1] rule304 #-}
    rule304 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule305 #-}
+   {-# NOINLINE[1] rule305 #-}
    rule305 = \  (_ :: ()) ->
      []
-   {-# INLINE rule306 #-}
-   rule306 = \ _output ->
+   {-# NOINLINE[1] rule306 #-}
+   rule306 = \ !_output ->
      _output
-   {-# INLINE rule307 #-}
-   rule307 = \ ((_lhsIuniq) :: Int) ->
+   {-# NOINLINE[1] rule307 #-}
+   rule307 = \ ((!_lhsIuniq) :: Int) ->
      _lhsIuniq
 
 -- TypeSig -----------------------------------------------------
@@ -2677,8 +4525,8 @@ wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
 wrap_TypeSig !(T_TypeSig act) !(Inh_TypeSig _lhsInt _lhsIparams) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_TypeSig_vIn34 _lhsInt _lhsIparams
-        !(T_TypeSig_vOut34 _lhsOoutput) <- return (inv_TypeSig_s35 sem arg)
+        let arg = T_TypeSig_vIn11 _lhsInt _lhsIparams
+        !(T_TypeSig_vOut11 _lhsOoutput) <- return (inv_TypeSig_s22 sem arg)
         return (Syn_TypeSig _lhsOoutput)
    )
 
@@ -2689,44 +4537,40 @@ sem_TypeSig ( TypeSig !name_ !tp_ ) = sem_TypeSig_TypeSig name_ tp_
 
 -- semantic domain
 newtype T_TypeSig  = T_TypeSig {
-                               attach_T_TypeSig :: Identity (T_TypeSig_s35 )
+                               attach_T_TypeSig :: Identity (T_TypeSig_s22 )
                                }
-newtype T_TypeSig_s35  = C_TypeSig_s35 {
-                                       inv_TypeSig_s35 :: (T_TypeSig_v34 )
+newtype T_TypeSig_s22  = C_TypeSig_s22 {
+                                       inv_TypeSig_s22 :: (T_TypeSig_v11 )
                                        }
-data T_TypeSig_s36  = C_TypeSig_s36
-type T_TypeSig_v34  = (T_TypeSig_vIn34 ) -> (T_TypeSig_vOut34 )
-data T_TypeSig_vIn34  = T_TypeSig_vIn34 (NontermIdent) ([Identifier])
-data T_TypeSig_vOut34  = T_TypeSig_vOut34 (TypeSig)
+data T_TypeSig_s23  = C_TypeSig_s23
+type T_TypeSig_v11  = (T_TypeSig_vIn11 ) -> (T_TypeSig_vOut11 )
+data T_TypeSig_vIn11  = T_TypeSig_vIn11 !(NontermIdent) !([Identifier])
+data T_TypeSig_vOut11  = T_TypeSig_vOut11 !(TypeSig)
 {-# NOINLINE sem_TypeSig_TypeSig #-}
 sem_TypeSig_TypeSig :: (Identifier) -> (Type) -> T_TypeSig 
-sem_TypeSig_TypeSig !arg_name_ !arg_tp_ = T_TypeSig (return st35) where
-   {-# NOINLINE st35 #-}
-   !st35 = let
-      v34 :: T_TypeSig_v34 
-      v34 = \ !(T_TypeSig_vIn34 _lhsInt _lhsIparams) -> ( let
-         _tp1 = rule308 _lhsInt _lhsIparams arg_tp_
-         _lhsOoutput :: TypeSig
-         _lhsOoutput = rule309 _tp1 arg_name_
-         _output = rule310 arg_name_ arg_tp_
-         !__result_ = T_TypeSig_vOut34 _lhsOoutput
-         in __result_ )
-     in C_TypeSig_s35 v34
+sem_TypeSig_TypeSig !arg_name_ !arg_tp_ = T_TypeSig (return st22) where
+   {-# NOINLINE st22 #-}
+   !st22 = let
+      v11 :: T_TypeSig_v11 
+      v11 = \ !(T_TypeSig_vIn11 _lhsInt _lhsIparams) -> (
+         let !_tp1 = rule308 _lhsInt _lhsIparams arg_tp_ in
+         let _lhsOoutput :: TypeSig
+             !_lhsOoutput = rule309 _tp1 arg_name_ in
+         let !__result_ = T_TypeSig_vOut11 _lhsOoutput
+          in __result_ )
+     in C_TypeSig_s22 v11
    {-# INLINE rule308 #-}
    {-# LINE 576 "./src-ag/DefaultRules.ag" #-}
-   rule308 = \ ((_lhsInt) :: NontermIdent) ((_lhsIparams) :: [Identifier]) tp_ ->
+   rule308 = \ ((!_lhsInt) :: NontermIdent) ((!_lhsIparams) :: [Identifier]) !tp_ ->
               {-# LINE 576 "./src-ag/DefaultRules.ag" #-}
               elimSelfId _lhsInt _lhsIparams tp_
-              {-# LINE 2721 "dist/build/DefaultRules.hs"#-}
+              {-# LINE 4568 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule309 #-}
    {-# LINE 617 "./src-ag/DefaultRules.ag" #-}
-   rule309 = \ _tp1 name_ ->
+   rule309 = \ !_tp1 !name_ ->
                  {-# LINE 617 "./src-ag/DefaultRules.ag" #-}
                  TypeSig name_ _tp1
-                 {-# LINE 2727 "dist/build/DefaultRules.hs"#-}
-   {-# INLINE rule310 #-}
-   rule310 = \ name_ tp_ ->
-     TypeSig name_ tp_
+                 {-# LINE 4574 "dist/build/DefaultRules.hs"#-}
 
 -- TypeSigs ----------------------------------------------------
 -- wrapper
@@ -2737,8 +4581,8 @@ wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
 wrap_TypeSigs !(T_TypeSigs act) !(Inh_TypeSigs _lhsInt _lhsIparams) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_TypeSigs_vIn37 _lhsInt _lhsIparams
-        !(T_TypeSigs_vOut37 _lhsOoutput) <- return (inv_TypeSigs_s38 sem arg)
+        let arg = T_TypeSigs_vIn12 _lhsInt _lhsIparams
+        !(T_TypeSigs_vOut12 _lhsOoutput) <- return (inv_TypeSigs_s24 sem arg)
         return (Syn_TypeSigs _lhsOoutput)
    )
 
@@ -2749,70 +4593,70 @@ sem_TypeSigs list = Prelude.foldr sem_TypeSigs_Cons sem_TypeSigs_Nil (Prelude.ma
 
 -- semantic domain
 newtype T_TypeSigs  = T_TypeSigs {
-                                 attach_T_TypeSigs :: Identity (T_TypeSigs_s38 )
+                                 attach_T_TypeSigs :: Identity (T_TypeSigs_s24 )
                                  }
-newtype T_TypeSigs_s38  = C_TypeSigs_s38 {
-                                         inv_TypeSigs_s38 :: (T_TypeSigs_v37 )
+newtype T_TypeSigs_s24  = C_TypeSigs_s24 {
+                                         inv_TypeSigs_s24 :: (T_TypeSigs_v12 )
                                          }
-data T_TypeSigs_s39  = C_TypeSigs_s39
-type T_TypeSigs_v37  = (T_TypeSigs_vIn37 ) -> (T_TypeSigs_vOut37 )
-data T_TypeSigs_vIn37  = T_TypeSigs_vIn37 (NontermIdent) ([Identifier])
-data T_TypeSigs_vOut37  = T_TypeSigs_vOut37 (TypeSigs)
+data T_TypeSigs_s25  = C_TypeSigs_s25
+type T_TypeSigs_v12  = (T_TypeSigs_vIn12 ) -> (T_TypeSigs_vOut12 )
+data T_TypeSigs_vIn12  = T_TypeSigs_vIn12 !(NontermIdent) !([Identifier])
+data T_TypeSigs_vOut12  = T_TypeSigs_vOut12 !(TypeSigs)
 {-# NOINLINE sem_TypeSigs_Cons #-}
 sem_TypeSigs_Cons :: T_TypeSig  -> T_TypeSigs  -> T_TypeSigs 
-sem_TypeSigs_Cons arg_hd_ arg_tl_ = T_TypeSigs (return st38) where
-   {-# NOINLINE st38 #-}
-   !st38 = let
-      v37 :: T_TypeSigs_v37 
-      v37 = \ !(T_TypeSigs_vIn37 _lhsInt _lhsIparams) -> ( let
-         _hdX35 = Control.Monad.Identity.runIdentity (attach_T_TypeSig (arg_hd_))
-         _tlX38 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_tl_))
-         (T_TypeSig_vOut34 _hdIoutput) = inv_TypeSig_s35 _hdX35 (T_TypeSig_vIn34 _hdOnt _hdOparams)
-         (T_TypeSigs_vOut37 _tlIoutput) = inv_TypeSigs_s38 _tlX38 (T_TypeSigs_vIn37 _tlOnt _tlOparams)
-         _output = rule311 _hdIoutput _tlIoutput
-         _lhsOoutput :: TypeSigs
-         _lhsOoutput = rule312 _output
-         _hdOnt = rule313 _lhsInt
-         _hdOparams = rule314 _lhsIparams
-         _tlOnt = rule315 _lhsInt
-         _tlOparams = rule316 _lhsIparams
-         !__result_ = T_TypeSigs_vOut37 _lhsOoutput
-         in __result_ )
-     in C_TypeSigs_s38 v37
+sem_TypeSigs_Cons arg_hd_ arg_tl_ = T_TypeSigs (return st24) where
+   {-# NOINLINE st24 #-}
+   !st24 = let
+      v12 :: T_TypeSigs_v12 
+      v12 = \ !(T_TypeSigs_vIn12 _lhsInt _lhsIparams) -> (
+         let !_hdX22 = Control.Monad.Identity.runIdentity (attach_T_TypeSig (arg_hd_)) in
+         let !_tlX24 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_tl_)) in
+         let !_hdOnt = rule313 _lhsInt in
+         let !_hdOparams = rule314 _lhsIparams in
+         let !_tlOnt = rule315 _lhsInt in
+         let !_tlOparams = rule316 _lhsIparams in
+         let !(T_TypeSig_vOut11 _hdIoutput) = inv_TypeSig_s22 _hdX22 (T_TypeSig_vIn11 _hdOnt _hdOparams) in
+         let !(T_TypeSigs_vOut12 _tlIoutput) = inv_TypeSigs_s24 _tlX24 (T_TypeSigs_vIn12 _tlOnt _tlOparams) in
+         let !_output = rule311 _hdIoutput _tlIoutput in
+         let _lhsOoutput :: TypeSigs
+             !_lhsOoutput = rule312 _output in
+         let !__result_ = T_TypeSigs_vOut12 _lhsOoutput
+          in __result_ )
+     in C_TypeSigs_s24 v12
    {-# INLINE rule311 #-}
-   rule311 = \ ((_hdIoutput) :: TypeSig) ((_tlIoutput) :: TypeSigs) ->
+   rule311 = \ ((!_hdIoutput) :: TypeSig) ((!_tlIoutput) :: TypeSigs) ->
      (:) _hdIoutput _tlIoutput
    {-# INLINE rule312 #-}
-   rule312 = \ _output ->
+   rule312 = \ !_output ->
      _output
    {-# INLINE rule313 #-}
-   rule313 = \ ((_lhsInt) :: NontermIdent) ->
+   rule313 = \ ((!_lhsInt) :: NontermIdent) ->
      _lhsInt
    {-# INLINE rule314 #-}
-   rule314 = \ ((_lhsIparams) :: [Identifier]) ->
+   rule314 = \ ((!_lhsIparams) :: [Identifier]) ->
      _lhsIparams
    {-# INLINE rule315 #-}
-   rule315 = \ ((_lhsInt) :: NontermIdent) ->
+   rule315 = \ ((!_lhsInt) :: NontermIdent) ->
      _lhsInt
    {-# INLINE rule316 #-}
-   rule316 = \ ((_lhsIparams) :: [Identifier]) ->
+   rule316 = \ ((!_lhsIparams) :: [Identifier]) ->
      _lhsIparams
 {-# NOINLINE sem_TypeSigs_Nil #-}
 sem_TypeSigs_Nil ::  T_TypeSigs 
-sem_TypeSigs_Nil  = T_TypeSigs (return st38) where
-   {-# NOINLINE st38 #-}
-   !st38 = let
-      v37 :: T_TypeSigs_v37 
-      v37 = \ !(T_TypeSigs_vIn37 _lhsInt _lhsIparams) -> ( let
-         _output = rule317  ()
-         _lhsOoutput :: TypeSigs
-         _lhsOoutput = rule318 _output
-         !__result_ = T_TypeSigs_vOut37 _lhsOoutput
-         in __result_ )
-     in C_TypeSigs_s38 v37
+sem_TypeSigs_Nil  = T_TypeSigs (return st24) where
+   {-# NOINLINE st24 #-}
+   !st24 = let
+      v12 :: T_TypeSigs_v12 
+      v12 = \ !(T_TypeSigs_vIn12 _lhsInt _lhsIparams) -> (
+         let !_output = rule317  () in
+         let _lhsOoutput :: TypeSigs
+             !_lhsOoutput = rule318 _output in
+         let !__result_ = T_TypeSigs_vOut12 _lhsOoutput
+          in __result_ )
+     in C_TypeSigs_s24 v12
    {-# INLINE rule317 #-}
    rule317 = \  (_ :: ()) ->
      []
    {-# INLINE rule318 #-}
-   rule318 = \ _output ->
+   rule318 = \ !_output ->
      _output

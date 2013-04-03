@@ -2,6 +2,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module SemHsTokens where
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 10 "dist/build/SemHsTokens.hs" #-}
+
 {-# LINE 4 "./src-ag/SemHsTokens.ag" #-}
 
 import qualified Data.Sequence as Seq
@@ -12,12 +18,6 @@ import Pretty
 import TokenDef
 import HsToken
 import ErrorMessages
-{-# LINE 16 "dist/build/SemHsTokens.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 22 "dist/build/SemHsTokens.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

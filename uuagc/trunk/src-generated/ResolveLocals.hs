@@ -2,6 +2,31 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ResolveLocals where
+{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+
+-- AbstractSyntax.ag imports
+import Data.Set(Set)
+import Data.Map(Map)
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import Macro --marcos
+import CommonTypes
+import ErrorMessages
+{-# LINE 16 "dist/build/ResolveLocals.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 23 "dist/build/ResolveLocals.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 29 "dist/build/ResolveLocals.hs" #-}
+
 {-# LINE 15 "./src-ag/ResolveLocals.ag" #-}
 
 import qualified Data.Set as Set
@@ -19,31 +44,6 @@ import HsToken(HsTokensRoot(HsTokensRoot))
 import HsTokenScanner(lexTokens)
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 import Data.Maybe
-{-# LINE 23 "dist/build/ResolveLocals.hs" #-}
-
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
-
--- AbstractSyntax.ag imports
-import Data.Set(Set)
-import Data.Map(Map)
-import Patterns    (Pattern(..),Patterns)
-import Expression  (Expression(..))
-import Macro --marcos
-import CommonTypes
-import ErrorMessages
-{-# LINE 35 "dist/build/ResolveLocals.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 42 "dist/build/ResolveLocals.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
 {-# LINE 48 "dist/build/ResolveLocals.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -84,13 +84,13 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
    st2 = let
       v1 :: T_Child_v1 
       v1 = \ (T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap) -> ( let
+         _chnt = rule0 arg_name_ arg_tp_
+         _inh = rule1 _chnt _lhsIinhMap
+         _syn = rule2 _chnt _lhsIsynMap
          _lhsOattributes :: [(Identifier,Attributes,Attributes)]
-         _lhsOattributes = rule0 _inh _syn arg_name_
+         _lhsOattributes = rule3 _inh _syn arg_name_
          _lhsOfield :: (Identifier,Type,ChildKind)
-         _lhsOfield = rule1 arg_kind_ arg_name_ arg_tp_
-         _chnt = rule2 arg_name_ arg_tp_
-         _inh = rule3 _chnt _lhsIinhMap
-         _syn = rule4 _chnt _lhsIsynMap
+         _lhsOfield = rule4 arg_kind_ arg_name_ arg_tp_
          _output = rule5 arg_kind_ arg_name_ arg_tp_
          _lhsOoutput :: Child
          _lhsOoutput = rule6 _output
@@ -98,38 +98,38 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 84 "./src-ag/ResolveLocals.ag" #-}
-   rule0 = \ _inh _syn name_ ->
-                             {-# LINE 84 "./src-ag/ResolveLocals.ag" #-}
-                             [(name_, _inh    , _syn    )]
-                             {-# LINE 106 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule1 #-}
-   {-# LINE 87 "./src-ag/ResolveLocals.ag" #-}
-   rule1 = \ kind_ name_ tp_ ->
-                        {-# LINE 87 "./src-ag/ResolveLocals.ag" #-}
-                        (name_, tp_, kind_)
-                        {-# LINE 112 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule2 #-}
    {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-   rule2 = \ name_ tp_ ->
+   rule0 = \ name_ tp_ ->
                        {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 121 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule3 #-}
+                       {-# LINE 109 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule1 #-}
    {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-   rule3 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 127 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule4 #-}
+                      {-# LINE 115 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule2 #-}
    {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-   rule4 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 133 "dist/build/ResolveLocals.hs"#-}
+                      {-# LINE 121 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule3 #-}
+   {-# LINE 84 "./src-ag/ResolveLocals.ag" #-}
+   rule3 = \ _inh _syn name_ ->
+                             {-# LINE 84 "./src-ag/ResolveLocals.ag" #-}
+                             [(name_, _inh    , _syn    )]
+                             {-# LINE 127 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule4 #-}
+   {-# LINE 87 "./src-ag/ResolveLocals.ag" #-}
+   rule4 = \ kind_ name_ tp_ ->
+                        {-# LINE 87 "./src-ag/ResolveLocals.ag" #-}
+                        (name_, tp_, kind_)
+                        {-# LINE 133 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule5 #-}
    rule5 = \ kind_ name_ tp_ ->
      Child name_ tp_ kind_
@@ -430,10 +430,10 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
       v10 = \ (T_Grammar_vIn10 _lhsIoptions) -> ( let
          _nontsX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
          (T_Nonterminals_vOut16 _nontsIerrors _nontsIinhMap' _nontsInonts _nontsIoutput _nontsIsynMap') = inv_Nonterminals_s17 _nontsX17 (T_Nonterminals_vIn16 _nontsOallnts _nontsOinhMap _nontsOmergeMap _nontsOoptions _nontsOsynMap)
-         _nontsOallnts = rule39 _nontsInonts
-         _nontsOmergeMap = rule40 arg_mergeMap_
-         _nontsOinhMap = rule41 _nontsIinhMap'
-         _nontsOsynMap = rule42 _nontsIsynMap'
+         _nontsOinhMap = rule39 _nontsIinhMap'
+         _nontsOsynMap = rule40 _nontsIsynMap'
+         _nontsOallnts = rule41 _nontsInonts
+         _nontsOmergeMap = rule42 arg_mergeMap_
          _lhsOerrors :: Seq Error
          _lhsOerrors = rule43 _nontsIerrors
          _output = rule44 _nontsIoutput arg_aroundsMap_ arg_augmentsMap_ arg_contextMap_ arg_derivings_ arg_manualAttrOrderMap_ arg_mergeMap_ arg_paramMap_ arg_pragmas_ arg_quantMap_ arg_typeSyns_ arg_uniqueMap_ arg_useMap_ arg_wrappers_
@@ -444,29 +444,29 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule39 #-}
-   {-# LINE 60 "./src-ag/ResolveLocals.ag" #-}
-   rule39 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
-                             {-# LINE 60 "./src-ag/ResolveLocals.ag" #-}
-                             map fst (_nontsInonts)
-                             {-# LINE 452 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule40 #-}
-   {-# LINE 120 "./src-ag/ResolveLocals.ag" #-}
-   rule40 = \ mergeMap_ ->
-                                 {-# LINE 120 "./src-ag/ResolveLocals.ag" #-}
-                                 Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
-                                 {-# LINE 458 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule41 #-}
    {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-   rule41 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+   rule39 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 464 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule42 #-}
+                             {-# LINE 452 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule40 #-}
    {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-   rule42 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+   rule40 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 470 "dist/build/ResolveLocals.hs"#-}
+                             {-# LINE 458 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule41 #-}
+   {-# LINE 60 "./src-ag/ResolveLocals.ag" #-}
+   rule41 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
+                             {-# LINE 60 "./src-ag/ResolveLocals.ag" #-}
+                             map fst (_nontsInonts)
+                             {-# LINE 464 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule42 #-}
+   {-# LINE 120 "./src-ag/ResolveLocals.ag" #-}
+   rule42 = \ mergeMap_ ->
+                                 {-# LINE 120 "./src-ag/ResolveLocals.ag" #-}
+                                 Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
+                                 {-# LINE 470 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule43 #-}
    rule43 = \ ((_nontsIerrors) :: Seq Error) ->
      _nontsIerrors
@@ -519,16 +519,16 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
       v13 = \ (T_Nonterminal_vIn13 _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap) -> ( let
          _prodsX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
          (T_Productions_vOut28 _prodsIcons _prodsIerrors _prodsIoutput) = inv_Productions_s29 _prodsX29 (T_Productions_vIn28 _prodsOallnts _prodsOinh _prodsOinhMap _prodsOmergeMap _prodsOnt _prodsOoptions _prodsOsyn _prodsOsynMap)
-         _lhsOnonts :: [(NontermIdent,[ConstructorIdent])]
-         _lhsOnonts = rule47 _prodsIcons arg_nt_
-         _prodsOnt = rule48 arg_nt_
-         _prodsOinh = rule49 arg_inh_
-         _prodsOsyn = rule50 arg_syn_
-         _mergeMap = rule51 _lhsImergeMap arg_nt_
          _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule52 arg_inh_ arg_nt_
+         _lhsOinhMap' = rule47 arg_inh_ arg_nt_
          _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule53 arg_nt_ arg_syn_
+         _lhsOsynMap' = rule48 arg_nt_ arg_syn_
+         _lhsOnonts :: [(NontermIdent,[ConstructorIdent])]
+         _lhsOnonts = rule49 _prodsIcons arg_nt_
+         _prodsOnt = rule50 arg_nt_
+         _prodsOinh = rule51 arg_inh_
+         _prodsOsyn = rule52 arg_syn_
+         _mergeMap = rule53 _lhsImergeMap arg_nt_
          _lhsOerrors :: Seq Error
          _lhsOerrors = rule54 _prodsIerrors
          _output = rule55 _prodsIoutput arg_inh_ arg_nt_ arg_params_ arg_syn_
@@ -543,47 +543,47 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          in __result_ )
      in C_Nonterminal_s14 v13
    {-# INLINE rule47 #-}
-   {-# LINE 64 "./src-ag/ResolveLocals.ag" #-}
-   rule47 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
-                                {-# LINE 64 "./src-ag/ResolveLocals.ag" #-}
-                                [(nt_,_prodsIcons)]
-                                {-# LINE 551 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule48 #-}
-   {-# LINE 112 "./src-ag/ResolveLocals.ag" #-}
-   rule48 = \ nt_ ->
-                               {-# LINE 112 "./src-ag/ResolveLocals.ag" #-}
-                               nt_
-                               {-# LINE 557 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule49 #-}
-   {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
-   rule49 = \ inh_ ->
-                               {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
-                               inh_
-                               {-# LINE 563 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule50 #-}
-   {-# LINE 116 "./src-ag/ResolveLocals.ag" #-}
-   rule50 = \ syn_ ->
-                               {-# LINE 116 "./src-ag/ResolveLocals.ag" #-}
-                               syn_
-                               {-# LINE 569 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule51 #-}
-   {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
-   rule51 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
-                                                {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
-                                                Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                                {-# LINE 575 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule52 #-}
    {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-   rule52 = \ inh_ nt_ ->
+   rule47 = \ inh_ nt_ ->
                                  {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 581 "dist/build/ResolveLocals.hs"#-}
-   {-# INLINE rule53 #-}
+                                 {-# LINE 551 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule48 #-}
    {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-   rule53 = \ nt_ syn_ ->
+   rule48 = \ nt_ syn_ ->
                                  {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 587 "dist/build/ResolveLocals.hs"#-}
+                                 {-# LINE 557 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule49 #-}
+   {-# LINE 64 "./src-ag/ResolveLocals.ag" #-}
+   rule49 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
+                                {-# LINE 64 "./src-ag/ResolveLocals.ag" #-}
+                                [(nt_,_prodsIcons)]
+                                {-# LINE 563 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule50 #-}
+   {-# LINE 112 "./src-ag/ResolveLocals.ag" #-}
+   rule50 = \ nt_ ->
+                               {-# LINE 112 "./src-ag/ResolveLocals.ag" #-}
+                               nt_
+                               {-# LINE 569 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
+   rule51 = \ inh_ ->
+                               {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
+                               inh_
+                               {-# LINE 575 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule52 #-}
+   {-# LINE 116 "./src-ag/ResolveLocals.ag" #-}
+   rule52 = \ syn_ ->
+                               {-# LINE 116 "./src-ag/ResolveLocals.ag" #-}
+                               syn_
+                               {-# LINE 581 "dist/build/ResolveLocals.hs"#-}
+   {-# INLINE rule53 #-}
+   {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
+   rule53 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
+                                                {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
+                                                Map.findWithDefault Map.empty nt_ _lhsImergeMap
+                                                {-# LINE 587 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule54 #-}
    rule54 = \ ((_prodsIerrors) :: Seq Error) ->
      _prodsIerrors

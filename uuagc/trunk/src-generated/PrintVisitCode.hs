@@ -2,6 +2,26 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintVisitCode where
+{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+
+import Patterns
+import CommonTypes
+import Data.Map(Map)
+import Data.Set(Set)
+{-# LINE 12 "dist/build/PrintVisitCode.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 19 "dist/build/PrintVisitCode.hs" #-}
+
+{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
+
+import Code (Decl,Expr)
+{-# LINE 24 "dist/build/PrintVisitCode.hs" #-}
+
 {-# LINE 10 "./src-ag/PrintVisitCode.ag" #-}
 
 import CommonTypes
@@ -23,26 +43,6 @@ import UU.Scanner.Position
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Data.Maybe(fromJust,isJust)
-{-# LINE 27 "dist/build/PrintVisitCode.hs" #-}
-
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
-
-import Patterns
-import CommonTypes
-import Data.Map(Map)
-import Data.Set(Set)
-{-# LINE 35 "dist/build/PrintVisitCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 42 "dist/build/PrintVisitCode.hs" #-}
-
-{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
-
-import Code (Decl,Expr)
 {-# LINE 47 "dist/build/PrintVisitCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

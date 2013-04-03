@@ -2,6 +2,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintErrorMessages where
+{-# LINE 2 "./src-ag/ErrorMessages.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import Pretty
+import CodeSyntax
+import CommonTypes
+{-# LINE 12 "dist/build/PrintErrorMessages.hs" #-}
+
 {-# LINE 4 "./src-ag/PrintErrorMessages.ag" #-}
 
 import UU.Scanner.Position(Pos(..), noPos)
@@ -9,14 +17,6 @@ import ErrorMessages
 import Data.List(mapAccumL)
 import GrammarInfo
 import qualified Control.Monad.Error.Class as Err
-{-# LINE 13 "dist/build/PrintErrorMessages.hs" #-}
-
-{-# LINE 2 "./src-ag/ErrorMessages.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import Pretty
-import CodeSyntax
-import CommonTypes
 {-# LINE 21 "dist/build/PrintErrorMessages.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
