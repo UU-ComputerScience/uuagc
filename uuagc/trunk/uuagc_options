@@ -43,10 +43,10 @@ options: module, pretty, data, genlinepragmas, checkParseHaskell
 
 
 file: "src-ag/Desugar.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren, visit
 
 file: "src-ag/DefaultRules.ag"
-options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren, visit
 
 file: "src-ag/GenerateCode.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
