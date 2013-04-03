@@ -2,6 +2,26 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module GenerateCode where
+{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+
+import Patterns
+import CommonTypes
+import Data.Map(Map)
+import Data.Set(Set)
+{-# LINE 12 "dist/build/GenerateCode.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 19 "dist/build/GenerateCode.hs" #-}
+
+{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
+
+import Code (Decl,Expr)
+{-# LINE 24 "dist/build/GenerateCode.hs" #-}
+
 {-# LINE 9 "./src-ag/GenerateCode.ag" #-}
 
 import CommonTypes
@@ -28,26 +48,6 @@ import HsTokenScanner
 import Data.List(partition,intersperse)
 import Data.Maybe(fromJust,isJust)
 
-{-# LINE 32 "dist/build/GenerateCode.hs" #-}
-
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
-
-import Patterns
-import CommonTypes
-import Data.Map(Map)
-import Data.Set(Set)
-{-# LINE 40 "dist/build/GenerateCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 47 "dist/build/GenerateCode.hs" #-}
-
-{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
-
-import Code (Decl,Expr)
 {-# LINE 52 "dist/build/GenerateCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -856,7 +856,7 @@ sem_CNonterminal_CNonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ a
                                         appParams nm = TypeApp (SimpleType nm) (map SimpleType params')
                                         typeSig = TSig wrapNT (evalTp $ appParams (sdtype nt_) `Arr` (appParams inhNT `Arr` appParams synNT))
                                         mkstrict = Named _lhsIo_strictwrap
-                                        mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just nt_) params' $ removeDeforested t | (f,t) <- attrs]] False []
+                                        mkdata n attrs = Data n params' [Record n [mkstrict (getName f++"_"++n) $ evalTp $ typeToCodeType (Just nt_) params' t | (f,t) <- attrs]] False []
                                         datas = [mkdata inhNT inhAttrs, mkdata synNT synAttrs]
                                     in datas ++ [ typeSig
                                                 , Decl (Fun wrapNT [varPat, App inhNT inhVars])
@@ -2525,7 +2525,7 @@ sem_CRule_CChildVisit arg_name_ arg_nt_ arg_nr_ arg_inh_ arg_syn_ arg_isLast_ = 
    {-# LINE 394 "./src-ag/GenerateCode.ag" #-}
    rule332 = \ _evalTp _orgParams nt_ ->
                                {-# LINE 394 "./src-ag/GenerateCode.ag" #-}
-                               _evalTp     . typeToCodeType (Just nt_) _orgParams     . removeDeforested
+                               _evalTp     . typeToCodeType (Just nt_) _orgParams
                                {-# LINE 2530 "dist/build/GenerateCode.hs"#-}
    {-# INLINE rule333 #-}
    {-# LINE 395 "./src-ag/GenerateCode.ag" #-}

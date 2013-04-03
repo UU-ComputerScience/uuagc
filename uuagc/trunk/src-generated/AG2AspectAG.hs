@@ -2,6 +2,37 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module AG2AspectAG where
+{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+
+-- AbstractSyntax.ag imports
+import Data.Set(Set)
+import Data.Map(Map)
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import Macro --marcos
+import CommonTypes
+import ErrorMessages
+{-# LINE 16 "dist/build/AG2AspectAG.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 23 "dist/build/AG2AspectAG.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 29 "dist/build/AG2AspectAG.hs" #-}
+
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 35 "dist/build/AG2AspectAG.hs" #-}
+
 {-# LINE 8 "./src-ag/AG2AspectAG.ag" #-}
 
 import Options
@@ -21,37 +52,6 @@ import TokenDef
 import CommonTypes
 
 -- import Debug.Trace
-{-# LINE 25 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
-
--- AbstractSyntax.ag imports
-import Data.Set(Set)
-import Data.Map(Map)
-import Patterns    (Pattern(..),Patterns)
-import Expression  (Expression(..))
-import Macro --marcos
-import CommonTypes
-import ErrorMessages
-{-# LINE 37 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 44 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 50 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 56 "dist/build/AG2AspectAG.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -415,107 +415,128 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
    st2 = let
       v1 :: T_Child_v1 
       v1 = \ (T_Child_vIn1 _lhsIext _lhsIinhMap _lhsIinhNoGroup _lhsInewAtts _lhsIo_noGroup _lhsIo_rename _lhsIppNt _lhsIppProd _lhsIsynMap _lhsIsynNoGroup) -> ( let
+         _chnt = rule0 arg_name_ arg_tp_
+         _inh = rule1 _chnt _lhsIinhMap
+         _syn = rule2 _chnt _lhsIsynMap
          _lhsOprdInh :: Attributes
-         _lhsOprdInh = rule0 _inh
-         _ppCh = rule1 arg_name_
-         _ppTCh = rule2 arg_tp_
-         _chName = rule3 _lhsIppNt _lhsIppProd _ppCh
+         _lhsOprdInh = rule3 _inh
+         _ppCh = rule4 arg_name_
+         _ppTCh = rule5 arg_tp_
+         _chName = rule6 _lhsIppNt _lhsIppProd _ppCh
          _lhsOppDL :: [PP_Doc]
-         _lhsOppDL = rule4 _chName _ppTCh arg_kind_
-         _chLabel = rule5 _chName
-         _chTLabel = rule6 _chName
+         _lhsOppDL = rule7 _chName _ppTCh arg_kind_
+         _chLabel = rule8 _chName
+         _chTLabel = rule9 _chName
          _lhsOppL :: PP_Doc
-         _lhsOppL = rule7 _chLabel _chTLabel _ppTCh arg_kind_
+         _lhsOppL = rule10 _chLabel _chTLabel _ppTCh arg_kind_
          _lhsOppLI :: [PP_Doc]
-         _lhsOppLI = rule8 _chLabel _chTLabel
+         _lhsOppLI = rule11 _chLabel _chTLabel
          _lhsOppR :: PP_Doc
-         _lhsOppR = rule9 _lhsIppNt _lhsIppProd arg_name_
+         _lhsOppR = rule12 _lhsIppNt _lhsIppProd arg_name_
          _lhsOidCL :: [(Identifier,Type)]
-         _lhsOidCL = rule10 arg_name_ arg_tp_
+         _lhsOidCL = rule13 arg_name_ arg_tp_
          _lhsOppCSF :: [(Identifier,(PP_Doc,PP_Doc))]
-         _lhsOppCSF = rule11 _chLabel arg_kind_ arg_name_ arg_tp_
-         _chnt = rule12 arg_name_ arg_tp_
-         _inh = rule13 _chnt _lhsIinhMap
-         _syn = rule14 _chnt _lhsIsynMap
+         _lhsOppCSF = rule14 _chLabel arg_kind_ arg_name_ arg_tp_
          __result_ = T_Child_vOut1 _lhsOidCL _lhsOppCSF _lhsOppDL _lhsOppL _lhsOppLI _lhsOppR _lhsOprdInh
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
+   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   rule0 = \ name_ tp_ ->
+                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+                       case tp_ of
+                         NT nt _ _ -> nt
+                         Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
+                         Haskell t -> identifier ""
+                       {-# LINE 452 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule1 #-}
+   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+   rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIinhMap
+                      {-# LINE 458 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule2 #-}
+   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+   rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIsynMap
+                      {-# LINE 464 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule3 #-}
    {-# LINE 67 "./src-ag/AG2AspectAG.ag" #-}
-   rule0 = \ _inh ->
+   rule3 = \ _inh ->
                               {-# LINE 67 "./src-ag/AG2AspectAG.ag" #-}
                               _inh
-                              {-# LINE 449 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule1 #-}
+                              {-# LINE 470 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule4 #-}
    {-# LINE 182 "./src-ag/AG2AspectAG.ag" #-}
-   rule1 = \ name_ ->
+   rule4 = \ name_ ->
                                                       {-# LINE 182 "./src-ag/AG2AspectAG.ag" #-}
                                                       pp name_
-                                                      {-# LINE 455 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule2 #-}
+                                                      {-# LINE 476 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule5 #-}
    {-# LINE 183 "./src-ag/AG2AspectAG.ag" #-}
-   rule2 = \ tp_ ->
+   rule5 = \ tp_ ->
                                                       {-# LINE 183 "./src-ag/AG2AspectAG.ag" #-}
                                                       ppShow tp_
-                                                      {-# LINE 461 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule3 #-}
+                                                      {-# LINE 482 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule6 #-}
    {-# LINE 184 "./src-ag/AG2AspectAG.ag" #-}
-   rule3 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) _ppCh ->
+   rule6 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) _ppCh ->
                                                       {-# LINE 184 "./src-ag/AG2AspectAG.ag" #-}
                                                       ppName [_ppCh    , _lhsIppNt, _lhsIppProd]
-                                                      {-# LINE 467 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule4 #-}
+                                                      {-# LINE 488 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule7 #-}
    {-# LINE 242 "./src-ag/AG2AspectAG.ag" #-}
-   rule4 = \ _chName _ppTCh kind_ ->
+   rule7 = \ _chName _ppTCh kind_ ->
                                                     {-# LINE 242 "./src-ag/AG2AspectAG.ag" #-}
                                                     case kind_ of
                                                      ChildSyntax    ->  [ _chName      >|< pp " :: " >|< _ppTCh     ]
                                                      _              ->  []
-                                                    {-# LINE 475 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule5 #-}
+                                                    {-# LINE 496 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule8 #-}
    {-# LINE 285 "./src-ag/AG2AspectAG.ag" #-}
-   rule5 = \ _chName ->
+   rule8 = \ _chName ->
                                                      {-# LINE 285 "./src-ag/AG2AspectAG.ag" #-}
                                                      "ch_" >|< _chName
-                                                     {-# LINE 481 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule6 #-}
+                                                     {-# LINE 502 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule9 #-}
    {-# LINE 286 "./src-ag/AG2AspectAG.ag" #-}
-   rule6 = \ _chName ->
+   rule9 = \ _chName ->
                                                      {-# LINE 286 "./src-ag/AG2AspectAG.ag" #-}
                                                      "Ch_" >|< _chName
-                                                     {-# LINE 487 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule7 #-}
+                                                     {-# LINE 508 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule10 #-}
    {-# LINE 287 "./src-ag/AG2AspectAG.ag" #-}
-   rule7 = \ _chLabel _chTLabel _ppTCh kind_ ->
+   rule10 = \ _chLabel _chTLabel _ppTCh kind_ ->
                                                      {-# LINE 287 "./src-ag/AG2AspectAG.ag" #-}
                                                      "data " >|< _chTLabel     >|< "; " >|< _chLabel     >|< pp " = proxy :: " >|<
                                                      case kind_ of
                                                       ChildSyntax    ->  "Proxy " >|< "(" >|< _chTLabel     >|< ", " >|< _ppTCh     >|< ")"
                                                       _              ->  "SemType " >|< _ppTCh     >|< pp " nt =>  Proxy " >|<
                                                                          "(" >|< _chTLabel     >|< ", nt)"
-                                                     {-# LINE 497 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule8 #-}
+                                                     {-# LINE 518 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule11 #-}
    {-# LINE 293 "./src-ag/AG2AspectAG.ag" #-}
-   rule8 = \ _chLabel _chTLabel ->
+   rule11 = \ _chLabel _chTLabel ->
                                                      {-# LINE 293 "./src-ag/AG2AspectAG.ag" #-}
                                                      [ _chLabel    , _chTLabel     ]
-                                                     {-# LINE 503 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule9 #-}
+                                                     {-# LINE 524 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule12 #-}
    {-# LINE 451 "./src-ag/AG2AspectAG.ag" #-}
-   rule9 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) name_ ->
+   rule12 = \ ((_lhsIppNt) :: PP_Doc) ((_lhsIppProd) :: PP_Doc) name_ ->
                                                      {-# LINE 451 "./src-ag/AG2AspectAG.ag" #-}
                                                      let chName = ppListSep "" "" "_" [pp name_, _lhsIppNt, _lhsIppProd]
                                                      in  pp name_ >|< " <- at ch_" >|< chName
-                                                     {-# LINE 510 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule10 #-}
+                                                     {-# LINE 531 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule13 #-}
    {-# LINE 489 "./src-ag/AG2AspectAG.ag" #-}
-   rule10 = \ name_ tp_ ->
+   rule13 = \ name_ tp_ ->
                                                     {-# LINE 489 "./src-ag/AG2AspectAG.ag" #-}
                                                     [ (name_, removeDeforested tp_ ) ]
-                                                    {-# LINE 516 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule11 #-}
+                                                    {-# LINE 537 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule14 #-}
    {-# LINE 827 "./src-ag/AG2AspectAG.ag" #-}
-   rule11 = \ _chLabel kind_ name_ tp_ ->
+   rule14 = \ _chLabel kind_ name_ tp_ ->
                                               {-# LINE 827 "./src-ag/AG2AspectAG.ag" #-}
                                               let
                                                    semC   = if (isNonterminal tp_)
@@ -525,28 +546,7 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                                                         ChildSyntax ->  [(name_, (  _chLabel     >|< " .=. (" >|< semC >|< ") .*. "
                                                                                 ,  _chLabel     >|< " .=. _" >|< name_ >|< " .*. "))]
                                                         _           ->  []
-                                              {-# LINE 529 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule12 #-}
-   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-   rule12 = \ name_ tp_ ->
-                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-                       case tp_ of
-                         NT nt _ _ -> nt
-                         Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
-                         Haskell t -> identifier ""
-                       {-# LINE 538 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule13 #-}
-   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-   rule13 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
-                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-                      Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 544 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule14 #-}
-   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-   rule14 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
-                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-                      Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 550 "dist/build/AG2AspectAG.hs"#-}
+                                              {-# LINE 550 "dist/build/AG2AspectAG.hs"#-}
 
 -- Children ----------------------------------------------------
 -- wrapper
@@ -847,85 +847,97 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ 
       v10 = \ (T_Grammar_vIn10 _lhsIagi _lhsIext _lhsIoptions) -> ( let
          _nontsX26 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
          (T_Nonterminals_vOut25 _nontsIextendedNTs _nontsIinhMap' _nontsIppA _nontsIppAI _nontsIppCata _nontsIppD _nontsIppDI _nontsIppL _nontsIppLI _nontsIppNtL _nontsIppR _nontsIppSF _nontsIppW _nontsIsynMap') = inv_Nonterminals_s26 _nontsX26 (T_Nonterminals_vIn25 _nontsOderivs _nontsOext _nontsOinhMap _nontsOnewAtts _nontsOnewNTs _nontsOnewProds _nontsOo_noGroup _nontsOo_rename _nontsOsynMap _nontsOtSyns)
-         _nontsOo_rename = rule50 _lhsIoptions
-         _o_noGroup = rule51 _lhsIoptions
-         _nontsOo_noGroup = rule52 _o_noGroup
-         _newAtts = rule53 _lhsIagi
-         _nontsOnewAtts = rule54 _newAtts
-         _newProds = rule55 _lhsIagi
-         _nontsOnewProds = rule56 _newProds
-         _nontsOnewNTs = rule57 _lhsIagi _nontsIextendedNTs
+         _nontsOinhMap = rule50 _nontsIinhMap'
+         _nontsOsynMap = rule51 _nontsIsynMap'
+         _nontsOo_rename = rule52 _lhsIoptions
+         _o_noGroup = rule53 _lhsIoptions
+         _nontsOo_noGroup = rule54 _o_noGroup
+         _newAtts = rule55 _lhsIagi
+         _nontsOnewAtts = rule56 _newAtts
+         _newProds = rule57 _lhsIagi
+         _nontsOnewProds = rule58 _newProds
+         _nontsOnewNTs = rule59 _lhsIagi _nontsIextendedNTs
          _lhsOimp :: PP_Doc
-         _lhsOimp = rule58 _lhsIext _nontsIppDI _nontsIppLI _ppAI _ppANT
+         _lhsOimp = rule60 _lhsIext _nontsIppDI _nontsIppLI _ppAI _ppANT
          _lhsOpp :: PP_Doc
-         _lhsOpp = rule59 _lhsIoptions _nontsIppCata _nontsIppD _nontsIppL _nontsIppSF _nontsIppW _ppA _ppR
-         _nontsOderivs = rule60 arg_derivings_
-         _nontsOtSyns = rule61 arg_typeSyns_
-         _ppA = rule62 _lhsIext _newAtts _nontsIppA _o_noGroup
-         _ppAI = rule63 _lhsIext _newAtts _nontsIppAI _o_noGroup
-         _ppANT = rule64 _newAtts _o_noGroup
-         _ppNtL = rule65 _nontsIppNtL
-         _ppR = rule66 _newAtts _nontsIppR _o_noGroup _ppNtL
-         _nontsOinhMap = rule67 _nontsIinhMap'
-         _nontsOsynMap = rule68 _nontsIsynMap'
+         _lhsOpp = rule61 _lhsIoptions _nontsIppCata _nontsIppD _nontsIppL _nontsIppSF _nontsIppW _ppA _ppR
+         _nontsOderivs = rule62 arg_derivings_
+         _nontsOtSyns = rule63 arg_typeSyns_
+         _ppA = rule64 _lhsIext _newAtts _nontsIppA _o_noGroup
+         _ppAI = rule65 _lhsIext _newAtts _nontsIppAI _o_noGroup
+         _ppANT = rule66 _newAtts _o_noGroup
+         _ppNtL = rule67 _nontsIppNtL
+         _ppR = rule68 _newAtts _nontsIppR _o_noGroup _ppNtL
          _nontsOext = rule69 _lhsIext
          __result_ = T_Grammar_vOut10 _lhsOimp _lhsOpp
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule50 #-}
+   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+   rule50 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+                             _nontsIinhMap'
+                             {-# LINE 881 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+   rule51 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+                             _nontsIsynMap'
+                             {-# LINE 887 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule52 #-}
    {-# LINE 43 "./src-ag/AG2AspectAG.ag" #-}
-   rule50 = \ ((_lhsIoptions) :: Options) ->
+   rule52 = \ ((_lhsIoptions) :: Options) ->
                                    {-# LINE 43 "./src-ag/AG2AspectAG.ag" #-}
                                    rename    _lhsIoptions
-                                   {-# LINE 881 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule51 #-}
-   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
-   rule51 = \ ((_lhsIoptions) :: Options) ->
-                                   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
-                                   sort $ noGroup    _lhsIoptions
-                                   {-# LINE 887 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule52 #-}
-   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
-   rule52 = \ _o_noGroup ->
-                                   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
-                                   _o_noGroup
                                    {-# LINE 893 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule53 #-}
+   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
+   rule53 = \ ((_lhsIoptions) :: Options) ->
+                                   {-# LINE 47 "./src-ag/AG2AspectAG.ag" #-}
+                                   sort $ noGroup    _lhsIoptions
+                                   {-# LINE 899 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule54 #-}
+   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
+   rule54 = \ _o_noGroup ->
+                                   {-# LINE 48 "./src-ag/AG2AspectAG.ag" #-}
+                                   _o_noGroup
+                                   {-# LINE 905 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule55 #-}
    {-# LINE 80 "./src-ag/AG2AspectAG.ag" #-}
-   rule53 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
+   rule55 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
                                           {-# LINE 80 "./src-ag/AG2AspectAG.ag" #-}
                                           case _lhsIagi of
                                                   (_,_,atts) -> ( Map.unions . (\(a,b) -> a++b) . unzip . Map.elems) atts
-                                          {-# LINE 900 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule54 #-}
+                                          {-# LINE 912 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule56 #-}
    {-# LINE 82 "./src-ag/AG2AspectAG.ag" #-}
-   rule54 = \ _newAtts ->
+   rule56 = \ _newAtts ->
                                           {-# LINE 82 "./src-ag/AG2AspectAG.ag" #-}
                                           _newAtts
-                                          {-# LINE 906 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule55 #-}
+                                          {-# LINE 918 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule57 #-}
    {-# LINE 88 "./src-ag/AG2AspectAG.ag" #-}
-   rule55 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
+   rule57 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ->
                                            {-# LINE 88 "./src-ag/AG2AspectAG.ag" #-}
                                            case _lhsIagi of
                                                   (_,prods,_) -> prods
-                                           {-# LINE 913 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule56 #-}
+                                           {-# LINE 925 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule58 #-}
    {-# LINE 90 "./src-ag/AG2AspectAG.ag" #-}
-   rule56 = \ _newProds ->
+   rule58 = \ _newProds ->
                                            {-# LINE 90 "./src-ag/AG2AspectAG.ag" #-}
                                            _newProds
-                                           {-# LINE 919 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule57 #-}
+                                           {-# LINE 931 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule59 #-}
    {-# LINE 112 "./src-ag/AG2AspectAG.ag" #-}
-   rule57 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ((_nontsIextendedNTs) :: Set NontermIdent) ->
+   rule59 = \ ((_lhsIagi) :: (Set NontermIdent, DataTypes, Map NontermIdent (Attributes, Attributes))) ((_nontsIextendedNTs) :: Set NontermIdent) ->
                                           {-# LINE 112 "./src-ag/AG2AspectAG.ag" #-}
                                           case _lhsIagi of
                                                   (newNTs,_,_) -> Set.difference newNTs _nontsIextendedNTs
-                                          {-# LINE 926 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule58 #-}
+                                          {-# LINE 938 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule60 #-}
    {-# LINE 127 "./src-ag/AG2AspectAG.ag" #-}
-   rule58 = \ ((_lhsIext) :: Maybe String) ((_nontsIppDI) :: [PP_Doc]) ((_nontsIppLI) :: [PP_Doc]) _ppAI _ppANT ->
+   rule60 = \ ((_lhsIext) :: Maybe String) ((_nontsIppDI) :: [PP_Doc]) ((_nontsIppLI) :: [PP_Doc]) _ppAI _ppANT ->
                                                      {-# LINE 127 "./src-ag/AG2AspectAG.ag" #-}
                                                      "import Language.Grammars.AspectAG" >-<
                                                      "import Language.Grammars.AspectAG.Derive" >-<
@@ -934,10 +946,10 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ 
                                                      "import Data.HList.TypeCastGeneric1" >-<
                                                      maybe empty ("import qualified" >#<) _lhsIext >-<
                                                      maybe empty (\ext -> "import" >#< ext >#< ppListSep "(" ")" "," (_nontsIppDI ++ _nontsIppLI ++ _ppAI     ++ _ppANT    )) _lhsIext
-                                                     {-# LINE 938 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule59 #-}
+                                                     {-# LINE 950 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule61 #-}
    {-# LINE 140 "./src-ag/AG2AspectAG.ag" #-}
-   rule59 = \ ((_lhsIoptions) :: Options) ((_nontsIppCata) :: PP_Doc) ((_nontsIppD) :: PP_Doc) ((_nontsIppL) :: PP_Doc) ((_nontsIppSF) :: PP_Doc) ((_nontsIppW) :: PP_Doc) _ppA _ppR ->
+   rule61 = \ ((_lhsIoptions) :: Options) ((_nontsIppCata) :: PP_Doc) ((_nontsIppD) :: PP_Doc) ((_nontsIppL) :: PP_Doc) ((_nontsIppSF) :: PP_Doc) ((_nontsIppW) :: PP_Doc) _ppA _ppR ->
                                                      {-# LINE 140 "./src-ag/AG2AspectAG.ag" #-}
                                                      (if dataTypes _lhsIoptions
                                                      then  "-- datatypes"               >-< _nontsIppD >-<
@@ -957,22 +969,22 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ 
                                                      (if wrappers _lhsIoptions
                                                      then  "-- wrappers"    >-< _nontsIppW
                                                      else  empty)
-                                                     {-# LINE 961 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule60 #-}
+                                                     {-# LINE 973 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule62 #-}
    {-# LINE 202 "./src-ag/AG2AspectAG.ag" #-}
-   rule60 = \ derivings_ ->
+   rule62 = \ derivings_ ->
                                                      {-# LINE 202 "./src-ag/AG2AspectAG.ag" #-}
                                                      derivings_
-                                                     {-# LINE 967 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule61 #-}
+                                                     {-# LINE 979 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule63 #-}
    {-# LINE 251 "./src-ag/AG2AspectAG.ag" #-}
-   rule61 = \ typeSyns_ ->
+   rule63 = \ typeSyns_ ->
                                                                                   {-# LINE 251 "./src-ag/AG2AspectAG.ag" #-}
                                                                                   typeSyns_
-                                                                                  {-# LINE 973 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule62 #-}
+                                                                                  {-# LINE 985 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule64 #-}
    {-# LINE 300 "./src-ag/AG2AspectAG.ag" #-}
-   rule62 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppA) :: PP_Doc) _o_noGroup ->
+   rule64 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppA) :: PP_Doc) _o_noGroup ->
                                                      {-# LINE 300 "./src-ag/AG2AspectAG.ag" #-}
                                                      vlist (map defAtt (filterAtts _newAtts     _o_noGroup    )) >-<
                                                      defAtt "loc" >-<
@@ -980,10 +992,10 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ 
                                                        Nothing    ->  defAtt "inh" >-< defAtt "syn"
                                                        otherwise  ->  empty) >-<
                                                      _nontsIppA
-                                                     {-# LINE 984 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule63 #-}
+                                                     {-# LINE 996 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule65 #-}
    {-# LINE 308 "./src-ag/AG2AspectAG.ag" #-}
-   rule63 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppAI) :: [PP_Doc]) _o_noGroup ->
+   rule65 = \ ((_lhsIext) :: Maybe String) _newAtts ((_nontsIppAI) :: [PP_Doc]) _o_noGroup ->
                                                   {-# LINE 308 "./src-ag/AG2AspectAG.ag" #-}
                                                   let atts =  filterNotAtts _newAtts     _o_noGroup
                                                   in  (foldr (\a as -> attName a : as) [] atts) ++
@@ -992,40 +1004,28 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ _ 
                                                         Nothing    ->  []
                                                         otherwise  ->  [ attName "inh", attName "syn", attTName "inh", attTName "syn" ]) ++
                                                       _nontsIppAI
-                                                  {-# LINE 996 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule64 #-}
+                                                  {-# LINE 1008 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule66 #-}
    {-# LINE 318 "./src-ag/AG2AspectAG.ag" #-}
-   rule64 = \ _newAtts _o_noGroup ->
+   rule66 = \ _newAtts _o_noGroup ->
                                                   {-# LINE 318 "./src-ag/AG2AspectAG.ag" #-}
                                                   let atts =  filterNotAtts _newAtts     _o_noGroup
                                                   in  (foldr (\a as -> ("nts_" >|< a) : as) [] atts)
-                                                  {-# LINE 1003 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule65 #-}
+                                                  {-# LINE 1015 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule67 #-}
    {-# LINE 392 "./src-ag/AG2AspectAG.ag" #-}
-   rule65 = \ ((_nontsIppNtL) :: [(PP_Doc, Attributes)]) ->
+   rule67 = \ ((_nontsIppNtL) :: [(PP_Doc, Attributes)]) ->
                                                      {-# LINE 392 "./src-ag/AG2AspectAG.ag" #-}
                                                      _nontsIppNtL
-                                                     {-# LINE 1009 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule66 #-}
+                                                     {-# LINE 1021 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule68 #-}
    {-# LINE 393 "./src-ag/AG2AspectAG.ag" #-}
-   rule66 = \ _newAtts ((_nontsIppR) :: PP_Doc) _o_noGroup _ppNtL ->
+   rule68 = \ _newAtts ((_nontsIppR) :: PP_Doc) _o_noGroup _ppNtL ->
                                                      {-# LINE 393 "./src-ag/AG2AspectAG.ag" #-}
                                                      ntsList "group" _ppNtL      >-<
                                                      vlist (map (\att -> ntsList att (filterNts att _ppNtL    )) (filterAtts _newAtts _o_noGroup    ))  >-<
                                                      _nontsIppR
-                                                     {-# LINE 1017 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule67 #-}
-   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-   rule67 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
-                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-                             _nontsIinhMap'
-                             {-# LINE 1023 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule68 #-}
-   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-   rule68 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
-                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-                             _nontsIsynMap'
-                             {-# LINE 1029 "dist/build/AG2AspectAG.hs"#-}
+                                                     {-# LINE 1029 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule69 #-}
    rule69 = \ ((_lhsIext) :: Maybe String) ->
      _lhsIext
@@ -1263,45 +1263,45 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
       v22 = \ (T_Nonterminal_vIn22 _lhsIderivs _lhsIext _lhsIinhMap _lhsInewAtts _lhsInewNTs _lhsInewProds _lhsIo_noGroup _lhsIo_rename _lhsIsynMap _lhsItSyns) -> ( let
          _prodsX38 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
          (T_Productions_vOut37 _prodsIhasMoreProds _prodsIppA _prodsIppCata _prodsIppDL _prodsIppL _prodsIppLI _prodsIppR _prodsIppRA _prodsIppSF _prodsIppSPF _prodsIprdInh) = inv_Productions_s38 _prodsX38 (T_Productions_vIn37 _prodsOext _prodsOinh _prodsOinhMap _prodsOinhNoGroup _prodsOnewAtts _prodsOnewNT _prodsOnewProds _prodsOo_noGroup _prodsOo_rename _prodsOppNt _prodsOsyn _prodsOsynMap _prodsOsynNoGroup)
-         _inhNoGroup = rule70 _lhsIo_noGroup _prodsIprdInh
-         _synNoGroup = rule71 _lhsIo_noGroup arg_syn_
-         _prodsOinhNoGroup = rule72 _inhNoGroup
-         _prodsOsynNoGroup = rule73 _synNoGroup
-         _prodsOnewProds = rule74 _lhsInewProds arg_nt_
-         _lhsOextendedNTs :: Set NontermIdent
-         _lhsOextendedNTs = rule75 _prodsIhasMoreProds arg_nt_
-         _ppNt = rule76 arg_nt_
-         _prodsOppNt = rule77 _ppNt
-         _lhsOppD :: PP_Doc
-         _lhsOppD = rule78 _lhsIderivs _lhsInewNTs _lhsItSyns _ppNt _prodsIppDL arg_nt_
-         _lhsOppDI :: [PP_Doc]
-         _lhsOppDI = rule79 _lhsInewNTs _ppNt arg_nt_
-         _ntLabel = rule80 _ppNt
-         _lhsOppL :: PP_Doc
-         _lhsOppL = rule81 _lhsInewNTs _ntLabel _ppNt _prodsIppL arg_nt_
-         _lhsOppLI :: [PP_Doc]
-         _lhsOppLI = rule82 _lhsInewNTs _ntLabel _prodsIppLI arg_nt_
-         _lhsOppA :: PP_Doc
-         _lhsOppA = rule83 _inhNoGroup _lhsInewNTs _ppNt _prodsIppA _synNoGroup arg_inh_ arg_nt_ arg_syn_
-         _lhsOppAI :: [PP_Doc]
-         _lhsOppAI = rule84 _lhsInewNTs _ppNt arg_nt_
-         _lhsOppNtL :: [(PP_Doc, Attributes)]
-         _lhsOppNtL = rule85 arg_inh_ arg_nt_ arg_syn_
-         _prodsOnewNT = rule86 _lhsInewNTs arg_nt_
-         _lhsOppR :: PP_Doc
-         _lhsOppR = rule87 _prodsIppR arg_nt_
-         _lhsOppCata :: PP_Doc
-         _lhsOppCata = rule88 _ppNt _prodsIppCata
-         _prodsOsyn = rule89 arg_syn_
-         _prodsOinh = rule90 arg_inh_
-         _lhsOppSF :: PP_Doc
-         _lhsOppSF = rule91 _inhNoGroup _ppNt _prodsIppSPF _synNoGroup
-         _lhsOppW :: PP_Doc
-         _lhsOppW = rule92 _inhNoGroup _ppNt arg_inh_
          _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule93 arg_inh_ arg_nt_
+         _lhsOinhMap' = rule70 arg_inh_ arg_nt_
          _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule94 arg_nt_ arg_syn_
+         _lhsOsynMap' = rule71 arg_nt_ arg_syn_
+         _inhNoGroup = rule72 _lhsIo_noGroup _prodsIprdInh
+         _synNoGroup = rule73 _lhsIo_noGroup arg_syn_
+         _prodsOinhNoGroup = rule74 _inhNoGroup
+         _prodsOsynNoGroup = rule75 _synNoGroup
+         _prodsOnewProds = rule76 _lhsInewProds arg_nt_
+         _lhsOextendedNTs :: Set NontermIdent
+         _lhsOextendedNTs = rule77 _prodsIhasMoreProds arg_nt_
+         _ppNt = rule78 arg_nt_
+         _prodsOppNt = rule79 _ppNt
+         _lhsOppD :: PP_Doc
+         _lhsOppD = rule80 _lhsIderivs _lhsInewNTs _lhsItSyns _ppNt _prodsIppDL arg_nt_
+         _lhsOppDI :: [PP_Doc]
+         _lhsOppDI = rule81 _lhsInewNTs _ppNt arg_nt_
+         _ntLabel = rule82 _ppNt
+         _lhsOppL :: PP_Doc
+         _lhsOppL = rule83 _lhsInewNTs _ntLabel _ppNt _prodsIppL arg_nt_
+         _lhsOppLI :: [PP_Doc]
+         _lhsOppLI = rule84 _lhsInewNTs _ntLabel _prodsIppLI arg_nt_
+         _lhsOppA :: PP_Doc
+         _lhsOppA = rule85 _inhNoGroup _lhsInewNTs _ppNt _prodsIppA _synNoGroup arg_inh_ arg_nt_ arg_syn_
+         _lhsOppAI :: [PP_Doc]
+         _lhsOppAI = rule86 _lhsInewNTs _ppNt arg_nt_
+         _lhsOppNtL :: [(PP_Doc, Attributes)]
+         _lhsOppNtL = rule87 arg_inh_ arg_nt_ arg_syn_
+         _prodsOnewNT = rule88 _lhsInewNTs arg_nt_
+         _lhsOppR :: PP_Doc
+         _lhsOppR = rule89 _prodsIppR arg_nt_
+         _lhsOppCata :: PP_Doc
+         _lhsOppCata = rule90 _ppNt _prodsIppCata
+         _prodsOsyn = rule91 arg_syn_
+         _prodsOinh = rule92 arg_inh_
+         _lhsOppSF :: PP_Doc
+         _lhsOppSF = rule93 _inhNoGroup _ppNt _prodsIppSPF _synNoGroup
+         _lhsOppW :: PP_Doc
+         _lhsOppW = rule94 _inhNoGroup _ppNt arg_inh_
          _prodsOext = rule95 _lhsIext
          _prodsOinhMap = rule96 _lhsIinhMap
          _prodsOnewAtts = rule97 _lhsInewAtts
@@ -1312,60 +1312,72 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
          in __result_ )
      in C_Nonterminal_s23 v22
    {-# INLINE rule70 #-}
+   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+   rule70 = \ inh_ nt_ ->
+                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ inh_
+                                 {-# LINE 1320 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule71 #-}
+   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+   rule71 = \ nt_ syn_ ->
+                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ syn_
+                                 {-# LINE 1326 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule72 #-}
    {-# LINE 51 "./src-ag/AG2AspectAG.ag" #-}
-   rule70 = \ ((_lhsIo_noGroup) :: [String]) ((_prodsIprdInh) :: Attributes) ->
+   rule72 = \ ((_lhsIo_noGroup) :: [String]) ((_prodsIprdInh) :: Attributes) ->
                                         {-# LINE 51 "./src-ag/AG2AspectAG.ag" #-}
                                         Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) _prodsIprdInh
-                                        {-# LINE 1320 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule71 #-}
+                                        {-# LINE 1332 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule73 #-}
    {-# LINE 52 "./src-ag/AG2AspectAG.ag" #-}
-   rule71 = \ ((_lhsIo_noGroup) :: [String]) syn_ ->
+   rule73 = \ ((_lhsIo_noGroup) :: [String]) syn_ ->
                                         {-# LINE 52 "./src-ag/AG2AspectAG.ag" #-}
                                         Map.filterWithKey (\att _ -> elem (getName att) _lhsIo_noGroup) syn_
-                                        {-# LINE 1326 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule72 #-}
+                                        {-# LINE 1338 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule74 #-}
    {-# LINE 57 "./src-ag/AG2AspectAG.ag" #-}
-   rule72 = \ _inhNoGroup ->
+   rule74 = \ _inhNoGroup ->
                                           {-# LINE 57 "./src-ag/AG2AspectAG.ag" #-}
                                           map show $ Map.keys _inhNoGroup
-                                          {-# LINE 1332 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule73 #-}
+                                          {-# LINE 1344 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule75 #-}
    {-# LINE 58 "./src-ag/AG2AspectAG.ag" #-}
-   rule73 = \ _synNoGroup ->
+   rule75 = \ _synNoGroup ->
                                           {-# LINE 58 "./src-ag/AG2AspectAG.ag" #-}
                                           map show $ Map.keys _synNoGroup
-                                          {-# LINE 1338 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule74 #-}
+                                          {-# LINE 1350 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule76 #-}
    {-# LINE 94 "./src-ag/AG2AspectAG.ag" #-}
-   rule74 = \ ((_lhsInewProds) ::  DataTypes ) nt_ ->
+   rule76 = \ ((_lhsInewProds) ::  DataTypes ) nt_ ->
                                    {-# LINE 94 "./src-ag/AG2AspectAG.ag" #-}
                                    case Map.lookup nt_ _lhsInewProds of
                                           Just prds -> prds
                                           Nothing   -> Map.empty
-                                   {-# LINE 1346 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule75 #-}
+                                   {-# LINE 1358 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule77 #-}
    {-# LINE 107 "./src-ag/AG2AspectAG.ag" #-}
-   rule75 = \ ((_prodsIhasMoreProds) ::  Bool ) nt_ ->
+   rule77 = \ ((_prodsIhasMoreProds) ::  Bool ) nt_ ->
                                                   {-# LINE 107 "./src-ag/AG2AspectAG.ag" #-}
                                                   if _prodsIhasMoreProds
                                                   then Set.singleton nt_
                                                   else Set.empty
-                                                  {-# LINE 1354 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule76 #-}
+                                                  {-# LINE 1366 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule78 #-}
    {-# LINE 173 "./src-ag/AG2AspectAG.ag" #-}
-   rule76 = \ nt_ ->
+   rule78 = \ nt_ ->
                                                       {-# LINE 173 "./src-ag/AG2AspectAG.ag" #-}
                                                       pp nt_
-                                                      {-# LINE 1360 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule77 #-}
+                                                      {-# LINE 1372 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule79 #-}
    {-# LINE 190 "./src-ag/AG2AspectAG.ag" #-}
-   rule77 = \ _ppNt ->
+   rule79 = \ _ppNt ->
                                                      {-# LINE 190 "./src-ag/AG2AspectAG.ag" #-}
                                                      _ppNt
-                                                     {-# LINE 1366 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule78 #-}
+                                                     {-# LINE 1378 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule80 #-}
    {-# LINE 209 "./src-ag/AG2AspectAG.ag" #-}
-   rule78 = \ ((_lhsIderivs) :: Derivings) ((_lhsInewNTs) :: Set NontermIdent) ((_lhsItSyns) :: TypeSyns) _ppNt ((_prodsIppDL) :: [PP_Doc]) nt_ ->
+   rule80 = \ ((_lhsIderivs) :: Derivings) ((_lhsInewNTs) :: Set NontermIdent) ((_lhsItSyns) :: TypeSyns) _ppNt ((_prodsIppDL) :: [PP_Doc]) nt_ ->
                                        {-# LINE 209 "./src-ag/AG2AspectAG.ag" #-}
                                        if (Set.member nt_ _lhsInewNTs)
                                        then  case (lookup nt_ _lhsItSyns) of
@@ -1376,42 +1388,42 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
                                                                    Nothing   -> empty
                                                       Just tp ->  "type " >|< _ppNt     >|< " = " >|< ppShow tp
                                        else  empty
-                                       {-# LINE 1380 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule79 #-}
+                                       {-# LINE 1392 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule81 #-}
    {-# LINE 222 "./src-ag/AG2AspectAG.ag" #-}
-   rule79 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
+   rule81 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
                                        {-# LINE 222 "./src-ag/AG2AspectAG.ag" #-}
                                        if (not $ Set.member nt_ _lhsInewNTs)
                                        then  [ _ppNt     ]
                                        else  [ ]
-                                       {-# LINE 1388 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule80 #-}
+                                       {-# LINE 1400 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule82 #-}
    {-# LINE 262 "./src-ag/AG2AspectAG.ag" #-}
-   rule80 = \ _ppNt ->
+   rule82 = \ _ppNt ->
                                                     {-# LINE 262 "./src-ag/AG2AspectAG.ag" #-}
                                                     "nt_" >|< _ppNt
-                                                    {-# LINE 1394 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule81 #-}
+                                                    {-# LINE 1406 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule83 #-}
    {-# LINE 264 "./src-ag/AG2AspectAG.ag" #-}
-   rule81 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel _ppNt ((_prodsIppL) :: PP_Doc) nt_ ->
+   rule83 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel _ppNt ((_prodsIppL) :: PP_Doc) nt_ ->
                                                      {-# LINE 264 "./src-ag/AG2AspectAG.ag" #-}
                                                      ( if (Set.member nt_ _lhsInewNTs)
                                                        then _ntLabel     >|< " = proxy :: Proxy " >|< _ppNt
                                                        else empty)  >-<
                                                      _prodsIppL
-                                                     {-# LINE 1403 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule82 #-}
+                                                     {-# LINE 1415 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule84 #-}
    {-# LINE 269 "./src-ag/AG2AspectAG.ag" #-}
-   rule82 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel ((_prodsIppLI) :: [PP_Doc]) nt_ ->
+   rule84 = \ ((_lhsInewNTs) :: Set NontermIdent) _ntLabel ((_prodsIppLI) :: [PP_Doc]) nt_ ->
                                                      {-# LINE 269 "./src-ag/AG2AspectAG.ag" #-}
                                                      ( if (not $ Set.member nt_ _lhsInewNTs)
                                                        then [ _ntLabel     ]
                                                        else [ ])  ++
                                                      _prodsIppLI
-                                                     {-# LINE 1412 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule83 #-}
+                                                     {-# LINE 1424 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule85 #-}
    {-# LINE 324 "./src-ag/AG2AspectAG.ag" #-}
-   rule83 = \ _inhNoGroup ((_lhsInewNTs) :: Set NontermIdent) _ppNt ((_prodsIppA) :: PP_Doc) _synNoGroup inh_ nt_ syn_ ->
+   rule85 = \ _inhNoGroup ((_lhsInewNTs) :: Set NontermIdent) _ppNt ((_prodsIppA) :: PP_Doc) _synNoGroup inh_ nt_ syn_ ->
                                                      {-# LINE 324 "./src-ag/AG2AspectAG.ag" #-}
                                                      ( if (Set.member nt_ _lhsInewNTs)
                                                        then
@@ -1419,54 +1431,54 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
                                                               defAttRec (pp "SynG") _ppNt     syn_ _synNoGroup
                                                        else   empty) >-<
                                                      _prodsIppA
-                                                     {-# LINE 1423 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule84 #-}
+                                                     {-# LINE 1435 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule86 #-}
    {-# LINE 338 "./src-ag/AG2AspectAG.ag" #-}
-   rule84 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
+   rule86 = \ ((_lhsInewNTs) :: Set NontermIdent) _ppNt nt_ ->
                                                      {-# LINE 338 "./src-ag/AG2AspectAG.ag" #-}
                                                      if (not $ Set.member nt_ _lhsInewNTs)
                                                      then [ ppName [(pp "InhG"), _ppNt     ] >#< pp "(..)", ppName [(pp "SynG"), _ppNt     ] >#< pp "(..)" ]
                                                      else [ ]
-                                                     {-# LINE 1431 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule85 #-}
+                                                     {-# LINE 1443 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule87 #-}
    {-# LINE 406 "./src-ag/AG2AspectAG.ag" #-}
-   rule85 = \ inh_ nt_ syn_ ->
+   rule87 = \ inh_ nt_ syn_ ->
                                                      {-# LINE 406 "./src-ag/AG2AspectAG.ag" #-}
                                                      [ ("nt_" >|< nt_, Map.union inh_ syn_) ]
-                                                     {-# LINE 1437 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule86 #-}
-   {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
-   rule86 = \ ((_lhsInewNTs) :: Set NontermIdent) nt_ ->
-                                                         {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
-                                                         Set.member nt_ _lhsInewNTs
-                                                         {-# LINE 1443 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule87 #-}
-   {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
-   rule87 = \ ((_prodsIppR) :: PP_Doc) nt_ ->
-                                                     {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
-                                                     pp "----" >|< pp nt_ >-< _prodsIppR
                                                      {-# LINE 1449 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule88 #-}
-   {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
-   rule88 = \ _ppNt ((_prodsIppCata) :: PP_Doc) ->
-                                                      {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
-                                                      "----" >|< _ppNt     >-< _prodsIppCata
-                                                      {-# LINE 1455 "dist/build/AG2AspectAG.hs"#-}
+   {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
+   rule88 = \ ((_lhsInewNTs) :: Set NontermIdent) nt_ ->
+                                                         {-# LINE 415 "./src-ag/AG2AspectAG.ag" #-}
+                                                         Set.member nt_ _lhsInewNTs
+                                                         {-# LINE 1455 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule89 #-}
-   {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
-   rule89 = \ syn_ ->
-                                                     {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
-                                                     syn_
+   {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
+   rule89 = \ ((_prodsIppR) :: PP_Doc) nt_ ->
+                                                     {-# LINE 425 "./src-ag/AG2AspectAG.ag" #-}
+                                                     pp "----" >|< pp nt_ >-< _prodsIppR
                                                      {-# LINE 1461 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule90 #-}
+   {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
+   rule90 = \ _ppNt ((_prodsIppCata) :: PP_Doc) ->
+                                                      {-# LINE 735 "./src-ag/AG2AspectAG.ag" #-}
+                                                      "----" >|< _ppNt     >-< _prodsIppCata
+                                                      {-# LINE 1467 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule91 #-}
+   {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
+   rule91 = \ syn_ ->
+                                                     {-# LINE 766 "./src-ag/AG2AspectAG.ag" #-}
+                                                     syn_
+                                                     {-# LINE 1473 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule92 #-}
    {-# LINE 767 "./src-ag/AG2AspectAG.ag" #-}
-   rule90 = \ inh_ ->
+   rule92 = \ inh_ ->
                                                      {-# LINE 767 "./src-ag/AG2AspectAG.ag" #-}
                                                      inh_
-                                                     {-# LINE 1467 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule91 #-}
+                                                     {-# LINE 1479 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule93 #-}
    {-# LINE 779 "./src-ag/AG2AspectAG.ag" #-}
-   rule91 = \ _inhNoGroup _ppNt ((_prodsIppSPF) :: PP_Doc) _synNoGroup ->
+   rule93 = \ _inhNoGroup _ppNt ((_prodsIppSPF) :: PP_Doc) _synNoGroup ->
                                            {-# LINE 779 "./src-ag/AG2AspectAG.ag" #-}
                                            let      inhAtts = attTypes _inhNoGroup
                                                     synAtts = attTypes _synNoGroup
@@ -1484,26 +1496,14 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
                                                     "-- instance SemType T_" >|< _ppNt     >|< " " >|< _ppNt     >-<
                                                     "-- sem_" >|< _ppNt     >|< " :: " >|< _ppNt     >|< " -> T_" >|<  _ppNt     >-<
                                                     _prodsIppSPF
-                                           {-# LINE 1488 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule92 #-}
+                                           {-# LINE 1500 "dist/build/AG2AspectAG.hs"#-}
+   {-# INLINE rule94 #-}
    {-# LINE 847 "./src-ag/AG2AspectAG.ag" #-}
-   rule92 = \ _inhNoGroup _ppNt inh_ ->
+   rule94 = \ _inhNoGroup _ppNt inh_ ->
                                               {-# LINE 847 "./src-ag/AG2AspectAG.ag" #-}
                                               ppName [pp "wrap", _ppNt    ] >|< " sem " >|< attVars inh_ >|< " = " >-<
                                               "   sem " >|< attFields inh_ _inhNoGroup     _ppNt
-                                              {-# LINE 1495 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule93 #-}
-   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-   rule93 = \ inh_ nt_ ->
-                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-                                 Map.singleton nt_ inh_
-                                 {-# LINE 1501 "dist/build/AG2AspectAG.hs"#-}
-   {-# INLINE rule94 #-}
-   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-   rule94 = \ nt_ syn_ ->
-                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-                                 Map.singleton nt_ syn_
-                                 {-# LINE 1507 "dist/build/AG2AspectAG.hs"#-}
+                                              {-# LINE 1507 "dist/build/AG2AspectAG.hs"#-}
    {-# INLINE rule95 #-}
    rule95 = \ ((_lhsIext) :: Maybe String) ->
      _lhsIext

@@ -2,6 +2,22 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Transform where
+{-# LINE 2 "./src-ag/ConcreteSyntax.ag" #-}
+
+import UU.Scanner.Position (Pos)
+import Patterns   (Pattern)
+import Expression (Expression)
+import CommonTypes
+import Macro --marcos
+{-# LINE 13 "dist/build/Transform.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 20 "dist/build/Transform.hs" #-}
+
 {-# LINE 8 "./src-ag/Transform.ag" #-}
 
 import Control.Monad(mplus,mzero)
@@ -23,22 +39,6 @@ import HsToken
 
 import RhsCheck
 import Debug.Trace
-{-# LINE 27 "dist/build/Transform.hs" #-}
-
-{-# LINE 2 "./src-ag/ConcreteSyntax.ag" #-}
-
-import UU.Scanner.Position (Pos)
-import Patterns   (Pattern)
-import Expression (Expression)
-import CommonTypes
-import Macro --marcos
-{-# LINE 36 "dist/build/Transform.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 43 "dist/build/Transform.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -416,15 +416,21 @@ addSelf name atMap = let (eInh,eSyn) = Map.findWithDefault(Map.empty,Map.empty) 
                      in  Map.insert name (eInh, Map.insert (Ident "self" noPos) Self eSyn)atMap
 {-# LINE 418 "dist/build/Transform.hs" #-}
 
-{-# LINE 1219 "./src-ag/Transform.ag" #-}
+{-# LINE 1215 "./src-ag/Transform.ag" #-}
+
+-- We want the last Just in the list
+flipmplus = flip mplus
+{-# LINE 424 "dist/build/Transform.hs" #-}
+
+{-# LINE 1223 "./src-ag/Transform.ag" #-}
 
 makeType :: Set NontermIdent -> Type -> Type
 makeType nts tp@(NT x _ _)   | Set.member x nts = tp
                              | otherwise        = Haskell (typeToHaskellString Nothing [] tp)
 makeType _   tp                                 = tp
-{-# LINE 426 "dist/build/Transform.hs" #-}
+{-# LINE 432 "dist/build/Transform.hs" #-}
 
-{-# LINE 1225 "./src-ag/Transform.ag" #-}
+{-# LINE 1229 "./src-ag/Transform.ag" #-}
 
 constructGrammar ::    Set NontermIdent
                     -> ParamMap
@@ -494,15 +500,15 @@ constructGrammar _ ntParams prodParams gram prodOrder constraints attrs uses der
                                    in Production con ps cs cldrn rules tsigs' mbMacro
                             in Nonterminal nt params inh syn (map alt prs)
    in Grammar tsyns uses derivings wrap nonts pragmaMap orderMap ntParams contextMap quantMap uniqueMap augmentsMap aroundsMap mergeMap
-{-# LINE 498 "dist/build/Transform.hs" #-}
+{-# LINE 504 "dist/build/Transform.hs" #-}
 
-{-# LINE 1296 "./src-ag/Transform.ag" #-}
+{-# LINE 1300 "./src-ag/Transform.ag" #-}
 
 mapUnionWithSetUnion :: Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent) -> Map NontermIdent (Set ConstructorIdent)
 mapUnionWithSetUnion = Map.unionWith Set.union
 mapUnionWithPlusPlus :: Map BlockInfo [a] -> Map BlockInfo [a] -> Map BlockInfo [a]
 mapUnionWithPlusPlus = Map.unionWith (++)
-{-# LINE 506 "dist/build/Transform.hs" #-}
+{-# LINE 512 "dist/build/Transform.hs" #-}
 -- AG ----------------------------------------------------------
 -- wrapper
 data Inh_AG  = Inh_AG { options_Inh_AG :: (Options) }
@@ -638,7 +644,7 @@ sem_AG_AG arg_elems_ = T_AG (return st2) where
                                        _checkedArounds
                                        _checkedMerges
                                        _allMacros
-                      {-# LINE 642 "dist/build/Transform.hs"#-}
+                      {-# LINE 648 "dist/build/Transform.hs"#-}
    {-# INLINE rule1 #-}
    {-# LINE 258 "./src-ag/Transform.ag" #-}
    rule1 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
@@ -648,42 +654,42 @@ sem_AG_AG arg_elems_ = T_AG (return st2) where
                                              | otherwise      = con : lst
                                  g _ _ = error "This is not possible"
                              in  foldr f Map.empty _elemsIcollectedFields
-                             {-# LINE 652 "dist/build/Transform.hs"#-}
+                             {-# LINE 658 "dist/build/Transform.hs"#-}
    {-# INLINE rule2 #-}
    {-# LINE 263 "./src-ag/Transform.ag" #-}
    rule2 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
                              {-# LINE 263 "./src-ag/Transform.ag" #-}
                              let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                              in  foldr f (Map.empty) _elemsIcollectedFields
-                             {-# LINE 659 "dist/build/Transform.hs"#-}
+                             {-# LINE 665 "dist/build/Transform.hs"#-}
    {-# INLINE rule3 #-}
    {-# LINE 266 "./src-ag/Transform.ag" #-}
    rule3 = \ ((_elemsIcollectedConstraints) :: [(NontermIdent, ConstructorIdent, [Type])]) ->
                                 {-# LINE 266 "./src-ag/Transform.ag" #-}
                                 let f (nt,con,fm) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con fm)
                                 in  foldr f (Map.empty) _elemsIcollectedConstraints
-                                {-# LINE 666 "dist/build/Transform.hs"#-}
+                                {-# LINE 672 "dist/build/Transform.hs"#-}
    {-# INLINE rule4 #-}
    {-# LINE 269 "./src-ag/Transform.ag" #-}
    rule4 = \ ((_elemsIcollectedConParams) :: [(NontermIdent, ConstructorIdent, Set Identifier)]) ->
                                 {-# LINE 269 "./src-ag/Transform.ag" #-}
                                 let f (nt,con,fm) = Map.insertWith (Map.unionWith Set.union) nt (Map.singleton con fm)
                                 in  foldr f (Map.empty) _elemsIcollectedConParams
-                                {-# LINE 673 "dist/build/Transform.hs"#-}
+                                {-# LINE 679 "dist/build/Transform.hs"#-}
    {-# INLINE rule5 #-}
    {-# LINE 272 "./src-ag/Transform.ag" #-}
    rule5 = \ ((_elemsIcollectedFields) :: [(NontermIdent, ConstructorIdent, FieldMap)]) ->
                              {-# LINE 272 "./src-ag/Transform.ag" #-}
                              let f (nt,con,_) = Map.insertWith (++) nt [con]
                              in  foldr f (Map.empty) _elemsIcollectedFields
-                             {-# LINE 680 "dist/build/Transform.hs"#-}
+                             {-# LINE 686 "dist/build/Transform.hs"#-}
    {-# INLINE rule6 #-}
    {-# LINE 275 "./src-ag/Transform.ag" #-}
    rule6 = \ ((_elemsIcollectedRules) :: [ (NontermIdent, ConstructorIdent, RuleInfo)]) ->
                              {-# LINE 275 "./src-ag/Transform.ag" #-}
                              let f (nt,con,r) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con [r])
                              in  foldr f (Map.empty) _elemsIcollectedRules
-                             {-# LINE 687 "dist/build/Transform.hs"#-}
+                             {-# LINE 693 "dist/build/Transform.hs"#-}
    {-# INLINE rule7 #-}
    {-# LINE 278 "./src-ag/Transform.ag" #-}
    rule7 = \ _allAttrDecls ((_elemsIcollectedSigs) :: [ (NontermIdent, ConstructorIdent, SigInfo) ]) ((_elemsIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
@@ -693,152 +699,152 @@ sem_AG_AG arg_elems_ = T_AG (return st2) where
                              in  foldr f (Map.empty) ( _elemsIcollectedSigs
                                                      ++ [ (nt, con, (ident,typeof nt ref))  | (nt, con, us) <- _elemsIcollectedUniques, (ident,ref) <- us ]
                                                      )
-                             {-# LINE 697 "dist/build/Transform.hs"#-}
+                             {-# LINE 703 "dist/build/Transform.hs"#-}
    {-# INLINE rule8 #-}
    {-# LINE 284 "./src-ag/Transform.ag" #-}
    rule8 = \ ((_elemsIcollectedInsts) :: [ (NontermIdent, ConstructorIdent, [Identifier]) ]) ->
                              {-# LINE 284 "./src-ag/Transform.ag" #-}
                              let f (nt,con,is) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con is)
                              in  foldr f (Map.empty) _elemsIcollectedInsts
-                             {-# LINE 704 "dist/build/Transform.hs"#-}
+                             {-# LINE 710 "dist/build/Transform.hs"#-}
    {-# INLINE rule9 #-}
    {-# LINE 287 "./src-ag/Transform.ag" #-}
    rule9 = \ ((_elemsIcollectedUniques) :: [ (NontermIdent, ConstructorIdent, [UniqueInfo]) ]) ->
                              {-# LINE 287 "./src-ag/Transform.ag" #-}
                              let f (nt,con,us) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con us)
                              in foldr f (Map.empty) _elemsIcollectedUniques
-                             {-# LINE 711 "dist/build/Transform.hs"#-}
+                             {-# LINE 717 "dist/build/Transform.hs"#-}
    {-# INLINE rule10 #-}
    {-# LINE 289 "./src-ag/Transform.ag" #-}
    rule10 = \ ((_elemsIcollectedAugments) :: [ (NontermIdent, ConstructorIdent, [AugmentInfo]) ]) ->
                              {-# LINE 289 "./src-ag/Transform.ag" #-}
                              let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                              in foldr f Map.empty _elemsIcollectedAugments
-                             {-# LINE 718 "dist/build/Transform.hs"#-}
+                             {-# LINE 724 "dist/build/Transform.hs"#-}
    {-# INLINE rule11 #-}
    {-# LINE 291 "./src-ag/Transform.ag" #-}
    rule11 = \ ((_elemsIcollectedArounds) :: [ (NontermIdent, ConstructorIdent, [AroundInfo])  ]) ->
                               {-# LINE 291 "./src-ag/Transform.ag" #-}
                               let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                               in foldr f Map.empty _elemsIcollectedArounds
-                              {-# LINE 725 "dist/build/Transform.hs"#-}
+                              {-# LINE 731 "dist/build/Transform.hs"#-}
    {-# INLINE rule12 #-}
    {-# LINE 293 "./src-ag/Transform.ag" #-}
    rule12 = \ ((_elemsIcollectedMerges) :: [ (NontermIdent, ConstructorIdent, [MergeInfo])   ]) ->
                               {-# LINE 293 "./src-ag/Transform.ag" #-}
                               let f (nt,con,as) = Map.insertWith (Map.unionWith (++)) nt (Map.singleton con as)
                                in foldr f Map.empty _elemsIcollectedMerges
-                              {-# LINE 732 "dist/build/Transform.hs"#-}
+                              {-# LINE 738 "dist/build/Transform.hs"#-}
    {-# INLINE rule13 #-}
    {-# LINE 296 "./src-ag/Transform.ag" #-}
    rule13 = \ _allAugments ->
                                 {-# LINE 296 "./src-ag/Transform.ag" #-}
                                 let gen _ = []
                                 in Map.map (Map.map gen) _allAugments
-                                {-# LINE 739 "dist/build/Transform.hs"#-}
+                                {-# LINE 745 "dist/build/Transform.hs"#-}
    {-# INLINE rule14 #-}
    {-# LINE 299 "./src-ag/Transform.ag" #-}
    rule14 = \ _allAttrDecls _allFields _allInsts _allMerges _allRules _allSigs ->
                                 {-# LINE 299 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkRules _allAttrDecls _allFields _allInsts _allSigs     _allMerges    )) _allRules
-                                {-# LINE 745 "dist/build/Transform.hs"#-}
+                                {-# LINE 751 "dist/build/Transform.hs"#-}
    {-# INLINE rule15 #-}
    {-# LINE 300 "./src-ag/Transform.ag" #-}
    rule15 = \ _allRules ->
                                 {-# LINE 300 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . checkRuleNames) _allRules
-                                {-# LINE 751 "dist/build/Transform.hs"#-}
+                                {-# LINE 757 "dist/build/Transform.hs"#-}
    {-# INLINE rule16 #-}
    {-# LINE 301 "./src-ag/Transform.ag" #-}
    rule16 = \ _allSigs ->
                                 {-# LINE 301 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkSigs                                                 )) _allSigs
-                                {-# LINE 757 "dist/build/Transform.hs"#-}
+                                {-# LINE 763 "dist/build/Transform.hs"#-}
    {-# INLINE rule17 #-}
    {-# LINE 302 "./src-ag/Transform.ag" #-}
    rule17 = \ _allFields _allInsts _allNonterminals _allSigs ->
                                 {-# LINE 302 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkInsts _allNonterminals     _allSigs     _allFields   )) _allInsts
-                                {-# LINE 763 "dist/build/Transform.hs"#-}
+                                {-# LINE 769 "dist/build/Transform.hs"#-}
    {-# INLINE rule18 #-}
    {-# LINE 303 "./src-ag/Transform.ag" #-}
    rule18 = \ _allAttrDecls _allUniques ->
                                 {-# LINE 303 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkUniques _allAttrDecls                                )) _allUniques
-                                {-# LINE 769 "dist/build/Transform.hs"#-}
+                                {-# LINE 775 "dist/build/Transform.hs"#-}
    {-# INLINE rule19 #-}
    {-# LINE 304 "./src-ag/Transform.ag" #-}
    rule19 = \ _allAttrDecls _allAugments ->
                                 {-# LINE 304 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkAugments _allAttrDecls                               )) _allAugments
-                                {-# LINE 775 "dist/build/Transform.hs"#-}
+                                {-# LINE 781 "dist/build/Transform.hs"#-}
    {-# INLINE rule20 #-}
    {-# LINE 305 "./src-ag/Transform.ag" #-}
    rule20 = \ _allArounds _allFields ->
                                 {-# LINE 305 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkArounds _allFields    )) _allArounds
-                                {-# LINE 781 "dist/build/Transform.hs"#-}
+                                {-# LINE 787 "dist/build/Transform.hs"#-}
    {-# INLINE rule21 #-}
    {-# LINE 306 "./src-ag/Transform.ag" #-}
    rule21 = \ _allFields _allInsts _allMerges _allNonterminals ->
                                 {-# LINE 306 "./src-ag/Transform.ag" #-}
                                 Map.mapWithKey (Map.mapWithKey . (checkMerges _allNonterminals     _allInsts     _allFields    )) _allMerges
-                                {-# LINE 787 "dist/build/Transform.hs"#-}
+                                {-# LINE 793 "dist/build/Transform.hs"#-}
    {-# INLINE rule22 #-}
    {-# LINE 308 "./src-ag/Transform.ag" #-}
    rule22 = \ _allRulesErrs ->
                                  {-# LINE 308 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allRulesErrs
-                                 {-# LINE 793 "dist/build/Transform.hs"#-}
+                                 {-# LINE 799 "dist/build/Transform.hs"#-}
    {-# INLINE rule23 #-}
    {-# LINE 309 "./src-ag/Transform.ag" #-}
    rule23 = \ _allSigsErrs _augmentSigs ->
                                  {-# LINE 309 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allSigsErrs     `unionunionplusplus` _augmentSigs
-                                 {-# LINE 799 "dist/build/Transform.hs"#-}
+                                 {-# LINE 805 "dist/build/Transform.hs"#-}
    {-# INLINE rule24 #-}
    {-# LINE 310 "./src-ag/Transform.ag" #-}
    rule24 = \ _allInstsErrs ->
                                  {-# LINE 310 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allInstsErrs
-                                 {-# LINE 805 "dist/build/Transform.hs"#-}
+                                 {-# LINE 811 "dist/build/Transform.hs"#-}
    {-# INLINE rule25 #-}
    {-# LINE 311 "./src-ag/Transform.ag" #-}
    rule25 = \ _allUniquesErrs ->
                                  {-# LINE 311 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allUniquesErrs
-                                 {-# LINE 811 "dist/build/Transform.hs"#-}
+                                 {-# LINE 817 "dist/build/Transform.hs"#-}
    {-# INLINE rule26 #-}
    {-# LINE 312 "./src-ag/Transform.ag" #-}
    rule26 = \ _allAugmentErrs ->
                                  {-# LINE 312 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allAugmentErrs
-                                 {-# LINE 817 "dist/build/Transform.hs"#-}
+                                 {-# LINE 823 "dist/build/Transform.hs"#-}
    {-# INLINE rule27 #-}
    {-# LINE 313 "./src-ag/Transform.ag" #-}
    rule27 = \ _allAroundsErrs ->
                                  {-# LINE 313 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allAroundsErrs
-                                 {-# LINE 823 "dist/build/Transform.hs"#-}
+                                 {-# LINE 829 "dist/build/Transform.hs"#-}
    {-# INLINE rule28 #-}
    {-# LINE 314 "./src-ag/Transform.ag" #-}
    rule28 = \ _allAttrDecls _allFields _allRules _checkedInsts _checkedRulesPre _checkedUniques ((_lhsIoptions) :: Options) ->
                                  {-# LINE 314 "./src-ag/Transform.ag" #-}
                                  Map.unionWith (Map.unionWith (++)) _checkedRulesPre     (Map.mapWithKey (Map.mapWithKey . (mkUniqueRules _lhsIoptions _allRules     _allFields     _checkedInsts     _allAttrDecls    )) _checkedUniques    )
-                                 {-# LINE 829 "dist/build/Transform.hs"#-}
+                                 {-# LINE 835 "dist/build/Transform.hs"#-}
    {-# INLINE rule29 #-}
    {-# LINE 315 "./src-ag/Transform.ag" #-}
    rule29 = \ _allMergesErrs ->
                                  {-# LINE 315 "./src-ag/Transform.ag" #-}
                                  Map.map (Map.map fst) _allMergesErrs
-                                 {-# LINE 835 "dist/build/Transform.hs"#-}
+                                 {-# LINE 841 "dist/build/Transform.hs"#-}
    {-# INLINE rule30 #-}
    {-# LINE 317 "./src-ag/Transform.ag" #-}
    rule30 = \ ((_elemsItypeSyns) :: TypeSyns) ->
                              {-# LINE 317 "./src-ag/Transform.ag" #-}
                              let f = checkForDuplicates (DupSynonym)
                              in  Seq.fromList . f . map fst $ _elemsItypeSyns
-                             {-# LINE 842 "dist/build/Transform.hs"#-}
+                             {-# LINE 848 "dist/build/Transform.hs"#-}
    {-# INLINE rule31 #-}
    {-# LINE 320 "./src-ag/Transform.ag" #-}
    rule31 = \ _allFields ->
@@ -846,106 +852,106 @@ sem_AG_AG arg_elems_ = T_AG (return st2) where
                              let g nt (con,fm) = checkForDuplicates (DupChild nt con) (map fst fm)
                                  f (nt,cfm)    = concat . map (g nt) . Map.toList $ cfm
                              in  Seq.fromList . concat . map f . Map.toList $ _allFields
-                             {-# LINE 850 "dist/build/Transform.hs"#-}
+                             {-# LINE 856 "dist/build/Transform.hs"#-}
    {-# INLINE rule32 #-}
    {-# LINE 324 "./src-ag/Transform.ag" #-}
    rule32 = \  (_ :: ()) ->
                              {-# LINE 324 "./src-ag/Transform.ag" #-}
                              let
                              in   Seq.empty
-                             {-# LINE 857 "dist/build/Transform.hs"#-}
+                             {-# LINE 863 "dist/build/Transform.hs"#-}
    {-# INLINE rule33 #-}
    {-# LINE 328 "./src-ag/Transform.ag" #-}
    rule33 = \ _allRulesErrs ->
                              {-# LINE 328 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allRulesErrs
-                             {-# LINE 864 "dist/build/Transform.hs"#-}
+                             {-# LINE 870 "dist/build/Transform.hs"#-}
    {-# INLINE rule34 #-}
    {-# LINE 331 "./src-ag/Transform.ag" #-}
    rule34 = \ _allSigsErrs ->
                              {-# LINE 331 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allSigsErrs
-                             {-# LINE 871 "dist/build/Transform.hs"#-}
+                             {-# LINE 877 "dist/build/Transform.hs"#-}
    {-# INLINE rule35 #-}
    {-# LINE 334 "./src-ag/Transform.ag" #-}
    rule35 = \ _allInstsErrs ->
                              {-# LINE 334 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allInstsErrs
-                             {-# LINE 878 "dist/build/Transform.hs"#-}
+                             {-# LINE 884 "dist/build/Transform.hs"#-}
    {-# INLINE rule36 #-}
    {-# LINE 337 "./src-ag/Transform.ag" #-}
    rule36 = \ _allUniquesErrs ->
                              {-# LINE 337 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allUniquesErrs
-                             {-# LINE 885 "dist/build/Transform.hs"#-}
+                             {-# LINE 891 "dist/build/Transform.hs"#-}
    {-# INLINE rule37 #-}
    {-# LINE 340 "./src-ag/Transform.ag" #-}
    rule37 = \ _allAugmentErrs ->
                              {-# LINE 340 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allAugmentErrs
-                             {-# LINE 892 "dist/build/Transform.hs"#-}
+                             {-# LINE 898 "dist/build/Transform.hs"#-}
    {-# INLINE rule38 #-}
    {-# LINE 343 "./src-ag/Transform.ag" #-}
    rule38 = \ _allAroundsErrs ->
                              {-# LINE 343 "./src-ag/Transform.ag" #-}
                              let  f m s = Map.fold ((><) . snd) s m
                              in Map.fold f Seq.empty _allAroundsErrs
-                             {-# LINE 899 "dist/build/Transform.hs"#-}
+                             {-# LINE 905 "dist/build/Transform.hs"#-}
    {-# INLINE rule39 #-}
    {-# LINE 346 "./src-ag/Transform.ag" #-}
    rule39 = \ _allNamesErrs ->
                               {-# LINE 346 "./src-ag/Transform.ag" #-}
                               let  f m s = Map.fold ((><)) s m
                               in Map.fold f Seq.empty _allNamesErrs
-                              {-# LINE 906 "dist/build/Transform.hs"#-}
+                              {-# LINE 912 "dist/build/Transform.hs"#-}
    {-# INLINE rule40 #-}
    {-# LINE 349 "./src-ag/Transform.ag" #-}
    rule40 = \ _allMergesErrs ->
                               {-# LINE 349 "./src-ag/Transform.ag" #-}
                               let f m s = Map.fold ((><) . snd) s m
                               in Map.fold f Seq.empty _allMergesErrs
-                              {-# LINE 913 "dist/build/Transform.hs"#-}
+                              {-# LINE 919 "dist/build/Transform.hs"#-}
    {-# INLINE rule41 #-}
    {-# LINE 352 "./src-ag/Transform.ag" #-}
    rule41 = \ ((_elemsIerrors) :: Seq Error) _errs1 _errs10 _errs11 _errs2 _errs3 _errs4 _errs5 _errs6 _errs7 _errs8 _errs9 ->
                              {-# LINE 352 "./src-ag/Transform.ag" #-}
                              _elemsIerrors >< _errs1 >< _errs2 >< _errs3 >< _errs4 >< _errs5 >< _errs6 >< _errs7 >< _errs8 >< _errs9 >< _errs10 >< _errs11
-                             {-# LINE 919 "dist/build/Transform.hs"#-}
+                             {-# LINE 925 "dist/build/Transform.hs"#-}
    {-# INLINE rule42 #-}
    {-# LINE 606 "./src-ag/Transform.ag" #-}
    rule42 = \ ((_elemsIcollectedNames) :: Set Identifier) ((_elemsIcollectedSetNames) :: Set Identifier) ->
                                  {-# LINE 606 "./src-ag/Transform.ag" #-}
                                  _elemsIcollectedNames `Set.difference` _elemsIcollectedSetNames
-                                 {-# LINE 925 "dist/build/Transform.hs"#-}
+                                 {-# LINE 931 "dist/build/Transform.hs"#-}
    {-# INLINE rule43 #-}
    {-# LINE 626 "./src-ag/Transform.ag" #-}
    rule43 = \ ((_elemsIcollectedConstructorsMap) :: Map NontermIdent (Set ConstructorIdent)) ->
                                  {-# LINE 626 "./src-ag/Transform.ag" #-}
                                  _elemsIcollectedConstructorsMap
-                                 {-# LINE 931 "dist/build/Transform.hs"#-}
+                                 {-# LINE 937 "dist/build/Transform.hs"#-}
    {-# INLINE rule44 #-}
    {-# LINE 709 "./src-ag/Transform.ag" #-}
    rule44 = \ _allNonterminals ->
                              {-# LINE 709 "./src-ag/Transform.ag" #-}
                              Map.fromList (map (\x->(x,(Set.singleton x, Set.empty))) (Set.toList _allNonterminals    ))
-                             {-# LINE 937 "dist/build/Transform.hs"#-}
+                             {-# LINE 943 "dist/build/Transform.hs"#-}
    {-# INLINE rule45 #-}
    {-# LINE 710 "./src-ag/Transform.ag" #-}
    rule45 = \ ((_elemsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ->
                              {-# LINE 710 "./src-ag/Transform.ag" #-}
                              Map.map fst _elemsIdefSets
-                             {-# LINE 943 "dist/build/Transform.hs"#-}
+                             {-# LINE 949 "dist/build/Transform.hs"#-}
    {-# INLINE rule46 #-}
    {-# LINE 1029 "./src-ag/Transform.ag" #-}
    rule46 = \  (_ :: ()) ->
                            {-# LINE 1029 "./src-ag/Transform.ag" #-}
                            Map.empty
-                           {-# LINE 949 "dist/build/Transform.hs"#-}
+                           {-# LINE 955 "dist/build/Transform.hs"#-}
    {-# INLINE rule47 #-}
    {-# LINE 1085 "./src-ag/Transform.ag" #-}
    rule47 = \ _allNonterminals ((_elemsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ((_lhsIoptions) :: Options) ->
@@ -953,34 +959,34 @@ sem_AG_AG arg_elems_ = T_AG (return st2) where
                              if withSelf _lhsIoptions
                               then foldr addSelf _elemsIattrDecls (Set.toList _allNonterminals    )
                               else               _elemsIattrDecls
-                             {-# LINE 957 "dist/build/Transform.hs"#-}
+                             {-# LINE 963 "dist/build/Transform.hs"#-}
    {-# INLINE rule48 #-}
-   {-# LINE 1323 "./src-ag/Transform.ag" #-}
+   {-# LINE 1327 "./src-ag/Transform.ag" #-}
    rule48 = \ ((_elemsIcollectedMacros) :: [(NontermIdent, ConstructorIdent, MaybeMacro)]) ->
-                             {-# LINE 1323 "./src-ag/Transform.ag" #-}
+                             {-# LINE 1327 "./src-ag/Transform.ag" #-}
                              let f (nt,con,m) = Map.insertWith (Map.union) nt (Map.singleton con m)
                              in  foldr f (Map.empty) _elemsIcollectedMacros
-                             {-# LINE 964 "dist/build/Transform.hs"#-}
+                             {-# LINE 970 "dist/build/Transform.hs"#-}
    {-# INLINE rule49 #-}
-   {-# LINE 1336 "./src-ag/Transform.ag" #-}
+   {-# LINE 1340 "./src-ag/Transform.ag" #-}
    rule49 = \ _allAttrs _allFields _allNonterminals ->
-                        {-# LINE 1336 "./src-ag/Transform.ag" #-}
+                        {-# LINE 1340 "./src-ag/Transform.ag" #-}
                         (_allNonterminals    ,_allFields    ,_allAttrs    )
-                        {-# LINE 970 "dist/build/Transform.hs"#-}
+                        {-# LINE 976 "dist/build/Transform.hs"#-}
    {-# INLINE rule50 #-}
-   {-# LINE 1338 "./src-ag/Transform.ag" #-}
+   {-# LINE 1342 "./src-ag/Transform.ag" #-}
    rule50 = \ _allNonterminals ((_elemsIattrs) :: Map NontermIdent (Attributes, Attributes)) ((_lhsIoptions) :: Options) ->
-                         {-# LINE 1338 "./src-ag/Transform.ag" #-}
+                         {-# LINE 1342 "./src-ag/Transform.ag" #-}
                          if withSelf _lhsIoptions
                               then foldr addSelf _elemsIattrs (Set.toList _allNonterminals    )
                               else               _elemsIattrs
-                         {-# LINE 978 "dist/build/Transform.hs"#-}
+                         {-# LINE 984 "dist/build/Transform.hs"#-}
    {-# INLINE rule51 #-}
-   {-# LINE 1346 "./src-ag/Transform.ag" #-}
+   {-# LINE 1350 "./src-ag/Transform.ag" #-}
    rule51 = \  (_ :: ()) ->
-                        {-# LINE 1346 "./src-ag/Transform.ag" #-}
+                        {-# LINE 1350 "./src-ag/Transform.ag" #-}
                         Map.empty
-                        {-# LINE 984 "dist/build/Transform.hs"#-}
+                        {-# LINE 990 "dist/build/Transform.hs"#-}
    {-# INLINE rule52 #-}
    rule52 = \ ((_elemsIblocks) :: Blocks) ->
      _elemsIblocks
@@ -1069,7 +1075,7 @@ sem_Alt_Alt _ arg_names_ arg_tyvars_ arg_fields_ arg_macro_ = T_Alt (return st5)
                                         | nt  <- Set.toList _lhsInts
                                         , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                                         ]
-                                        {-# LINE 1073 "dist/build/Transform.hs"#-}
+                                        {-# LINE 1079 "dist/build/Transform.hs"#-}
    {-# INLINE rule61 #-}
    {-# LINE 244 "./src-ag/Transform.ag" #-}
    rule61 = \ ((_fieldsIcollectedConstraints) :: [Type]) ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
@@ -1078,7 +1084,7 @@ sem_Alt_Alt _ arg_names_ arg_tyvars_ arg_fields_ arg_macro_ = T_Alt (return st5)
                                         | nt  <- Set.toList _lhsInts
                                         , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                                         ]
-                                        {-# LINE 1082 "dist/build/Transform.hs"#-}
+                                        {-# LINE 1088 "dist/build/Transform.hs"#-}
    {-# INLINE rule62 #-}
    {-# LINE 248 "./src-ag/Transform.ag" #-}
    rule62 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) tyvars_ ->
@@ -1087,16 +1093,16 @@ sem_Alt_Alt _ arg_names_ arg_tyvars_ arg_fields_ arg_macro_ = T_Alt (return st5)
                                         | nt  <- Set.toList _lhsInts
                                         , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                                         ]
-                                        {-# LINE 1091 "dist/build/Transform.hs"#-}
+                                        {-# LINE 1097 "dist/build/Transform.hs"#-}
    {-# INLINE rule63 #-}
-   {-# LINE 1314 "./src-ag/Transform.ag" #-}
+   {-# LINE 1318 "./src-ag/Transform.ag" #-}
    rule63 = \ ((_lhsIallConstructors) :: Map NontermIdent (Set ConstructorIdent)) ((_lhsInts) :: Set NontermIdent) ((_namesIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) macro_ ->
-                                        {-# LINE 1314 "./src-ag/Transform.ag" #-}
+                                        {-# LINE 1318 "./src-ag/Transform.ag" #-}
                                         [ (nt, con, macro_)
                                         | nt  <- Set.toList _lhsInts
                                         , con <- Set.toList (_namesIconstructors (Map.findWithDefault Set.empty nt _lhsIallConstructors))
                                         ]
-                                        {-# LINE 1100 "dist/build/Transform.hs"#-}
+                                        {-# LINE 1106 "dist/build/Transform.hs"#-}
    {-# INLINE rule64 #-}
    rule64 = \ ((_namesIcollectedConstructorNames) :: Set ConstructorIdent) ->
      _namesIcollectedConstructorNames
@@ -1289,7 +1295,7 @@ sem_Attrs_Attrs _ arg_inh_ arg_chn_ arg_syn_ = T_Attrs (return st11) where
    rule82 = \ _inherited ((_lhsIallFields) :: DataTypes) ((_lhsIattrDecls) :: Map NontermIdent (Attributes, Attributes)) ((_lhsInts) :: Set NontermIdent) _synthesized ->
                                      {-# LINE 1038 "./src-ag/Transform.ag" #-}
                                      checkAttrs _lhsIallFields (Set.toList _lhsInts) _inherited _synthesized _lhsIattrDecls
-                                     {-# LINE 1293 "dist/build/Transform.hs"#-}
+                                     {-# LINE 1299 "dist/build/Transform.hs"#-}
    {-# INLINE rule83 #-}
    {-# LINE 1040 "./src-ag/Transform.ag" #-}
    rule83 = \ ((_lhsIallNonterminals) :: Set NontermIdent) chn_ inh_ syn_ ->
@@ -1302,13 +1308,13 @@ sem_Attrs_Attrs _ arg_inh_ arg_chn_ arg_syn_ = T_Attrs (return st11) where
                                                      (syn,uses2) = splitAttrs syn_
                                                      isUse (_,(e1,e2,_)) = not (null e1 || null e2)
                                                  in (inh++chn,chn++syn, Map.fromList (Prelude.filter isUse (uses1++uses2)))
-                                                 {-# LINE 1306 "dist/build/Transform.hs"#-}
+                                                 {-# LINE 1312 "dist/build/Transform.hs"#-}
    {-# INLINE rule84 #-}
    {-# LINE 1048 "./src-ag/Transform.ag" #-}
    rule84 = \ ((_lhsInts) :: Set NontermIdent) _useMap ->
                          {-# LINE 1048 "./src-ag/Transform.ag" #-}
                          Map.fromList (zip (Set.toList _lhsInts) (repeat _useMap))
-                         {-# LINE 1312 "dist/build/Transform.hs"#-}
+                         {-# LINE 1318 "dist/build/Transform.hs"#-}
    {-# INLINE rule85 #-}
    {-# LINE 1050 "./src-ag/Transform.ag" #-}
    rule85 = \ ((_lhsIoptions) :: Options) chn_ inh_ syn_ ->
@@ -1325,23 +1331,23 @@ sem_Attrs_Attrs _ arg_inh_ arg_chn_ arg_syn_ = T_Attrs (return st11) where
                                    check _ = Seq.empty
                                in foldr (Seq.><) Seq.empty errs
                           else Seq.empty
-                          {-# LINE 1329 "dist/build/Transform.hs"#-}
+                          {-# LINE 1335 "dist/build/Transform.hs"#-}
    {-# INLINE rule86 #-}
    {-# LINE 1062 "./src-ag/Transform.ag" #-}
    rule86 = \ _errors _errors1 ->
                          {-# LINE 1062 "./src-ag/Transform.ag" #-}
                          _errors     Seq.>< _errors1
-                         {-# LINE 1335 "dist/build/Transform.hs"#-}
+                         {-# LINE 1341 "dist/build/Transform.hs"#-}
    {-# INLINE rule87 #-}
-   {-# LINE 1350 "./src-ag/Transform.ag" #-}
+   {-# LINE 1354 "./src-ag/Transform.ag" #-}
    rule87 = \ _inherited ((_lhsIattrs) :: Map NontermIdent (Attributes, Attributes)) ((_lhsInts) :: Set NontermIdent) _synthesized ->
-                          {-# LINE 1350 "./src-ag/Transform.ag" #-}
+                          {-# LINE 1354 "./src-ag/Transform.ag" #-}
                           let ins decls nt = if Map.member nt decls
                                              then  Map.update (\(inh,syn) -> Just ( Map.union inh $ Map.fromList _inherited
                                                                                        , Map.union syn $ Map.fromList _synthesized)) nt decls
                                              else  Map.insert nt (Map.fromList _inherited, Map.fromList _synthesized) decls
                           in  foldl ins _lhsIattrs (Set.toList _lhsInts)
-                          {-# LINE 1345 "dist/build/Transform.hs"#-}
+                          {-# LINE 1351 "dist/build/Transform.hs"#-}
    {-# INLINE rule88 #-}
    rule88 = \ _attrDecls ->
      _attrDecls
@@ -1400,13 +1406,13 @@ sem_ConstructorSet_CName arg_name_ = T_ConstructorSet (return st14) where
    rule89 = \ name_ ->
                                             {-# LINE 614 "./src-ag/Transform.ag" #-}
                                             Set.singleton name_
-                                            {-# LINE 1404 "dist/build/Transform.hs"#-}
+                                            {-# LINE 1410 "dist/build/Transform.hs"#-}
    {-# INLINE rule90 #-}
    {-# LINE 777 "./src-ag/Transform.ag" #-}
    rule90 = \ name_ ->
                                      {-# LINE 777 "./src-ag/Transform.ag" #-}
                                      \_  -> Set.singleton name_
-                                     {-# LINE 1410 "dist/build/Transform.hs"#-}
+                                     {-# LINE 1416 "dist/build/Transform.hs"#-}
    {-# INLINE rule91 #-}
    rule91 = \  (_ :: ()) ->
      Seq.empty
@@ -1435,7 +1441,7 @@ sem_ConstructorSet_CUnion arg_set1_ arg_set2_ = T_ConstructorSet (return st14) w
    rule92 = \ ((_set1Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_set2Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
                                      {-# LINE 778 "./src-ag/Transform.ag" #-}
                                      \ds -> _set1Iconstructors ds `Set.union`      _set2Iconstructors ds
-                                     {-# LINE 1439 "dist/build/Transform.hs"#-}
+                                     {-# LINE 1445 "dist/build/Transform.hs"#-}
    {-# INLINE rule93 #-}
    rule93 = \ ((_set1IcollectedConstructorNames) :: Set ConstructorIdent) ((_set2IcollectedConstructorNames) :: Set ConstructorIdent) ->
      _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
@@ -1467,7 +1473,7 @@ sem_ConstructorSet_CDifference arg_set1_ arg_set2_ = T_ConstructorSet (return st
    rule95 = \ ((_set1Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_set2Iconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ->
                                      {-# LINE 779 "./src-ag/Transform.ag" #-}
                                      \ds -> _set1Iconstructors ds `Set.difference` _set2Iconstructors ds
-                                     {-# LINE 1471 "dist/build/Transform.hs"#-}
+                                     {-# LINE 1477 "dist/build/Transform.hs"#-}
    {-# INLINE rule96 #-}
    rule96 = \ ((_set1IcollectedConstructorNames) :: Set ConstructorIdent) ((_set2IcollectedConstructorNames) :: Set ConstructorIdent) ->
      _set1IcollectedConstructorNames `Set.union` _set2IcollectedConstructorNames
@@ -1495,7 +1501,7 @@ sem_ConstructorSet_CAll  = T_ConstructorSet (return st14) where
    rule98 = \  (_ :: ()) ->
                                      {-# LINE 780 "./src-ag/Transform.ag" #-}
                                      \ds -> ds
-                                     {-# LINE 1499 "dist/build/Transform.hs"#-}
+                                     {-# LINE 1505 "dist/build/Transform.hs"#-}
    {-# INLINE rule99 #-}
    rule99 = \  (_ :: ()) ->
      Set.empty
@@ -1636,7 +1642,7 @@ sem_Elem_Data _ arg_ctx_ arg_names_ arg_params_ arg_attrs_ arg_alts_ _ = T_Elem 
    rule101 = \ ((_namesInontSet) :: Set NontermIdent) ->
                       {-# LINE 176 "./src-ag/Transform.ag" #-}
                       _namesInontSet
-                      {-# LINE 1640 "dist/build/Transform.hs"#-}
+                      {-# LINE 1646 "dist/build/Transform.hs"#-}
    {-# INLINE rule102 #-}
    {-# LINE 620 "./src-ag/Transform.ag" #-}
    rule102 = \ ((_altsIcollectedConstructorNames) :: Set ConstructorIdent) ((_namesInontSet) :: Set NontermIdent) ->
@@ -1645,7 +1651,7 @@ sem_Elem_Data _ arg_ctx_ arg_names_ arg_params_ arg_attrs_ arg_alts_ _ = T_Elem 
                                            [ (n, _altsIcollectedConstructorNames)
                                            | n <- Set.toList _namesInontSet
                                            ]
-                                           {-# LINE 1649 "dist/build/Transform.hs"#-}
+                                           {-# LINE 1655 "dist/build/Transform.hs"#-}
    {-# INLINE rule103 #-}
    {-# LINE 947 "./src-ag/Transform.ag" #-}
    rule103 = \ ((_namesInontSet) :: Set NontermIdent) params_ ->
@@ -1653,7 +1659,7 @@ sem_Elem_Data _ arg_ctx_ arg_names_ arg_params_ arg_attrs_ arg_alts_ _ = T_Elem 
                             if null params_
                             then Map.empty
                             else Map.fromList [(nt, params_) | nt <- Set.toList _namesInontSet]
-                            {-# LINE 1657 "dist/build/Transform.hs"#-}
+                            {-# LINE 1663 "dist/build/Transform.hs"#-}
    {-# INLINE rule104 #-}
    {-# LINE 970 "./src-ag/Transform.ag" #-}
    rule104 = \ ((_namesInontSet) :: Set NontermIdent) ctx_ ->
@@ -1661,13 +1667,13 @@ sem_Elem_Data _ arg_ctx_ arg_names_ arg_params_ arg_attrs_ arg_alts_ _ = T_Elem 
                          if null ctx_
                          then Map.empty
                          else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                         {-# LINE 1665 "dist/build/Transform.hs"#-}
+                         {-# LINE 1671 "dist/build/Transform.hs"#-}
    {-# INLINE rule105 #-}
    {-# LINE 1032 "./src-ag/Transform.ag" #-}
    rule105 = \ ((_namesInontSet) :: Set NontermIdent) ->
                        {-# LINE 1032 "./src-ag/Transform.ag" #-}
                        _namesInontSet
-                       {-# LINE 1671 "dist/build/Transform.hs"#-}
+                       {-# LINE 1677 "dist/build/Transform.hs"#-}
    {-# INLINE rule106 #-}
    rule106 = \  (_ :: ()) ->
      Map.empty
@@ -1856,13 +1862,13 @@ sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return
    rule143 = \ _expanded name_ ->
                                  {-# LINE 254 "./src-ag/Transform.ag" #-}
                                  map (\(x,y)->(name_, x, y)) _expanded
-                                 {-# LINE 1860 "dist/build/Transform.hs"#-}
+                                 {-# LINE 1866 "dist/build/Transform.hs"#-}
    {-# INLINE rule144 #-}
    {-# LINE 600 "./src-ag/Transform.ag" #-}
    rule144 = \ name_ ->
                                  {-# LINE 600 "./src-ag/Transform.ag" #-}
                                  Set.singleton name_
-                                 {-# LINE 1866 "dist/build/Transform.hs"#-}
+                                 {-# LINE 1872 "dist/build/Transform.hs"#-}
    {-# INLINE rule145 #-}
    {-# LINE 654 "./src-ag/Transform.ag" #-}
    rule145 = \ _argType name_ params_ pos_ ->
@@ -1904,7 +1910,7 @@ sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return
                                                         , (Ident "Nil" pos_, [])
                                                         ]
                                          Tuple xs -> [(Ident "Tuple" pos_, xs)]
-                                 {-# LINE 1908 "dist/build/Transform.hs"#-}
+                                 {-# LINE 1914 "dist/build/Transform.hs"#-}
    {-# INLINE rule146 #-}
    {-# LINE 691 "./src-ag/Transform.ag" #-}
    rule146 = \ ((_lhsIallNonterminals) :: Set NontermIdent) type_ ->
@@ -1918,13 +1924,13 @@ sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return
                                   IntMap tp      -> IntMap (  makeType _lhsIallNonterminals tp)
                                   OrdSet tp      -> OrdSet (  makeType _lhsIallNonterminals tp)
                                   IntSet         -> IntSet
-                                 {-# LINE 1922 "dist/build/Transform.hs"#-}
+                                 {-# LINE 1928 "dist/build/Transform.hs"#-}
    {-# INLINE rule147 #-}
    {-# LINE 700 "./src-ag/Transform.ag" #-}
    rule147 = \ _argType name_ ->
                                  {-# LINE 700 "./src-ag/Transform.ag" #-}
                                  [(name_,_argType)]
-                                 {-# LINE 1928 "dist/build/Transform.hs"#-}
+                                 {-# LINE 1934 "dist/build/Transform.hs"#-}
    {-# INLINE rule148 #-}
    {-# LINE 953 "./src-ag/Transform.ag" #-}
    rule148 = \ name_ params_ ->
@@ -1932,7 +1938,7 @@ sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return
                             if null params_
                             then Map.empty
                             else Map.singleton name_ params_
-                            {-# LINE 1936 "dist/build/Transform.hs"#-}
+                            {-# LINE 1942 "dist/build/Transform.hs"#-}
    {-# INLINE rule149 #-}
    {-# LINE 976 "./src-ag/Transform.ag" #-}
    rule149 = \ ctx_ name_ ->
@@ -1940,7 +1946,7 @@ sem_Elem_Type arg_pos_ arg_ctx_ arg_name_ arg_params_ arg_type_ = T_Elem (return
                          if null ctx_
                          then Map.empty
                          else Map.singleton name_ ctx_
-                         {-# LINE 1944 "dist/build/Transform.hs"#-}
+                         {-# LINE 1950 "dist/build/Transform.hs"#-}
    {-# INLINE rule150 #-}
    rule150 = \  (_ :: ()) ->
      Map.empty
@@ -2106,7 +2112,7 @@ sem_Elem_Attr _ arg_ctx_ arg_names_ arg_quants_ arg_attrs_ = T_Elem (return st17
                          if null ctx_
                          then Map.empty
                          else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                         {-# LINE 2110 "dist/build/Transform.hs"#-}
+                         {-# LINE 2116 "dist/build/Transform.hs"#-}
    {-# INLINE rule176 #-}
    {-# LINE 995 "./src-ag/Transform.ag" #-}
    rule176 = \ ((_namesInontSet) :: Set NontermIdent) quants_ ->
@@ -2114,13 +2120,13 @@ sem_Elem_Attr _ arg_ctx_ arg_names_ arg_quants_ arg_attrs_ = T_Elem (return st17
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2118 "dist/build/Transform.hs"#-}
+                           {-# LINE 2124 "dist/build/Transform.hs"#-}
    {-# INLINE rule177 #-}
    {-# LINE 1033 "./src-ag/Transform.ag" #-}
    rule177 = \ ((_namesInontSet) :: Set NontermIdent) ->
                        {-# LINE 1033 "./src-ag/Transform.ag" #-}
                        _namesInontSet
-                       {-# LINE 2124 "dist/build/Transform.hs"#-}
+                       {-# LINE 2130 "dist/build/Transform.hs"#-}
    {-# INLINE rule178 #-}
    rule178 = \  (_ :: ()) ->
      Map.empty
@@ -2324,7 +2330,7 @@ sem_Elem_Sem _ arg_ctx_ arg_names_ arg_attrs_ arg_quants_ arg_alts_ = T_Elem (re
    rule214 = \ ((_namesInontSet) :: Set NontermIdent) ->
                       {-# LINE 177 "./src-ag/Transform.ag" #-}
                       _namesInontSet
-                      {-# LINE 2328 "dist/build/Transform.hs"#-}
+                      {-# LINE 2334 "dist/build/Transform.hs"#-}
    {-# INLINE rule215 #-}
    {-# LINE 970 "./src-ag/Transform.ag" #-}
    rule215 = \ ((_namesInontSet) :: Set NontermIdent) ctx_ ->
@@ -2332,7 +2338,7 @@ sem_Elem_Sem _ arg_ctx_ arg_names_ arg_attrs_ arg_quants_ arg_alts_ = T_Elem (re
                          if null ctx_
                          then Map.empty
                          else Map.fromList [(nt, ctx_) | nt <- Set.toList _namesInontSet]
-                         {-# LINE 2336 "dist/build/Transform.hs"#-}
+                         {-# LINE 2342 "dist/build/Transform.hs"#-}
    {-# INLINE rule216 #-}
    {-# LINE 995 "./src-ag/Transform.ag" #-}
    rule216 = \ ((_namesInontSet) :: Set NontermIdent) quants_ ->
@@ -2340,13 +2346,13 @@ sem_Elem_Sem _ arg_ctx_ arg_names_ arg_attrs_ arg_quants_ arg_alts_ = T_Elem (re
                            if null quants_
                            then Map.empty
                            else Map.fromList [(nt, quants_) | nt <- Set.toList _namesInontSet]
-                           {-# LINE 2344 "dist/build/Transform.hs"#-}
+                           {-# LINE 2350 "dist/build/Transform.hs"#-}
    {-# INLINE rule217 #-}
    {-# LINE 1034 "./src-ag/Transform.ag" #-}
    rule217 = \ ((_namesInontSet) :: Set NontermIdent) ->
                        {-# LINE 1034 "./src-ag/Transform.ag" #-}
                        _namesInontSet
-                       {-# LINE 2350 "dist/build/Transform.hs"#-}
+                       {-# LINE 2356 "dist/build/Transform.hs"#-}
    {-# INLINE rule218 #-}
    rule218 = \ ((_altsIattrOrderCollect) :: AttrOrderMap) ->
      _altsIattrOrderCollect
@@ -2546,19 +2552,19 @@ sem_Elem_Txt arg_pos_ arg_kind_ arg_mbNt_ arg_lines_ = T_Elem (return st17) wher
                             ( kind_
                             , mbNt_
                             )
-                            {-# LINE 2550 "dist/build/Transform.hs"#-}
+                            {-# LINE 2556 "dist/build/Transform.hs"#-}
    {-# INLINE rule259 #-}
    {-# LINE 189 "./src-ag/Transform.ag" #-}
    rule259 = \ lines_ pos_ ->
                             {-# LINE 189 "./src-ag/Transform.ag" #-}
                             [(lines_, pos_)]
-                            {-# LINE 2556 "dist/build/Transform.hs"#-}
+                            {-# LINE 2562 "dist/build/Transform.hs"#-}
    {-# INLINE rule260 #-}
    {-# LINE 190 "./src-ag/Transform.ag" #-}
    rule260 = \ _blockInfo _blockValue ->
                             {-# LINE 190 "./src-ag/Transform.ag" #-}
                             Map.singleton _blockInfo     _blockValue
-                            {-# LINE 2562 "dist/build/Transform.hs"#-}
+                            {-# LINE 2568 "dist/build/Transform.hs"#-}
    {-# INLINE rule261 #-}
    {-# LINE 191 "./src-ag/Transform.ag" #-}
    rule261 = \ ((_lhsIoptions) :: Options) lines_ pos_ ->
@@ -2569,7 +2575,7 @@ sem_Elem_Txt arg_pos_ arg_kind_ arg_mbNt_ arg_lines_ = T_Elem (return st17) wher
                                      tk  = HsToken (unlines lines_) pos_
                                  in Seq.fromList $ checkBlock $ ex
                             else Seq.empty
-                            {-# LINE 2573 "dist/build/Transform.hs"#-}
+                            {-# LINE 2579 "dist/build/Transform.hs"#-}
    {-# INLINE rule262 #-}
    rule262 = \  (_ :: ()) ->
      Map.empty
@@ -2735,7 +2741,7 @@ sem_Elem_Set _ arg_name_ arg_merge_ arg_set_ = T_Elem (return st17) where
    rule290 = \ name_ ->
                                    {-# LINE 597 "./src-ag/Transform.ag" #-}
                                    Set.singleton name_
-                                   {-# LINE 2739 "dist/build/Transform.hs"#-}
+                                   {-# LINE 2745 "dist/build/Transform.hs"#-}
    {-# INLINE rule291 #-}
    {-# LINE 714 "./src-ag/Transform.ag" #-}
    rule291 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ((_lhsIdefSets) :: Map Identifier (Set NontermIdent,Set Identifier)) ((_setIcollectedNames) :: Set Identifier) ((_setInontSet) :: Set NontermIdent) merge_ name_ ->
@@ -2754,19 +2760,19 @@ sem_Elem_Set _ arg_name_ arg_merge_ arg_set_ = T_Elem (return st17) where
                                                    then checkDuplicate DupSet name_ toAdd _lhsIdefSets
                                                    else (Map.insertWith un name_ toAdd _lhsIdefSets, Seq.empty)
                                 in (res, e1 Seq.>< e2)
-                                {-# LINE 2758 "dist/build/Transform.hs"#-}
+                                {-# LINE 2764 "dist/build/Transform.hs"#-}
    {-# INLINE rule292 #-}
    {-# LINE 728 "./src-ag/Transform.ag" #-}
    rule292 = \ _defSets2 ->
                                 {-# LINE 728 "./src-ag/Transform.ag" #-}
                                 _defSets2
-                                {-# LINE 2764 "dist/build/Transform.hs"#-}
+                                {-# LINE 2770 "dist/build/Transform.hs"#-}
    {-# INLINE rule293 #-}
    {-# LINE 729 "./src-ag/Transform.ag" #-}
    rule293 = \ _errs ((_setIerrors) :: Seq Error) ->
                                 {-# LINE 729 "./src-ag/Transform.ag" #-}
                                 _errs >< _setIerrors
-                                {-# LINE 2770 "dist/build/Transform.hs"#-}
+                                {-# LINE 2776 "dist/build/Transform.hs"#-}
    {-# INLINE rule294 #-}
    rule294 = \  (_ :: ()) ->
      Map.empty
@@ -2937,7 +2943,7 @@ sem_Elem_Deriving _ arg_set_ arg_classes_ = T_Elem (return st17) where
    rule324 = \ ((_setInontSet) :: Set NontermIdent) classes_ ->
                                {-# LINE 1016 "./src-ag/Transform.ag" #-}
                                Map.fromList [(nt,Set.fromList classes_) | nt <- Set.toList _setInontSet]
-                               {-# LINE 2941 "dist/build/Transform.hs"#-}
+                               {-# LINE 2947 "dist/build/Transform.hs"#-}
    {-# INLINE rule325 #-}
    rule325 = \  (_ :: ()) ->
      Map.empty
@@ -3114,7 +3120,7 @@ sem_Elem_Wrapper _ arg_set_ = T_Elem (return st17) where
    rule357 = \ ((_setInontSet) :: Set NontermIdent) ->
                              {-# LINE 789 "./src-ag/Transform.ag" #-}
                              _setInontSet
-                             {-# LINE 3118 "dist/build/Transform.hs"#-}
+                             {-# LINE 3124 "dist/build/Transform.hs"#-}
    {-# INLINE rule358 #-}
    rule358 = \  (_ :: ()) ->
      Map.empty
@@ -3291,7 +3297,7 @@ sem_Elem_Nocatas _ arg_set_ = T_Elem (return st17) where
    rule390 = \ ((_setInontSet) :: Set NontermIdent) ->
                              {-# LINE 796 "./src-ag/Transform.ag" #-}
                              \o -> o { nocatas = _setInontSet `Set.union` nocatas o }
-                             {-# LINE 3295 "dist/build/Transform.hs"#-}
+                             {-# LINE 3301 "dist/build/Transform.hs"#-}
    {-# INLINE rule391 #-}
    rule391 = \  (_ :: ()) ->
      Map.empty
@@ -3527,7 +3533,7 @@ sem_Elem_Pragma _ arg_names_ = T_Elem (return st17) where
                                            "ocaml"                   -> ocamlOpt o
                                            s              -> trace ("uuagc: ignoring unknown pragma: " ++ s) o
                             in \o -> foldr mk o names_
-                            {-# LINE 3531 "dist/build/Transform.hs"#-}
+                            {-# LINE 3537 "dist/build/Transform.hs"#-}
    {-# INLINE rule424 #-}
    rule424 = \  (_ :: ()) ->
      Map.empty
@@ -3690,7 +3696,7 @@ sem_Elem_Module _ arg_name_ arg_exports_ arg_imports_ = T_Elem (return st17) whe
    rule453 = \ exports_ imports_ name_ ->
                          {-# LINE 1213 "./src-ag/Transform.ag" #-}
                          Just (name_, exports_, imports_)
-                         {-# LINE 3694 "dist/build/Transform.hs"#-}
+                         {-# LINE 3700 "dist/build/Transform.hs"#-}
    {-# INLINE rule454 #-}
    rule454 = \  (_ :: ()) ->
      Map.empty
@@ -3962,7 +3968,7 @@ sem_Elems_Cons arg_hd_ arg_tl_ = T_Elems (return st20) where
      _hdIerrors Seq.>< _tlIerrors
    {-# INLINE rule502 #-}
    rule502 = \ ((_hdImoduleDecl) :: Maybe (String,String,String)) ((_tlImoduleDecl) :: Maybe (String,String,String)) ->
-     _hdImoduleDecl `mplus` _tlImoduleDecl
+     _hdImoduleDecl `flipmplus` _tlImoduleDecl
    {-# INLINE rule503 #-}
    rule503 = \ ((_hdIparamsCollect) :: ParamMap) ((_tlIparamsCollect) :: ParamMap) ->
      _hdIparamsCollect `mergeParams` _tlIparamsCollect
@@ -4264,7 +4270,7 @@ sem_Field_FChild arg_name_ arg_tp_ = T_Field (return st23) where
    rule563 = \ ((_lhsIallNonterminals) :: Set NontermIdent) name_ tp_ ->
                           {-# LINE 579 "./src-ag/Transform.ag" #-}
                           [(name_, makeType _lhsIallNonterminals tp_)]
-                          {-# LINE 4268 "dist/build/Transform.hs"#-}
+                          {-# LINE 4274 "dist/build/Transform.hs"#-}
    {-# INLINE rule564 #-}
    rule564 = \  (_ :: ()) ->
      []
@@ -4287,7 +4293,7 @@ sem_Field_FCtx arg_tps_ = T_Field (return st23) where
    rule565 = \ tps_ ->
                                {-# LINE 588 "./src-ag/Transform.ag" #-}
                                tps_
-                               {-# LINE 4291 "dist/build/Transform.hs"#-}
+                               {-# LINE 4297 "dist/build/Transform.hs"#-}
    {-# INLINE rule566 #-}
    rule566 = \  (_ :: ()) ->
      []
@@ -4432,7 +4438,7 @@ sem_NontSet_NamedSet arg_name_ = T_NontSet (return st29) where
    rule573 = \ name_ ->
                                     {-# LINE 603 "./src-ag/Transform.ag" #-}
                                     Set.singleton name_
-                                    {-# LINE 4436 "dist/build/Transform.hs"#-}
+                                    {-# LINE 4442 "dist/build/Transform.hs"#-}
    {-# INLINE rule574 #-}
    {-# LINE 733 "./src-ag/Transform.ag" #-}
    rule574 = \ ((_lhsIdefinedSets) :: DefinedSets) name_ ->
@@ -4440,7 +4446,7 @@ sem_NontSet_NamedSet arg_name_ = T_NontSet (return st29) where
                                         case Map.lookup name_ _lhsIdefinedSets of
                                                      Nothing  -> (Set.empty, Seq.singleton (UndefNont name_))
                                                      Just set -> (set, Seq.empty)
-                                        {-# LINE 4444 "dist/build/Transform.hs"#-}
+                                        {-# LINE 4450 "dist/build/Transform.hs"#-}
    {-# INLINE rule575 #-}
    rule575 = \ _errors ->
      _errors
@@ -4468,7 +4474,7 @@ sem_NontSet_All  = T_NontSet (return st29) where
    rule577 = \ ((_lhsIallNonterminals) :: Set NontermIdent) ->
                                {-# LINE 732 "./src-ag/Transform.ag" #-}
                                _lhsIallNonterminals
-                               {-# LINE 4472 "dist/build/Transform.hs"#-}
+                               {-# LINE 4478 "dist/build/Transform.hs"#-}
    {-# INLINE rule578 #-}
    rule578 = \  (_ :: ()) ->
      Set.empty
@@ -4506,7 +4512,7 @@ sem_NontSet_Union arg_set1_ arg_set2_ = T_NontSet (return st29) where
    rule580 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
                                {-# LINE 736 "./src-ag/Transform.ag" #-}
                                Set.union         _set1InontSet _set2InontSet
-                               {-# LINE 4510 "dist/build/Transform.hs"#-}
+                               {-# LINE 4516 "dist/build/Transform.hs"#-}
    {-# INLINE rule581 #-}
    rule581 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
      _set1IcollectedNames `Set.union` _set2IcollectedNames
@@ -4562,7 +4568,7 @@ sem_NontSet_Intersect arg_set1_ arg_set2_ = T_NontSet (return st29) where
    rule589 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
                                {-# LINE 737 "./src-ag/Transform.ag" #-}
                                Set.intersection  _set1InontSet _set2InontSet
-                               {-# LINE 4566 "dist/build/Transform.hs"#-}
+                               {-# LINE 4572 "dist/build/Transform.hs"#-}
    {-# INLINE rule590 #-}
    rule590 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
      _set1IcollectedNames `Set.union` _set2IcollectedNames
@@ -4618,7 +4624,7 @@ sem_NontSet_Difference arg_set1_ arg_set2_ = T_NontSet (return st29) where
    rule598 = \ ((_set1InontSet) :: Set NontermIdent) ((_set2InontSet) :: Set NontermIdent) ->
                                {-# LINE 738 "./src-ag/Transform.ag" #-}
                                Set.difference    _set1InontSet _set2InontSet
-                               {-# LINE 4622 "dist/build/Transform.hs"#-}
+                               {-# LINE 4628 "dist/build/Transform.hs"#-}
    {-# INLINE rule599 #-}
    rule599 = \ ((_set1IcollectedNames) :: Set Identifier) ((_set2IcollectedNames) :: Set Identifier) ->
      _set1IcollectedNames `Set.union` _set2IcollectedNames
@@ -4665,7 +4671,7 @@ sem_NontSet_Path arg_from_ arg_to_ = T_NontSet (return st29) where
                                {-# LINE 739 "./src-ag/Transform.ag" #-}
                                let table = flattenDatas _lhsIallFields
                                in path table from_ to_
-                               {-# LINE 4669 "dist/build/Transform.hs"#-}
+                               {-# LINE 4675 "dist/build/Transform.hs"#-}
    {-# INLINE rule608 #-}
    {-# LINE 741 "./src-ag/Transform.ag" #-}
    rule608 = \ ((_lhsIallNonterminals) :: Set NontermIdent) from_ to_ ->
@@ -4674,7 +4680,7 @@ sem_NontSet_Path arg_from_ arg_to_ = T_NontSet (return st29) where
                                                          = Seq.empty
                                              | otherwise = Seq.singleton (UndefNont name)
                               in check from_ >< check to_
-                              {-# LINE 4678 "dist/build/Transform.hs"#-}
+                              {-# LINE 4684 "dist/build/Transform.hs"#-}
    {-# INLINE rule609 #-}
    rule609 = \  (_ :: ()) ->
      Set.empty
@@ -4741,13 +4747,13 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st32) where
    rule610 = \ ((_patsIpatunder) :: [AttrName]->Patterns) name_ ->
                                {-# LINE 1189 "./src-ag/Transform.ag" #-}
                                \us -> Constr name_ (_patsIpatunder us)
-                               {-# LINE 4745 "dist/build/Transform.hs"#-}
+                               {-# LINE 4751 "dist/build/Transform.hs"#-}
    {-# INLINE rule611 #-}
    {-# LINE 1200 "./src-ag/Transform.ag" #-}
    rule611 = \ name_ ->
                              {-# LINE 1200 "./src-ag/Transform.ag" #-}
                              getPos name_
-                             {-# LINE 4751 "dist/build/Transform.hs"#-}
+                             {-# LINE 4757 "dist/build/Transform.hs"#-}
    {-# INLINE rule612 #-}
    rule612 = \ ((_patsIdefinedAttrs) :: [AttrName]) ->
      _patsIdefinedAttrs
@@ -4788,13 +4794,13 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st32) where
    rule616 = \ ((_patsIpatunder) :: [AttrName]->Patterns) pos_ ->
                                 {-# LINE 1190 "./src-ag/Transform.ag" #-}
                                 \us -> Product pos_ (_patsIpatunder us)
-                                {-# LINE 4792 "dist/build/Transform.hs"#-}
+                                {-# LINE 4798 "dist/build/Transform.hs"#-}
    {-# INLINE rule617 #-}
    {-# LINE 1201 "./src-ag/Transform.ag" #-}
    rule617 = \ pos_ ->
                              {-# LINE 1201 "./src-ag/Transform.ag" #-}
                              pos_
-                             {-# LINE 4798 "dist/build/Transform.hs"#-}
+                             {-# LINE 4804 "dist/build/Transform.hs"#-}
    {-# INLINE rule618 #-}
    rule618 = \ ((_patsIdefinedAttrs) :: [AttrName]) ->
      _patsIdefinedAttrs
@@ -4835,25 +4841,25 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st32) where
    rule622 = \ ((_patIdefinedAttrs) :: [AttrName]) attr_ field_ ->
                                {-# LINE 1185 "./src-ag/Transform.ag" #-}
                                (field_, attr_) : _patIdefinedAttrs
-                               {-# LINE 4839 "dist/build/Transform.hs"#-}
+                               {-# LINE 4845 "dist/build/Transform.hs"#-}
    {-# INLINE rule623 #-}
    {-# LINE 1186 "./src-ag/Transform.ag" #-}
    rule623 = \ _copy attr_ field_ ->
                                {-# LINE 1186 "./src-ag/Transform.ag" #-}
                                \us -> if ((field_,attr_) `elem` us) then Underscore noPos else _copy
-                               {-# LINE 4845 "dist/build/Transform.hs"#-}
+                               {-# LINE 4851 "dist/build/Transform.hs"#-}
    {-# INLINE rule624 #-}
    {-# LINE 1187 "./src-ag/Transform.ag" #-}
    rule624 = \ ((_patIdefinedInsts) :: [Identifier]) attr_ field_ ->
                                {-# LINE 1187 "./src-ag/Transform.ag" #-}
                                (if field_ == _INST then [attr_] else []) ++ _patIdefinedInsts
-                               {-# LINE 4851 "dist/build/Transform.hs"#-}
+                               {-# LINE 4857 "dist/build/Transform.hs"#-}
    {-# INLINE rule625 #-}
    {-# LINE 1202 "./src-ag/Transform.ag" #-}
    rule625 = \ field_ ->
                              {-# LINE 1202 "./src-ag/Transform.ag" #-}
                              getPos field_
-                             {-# LINE 4857 "dist/build/Transform.hs"#-}
+                             {-# LINE 4863 "dist/build/Transform.hs"#-}
    {-# INLINE rule626 #-}
    rule626 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
      Alias field_ attr_ _patIcopy
@@ -4888,7 +4894,7 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st32) where
    rule628 = \ ((_patIpatunder) :: [AttrName]->Pattern) ->
                                  {-# LINE 1191 "./src-ag/Transform.ag" #-}
                                  \us -> Irrefutable (_patIpatunder us)
-                                 {-# LINE 4892 "dist/build/Transform.hs"#-}
+                                 {-# LINE 4898 "dist/build/Transform.hs"#-}
    {-# INLINE rule629 #-}
    rule629 = \ ((_patIdefinedAttrs) :: [AttrName]) ->
      _patIdefinedAttrs
@@ -4930,13 +4936,13 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st32) where
    rule634 = \ _copy ->
                                 {-# LINE 1188 "./src-ag/Transform.ag" #-}
                                 \_ -> _copy
-                                {-# LINE 4934 "dist/build/Transform.hs"#-}
+                                {-# LINE 4940 "dist/build/Transform.hs"#-}
    {-# INLINE rule635 #-}
    {-# LINE 1203 "./src-ag/Transform.ag" #-}
    rule635 = \ pos_ ->
                              {-# LINE 1203 "./src-ag/Transform.ag" #-}
                              pos_
-                             {-# LINE 4940 "dist/build/Transform.hs"#-}
+                             {-# LINE 4946 "dist/build/Transform.hs"#-}
    {-# INLINE rule636 #-}
    rule636 = \  (_ :: ()) ->
      []
@@ -5008,7 +5014,7 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st35) where
    rule640 = \ ((_hdIpatunder) :: [AttrName]->Pattern) ((_tlIpatunder) :: [AttrName]->Patterns) ->
                           {-# LINE 1195 "./src-ag/Transform.ag" #-}
                           \us -> (_hdIpatunder us) : (_tlIpatunder us)
-                          {-# LINE 5012 "dist/build/Transform.hs"#-}
+                          {-# LINE 5018 "dist/build/Transform.hs"#-}
    {-# INLINE rule641 #-}
    rule641 = \ ((_hdIdefinedAttrs) :: [AttrName]) ((_tlIdefinedAttrs) :: [AttrName]) ->
      _hdIdefinedAttrs ++ _tlIdefinedAttrs
@@ -5045,7 +5051,7 @@ sem_Patterns_Nil  = T_Patterns (return st35) where
    rule645 = \  (_ :: ()) ->
                          {-# LINE 1194 "./src-ag/Transform.ag" #-}
                          \_ ->  []
-                         {-# LINE 5049 "dist/build/Transform.hs"#-}
+                         {-# LINE 5055 "dist/build/Transform.hs"#-}
    {-# INLINE rule646 #-}
    rule646 = \  (_ :: ()) ->
      []
@@ -5132,7 +5138,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
    rule650 = \ ((_rulesIpragmaNamesCollect) :: [Identifier]) ->
                                 {-# LINE 887 "./src-ag/Transform.ag" #-}
                                 Set.fromList _rulesIpragmaNamesCollect
-                                {-# LINE 5136 "dist/build/Transform.hs"#-}
+                                {-# LINE 5142 "dist/build/Transform.hs"#-}
    {-# INLINE rule651 #-}
    {-# LINE 888 "./src-ag/Transform.ag" #-}
    rule651 = \ _coninfo _pragmaNames ->
@@ -5141,7 +5147,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                                                                | (nt, conset, _) <- _coninfo
                                                                , con <- Set.toList conset
                                                                ]
-                                {-# LINE 5145 "dist/build/Transform.hs"#-}
+                                {-# LINE 5151 "dist/build/Transform.hs"#-}
    {-# INLINE rule652 #-}
    {-# LINE 917 "./src-ag/Transform.ag" #-}
    rule652 = \ _coninfo ((_rulesIorderDepsCollect) :: Set Dependency) ->
@@ -5150,13 +5156,13 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
             | (nt, conset, _) <- _coninfo
             , con <- Set.toList conset
             ]
-            {-# LINE 5154 "dist/build/Transform.hs"#-}
+            {-# LINE 5160 "dist/build/Transform.hs"#-}
    {-# INLINE rule653 #-}
    {-# LINE 922 "./src-ag/Transform.ag" #-}
    rule653 = \ _attrOrders ->
                                {-# LINE 922 "./src-ag/Transform.ag" #-}
                                foldr orderMapUnion Map.empty _attrOrders
-                               {-# LINE 5160 "dist/build/Transform.hs"#-}
+                               {-# LINE 5166 "dist/build/Transform.hs"#-}
    {-# INLINE rule654 #-}
    {-# LINE 1104 "./src-ag/Transform.ag" #-}
    rule654 = \ ((_constructorSetIconstructors) :: (Set ConstructorIdent->Set ConstructorIdent)) ((_lhsIallFields) :: DataTypes) ((_lhsInts) :: Set NontermIdent) ->
@@ -5167,7 +5173,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                            , let conkeys = Set.fromList (Map.keys conmap)
                            , let conset  = _constructorSetIconstructors conkeys
                            ]
-                           {-# LINE 5171 "dist/build/Transform.hs"#-}
+                           {-# LINE 5177 "dist/build/Transform.hs"#-}
    {-# INLINE rule655 #-}
    {-# LINE 1111 "./src-ag/Transform.ag" #-}
    rule655 = \ _coninfo ((_rulesIerrors) :: Seq Error) ->
@@ -5178,7 +5184,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                              , con <- Set.toList (Set.difference conset conkeys)
                              ]
                           Seq.>< _rulesIerrors
-                          {-# LINE 5182 "dist/build/Transform.hs"#-}
+                          {-# LINE 5188 "dist/build/Transform.hs"#-}
    {-# INLINE rule656 #-}
    {-# LINE 1118 "./src-ag/Transform.ag" #-}
    rule656 = \ _coninfo ((_rulesIruleInfos) :: [RuleInfo]) ->
@@ -5188,7 +5194,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          , con <- Set.toList conset
                          , r <- _rulesIruleInfos
                          ]
-                         {-# LINE 5192 "dist/build/Transform.hs"#-}
+                         {-# LINE 5198 "dist/build/Transform.hs"#-}
    {-# INLINE rule657 #-}
    {-# LINE 1124 "./src-ag/Transform.ag" #-}
    rule657 = \ _coninfo ((_rulesIsigInfos) :: [SigInfo]) ->
@@ -5198,7 +5204,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          , con <- Set.toList conset
                          , ts <- _rulesIsigInfos
                          ]
-                         {-# LINE 5202 "dist/build/Transform.hs"#-}
+                         {-# LINE 5208 "dist/build/Transform.hs"#-}
    {-# INLINE rule658 #-}
    {-# LINE 1131 "./src-ag/Transform.ag" #-}
    rule658 = \ _coninfo ((_rulesIdefinedInsts) :: [Identifier]) ->
@@ -5207,7 +5213,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          | (nt, conset, _) <- _coninfo
                          , con <- Set.toList conset
                          ]
-                         {-# LINE 5211 "dist/build/Transform.hs"#-}
+                         {-# LINE 5217 "dist/build/Transform.hs"#-}
    {-# INLINE rule659 #-}
    {-# LINE 1137 "./src-ag/Transform.ag" #-}
    rule659 = \ _coninfo ((_rulesIuniqueInfos) :: [UniqueInfo]) ->
@@ -5216,7 +5222,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          | (nt, conset, _) <- _coninfo
                          , con <- Set.toList conset
                          ]
-                         {-# LINE 5220 "dist/build/Transform.hs"#-}
+                         {-# LINE 5226 "dist/build/Transform.hs"#-}
    {-# INLINE rule660 #-}
    {-# LINE 1143 "./src-ag/Transform.ag" #-}
    rule660 = \ _coninfo ((_rulesIaugmentInfos) :: [AugmentInfo]) ->
@@ -5225,7 +5231,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          | (nt, conset, _) <- _coninfo
                          , con <- Set.toList conset
                          ]
-                         {-# LINE 5229 "dist/build/Transform.hs"#-}
+                         {-# LINE 5235 "dist/build/Transform.hs"#-}
    {-# INLINE rule661 #-}
    {-# LINE 1149 "./src-ag/Transform.ag" #-}
    rule661 = \ _coninfo ((_rulesIaroundInfos) :: [AroundInfo]) ->
@@ -5234,7 +5240,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          | (nt, conset, _) <- _coninfo
                          , con <- Set.toList conset
                          ]
-                         {-# LINE 5238 "dist/build/Transform.hs"#-}
+                         {-# LINE 5244 "dist/build/Transform.hs"#-}
    {-# INLINE rule662 #-}
    {-# LINE 1155 "./src-ag/Transform.ag" #-}
    rule662 = \ _coninfo ((_rulesImergeInfos) :: [MergeInfo]) ->
@@ -5243,7 +5249,7 @@ sem_SemAlt_SemAlt _ arg_constructorSet_ arg_rules_ = T_SemAlt (return st38) wher
                          | (nt, conset, _) <- _coninfo
                          , con <- Set.toList conset
                          ]
-                         {-# LINE 5247 "dist/build/Transform.hs"#-}
+                         {-# LINE 5253 "dist/build/Transform.hs"#-}
    {-# INLINE rule663 #-}
    rule663 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
@@ -5519,13 +5525,13 @@ sem_SemDef_Def _ arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_pure_ arg_eager
                  if checkParseRhs _lhsIoptions
                  then Seq.fromList $ checkRhs rhs_
                  else Seq.empty
-                 {-# LINE 5523 "dist/build/Transform.hs"#-}
+                 {-# LINE 5529 "dist/build/Transform.hs"#-}
    {-# INLINE rule695 #-}
    {-# LINE 1161 "./src-ag/Transform.ag" #-}
    rule695 = \ ((_patternIdefinedAttrs) :: [AttrName]) ((_patternIpatunder) :: [AttrName]->Pattern) ((_patternIstpos) :: Pos) eager_ mbName_ owrt_ pure_ rhs_ ->
                            {-# LINE 1161 "./src-ag/Transform.ag" #-}
                            [ (mbName_, _patternIpatunder, rhs_, _patternIdefinedAttrs, owrt_, show _patternIstpos, pure_, eager_) ]
-                           {-# LINE 5529 "dist/build/Transform.hs"#-}
+                           {-# LINE 5535 "dist/build/Transform.hs"#-}
    {-# INLINE rule696 #-}
    rule696 = \  (_ :: ()) ->
      []
@@ -5592,13 +5598,13 @@ sem_SemDef_TypeDef arg_pos_ arg_ident_ arg_tp_ = T_SemDef (return st44) where
                                      in Seq.fromList $ checkTy ex
                         _ -> Seq.empty
                  else Seq.empty
-                 {-# LINE 5596 "dist/build/Transform.hs"#-}
+                 {-# LINE 5602 "dist/build/Transform.hs"#-}
    {-# INLINE rule705 #-}
    {-# LINE 1164 "./src-ag/Transform.ag" #-}
    rule705 = \ ident_ tp_ ->
                               {-# LINE 1164 "./src-ag/Transform.ag" #-}
                               [ (ident_, tp_) ]
-                              {-# LINE 5602 "dist/build/Transform.hs"#-}
+                              {-# LINE 5608 "dist/build/Transform.hs"#-}
    {-# INLINE rule706 #-}
    rule706 = \  (_ :: ()) ->
      []
@@ -5658,7 +5664,7 @@ sem_SemDef_UniqueDef arg_ident_ arg_ref_ = T_SemDef (return st44) where
    rule714 = \ ident_ ref_ ->
                                    {-# LINE 1167 "./src-ag/Transform.ag" #-}
                                    [ (ident_, ref_) ]
-                                   {-# LINE 5662 "dist/build/Transform.hs"#-}
+                                   {-# LINE 5668 "dist/build/Transform.hs"#-}
    {-# INLINE rule715 #-}
    rule715 = \  (_ :: ()) ->
      []
@@ -5721,7 +5727,7 @@ sem_SemDef_AugmentDef arg_ident_ arg_rhs_ = T_SemDef (return st44) where
    rule724 = \ ident_ rhs_ ->
                                      {-# LINE 1170 "./src-ag/Transform.ag" #-}
                                      [ (ident_, rhs_) ]
-                                     {-# LINE 5725 "dist/build/Transform.hs"#-}
+                                     {-# LINE 5731 "dist/build/Transform.hs"#-}
    {-# INLINE rule725 #-}
    rule725 = \  (_ :: ()) ->
      []
@@ -5784,7 +5790,7 @@ sem_SemDef_AroundDef arg_ident_ arg_rhs_ = T_SemDef (return st44) where
    rule734 = \ ident_ rhs_ ->
                                     {-# LINE 1173 "./src-ag/Transform.ag" #-}
                                     [ (ident_, rhs_) ]
-                                    {-# LINE 5788 "dist/build/Transform.hs"#-}
+                                    {-# LINE 5794 "dist/build/Transform.hs"#-}
    {-# INLINE rule735 #-}
    rule735 = \  (_ :: ()) ->
      []
@@ -5849,13 +5855,13 @@ sem_SemDef_MergeDef arg_target_ arg_nt_ arg_sources_ arg_rhs_ = T_SemDef (return
                  if checkParseRhs _lhsIoptions
                  then Seq.fromList $ checkRhs rhs_
                  else Seq.empty
-                 {-# LINE 5853 "dist/build/Transform.hs"#-}
+                 {-# LINE 5859 "dist/build/Transform.hs"#-}
    {-# INLINE rule745 #-}
    {-# LINE 1176 "./src-ag/Transform.ag" #-}
    rule745 = \ nt_ rhs_ sources_ target_ ->
                                    {-# LINE 1176 "./src-ag/Transform.ag" #-}
                                    [ (target_, nt_, sources_, rhs_) ]
-                                   {-# LINE 5859 "dist/build/Transform.hs"#-}
+                                   {-# LINE 5865 "dist/build/Transform.hs"#-}
    {-# INLINE rule746 #-}
    rule746 = \  (_ :: ()) ->
      []
@@ -5915,7 +5921,7 @@ sem_SemDef_SemPragma arg_names_ = T_SemDef (return st44) where
    rule754 = \ names_ ->
                                  {-# LINE 897 "./src-ag/Transform.ag" #-}
                                  names_
-                                 {-# LINE 5919 "dist/build/Transform.hs"#-}
+                                 {-# LINE 5925 "dist/build/Transform.hs"#-}
    {-# INLINE rule755 #-}
    rule755 = \  (_ :: ()) ->
      []
@@ -5979,13 +5985,13 @@ sem_SemDef_AttrOrderBefore arg_before_ arg_after_ = T_SemDef (return st44) where
    rule764 = \ after_ before_ ->
                                {-# LINE 928 "./src-ag/Transform.ag" #-}
                                [ Dependency b a | b <- before_, a <- after_ ]
-                               {-# LINE 5983 "dist/build/Transform.hs"#-}
+                               {-# LINE 5989 "dist/build/Transform.hs"#-}
    {-# INLINE rule765 #-}
    {-# LINE 929 "./src-ag/Transform.ag" #-}
    rule765 = \ _dependency ->
                                {-# LINE 929 "./src-ag/Transform.ag" #-}
                                Set.fromList _dependency
-                               {-# LINE 5989 "dist/build/Transform.hs"#-}
+                               {-# LINE 5995 "dist/build/Transform.hs"#-}
    {-# INLINE rule766 #-}
    rule766 = \  (_ :: ()) ->
      []

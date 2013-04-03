@@ -2,15 +2,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module TfmToVisage where
-{-# LINE 9 "./src-ag/TfmToVisage.ag" #-}
-
-import AbstractSyntax
-import VisagePatterns
-import VisageSyntax
-import qualified Data.Map as Map
-import Data.Map (Map)
-{-# LINE 13 "dist/build/TfmToVisage.hs" #-}
-
 {-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
@@ -21,19 +12,28 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 25 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 16 "dist/build/TfmToVisage.hs" #-}
 
 {-# LINE 2 "./src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 32 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 23 "dist/build/TfmToVisage.hs" #-}
 
 {-# LINE 2 "./src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
+{-# LINE 29 "dist/build/TfmToVisage.hs" #-}
+
+{-# LINE 9 "./src-ag/TfmToVisage.ag" #-}
+
+import AbstractSyntax
+import VisagePatterns
+import VisageSyntax
+import qualified Data.Map as Map
+import Data.Map (Map)
 {-# LINE 38 "dist/build/TfmToVisage.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -130,41 +130,41 @@ sem_Child_Child arg_name_ arg_tp_ _ = T_Child (return st2) where
    st2 = let
       v1 :: T_Child_v1 
       v1 = \ (T_Child_vIn1 _lhsIinhMap _lhsIrulemap _lhsIsynMap) -> ( let
+         _chnt = rule0 arg_name_ arg_tp_
+         _inh = rule1 _chnt _lhsIinhMap
+         _syn = rule2 _chnt _lhsIsynMap
          _lhsOvchild :: VisageChild
-         _lhsOvchild = rule0 _inh _lhsIrulemap _syn arg_name_ arg_tp_
-         _chnt = rule1 arg_name_ arg_tp_
-         _inh = rule2 _chnt _lhsIinhMap
-         _syn = rule3 _chnt _lhsIsynMap
+         _lhsOvchild = rule3 _inh _lhsIrulemap _syn arg_name_ arg_tp_
          __result_ = T_Child_vOut1 _lhsOvchild
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 121 "./src-ag/TfmToVisage.ag" #-}
-   rule0 = \ _inh ((_lhsIrulemap) :: VisageRuleMap) _syn name_ tp_ ->
-                         {-# LINE 121 "./src-ag/TfmToVisage.ag" #-}
-                         VChild name_ tp_ _inh     _syn     (getForField (getName name_) _lhsIrulemap)
-                         {-# LINE 147 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule1 #-}
    {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-   rule1 = \ name_ tp_ ->
+   rule0 = \ name_ tp_ ->
                        {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 156 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule2 #-}
+                       {-# LINE 150 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule1 #-}
    {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-   rule2 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+   rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 162 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule3 #-}
+                      {-# LINE 156 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule2 #-}
    {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-   rule3 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+   rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 168 "dist/build/TfmToVisage.hs"#-}
+                      {-# LINE 162 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule3 #-}
+   {-# LINE 121 "./src-ag/TfmToVisage.ag" #-}
+   rule3 = \ _inh ((_lhsIrulemap) :: VisageRuleMap) _syn name_ tp_ ->
+                         {-# LINE 121 "./src-ag/TfmToVisage.ag" #-}
+                         VChild name_ tp_ _inh     _syn     (getForField (getName name_) _lhsIrulemap)
+                         {-# LINE 168 "dist/build/TfmToVisage.hs"#-}
 
 -- Children ----------------------------------------------------
 -- wrapper
@@ -350,31 +350,31 @@ sem_Grammar_Grammar _ _ _ _ arg_nonts_ _ _ _ _ _ _ _ _ _ = T_Grammar (return st1
       v10 = \ (T_Grammar_vIn10 ) -> ( let
          _nontsX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
          (T_Nonterminals_vOut16 _nontsIinhMap' _nontsIsynMap' _nontsIvnonts) = inv_Nonterminals_s17 _nontsX17 (T_Nonterminals_vIn16 _nontsOinhMap _nontsOsynMap)
+         _nontsOinhMap = rule14 _nontsIinhMap'
+         _nontsOsynMap = rule15 _nontsIsynMap'
          _lhsOvisage :: VisageGrammar
-         _lhsOvisage = rule14 _nontsIvnonts
-         _nontsOinhMap = rule15 _nontsIinhMap'
-         _nontsOsynMap = rule16 _nontsIsynMap'
+         _lhsOvisage = rule16 _nontsIvnonts
          __result_ = T_Grammar_vOut10 _lhsOvisage
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule14 #-}
-   {-# LINE 90 "./src-ag/TfmToVisage.ag" #-}
-   rule14 = \ ((_nontsIvnonts) :: [VisageNonterminal]) ->
-                     {-# LINE 90 "./src-ag/TfmToVisage.ag" #-}
-                     VGrammar _nontsIvnonts
-                     {-# LINE 366 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule15 #-}
    {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-   rule15 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+   rule14 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 372 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule16 #-}
+                             {-# LINE 366 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule15 #-}
    {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-   rule16 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+   rule15 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 378 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 372 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule16 #-}
+   {-# LINE 90 "./src-ag/TfmToVisage.ag" #-}
+   rule16 = \ ((_nontsIvnonts) :: [VisageNonterminal]) ->
+                     {-# LINE 90 "./src-ag/TfmToVisage.ag" #-}
+                     VGrammar _nontsIvnonts
+                     {-# LINE 378 "dist/build/TfmToVisage.hs"#-}
 
 -- Nonterminal -------------------------------------------------
 -- wrapper
@@ -415,35 +415,35 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
       v13 = \ (T_Nonterminal_vIn13 _lhsIinhMap _lhsIsynMap) -> ( let
          _prodsX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
          (T_Productions_vOut28 _prodsIvprods) = inv_Productions_s29 _prodsX29 (T_Productions_vIn28 _prodsOinhMap _prodsOsynMap)
-         _lhsOvnont :: VisageNonterminal
-         _lhsOvnont = rule17 _prodsIvprods arg_inh_ arg_nt_ arg_syn_
          _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule18 arg_inh_ arg_nt_
+         _lhsOinhMap' = rule17 arg_inh_ arg_nt_
          _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule19 arg_nt_ arg_syn_
+         _lhsOsynMap' = rule18 arg_nt_ arg_syn_
+         _lhsOvnont :: VisageNonterminal
+         _lhsOvnont = rule19 _prodsIvprods arg_inh_ arg_nt_ arg_syn_
          _prodsOinhMap = rule20 _lhsIinhMap
          _prodsOsynMap = rule21 _lhsIsynMap
          __result_ = T_Nonterminal_vOut13 _lhsOinhMap' _lhsOsynMap' _lhsOvnont
          in __result_ )
      in C_Nonterminal_s14 v13
    {-# INLINE rule17 #-}
-   {-# LINE 100 "./src-ag/TfmToVisage.ag" #-}
-   rule17 = \ ((_prodsIvprods) :: [VisageProduction]) inh_ nt_ syn_ ->
-                    {-# LINE 100 "./src-ag/TfmToVisage.ag" #-}
-                    VNonterminal nt_ inh_ syn_ _prodsIvprods
-                    {-# LINE 435 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule18 #-}
    {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-   rule18 = \ inh_ nt_ ->
+   rule17 = \ inh_ nt_ ->
                                  {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 441 "dist/build/TfmToVisage.hs"#-}
-   {-# INLINE rule19 #-}
+                                 {-# LINE 435 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule18 #-}
    {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-   rule19 = \ nt_ syn_ ->
+   rule18 = \ nt_ syn_ ->
                                  {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 447 "dist/build/TfmToVisage.hs"#-}
+                                 {-# LINE 441 "dist/build/TfmToVisage.hs"#-}
+   {-# INLINE rule19 #-}
+   {-# LINE 100 "./src-ag/TfmToVisage.ag" #-}
+   rule19 = \ ((_prodsIvprods) :: [VisageProduction]) inh_ nt_ syn_ ->
+                    {-# LINE 100 "./src-ag/TfmToVisage.ag" #-}
+                    VNonterminal nt_ inh_ syn_ _prodsIvprods
+                    {-# LINE 447 "dist/build/TfmToVisage.hs"#-}
    {-# INLINE rule20 #-}
    rule20 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap

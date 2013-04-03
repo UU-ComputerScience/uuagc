@@ -2,18 +2,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module AbstractSyntaxDump where
-{-# LINE 6 "./src-ag/AbstractSyntaxDump.ag" #-}
-
-import Data.List
-import qualified Data.Map as Map
-
-import Pretty
-import PPUtil
-
-import AbstractSyntax
-import TokenDef
-{-# LINE 16 "dist/build/AbstractSyntaxDump.hs" #-}
-
 {-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
@@ -24,19 +12,31 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 28 "dist/build/AbstractSyntaxDump.hs" #-}
+{-# LINE 16 "dist/build/AbstractSyntaxDump.hs" #-}
 
 {-# LINE 2 "./src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 35 "dist/build/AbstractSyntaxDump.hs" #-}
+{-# LINE 23 "dist/build/AbstractSyntaxDump.hs" #-}
 
 {-# LINE 2 "./src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
+{-# LINE 29 "dist/build/AbstractSyntaxDump.hs" #-}
+
+{-# LINE 6 "./src-ag/AbstractSyntaxDump.ag" #-}
+
+import Data.List
+import qualified Data.Map as Map
+
+import Pretty
+import PPUtil
+
+import AbstractSyntax
+import TokenDef
 {-# LINE 41 "dist/build/AbstractSyntaxDump.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

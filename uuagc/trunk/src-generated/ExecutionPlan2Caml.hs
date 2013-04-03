@@ -2,6 +2,39 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ExecutionPlan2Caml where
+{-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
+
+-- VisitSyntax.ag imports
+import Patterns    (Pattern(..),Patterns)
+import Expression  (Expression(..))
+import CommonTypes
+import ErrorMessages
+
+import qualified Data.Set as Set
+import Data.Set(Set)
+import qualified Data.Map as Map
+import Data.Map(Map)
+{-# LINE 18 "dist/build/ExecutionPlan2Caml.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 25 "dist/build/ExecutionPlan2Caml.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 31 "dist/build/ExecutionPlan2Caml.hs" #-}
+
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 37 "dist/build/ExecutionPlan2Caml.hs" #-}
+
 {-# LINE 32 "./src-ag/ExecutionPlan2Caml.ag" #-}
 
 import ExecutionPlan
@@ -28,39 +61,6 @@ import qualified Data.Map as Map
 import Data.Sequence(Seq)
 import qualified Data.Sequence as Seq
 import Data.Foldable(toList)
-{-# LINE 32 "dist/build/ExecutionPlan2Caml.hs" #-}
-
-{-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
-
--- VisitSyntax.ag imports
-import Patterns    (Pattern(..),Patterns)
-import Expression  (Expression(..))
-import CommonTypes
-import ErrorMessages
-
-import qualified Data.Set as Set
-import Data.Set(Set)
-import qualified Data.Map as Map
-import Data.Map(Map)
-{-# LINE 46 "dist/build/ExecutionPlan2Caml.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 53 "dist/build/ExecutionPlan2Caml.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 59 "dist/build/ExecutionPlan2Caml.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 65 "dist/build/ExecutionPlan2Caml.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

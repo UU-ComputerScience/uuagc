@@ -3,6 +3,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module InterfacesRules where
+{-# LINE 2 "./src-ag/Interfaces.ag" #-}
+
+import CommonTypes
+import SequentialTypes
+{-# LINE 11 "dist/build/InterfacesRules.hs" #-}
+
 {-# LINE 10 "./src-ag/InterfacesRules.lag" #-}
 
 import Interfaces
@@ -19,12 +25,6 @@ import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,findIndex)
 import Data.Array ((!),inRange,bounds,assocs)
 import Data.Foldable(toList)
-{-# LINE 23 "dist/build/InterfacesRules.hs" #-}
-
-{-# LINE 2 "./src-ag/Interfaces.ag" #-}
-
-import CommonTypes
-import SequentialTypes
 {-# LINE 29 "dist/build/InterfacesRules.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity

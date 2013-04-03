@@ -3,6 +3,22 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintCode where
+{-# LINE 2 "./src-ag/Code.ag" #-}
+
+import Patterns
+import Data.Set(Set)
+import qualified Data.Set as Set
+import Data.Map(Map)
+import qualified Data.Map as Map
+{-# LINE 14 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 21 "dist/build/PrintCode.hs" #-}
+
 {-# LINE 10 "./src-ag/PrintCode.ag" #-}
 
 import Data.Char (isAlphaNum)
@@ -15,87 +31,9 @@ import System.IO
 import System.Directory
 import System.FilePath
 import CommonTypes(BlockInfo, BlockKind(..))
-{-# LINE 19 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Code.ag" #-}
-
-import Patterns
-import Data.Set(Set)
-import qualified Data.Set as Set
-import Data.Map(Map)
-import qualified Data.Map as Map
-{-# LINE 28 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 35 "dist/build/PrintCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 23 "./src-ag/PrintCode.ag" #-}
-
-type PP_Docs = [PP_Doc]
-{-# LINE 41 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 27 "./src-ag/PrintCode.ag" #-}
-
-ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeqH = ppMultiSeq' (>#<)
-
-ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeqV = ppMultiSeq' (>-<)
-
-ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
-ppMultiSeq' next strictArgs expr
-  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
-{-# LINE 54 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 299 "./src-ag/PrintCode.ag" #-}
-
-
-reallySimple :: String -> Bool
-reallySimple = and . map (\x -> isAlphaNum x || x=='_')
-
-ppTuple :: Bool -> [PP_Doc] -> PP_Doc
-ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
-ppTuple False pps = "(" >|< pp_block " " ")" "," pps
-ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
-ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
-ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
-
-{-# LINE 69 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 400 "./src-ag/PrintCode.ag" #-}
-
-locname' :: Identifier -> [Char]
-locname' n = "_loc_" ++ getName n
-{-# LINE 75 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 475 "./src-ag/PrintCode.ag" #-}
-
-renderDocs :: [PP_Doc] -> String
-renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
-{-# LINE 81 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 523 "./src-ag/PrintCode.ag" #-}
-
-writeModule :: FilePath -> [PP_Doc] -> IO ()
-writeModule path docs
-  = do bExists <- doesFileExist path
-       if bExists
-        then do input <- readFile path
-                seq (length input) (return ())
-                if input /= output
-                 then dumpIt
-                 else return ()
-        else dumpIt
-  where
-    output = renderDocs docs
-    dumpIt = writeFile path output
-{-# LINE 98 "dist/build/PrintCode.hs" #-}
-
 {-# LINE 144 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
@@ -113,6 +51,68 @@ mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleTyp
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
 mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
                                | otherwise                                = UnboxedTupleLhs comps
+{-# LINE 55 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 23 "./src-ag/PrintCode.ag" #-}
+
+type PP_Docs = [PP_Doc]
+{-# LINE 60 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 27 "./src-ag/PrintCode.ag" #-}
+
+ppMultiSeqH :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqH = ppMultiSeq' (>#<)
+
+ppMultiSeqV :: [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeqV = ppMultiSeq' (>-<)
+
+ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
+ppMultiSeq' next strictArgs expr
+  = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
+{-# LINE 73 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 299 "./src-ag/PrintCode.ag" #-}
+
+
+reallySimple :: String -> Bool
+reallySimple = and . map (\x -> isAlphaNum x || x=='_')
+
+ppTuple :: Bool -> [PP_Doc] -> PP_Doc
+ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
+ppTuple False pps = "(" >|< pp_block " " ")" "," pps
+ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
+ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
+ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
+
+{-# LINE 88 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 400 "./src-ag/PrintCode.ag" #-}
+
+locname' :: Identifier -> [Char]
+locname' n = "_loc_" ++ getName n
+{-# LINE 94 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 475 "./src-ag/PrintCode.ag" #-}
+
+renderDocs :: [PP_Doc] -> String
+renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
+{-# LINE 100 "dist/build/PrintCode.hs" #-}
+
+{-# LINE 523 "./src-ag/PrintCode.ag" #-}
+
+writeModule :: FilePath -> [PP_Doc] -> IO ()
+writeModule path docs
+  = do bExists <- doesFileExist path
+       if bExists
+        then do input <- readFile path
+                seq (length input) (return ())
+                if input /= output
+                 then dumpIt
+                 else return ()
+        else dumpIt
+  where
+    output = renderDocs docs
+    dumpIt = writeFile path output
 {-# LINE 117 "dist/build/PrintCode.hs" #-}
 -- CaseAlt -----------------------------------------------------
 -- wrapper
