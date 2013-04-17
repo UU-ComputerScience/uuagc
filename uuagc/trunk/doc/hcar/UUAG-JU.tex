@@ -20,12 +20,14 @@ Nonterminals (data types), productions (data constructors), attributes, and rule
 
 The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}), the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}), the Generic Haskell compiler, UUAG itself, and many master student projects.
 The current version is 0.9.42.3 (April 2013), is extensively tested, and is available on Hackage. There is also a Cabal plugin for easy use of AG files in Haskell projects.
-Recently, we have improved the building procedure to make sure that the UUAGC can both be built from source as well as from the included generated Haskell sources, without the need of an external bootstrap program. 
 
-Some of the recent extensions of the UUAG system are:
+Some of the recent changes to the UUAG system are:
 \begin{description}
-\item[OCaml code generation.]
-  ... todo ...
+\item[OCaml support.]
+  We have added OCaml code generation such that UUAG can also be used in OCaml projects.
+
+\item[Improved build system.]
+  We have improved the building procedure to make sure that the UUAGC can both be built from source as well as from the included generated Haskell sources, without the need of an external bootstrap program. 
 
 \item[First-class AGs.]
   We provide a translation from UUAG to AspectAG~\cref{aspectag}.
