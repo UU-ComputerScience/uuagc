@@ -3881,7 +3881,7 @@ sem_Type_TMaybe arg_tp_ = T_Type (return st50) where
    {-# LINE 290 "./src-ag/PrintCode.ag" #-}
    rule411 = \ ((_tpIpp) :: PP_Doc) ->
                                {-# LINE 290 "./src-ag/PrintCode.ag" #-}
-                               text "Maybe" >#< _tpIpp
+                               text "Maybe" >#< pp_parens _tpIpp
                                {-# LINE 3886 "dist/build/PrintCode.hs"#-}
    {-# INLINE rule412 #-}
    rule412 = \ ((_lhsInested) :: Bool) ->
