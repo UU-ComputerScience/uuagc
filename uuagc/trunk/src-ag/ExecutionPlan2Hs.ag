@@ -144,12 +144,12 @@ SEM ENonterminal
                                                   )
                                               >-< indent 2 @loc.derivings
                                    Just (List t)     -> @loc.aliasPre >#< "[" >#< show t >#< "]"
-                                   Just (Maybe t)    -> @loc.aliasPre >#< "Maybe" >#< show t
+                                   Just (Maybe t)    -> @loc.aliasPre >#< "Maybe" >#< pp_parens (show t)
                                    Just (Tuple ts)   -> @loc.aliasPre >#< pp_parens (ppCommas $ map (show . snd) ts)
-                                   Just (Either l r) -> @loc.aliasPre >#< "Either" >#< show l >#< show r
-                                   Just (Map k v)    -> @loc.aliasPre >#< "Data.Map" >#< pp_parens (show k) >#< show v
-                                   Just (IntMap t)   -> @loc.aliasPre >#< "Data.IntMap.IntMap" >#< show t
-                                   Just (OrdSet t)   -> @loc.aliasPre >#< "Data.Set.Set" >#< show t
+                                   Just (Either l r) -> @loc.aliasPre >#< "Either" >#< pp_parens (show l) >#< pp_parens (show r)
+                                   Just (Map k v)    -> @loc.aliasPre >#< "Data.Map" >#< pp_parens (show k) >#< pp_parens (show v)
+                                   Just (IntMap t)   -> @loc.aliasPre >#< "Data.IntMap.IntMap" >#< pp_parens (show t)
+                                   Just (OrdSet t)   -> @loc.aliasPre >#< "Data.Set.Set" >#< pp_parens (show t)
                                    Just IntSet       -> @loc.aliasPre >#< "Data.IntSet.IntSet"
 --                                   Just x -> error $ "Type " ++ show x ++ " is not supported"
                  loc.derivings = case Map.lookup @nt @lhs.derivings of
