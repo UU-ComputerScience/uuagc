@@ -287,7 +287,7 @@ SEM Type  [ | | prec:Int ]
                               then text "T_"
                               else empty
   | TMaybe       lhs.prec  = 5
-                 lhs.pp    = text "Maybe" >#< @tp.pp
+                 lhs.pp    = text "Maybe" >#< pp_parens @tp.pp
   | TEither      lhs.prec  = 5
                  lhs.pp    = text "Either" >#< pp_parens @left.pp >#< pp_parens @right.pp
   | TMap         lhs.prec  = 5
