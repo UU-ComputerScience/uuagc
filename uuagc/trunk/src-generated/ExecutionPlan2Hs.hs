@@ -1125,12 +1125,12 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                                     )
                                                 >-< indent 2 _derivings
                                      Just (List t)     -> _aliasPre     >#< "[" >#< show t >#< "]"
-                                     Just (Maybe t)    -> _aliasPre     >#< "Maybe" >#< show t
+                                     Just (Maybe t)    -> _aliasPre     >#< "Maybe" >#< pp_parens (show t)
                                      Just (Tuple ts)   -> _aliasPre     >#< pp_parens (ppCommas $ map (show . snd) ts)
-                                     Just (Either l r) -> _aliasPre     >#< "Either" >#< show l >#< show r
-                                     Just (Map k v)    -> _aliasPre     >#< "Data.Map" >#< pp_parens (show k) >#< show v
-                                     Just (IntMap t)   -> _aliasPre     >#< "Data.IntMap.IntMap" >#< show t
-                                     Just (OrdSet t)   -> _aliasPre     >#< "Data.Set.Set" >#< show t
+                                     Just (Either l r) -> _aliasPre     >#< "Either" >#< pp_parens (show l) >#< pp_parens (show r)
+                                     Just (Map k v)    -> _aliasPre     >#< "Data.Map" >#< pp_parens (show k) >#< pp_parens (show v)
+                                     Just (IntMap t)   -> _aliasPre     >#< "Data.IntMap.IntMap" >#< pp_parens (show t)
+                                     Just (OrdSet t)   -> _aliasPre     >#< "Data.Set.Set" >#< pp_parens (show t)
                                      Just IntSet       -> _aliasPre     >#< "Data.IntSet.IntSet"
                                   {-# LINE 1136 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule81 #-}
