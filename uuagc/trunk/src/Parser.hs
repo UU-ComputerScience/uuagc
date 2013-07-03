@@ -67,23 +67,28 @@ depsAG opts searchPath file
 
 -- marcos: added the parameter 'agi' and the 'ext' part
 parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
-parseFile agi opts searchPath filename
- = do file <- resolveFile opts searchPath filename
-      txt <- readFile file
-      let searchPath' = takeDirectory file : searchPath  -- search first relative to the including file
-          litMode = ".lag" `isSuffixOf` file
-          (files,text) = if litMode then scanLit txt
-                         else ([],txt)
-          tokens       = input opts (initPos file) text
+parseFile = parseFile' []
 
-          steps = parse (pElemsFiles agi) tokens
-          stop (_,fs,_,_,_) = null fs
-          cont (es,fs,allfs,ext,msg)
-            = do res <- mapM (parseFile agi opts searchPath') fs
-                 let (ess,fss,allfss,_, msgs) = unzip5 res
-                 return (concat ess ++ es, concat fss, allfs ++ concat allfss, ext, msg ++ concat msgs)
-      let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
-      loopp stop cont (es,files ++ fls,[file], ext,mesg)
+parseFile' :: [String] -> Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
+parseFile' parsedfiles agi opts searchPath filename
+ = do file <- resolveFile opts searchPath filename
+      if file `elem` parsedfiles 
+        then return ([], [], parsedfiles, Nothing, [])
+        else do
+        txt <- readFile file
+        let searchPath' = takeDirectory file : searchPath  -- search first relative to the including file
+            litMode = ".lag" `isSuffixOf` file
+            (files,text) = if litMode then scanLit txt
+                           else ([],txt)
+            tokens       = input opts (initPos file) text
+
+            steps = parse (pElemsFiles agi) tokens
+            stop (_,fs,_,_,_) = null fs
+            cont (es,f:fs,allfs,ext,msg)
+              = do (ess,fss,allfss,_, msgs) <- parseFile' allfs agi opts searchPath' f
+                   return (ess ++ es, fss ++ fs, allfss, ext, msg ++ msgs)
+        let (Pair (es,fls,ext) _ ,mesg) = evalStepsMessages steps
+        loopp stop cont (es,files ++ fls,file : parsedfiles, ext,mesg)
  where
 
     --
