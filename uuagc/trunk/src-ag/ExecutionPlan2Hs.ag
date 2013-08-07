@@ -190,7 +190,7 @@ SEM EProduction
 {
 -- first parameter indicates: generate a record or not
 ppConFields :: Bool -> [PP_Doc] -> PP_Doc
-ppConFields True  flds = ppListSep "{" "}" ", " flds
+ppConFields True  flds = ppListSep "{" "}" ", " $ filter (not . isEmpty) flds
 ppConFields False flds = ppSpaced flds
 }
 

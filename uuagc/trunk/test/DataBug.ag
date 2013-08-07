@@ -1,0 +1,10 @@
+{- compile with:
+uuagc --haskellsyntax --catas --semfuns --signatures --pretty --module --wrappers --self --genlinepragmas --datarecords --parallel --cycle --optimize --kennedywarren --data DataBug.ag
+-}
+module {DataBug} {} {}
+
+data A | X a :: String
+
+sem A
+ | X inst.x :: A
+     inst.x = X "test"
