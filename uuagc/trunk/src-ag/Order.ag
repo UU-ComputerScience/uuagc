@@ -22,7 +22,6 @@ import SequentialTypes
 import CodeSyntax
 import GrammarInfo
 import HsToken(HsTokensRoot(HsTokensRoot))
-import HsTokenScanner(lexTokens)
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 -- From uulib
 import qualified Data.Map as Map
@@ -168,6 +167,9 @@ getNtName _           = nullIdent
 data AltAttr = AltAttr Identifier Identifier Bool
                deriving (Eq, Ord, Show)
 }
+ATTR  Rules Rule Production Productions Nonterminal Nonterminals
+  [ options : {Options} | | ]
+
 ATTR Children Child Rules Rule Patterns Pattern [ | | gathAltAttrs USE {++} {[]} : {[AltAttr]} ]
 SEM  Production
   |  Production  loc.gathAltAttrs =  [ AltAttr _LHS inh True | inh <- Map.keys @lhs.inh ]   -- sublist 1
@@ -447,6 +449,7 @@ ATTR Expression [ nt,con   :{Identifier}
                   allfields:{[(Identifier,Type,ChildKind)]}
                   allnts   :{[Identifier]}
                   attrs    :{[(Identifier,Identifier)]}
+                  options  :{Options}
                 ||
                   errors   :{Seq Error}
                   usedLocals:{[Identifier]}
@@ -471,6 +474,7 @@ SEM Expression
                                               , allfields_Inh_HsTokensRoot  = @lhs.allfields
                                               , allnts_Inh_HsTokensRoot     = @lhs.allnts
                                               , nt_Inh_HsTokensRoot         = @lhs.nt
+                                              , options_Inh_HsTokensRoot    = @lhs.options
                                               }
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot @tks)) inherited
                               in case synthesized of

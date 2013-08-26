@@ -8,6 +8,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import CommonTypes
 import Data.List(intersect,(\\))
+import Options
 
 type LMH = (Vertex,Vertex,Vertex)
 data Info = Info  {  tdpToTds    ::  Table Vertex
@@ -23,7 +24,7 @@ data Info = Info  {  tdpToTds    ::  Table Vertex
 instance Show CRule
  where show (CRule name _ _ nt con field childnt _ _ rhs _ _ _ uses _ _)
          = "CRule " ++ show name ++ " nt: " ++ show nt ++ " con: " ++ show con ++ " field: " ++ show field
-         ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname True fld nm | (fld,nm) <- Set.toList uses ]
+         ++ " childnt: " ++ show childnt ++ " rhs: " ++ concat rhs ++ " uses: " ++ show [ attrname noOptions True fld nm | (fld,nm) <- Set.toList uses ]
        show _ = error "Only CRule is supported"
 
 type CInterfaceMap = Map NontermIdent CInterface

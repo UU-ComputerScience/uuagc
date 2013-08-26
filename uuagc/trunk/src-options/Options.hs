@@ -119,6 +119,7 @@ allOptions =
   , MyOpt []        ["reference"]     (NoArg referenceOpt)        (boolOpt reference)   "Use reference attributes"
   , MyOpt []        ["monadic"]       (NoArg monadicOpt)          (boolOpt monadic)     "Experimental: generate monadic code"
   , MyOpt []        ["ocaml"]         (NoArg ocamlOpt)            (boolOpt ocaml)       "Generate Ocaml code"
+  , MyOpt []        ["cleanlang"]     (NoArg cleanOpt)            (boolOpt clean)       "Generate Clean code"
   , MyOpt []        ["breadthfirst"]  (NoArg breadthfirstOpt)     (boolOpt breadthFirst)"Experimental: generate breadth-first code"
   , MyOpt []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) (boolOpt breadthFirstStrict) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
   , MyOpt []        ["visitcode"]     (NoArg visitorsOutputOpt)   (boolOpt visitorsOutput) "Experimental: generate visitors code"
@@ -213,6 +214,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , doubleColons :: Bool
                       , monadic :: Bool
                       , ocaml :: Bool
+                      , clean :: Bool
                       , visitorsOutput :: Bool
                       , statsFile :: Maybe String
                       , breadthFirst :: Bool
@@ -308,6 +310,7 @@ noOptions = Options { moduleName    = NoName
                     , doubleColons    = False
                     , monadic         = False
                     , ocaml           = False
+                    , clean           = False
                     , visitorsOutput  = False
                     , statsFile       = Nothing
                     , breadthFirst     = False
@@ -358,7 +361,7 @@ moduleOptGet opts nm = case moduleName opts of
   Name s -> [nm++"="++s]
   Default -> [nm]
 
-dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
+dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, cleanOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
 
 dataOpt         opts = opts{dataTypes    = True}
 dataRecOpt      opts = opts{dataRecords  = True}
@@ -446,6 +449,7 @@ haskellSyntaxOpt = lcKeywordsOpt . doubleColonsOpt . genLinePragmasOpt
 monadicOpt opts = opts { monadic = True }
 parallelOpt opts = opts { parallelInvoke = True }
 ocamlOpt opts = opts { ocaml = True, kennedyWarren = True, withCycle = True, visit = True }
+cleanOpt opts = opts { clean = True } --TODO: More?
 visitorsOutputOpt opts = opts { visitorsOutput = True }
 statisticsOpt :: String -> Options -> Options
 statisticsOpt nm opts = opts { statsFile = Just nm }

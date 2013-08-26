@@ -20,13 +20,14 @@ TYPE SemDefs   = [SemDef]
 
 DATA AG        | AG     elems  : Elems
 
-DATA Elem      | Data   pos    : {Pos}
-                        ctx    : {ClassContext}
-                        names  : NontSet
-                        params : {[Identifier]}
-                        attrs  : Attrs
-                        alts   : Alts
-                        ext    : {Bool}
+DATA Elem      | Data   pos     : {Pos}
+                        contype : {ConstructorType}
+                        ctx     : {ClassContext}
+                        names   : NontSet
+                        params  : {[Identifier]}
+                        attrs   : Attrs
+                        alts    : Alts
+                        ext     : {Bool}
 
                | Type   pos    : {Pos}
                         ctx    : {ClassContext}

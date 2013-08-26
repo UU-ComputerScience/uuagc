@@ -144,13 +144,13 @@ eqClasses _ [] = []
 eqClasses p (a:as) = let (isA,rest) = partition (p a) as
                      in (a:isA):eqClasses p rest
 
-lhsshow :: NTAttr -> String
-lhsshow (NTAInh _ attr _) = lhsname True attr
-lhsshow (NTASyn _ attr _) = lhsname False attr 
+lhsshow :: Options -> NTAttr -> String
+lhsshow opts (NTAInh _ attr _) = lhsname opts True attr
+lhsshow opts (NTASyn _ attr _) = lhsname opts False attr 
 
-rhsshow :: Identifier -> NTAttr -> String
-rhsshow field (NTAInh _ attr _) = attrname False field attr
-rhsshow field (NTASyn _ attr _) = attrname True field attr 
+rhsshow :: Options -> Identifier -> NTAttr -> String
+rhsshow opts field (NTAInh _ attr _) = attrname opts False field attr
+rhsshow opts field (NTASyn _ attr _) = attrname opts True field attr 
 
 prettyCRule :: CRule -> String
 prettyCRule cr 

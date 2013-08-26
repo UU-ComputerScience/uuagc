@@ -66,8 +66,10 @@ ATTR ExecutionPlan
      ENonterminals ENonterminal
      EProductions EProduction
      ERules ERule
-     Pattern Patterns
      EChildren EChild
+     Expression
+     HsToken HsTokens HsTokensRoot
+     Pattern Patterns
      Visits Visit
      VisitSteps VisitStep [ options : {Options} | | ]
 ATTR EProductions EProduction [ rename : {Bool} | | ]
@@ -604,12 +606,12 @@ SEM ENonterminal | ENonterminal
 
   loc.wrapArgSemTp = @loc.t_params >#< @loc.t_type
   loc.wrapArgInhTp = @loc.t_params >#< @loc.inhname
-  loc.wrapArgPats  = ppRecordVal [ i >|< "_inh_" >|< @nt >#< "=" >#< lhsname True i | (i,_) <- @loc.wr_inhs1 ]
+  loc.wrapArgPats  = ppRecordVal [ i >|< "_inh_" >|< @nt >#< "=" >#< lhsname @lhs.options True i | (i,_) <- @loc.wr_inhs1 ]
   loc.wrapResTp = @loc.t_params >#< @loc.synname
   loc.wrapper  = "and" >#< ppFunDecl @loc.o_sigs @loc.wrapname [(pp "act", @loc.wrapArgSemTp), (@loc.wrapArgPats, @loc.wrapArgInhTp)] @loc.wrapResTp @loc.wrapperPreamble
   loc.wrapperPreamble
     = ( if lateHigherOrderBinding @lhs.options
-        then "let" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName >#< "in"
+        then "let" >#< lhsname @lhs.options True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName >#< "in"
         else empty
       ) -- initial attribute for late binding
       >-< @loc.wrapperBody
@@ -620,12 +622,12 @@ SEM ENonterminal | ENonterminal
           let attach  = "let" >#< "sem" >#< "=" >#< "act." >|< nm_attach @nt >#< "()" >#< "in"  -- run attach code
 
               -- result transformer to wrapper output record
-              pat     = ppRecordVal [ nm_outarg i @nt initv >#< "=" >#< lhsname False i | (i,_) <- @loc.wr_syns ]
-              bld     = ppRecordVal [ i >|< "_syn_" >|< @nt >#< "=" >#< lhsname False i | (i,_) <- @loc.wr_syns ]
+              pat     = ppRecordVal [ nm_outarg i @nt initv >#< "=" >#< lhsname @lhs.options False i | (i,_) <- @loc.wr_syns ]
+              bld     = ppRecordVal [ i >|< "_syn_" >|< @nt >#< "=" >#< lhsname @lhs.options False i | (i,_) <- @loc.wr_syns ]
               res     = "let res = function" >#< pat >#< "->" >#< bld >#< "in"
 
               -- input to the visit (inh attrs + continuation)
-              inps    = "let" >#< "inps" >#< "=" >#< ppRecordVal [ nm_inarg i @nt initv >#< "=" >#< lhsname True i | (i,_) <- @loc.wr_inhs ] >#< "in"
+              inps    = "let" >#< "inps" >#< "=" >#< ppRecordVal [ nm_inarg i @nt initv >#< "=" >#< lhsname @lhs.options True i | (i,_) <- @loc.wr_inhs ] >#< "in"
               arg     = "let" >#< "arg" >#< "=" >#< argcon >#< argrec >#< "in"
               argcon  = case @loc.firstVisitInfo of
                           ManyVis -> con_visit @nt initv
@@ -797,7 +799,7 @@ SEM Visit | Visit
   lhs.sem_visit = ( @from
                   , let resTp = @loc.t_params >#< @loc.nameTOut_visit
                         argTp = @loc.t_params >#< @loc.nameTIn_visit
-                        argMatch = ppRecordVal [ nm_inarg i @lhs.nt @ident >#< "=" >#< lhsname True i | i <- Set.toList @inh ]
+                        argMatch = ppRecordVal [ nm_inarg i @lhs.nt @ident >#< "=" >#< lhsname @lhs.options True i | i <- Set.toList @inh ]
                     in ppFunDecl @loc.o_sigs (nm_visit @ident) [(argMatch, argTp)] resTp @steps.sem_steps
                   )
 
@@ -808,7 +810,7 @@ SEM Visit | Visit
   loc.nextStExp  = nm_st @to >#< @loc.nextArgs >#< dummyArg @lhs.options (Map.null @loc.nextArgsMp)
 
   loc.resultval = ppRecordVal
-                    (  [ nm_outarg i @lhs.nt @ident >#< "=" >#< lhsname False i | i <- Set.toList @syn ]
+                    (  [ nm_outarg i @lhs.nt @ident >#< "=" >#< lhsname @lhs.options False i | i <- Set.toList @syn ]
                     ++ [ @loc.nextStRefExp ])
 
   (loc.nextStBuild, loc.nextStRefExp)
@@ -926,7 +928,7 @@ SEM EChild
                                ChildSyntax -> @name >|< "_"
                                ChildAttr   -> -- decide if we need to invoke the sem-function under the hood
                                               let head | not @loc.isDefor = if lateHigherOrderBinding @lhs.options
-                                                                            then lateSemNtLabel @loc.nt >#< lhsname True idLateBindingAttr
+                                                                            then lateSemNtLabel @loc.nt >#< lhsname @lhs.options True idLateBindingAttr
                                                                             else prefix @lhs.options >|< @loc.nt
                                                        | otherwise        = empty -- no need to intro a terminal
                                               in pp_parens (head >#< instname @name)
@@ -934,7 +936,7 @@ SEM EChild
                                                  -- the semantics of the child (always deforested)
                                                  pp_parens (instname @name >#< @name >|< "_")
            loc.aroundcode  = if @hasAround
-                             then locname @name >|< "_around"
+                             then locname @lhs.options @name >|< "_around"
                              else empty
            loc.introcode   = \kind -> let pat    = text $ stname @name @loc.initSt
                                           attach = pp_parens (@loc.aroundcode >#< @loc.valcode) >|< "." >|< nm_attach @loc.nt >#< "()"
@@ -946,10 +948,10 @@ SEM EChild
                                                         ChildAttr   -> Map.insert (instname @name) Nothing $  -- the sem attr
                                                                          ( if @loc.isDefor || not (lateHigherOrderBinding @lhs.options)
                                                                            then id   -- the sem dictionary attr is not used
-                                                                           else Map.insert (lhsname True idLateBindingAttr) (Just $ AttrInh _LHS idLateBindingAttr)
+                                                                           else Map.insert (lhsname @lhs.options True idLateBindingAttr) (Just $ AttrInh _LHS idLateBindingAttr)
                                                                          ) $
                                                                          ( if @hasAround
-                                                                           then Map.insert (locname (@name) ++ "_around") Nothing
+                                                                           then Map.insert (locname @lhs.options (@name) ++ "_around") Nothing
                                                                            else id
                                                                          ) $ Map.empty
                                                         ChildReplace _ -> Map.singleton (instname @name) Nothing   -- uses the transformation function
@@ -1052,7 +1054,7 @@ ATTR Patterns [ | | sem_lhs USE {:} {[]} : {[PP_Doc]} ]
 ATTR Pattern Patterns [ | | extraDefs USE {++} {[]} : {[(PP_Doc,PP_Doc)]} ]
 
 SEM Pattern
-  | Alias       loc.var       = text $ attrname False @field @attr
+  | Alias       loc.var       = text $ attrname @lhs.options False @field @attr
                 loc.hasTp     = isJust @loc.mbTp
                 loc.o_sigs    = typeSigs @lhs.options
 
@@ -1078,7 +1080,7 @@ SEM Pattern
 -- Collect the attributes defined by a pattern
 ATTR Pattern Patterns  [ | | attrs USE {`Set.union`} {Set.empty} : {Set String} ]
 SEM Pattern | Alias
-  lhs.attrs     = Set.insert (attrname False @field @attr) @pat.attrs
+  lhs.attrs     = Set.insert (attrname @lhs.options False @field @attr) @pat.attrs
 
 -- All attribute types of this pattern
 -- Todo: if possible, make attribute types part of the pattern
@@ -1089,7 +1091,7 @@ SEM Pattern | Alias
 		  else if @field == _LOC
 		       then Map.lookup @attr @lhs.localAttrTypes
 		       else Nothing
-  lhs.attrTypes = maybe empty (\tp -> (attrname False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
+  lhs.attrTypes = maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
   		  >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
@@ -1099,7 +1101,7 @@ SEM HsToken
   | AGField   loc.mbAttr  = if @field == _INST || @field == _FIELD || @field == _INST'
                             then Nothing  -- should not be used in the first place
                             else Just $ mkNonLocalAttr (@field == _LHS) @field @attr
-              lhs.attrs   = Map.singleton (attrname True @field @attr) @loc.mbAttr
+              lhs.attrs   = Map.singleton (attrname @lhs.options True @field @attr) @loc.mbAttr
 
 {
 data NonLocalAttr
@@ -1136,8 +1138,9 @@ noParameters (NT _ args _) = null args
 ATTR Expression [ | | semfunc : {PP_Doc} ]
 
 SEM Expression
-  | Expression lhs.attrs   = Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
-               lhs.semfunc = vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+  | Expression lhs.attrs   = Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) @loc.inhhstoken)) @tks
+               lhs.semfunc = vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) @loc.inhhstoken)) @tks
+               loc.inhhstoken = Inh_HsToken @lhs.options
 
 -- child visit map
 ATTR Visit
@@ -1175,7 +1178,7 @@ SEM Visit | Visit
             cont = "let" >#< contNm >#< ppArg @loc.o_sigs (ppRecordVal cont_in) cont_in_tp >#< "="
                    >-< indent 2 follow  -- the continuation-code
                    >#< "in"
-            cont_in = [ nm_outarg i @lhs.nt @ident >#< "=" >#< attrname True chld i | i <- Set.toList @syn ]
+            cont_in = [ nm_outarg i @lhs.nt @ident >#< "=" >#< attrname @lhs.options True chld i | i <- Set.toList @syn ]
                       ++ case @loc.nextVisitInfo of
                            NoneVis -> []
                            _       -> [ nm_outarg_cont @lhs.nt @ident >#< "=" >#< childNmTo ]
@@ -1186,7 +1189,7 @@ SEM Visit | Visit
                      [ nm_inh @lhs.nt @ident >#< "=" >#< ppRecordVal inps_in
                      , nm_cont @lhs.nt @ident >#< "=" >#< contNm
                      ] >#< "in"
-            inps_in = [ nm_inarg i @lhs.nt @ident >#< "=" >#< attrname False chld i | i <- Set.toList @inh ]
+            inps_in = [ nm_inarg i @lhs.nt @ident >#< "=" >#< attrname @lhs.options False chld i | i <- Set.toList @inh ]
 
             -- the call to the visit function, with possible the need to specify which visit function to dispatch to
             call = childNmFrom >|< "." >|< nm_invoke @lhs.nt @from >#< arg
@@ -1271,9 +1274,9 @@ SEM Visit
           lhs.intramap  = Map.singleton @from @loc.thisintra
           loc.nextintra = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
           loc.uses      = let mp1 = @steps.uses
-                              mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems @syn ]
+                              mp2 = Map.fromList [ (lhsname @lhs.options False i, Just (AttrSyn _LHS i)) | i <- Set.elems @syn ]
                           in mp1 `Map.union` mp2
-          loc.inhVarNms = Set.map (lhsname True) @inh
+          loc.inhVarNms = Set.map (lhsname @lhs.options True) @inh
           loc.defs      = @steps.defs `Set.union` @loc.inhVarNms `Set.union` @lhs.terminaldefs
           loc.defsAsMap = Map.fromList [ (a, Nothing) | a <- Set.elems @loc.defs ]
 
@@ -1317,8 +1320,8 @@ ATTR VisitSteps VisitStep [ | | defs USE {`Set.union`} {Set.empty} : {Set String
 SEM VisitStep
   | Sem        lhs.defs = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruledefs
                lhs.uses = maybe (error "Rule not found") id $ Map.lookup @name @lhs.ruleuses
-  | ChildVisit lhs.defs = Set.insert (stname @child @to) $ maybe (error "Visit not found") (Set.map $ attrname True @child) $ Map.lookup @visit @lhs.avisitdefs
-               lhs.uses = let convert attrs = Map.fromList [ (attrname False @child attr, Just $ mkNonLocalAttr True @child attr) | attr <- Set.elems attrs ]
+  | ChildVisit lhs.defs = Set.insert (stname @child @to) $ maybe (error "Visit not found") (Set.map $ attrname @lhs.options True @child) $ Map.lookup @visit @lhs.avisitdefs
+               lhs.uses = let convert attrs = Map.fromList [ (attrname @lhs.options False @child attr, Just $ mkNonLocalAttr True @child attr) | attr <- Set.elems attrs ]
                           in Map.insert (stname @child @from) Nothing $ convert $
                                maybe (error "Visit not found") id $ Map.lookup @visit @lhs.avisituses
 
@@ -1364,7 +1367,7 @@ SEM HsToken [ || tok:{(Pos,String)}]
        loc.addTrace = case @rdesc of
                         Just d  -> \x -> "(prerr_endline " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ "; " ++ x ++ ")"
                         Nothing -> id
-       lhs.tok = (@pos, @loc.addTrace $ attrname True @field @attr)
+       lhs.tok = (@pos, @loc.addTrace $ attrname @lhs.options True @field @attr)
 
    | HsToken lhs.tok = (@pos, @value)
 

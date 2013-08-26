@@ -19,20 +19,22 @@ import UU.Parsing                    (Message(..), Action(..))
 import UU.Scanner.Position           (Pos, line, file)
 import UU.Scanner.Token              (Token)
 
-import qualified Transform          as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
-import qualified Desugar            as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified DefaultRules       as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified ResolveLocals      as Pass2a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified Order              as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified KWOrder            as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
-import qualified GenerateCode       as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified PrintVisitCode     as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
-import qualified ExecutionPlan2Hs   as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..), warrenFlagsPP)
-import qualified ExecutionPlan2Caml as Pass4c (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..))
-import qualified PrintCode          as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintOcamlCode     as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
-import qualified PrintErrorMessages as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
-import qualified TfmToVisage        as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Transform           as Pass1  (sem_AG     ,  wrap_AG     ,  Syn_AG      (..), Inh_AG      (..))
+import qualified Desugar             as Pass1a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified DefaultRules        as Pass2  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified ResolveLocals       as Pass2a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified Order               as Pass3  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified KWOrder             as Pass3a (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified GenerateCode        as Pass4  (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified PrintVisitCode      as Pass4a (sem_CGrammar, wrap_CGrammar, Syn_CGrammar(..), Inh_CGrammar(..))
+import qualified ExecutionPlan2Hs    as Pass4b (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..), warrenFlagsPP)
+import qualified ExecutionPlan2Caml  as Pass4c (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..))
+import qualified ExecutionPlan2Clean as Pass4d (sem_ExecutionPlan, wrap_ExecutionPlan, Syn_ExecutionPlan(..), Inh_ExecutionPlan(..), mkIclModuleHeader, mkDclModuleHeader, cleanIclModuleHeader, cleanDclModuleHeader)
+import qualified PrintCode           as Pass5  (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintOcamlCode      as Pass5a (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintCleanCode      as Pass5b (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
+import qualified PrintErrorMessages  as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
+import qualified TfmToVisage         as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
@@ -97,8 +99,8 @@ compile flags input output
           flags'    = condDisableOptimizations (Pass1.pragmas_Syn_AG output1 flags)
           grammar1  = Pass1.output_Syn_AG        output1
           output1a  = Pass1a.wrap_Grammar        (Pass1a.sem_Grammar grammar1                          ) Pass1a.Inh_Grammar {Pass1a.options_Inh_Grammar = flags', Pass1a.forcedIrrefutables_Inh_Grammar = irrefutableMap, Pass1a.mainName_Inh_Grammar = mainName }
-          grammar1a =Pass1a.output_Syn_Grammar   output1a
-          output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags'}
+          grammar1a = Pass1a.output_Syn_Grammar  output1a
+          output2   = Pass2.wrap_Grammar         (Pass2.sem_Grammar grammar1a                          ) Pass2.Inh_Grammar  {Pass2.options_Inh_Grammar  = flags', Pass2.constructorTypeMap_Inh_Grammar = Pass1.constructorTypeMap_Syn_AG output1}
           grammar2  = Pass2.output_Syn_Grammar   output2
           outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
           grammarV  = PassV.visage_Syn_Grammar   outputV
@@ -112,13 +114,15 @@ compile flags input output
           output4a  = Pass4a.wrap_CGrammar       (Pass4a.sem_CGrammar(Pass3.output_Syn_Grammar output3)) Pass4a.Inh_CGrammar {Pass4a.options_Inh_CGrammar = flags'}
           output4b  = Pass4b.wrap_ExecutionPlan  (Pass4b.sem_ExecutionPlan grammar3a) Pass4b.Inh_ExecutionPlan {Pass4b.options_Inh_ExecutionPlan = flags', Pass4b.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4b.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4b.pragmaBlocks_Inh_ExecutionPlan = pragmaBlocksTxt, Pass4b.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4b.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4b.moduleHeader_Inh_ExecutionPlan = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4b.mainFile_Inh_ExecutionPlan = mainFile, Pass4b.textBlockMap_Inh_ExecutionPlan = textBlockMap, Pass4b.mainBlocksDoc_Inh_ExecutionPlan = mainBlocksDoc,Pass4b.localAttrTypes_Inh_ExecutionPlan = Pass3a.localSigMap_Syn_Grammar output3a}
           output4c  = Pass4c.wrap_ExecutionPlan  (Pass4c.sem_ExecutionPlan grammar3a) Pass4c.Inh_ExecutionPlan {Pass4c.options_Inh_ExecutionPlan = flags', Pass4c.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4c.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4c.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4c.mainFile_Inh_ExecutionPlan = mainFile, Pass4c.localAttrTypes_Inh_ExecutionPlan = Pass3a.localSigMap_Syn_Grammar output3a}
+          output4d  = Pass4d.wrap_ExecutionPlan  (Pass4d.sem_ExecutionPlan grammar3a) Pass4d.Inh_ExecutionPlan {Pass4d.options_Inh_ExecutionPlan = flags', Pass4d.inhmap_Inh_ExecutionPlan = Pass3a.inhmap_Syn_Grammar output3a, Pass4d.synmap_Inh_ExecutionPlan = Pass3a.synmap_Syn_Grammar output3a, Pass4d.importBlocks_Inh_ExecutionPlan = importBlocksTxt, Pass4d.textBlocks_Inh_ExecutionPlan = textBlocksDoc, Pass4d.iclModuleHeader_Inh_ExecutionPlan = Pass4d.mkIclModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4d.dclModuleHeader_Inh_ExecutionPlan = Pass4d.mkDclModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass4d.mainName_Inh_ExecutionPlan = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1, Pass4d.mainFile_Inh_ExecutionPlan = mainFile, Pass4d.textBlockMap_Inh_ExecutionPlan = textBlockMap, Pass4d.mainBlocksDoc_Inh_ExecutionPlan = mainBlocksDoc,Pass4d.localAttrTypes_Inh_ExecutionPlan = Pass3a.localSigMap_Syn_Grammar output3a, Pass4d.constructorTypeMap_Inh_ExecutionPlan = Pass1.constructorTypeMap_Syn_AG output1}
           output5   = Pass5.wrap_Program         (Pass5.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5.Inh_Program  {Pass5.options_Inh_Program  = flags', Pass5.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5.importBlocks_Inh_Program = importBlocksTxt, Pass5.textBlocks_Inh_Program = textBlocksDoc, Pass5.textBlockMap_Inh_Program = textBlockMap, Pass5.mainBlocksDoc_Inh_Program = mainBlocksDoc, Pass5.optionsLine_Inh_Program = optionsLine, Pass5.mainFile_Inh_Program = mainFile, Pass5.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output5a  = Pass5a.wrap_Program        (Pass5a.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5a.Inh_Program { Pass5a.options_Inh_Program  = flags', Pass5a.textBlockMap_Inh_Program = textBlockMap }
+          output5b  = Pass5b.wrap_Program        (Pass5b.sem_Program (Pass4.output_Syn_CGrammar output4)) Pass5b.Inh_Program  {Pass5b.options_Inh_Program  = flags', Pass5b.pragmaBlocks_Inh_Program = pragmaBlocksTxt, Pass5b.importBlocks_Inh_Program = importBlocksTxt, Pass5b.textBlocks_Inh_Program = textBlocksDoc, Pass5b.textBlockMap_Inh_Program = textBlockMap, Pass5b.mainBlocksDoc_Inh_Program = mainBlocksDoc, Pass5b.optionsLine_Inh_Program = optionsLine, Pass5b.mainFile_Inh_Program = mainFile, Pass5b.moduleHeader_Inh_Program = mkModuleHeader $ Pass1.moduleDecl_Syn_AG output1, Pass5b.mainName_Inh_Program = mkMainName mainName $ Pass1.moduleDecl_Syn_AG output1}
           output6   = PrErr.wrap_Errors          (PrErr.sem_Errors                       errorsToReport) PrErr.Inh_Errors   {PrErr.options_Inh_Errors   = flags', PrErr.dups_Inh_Errors = [] }
 
-          dump1    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
-          dump2    = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
-          dump3    = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
+          dump1     = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar1                     ) GrammarDump.Inh_Grammar
+          dump2     = GrammarDump.wrap_Grammar   (GrammarDump.sem_Grammar grammar2                     ) GrammarDump.Inh_Grammar
+          dump3     = CGrammarDump.wrap_CGrammar (CGrammarDump.sem_CGrammar grammar3                   ) CGrammarDump.Inh_CGrammar
 
 
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
@@ -132,9 +136,11 @@ compile flags input output
           furtherErrors    = if kennedyWarren flags'
                              then let errs3a = Pass3a.errors_Syn_Grammar output3a
                                   in if Seq.null errs3a
-                                     then if ocaml flags' 
+                                     then if ocaml flags'
                                           then toList ( Pass4c.errors_Syn_ExecutionPlan output4c )
-                                          else toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
+                                          else if clean flags'
+                                               then toList ( Pass4d.errors_Syn_ExecutionPlan output4d )
+                                               else toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
                                      else toList errs3a
                              else toList ( Pass3.errors_Syn_Grammar  output3
                                   Seq.>< Pass4.errors_Syn_CGrammar output4)
@@ -201,12 +207,9 @@ compile flags input output
                      then parseAGI flags (searchPath flags) (agiFile input)
                      else return (undefined, undefined)
 
-      let ext' = case ext of
-                        Nothing -> Nothing
-                        Just e  -> Just (remAgi e)
-
-          outAgi1   = Pass1.wrap_AG              (Pass1.sem_AG               outAgi ) Pass1.Inh_AG             {Pass1.options_Inh_AG       = flags'}
-          agi       = Pass1.agi_Syn_AG           outAgi1
+      let ext'      = fmap remAgi ext
+          outAgi1   = Pass1.wrap_AG             (Pass1.sem_AG               outAgi ) Pass1.Inh_AG             {Pass1.options_Inh_AG       = flags'}
+          agi       = Pass1.agi_Syn_AG          outAgi1
           aspectAG  = AspectAGDump.wrap_Grammar (AspectAGDump.sem_Grammar grammar2  ) AspectAGDump.Inh_Grammar { AspectAGDump.options_Inh_Grammar  = flags'
                                                                                                                , AspectAGDump.agi_Inh_Grammar      = agi
                                                                                                                , AspectAGDump.ext_Inh_Grammar      = ext' } --marcos
@@ -310,7 +313,35 @@ compile flags input output
                                     , text "(* main code *)"
                                     , mainBlocksDoc
                                     ]
-                              else vlist
+                              else if clean flags'
+                                   then vlist
+                                    [ pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                           then Pass4d.cleanIclModuleHeader flags' mainName
+                                           else Pass4d.mkIclModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                    , pp importBlocksTxt
+                                    , dataBlocksDoc
+                                    , vlist [ pp $ "from Control.Monad.Identity import :: Identity"
+                                            , pp $ "import qualified Control.Monad.Identity as Control.Monad.Identity"
+                                            , pp $ "import Control.Monad.Identity"
+                                            , pp $ "from Control.Applicative import lift"
+                                            , pp $ "from Control.Monad import class Monad (..)"
+                                            ]
+                                    , mainBlocksDoc
+                                    , textBlocksDoc
+                                    , recBlocksDoc
+                                    --, pp $ "{-"
+                                    --, Pass3a.depgraphs_Syn_Grammar output3a
+                                    --, Pass3a.visitgraph_Syn_Grammar output3a
+                                    --, pp $ "-}"
+                                    , Pass4d.output_Syn_ExecutionPlan output4d
+                                    , if dumpgrammar flags'
+                                      then vlist [ pp "/* Dump of grammar with default rules"
+                                                 , GrammarDump.pp_Syn_Grammar dump2
+                                                 , pp "*/"
+                                                 ]
+                                      else empty]
+
+                                   else vlist
                                     [ Pass4b.warrenFlagsPP flags'
                                     , pp pragmaBlocksTxt
                                     , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
@@ -343,23 +374,25 @@ compile flags input output
                                                  ]
                                       else empty]
                          | otherwise
-                            = vlist [ vlist ( if not (ocaml flags')
-                                              then [ pp optionsLine
+                            = vlist [ vlist ( if (ocaml flags' || clean flags')
+                                              then []
+                                              else [ pp optionsLine
                                                    , pp pragmaBlocksTxt
                                                    , pp $ take 70 ("-- UUAGC " ++ drop 50 banner ++ " (" ++ input) ++ ")"
                                                    , pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
                                                           then moduleHeader flags' mainName Nothing
                                                           else mkModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
                                                    ]
-                                              else []
                                             )
                                     , pp importBlocksTxt
                                     , dataBlocksDoc
                                     , mainBlocksDoc
                                     , textBlocksDoc
-                                    , vlist $ if not (ocaml flags')
-                                              then Pass5.output_Syn_Program  output5
-                                              else Pass5a.output_Syn_Program output5a
+                                    , vlist $ if (ocaml flags')
+                                                then Pass5a.output_Syn_Program output5a
+                                                else if (clean flags')
+                                                       then Pass5b.output_Syn_Program  output5b
+                                                       else Pass5.output_Syn_Program  output5
                                     , if dumpgrammar flags'
                                       then vlist [ pp "{- Dump of grammar without default rules"
                                                  , GrammarDump.pp_Syn_Grammar dump1
@@ -379,6 +412,25 @@ compile flags input output
 
                     let docTxt = disp doc 50000 ""
                     writeFile outputfile docTxt
+
+                    -- HACK: write Clean DCL file
+                    if clean flags'
+                      then do let dclDoc =
+                                    vlist
+                                    [ pp $ if isNothing $ Pass1.moduleDecl_Syn_AG output1
+                                           then Pass4d.cleanDclModuleHeader flags' mainName Nothing -- TODO: What should be there instead of Nothing?
+                                           else Pass4d.mkDclModuleHeader (Pass1.moduleDecl_Syn_AG output1) mainName "" "" False
+                                    , vlist [ pp $ "from Control.Monad.Identity import :: Identity"
+                                            , pp $ "import qualified Control.Monad.Identity as Control.Monad.Identity"
+                                            , pp $ "import Control.Monad.Identity"
+                                            , pp $ "from Control.Applicative import lift"
+                                            , pp $ "from Control.Monad import class Monad (..)"
+                                            ]
+                                    , Pass4d.output_dcl_Syn_ExecutionPlan output4d
+                                    ]
+                              writeFile (replaceExtension outputfile ".dcl") (disp dclDoc 50000 "")
+                      else return ()
+
                     -- HACK: write statistics
                     let nAuto = Pass3.nAutoRules_Syn_Grammar output3
                         nExpl = Pass3.nExplicitRules_Syn_Grammar output3
@@ -428,6 +480,7 @@ remAgi = dropExtension
 outputFile :: Options -> String -> String
 outputFile opts name
   | ocaml opts = replaceExtension name "ml"
+  | clean opts = replaceExtension name "icl"
   | otherwise  = replaceExtension name "hs"
 
 defaultModuleName :: String -> String

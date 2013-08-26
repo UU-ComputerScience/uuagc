@@ -50,10 +50,15 @@ scan opts p0
 
     scan :: Lexer Token
     scan p []                        = Nothing
+    scan p ('/':'/':xs)
+      | clean opts
+                                     = let (com,rest) = span (/= '\n') xs
+                                       in advc' (2+length com) p scan rest
     scan p ('-':'-':xs) | null xs || not (head xs `elem` "<>!?#@:%$^&")
                                      = let (com,rest) = span (/= '\n') xs
                                        in advc' (2+length com) p scan rest
     scan p ('{':'-':xs)              = advc' 2 p (ncomment scan) xs
+    scan p ('/':'*':xs) | clean opts = advc' 2 p (cleancomment scan) xs
     scan p ('{'    :xs)              = advc' 1 p codescrap xs
     scan p ('\CR':xs)                = case xs of
                                         '\LF':ys -> newl' p scanBeginOfLine ys --ms newline
@@ -99,16 +104,16 @@ scan opts p0
             scan' ('*'     :rs)      = (reserved "*" p, advc 1 p, rs)
 
             scan' ('\''    :rs) | ocaml opts =  -- note: ocaml type variables are encoded as 'TkTextnm' tokens
-              let (var,rest) = ident rs
+              let (var,rest) = ident opts rs
                   str = '\'' : var
               in (valueToken TkTextnm str p, advc (length str) p, rest)
 
-            scan' (x:rs) | isLower x = let (var,rest) = ident rs
+            scan' (x:rs) | isLower x = let (var,rest) = ident opts rs
                                            str        = (x:var)
                                            tok | str `elem` keywords' = reserved (mkKeyword str)
                                                | otherwise            = valueToken TkVarid str
                                        in (tok p, advc (length var+1) p, rest)
-                         | isUpper x = let (var,rest) = ident rs
+                         | isUpper x = let (var,rest) = ident opts rs
                                            str        = (x:var)
                                            tok | str `elem` keywords' = reserved (mkKeyword str)
                                                | otherwise            = valueToken TkConid str
@@ -135,12 +140,13 @@ scan opts p0
       = scan p xs
 
 
-ident = span isValid
- where isValid x = isAlphaNum x || x == '_' || x == '\''
+ident opts = span isValid
+ where isValid x = isAlphaNum x || x == '_' ||
+                   (not (clean opts) && x == '\'') || (clean opts && x == '`')
 
 lowercaseKeywords = ["loc","lhs", "inst", "optpragmas", "imports", "toplevel", "datablock", "recblock"]
 keywords = lowercaseKeywords ++
-           [ "DATA", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
+           [ "DATA", "RECORD", "EXT", "ATTR", "SEM","TYPE", "USE", "INCLUDE"
            , "EXTENDS" -- marcos
            , "SET","DERIVING","FOR", "WRAPPER", "NOCATAS", "MAYBE", "EITHER", "MAP", "INTMAP"
            , "PRAGMA", "SEMPRAGMA", "MODULE", "ATTACH", "UNIQUEREF", "INH", "SYN", "CHN"
@@ -151,6 +157,11 @@ ncomment c p ('-':'}':xs) = advc' 2 p c  xs
 ncomment c p ('{':'-':xs) = advc' 2 p (ncomment (ncomment c)) xs
 ncomment c p (x:xs)       = updPos' x p (ncomment c)  xs
 ncomment c p []           = Just (errToken "unterminated nested comment" p, p,[])
+
+cleancomment c p ('*':'/':xs) = advc' 2 p c  xs
+cleancomment c p ('/':'*':xs) = advc' 2 p (cleancomment (cleancomment c)) xs
+cleancomment c p (x:xs)       = updPos' x p (cleancomment c)  xs
+cleancomment c p []           = Just (errToken "unterminated nested comment" p, p,[])
 
 codescrap p xs = let (p2,xs2,sc) = codescrap' 1 p xs
                  in case xs2 of

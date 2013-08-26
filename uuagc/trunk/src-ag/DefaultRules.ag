@@ -48,7 +48,9 @@ SEM Nonterminal | Nonterminal
 --         Distributing options
 -------------------------------------------------------------------------------
 
-ATTR Grammar Nonterminals Nonterminal Productions Production Rules Rule [ options:{Options} | | ]
+ATTR Grammar Nonterminals Nonterminal Productions Production Rules Rule
+  [ options:{Options}
+    constructorTypeMap : {Map NontermIdent ConstructorType} | | ]
 ATTR Nonterminals Nonterminal Productions Production [ o_rename:{Bool}
                                                        cr:Bool {- copy rule -}
                                                      | | ]
@@ -89,14 +91,23 @@ _ACHILD = Ident "(" noPos -- hack
 
 mkLocVar = AGField _LOC
 
+isRecordConstructor :: NontermIdent -> Map NontermIdent ConstructorType -> Bool
+isRecordConstructor nt ctm = Map.lookup nt ctm == Just RecordConstructor
 
-buildConExpr ocaml typeSyns rename nt con1 fs
- | nt `elem` map fst typeSyns  =  if ocaml then synonymMl else synonymHs
- | otherwise                   =  normalExpr
- where con                     = getName con1
+buildConExpr ocaml clean conmap typeSyns rename nt con1 fs'
+ | nt `elem` map fst typeSyns  =  if ocaml then synonymMl
+                                           else if clean then synonymClean
+                                                         else synonymHs
+ | otherwise                   = normalExpr
+ where fs                      = map fst fs'
+       con                     = getName con1
        tup                     = " " ++ buildTuple fs
        args                    = " " ++ unwords fs
-       normalExpr              = conname' ++ args
+       normalExpr              = if clean && isRecordConstructor nt conmap
+                                   then "{" ++ con ++ "|" ++
+                                        unwords (intersperse "," $ map (\(new, old) -> getName old ++ " = " ++ new) fs')
+                                        ++ "}"
+                                   else conname' ++ args
 
        conname' | rename    = getName nt ++ "_" ++ getName con1
                 | otherwise = getName con1
@@ -134,6 +145,24 @@ buildConExpr ocaml typeSyns rename nt con1 fs
                                             Just (OrdSet _) -> prefixMod nt "add"
                                             Just IntSet     -> prefixMod nt "add" ) ++ args
                   | otherwise         = normalExpr
+
+       synonymClean  | con == "Tuple"    = buildTuple fs
+                     | con == "Cons"     = "(\\x xs -> [x:xs])" ++ args
+                     | con == "Nil"      = case lookup nt typeSyns of
+                                             Just (Map _ _)  -> "Data.Map.empty"
+                                             Just (IntMap _) -> "Data.IntMap.empty"
+                                             Just (OrdSet _) -> "Data.Set.empty"
+                                             Just IntSet     -> "Data.IntSet.empty"
+                                             _               -> "[]"
+                     | con == "Just"     = "Just" ++ args
+                     | con == "Nothing"  = "Nothing"
+                     | con == "Entry"    = ( case lookup nt typeSyns of
+                                               Just (Map _ _)  -> "Data.Map.insert"
+                                               Just (IntMap _) -> "Data.IntMap.insert"
+                                               Just (OrdSet _) -> "Data.Set.insert"
+                                               Just IntSet     -> "Data.IntSet.insert" ) ++ args
+                     | otherwise         = normalExpr
+
 
        prefixMod nt nm = "M_" ++ getName nt ++ "." ++ nm
 
@@ -254,12 +283,11 @@ deprecatedCopyRuleError nt con fld a
     in  CustomError True (getPos a) mesg
 
 
-missingRuleErrorExpr nt con fld a
- = "error \"missing rule: "
+missingRuleErrorExpr clean nt con fld a
+ = (if clean then "abort" else "error")
+   ++ " \"missing rule: "
    ++ show nt  ++ "." ++ show con ++ "."
    ++ show fld ++ "." ++ show a   ++ "\""
-
-
 
 makeRule :: (Identifier,Identifier) -> Expression -> String -> Bool -> Maybe Error -> Rule
 makeRule (f1,a1) expr origin identity mbDelayedError
@@ -275,8 +303,8 @@ makeRule (f1,a1) expr origin identity mbDelayedError
         False
 
 
-useRule :: Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
-useRule locals ch_outs (n,(op,e,pos))
+useRule :: Options -> Set Identifier -> [(Identifier,Attributes)] -> (Identifier,(String,String,String)) -> Rule
+useRule opts locals ch_outs (n,(op,e,pos))
  =  let elems = [ fld
                 | (fld,as) <- ch_outs
                 , Map.member n as
@@ -292,8 +320,8 @@ useRule locals ch_outs (n,(op,e,pos))
           | otherwise = True
 
         tks | Set.member n locals  =  [mkLocVar n noPos Nothing]
-            | null elems           =  lexTokens noPos e
-            | otherwise            =  lexTokens noPos str
+            | null elems           =  lexTokens opts noPos e
+            | otherwise            =  lexTokens opts noPos str
                                       where
                                         opExpr l r
                                           | isOp op   = l ++ " " ++ op ++ " " ++ r         -- takes the associativity of the operator
@@ -345,7 +373,7 @@ copyRule options wrappers nt con modcopy locals (env,(fld,as))
 
               (tks,err,mbDelayedErr)
                = case sel of
-                  Nothing         -> let tks = [HsToken (missingRuleErrorExpr nt con fld a) noPos]
+                  Nothing         -> let tks = [HsToken (missingRuleErrorExpr (clean options) nt con fld a) noPos]
                                          err = MissingRule nt con fld a
                                      in if nt `Set.member` wrappers && kennedyWarren options
                                         then (tks, Seq.empty, Just err)  -- yield error only if the rule is actually scheduled; for kennedyWarren code gen only
@@ -418,15 +446,15 @@ SEM Production
                            (zip envs (map (removeDefined @rules.definedAttrs) @children.inputs))
 
         uRules
-          = map (useRule locals @children.outputs) useAttrs
+          = map (useRule @lhs.options locals @children.outputs) useAttrs
 
         -- creates a loc.xxx if there is a synthesized attr xxx of type SELF and no
         -- loc.xxx exists yet. If there exists a terminal yyy and a local loc.yyy, then
         -- the local is chosen as value for the terminal.
         selfLocRules
           =  [ selfRule False attr $
-                 lexTokens noPos $  -- building a string and lexing it again is not so nice... but practical here
-                 constructor [childSelf attr nm tp | (nm,tp,virt) <- @children.fields, childExists virt]
+                 lexTokens @lhs.options noPos $  -- building a string and lexing it again is not so nice... but practical here
+                 constructor [(childSelf attr nm tp, nm) | (nm,tp,virt) <- @children.fields, childExists virt]
              | attr <- Map.keys selfAttrs
              , not (Set.member attr locals)
              ]
@@ -436,7 +464,7 @@ SEM Production
                               _      | nm `Set.member` locals -> locName nm
                                      | otherwise              -> fieldName nm
                constructor fs
-                 = buildConExpr (ocaml @lhs.options) @lhs.typeSyns @lhs.o_rename @lhs.nt @con fs
+                 = buildConExpr (ocaml @lhs.options) (clean @lhs.options) @lhs.constructorTypeMap @lhs.typeSyns @lhs.o_rename @lhs.nt @con fs
 
                childExists ChildAttr = False
                childExists _         = True

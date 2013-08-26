@@ -193,7 +193,7 @@ SEM Pattern
   | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
   | Alias   -- assuming here that there is only an underscore under an alias
             lhs.pp     = if @pat.isUnderscore
-                          then pp (attrname False @field @attr)
+                          then pp (attrname @lhs.options False @field @attr)
                           else error "pp of Pattern.Alias is only supported in the form (x@_)"
   | Irrefutable lhs.pp = error "pp of Pattern.Irrefutable not supported"
   | Underscore lhs.pp  = text "_"

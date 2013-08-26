@@ -74,6 +74,10 @@ data Occurrence
   = OccAttr Identifier Identifier
   | OccRule Identifier
   deriving (Eq,Ord,Show)
+data ConstructorType
+  = DataConstructor
+  | RecordConstructor
+  deriving (Eq,Ord,Show)
 
 type AttrEnv = ( [Identifier]
                , [(Identifier,Identifier)]
@@ -134,20 +138,24 @@ semname pre nt con =  pre ++ (getName nt ++ "_" ++ getName con)
 recordFieldname :: NontermIdent -> ConstructorIdent -> Identifier -> String
 recordFieldname nt con nm = getName nm ++ "_" ++ getName nt ++ "_" ++ getName con
 
-lhsname :: Bool -> Identifier -> String
-lhsname isIn = attrname isIn _LHS
+lhsname :: Options -> Bool -> Identifier -> String
+lhsname opts isIn = attrname opts isIn _LHS
 
-attrname :: Bool -> Identifier -> Identifier -> String
-attrname isIn field attr | field == _LOC   = locname attr
-                         | field == _INST  = instname attr
-                         | field == _INST' = inst'name attr
-                         | field == _FIELD = fieldname attr
-                         | otherwise       = let direction | isIn      = "I"
-                                                           | otherwise = "O"
-                                             in '_' : getName field ++ direction ++ getName attr
+attrname :: Options -> Bool -> Identifier -> Identifier -> String
+attrname opts isIn field attr
+  | field == _LOC   = locname opts attr
+  | field == _INST  = instname attr
+  | field == _INST' = inst'name attr
+  | field == _FIELD = fieldname attr
+  | otherwise       = let direction | isIn      = "I"
+                                    | otherwise = "O"
+                          pref = if clean opts then 'a' else '_'
+                      in  pref : getName field ++ direction ++ getName attr
 
-locname, instname, inst'name, fieldname :: Identifier -> String
-locname v   = '_' : getName v
+locname :: Options -> Identifier -> String
+locname opts v   = (if clean opts then 'l' else '_') : getName v
+
+instname, inst'name, fieldname :: Identifier -> String
 instname v  = getName v ++ "_val_"
 inst'name v = getName v ++ "_inst_"
 fieldname v =  getName v++"_"
