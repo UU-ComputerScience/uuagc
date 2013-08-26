@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.3 (src-ag/Interfaces.ag)
+-- UUAGC 0.9.50 (src-ag/Interfaces.ag)
 module Interfaces where
 {-# LINE 2 "./src-ag/Interfaces.ag" #-}
 

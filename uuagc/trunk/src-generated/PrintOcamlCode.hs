@@ -3,6 +3,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintOcamlCode where
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 12 "dist/build/PrintOcamlCode.hs" #-}
+
 {-# LINE 2 "./src-ag/Code.ag" #-}
 
 import Patterns
@@ -10,13 +17,6 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 14 "dist/build/PrintOcamlCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 21 "dist/build/PrintOcamlCode.hs" #-}
 
 {-# LINE 10 "./src-ag/PrintOcamlCode.ag" #-}
@@ -1976,7 +1976,7 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
          _patX41 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
          (T_Pattern_vOut40 _patIcopy _patIisUnderscore _patIpp) = inv_Pattern_s41 _patX41 (T_Pattern_vIn40 _patOoptions)
          _lhsOpp :: PP_Doc
-         _lhsOpp = rule130 _patIisUnderscore arg_attr_ arg_field_
+         _lhsOpp = rule130 _lhsIoptions _patIisUnderscore arg_attr_ arg_field_
          _lhsOisUnderscore :: Bool
          _lhsOisUnderscore = rule131  ()
          _copy = rule132 _patIcopy arg_attr_ arg_field_
@@ -1988,10 +1988,10 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
      in C_Pattern_s41 v40
    {-# INLINE rule130 #-}
    {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
-   rule130 = \ ((_patIisUnderscore) :: Bool) attr_ field_ ->
+   rule130 = \ ((_lhsIoptions) :: Options) ((_patIisUnderscore) :: Bool) attr_ field_ ->
                            {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
                            if _patIisUnderscore
-                            then pp (attrname False field_ attr_)
+                            then pp (attrname _lhsIoptions False field_ attr_)
                             else error "pp of Pattern.Alias is only supported in the form (x@_)"
                            {-# LINE 1997 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule131 #-}

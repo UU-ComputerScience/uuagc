@@ -2,6 +2,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Visage where
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 10 "dist/build/Visage.hs" #-}
+
+{-# LINE 2 "./src-ag/VisagePatterns.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import CommonTypes
+{-# LINE 16 "dist/build/Visage.hs" #-}
+
 {-# LINE 2 "./src-ag/VisageSyntax.ag" #-}
 
 import CommonTypes
@@ -9,18 +21,6 @@ import UU.Pretty
 import AbstractSyntax
 import VisagePatterns
 import Expression
-{-# LINE 13 "dist/build/Visage.hs" #-}
-
-{-# LINE 2 "./src-ag/VisagePatterns.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import CommonTypes
-{-# LINE 19 "dist/build/Visage.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
 {-# LINE 25 "dist/build/Visage.hs" #-}
 
 {-# LINE 6 "./src-ag/Visage.ag" #-}
