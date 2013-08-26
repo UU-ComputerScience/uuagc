@@ -123,7 +123,7 @@ allOptions =
   , MyOpt []        ["breadthfirst"]  (NoArg breadthfirstOpt)     (boolOpt breadthFirst)"Experimental: generate breadth-first code"
   , MyOpt []        ["breadthfirst-strict"] (NoArg breadthfirstStrictOpt) (boolOpt breadthFirstStrict) "Experimental: outermost breadth-first evaluator is strict instead of lazy"
   , MyOpt []        ["visitcode"]     (NoArg visitorsOutputOpt)   (boolOpt visitorsOutput) "Experimental: generate visitors code"
-  , MyOpt []        ["kennedywarren"] (NoArg kennedyWarrenOpt)    (boolOpt kennedyWarren) "Experimental: use Kennedy-Warren's algorithm for ordering"
+  , MyOpt []        ["kennedywarren"] (NoArg kennedyWarrenOpt)    (boolOpt kennedyWarren) "Use Kennedy-Warren's algorithm for ordering"
   , MyOpt []        ["statistics"]    (ReqArg statisticsOpt "FILE to append to") (mbStringOpt statsFile) "Append statistics to FILE"
   , MyOpt []        ["checkParseRhs"]           (NoArg parseHsRhsOpt)              (boolOpt checkParseRhs)         "Parse RHS of rules with Haskell parser"
   , MyOpt []        ["checkParseTys"]           (NoArg parseHsTpOpt)               (boolOpt checkParseTy)          "Parse types of attrs with Haskell parser"
