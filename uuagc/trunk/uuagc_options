@@ -51,6 +51,9 @@ options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genline
 file: "src-ag/GenerateCode.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
+file: "src-ag/PrintCleanCode.ag"
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+
 file: "src-ag/PrintOcamlCode.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
@@ -94,6 +97,9 @@ file: "src-ag/AG2AspectAG.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/ExecutionPlan2Hs.ag"
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+
+file: "src-ag/ExecutionPlan2Clean.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
 file: "src-ag/ExecutionPlan2Caml.ag"

@@ -155,7 +155,10 @@ parseFile' parsedfiles agi opts searchPath filename
 
     pElem :: AGParser Elem
     pElem
-         =  Data <$> (pDATA <|> pTYPE)
+         =  (\(pos, ct) -> Data pos ct)
+                 <$> (    (\x -> (x, DataConstructor))   <$> (pDATA <|> pTYPE)
+                     <|>  (\x -> (x, RecordConstructor)) <$> pRECORD
+                     )
                  <*> pOptClassContext'
                  <*> pNontSet
                  <*> pTyVars
@@ -316,7 +319,7 @@ parseFile' parsedfiles agi opts searchPath filename
     pSemDefs =  concat <$> pList_ng pSemDef <?> "attribute rules"
 
     pExpr :: AGParser Expression
-    pExpr = (\(str,pos) ->  Expression pos (lexTokens pos str)) <$> pCodescrapL <?> "an expression"
+    pExpr = (\(str,pos) ->  Expression pos (lexTokens opts pos str)) <$> pCodescrapL <?> "an expression"
 
     pTypeColon :: AGParser Pos
     pTypeColon
@@ -542,7 +545,7 @@ pCodescrap' = fst <$> pCodescrap
 pCodescrap ::  AGParser (String,Pos)
 pCodescrap   = pCodeBlock
 
-pSEM, pATTR, pDATA, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
+pSEM, pATTR, pDATA, pRECORD, pUSE, pLOC,pINCLUDE, pTYPE, pEquals, pColonEquals, pTilde,
       pEXTENDS, --marcos
       pBar, pColon, pLHS,pINST,pSET,pDERIVING,pMinus,pIntersect,pDoubleArrow,pArrow,
       pDot, pUScore, pEXT,pAt,pStar, pSmaller, pWRAPPER, pNOCATAS, pPRAGMA, pMAYBE, pEITHER, pMAP, pINTMAP,
@@ -557,6 +560,7 @@ pPRAGMA      = pCostReserved 90 "PRAGMA"  <?> "PRAGMA"
 pSEMPRAGMA   = pCostReserved 90 "SEMPRAGMA" <?> "SEMPRAGMA"
 pATTACH      = pCostReserved 90 "ATTACH"  <?> "ATTACH"
 pDATA        = pCostReserved 90 "DATA"    <?> "DATA"
+pRECORD      = pCostReserved 90 "RECORD"  <?> "RECORD"
 pEXT         = pCostReserved 90 "EXT"     <?> "EXT"
 pATTR        = pCostReserved 90 "ATTR"    <?> "ATTR"
 pSEM         = pCostReserved 90 "SEM"     <?> "SEM"

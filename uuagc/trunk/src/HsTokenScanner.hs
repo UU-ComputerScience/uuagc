@@ -11,16 +11,16 @@ import Data.Char
 isAGesc :: Char -> Bool
 isAGesc c = c == '@'
 
-lexTokens :: Pos -> String -> [HsToken]
-lexTokens =  scanTokens keywordstxt keywordsops specialchars opchars
+lexTokens :: Options -> Pos -> String -> [HsToken]
+lexTokens = scanTokens keywordstxt keywordsops specialchars opchars
   where keywordstxt   =  []
         keywordsops   =  [".","=", ":=", ":","|","@"]
         specialchars  =  ";()[],_{}`"
         opchars       =  "!#$%&*+./<=>?@\\^|-~:"
 
 
-scanTokens :: [String] -> [String] -> String -> String -> Pos -> String -> [HsToken]
-scanTokens keywordstxt keywordsops specchars opchars  pos input
+scanTokens :: [String] -> [String] -> String -> String -> Options -> Pos -> String -> [HsToken]
+scanTokens keywordstxt keywordsops specchars opchars opts pos input
   = doScan pos input
 
  where
@@ -28,7 +28,7 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
    locatein es = isJust . btLocateIn compare (tab2tree (sort es))
    iskw     = locatein keywordstxt
    isop     = locatein keywordsops
-   isSymb  = locatein specchars
+   isSymb   = locatein specchars
    isOpsym  = locatein opchars
 
    isIdStart c = isLower c || c == '_'
@@ -53,6 +53,8 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
                                                            in AGField (Ident field p) (Ident attr p) p Nothing : doScan p3 rest2
                                       _                 -> AGLocal (Ident field p) p Nothing : doScan p2 rest
 
+   doScan p ('/':'/':s) | clean opts  = doScan p (dropWhile (/= '\n') s)
+   doScan p ('/':'*':s) | clean opts  = advc' 2 p (lexCleanNest doScan) s   -- }
    doScan p ('-':'-':s)  = doScan p (dropWhile (/= '\n') s)
    doScan p ('{':'-':s)  = advc' 2 p (lexNest doScan) s   -- }
    doScan p ('"':ss)
@@ -62,6 +64,9 @@ scanTokens keywordstxt keywordsops specchars opchars  pos input
              else StrToken s p : advc' (swidth+2) p doScan (tail rest)
 
    doScan p ('\'':ss)
+     | clean opts = let (str,nswidth,rest) = scanQualName ss
+                    in  HsToken ('\'' : str ++ "'") p : advc' (nswidth + 2) p doScan (tail rest)
+     | otherwise
      = let (mc,cwidth,rest) = scanChar ss
        in case mc of
             Nothing -> Err "Error in character literal" p : advc' cwidth p doScan rest
@@ -100,6 +105,13 @@ lexNest cont pos inp = lexNest' cont pos inp
        lexNest' c p (x:s)       = lexNest' c (updPos  x p) s
        lexNest' _ _ []          = [Err "Unterminated nested comment" pos]
 
+lexCleanNest :: (Pos -> String -> [HsToken]) -> Pos -> String -> [HsToken]
+lexCleanNest cont pos inp = lexNest' cont pos inp
+ where lexNest' c p ('/':'*':s) = lexNest' (lexNest' c) (advc 2 p) s
+       lexNest' c p ('*':'/':s) = c (advc 2 p) s
+       lexNest' c p (x:s)       = lexNest' c (updPos  x p) s
+       lexNest' _ _ []          = [Err "Unterminated nested comment" pos]
+
 scanString :: String -> (String, Int, String)
 scanString []            = ("",0,[])
 scanString ('\\':'&':xs) = let (str,w,r) = scanString xs
@@ -110,6 +122,13 @@ scanString xs = let (ch,cw,cr) = getchar xs
                     (str,w,r)  = scanString cr
 --                    str' = maybe "" (:str) ch
                 in maybe ("",0,xs) (\c -> (c:str,cw+w,r)) ch
+
+scanQualName :: String -> (String, Int, String)
+scanQualName []          = ("",0,[])
+scanQualName r@('\'':_)  = ("",0,r)
+scanQualName xs          = let (ch,cw,cr) = getchar xs
+                               (str,w,r)  = scanQualName cr
+                           in  maybe ("",0,xs) (\c -> (c:str,cw+w,r)) ch
 
 scanChar :: String -> (Maybe Char, Int, String)
 scanChar ('"' :xs) = (Just '"',1,xs)

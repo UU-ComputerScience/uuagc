@@ -55,4 +55,5 @@ mkInfo1 = (,)
 ppLinePragma :: Options -> Int -> String -> PP_Doc
 ppLinePragma opts ln fl
   | ocaml opts = "#" >#< show ln >#< show fl
+  | clean opts = "//" >#< show ln >#< show fl
   | otherwise  = "{-# LINE" >#< show ln >#< show fl >#< "#-}"

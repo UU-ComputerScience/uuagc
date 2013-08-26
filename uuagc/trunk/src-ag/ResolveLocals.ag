@@ -25,7 +25,6 @@ import AbstractSyntax
 import Expression
 import Options
 import HsToken(HsTokensRoot(HsTokensRoot))
-import HsTokenScanner(lexTokens)
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 import Data.Maybe
 }
@@ -151,6 +150,7 @@ SEM Expression
                                               , allfields_Inh_HsTokensRoot  = @lhs.allfields
                                               , allnts_Inh_HsTokensRoot     = @lhs.allnts
                                               , nt_Inh_HsTokensRoot         = @lhs.nt
+                                              , options_Inh_HsTokensRoot    = @lhs.options
                                               }
                                   synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot @tks)) inherited
                               in (errors_Syn_HsTokensRoot synthesized, output_Syn_HsTokensRoot synthesized)

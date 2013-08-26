@@ -49,10 +49,14 @@ ATTR Program                            [ options:{Options} | | output:{PP_Docs}
 ATTR Expr Exprs Decl Decls Chunk Chunks CaseAlts CaseAlt Lhs Pattern Patterns [ options:{Options} | | ]
 
 ATTR Expr Decl DataAlt Type NamedType Lhs [ nested:{Bool} | | pp:{PP_Doc} ]
+ATTR Decl DataAlt NamedType [ | | ppa USE {>-<} {empty} : {PP_Doc}]
 
 ATTR Exprs DataAlts Types NamedTypes Decls Chunk Chunks [ nested:{Bool} | | pps : {PP_Docs} ]
+ATTR DataAlts NamedTypes [ | | ppas : {PP_Docs} ]
 
 ATTR CaseAlt CaseAlts                   [ nested:{Bool} | | pps: {PP_Docs} ]
+
+ATTR Type Types [ | | copy : SELF]
 
 SEM Program | Program
   loc.options = @lhs.options { breadthFirst = breadthFirst @lhs.options && visit @lhs.options && cases @lhs.options && @ordered }
@@ -69,16 +73,20 @@ SEM CaseAlts
   | Nil  lhs.pps = []
 
 SEM DataAlts
-  | Cons lhs.pps = @hd.pp : @tl.pps
-  | Nil  lhs.pps = []
+  | Cons lhs.pps  = @hd.pp : @tl.pps
+         lhs.ppas = @hd.ppa : @tl.ppas
+  | Nil  lhs.pps  = []
+         lhs.ppas = []
 
 SEM Types
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
 SEM NamedTypes
-  | Cons lhs.pps = @hd.pp : @tl.pps
-  | Nil  lhs.pps = []
+  | Cons lhs.pps  = @hd.pp : @tl.pps
+         lhs.ppas = @hd.ppa : @tl.ppas
+  | Nil  lhs.pps  = []
+         lhs.ppas = []
 
 SEM Decls
   | Cons lhs.pps = @hd.pp : @tl.pps
@@ -107,7 +115,7 @@ SEM Decl
                              >-< indent 4 @rhs.pp
   | Bind       lhs.pp      = @left.pp >#< "<-" >#< @rhs.pp
   | BindLet    lhs.pp      = "let" >#< @left.pp >#< "=" >#< @rhs.pp
-  | Data       lhs.pp      = "data" >#< hv_sp (@name : @params)
+  | Data       lhs.pp      = "::" >#< hv_sp (@name : @params)
                              >#<  ( case @alts.pps of
                                           [] -> empty
                                           (x:xs) ->              "=" >#<  x
@@ -116,13 +124,15 @@ SEM Decl
                                             then empty
                                             else "deriving" >#< ppTuple False (map text @derivings)
                                   )
-  | NewType    lhs.pp      = "newtype" >#< hv_sp (@name : @params) >#< "=" >#< @con >#< pp_parens @tp.pp
-  | Type       lhs.pp      = "type" >#< hv_sp (@name : @params) >#< "=" >#<  @tp.pp
+                             >-< foldr (>-<) empty @alts.ppas
+
+  | NewType    lhs.pp      = "::" >#< hv_sp (@name : @params) >#< "=" >#< @con >#< pp_parens @tp.pp
+  | Type       lhs.pp      = "::" >#< hv_sp (@name : @params) >#< ":==" >#<  @tp.pp
   | TSig       lhs.pp      = @name >#< "::" >#< @tp.pp
   | Comment    lhs.pp      = if '\n' `elem` @txt
-                               then "{-" >-< vlist (lines @txt) >-< "-}"
-                               else "--" >#< @txt
-  | PragmaDecl lhs.pp      = "{-#" >#< text @txt >#< "#-}"
+                               then "/*" >-< vlist (lines @txt) >-< "*/"
+                               else "//" >#< @txt
+  | PragmaDecl lhs.pp      = "/*#" >#< text @txt >#< "#*/" -- Not used in Clean
   | Resume     lhs.pp      = if @monadic
                              then @left.pp >#< "<-" >#< @rhs.pp
                              else @left.pp >#< "=" >-< indent 4 @rhs.pp
@@ -163,7 +173,7 @@ SEM Expr
   | Trace      lhs.pp      = "trace" >#< (   pp_parens ("\"" >|< text @txt >|< "\"")
                                          >-< pp_parens @expr.pp
                                          )
-  | PragmaExpr lhs.pp      = let pragmaDoc = "{-#" >#< @txt >#< "#-}"
+  | PragmaExpr lhs.pp      = let pragmaDoc = "/*#" >#< @txt >#< "#*/" -- Not used in Clean
                                  op = if @onNewLine
                                       then (>-<)
                                       else (>#<)
@@ -174,7 +184,7 @@ SEM Expr
                                                then x
                                                else x `op` y
                              in pp_parens (pragmaDoc `leftOp` @expr.pp `rightOp` pragmaDoc)
-  | LineExpr   lhs.pp      = @expr.pp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show @lhs.outputfile >#< "#-}"
+  | LineExpr   lhs.pp      = @expr.pp >-< "/*# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show @lhs.outputfile >#< "#*/"
                                       >-< ""
   | TypedExpr  lhs.pp      = pp_parens (@expr.pp >#< "::" >#< @tp.pp)
   | ResultExpr lhs.pp      = if breadthFirst @lhs.options
@@ -219,12 +229,19 @@ SEM CaseAlt
 
 SEM DataAlt
   | DataAlt    lhs.pp      = @name >#< hv_sp (map ((@lhs.strictPre >|<) . pp_parens) @args.pps)
-  | Record     lhs.pp      = @name >#< pp_block "{" "}" "," @args.pps
+               lhs.ppa     = empty
+  | Record     lhs.pp      = @name >#< hv_sp (map ((@lhs.strictPre >|<) . pp_parens) @args.pps) -- @name >#< pp_block "{" "}" "," @args.pps
+               lhs.ppa     = let f n d = d >#< (pp_block ("(" ++ @name) ")" "" $ map pp (ppat n))
+                                         >#< pp "=" >#< pp "x"
+                                 ppat n = replicate (length @args.ppas - n - 1) (pp " _") ++ [pp " x"] ++ replicate n (pp " _")
+                             in  snd $ foldr (\x (n, xs) -> (n + 1, f n x >-< xs)) (0, empty) @args.ppas
 
 SEM NamedType
-  | Named      lhs.pp      = if @strict
-                             then @name >#< "::" >#< "!" >|< pp_parens @tp.pp
-                             else @name >#< "::" >#< @tp.pp
+  | Named      lhs.pp      = -- @name >#< "::" >#< 
+                             if @strict
+                               then "!" >|< pp_parens @tp.pp
+                               else @tp.pp
+               lhs.ppa     = pp @name
 
 SEM Lhs
   | Pattern3 TupleLhs UnboxedTupleLhs
@@ -257,15 +274,17 @@ SEM Lhs
 
 SEM Type  [ | | prec:Int ]
   | Arr        lhs.prec    = 2
-                  .pp      = @loc.l >#< "->" >-< @loc.r
+                  .pp      = case @right.copy of
+                               Arr{} -> @loc.l >-< @loc.r
+                               _     -> @loc.l >#< "->" >-< @loc.r
                loc.l       = if @left.prec  <= 2 then pp_parens @left.pp  else @left.pp
                   .r       = if @right.prec <  2 then pp_parens @right.pp else @right.pp
 
   | TypeApp
-      lhs.pp = hv_sp (@func.pp : @args.pps)
+      lhs.pp = pp "(" >#< hv_sp (@func.pp : @args.pps) >#< pp ")"-- TODO: Check
 
   | CtxApp
-      lhs.pp = (pp_block "(" ")" "," $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) @left) >#< "=>" >#< @right.pp
+      lhs.pp = @right.pp >#< " | " >#< (pp_block "" "" "&" $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) @left)
   | QuantApp
       lhs.pp = @left >#< @right.pp
 
@@ -291,9 +310,9 @@ SEM Type  [ | | prec:Int ]
   | TEither      lhs.prec  = 5
                  lhs.pp    = text "Either" >#< pp_parens @left.pp >#< pp_parens @right.pp
   | TMap         lhs.prec  = 5
-                 lhs.pp    = text "Data.Map.Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
+                 lhs.pp    = text "'Data.Map'.Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
   | TIntMap      lhs.prec  = 5
-                 lhs.pp    = text "Data.IntMap.IntMap" >#< pp_parens @value.pp
+                 lhs.pp    = text "'Data.IntMap'.IntMap" >#< pp_parens @value.pp
 
 
 {
@@ -302,11 +321,13 @@ reallySimple :: String -> Bool
 reallySimple = and . map (\x -> isAlphaNum x || x=='_')
 
 ppTuple :: Bool -> [PP_Doc] -> PP_Doc
+ppTuple _     [x] = pp x
 ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",(" pps
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
 ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
-ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
-ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
+ppUnboxedTuple = ppTuple
+--ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
+--ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
 }
 

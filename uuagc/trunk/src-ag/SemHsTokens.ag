@@ -30,6 +30,7 @@ ATTR HsTokensRoot
                         allfields : {[(Identifier,Type,ChildKind)]}
                         allnts    : {[Identifier]}
                         attrs     : {[(Identifier,Identifier)]}
+                        options   : {Options}
                       ||
                       ]
 
@@ -70,8 +71,8 @@ SEM HsToken
                           then (Seq.singleton(ChildAsLocal @lhs.nt @lhs.con @var), @loc.tkAsLocal,(@pos,fieldname @var), []    )
                           else (Seq.empty, @loc.tkAsLocal, (@pos,fieldname @var), []    )
                      else if (_LOC,@var) `elem` @lhs.attrs
-                          then (Seq.empty                                      , @loc.tkAsField, (@pos,locname   @var), [@var])
-                          else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), @loc.tkAsField, (@pos,locname   @var), []    )
+                          then (Seq.empty                                      , @loc.tkAsField, (@pos,locname @lhs.options @var), [@var])
+                          else (Seq.singleton(UndefLocal @lhs.nt @lhs.con @var), @loc.tkAsField, (@pos,locname @lhs.options @var), []    )
 
 SEM HsToken
   | AGField   lhs.errors = if (@field,@attr) `elem` @lhs.attrs
@@ -122,7 +123,7 @@ SEM HsToken [ || tok:{(Pos,String)}]
        loc.addTrace = case @rdesc of
                         Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ " (" ++ x ++ "))"
                         Nothing -> id
-       lhs.tok = (@pos, @loc.addTrace $ attrname True @field @attr)
+       lhs.tok = (@pos, @loc.addTrace $ attrname @lhs.options True @field @attr)
 
    | HsToken lhs.tok = (@pos, @value)
 

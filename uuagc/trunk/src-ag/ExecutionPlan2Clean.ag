@@ -31,12 +31,13 @@ import Data.Foldable(toList)
 }
 
 ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction ERules ERule EChildren EChild
-  [ importBlocks : PP_Doc
-    pragmaBlocks : String
-    textBlocks   : PP_Doc
-    moduleHeader : {String -> String -> String -> Bool -> String}
-    mainFile     : String
-    mainName     : String | | ]
+  [ importBlocks       : PP_Doc
+    textBlocks         : PP_Doc
+    iclModuleHeader    : {String -> String -> String -> Bool -> String}
+    dclModuleHeader    : {String -> String -> String -> Bool -> String}
+    mainFile           : String
+    mainName           : String
+    constructorTypeMap : {Map NontermIdent ConstructorType} | | ]
 
 -------------------------------------------------------------------------------
 --  Options
@@ -83,46 +84,70 @@ SEM ENonterminal | ENonterminal
 -------------------------------------------------------------------------------
 --  Default output
 -------------------------------------------------------------------------------
-ATTR ExecutionPlan [  | | output : {PP_Doc} ]
+ATTR ExecutionPlan [  | | output : {PP_Doc}
+                          output_dcl : {PP_Doc} ]
 
 SEM ExecutionPlan
   | ExecutionPlan lhs.output = @nonts.output >-< @loc.commonExtra >-< @loc.wrappersExtra
+                  lhs.output_dcl = @nonts.output_dcl
 
 ATTR ENonterminal ENonterminals [ wrappers : {Set NontermIdent}
-                                 | | output USE {>-<} {empty} : {PP_Doc} ]
+                                 | | output USE {>-<} {empty} : {PP_Doc}
+                                     output_dcl USE {>-<} {empty} : {PP_Doc}]
 
 SEM ExecutionPlan
   | ExecutionPlan nonts.wrappers = @wrappers
 
 SEM ENonterminal
-  | ENonterminal lhs.output = ("-- " ++ getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
-                              >-< (if dataTypes @lhs.options
-                                   then "-- data"
-                                        >-< @loc.datatype
-                                        >-< ""
-                                   else empty)
+  | ENonterminal lhs.output = ("// " ++ getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
                               >-< (if @loc.hasWrapper
-                                   then "-- wrapper"
-                                        >-< @loc.wr_inh
-                                        >-< @loc.wr_syn
-                                        >-< @loc.wrapper
+                                   then "// wrapper"
+                                        >-< @loc.wr_inh_icl
+                                        >-< @loc.wr_syn_icl
+                                        >-< @loc.wrapper_icl
                                         >-< ""
                                    else empty)
                               >-< (if   folds @lhs.options
-                                   then "-- cata"
+                                   then "// cata"
                                         >-< @loc.sem_nt
                                         >-< ""
                                    else empty)
                               >-< (if   semfuns @lhs.options
-                                   then "-- semantic domain"
-                                        >-< @loc.t_init
-                                        >-< @loc.t_states
+                                   then "// semantic domain"
+                                        >-< @loc.t_init_icl
+                                        >-< @loc.t_states_icl
                                         >-< @loc.k_states
-                                        >-< @prods.t_visits
                                         >-< @prods.sem_prod
                                         >-< ""
                                    else empty)
                  loc.hasWrapper = @nt `Set.member` @lhs.wrappers
+                 
+                 lhs.output_dcl = ("// " ++ getName @nt ++ " " ++ replicate (60 - length (getName @nt)) '-')
+                                  >-< (if dataTypes @lhs.options
+                                       then "// data"
+                                            >-< @loc.datatype
+                                            >-< ""
+                                       else empty)
+                                  >-< (if @loc.hasWrapper
+                                       then "// wrapper"
+                                            >-< @loc.wr_inh_dcl
+                                            >-< @loc.wr_syn_dcl
+                                            >-< @loc.wrapper_dcl
+                                            >-< ""
+                                       else empty)
+                                  >-< (if   folds @lhs.options
+                                       then "// cata"
+                                            >-< @loc.semname >#< "::" >#< @loc.sem_tp
+                                            >-< ""
+                                       else empty)
+                                  >-< (if   semfuns @lhs.options
+                                       then "// semantic domain"
+                                            >-< @loc.t_init_dcl
+                                            >-< @loc.t_states_dcl
+                                            >-< @prods.t_visits
+                                            >-< @prods.sem_prod_tys
+                                            >-< ""
+                                       else empty)
 
 -------------------------------------------------------------------------------
 --  Nonterminal datatype
@@ -136,19 +161,21 @@ SEM ExecutionPlan
 
 SEM ENonterminal
   | ENonterminal loc.classPP  = ppClasses $ classCtxsToDocs @classCtxs
-                 loc.aliasPre = "type" >#< @loc.classPP >#< @nt >#< @loc.t_params >#< "="
+                 loc.aliasPre = "::" >#< @loc.classPP >#< @nt >#< @loc.t_params >#< ":=="
                  loc.datatype = case lookup @nt @lhs.typeSyns of
-                                   Nothing -> "data" >#< @loc.classPP >#< @nt >#< @loc.t_params
+                                   Nothing -> "::" >#< @loc.classPP >#< @nt >#< @loc.t_params
                                               >-< ( if null @prods.datatype
                                                     then empty
-                                                    else indent 2 $ vlist $ ( ("=" >#< head @prods.datatype)
-                                                                            : (map ("|" >#<) $ tail @prods.datatype))
+                                                    else if isRecordConstructor @nt @lhs.constructorTypeMap
+                                                           then  indent 2 $ "=" >#< @prods.recordtype
+                                                           else  indent 2 $ vlist $ ( ("=" >#< head @prods.datatype)
+                                                                                  : (map ("|" >#<) $ tail @prods.datatype))
                                                   )
                                               >-< indent 2 @loc.derivings
                                    Just (List t)     -> @loc.aliasPre >#< "[" >#< show t >#< "]"
-                                   Just (Maybe t)    -> @loc.aliasPre >#< "Maybe" >#< pp_parens (show t)
+                                   Just (Maybe t)    -> @loc.aliasPre >#< "Data.Maybe" >#< pp_parens (show t)
                                    Just (Tuple ts)   -> @loc.aliasPre >#< pp_parens (ppCommas $ map (show . snd) ts)
-                                   Just (Either l r) -> @loc.aliasPre >#< "Either" >#< pp_parens (show l) >#< pp_parens (show r)
+                                   Just (Either l r) -> @loc.aliasPre >#< "Data.Either" >#< pp_parens (show l) >#< pp_parens (show r)
                                    Just (Map k v)    -> @loc.aliasPre >#< "Data.Map" >#< pp_parens (show k) >#< pp_parens (show v)
                                    Just (IntMap t)   -> @loc.aliasPre >#< "Data.IntMap.IntMap" >#< pp_parens (show t)
                                    Just (OrdSet t)   -> @loc.aliasPre >#< "Data.Set.Set" >#< pp_parens (show t)
@@ -170,15 +197,17 @@ classConstrsToDocs = map ppTp
 
 ppClasses :: [PP_Doc] -> PP_Doc
 ppClasses [] = empty
-ppClasses xs = pp_block "(" ")" "," xs >#< "=>"
+ppClasses xs = "|" >#< pp_block "" "" "&" xs
 
 ppQuants :: [Identifier] -> PP_Doc
 ppQuants [] = empty
-ppQuants ps = "forall" >#< ppSpaced ps >#< "."
+ppQuants ps = "E." >#< ppSpaced ps >#< ":"
 }
 
-ATTR EProduction  [ | | datatype : {PP_Doc} ]
-ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
+ATTR EProduction  [ | | datatype   : {PP_Doc}
+                        recordtype : {PP_Doc} ]
+ATTR EProductions [ | | datatype USE {:} {[]} : {[PP_Doc]}
+                        recordtype            : {PP_Doc} ]
 
 -- we generate the data type in the type-class style instead of the GADT style
 -- the GADT extension may be required if equality constraints are used
@@ -186,19 +215,27 @@ SEM EProduction
   | EProduction lhs.datatype = @loc.quantPP1 >#< @loc.classPP1
                                >#< conname @lhs.rename @lhs.nt @con
                                >#< ppConFields (dataRecords @lhs.options) @children.datatype
+                lhs.recordtype = @loc.quantPP1 >#< @loc.classPP1
+                                 >#< ppConFields True @children.recordtype
                 loc.classPP1 = ppClasses (classConstrsToDocs @constraints)
                 loc.quantPP1 = ppQuants @params
+
+SEM EProductions
+  | Cons  lhs.recordtype = @hd.recordtype
+  | Nil   lhs.recordtype = empty
 
 {
 -- first parameter indicates: generate a record or not
 ppConFields :: Bool -> [PP_Doc] -> PP_Doc
-ppConFields True  flds = ppListSep "{" "}" ", " $ filter (not . isEmpty) flds
+ppConFields True  flds = ppListSep "{" "}" ", " flds
 ppConFields False flds = ppSpaced flds
 }
 
 
-ATTR EChild    [ | | datatype : {PP_Doc} ]
-ATTR EChildren [ | | datatype USE {:} {[]} : {[PP_Doc]} ]
+ATTR EChild    [ | | datatype   : {PP_Doc}
+                     recordtype : {PP_Doc} ]
+ATTR EChildren [ | | datatype    USE {:} {[]} : {[PP_Doc]}
+                     recordtype  USE {:} {[]} : {[PP_Doc]} ]
 
 -- Note: the child may be a higher-order attribute, and its semantics may be deforested
 SEM EChild
@@ -208,12 +245,17 @@ SEM EChild
       loc.field  = if dataRecords @lhs.options
                    then @loc.strNm >#< "::" >#< @loc.tpDoc
                    else @loc.tpDoc
+      loc.recordfield  = @loc.strNm >#< "::" >#< @loc.tpDoc
       loc.addStrict = \x -> if strictData @lhs.options then "!" >|< x else x
   | EChild  lhs.datatype = case @kind of
                              ChildAttr -> empty  -- higher order attributes are not part of the data type
                              _         -> @loc.field
 
-  | ETerm   lhs.datatype = @loc.field
+            lhs.recordtype = case @kind of
+                               ChildAttr -> empty  -- higher order attributes are not part of the data type
+                               _         -> @loc.recordfield
+  | ETerm   lhs.datatype    = @loc.field
+            lhs.recordtype  = @loc.recordfield
 
 {
 ppTp :: Type -> PP_Doc
@@ -234,54 +276,44 @@ SEM ENonterminal
                  -- rules to which extend the AST needs to be constructed.
                  loc.sem_tp  = @loc.quantPP >#< @loc.classPP >#< @nt >#< @loc.t_params >#< "->" >#< @loc.t_type >#< @loc.t_params
                  loc.quantPP = ppQuants @params
-                 loc.sem_nt  = @loc.semPragma
-                               >-< @loc.semname >#< "::" >#< @loc.sem_tp
+                 
+                 loc.sem_nt  = @loc.semname >#< "::" >#< @loc.sem_tp
                                >-< case lookup @nt @lhs.typeSyns of
                                       Nothing -> @prods.sem_nt
-                                      Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Cons"
+                                      Just (List t) -> @loc.semname >#< "list" >#< "=" >#< "foldr" >#< @loc.semname >|< "_Cons"
                                                        >#< @loc.semname >|< "_Nil"
                                                        >#< case t of
-                                                              NT nt _ _ -> pp_parens ("Prelude.map" >#< @fsemname nt >#< "list")
+                                                              NT nt _ _ -> pp_parens ("map" >#< @fsemname nt >#< "list")
                                                               _         -> pp "list"
-                                      Just (Maybe t) -> @loc.semname >#< "Prelude.Nothing" >#< "=" >#< @loc.semname >|< "_Nothing"
-                                                        >-< @loc.semname >#< pp_parens ("Prelude.Just just") >#< "="
+                                      Just (Maybe t) -> @loc.semname >#< "'Data.Maybe'.Nothing" >#< "=" >#< @loc.semname >|< "_Nothing"
+                                                        >-< @loc.semname >#< pp_parens ("'Data.Maybe'.Just just") >#< "="
                                                         >#< @loc.semname >|< "_Just" >#< @frecarg t "just"
                                       Just (Tuple ts) -> @loc.semname >#< pp_parens (ppCommas $ map fst ts) >#< "="
                                                          >#< @loc.semname >|< "_Tuple" >#< ppSpaced (map (\t -> @frecarg (snd t) (show $ fst t)) ts)
-                                      Just (Either l r) -> @loc.semname >#< "(Prelude.Left left)" >#< "=" >#< @loc.semname >|< "_Left" >#< @frecarg l "left"
-                                                           >-< @loc.semname >#< "(Prelude.Right right)" >#< "=" >#< @loc.semname >|< "_Right" >#< @frecarg r "right"
-                                      Just (Map k v) -> @loc.semname >#< "m" >#< "=" >#< "Data.Map.foldrWithKey"
+                                      Just (Either l r) -> @loc.semname >#< "('Data.Either'.Left left)" >#< "=" >#< @loc.semname >|< "_Left" >#< @frecarg l "left"
+                                                           >-< @loc.semname >#< "('Data.Either'.Right right)" >#< "=" >#< @loc.semname >|< "_Right" >#< @frecarg r "right"
+                                      Just (Map k v) -> @loc.semname >#< "m" >#< "=" >#< "'Data.Map'.foldrWithKey"
                                                         >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
                                                         >#< case v of
-                                                               NT nt _ _ -> pp_parens ("Data.Map.map" >#< @fsemname nt >#< "m")
+                                                               NT nt _ _ -> pp_parens ("'Data.Map'.map" >#< @fsemname nt >#< "m")
                                                                _         -> pp "m"
-                                      Just (IntMap v) -> @loc.semname >#< "m" >#< "=" >#< "Data.IntMap.foldWithKey"
+                                      Just (IntMap v) -> @loc.semname >#< "m" >#< "=" >#< "'Data.IntMap'.foldWithKey"
                                                          >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil"
                                                          >#< case v of
-                                                                NT nt _ _ -> pp_parens ("Data.IntMap.map" >#< @fsemname nt >#< "m")
+                                                                NT nt _ _ -> pp_parens ("'Data.IntMap'.map" >#< @fsemname nt >#< "m")
                                                                 _         -> pp "m"
-                                      Just (OrdSet t) -> @loc.semname >#< "s" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Entry"
+                                      Just (OrdSet t) -> @loc.semname >#< "s" >#< "=" >#< "foldr" >#< @loc.semname >|< "_Entry"
                                                          >#< @loc.semname >|< "_Nil"
                                                          >#< pp_parens (
                                                                ( case t of
-                                                                   NT nt _ _ -> pp_parens ("Prelude.map" >#< @fsemname nt)
+                                                                   NT nt _ _ -> pp_parens ("map" >#< @fsemname nt)
                                                                    _         -> empty
-                                                               ) >#< pp_parens ("Data.IntSet.elems" >#< "s")
+                                                               ) >#< pp_parens ("'Data.IntSet'.elems" >#< "s")
                                                              )
-                                      Just IntSet     -> @loc.semname >#< "s" >#< "=" >#< "Prelude.foldr" >#< @loc.semname >|< "_Entry"
+                                      Just IntSet     -> @loc.semname >#< "s" >#< "=" >#< "foldr" >#< @loc.semname >|< "_Entry"
                                                          >#< @loc.semname >|< "_Nil"
-                                                         >#< pp_parens ("Data.IntSet.elems" >#< "s")
+                                                         >#< pp_parens ("'Data.IntSet'.elems" >#< "s")
 --                                      Just x -> error $ "Type " ++ show x ++ " is not supported yet" -- TODO: other typeSyns
-
-                -- precise inlining strategies for inlining
-                loc.inlineNt  = not (lateHigherOrderBinding @lhs.options) && not @recursive && (@prods.count == 1 || (aggressiveInlinePragmas @lhs.options && not @loc.hasWrapper))  -- lucrative for inlining
-                loc.semPragma = if noInlinePragmas @lhs.options
-                                then empty
-                                else if @loc.inlineNt
-                                     then ppInline @loc.semname
-                                     else if helpInlining @lhs.options && not (lateHigherOrderBinding @lhs.options)
-                                          then ppInlinable @loc.semname
-                                          else ppNoInline @loc.semname
 
 -- The number of productions
 ATTR EProductions EProduction [ | | count USE {+} {0} : {Int} ]
@@ -290,8 +322,18 @@ SEM EProduction | EProduction  lhs.count = {1}
 -- The per-production cases for the sem_NT function
 ATTR EProduction EProductions [ | | sem_nt USE {>-<} {empty} : {PP_Doc} ]
 SEM EProduction
-  | EProduction lhs.sem_nt = "sem_" >|< @lhs.nt >#< "(" >#< conname @lhs.rename @lhs.nt @con >#< ppSpaced @children.argpats >#< ")"
-                             >#< "=" >#< "sem_" >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @children.argnamesw
+  | EProduction lhs.sem_nt = let lhs   = "sem_" >|< @lhs.nt
+                                 rhs   = "=" >#< "sem_" >|< @lhs.nt >|< "_" >|< @con >#< ppSpaced @children.argnamesw
+                                 cnnm  = conname @lhs.rename @lhs.nt @con
+                             in  if isRecordConstructor @lhs.nt @lhs.constructorTypeMap
+                                   then  lhs >#< "{" >#< cnnm >#< "|" >#<
+                                         pp_block "" "" "," (zipWith (\l r -> l >#< "=" >#< r) @children.recfields @children.argpats) >#< "}" >#< rhs
+                                   else  lhs >#< "(" >#< cnnm >#< ppSpaced @children.argpats >#< ")" >#< rhs
+
+{
+isRecordConstructor :: NontermIdent -> Map NontermIdent ConstructorType -> Bool
+isRecordConstructor nt ctm = Map.lookup nt ctm == Just RecordConstructor
+}
 
 ATTR EChild    [ | | argnamesw              : { PP_Doc } ]
 ATTR EChildren [ | | argnamesw USE {:} {[]} : {[PP_Doc]} ]
@@ -350,27 +392,39 @@ SEM ENonterminal
                  loc.allstates = Set.insert @initial $ @loc.inedges `Set.union` @loc.outedges
                  loc.stvisits  = \st -> filter (\(v,f,t) -> f == st) @prods.allvisits
                  loc.t_type    = "T_" >|< @nt
+                 loc.lt_type   = "t_" >|< @nt
                  loc.t_params  = ppSpaced @params
-                 loc.t_init    = "newtype" >#< @loc.t_type >#< @loc.t_params >#< "=" >#< @loc.t_type >#<
-                                   pp_braces (
-                                     "attach_">|< @loc.t_type >#< "::"
-                                       >#< ppMonadType @lhs.options >#< pp_parens (@loc.t_type >|< "_s" >|< @initial >#< @loc.t_params))
-                 loc.t_states  = vlist $ map (\st ->
-                                    let nt_st = @nt >|< "_s" >|< st
-                                        t_st  = "T_" >|< nt_st
-                                        k_st  = "K_" >|< nt_st
-                                        c_st  = "C_" >|< nt_st
-                                        inv_st  = "inv_" >|< nt_st
-                                        nextVisit = Map.findWithDefault ManyVis st @nextVisits
-                                    in  case nextVisit of
-                                          NoneVis    -> "data" >#< t_st >#< @loc.t_params >#< "=" >#< c_st  -- empty semantics
-                                          OneVis vId -> "newtype" >#< t_st >#< @loc.t_params >#< "=" >#< c_st
-                                                         >#< (pp_braces $ inv_st >#< "::" >#< pp_parens (conNmTVisit @nt vId >#< @loc.t_params))
-                                          ManyVis    -> "data" >#< t_st >#< @loc.t_params >#< "where" >#< c_st >#< "::"
-                                                          >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("forall t." >#< k_st >#< @loc.t_params >#< "t" >#< "->" >#< "t"))
-                                                          >#< "->" >#< t_st >#< @loc.t_params  -- this is a conventional data type, but declared with GADT syntax
-                                        ) $ Set.toList @loc.allstates
-
+                 loc.t_init_icl    = @loc.t_init_dcl >-<
+                                     "attach_" >|< @loc.t_type >#< pp_parens (@loc.t_type >#< @loc.lt_type) >#< "=" >#< @loc.lt_type
+                 loc.t_init_dcl    = "::" >#< @loc.t_type >#< @loc.t_params >#< "=" >#< @loc.t_type
+                                     >#<
+                                     pp_parens (
+                                     ppMonadType @lhs.options >#< pp_parens (@loc.t_type >|< "_s" >|< @initial >#< @loc.t_params))
+                 loc.t_states_icl  = vlist $ map (\st ->
+                                       let nt_st = @nt >|< "_s" >|< st
+                                           c_st  = "C_" >|< nt_st
+                                           inv_st  = "inv_" >|< nt_st
+                                           nextVisit = Map.findWithDefault ManyVis st @nextVisits
+                                       in  case nextVisit of
+                                             NoneVis    -> empty  -- empty semantics
+                                             OneVis vId -> inv_st >#< pp_parens (c_st >#< "x") >#< "=" >#< "x"
+                                             ManyVis    -> empty
+                                           ) $ Set.toList @loc.allstates
+                 loc.t_states_dcl  = vlist $ map (\st ->
+                                       let nt_st   = @nt >|< "_s" >|< st
+                                           t_st    = "T_" >|< nt_st
+                                           k_st    = "K_" >|< nt_st
+                                           c_st    = "C_" >|< nt_st
+                                           inv_st  = "inv_" >|< nt_st
+                                           nextVisit = Map.findWithDefault ManyVis st @nextVisits
+                                       in  case nextVisit of
+                                             NoneVis    -> "::" >#< t_st >#< @loc.t_params >#< "=" >#< c_st  -- empty semantics
+                                             OneVis vId -> "::" >#< t_st >#< @loc.t_params >#< "=" >#< c_st >#< (pp_parens (conNmTVisit @nt vId >#< @loc.t_params))
+                                             ManyVis    -> "::" >#< t_st >#< @loc.t_params >#< "where" >#< c_st >#< "::" -- TODO : Cleanify
+                                                             >#< (pp_braces $ inv_st >#< "::" >#< "!" >|< pp_parens ("E.t:" >#< k_st >#< @loc.t_params >#< "t" >#< "->" >#< "t"))
+                                                             >#< "->" >#< t_st >#< @loc.t_params  -- this is a conventional data type, but declared with GADT syntax
+                                           ) $ Set.toList @loc.allstates
+                                       
 -- type of a key which identifies a visit v from state s
 SEM ENonterminal
   | ENonterminal loc.k_type   = "K_" ++ show @nt
@@ -382,7 +436,7 @@ SEM ENonterminal
                                            @loc.k_type >|< "_v" >|< v >#< "::" >#< k_st >#< @loc.t_params >#< pp_parens (@loc.t_type >|< "_v" >|< v >#< @loc.t_params)
                                             ) outg
                                        nextVisit = Map.findWithDefault ManyVis st @nextVisits
-                                       decl = "data" >#< k_st >#< "k" >#< @loc.t_params >#< "where" >-< indent 3 visitlist
+                                       decl = "::" >#< k_st >#< "k" >#< @loc.t_params >#< "where" >-< indent 3 visitlist
                                    in  case nextVisit of
                                          NoneVis  -> empty
                                          OneVis _ -> empty
@@ -407,19 +461,20 @@ SEM Visit
                                   VisitMonadic -> ppMonadType @lhs.options
 
           loc.t_params  = ppSpaced @lhs.params
-          lhs.t_visits = "type" >#< @loc.nameT_visit >#< @loc.t_params >#< "=" >#<
+          lhs.t_visits = "::" >#< @loc.nameT_visit >#< @loc.t_params >#< ":==" >#<
                            pp_parens (@loc.nameTIn_visit >#< @loc.t_params)
                              >#< ( if dummyTokenVisit @lhs.options
                                    then "->" >#< dummyType @lhs.options True  -- Additional (unused though) argument
                                    else empty
                                  )
                              >#< "->" >#< @loc.typecon >#< pp_parens (@loc.nameTOut_visit >#< @loc.t_params)
-                         >-< "data" >#< @loc.nameTIn_visit >#< @loc.t_params >#< "=" >#< @loc.nameTIn_visit >#<
+                         >-< "::" >#< @loc.nameTIn_visit >#< @loc.t_params >#< "=" >#< @loc.nameTIn_visit >#<
                               @loc.inhpart
-                         >-< "data" >#< @loc.nameTOut_visit >#< @loc.t_params >#< "=" >#< @loc.nameTOut_visit >#<
+                         >-< "::" >#< @loc.nameTOut_visit >#< @loc.t_params >#< "=" >#< @loc.nameTOut_visit >#<
                               @loc.synpart >#< case @loc.nextVisitInfo of
                                                  NoneVis    -> empty                    -- don't return a continuation at all
                                                  _          -> @loc.addbang1 $ pp_parens (@loc.nameTNext_visit >#< @loc.t_params)  -- normal route: select the next semantics
+
           loc.inhpart   = @loc.ppTypeList @inh @lhs.inhmap
           loc.synpart   = @loc.ppTypeList @syn @lhs.synmap
           loc.ppTypeList = \s m -> ppSpaced $ map (\i -> @loc.addbang1 $ pp_parens $ case Map.lookup i m of
@@ -441,11 +496,28 @@ ppMonadType opts
 --  Inh and Syn wrappers
 -------------------------------------------------------------------------------
 SEM ENonterminal
-  | ENonterminal loc.wr_inh   = @loc.genwrap "Inh" @loc.wr_inhs
-                 loc.wr_syn   = @loc.genwrap "Syn" @loc.wr_syns
-                 loc.genwrap  = \nm attr -> "data" >#< nm >|< "_" >|< @nt >#< @loc.t_params >#< "=" >#< nm >|< "_" >|< @nt >#< "{"
-                                            >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< @nt >#< "::"
-                                            >#< (@loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t)) attr) >#< "}"
+  | ENonterminal loc.wr_inh_icl   = @loc.genwrap_icl "Inh" @loc.wr_inhs
+                 loc.wr_syn_icl   = @loc.genwrap_icl "Syn" @loc.wr_syns
+                 loc.genwrap_icl  = \nm attr ->
+                                      let tyConName = nm >|< "_" >|< @nt
+                                      in  (let (d, _, _) = foldr (\(i, t) (d, c, n) -> (d >-<
+                                                             i >|< "_" >|< tyConName >#< "::" >#< tyConName >#< "->" >#< (@loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t)
+                                                             >-< i >|< "_" >|< tyConName >#< pp_parens (tyConName >#< unwords (replicate (n - c - 1) "_" ++ ["x"] ++ replicate c "_")) >#< "= x"
+                                                             , c + 1, n)
+                                                             ) (empty, 0, length attr) attr
+                                          in  d)
+                 loc.wr_inh_dcl   = @loc.genwrap_dcl "Inh" @loc.wr_inhs
+                 loc.wr_syn_dcl   = @loc.genwrap_dcl "Syn" @loc.wr_syns
+                 loc.genwrap_dcl  = \nm attr ->
+                                      let tyConName = nm >|< "_" >|< @nt
+                                      in  "::" >#< tyConName >#< @loc.t_params >#< "=" >#< tyConName -- >#< "{"
+                                          >#< (ppSpaced $ map (\(_,t) -> @loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t) attr) -- >#< "}"
+                                          >-<
+                                              (let (d, _, _) = foldr (\(i, t) (d, c, n) -> (d >-<
+                                                                i >|< "_" >|< tyConName >#< "::" >#< tyConName >#< "->" >#< (@loc.addbang $ pp_parens $ typeToHaskellString (Just @nt) [] t)
+                                                                , c + 1, n)
+                                                                ) (empty, 0, length attr) attr
+                                              in  d)
                  loc.synAttrs = fromJust $ Map.lookup @nt @lhs.inhmap
                  loc.wr_inhs  = Map.toList $ @loc.wr_filter $ @loc.synAttrs
                  loc.wr_inhs1 = Map.toList @loc.synAttrs
@@ -460,52 +532,48 @@ SEM ENonterminal
                  loc.inhname  = "Inh_" ++ show @nt
                  loc.synname  = "Syn_" ++ show @nt
                  loc.firstVisitInfo = Map.findWithDefault ManyVis @initial @nextVisits
-                 loc.wrapper  = @loc.wrapPragma
-                                >-< (@loc.wrapname >#< "::" >#< @loc.quantPP >#< @loc.classPP >#< @loc.t_type >#< @loc.t_params >#< "->"
-                                      >#< @loc.inhname >#< @loc.t_params >#< "->" >#< ( if monadicWrappers @lhs.options then ppMonadType @lhs.options else empty) >#< pp_parens (@loc.synname >#< @loc.t_params))
-                                >-< (@loc.wrapname >#< (@loc.addbang $ pp_parens (@loc.t_type >#< pp "act"))
-                                    >#< (@loc.addbang $ pp_parens (@loc.inhname
-                                           >#< (ppSpaced $ map (@loc.addbangWrap . pp) @loc.inhlist)) >#< "="))
-                                >-<
-                                indent 3 (case @initialv of
-                                  -- case where there are no inherited or synthesized attributes
-                                  Nothing -> @loc.synname >#< " { }"
-                                  Just initv ->
-                                    let inCon  = conNmTVisitIn @nt initv
-                                        outCon = conNmTVisitOut @nt initv
-                                        pat    = @loc.addbang $ pp_parens $ pat0
-                                        pat0   = outCon >#< ppSpaced @loc.synlist -- should be an "end" state, thus no continuation expected here
-                                        arg    = inCon >#< ppSpaced @loc.inhlist1
-                                        ind    = case @loc.firstVisitInfo of
-                                                   NoneVis  -> error "wrapper: initial state should have a next visit but it has none"
-                                                   OneVis _ -> empty
-                                                   ManyVis  -> @loc.k_type >|< "_v" >|< initv
-                                        extra  = if dummyTokenVisit @lhs.options
-                                                 then pp $ dummyArg @lhs.options True
-                                                 else empty
-                                        convert = case Map.lookup initv @lhs.allVisitKinds of
-                                                    Just kind -> case kind of
-                                                                   VisitPure _  -> text "return"
-                                                                   VisitMonadic -> empty
-                                        unMonad | monadicWrappers @lhs.options = empty
-                                                | otherwise                    = unMon @lhs.options
-                                    in unMonad >#< "("
-                                       >-< indent 2 (
-                                              "do" >#< ( @loc.addbang (pp "sem") >#< "<-" >#< "act"   -- run the per-node monadic code to get the initial state (of the root)
-                                                       >-< "let" >#< @loc.addbangWrap (pp "arg") >#< "=" >#< arg
-                                                       >-< pat >#< "<-" >#< convert >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< "arg" >#< extra)  -- invoke initial state (of the root)
-                                                       >-< "return" >#< pp_parens (@loc.synname >#< ppSpaced @loc.synlist)
-                                                       )
-                                            )
-                                       >-< ")" )
-                                >-< if lateHigherOrderBinding @lhs.options
-                                    then indent 2 ("where" >#< lhsname @lhs.options True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName)
-                                    else empty
-                 loc.wrapPragma = if parallelInvoke @lhs.options && not (monadicWrappers @lhs.options)
-                                  then ppNoInline @loc.wrapname  -- required for the use of unsafePerformIO in case of the IO monad
-                                  else if noInlinePragmas @lhs.options
-                                       then empty
-                                       else ppInlinable @loc.wrapname  -- ensure that the wrapper is exposed as inlinable
+                 loc.wrapper_icl  = (@loc.wrapname >#< "::" >#< @loc.quantPP >#< @loc.classPP >#< @loc.t_type >#< @loc.t_params -- TODO : Remove ? >#< "->"
+                                          >#< @loc.inhname >#< @loc.t_params >#< "->" >#< ( if monadicWrappers @lhs.options then ppMonadType @lhs.options else empty) >#< pp_parens (@loc.synname >#< @loc.t_params))
+                                    >-< (@loc.wrapname >#< (@loc.addbang $ pp_parens (@loc.t_type >#< pp "act"))
+                                        >#< (@loc.addbang $ pp_parens (@loc.inhname
+                                               >#< (ppSpaced $ map (@loc.addbangWrap . pp) @loc.inhlist)) >#< "="))
+                                    >-<
+                                    indent 3 (case @initialv of
+                                      -- case where there are no inherited or synthesized attributes
+                                      Nothing -> text @loc.synname -- TODO : Remove? >#< " { }"
+                                      Just initv ->
+                                        let inCon  = conNmTVisitIn @nt initv
+                                            outCon = conNmTVisitOut @nt initv
+                                            pat    = @loc.addbang $ pp_parens $ pat0
+                                            pat0   = outCon >#< ppSpaced @loc.synlist -- should be an "end" state, thus no continuation expected here
+                                            arg    = inCon >#< ppSpaced @loc.inhlist1
+                                            ind    = case @loc.firstVisitInfo of
+                                                       NoneVis  -> error "wrapper: initial state should have a next visit but it has none"
+                                                       OneVis _ -> empty
+                                                       ManyVis  -> @loc.k_type >|< "_v" >|< initv
+                                            extra  = if dummyTokenVisit @lhs.options
+                                                     then pp $ dummyArg @lhs.options True
+                                                     else empty
+                                            convert = case Map.lookup initv @lhs.allVisitKinds of
+                                                        Just kind -> case kind of
+                                                                       VisitPure _  -> text "lift"
+                                                                       VisitMonadic -> empty
+                                                        _         -> empty
+                                            unMonad | monadicWrappers @lhs.options = empty
+                                                    | otherwise                    = unMon @lhs.options
+                                        in unMonad >#< "("
+                                           >-< indent 2
+                                                 ("act >>= \\" >#< @loc.addbang (pp "sem") >#< "->"   -- run the per-node monadic code to get the initial state (of the root)
+                                                 >-< "lift" >#< pp_parens arg >#< ">>= \\" >#< @loc.addbangWrap (pp "arg") >#< "->"
+                                                 >-< convert >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< "arg" >#< extra) >#< ">>= \\" >#< pat >#< "->"  -- invoke initial state (of the root)
+                                                 >-< "lift" >#< pp_parens (@loc.synname >#< ppSpaced @loc.synlist)
+                                                 )
+                                           >-< ")" )
+                                    >-< if lateHigherOrderBinding @lhs.options
+                                        then indent 2 ("where" >#< lhsname @lhs.options True idLateBindingAttr >#< "=" >#< lateBindingFieldNm @lhs.mainName)
+                                        else empty
+                 loc.wrapper_dcl  = (@loc.wrapname >#< "::" >#< @loc.quantPP >#< @loc.classPP >#< @loc.t_type >#< @loc.t_params -- TODO : Remove ? >#< "->"
+                                          >#< @loc.inhname >#< @loc.t_params >#< "->" >#< ( if monadicWrappers @lhs.options then ppMonadType @lhs.options else empty) >#< pp_parens (@loc.synname >#< @loc.t_params))
 
 -------------------------------------------------------------------------------
 --  Collection of NT / Production sem funs references
@@ -534,46 +602,52 @@ SEM ExecutionPlan | ExecutionPlan
   loc.commonExtra   = if lateHigherOrderBinding @lhs.options
                       then @loc.lateSemBndTp
                       else empty
-  loc.lateSemBndTp = "data" >#< lateBindingTypeNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName
+  loc.lateSemBndTp = "::" >#< lateBindingTypeNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName
                       >-< (indent 2 $ pp_block "{" "}" "," $ toList @nonts.semFunBndTps)
-  loc.lateSemBndDef = ( if noInlinePragmas @lhs.options
-                        then empty
-                        else if helpInlining @lhs.options && Set.size @wrappers == 1
-                             then ppInline $ lateBindingFieldNm @lhs.mainName  -- inline in the single wrapper
-                             else ppNoInline $ lateBindingFieldNm @lhs.mainName
-                      )
-                      >-< lateBindingFieldNm @lhs.mainName >#< "::" >#< lateBindingTypeNm @lhs.mainName
+  loc.lateSemBndDef = lateBindingFieldNm @lhs.mainName >#< "::" >#< lateBindingTypeNm @lhs.mainName
                       >-< lateBindingFieldNm @lhs.mainName >#< "=" >#< lateBindingTypeNm @lhs.mainName
                       >-< (indent 2 $ pp_block "{" "}" "," $ toList @nonts.semFunBndDefs )
 
 -------------------------------------------------------------------------------
 --  Production semantic functions
 -------------------------------------------------------------------------------
-ATTR EProduction  [ | | sem_prod                   : {PP_Doc} ]
-ATTR EProductions [ | | sem_prod USE {>-<} {empty} : {PP_Doc} ]
+ATTR EProduction  [ | | sem_prod                       : {PP_Doc}
+                        sem_prod_tys                   : {PP_Doc} ]
+ATTR EProductions [ | | sem_prod USE {>-<} {empty}     : {PP_Doc}
+                        sem_prod_tys USE {>-<} {empty} : {PP_Doc} ]
 
 ATTR EProduction EProductions [ initial : {StateIdentifier}
                                 allstates : {Set StateIdentifier} | | ]
 SEM ENonterminal
   | ENonterminal prods.initial   = @initial
                  prods.allstates = @loc.allstates
-
-ATTR EChild    [ | | argtps               : {  PP_Doc  }
-                     argpats              : {  PP_Doc  } ]
-ATTR EChildren [ | | argtps  USE {:} {[]} : { [PP_Doc] }
-                     argpats USE {:} {[]} : { [PP_Doc] }  ]
+                                          
+ATTR EChild    [ | | argtps                  : {  PP_Doc  }
+                     argpats                 : {  PP_Doc  }
+                     recfields USE {++} {[]} : { [Identifier] }]
+ATTR EChildren [ | | argtps    USE {:}  {[]} : { [PP_Doc] }
+                     argpats   USE {:}  {[]} : { [PP_Doc] }
+                     recfields USE {++} {[]} : { [Identifier] }]
 
 SEM EChild
   | EChild lhs.argtps   = case @kind of
-                            ChildSyntax     -> ppDefor @tp >#< "->"
-                            ChildReplace tp -> ppDefor tp >#< "->"
+                            ChildSyntax     -> pp_parens $ ppDefor @tp -- TODO Remove? >#< "->"
+                            ChildReplace tp -> pp_parens $ ppDefor tp -- TODO Remove? >#< "->"
                             _               -> empty  -- higher order attribute
            loc.argpats = case @kind of
                            ChildSyntax    -> @name >|< "_"                    -- no strictification of children semantics to allow infinite trees
                            ChildReplace _ -> @name >|< "_"
                            _              -> empty
-  | ETerm  lhs.argtps  = (pp_parens $ show @tp) >#< "->"
-           loc.argpats = @loc.addbang $ text $ fieldname @name   -- terminals may be strict (perhaps this should become an option)
+                           
+           lhs.recfields = case @kind of
+                             ChildSyntax    -> [@name]                    -- no strictification of children semantics to allow infinite trees
+                             ChildReplace _ -> [@name]
+                             _              -> []
+                           
+ -- | ETerm  lhs.argtps  = (pp_parens $ show @tp) >#< "572->" -- TODO Remove?
+  | ETerm  lhs.argtps    = pp_parens $ show @tp
+           loc.argpats   = @loc.addbang $ text $ fieldname @name   -- terminals may be strict (perhaps this should become an option)
+           lhs.recfields = [@name]
 
 {
 ppDefor :: Type -> PP_Doc
@@ -592,21 +666,25 @@ SEM EProduction
 				       		       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
 						       name     -> ("arg_" ++ name, "arg_"  >|< name)
                                           in  if null name || name `Set.member` @loc.usedArgs
-			       	       	      then arg
-			       	       	      else text "_") @children.argpats
+			       	       	                    then arg
+			       	       	                    else text "_") @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
-                loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
+                loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps
+                               >#< (if length @children.argtps > 0 then "->" else "")
+                               >#< @loc.t_type >#< @loc.t_params -- TODO Keep -> here?
                 loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
                 loc.quantPP2 = ppQuants (@lhs.params ++ @params)
-                loc.sem_prod = @loc.semInlinePragma
-                               >-< @loc.semname >#< "::" >#< @loc.sem_tp
-                               >-< @loc.mkSemBody (@loc.semname >#< ppSpaced @loc.args >#< "=" >#< @loc.scc >#< @loc.t_type)
-                                                  @loc.mbInitializer @loc.outerlet ("return" >#< "st" >|< @lhs.initial)
+                
+                lhs.sem_prod_tys = @loc.semname >#< " ::" >#< @loc.sem_tp
+                
+                loc.sem_prod = @loc.semname >#< " ::" >#< @loc.sem_tp
+                               >-< @loc.mkSemBody (@loc.semname >#< ppSpaced @loc.args >#< "=" >#< @loc.t_type)
+                                                  @loc.mbInitializer @loc.outerlet ("lift" >#< "st" >|< @lhs.initial)
                 loc.mkSemBody = \prefix mbInit outerlet ret ->
                                   case mbInit of
                                     Nothing -> prefix >#< pp_parens ret >#< "where"
                                                >-< indent 3 outerlet  -- code for states and visits
-                                    Just m  -> prefix >#< "(" >#< "do"
+                                    Just m  -> prefix >#< "(" >#< "do" -- TODO: desugar
                                                >-< indent 1 (
                                                      m
                                                      >-< "let"
@@ -620,18 +698,12 @@ SEM EProduction
                                       if parallelInvoke @lhs.options
                                       then (Nothing :: Maybe PP_Doc)  -- perhaps do some per-node registation, etc. For now: nothing
                                       else Nothing  -- nothing special here
-                loc.scc             = if genCostCentres @lhs.options
-                                      then ppCostCentre @loc.semname
-                                      else empty
-                loc.semInlinePragma = if noInlinePragmas @lhs.options
-                                      then empty
-                                      else ppNoInline @loc.semname  -- prevent the semantic functions of constructors to be inlined (e.g. in the nt sem-funs)
                 loc.outerlet = vlist @loc.statefns >-< @rules.sem_rules
                 loc.statefns = map @loc.genstfn $ Set.toList @lhs.allstates
                 loc.genstfn  = \st -> let nextVisitInfo = Map.findWithDefault ManyVis st @lhs.nextVisits
                                           prevVisitInfo = Map.findWithDefault ManyVis st @lhs.prevVisits
                                           stNm = "st" >|< st
-                                          lhs  = pragma >-< bang stNm >#< "=" >#<
+                                          lhs  = bang stNm >#< "=" >#<
                                                  ( -- generating a lambda for the same reasons as generating
                                                    -- a lambda for rules: to ensure that overloading is
                                                    -- resolved for all visit functions and rules together.
@@ -640,20 +712,6 @@ SEM EProduction
                                                    else "\\" >#< @loc.stargs st >#< "->"
                                                  )
 
-                                          pragma = if noInlinePragmas @lhs.options
-                                                   then empty
-                                                   else if helpInlining @lhs.options
-                                                        then case prevVisitInfo of
-                                                               ManyVis  -> ppNoInline stNm
-                                                               OneVis _ -> if aggressiveInlinePragmas @lhs.options
-                                                                           then ppInline stNm
-                                                                           else ppInlinable stNm
-                                                               NoneVis  -> if st /= @lhs.initial
-                                                                           then error ("State " ++ show st ++ " is not reachable from the initial state.")
-                                                                           else if aggressiveInlinePragmas @lhs.options
-                                                                                then ppInline stNm    -- first state can be inlined
-                                                                                else ppInlinable stNm
-                                                        else ppNoInline stNm
                                           cCon = "C_" >|< @lhs.nt >|< "_s" >|< st
                                           bang | st == @lhs.initial = @loc.addbang  -- initial state is not parameterized
                                                | otherwise          = id
@@ -688,11 +746,7 @@ SEM EProduction
 
                 loc.stks     = \st -> if null (@loc.stvisits st)
                                       then empty
-                                      else ( if not (noInlinePragmas @lhs.options) && helpInlining @lhs.options
-                                             then ppNoInline ("k" >|< st)
-                                             else empty
-                                           )
-                                           >-< "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< @loc.t_params >#< "t" >#< "->" >#< "t"
+                                      else "k" >|< st >#< "::" >#< "K_" >|< @lhs.nt >|< "_s" >|< st >#< @loc.t_params >#< "t" >#< "->" >#< "t"
                                            >-< vlist (map (\(v,f,t) -> "k" >|< st >#< "K_" >|< @lhs.nt >|< "_v" >|< v >#< "="
                                                                   >#< "v" >|< v) $ @loc.stvisits st)
                 loc.stvisits = \st -> filter (\(v,f,t) -> f == st) @visits.allvisits
@@ -702,9 +756,11 @@ SEM EProduction
 {
 mklet :: (PP a, PP b, PP c) => a -> b -> c -> PP_Doc
 mklet prefix defs body =
-  prefix >#< "let"
-  >-< indent 3 defs
-  >-< indent 2 "in" >#< body
+  prefix
+  >-< indent (length (show prefix))
+    ("let"
+     >-< indent 4 defs
+     >-< "in" >#< body)
 }
 
 -------------------------------------------------------------------------------
@@ -715,29 +771,22 @@ ATTR Visits [ | | sem_visit USE {:} {[]} : { [(StateIdentifier,Bool -> PP_Doc)] 
 
 SEM Visit
   | Visit lhs.sem_visit = ( @from
-                          , \addInlinePragma ->
-                               ( if noInlinePragmas @lhs.options
-                                 then empty
-                                 else if addInlinePragma && aggressiveInlinePragmas @lhs.options
-                                      then ppInline @loc.vname
-                                      else if helpInlining @lhs.options
-                                           then ppNoInline @loc.vname
-                                           else empty
-                               )
-                               >-< "v" >|< @ident >#< "::" >#< @loc.nameT_visit >#< @loc.t_params
+                          , \_ ->
+                               -- TODO: Generate type signature "v" >|< @ident >#< "::" >#< @loc.nameTIn_visit >#< "->" >#< @loc.nameT_visit >#< @loc.t_params >-< 
 
-                                      -- generate a lambda here as well instead of a function definition
-                               >-< "v" >|< @ident >#< "=" >#< "\\" >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
+                                      -- Haskell: generate a lambda here as well instead of a function definition
+                              -- >-< "v" >|< @ident >#< "=" >#< "\\" >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats))
+                              -- Clean: generate a function
+                               "v" >|< @ident >#< (@loc.addbang $ pp_parens (@loc.nameTIn_visit >#< @loc.inhpats)) >#< "="
                                >#< ( if dummyTokenVisit @lhs.options
                                      then pp $ dummyPat @lhs.options True  -- extra (but unused) argument
                                      else empty
                                    )
-                               >#< "->"
-                               >#< ( if genCostCentres @lhs.options
-                                     then ppCostCentre (@loc.vname >|< "_" >|< @lhs.nt >|< "_" >|< @lhs.con)
-                                     else empty
-                                   ) >#< "(" >#< @loc.stepsInitial
-                               >-< indent 3 (@steps.sem_steps >-< @loc.stepsClosing >#< ")")
+                               -- >#< "->"
+                               -- >#< "("
+                               >-< indent 10 (@loc.stepsInitial
+                               >-< indent 4 @steps.sem_steps) >-< indent 10 @loc.stepsClosing
+                               -- >#< ")"
                           )
           loc.stepsInitial = case @kind of
                                VisitPure False -> text "let"
@@ -746,14 +795,14 @@ SEM Visit
           loc.stepsClosing  = let decls =  @loc.nextStBuild
                                            >-<  @loc.addbang (pp resultValName) >#< "=" >#< @loc.resultval
                               in case @kind of
-                                   VisitPure False -> decls
+                                   VisitPure False -> indent 4 decls
                                                       >-< "in" >#< resultValName
                                    VisitPure True  -> "let" >#< decls
                                                       >-< indent 1 ("in" >#< resultValName)
                                    VisitMonadic    -> "let" >#< decls
-                                                      >-< "return" >#< resultValName
+                                                      >-< "lift" >#< resultValName
           loc.vname     = "v" >|< @ident
-          loc.inhpats   = ppSpaced $ map (\arg -> {-@loc.addbang $-} pp $ attrname @lhs.options True _LHS arg) $ Set.toList @inh
+          loc.inhpats   = ppSpaced $ map (\arg -> pp $ attrname @lhs.options True _LHS arg) $ Set.toList @inh
           loc.inhargs   = \chn -> ppSpaced $ map (attrname @lhs.options False chn) $ Set.toList @inh
           loc.synargs   = ppSpaced $ map (\arg -> attrname @lhs.options False _LHS arg) $ Set.toList @syn
           loc.nextargsMp = maybe Map.empty id $ Map.lookup @to @lhs.allintramap
@@ -767,10 +816,10 @@ SEM Visit
 
 {
 resultValName :: String
-resultValName = "__result_"
+resultValName = "ag__result_"
 
 nextStName :: String
-nextStName = "__st_"
+nextStName = "ag__st_"
 }
 
 -- Propagate the visit kind to the steps
@@ -798,28 +847,18 @@ SEM VisitStep
                                                        Left e           -> (Seq.singleton e, empty, empty)
                                                        Right (pat,expr) -> (Seq.empty, pat, expr)
 
-               loc.useParallel = @lhs.useParallel && not @lhs.isLast
-               lhs.sem_steps = if @loc.useParallel  -- assumes to be in a monadic do-expression
-                               then @loc.addbang ("sync_" >|< @lhs.index) >#< "<- newEmptyMVar"
-                                    >-< "forkIO" >#< pp_parens (@loc.convToMonad >#< pp_parens @loc.exprPP >#< ">>= \\" >#< @loc.addbang (pp parResultName) >#< " -> putMVar sync_" >|< @lhs.index >#< parResultName)  -- parResultName is guaranteed to be evaluated
-                               else let decl = case @lhs.kind of
-                                                 VisitPure _  -> @loc.patPP >#< "=" >#< @loc.exprPP
-                                                 VisitMonadic -> @loc.patPP >#< "<-" >#< @loc.exprPP
-                                    in fmtDecl False @lhs.fmtMode decl
+               lhs.sem_steps = let decl = case @lhs.kind of
+                                            VisitPure _  -> @loc.patPP >#< "=" >#< @loc.exprPP
+                                            VisitMonadic -> @loc.exprPP >#< ">>= \\" >#< @loc.patPP >#< "->"
+                               in fmtDecl False @lhs.fmtMode decl
                loc.convToMonad = case @loc.callKind of
-                                   VisitPure _  -> text "return"
+                                   VisitPure _  -> text "lift"
                                    VisitMonadic -> empty
                loc.callKind  = Map.findWithDefault (error "visit kind should be in the map") @visit @lhs.allVisitKinds
-  | Sim        lhs.sem_steps = @steps.sem_steps >-< @steps.sync_steps
+  | Sim        lhs.sem_steps = @steps.sem_steps
   | PureGroup  lhs.sem_steps = case @lhs.fmtMode of
                                  FormatDo -> "let" >#< @steps.sem_steps  -- formatted as a let-block (not a line-let)
                                  _        -> @steps.sem_steps
-
-ATTR VisitSteps VisitStep [ | | sync_steps USE {>-<} {empty} : {PP_Doc} ]
-SEM VisitStep | ChildVisit
-  lhs.sync_steps = if @loc.useParallel
-                   then @loc.patPP >#< "<-" >#< "takeMVar sync_" >|< @lhs.index
-                   else empty
 
 -- The fmtMode indicates in what kind of expression (do/let/line-lets) we are printing
 -- declarations, because that determines how we need to wrap declarations
@@ -844,7 +883,7 @@ fmtDecl :: PP a => Bool -> FormatMode -> a -> PP_Doc
 fmtDecl declPure fmt decl = case fmt of
   FormatLetDecl -> pp decl
   FormatLetLine -> "let" >#< decl >#< "in"
-  FormatDo | declPure  -> "let" >#< decl
+  FormatDo | declPure  -> "let" >#< decl >#< "in"
            | otherwise -> pp decl
 }
 
@@ -879,15 +918,6 @@ SEM Visit | Visit    steps.index = 0
 SEM VisitStep | Sim  steps.index = 0
                      lhs.index   = @lhs.index  -- needed for if we ever allow nested Sims
 
--- Biggest number of steps in previous blocks that used parallel invocation
--- This number - 1 (minimum 0) is the number of references for parallel invocation created
-ATTR VisitSteps VisitStep [ | prevMaxSimRefs : Int | ]
-SEM Visit | Visit    steps.prevMaxSimRefs = 0
-SEM VisitStep | Sim
-  lhs.prevMaxSimRefs = if @loc.useParallel
-                       then @lhs.prevMaxSimRefs `max` (@steps.index - 1)  -- possibly new references made
-                       else @lhs.prevMaxSimRefs                           -- no references created
-
 -- Is this the last step?
 ATTR VisitSteps VisitStep [ | | isLast : Bool ]
 ATTR VisitStep [ isLast : Bool | | ]
@@ -896,10 +926,7 @@ SEM VisitSteps
   | Cons  lhs.isLast = False
           hd.isLast  = @tl.isLast
 
--- Use parallel invocation: only when option enabled and there is more than one visit to a child
-SEM VisitSteps VisitStep [ useParallel : Bool | | ]
-SEM Visit | Visit    steps.useParallel = False
-SEM VisitStep | Sim  loc.useParallel = parallelInvoke @lhs.options && @steps.size > 1 && @loc.isMonadic
+SEM VisitStep | Sim
                      loc.isMonadic   = case @lhs.kind of
                                          VisitMonadic -> True
                                          _            -> False
@@ -942,7 +969,7 @@ SEM EChild
                                           decl      = case kind of
                                                         VisitPure False -> pat >#< "=" >#< runAttach
                                                         VisitPure True  -> patStrict >#< "=" >#< runAttach
-                                                        VisitMonadic    -> patStrict >#< "<-" >#< attach
+                                                        VisitMonadic    -> attach >#< ">>= \\" >#< patStrict >#< "->"
                                       in if compatibleAttach kind @loc.nt @lhs.options
                                          then Right ( fmtDecl False fmtMode decl
                                                     , Set.singleton (stname @name @loc.initSt)  -- variables defined by the child intro
@@ -964,7 +991,7 @@ SEM EChild
 
 {
 stname :: Identifier -> Int -> String
-stname child st = "_" ++ getName child ++ "X" ++ show st
+stname child st = "st_" ++ getName child ++ "X" ++ show st
 
 -- should actually return some conversion info
 compatibleAttach :: VisitKind -> NontermIdent -> Options -> Bool
@@ -972,8 +999,8 @@ compatibleAttach _ _ _ = True
 
 unMon :: Options -> PP_Doc
 unMon options
-  | parallelInvoke options = text "System.IO.Unsafe.unsafePerformIO"    -- IO monad
-  | otherwise              = text "Control.Monad.Identity.runIdentity"  -- identity monad
+  | parallelInvoke options = text "'System.IO.Unsafe'.unsafePerformIO"    -- IO monad
+  | otherwise              = text "'Control.Monad.Identity'.runIdentity"  -- identity monad
 }
 
 -- rules
@@ -983,49 +1010,25 @@ ATTR ERules ERule [ | | sem_rules USE {>-<} {empty} : {PP_Doc}
 SEM ERule | ERule
      lhs.sem_rules    = if @loc.used == 0
                         then empty
-                        else @loc.rulePragma >-< @loc.rulecode
+                        else @loc.rulecode
      loc.rulecode     = ( if @loc.genpragma
                           then @loc.pragma  -- this additional pragma *may* help to give some AG source location in the presence of
                                             -- type errors in the rule. It will definitely not be precise, and may take some additional
                                             -- source space, but let's see if it's worth it in practice.
                           else empty
                         )
-                        >-< @loc.lambda >#< @loc.scc
+                        >-< @loc.lambda
                         >-< indent ((column @rhs.pos - 2) `max` 2)
                               ( if @loc.genpragma
                                 then @loc.pragma >-< @rhs.semfunc >-< @loc.endpragma
                                 else @rhs.semfunc
                               )
-      loc.rulePragma   = ( let reallyInlineStr   = "INLINE"
-                               reallyNoInlineStr = "NOINLINE"
-                           in  if noInlinePragmas @lhs.options
-                               then empty
-                               else if @loc.used == 1
-                                    then ppPragmaBinding reallyInlineStr @name  -- always inline if used exactly once
-                                    else if helpInlining @lhs.options
-                                         then if not @explicit && @loc.used <= reallyOftenUsedThreshold
-                                              then ppPragmaBinding "INLINE[1]" @name  -- inline if copy rule
-                                              else if @loc.used > ruleInlineThresholdSoft && @explicit  -- noinline if it passes the threshold and is not a copy rule
-                                                   then if @loc.used > ruleInlineThresholdHard
-                                                        then ppPragmaBinding reallyNoInlineStr @name    -- used too often: force ghc not to inline it
-                                                        else if aggressiveInlinePragmas @lhs.options
-                                                             then ppPragmaBinding "NOINLINE[2]" @name -- allow inlining but only late in the process
-                                                             else ppNoInline @name
-                                                   else if aggressiveInlinePragmas @lhs.options
-                                                        then ppPragmaBinding "NOINLINE[1]" @name  -- otherwise, let GHC decide (but do other inlining first)
-                                                        else ppNoInline @name
-                                         else if not @explicit || @loc.used <= ruleInlineThresholdSoft
-                                              then ppPragmaBinding "NOINLINE[1]" @name  -- otherwise, let GHC decide (but do other inlining first)
-                                              else ppNoInline @name
-                             )
-      loc.scc          = if genCostCentres @lhs.options && @explicit && @pure && not (noPerRuleCostCentres @lhs.options)
-                         then ppCostCentre (@name >|< "_" >|< line @rhs.pos >|< "_" >|< @lhs.nt >|< "_" >|< @lhs.con)
-                         else empty
-      loc.pragma       = "{-# LINE" >#< show (line @rhs.pos) >#< show (file @rhs.pos) >#< "#-}"
-      loc.endpragma    = ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show @lhs.mainFile ++ "#-}")
+      loc.pragma       = "/*# LINE" >#< show (line @rhs.pos) >#< show (file @rhs.pos) >#< "#*/"
+      loc.endpragma    = ppWithLineNr (\ln -> "/*# LINE " ++ show (ln+1) ++ " " ++ show @lhs.mainFile ++ "#*/")
       loc.genpragma    = genLinePragmas @lhs.options && @explicit && @loc.haspos
       loc.haspos       = line @rhs.pos > 0 && column @rhs.pos >= 0 && not (null (file @rhs.pos))
 
+        -- This comment describes the Haskell rationale for lambdas
         -- we generate a simple pattern binding because of overloading-resolving during the type inference process.
         -- The types of the rules are not generalized (nor do we want that - rules are used in a single typing-context).
         -- If overloading is resolved separately, it may not be clear which dictionaries to use. For that all rules have
@@ -1033,34 +1036,37 @@ SEM ERule | ERule
         -- of a function definition.
         -- Note: we also ensure that all rules are lambda expressions, so that they are not made part of any closures
         -- but are lambda-lifted instead.
-      loc.lambda       = @name >#< "=" >#< "\\" >#< @loc.argPats >#< dummyPat @lhs.options (Map.null @rhs.attrs) >#< "->"
+      -- loc.lambda       = @name >#< "=" >#< "\\" >#< @loc.argPats >#< dummyPat @lhs.options (Map.null @rhs.attrs) >#< "->"
+      
+      -- For Clean, we do not want to generate lambdas, but functions instead
+      loc.lambda       = @name >#< @loc.argPats >#< dummyPat @lhs.options (Map.null @rhs.attrs) >#< "="
 
       loc.argPats      = ppSpaced [ let match | str `Set.member` @lhs.lazyIntras = pp str
                                               | otherwise                        = @loc.addbang1 (pp str)
                                     in case mbAttr of
                                          Just (AttrSyn child nm) | child == _LOC && not (noPerStateTypeSigs @lhs.options) ->
                                            case Map.lookup nm @lhs.localAttrTypes of
-                                             Just tp -> pp_parens (pp_parens match >#< "::" >#< ppTp tp)
+                                             Just tp -> pp_parens (pp_parens match) -- TODO Remove? >#< "::" >#< ppTp tp)
                                              Nothing -> match
                                          Just attr | not (noPerRuleTypeSigs @lhs.options) ->
                                            case lookupAttrType attr @lhs.allInhmap @lhs.allSynmap @lhs.childTypes of
-                                             Just tpDoc -> pp_parens (pp_parens match >#< "::" >#< tpDoc)
+                                             Just tpDoc -> pp_parens (pp_parens match) -- TODO Remove? >#< "::" >#< tpDoc)
                                              Nothing    -> match
                                          _ -> match
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
       loc.argExprs     = ppSpaced [ case mbAttr of
-      		       	 	       Nothing -> "arg_" >|< str
-				       _       -> text str
+                                      Nothing -> "arg_" >|< str
+                                      _       -> text str
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
       loc.stepcode     = \kind fmtMode -> if kind `compatibleRule` @pure
                                           then Right $ let oper | @pure     = "="
-                                                                | otherwise = "<-"
+                                                                | otherwise = "<-" -- TODO Desugar
                                                            decl = @pattern.sem_lhs >#< oper >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options (Map.null @rhs.attrs)
-							   tp   = if @pure && not (noPerRuleTypeSigs @lhs.options)
-							   	  then @pattern.attrTypes
-								  else empty
+                                                           tp   = if @pure && not (noPerRuleTypeSigs @lhs.options)
+                                                                    then @pattern.attrTypes
+                                                                    else empty
                                                        in fmtDecl @pure fmtMode (tp >-< decl)
                                           else Left $ IncompatibleRuleKind @name kind
 
@@ -1075,8 +1081,8 @@ dummyPat :: Options -> Bool -> PP_Doc
 dummyPat opts noArgs
   | not noArgs && tupleAsDummyToken opts = empty  -- no unnecessary tuples
   | tupleAsDummyToken opts = if strictDummyToken opts
-                             then text "()"
-                             else text "(_ :: ())"
+                             then text "Void"
+                             else text "(_)"
   | otherwise              = let match | strictDummyToken opts = "!_"
                                        | otherwise             = "_"
                              in pp_parens (match >#< "::" >#< dummyType opts noArgs)
@@ -1086,13 +1092,13 @@ dummyPat opts noArgs
 dummyArg :: Options -> Bool -> PP_Doc
 dummyArg opts noArgs
   | not noArgs && tupleAsDummyToken opts = empty    -- no unnecessary tuples
-  | tupleAsDummyToken opts = text "()"
+  | tupleAsDummyToken opts = text "Void"
   | otherwise              = text "GHC.Prim.realWorld#"
 
 dummyType :: Options -> Bool -> PP_Doc
 dummyType opts noArgs
   | not noArgs && tupleAsDummyToken opts = empty     -- no unnecessary tuples
-  | tupleAsDummyToken opts = text "()"
+  | tupleAsDummyToken opts = text "Void"
   | otherwise              = text "(GHC.Prim.State# GHC.Prim.RealWorld)"
 }
 
@@ -1150,8 +1156,9 @@ SEM Pattern | Alias
 		  else if @field == _LOC
 		       then Map.lookup @attr @lhs.localAttrTypes
 		       else Nothing
-  lhs.attrTypes = maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
-  		  >-< @pat.attrTypes
+  lhs.attrTypes = empty -- Don't generate these type signatures; increases performance in Clean
+                  -- maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
+  		            -- >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
@@ -1235,7 +1242,7 @@ SEM Visit
                               expr  = case (kind, @kind) of
                                         (VisitPure _,  VisitPure _)  -> expr0
                                         (VisitPure _,  VisitMonadic) -> unMon @lhs.options >#< expr0
-                                        (VisitMonadic, VisitPure _)  -> "return" >#< expr0
+                                        (VisitMonadic, VisitPure _)  -> "lift" >#< expr0
                                         (VisitMonadic, VisitMonadic) -> expr0
                               expr0 = case @loc.prevVisitInfo of
                                         NoneVis  -> error "error: invocation of a visit from a state that has no next visits"
@@ -1407,7 +1414,7 @@ SEM HsToken
 SEM HsToken [ || tok:{(Pos,String)}]
    | AGField
        loc.addTrace = case @rdesc of
-                        Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ " (" ++ x ++ "))"
+                        Just d  -> \x -> "(trace_n " ++ show (d ++ " -> " ++ show @field ++ "." ++ show @attr) ++ " (" ++ x ++ "))"
                         Nothing -> id
        lhs.tok = (@pos, @loc.addTrace $ attrname @lhs.options True @field @attr)
 
@@ -1433,19 +1440,9 @@ SEM ExecutionPlan
                                            @loc.genCommonModule
                                            @nonts.genProdIO
                   loc.mainModuleFile  = @lhs.mainFile
-                  loc.ppMonadImports  = ( if tupleAsDummyToken @lhs.options
-                                          then empty
-                                          else pp "import GHC.Prim"
-                                        )
-                                        >-< if parallelInvoke @lhs.options
-                                            then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
-                                                 >-< pp "import System.IO(IO)"
-                                                 >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
-                                            else pp "import Control.Monad.Identity"
+                  loc.ppMonadImports  = pp "import qualified Control.Monad.Identity"
                   loc.genMainModule   = writeModule @loc.mainModuleFile
-                                          ( [ warrenFlagsPP @lhs.options
-                                            , pp $ @lhs.pragmaBlocks
-                                            , pp $ @lhs.moduleHeader @lhs.mainName "" "" False
+                                          ( [ pp $ @lhs.iclModuleHeader @lhs.mainName "" "" False
                                             , @loc.ppMonadImports
                                             , pp $ "import " ++ @lhs.mainName ++ "_common"
                                             ]
@@ -1456,9 +1453,7 @@ SEM ExecutionPlan
                                           )
                   loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
                   loc.genCommonModule = writeModule @loc.commonFile
-                                          ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs #-}"  -- the common module only needs GADTs and Rank2Types
-					    , pp $ @lhs.pragmaBlocks
-                                            , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
+                                          ( [ pp $ @lhs.iclModuleHeader @lhs.mainName "_common" "" True
                                             , @loc.ppMonadImports
                                             , @lhs.importBlocks
                                             , @lhs.textBlocks
@@ -1472,14 +1467,14 @@ ATTR ENonterminals [ | | appendCommon, appendMain USE {:} {[]} : {[PP_Doc]} ]
 
 SEM ENonterminal
   | ENonterminal lhs.appendMain   = (if @nt `Set.member` @lhs.wrappers
-                                     then     @loc.wr_inh
-                                          >-< @loc.wr_syn
-                                          >-< @loc.wrapper
+                                     then     @loc.wr_inh_icl
+                                          >-< @loc.wr_syn_icl
+                                          >-< @loc.wrapper_icl
                                      else empty)
                                     >-< @loc.sem_nt
                  lhs.appendCommon = (if dataTypes @lhs.options then @loc.datatype else empty)
-                                    >-< @loc.t_init
-                                    >-< @loc.t_states
+                                    >-< @loc.t_init_icl
+                                    >-< @loc.t_states_icl
                                     >-< @loc.k_states
                                     >-< @prods.t_visits
 
@@ -1490,23 +1485,13 @@ ATTR EProduction EProductions
 SEM EProduction
   | EProduction lhs.imports    = [pp $ "import " ++ @loc.moduleName]
                 loc.moduleName = @lhs.mainName ++ @loc.suffix
-                loc.suffix     = "_" ++ show @lhs.nt ++ "_" ++ show @con
+                loc.suffix     = '_' : show @lhs.nt ++ ('_' : show @con)
                 loc.outputfile = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ @loc.suffix)
-                loc.ppMonadImports  = if parallelInvoke @lhs.options
-                                      then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
-                                           >-< pp "import System.IO(IO)"
-                                           >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
-                                      else pp "import Control.Monad.Identity"
+                loc.ppMonadImports  = pp "import qualified Control.Monad.Identity"
                 lhs.genProdIO  = writeModule @loc.outputfile
-                                     [ warrenFlagsPP @lhs.options
-                                     , pp $ @lhs.pragmaBlocks
-                                     , pp $ @lhs.moduleHeader @lhs.mainName @loc.suffix @loc.semname True
+                                     [ pp $ @lhs.iclModuleHeader @lhs.mainName @loc.suffix @loc.semname True
                                      , @lhs.importBlocks
                                      , @loc.ppMonadImports
-                                     , ( if tupleAsDummyToken @lhs.options
-                                            then empty
-                                            else pp "import GHC.Prim"  -- need it to pass State#
-                                      )
                                      , pp $ "import " ++ @lhs.mainName ++ "_common"
                                      , @loc.sem_prod
                                      ]
@@ -1528,6 +1513,47 @@ writeModule path docs
   where
     output = renderDocs docs
     dumpIt = writeFile path output
+
+cleanIclModuleHeader :: Options -> String -> String
+cleanIclModuleHeader flags input
+ = case moduleName flags
+   of Name nm -> genMod nm
+      Default -> genMod (defaultModuleName input)
+      NoName  -> ""
+   where genMod x = "implementation module " ++ x 
+
+cleanDclModuleHeader :: Options -> String -> Maybe String -> String
+cleanDclModuleHeader flags input export
+ = case moduleName flags
+   of Name nm -> genMod nm
+      Default -> genMod (defaultModuleName input)
+      NoName  -> ""
+   where genMod x = "definition module " ++ x ++ genExp export x
+         genExp Nothing _ = ""
+         genExp (Just e) x = "(module " ++ x ++ ", module " ++ e ++ ")"
+
+defaultModuleName :: String -> String
+defaultModuleName = dropExtension
+
+mkIclModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> Bool -> String
+mkIclModuleHeader Nothing defaultName suffix _ _
+  = "implementation module " ++ defaultName ++ suffix
+mkIclModuleHeader (Just (name, exports, imports)) _ suffix addExports replaceExports
+  = "implementation module " ++ name ++ suffix ++ "\n" ++ imports ++ "\n"
+
+mkDclModuleHeader :: Maybe (String,String,String) -> String -> String -> String -> Bool -> String
+mkDclModuleHeader Nothing defaultName suffix _ _
+  = "definition module " ++ defaultName ++ suffix
+mkDclModuleHeader (Just (name, exports, _)) _ suffix addExports replaceExports
+  = "definition module " ++ name ++ suffix ++ ex ++ "\n"
+  where
+    ex  = if null exports || (replaceExports && null addExports)
+          then ""
+          else if null addExports
+               then exports
+               else if replaceExports
+                    then addExports
+                    else exports ++ "," ++ addExports
 }
 
 
@@ -1656,45 +1682,3 @@ SEM ERule | ERule
                  Just e | @loc.used > 0 -> Seq.singleton e
                  _                      -> Seq.empty
 
-
--- Some pretty printing utility functions
-{
-ppNoInline :: PP a => a -> PP_Doc
-ppNoInline = ppPragmaBinding "NOINLINE"
-
-ppInline :: PP a => a -> PP_Doc
-ppInline = ppPragmaBinding "INLINE"
-
-ppInlinable :: PP a => a -> PP_Doc
-ppInlinable = ppPragmaBinding "INLINABLE"
-
-ppPragmaBinding :: (PP a, PP b) => a -> b -> PP_Doc
-ppPragmaBinding pragma nm = "{-#" >#< pragma >#< nm >#< "#-}"
-
-ppCostCentre :: PP a => a -> PP_Doc
-ppCostCentre nm = "{-#" >#< "SCC" >#< "\"" >|< nm >|< "\"" >#< "#-}"
-
-warrenFlagsPP :: Options -> PP_Doc
-warrenFlagsPP options = vlist
-  [ pp "{-# LANGUAGE Rank2Types, GADTs #-}"
-  , if bangpats options
-    then pp "{-# LANGUAGE BangPatterns #-}"
-    else empty
-  , if noPerRuleTypeSigs options && noPerStateTypeSigs options
-    then empty
-    else pp "{-# LANGUAGE ScopedTypeVariables #-}"
-  , if tupleAsDummyToken options
-    then empty
-    else pp "{-# LANGUAGE ScopedTypeVariables, MagicHash #-}"
-  , -- not that the meaning of "unbox" is here that strict fields in data types may be
-    -- unboxed if possible. This may affect user-defined data types declared in the module.
-    -- Unfortunately, we cannot turn it on for only the AG generated data types without
-    -- causing a zillion of warnings.
-    if unbox options && bangpats options
-        then pp $ "{-# OPTIONS_GHC -funbox-strict-fields -fstrictness #-}"
-        else empty
-  , if parallelInvoke options && not (noEagerBlackholing options)
-    then pp $ "{-# OPTIONS_GHC -feager-blackholing #-}"
-    else empty
-  ]
-}
